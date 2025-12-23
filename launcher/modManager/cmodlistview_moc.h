@@ -61,6 +61,7 @@ class CModListView : public QWidget
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
+	QString getRepoUrl(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 
@@ -73,7 +74,7 @@ public:
 	void loadScreenshots();
 	void loadRepositories();
 
-	void reload();
+	void reload(const QString& modToSelect = QString());
 
 	void disableModInfo();
 
@@ -101,6 +102,9 @@ public:
 
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
+
+	/// finds imported HD
+	bool isInstalledHd();
 
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();
@@ -147,7 +151,7 @@ private slots:
 	void on_updateButton_clicked();
 	void on_uninstallButton_clicked();
 	void on_installButton_clicked();
-	void on_pushButton_clicked();
+	void on_abortButton_clicked();
 	void on_refreshButton_clicked();
 	void on_allModsView_activated(const QModelIndex & index);
 	void on_tabWidget_currentChanged(int index);

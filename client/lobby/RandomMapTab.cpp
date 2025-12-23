@@ -14,11 +14,12 @@
 #include "CLobbyScreen.h"
 #include "SelectionTab.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
@@ -26,6 +27,8 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/CTextInput.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
@@ -43,26 +46,21 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 
 RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+	InterfaceObjectConfigurable(),
+	templateIndex(0)
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	addCallback("toggleMapSize", [&](int btnId)
+	addCallback("toggleMapSize", [this](int btnId)
 	{
-		auto mapSizeVal = getPossibleMapSizes();
-		mapGenOptions->setWidth(mapSizeVal[btnId]);
-		mapGenOptions->setHeight(mapSizeVal[btnId]);
-		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
-				setTemplate(nullptr);
-		updateMapInfoByHost();
+		onToggleMapSize(btnId);
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
-		mapGenOptions->setHasTwoLevels(on);
+		mapGenOptions->setLevels(on ? 2 : 1);
 		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
 		updateMapInfoByHost();
 	});
@@ -111,10 +109,10 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.windows().createAndPushWindow<TeamAlignments>(*this);
+		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 	
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
@@ -140,16 +138,18 @@ RandomMapTab::RandomMapTab():
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{
-		w->onConstructItems = [](std::vector<const void *> & curItems){
-			auto templates = VLC->tplh->getTemplates();
-		
+		auto getTemplates = [](){
+			auto templates = LIBRARY->tplh->getTemplates();
 			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
 			});
+			return templates;
+		};
 
+		w->onConstructItems = [getTemplates](std::vector<const void *> & curItems){
 			curItems.push_back(nullptr); //default template
 			
-			for(auto & t : templates)
+			for(auto & t : getTemplates())
 				curItems.push_back(t);
 		};
 		
@@ -164,14 +164,83 @@ RandomMapTab::RandomMapTab():
 				return readText(variables["randomTemplate"]);
 			return std::string("");
 		};
+
+		w->addCallback([this, getTemplates]() // no real dropdown... - instead open dialog
+		{
+			std::vector<std::string> texts;
+			std::vector<std::string> popupTexts;
+			texts.push_back(readText(variables["randomTemplate"]));
+			popupTexts.push_back("");
+
+			auto selectedTemplate = mapGenOptions->getMapTemplate();
+			const auto& templates = getTemplates();
+			for(int i = 0; i < templates.size(); i++)
+			{
+				if(selectedTemplate)
+				{
+					if(templates[i]->getId() == selectedTemplate->getId())
+						templateIndex = i + 1;
+				}
+				else
+					templateIndex = 0;
+
+				texts.push_back(templates[i]->getName());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
+			}
+
+			ENGINE->windows().popWindows(1);
+			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
+				widget<ComboBox>("templateList")->setItem(index);
+			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true, true);
+			window->onPopup = [popupTexts](int index){
+				if(!popupTexts[index].empty())
+					CRClickPopup::createAndPush(popupTexts[index]);
+			};
+			ENGINE->windows().pushWindow(window);
+		});
 	}
 	
 	loadOptions();
 }
 
+void RandomMapTab::onToggleMapSize(int btnId)
+{
+	if(btnId == -1)
+		return;
+
+	auto mapSizeVal = getStandardMapSizes();
+
+	auto setTemplateForSize = [this](){
+		if(mapGenOptions->getMapTemplate())
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
+				setTemplate(nullptr);
+		updateMapInfoByHost();
+	};
+
+	if(btnId == mapSizeVal.size() - 1)
+	{
+		ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), mapGenOptions->getMapTemplate(), [this, setTemplateForSize](int3 ret){
+			if(ret.z > 2)
+			{
+				std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
+				ENGINE->windows().pushWindow(temp);
+			}
+			mapGenOptions->setWidth(ret.x);
+			mapGenOptions->setHeight(ret.y);
+			mapGenOptions->setLevels(ret.z);
+			setTemplateForSize();
+		});
+		return;
+	}
+
+	mapGenOptions->setWidth(mapSizeVal[btnId]);
+	mapGenOptions->setHeight(mapSizeVal[btnId]);
+	setTemplateForSize();
+}
+
 void RandomMapTab::updateMapInfoByHost()
 {
-	if(CSH->isGuest())
+	if(GAME->server().isGuest())
 		return;
 
 	// Generate header info
@@ -182,6 +251,9 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 
+	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
+		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
+
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
@@ -191,12 +263,18 @@ void RandomMapTab::updateMapInfoByHost()
 			auto description = std::string("\n\n") + randomTemplateDescription;
 			mapInfo->mapHeader->description.appendRawString(description);
 		}
+
+		for (const auto & hero : temp->getBannedHeroes())
+			mapInfo->mapHeader->allowedHeroes.erase(hero);
+
+		for (const auto & hero : temp->getEnabledHeroes())
+			mapInfo->mapHeader->allowedHeroes.insert(hero);
 	}
 
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
+	mapInfo->mapHeader->mapLevels = mapGenOptions->getLevels();
 
 	// Generate player information
 	int playersToGen = mapGenOptions->getMaxPlayersCount();
@@ -229,7 +307,7 @@ void RandomMapTab::updateMapInfoByHost()
 		playerInfo.team = team;
 		playerInfo.hasMainTown = true;
 		playerInfo.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[player.first] = playerInfo;
+		mapInfo->mapHeader->players[player.first.getNum()] = playerInfo;
 		vstd::erase(availableColors, player.first);
 	}
 
@@ -310,27 +388,30 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
 	{
+		const auto & mapSizes = getStandardMapSizes();
 		for(auto toggle : w->buttons)
 		{
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 			{
-				const auto & mapSizes = getPossibleMapSizes();
-				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], 1 + mapGenOptions->getHasTwoLevels());
+				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], mapGenOptions->getLevels());
 
 				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-				button->block(!sizeAllowed);
+				button->block(!sizeAllowed && !(toggle.first == mapSizes.size() - 1));
 			}
 		}
-		w->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
+		auto position = vstd::find_pos(getStandardMapSizes(), opts->getWidth());
+		w->setSelected(position == mapSizes.size() - 1 || opts->getWidth() != opts->getHeight() ? -1 : position);
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
-		int3 size( opts->getWidth(), opts->getWidth(), 2);
-
-		bool undergoundAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-
-		w->setSelected(opts->getHasTwoLevels());
-		w->block(!undergoundAllowed);
+		int possibleLevelCount = 2;
+		if(mapGenOptions->getMapTemplate())
+		{
+			auto sizes = mapGenOptions->getMapTemplate()->getMapSizes();
+			possibleLevelCount = sizes.second.z - sizes.first.z + 1;
+		}
+		w->setSelectedSilent(opts->getLevels() == 2);
+		w->block(possibleLevelCount < 2);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{
@@ -372,7 +453,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(const auto & r : VLC->roadTypeHandler->objects)
+	for(const auto & r : LIBRARY->roadTypeHandler->objects)
 	{
 		// Workaround for vcmi-extras bug
 		std::string jsonKey = r->getJsonKey();
@@ -396,6 +477,15 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
+
+	if(auto w = widget<ComboBox>("templateList"))
+	{
+		if(tmpl)
+			w->setTextOverlay(tmpl->getName(), EFonts::FONT_SMALL, Colors::WHITE);
+		else
+			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
+	}
+
 	updateMapInfoByHost();
 }
 
@@ -420,7 +510,7 @@ void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<in
 	}
 }
 
-std::vector<int> RandomMapTab::getPossibleMapSizes()
+std::vector<int> RandomMapTab::getStandardMapSizes()
 {
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
@@ -489,14 +579,14 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		}
 		randomMapTab.updateMapInfoByHost();
 
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	addCallback("cancel", [&](int)
 	{
-		for(auto & window : GH.windows().findWindows<TeamAlignments>())
-			GH.windows().popWindow(window);
+		for(auto & window : ENGINE->windows().findWindows<TeamAlignments>())
+			ENGINE->windows().popWindow(window);
 	});
 	
 	build(config);
@@ -590,9 +680,11 @@ void RandomMapTab::saveOptions(const CMapGenOptions & options)
 
 void RandomMapTab::loadOptions()
 {
-	auto rmgSettings = persistentStorage["rmg"]["rmg"];
+	JsonNode rmgSettings = persistentStorage["rmg"]["rmg"];
+
 	if (!rmgSettings.Struct().empty())
 	{
+		rmgSettings.setModScope(ModScope::scopeGame());
 		mapGenOptions.reset(new CMapGenOptions());
 		JsonDeserializer handler(nullptr, rmgSettings);
 		handler.serializeStruct("lastSettings", *mapGenOptions);
@@ -613,4 +705,86 @@ void RandomMapTab::loadOptions()
 	updateMapInfoByHost();
 
 	// TODO: Save & load difficulty?
+}
+
+SetSizeWindow::SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb)
+	: CWindowObject(BORDERED)
+{
+	OBJECT_CONSTRUCTION;
+
+	pos.w = 300;
+	pos.h = 180;
+
+	updateShadow();
+	center();
+
+	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	background->setPlayerColor(PlayerColor(1));
+	buttonCancel = std::make_shared<CButton>(Point(160, 140), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this, cb](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonOk = std::make_shared<CButton>(Point(70, 140), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
+		close();
+		if(cb)
+			cb(int3(std::max(1, std::stoi(numInputs[0]->getText())), std::max(1, std::stoi(numInputs[1]->getText())), std::max(1, std::stoi(numInputs[2]->getText()))));
+	}, EShortcut::GLOBAL_ACCEPT);
+
+	int3 minSize = mapTemplate ? mapTemplate->getMapSizes().first : int3{36,36,1};
+	int3 maxSize = mapTemplate ? mapTemplate->getMapSizes().second : int3{999,999,9};
+
+	MetaString minSizeString;
+	MetaString maxSizeString;
+	minSizeString.appendTextID("vcmi.randomMapTab.template.minimalSize");
+	maxSizeString.appendTextID("vcmi.randomMapTab.template.maximalSize");
+
+	minSizeString.replaceNumber(minSize.x);
+	minSizeString.replaceNumber(minSize.y);
+	minSizeString.replaceNumber(minSize.z);
+	maxSizeString.replaceNumber(maxSize.x);
+	maxSizeString.replaceNumber(maxSize.y);
+	maxSizeString.replaceNumber(maxSize.z);
+
+	if (mapTemplate)
+	{
+		MetaString templateTitle;
+		templateTitle.appendRawString("%s: %s");
+		templateTitle.replaceTextID("vcmi.randomMapTab.widgets.templateLabel");
+		templateTitle.replaceRawString(mapTemplate->getName());
+
+		titles.push_back(std::make_shared<CLabel>(10, 40, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, templateTitle.toString()));
+	}
+
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 60, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, minSizeString.toString()));
+	sizeLabels.push_back(std::make_shared<CLabel>(10, 80, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, maxSizeString.toString()));
+
+	const auto checkTemplateSize = [this, mapTemplate](const std::string &){
+		int3 mapSize {
+			std::stoi(numInputs[0]->getText()),
+			std::stoi(numInputs[1]->getText()),
+			std::stoi(numInputs[2]->getText())
+		};
+
+		bool isSizeLegal = mapTemplate ? mapTemplate->matchesSize(mapSize) : (mapSize.x * mapSize.y >= 36*36);
+
+		buttonOk->block(!isSizeLegal);
+
+		auto labelColors = isSizeLegal ? Colors::WHITE : Colors::RED;
+
+		for (const auto & label : sizeLabels)
+			label->setColor(labelColors);
+	};
+
+	titles.push_back(std::make_shared<CLabel>(150, 15, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.title")));
+
+	for(int i = 0; i < 3; i++)
+	{
+		Rect r(10 + i * 100, 110, 80, 20);
+		rectangles.push_back(std::make_shared<TransparentFilledRectangle>(Rect(r.topLeft() - Point(0,18), r.dimensions()), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 64, 64, 64), 1));
+		rectangles.push_back(std::make_shared<TransparentFilledRectangle>(r, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1));
+		titles.push_back(std::make_shared<CLabel>(50 + i * 100, 100, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize." + std::to_string(i))));
+		numInputs.push_back(std::make_shared<CTextInput>(r, EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
+		numInputs.back()->setFilterNumber(0, i < 2 ? 999 : 9);
+		numInputs.back()->setCallback(checkTemplateSize);
+	}
+	numInputs[0]->setText(std::to_string(initSize.x));
+	numInputs[1]->setText(std::to_string(initSize.y));
+	numInputs[2]->setText(std::to_string(initSize.z));
 }

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
@@ -30,7 +30,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group, bool verbose)
 	if(auto image = getImageImpl(frame, group, false))
 		return true;
 
-	std::shared_ptr<IImage> image = GH.renderHandler().loadImage(getImageLocator(frame, group));
+	std::shared_ptr<IImage> image = ENGINE->renderHandler().loadImage(getImageLocator(frame, group));
 
 	if(image)
 	{
@@ -44,7 +44,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group, bool verbose)
 	{
 		// image is missing
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = GH.renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
+		images[group][frame] = ENGINE->renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
 		return false;
 	}
 }

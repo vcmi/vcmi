@@ -39,12 +39,12 @@
 
 /*********************** TBB.h ********************/
 
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 #include <chrono>
 
@@ -259,13 +259,13 @@ public:
 
 	void add(std::unique_ptr<T> t)
 	{
-		boost::lock_guard<boost::mutex> lock(sync);
+		std::lock_guard<std::mutex> lock(sync);
 		pool.push_back(std::move(t));
 	}
 
 	ptr_type acquire()
 	{
-		boost::lock_guard<boost::mutex> lock(sync);
+		std::lock_guard<std::mutex> lock(sync);
 		bool poolIsEmpty = pool.empty();
 		T * element = poolIsEmpty
 			? elementFactory().release()
@@ -294,7 +294,7 @@ private:
 	std::vector<std::unique_ptr<T>> pool;
 	std::function<std::unique_ptr<T>()> elementFactory;
 	std::shared_ptr<SharedPool<T> *> instance_tracker;
-	boost::mutex sync;
+	std::mutex sync;
 };
 
 }

@@ -14,11 +14,14 @@
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/texts/Languages.h"
 #include "../lib/ExceptionsCommon.h"
+
+#include "../vcmiqt/launcherdirs.h"
 
 #include "updatedialog_moc.h"
 #include "main.h"
@@ -31,10 +34,13 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifndef VCMI_MOBILE
-	console = new CConsoleHandler();
+	console = std::make_unique<CConsoleHandler>();
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+#else
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
-	logConfig.configureDefault();
+
+	logConfigurator.configureDefault();
 
 	try
 	{
@@ -95,14 +101,14 @@ MainWindow::MainWindow(QWidget * parent)
 
 #ifndef VCMI_MOBILE
 	//load window settings
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
-	auto size = s.value("MainWindow/Size").toSize();
+	auto size = s.value("MainWindow/WindowSize").toSize();
 	if(size.isValid())
 	{
 		resize(size);
 	}
-	auto position = s.value("MainWindow/Position").toPoint();
+	auto position = s.value("MainWindow/WindowPosition").toPoint();
 	if(!position.isNull())
 	{
 		move(position);
@@ -135,7 +141,7 @@ void MainWindow::detectPreferredLanguage()
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
 		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString())
+			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
 				selectedLanguage = vcmiLang.identifier;
 
 		if (!selectedLanguage.empty())
@@ -203,9 +209,9 @@ MainWindow::~MainWindow()
 {
 #ifndef VCMI_MOBILE
 	//save window settings
-	QSettings s(Ui::teamName, Ui::appName);
-	s.setValue("MainWindow/Size", size());
-	s.setValue("MainWindow/Position", pos());
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
+	s.setValue("MainWindow/WindowSize", size());
+	s.setValue("MainWindow/WindowPosition", pos());
 #endif
 
 	delete ui;
@@ -291,15 +297,9 @@ void MainWindow::manualInstallFile(QString filePath)
 			{
 				const auto configFilePath = configDir.filePath(configFile[0]);
 				QFile::remove(configFilePath);
-				QFile::copy(filePath, configFilePath);
+				Helper::performNativeCopy(filePath, configFilePath);
 
-				// reload settings
-				Helper::loadSettings();
-				for(const auto widget : qApp->allWidgets())
-					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
-						settingsView->loadSettings();
-
-				getModView()->reload();
+				Helper::reLoadSettings();
 			}
 		}
 	}

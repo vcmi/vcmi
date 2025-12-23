@@ -18,6 +18,8 @@ namespace Ui {
 class PlayerParams;
 }
 
+class QListWidgetItem;
+
 class PlayerParams : public QWidget
 {
 	Q_OBJECT

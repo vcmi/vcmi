@@ -31,7 +31,7 @@
 
 	// Type of mod, list of all possible values:
 	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", 
-	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Artifacts", "AI"
+	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources"
 	//
 	// Some mod types have additional effects on your mod:
 	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property. 
@@ -119,7 +119,16 @@ These are fields that are present only in local mod.json file
 	],
 	
 	// List of configuration files for skills
-	skills
+	"skills" :
+	[
+		"config/skills.json"
+	],
+
+	// List of configuration files for campaign regions for h3c campaigns
+	"campaignRegions" :
+	[
+		"config/campaignRegions.json"
+	],
 
 	// list of creature configuration files
 	"creatures" :

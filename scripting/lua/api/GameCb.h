@@ -11,7 +11,6 @@
 #pragma once
 
 #include <vcmi/scripting/Service.h>
-#include "../../../lib/CGameInfoCallback.h"
 
 #include "../LuaWrapper.h"
 

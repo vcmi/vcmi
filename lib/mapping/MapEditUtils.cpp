@@ -13,9 +13,11 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "CMap.h"
 #include "CMapOperation.h"
+
+#include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -118,14 +120,14 @@ void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 
 void CTerrainSelection::selectAll()
 {
-	selectRange(MapRect(int3(0, 0, 0), getMap()->width, getMap()->height));
-	selectRange(MapRect(int3(0, 0, 1), getMap()->width, getMap()->height));
+	for(int i = 0; i < getMap()->mapLevels; i++)
+		selectRange(MapRect(int3(0, 0, i), getMap()->width, getMap()->height));
 }
 
 void CTerrainSelection::clearSelection()
 {
-	deselectRange(MapRect(int3(0, 0, 0), getMap()->width, getMap()->height));
-	deselectRange(MapRect(int3(0, 0, 1), getMap()->width, getMap()->height));
+	for(int i = 0; i < getMap()->mapLevels; i++)
+		deselectRange(MapRect(int3(0, 0, i), getMap()->width, getMap()->height));
 }
 
 CObjectSelection::CObjectSelection(CMap * map) : CMapSelection(map)
@@ -272,7 +274,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
-	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
+	auto iter = terrainViewPatterns.find(LIBRARY->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
 		return terrainViewPatterns.at("normal");
 	return iter->second;

@@ -17,17 +17,16 @@
 #include "MapViewModel.h"
 #include "mapHandler.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../eventsSDL/InputHandler.h"
 
-#include "../../CCallback.h"
-
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
@@ -51,6 +50,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	: model(createModel(dimensions))
 	, tilesCache(new MapViewCache(model))
 	, controller(new MapViewController(model, tilesCache))
+	, needFullUpdate(false)
 {
 	OBJECT_CONSTRUCTION;
 	pos += offset;
@@ -76,7 +76,7 @@ void BasicMapView::tick(uint32_t msPassed)
 void BasicMapView::show(Canvas & to)
 {
 	CanvasClipRectGuard guard(to, pos);
-	render(to, false);
+	render(to, needFullUpdate);
 
 	controller->afterRender();
 }
@@ -114,10 +114,11 @@ MapView::MapView(const Point & offset, const Point & dimensions)
 
 void MapView::onMapLevelSwitched()
 {
-	if(LOCPLINT->cb->getMapSize().z > 1)
+	if(GAME->interface()->cb->getMapSize().z > 1)
 	{
-		if(model->getLevel() == 0)
-			controller->setViewCenter(model->getMapViewCenter(), 1);
+		int newLevel = model->getLevel() + 1;
+		if(newLevel < GAME->interface()->cb->getMapSize().z)
+			controller->setViewCenter(model->getMapViewCenter(), newLevel);
 		else
 			controller->setViewCenter(model->getMapViewCenter(), 0);
 	}
@@ -135,7 +136,7 @@ void MapView::onMapScrolled(const Point & distance)
 void MapView::onMapSwiped(const Point & viewPosition)
 {
 	if(settings["adventure"]["smoothDragging"].Bool())
-		swipeHistory.push_back(std::pair<uint32_t, Point>(GH.input().getTicks(), viewPosition));
+		swipeHistory.push_back(std::pair<uint32_t, Point>(ENGINE->input().getTicks(), viewPosition));
 
 	controller->setViewCenter(model->getMapViewCenter() + viewPosition, model->getLevel());
 }
@@ -148,7 +149,7 @@ void MapView::postSwipe(uint32_t msPassed)
 		{
 			Point diff = Point(0, 0);
 			std::pair<uint32_t, Point> firstAccepted;
-			uint32_t now = GH.input().getTicks();
+			uint32_t now = ENGINE->input().getTicks();
 			for (auto & x : swipeHistory) {
 				if(now - x.first < postSwipeCatchIntervalMs) { // only the last x ms are caught
 					if(firstAccepted.first == 0)

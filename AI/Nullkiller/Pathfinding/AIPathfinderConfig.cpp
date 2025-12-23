@@ -44,26 +44,26 @@ namespace AIPathfinding
 		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:PathfinderConfig(nodeStorage, cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
+		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;
-		options.useTeleportOneWay = ai->settings->isOneWayMonolithUsageAllowed();;
-		options.useTeleportOneWayRandom = ai->settings->isOneWayMonolithUsageAllowed();;
+		options.useTeleportOneWay = ai->settings->isOneWayMonolithUsageAllowed();
+		options.useTeleportOneWayRandom = ai->settings->isOneWayMonolithUsageAllowed();
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
-	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
+	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, const IGameInfoCallback & gameInfo)
 	{
 		auto hero = aiNodeStorage->getHero(source.node);
 		auto & helper = pathfindingHelpers[hero];
 
 		if(!helper)
 		{
-			helper.reset(new CPathfinderHelper(gs, hero, options));
+			helper.reset(new CPathfinderHelper(gameInfo, hero, options));
 		}
 
 		return helper.get();

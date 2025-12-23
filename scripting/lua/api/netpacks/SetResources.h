@@ -30,8 +30,6 @@ public:
 
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int getAbs(lua_State * L);
-	static int setAbs(lua_State * L);
 	static int getPlayer(lua_State * L);
 	static int setPlayer(lua_State * L);
 	static int getAmount(lua_State * L);

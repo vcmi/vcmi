@@ -18,15 +18,31 @@
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight /* = true */)
+void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
 {
-	auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+	// Get random control points from within the zone
+	auto & rng = zone.getRand();
+	const auto & tiles = zone.area()->getTilesVector();
+
+	if(tiles.size() < 2)
+	{
+		logGlobal->warn("Zone too small for curved path");
+		return;
+	}
+
+	// Pick two random control points (Q1, Q2) from zone tiles
+	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+
+	// Create Bezier cost function: Q0=start, Q1=control1, Q2=control2, Q3=src
+	auto costFunction = rmg::Path::createBezierCostFunction(src, control1, control2, zone.getPos());
+
 	auto pathArea = zone.areaForRoads();
 	rmg::Path curvedPath(pathArea);
 	curvedPath.connect(zone.freePaths().get());
@@ -54,11 +70,11 @@ rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 {
-	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
+	auto factories = LIBRARY->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
 	{
 		//TODO: Use templates with lowest number of terrains (most specific)
-		return VLC->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
+		return LIBRARY->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
 	});
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);

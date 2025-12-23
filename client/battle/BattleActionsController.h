@@ -45,7 +45,6 @@ class BattleActionsController
 	const CStack * selectedStack;
 
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
-	bool canStackMoveHere (const CStack *sactive, const BattleHex & MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
 
@@ -120,10 +119,9 @@ public:
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
-	void removePossibleAction(PossiblePlayerBattleAction);
 	
-	/// inserts possible action in the beginning in order to prioritize it
-	void pushFrontPossibleAction(PossiblePlayerBattleAction);
+	/// sets list of high-priority actions that should be selected before any other actions
+	void setPriorityActions(const std::vector<PossiblePlayerBattleAction> &);
 
 	/// resets possible actions to original state
 	void resetCurrentStackPossibleActions();

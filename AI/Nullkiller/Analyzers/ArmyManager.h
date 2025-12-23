@@ -13,7 +13,7 @@
 #include "../AIUtility.h"
 
 #include "../../../lib/GameConstants.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 
 namespace NKAI
 {

@@ -13,7 +13,8 @@
 #include "CHighScoreScreen.h"
 #include "CStatisticScreen.h"
 #include "CMainMenu.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../media/IMusicPlayer.h"
@@ -28,7 +29,6 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
-#include "../CGameInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/CConfigHandler.h"
@@ -36,10 +36,14 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/gameState/HighScore.h"
 #include "../../lib/gameState/GameStatistics.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/serializer/JsonSerializer.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
 {
+	addUsedEvents(LCLICK);
 	addUsedEvents(SHOW_POPUP);
 
 	OBJECT_CONSTRUCTION;
@@ -49,7 +53,7 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	addButtons();
 }
 
-void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
+void CHighScoreScreen::rowEvent(std::function<void(int row, bool currentGameNotInListEntry)> func, const Point & cursorPosition)
 {
 	for (int i = 0; i < screenRows; i++)
 	{
@@ -57,12 +61,31 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 
 		Rect r = Rect(80, 40 + i * 50, 635, 50);
 		if(r.isInside(cursorPosition - pos))
-		{
-			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : i]["datetime"].String();
-			if(!tmp.empty())
-				CRClickPopup::createAndPush(tmp);
-		}
+			func(i, currentGameNotInListEntry);
 	}
+}
+
+void CHighScoreScreen::clickPressed(const Point & cursorPosition)
+{
+	rowEvent([this](int row, bool currentGameNotInListEntry){
+		auto node = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : row];
+		if(node["statistic"].isNull())
+			return;
+		
+		JsonDeserializer ser(nullptr, node);
+		StatisticDataSet stat;
+		ser.serializeStruct("statistic", stat);
+		ENGINE->windows().createAndPushWindow<CStatisticScreen>(stat);
+	}, cursorPosition);
+}
+
+void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
+{
+	rowEvent([this](int row, bool currentGameNotInListEntry){
+		std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : row]["datetime"].String();
+		if(!tmp.empty())
+			CRClickPopup::createAndPush("{" + LIBRARY->generaltexth->translate("core.help.316.hover") + "}\n\n" + tmp);
+	}, cursorPosition);
 }
 
 void CHighScoreScreen::addButtons()
@@ -87,19 +110,19 @@ void CHighScoreScreen::addHighScores()
 	images.clear();
 
 	// Header
-	texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.433"))); // rank
-	texts.push_back(std::make_shared<CLabel>(225, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.434"))); // player
+	texts.push_back(std::make_shared<CLabel>(115, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.433"))); // rank
+	texts.push_back(std::make_shared<CLabel>(225, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.434"))); // player
 
 	if(highscorepage == HighScorePage::SCENARIO)
 	{
-		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.435"))); // land
-		texts.push_back(std::make_shared<CLabel>(557, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.436"))); // days
-		texts.push_back(std::make_shared<CLabel>(627, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75"))); // score
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.435"))); // land
+		texts.push_back(std::make_shared<CLabel>(557, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.436"))); // days
+		texts.push_back(std::make_shared<CLabel>(627, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.75"))); // score
 	}
 	else
 	{
-		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.672"))); // campaign
-		texts.push_back(std::make_shared<CLabel>(592, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.75"))); // score
+		texts.push_back(std::make_shared<CLabel>(405, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.672"))); // campaign
+		texts.push_back(std::make_shared<CLabel>(592, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.75"))); // score
 	}
 
 	// Content
@@ -128,7 +151,7 @@ void CHighScoreScreen::addHighScores()
 		}
 
 		if(curData["points"].Integer() > 0 && curData["points"].Integer() <= ((highscorepage == HighScorePage::CAMPAIGN) ? 2500 : 500))
-			images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(curData["points"].Integer(), highscorepage == HighScorePage::CAMPAIGN)]->getIconIndex(), 0, 670, y - 15 + i * 50));
+			images.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*LIBRARY->creh)[HighScoreCalculation::getCreatureForPoints(curData["points"].Integer(), highscorepage == HighScorePage::CAMPAIGN)]->getIconIndex(), 0, 670, y - 15 + i * 50));
 	}
 }
 
@@ -152,7 +175,7 @@ void CHighScoreScreen::buttonScenarioClick()
 void CHighScoreScreen::buttonResetClick()
 {
 	CInfoWindow::showYesNoDialog(
-		CGI->generaltexth->allTexts[666],
+		LIBRARY->generaltexth->allTexts[666],
 		{},
 		[this]()
 		{
@@ -169,12 +192,12 @@ void CHighScoreScreen::buttonResetClick()
 void CHighScoreScreen::buttonExitClick()
 {
 	close();
-	CMM->playMusic();
+	GAME->mainmenu()->playMusic();
 }
 
 void CHighScoreScreen::showAll(Canvas & to)
 {
-	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 
@@ -197,31 +220,31 @@ CHighScoreInputScreen::CHighScoreInputScreen(bool won, HighScoreCalculation calc
 		int textareaW = ((pos.w - 2 * border) / 4);
 		std::vector<std::string> t = { "438", "439", "440", "441", "676" }; // time, score, difficulty, final score, rank
 		for (int i = 0; i < 5; i++)
-			texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt." + t[i])));
+			texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 450, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt." + t[i])));
 
-		std::string creatureName = (calc.calculate().cheater) ? CGI->generaltexth->translate("core.genrltxt.260") : (*CGI->creh)[HighScoreCalculation::getCreatureForPoints(calc.calculate().total, calc.isCampaign)]->getNameSingularTranslated();
-		t = { std::to_string(calc.calculate().sumDays), std::to_string(calc.calculate().basic), CGI->generaltexth->translate("core.arraytxt." + std::to_string((142 + calc.parameters[0].difficulty))), std::to_string(calc.calculate().total), creatureName };
+		std::string creatureName = (calc.calculate().cheater) ? LIBRARY->generaltexth->translate("core.genrltxt.260") : (*LIBRARY->creh)[HighScoreCalculation::getCreatureForPoints(calc.calculate().total, calc.isCampaign)]->getNameSingularTranslated();
+		t = { std::to_string(calc.calculate().sumDays), std::to_string(calc.calculate().basic), LIBRARY->generaltexth->translate("core.arraytxt." + std::to_string((142 + calc.parameters[0].difficulty))), std::to_string(calc.calculate().total), creatureName };
 		for (int i = 0; i < 5; i++)
 			texts.push_back(std::make_shared<CMultiLineLabel>(Rect(textareaW * i + border - (textareaW / 2), 530, textareaW, 100), FONT_HIGH_SCORE, ETextAlignment::TOPCENTER, Colors::WHITE, t[i]));
  
-		CCS->musich->playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
+		ENGINE->music().playMusic(AudioPath::builtin("music/Win Scenario"), true, true);
 	}
 	else
 	{
 		videoPlayer = std::make_shared<VideoWidgetOnce>(Point(0, 0), VideoPath::builtin("LOSEGAME.SMK"), true, this);
-		CCS->musich->playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
+		ENGINE->music().playMusic(AudioPath::builtin("music/UltimateLose"), false, true);
 	}
 
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(CGI->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ GH.windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
-		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, CGI->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
+		statisticButton = std::make_shared<CButton>(Point(726, 10), AnimationPath::builtin("TPTAV02.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.statisticWindow.statistics")), [this](){ ENGINE->windows().createAndPushWindow<CStatisticScreen>(stat); }, EShortcut::HIGH_SCORES_STATISTICS);
+		texts.push_back(std::make_shared<CLabel>(716, 25, EFonts::FONT_HIGH_SCORE, ETextAlignment::CENTERRIGHT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.statisticWindow.statistics") + ":"));
 	}
 }
 
 void CHighScoreInputScreen::stopMusicAndClose()
 {
-	CMM->playMusic();
+	GAME->mainmenu()->playMusic();
 	close();
 }
 
@@ -243,13 +266,22 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	JsonNode newNode = JsonNode();
 	newNode["player"].String() = text;
 	if(calc.isCampaign)
-		newNode["campaignName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaignName;
+		newNode["campaignName"].String() = calc.calculate().cheater ? LIBRARY->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].campaignName;
 	else
-		newNode["scenarioName"].String() = calc.calculate().cheater ? CGI->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].scenarioName;
+		newNode["scenarioName"].String() = calc.calculate().cheater ? LIBRARY->generaltexth->translate("core.genrltxt.260") : calc.parameters[0].scenarioName;
 	newNode["days"].Integer() = calc.calculate().sumDays;
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
 	newNode["datetime"].String() = TextOperations::getFormattedDateTimeLocal(std::time(nullptr));
 	newNode["posFlag"].Bool() = true;
+	if(!calc.isCampaign)
+	{
+		JsonSerializer ser(nullptr, newNode);
+		ser.serializeStruct("statistic", stat);
+	}
+
+	int highscoreEntriesCap = settings["general"]["highscoreEntriesCap"].Integer();
+	if (baseNode.size() > highscoreEntriesCap - 1)
+		baseNode.resize(highscoreEntriesCap - 1);
 
 	baseNode.push_back(newNode);
 	boost::range::sort(baseNode, sortFunctor);
@@ -257,6 +289,9 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	int pos = -1;
 	for (int i = 0; i < baseNode.size(); i++)
 	{
+		if(!baseNode[i]["statistic"].isNull() && i >= settings["general"]["highscoreStatisticEntriesCap"].Integer() && baseNode[i]["posFlag"].isNull())
+			baseNode[i]["statistic"].clear();
+
 		if(!baseNode[i]["posFlag"].isNull())
 		{
 			baseNode[i]["posFlag"].clear();
@@ -277,7 +312,7 @@ void CHighScoreInputScreen::show(Canvas & to)
 
 void CHighScoreInputScreen::showAll(Canvas & to)
 {
-	to.fillTexture(GH.renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
+	to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CWindowObject::showAll(to);
 }
 
@@ -303,7 +338,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 			{
 				int pos = addEntry(text);
 				close();
-				GH.windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO, pos);
+				ENGINE->windows().createAndPushWindow<CHighScoreScreen>(calc.isCampaign ? CHighScoreScreen::HighScorePage::CAMPAIGN : CHighScoreScreen::HighScorePage::SCENARIO, pos);
 			}
 			else
 				stopMusicAndClose();
@@ -326,10 +361,10 @@ CHighScoreInput::CHighScoreInput(std::string playerName, std::function<void(std:
 	pos = center(Rect(0, 0, 232, 212));
 	updateShadow();
 
-	text = std::make_shared<CMultiLineLabel>(Rect(15, 15, 202, 202), FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE, CGI->generaltexth->translate("core.genrltxt.96"));
+	text = std::make_shared<CMultiLineLabel>(Rect(15, 15, 202, 202), FONT_SMALL, ETextAlignment::TOPCENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.96"));
 
-	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), CGI->generaltexth->zelp[560], std::bind(&CHighScoreInput::okay, this), EShortcut::GLOBAL_ACCEPT);
-	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), CGI->generaltexth->zelp[561], std::bind(&CHighScoreInput::abort, this), EShortcut::GLOBAL_CANCEL);
+	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), LIBRARY->generaltexth->zelp[560], std::bind(&CHighScoreInput::okay, this), EShortcut::GLOBAL_ACCEPT);
+	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], std::bind(&CHighScoreInput::abort, this), EShortcut::GLOBAL_CANCEL);
 // FIXME: broken. Never activates?
 //	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 	textInput = std::make_shared<CTextInput>(Rect(18, 104, 200, 25), FONT_SMALL, ETextAlignment::CENTER, true);

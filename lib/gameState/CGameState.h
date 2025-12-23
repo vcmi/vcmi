@@ -10,25 +10,25 @@
 #pragma once
 
 #include "../bonuses/CBonusSystemNode.h"
-#include "../IGameCallback.h"
+#include "../callback/CNonConstInfoCallback.h"
+#include "../callback/GameCallbackHolder.h"
+#include "../entities/artifact/EArtifactClass.h"
 #include "../LoadProgress.h"
-#include "../ConstTransitivePtr.h"
 
-#include "RumorState.h"
 #include "GameStatistics.h"
-
-namespace boost
-{
-class shared_mutex;
-}
+#include "RumorState.h"
+#include "mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class EVictoryLossCheckResult;
 class Services;
+class IGameRandomizer;
 class IMapService;
 class CMap;
-struct CPack;
+class CSaveFile;
+class CLoadFile;
+struct CPackForClient;
 class CHeroClass;
 struct EventCondition;
 struct CampaignTravel;
@@ -46,9 +46,15 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
+
+	std::shared_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
+	std::shared_ptr<StartInfo> scenarioOps;
+	std::unique_ptr<CMap> map;
+
+	void saveCompatibilityRegisterMissingArtifacts();
 public:
-	/// Stores number of times each artifact was placed on map via randomization
-	std::map<ArtifactID, int> allocatedArtifacts;
+	ArtifactInstanceID saveCompatibilityLastAllocatedArtifactID;
+	std::vector<std::shared_ptr<CArtifactInstance>> saveCompatibilityUnregisteredArtifacts;
 
 	/// List of currently ongoing battles
 	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
@@ -61,50 +67,46 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	IGameCallback * callback;
-
 	CGameState();
 	virtual ~CGameState();
 
-	void preInit(Services * services, IGameCallback * callback);
+	CGameState & gameState() final { return *this; }
+	const CGameState & gameState() const final { return *this; }
 
-	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
-	void updateOnLoad(StartInfo * si);
+	void preInit(Services * services);
 
-	ConstTransitivePtr<StartInfo> scenarioOps;
-	ConstTransitivePtr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
+	void init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
+	void updateOnLoad(const StartInfo & si);
+
 	ui32 day; //total number of days in game
-	ConstTransitivePtr<CMap> map;
 	std::map<PlayerColor, PlayerState> players;
 	std::map<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
 
-	StatisticDataSet statistic;
-
-	static boost::shared_mutex mutex;
+	// NOTE: effectively AI mutex, only used by adventure map AI
+	static std::shared_mutex mutex;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
 	bool giveHeroArtifact(CGHeroInstance * h, const ArtifactID & aid);
 	/// picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
-	HeroTypeID pickNextHeroType(const PlayerColor & owner);
+	HeroTypeID pickNextHeroType(vstd::RNG & randomGenerator, const PlayerColor & owner);
 
 	void apply(CPackForClient & pack);
-	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & rand);
+	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const;
 
-	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
-	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
-	int3 guardingCreaturePosition (int3 pos) const override;
-	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
-	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
+	/// Creates instance of spell scroll artifact with provided spell
+	CArtifactInstance * createScroll(const SpellID & spellId);
+
+	/// Creates instance of requested artifact
+	/// For combined artifact this method will also create alll required components
+	/// For scrolls this method will also initialize its spell
+	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
@@ -120,25 +122,58 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
-	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	const IGameSettings & getSettings() const;
+	//fills tgi with info about other players that is available at given level of thieves' guild
+	void obtainPlayersStats(SThievesGuildInfo & tgi, int level) const;
+	const IGameSettings & getSettings() const override;
 
-	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
-	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
+	StartInfo * getStartInfo()
+	{
+		return scenarioOps.get();
+	}
+	const StartInfo * getStartInfo() const final
+	{
+		return scenarioOps.get();
+	}
+	const StartInfo * getInitialStartInfo() const
+	{
+		return initialOpts.get();
+	}
+
+	CMap & getMap()
+	{
+		return *map;
+	}
+	const CMap & getMap() const
+	{
+		return *map;
+	}
+
+	bool isVisibleFor(int3 pos, const PlayerColor player) const override;
+	bool isVisibleFor(const CGObjectInstance * obj, const PlayerColor player) const override;
+	template<class BoolPredicate>
+	static bool iteratePositionsUntilTrue(const CGObjectInstance * obj, BoolPredicate && boolPredicate)
+	{
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
+		{
+			for(int fx = 0; fx < obj->getWidth(); ++fx)
+			{
+				int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
+				if(boolPredicate(pos))
+					return true;
+			}
+		}
+		return false;
+	}
 
 	static int getDate(int day, Date mode);
 	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
-	// ----- getters, setters -----
+#if SCRIPTING_ENABLED
+	scripting::Pool * getGlobalContextPool() const override;
+#endif
 
-	/// This RNG should only be used inside GS or CPackForClient-derived applyGs
-	/// If this doesn't work for your code that mean you need a new netpack
-	///
-	/// Client-side must use vstd::RNG::getDefault which is not serialized
-	///
-	/// CGameHandler have it's own getter for vstd::RNG::getDefault
-	/// Any server-side code outside of GH must use vstd::RNG::getDefault
-	vstd::RNG & getRandomGenerator();
+	void saveGame(CSaveFile & file) const;
+	void loadGame(CLoadFile & file);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -147,65 +182,67 @@ public:
 		h & actingPlayers;
 		h & day;
 		h & map;
+		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			saveCompatibilityRegisterMissingArtifacts();
 		h & players;
-		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
-			generateOwnedObjectsAfterDeserialize();
 		h & teams;
-		h & heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & *heroesPool;
+		else
+			h & heroesPool;
 		h & globalEffects;
-		if (h.version < Handler::Version::REMOVE_LIB_RNG)
-		{
-			std::string oldStateOfRNG;
-			h & oldStateOfRNG;
-		}
 		h & currentRumor;
 		h & campaign;
-		h & allocatedArtifacts;
-		if (h.version >= Handler::Version::STATISTICS)
+		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			std::map<ArtifactID, int> allocatedArtifactsUnused;
+			h & allocatedArtifactsUnused;
+		}
+		if (!h.hasFeature(Handler::Version::SERVER_STATISTICS))
+		{
+			StatisticDataSet statistic;
 			h & statistic;
+		}
 
-		BONUS_TREE_DESERIALIZATION_FIX
+		if(!h.saving && h.loadingGamestate)
+			restoreBonusSystemTree();
 	}
 
 private:
 	// ----- initialization -----
-	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
+	void initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void initGlobalBonuses();
-	void initGrailPosition();
-	void initRandomFactionsForPlayers();
+	void initGrailPosition(vstd::RNG & randomGenerator);
+	void initRandomFactionsForPlayers(vstd::RNG & randomGenerator);
 	void initOwnedObjects();
-	void randomizeMapObjects();
+	void randomizeMapObjects(IGameRandomizer & gameRandomizer);
 	void initPlayerStates();
-	void placeStartingHeroes();
+	void placeStartingHeroes(vstd::RNG & randomGenerator);
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void removeHeroPlaceholders();
 	void initDifficulty();
-	void initHeroes();
+	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
 	void initFogOfWar();
-	void initStartingBonus();
-	void initTowns();
-	void initTownNames();
-	void initMapObjects();
+	void initStartingBonus(IGameRandomizer & gameRandomizer);
+	void initTowns(vstd::RNG & randomGenerator);
+	void initTownNames(vstd::RNG & randomGenerator);
+	void initMapObjects(IGameRandomizer & gameRandomizer);
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
-
-	void generateOwnedObjectsAfterDeserialize();
 
 	// ----- bonus system handling -----
 
 	void buildBonusSystemTree();
-	void attachArmedObjects();
 	void buildGlobalTeamPlayerTree();
-	void deserializationFix();
+	void restoreBonusSystemTree();
 
 	// ---- misc helpers -----
 
 	CGHeroInstance * getUsedHero(const HeroTypeID & hid) const;
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
-	HeroTypeID pickUnusedHeroTypeRandomly(const PlayerColor & owner); // picks a unused hero type randomly
-	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
+	HeroTypeID pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, const PlayerColor & owner); // picks a unused hero type randomly
 
 	// ---- data -----
 	Services * services;
@@ -213,7 +250,7 @@ private:
 	/// Pointer to campaign state manager. Nullptr for single scenarios
 	std::unique_ptr<CGameStateCampaign> campaign;
 
-	friend class IGameCallback;
+	friend class IGameInfoCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
 };

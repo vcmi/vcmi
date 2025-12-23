@@ -13,12 +13,13 @@
 
 #include "JsonUtils.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../modding/ModScope.h"
 #include "../modding/CModHandler.h"
 #include "../texts/TextOperations.h"
 #include "../ScopeGuard.h"
+#include "modding/CModVersion.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -116,6 +117,13 @@ static std::string notCheck(JsonValidator & validator, const JsonNode & baseSche
 {
 	if (validator.check(schema, data).empty())
 		return validator.makeErrorMessage("Successful validation against negative check");
+	return "";
+}
+
+static std::string ifCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+{
+	if (validator.check(schema, data).empty())
+		return validator.check(baseSchema["then"], data);
 	return "";
 }
 
@@ -461,7 +469,7 @@ static bool testFilePresence(const std::string & scope, const ResourcePath & res
 	{
 		//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
 		bool found = true;
-		allowedScopes = VLC->modh->getModDependencies(scope, found);
+		allowedScopes = LIBRARY->modh->getModDependencies(scope, found);
 
 		if(!found)
 			return false;
@@ -472,9 +480,17 @@ static bool testFilePresence(const std::string & scope, const ResourcePath & res
 
 	for(const auto & entry : allowedScopes)
 	{
-		if (CResourceHandler::get(entry)->existsResource(resource))
-			return true;
+		try
+		{
+			if (CResourceHandler::get(entry)->existsResource(resource))
+				return true;
+		}
+		catch (const std::out_of_range & e)
+		{
+			throw std::out_of_range("Failed to find filesystem of mod '" + entry + "' when testing file '" + resource.getOriginalName() + "' for mod '" + scope + "'");
+		}
 	}
+
 #endif
 	return false;
 }
@@ -531,6 +547,14 @@ static std::string videoFile(const JsonNode & node)
 }
 #undef TEST_FILE
 
+static std::string version(const JsonNode & node)
+{
+	auto version = CModVersion::fromString(node.String());
+	if (version == CModVersion())
+		return "Failed to parse mod version: " + node.toCompactString() + ". Expected format X.Y.Z, where X, Y, Z are non-negative numbers";
+	return "";
+}
+
 JsonValidator::TValidatorMap createCommonFields()
 {
 	JsonValidator::TValidatorMap ret;
@@ -544,6 +568,8 @@ JsonValidator::TValidatorMap createCommonFields()
 	ret["type"]  = typeCheck;
 	ret["not"]   = notCheck;
 	ret["$ref"]  = refCheck;
+	ret["if"]  = ifCheck;
+	ret["then"]  = emptyCheck; // implemented as part of "if check"
 
 	// fields that don't need implementation
 	ret["title"] = emptyCheck;
@@ -620,6 +646,7 @@ JsonValidator::TFormatMap createFormatMap()
 	ret["animationFile"] = animationFile;
 	ret["imageFile"]     = imageFile;
 	ret["videoFile"]     = videoFile;
+	ret["version"]     = version;
 
 	//TODO:
 	// uri-reference

@@ -12,7 +12,7 @@
 
 #include "../Engine/Nullkiller.h"
 #include "../pforeach.h"
-#include "../../../lib/CRandomGenerator.h"
+#include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/logging/VisualLogger.h"
 
 namespace NKAI
@@ -93,8 +93,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 		{
 			auto town = dynamic_cast<const CGTownInstance *>(obj);
 
-			if(town->garrisonHero)
-				heroes[town->garrisonHero->tempOwner][town->garrisonHero] = HeroRole::MAIN;
+			if(town->getGarrisonHero())
+				heroes[town->getGarrisonHero()->tempOwner][town->getGarrisonHero()] = HeroRole::MAIN;
 		}
 	}
 
@@ -124,7 +124,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		ai->pathfinder->updatePaths(pair.second, ps);
 
-		boost::this_thread::interruption_point();
+		ai->makingTurnInterrupption.interruptionPoint();
 
 		pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{
@@ -211,13 +211,14 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
 			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
-			CRandomGenerator rng;
+			GameRandomizer randomizer(*town->cb);
 			auto visitablePos = town->visitablePos();
 			
+			townHero->id = town->id;
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
-			townHero->initHero(rng, static_cast<HeroTypeID>(0));
+			townHero->initHero(randomizer, static_cast<HeroTypeID>(0));
 			townHero->pos = townHero->convertFromVisitablePos(visitablePos);
-			townHero->initObj(rng);
+			townHero->initObj(randomizer);
 			
 			heroTownMap[townHero] = town;
 			townHeroes[townHero] = HeroRole::MAIN;

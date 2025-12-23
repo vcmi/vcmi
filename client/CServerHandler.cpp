@@ -8,33 +8,40 @@
  *
  */
 #include "StdInc.h"
-
 #include "CServerHandler.h"
-#include "Client.h"
-#include "CGameInfo.h"
-#include "ServerRunner.h"
-#include "GameChatHandler.h"
+
 #include "CPlayerInterface.h"
-#include "gui/CGuiHandler.h"
-#include "gui/WindowHandler.h"
+#include "Client.h"
+#include "GameChatHandler.h"
+#include "GameEngine.h"
+#include "GameInstance.h"
+#include "LobbyClientNetPackVisitors.h"
+#include "ServerRunner.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+
+#include "gui/WindowHandler.h"
+
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "windows/InfoWindows.h"
-#include "windows/GUIClasses.h"
+
+#include "netlag/NetworkLagCompensator.h"
+
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
-
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "mainmenu/CHighScoreScreen.h"
 
+#include "windows/InfoWindows.h"
+#include "windows/GUIClasses.h"
+
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "ConditionalWait.h"
+#include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TurnTimerInfo.h"
@@ -48,37 +55,31 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
+#include <SDL_thread.h>
+
+#include <boost/lexical_cast.hpp>
 
 CServerHandler::~CServerHandler()
 {
 	if (serverRunner)
 		serverRunner->shutdown();
 	networkHandler->stop();
-	try
+
+	if (serverRunner)
+		serverRunner->wait();
+	serverRunner.reset();
+	if (threadNetwork.joinable())
 	{
-		if (serverRunner)
-			serverRunner->wait();
-		serverRunner.reset();
-		{
-			auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
-			threadNetwork.join();
-		}
-	}
-	catch (const std::runtime_error & e)
-	{
-		logGlobal->error("Failed to shut down network thread! Reason: %s", e.what());
-		assert(0);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		threadNetwork.join();
 	}
 }
 
@@ -87,8 +88,10 @@ void CServerHandler::endNetwork()
 	if (client)
 		client->endNetwork();
 	networkHandler->stop();
+
+	if (threadNetwork.joinable())
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
 }
@@ -104,6 +107,7 @@ CServerHandler::CServerHandler()
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
+	, battleMode(false)
 	, client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -111,22 +115,26 @@ CServerHandler::CServerHandler()
 
 void CServerHandler::threadRunNetwork()
 {
-	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
+	logGlobal->info("Starting network thread");
 	try {
 		networkHandler->run();
 	}
 	catch (const TerminationRequestedException &)
 	{
+		// VCMI can run SDL methods on network thread, leading to usage of thread-local storage by SDL
+		// Such storage needs to be cleaned up manually for threads that were not created by SDL
+		SDL_TLSCleanup();
 		logGlobal->info("Terminating network thread");
 		return;
 	}
+	SDL_TLSCleanup();
 	logGlobal->info("Ending network thread");
 }
 
 void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & playerNames)
 {
-	hostClientId = -1;
+	hostClientId = GameConnectionID::INVALID;
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	mapToStart = nullptr;
@@ -144,7 +152,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	{
 		std::string playerName = settings["general"]["playerName"].String();
 		if(playerName == "Player")
-			playerName = CGI->generaltexth->translate("core.genrltxt.434");
+			playerName = LIBRARY->generaltexth->translate("core.genrltxt.434");
 		localPlayerNames.push_back(playerName);
 	}
 
@@ -217,7 +225,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
 	assert(getState() == EClientState::CONNECTING);
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (isServerLocal())
 	{
@@ -229,21 +237,21 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 	{
 		// remote server refused connection - show error message
 		setState(EClientState::NONE);
-		CInfoWindow::showInfoDialog(CGI->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
+		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnectionFailed"), {});
 	}
 }
 
 void CServerHandler::onTimer()
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
 		serverRunner->wait();
 		serverRunner.reset();
-		if (GH.windows().topWindow<CSimpleJoinScreen>() != nullptr)
-			GH.windows().popWindows(1);
+		if (ENGINE->windows().topWindow<CSimpleJoinScreen>() != nullptr)
+			ENGINE->windows().popWindows(1);
 		return;
 	}
 
@@ -255,7 +263,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 {
 	assert(getState() == EClientState::CONNECTING);
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	networkConnection = netConnection;
 
@@ -267,7 +275,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 		getGlobalLobby().sendProxyConnectionLogin(netConnection);
 	}
 
-	logicConnection = std::make_shared<CConnection>(netConnection);
+	logicConnection = std::make_shared<GameConnection>(netConnection);
 	logicConnection->uuid = uuid;
 	logicConnection->enterLobbyConnectionMode();
 	sendClientConnecting();
@@ -277,7 +285,7 @@ void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
 {
 	ApplyOnLobbyScreenNetPackVisitor visitor(*this, dynamic_cast<CLobbyScreen *>(SEL));
 	pack.visit(visitor);
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 std::set<PlayerColor> CServerHandler::getHumanColors()
@@ -295,7 +303,7 @@ bool CServerHandler::isMyColor(PlayerColor color) const
 	return isClientColor(logicConnection->connectionID, color);
 }
 
-ui8 CServerHandler::myFirstId() const
+PlayerConnectionID CServerHandler::myFirstId() const
 {
 	return clientFirstId(logicConnection->connectionID);
 }
@@ -425,6 +433,13 @@ void CServerHandler::setCampaignBonus(int bonusId) const
 	sendLobbyPack(lscb);
 }
 
+void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const
+{
+	LobbySetBattleOnlyModeStartInfo lsbomsui;
+	lsbomsui.startInfo = startInfo;
+	sendLobbyPack(lsbomsui);
+}
+
 void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts) const
 {
 	LobbySetMap lsm;
@@ -506,7 +521,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		if(id.length())
 		{
 			LobbyChangeHost lch;
-			lch.newHostConnectionId = boost::lexical_cast<int>(id);
+			lch.newHostConnectionId = static_cast<GameConnectionID>(boost::lexical_cast<int>(id));
 			sendLobbyPack(lch);
 		}
 	}
@@ -518,7 +533,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
 		{
-			ui8 connected = boost::lexical_cast<int>(connectedId);
+			auto connected = static_cast<PlayerConnectionID>(boost::lexical_cast<int>(connectedId));
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
 			if(color.isValidPlayer() && playerNames.find(connected) != playerNames.end())
 			{
@@ -545,9 +560,9 @@ void CServerHandler::sendGuiAction(ui8 action) const
 void CServerHandler::sendRestartGame() const
 {
 	if(si->campState && !si->campState->getLoadingBackground().empty())
-		GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
 	else
-		GH.windows().createAndPushWindow<CLoadingScreen>();
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	
 	LobbyRestartGame endGame;
 	sendLobbyPack(endGame);
@@ -562,40 +577,31 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-		std::string errorMsg;
-		if(!e.whatMissing().empty())
-		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
-			errorMsg += e.whatMissing();
-		}
-		if(!e.whatExcessive().empty())
-		{
-			errorMsg += VLC->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
-			errorMsg += e.whatExcessive();
-		}
-		showServerError(errorMsg);
+
+		showServerError(e.getFullErrorMsg());
 		return false;
 	}
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());
-		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		showServerError(std::string("Unable to start map!\nReason: ") + e.what());
 		return false;
 	}
 
 	return true;
 }
 
-void CServerHandler::sendStartGame(bool allowOnlyAI) const
+void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	if(verify)
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(si->campState && !si->campState->getLoadingBackground().empty())
-			GH.windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
 		else
-			GH.windows().createAndPushWindow<CLoadingScreen>();
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
 	
 	LobbyPrepareStartGame lpsg;
@@ -610,10 +616,21 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
-void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
+void CServerHandler::enableLagCompensation(bool on)
 {
-	if(CMM)
-		CMM->disable();
+	if (on)
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(),  client->gameStatePtr());
+	else
+		networkLagCompensator.reset();
+}
+
+void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
+{
+	if(GAME->mainmenu())
+		GAME->mainmenu()->disable();
+
+	if (isGuest())
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{
@@ -632,17 +649,16 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		throw std::runtime_error("Invalid mode");
 	}
 	// After everything initialized we can accept CPackToClient netpacks
-	logicConnection->enterGameplayConnectionMode(client->gameState());
 	setState(EClientState::GAMEPLAY);
 }
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
 
-	if(victory && client->gameState()->getStartInfo()->campState)
+	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
+		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{
@@ -651,13 +667,15 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
-		CMM->menu->switchToTab("main");
-		GH.windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
+		GAME->mainmenu()->menu->switchToTab("main");
+		ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
 void CServerHandler::endGameplay()
 {
+	client->finishGameplay();
+
 	// Game is ending
 	// Tell the network thread to reach a stable state
 	sendClientDisconnecting();
@@ -666,22 +684,65 @@ void CServerHandler::endGameplay()
 	client->endGame();
 	client.reset();
 
-	if(CMM)
+	if (GAME->mainmenu())
 	{
-		GH.curInt = CMM.get();
-		CMM->enable();
-		CMM->playMusic();
+		GAME->mainmenu()->enable();
+		GAME->mainmenu()->playMusic();
+		GAME->mainmenu()->makeActiveInterface();
 	}
-	else
+}
+
+std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
+{
+	auto mapInfo = std::make_shared<CMapInfo>();
+	try
 	{
-		auto mainMenu = CMainMenu::create();
-		GH.curInt = mainMenu.get();
-		mainMenu->playMusic();
+		mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		return "Identifier not found.";
+	}
+	catch(const std::exception & e)
+	{
+		return "Generic error loading save.";
+	}
+
+	// initial start info from quick load slot
+	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
+	// initial start info from game state (not current start info)
+	const auto * startInfo2 = client->gameState().getInitialStartInfo();
+
+	if (!startInfo1)
+		return "Missing quick load start info.";
+	if (!startInfo2)
+		return "Missing server start info.";
+	if (startInfo1->startTime != startInfo2->startTime)
+		return "Different initial start time.";
+	if (startInfo1->mapname != startInfo2->mapname)
+		return "Different map name.";
+	if (startInfo1->difficulty != startInfo2->difficulty)
+		return "Different difficulty.";
+	const auto & playerInfos1 = startInfo1->playerInfos;
+	const auto & playerInfos2 = startInfo2->playerInfos;
+	if (playerInfos1.size() != playerInfos2.size())
+		return "Different number of players.";
+	if (!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
+		[](const auto& p1, const auto& p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
+		return "Different players.";
+	return std::nullopt;
+}
+
+void CServerHandler::quickLoadGame(const std::string & path)
+{
+	LobbyQuickLoadGame pack;
+	pack.saveFilePath = path;
+	sendLobbyPack(pack);
 }
 
 void CServerHandler::restartGameplay()
 {
+	client->finishGameplay();
 	client->endGame();
 	client.reset();
 
@@ -712,29 +773,29 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			entry->Bool() = true;
 		}
 
-		GH.windows().pushWindow(CMM);
-		GH.windows().pushWindow(CMM->menu);
-
 		if(!ourCampaign->isCampaignFinished())
-			CMM->openCampaignLobby(ourCampaign);
+			GAME->mainmenu()->openCampaignLobby(ourCampaign);
 		else
 		{
-			CMM->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty() && CCS->videoh->open(ourCampaign->getOutroVideo(), 1))
+			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
+			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
 			{
-				CCS->musich->stopMusic();
-				GH.windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](bool skipped){
-					GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				ENGINE->music().stopMusic();
+				auto rim = ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim();
+				if(ourCampaign->getVideoRim() == ImagePath::builtin("NONE"))
+					rim = ImagePath();
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
+					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}
 			else
-				GH.windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
+				ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 		}
 	};
 
 	if(epilogue.hasPrologEpilog)
 	{
-		GH.windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
+		ENGINE->windows().createAndPushWindow<CPrologEpilogVideo>(epilogue, finisher);
 	}
 	else
 	{
@@ -744,8 +805,8 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 
 void CServerHandler::showServerError(const std::string & txt) const
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
-		GH.windows().popWindow(w);
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
+		ENGINE->windows().popWindow(w);
 	
 	CInfoWindow::showInfoDialog(txt, {});
 }
@@ -800,20 +861,20 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect(false);
 
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-	while(!settings["session"]["headless"].Bool() && !GH.windows().topWindow<CLobbyScreen>())
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(!mi || mapInfo->fileURI != mi->fileURI)
 	{
 		setMapInfo(mapInfo);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it
 	setPlayer(myFirstColor());
 	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(true)
 	{
@@ -826,7 +887,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		{
 
 		}
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
@@ -856,7 +917,7 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::DISCONNECTING)
 		return;
@@ -868,7 +929,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (connection != networkConnection)
 	{
@@ -892,8 +953,8 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	if(client)
 	{
 		endGameplay();
-		CMM->menu->switchToTab("main");
-		showServerError(CGI->generaltexth->translate("vcmi.server.errors.disconnected"));
+		GAME->mainmenu()->menu->switchToTab("main");
+		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else
 	{
@@ -922,7 +983,7 @@ void CServerHandler::waitForServerShutdown()
 	{
 		if (getState() == EClientState::CONNECTING)
 		{
-			showServerError(CGI->generaltexth->translate("vcmi.server.errors.existingProcess"));
+			showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.existingProcess"));
 			setState(EClientState::CONNECTION_CANCELLED); // stop attempts to reconnect
 		}
 		logNetwork->error("Error: server failed to close correctly or crashed!");
@@ -946,9 +1007,11 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	if (networkLagCompensator && networkLagCompensator->verifyReply(clientPack))
+		return;
+
 	client->handlePack(clientPack);
 }
-
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
@@ -964,4 +1027,12 @@ bool CServerHandler::inLobbyRoom() const
 bool CServerHandler::inGame() const
 {
 	return logicConnection != nullptr;
+}
+
+void CServerHandler::sendGamePack(const CPackForServer & pack) const
+{
+	if (networkLagCompensator)
+		networkLagCompensator->tryPredictReply(pack);
+
+	logicConnection->sendPack(pack);
 }

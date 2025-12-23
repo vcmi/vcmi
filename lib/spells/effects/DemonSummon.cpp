@@ -15,6 +15,7 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/BattleInfo.h"
 #include "../../battle/CUnitState.h"
+#include "../../CStack.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -99,6 +100,25 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 
 	if(!pack.changedStacks.empty())
 		server->apply(pack);
+}
+
+SpellEffectValue DemonSummon::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result;
+
+	auto targets = m->getAffectedStacks(spellTarget);
+
+	if(targets.empty())
+		return result;
+
+	auto unit = targets.front();
+	if(unit)
+	{
+		result.unitsDelta = raisedCreatureAmount(m, unit);
+		result.unitType = creature;
+	}
+
+	return result;
 }
 
 bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

@@ -16,6 +16,8 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -24,6 +26,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
 
 
 // TODO: remove
@@ -130,7 +133,7 @@ bool BattleEvaluator::hasWorkingTowers() const
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
-	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
+	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack, true);
 
 	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
 	{
@@ -384,7 +387,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 
 	BattleHexArray targetHexes = hexes;
 
-	targetHexes.sort([&](const BattleHex & h1, const BattleHex & h2) -> bool
+	targetHexes.sort([&reachability](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
 			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
@@ -426,7 +429,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		{
 			if(obst->triggersEffects())
 			{
-				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerAbility =  LIBRARY->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
@@ -435,7 +438,7 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const Battl
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](const BattleHex & hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [this, &bestNeighbour, &stack, &obstacleHexes](const BattleHex & hex) -> int
 		{
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
@@ -494,7 +497,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : VLC->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->objects)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back(s.get());
 
@@ -567,7 +570,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ourTurnSpan++;
 				}
 
-				state->nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId(), BattleUnitTurnReason::TURN_QUEUE);
 
 				PotentialTargets potentialTargets(unit, damageCache, state);
 
@@ -888,6 +891,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 	}
 
+
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
@@ -917,6 +921,17 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		}
 
 		totalGain += healthDiff;
+	}
+
+	// consider the case in which spell summons units
+	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
+		{
+			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
+		});
+
+	for(auto unit : newUnits)
+	{
+		totalGain += unit->getAvailableHealth();
 	}
 
 	ps.value = totalGain;

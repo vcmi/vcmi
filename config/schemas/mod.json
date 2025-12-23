@@ -65,7 +65,7 @@
 		},
 		"modType" : {
 			"type" : "string",
-			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Artifacts", "AI" ],
+			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources" ],
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
@@ -90,6 +90,7 @@
 		},
 		"version" : {
 			"type" : "string",
+			"format" : "version",
 			"description" : "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
 		},
 		"changelog" : {
@@ -146,7 +147,7 @@
 				{
 					"type" : "array",
 					"items" : { "type" : "string", "format" : "textFile" }
-				},
+				}
 			]
 		},
 		"filesystem" : {
@@ -175,7 +176,13 @@
 		"language" : {
 			"type" : "string",
 			"description" : "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "czech", "chinese", "english", "finnish", "french", "german", "hungarian", "italian", "korean", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "english", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+		},
+		"belarusian" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"bulgarian" : {
+			"$ref" : "#/definitions/localizable"
 		},
 		"czech" : {
 			"$ref" : "#/definitions/localizable"
@@ -195,19 +202,31 @@
 		"german" : {
 			"$ref" : "#/definitions/localizable"
 		},
+		"greek" : {
+			"$ref" : "#/definitions/localizable"
+		},
 		"hungarian" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"italian" : {
 			"$ref" : "#/definitions/localizable"
 		},
+		"japanese" : {
+			"$ref" : "#/definitions/localizable"
+		},
 		"korean" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"norwegian" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"polish" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"portuguese" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"romanian" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"russian" : {
@@ -252,8 +271,16 @@
 			"description" : "List of configuration files for creatures",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"campaignRegions" : {
+			"description" : "List of configuration files for campaign regions",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"artifacts" : {
 			"description" : "List of configuration files for artifacts",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"spellSchools" : {
+			"description" : "List of configuration files for spell schools",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"spells" : {
@@ -274,6 +301,10 @@
 		},
 		"terrains" : {
 			"description" : "List of configuration files for terrains",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"resources" : {
+			"description" : "List of configuration files for resources",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"roads" : {

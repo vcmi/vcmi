@@ -8,19 +8,18 @@
  *
  */
 #include "StdInc.h"
-#include "../../lib/AI_Base.h"
 #include "StupidAI.h"
 #include "../../lib/CStack.h"
-#include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
 	: side(BattleSide::NONE)
 	, wasWaitingForRealize(false)
-	, wasUnlockingGs(false)
 {
 	print("created");
 }
@@ -32,7 +31,6 @@ CStupidAI::~CStupidAI()
 	{
 		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
 		cb->waitTillRealize = wasWaitingForRealize;
-		cb->unlockGsWhenWaiting = wasUnlockingGs;
 	}
 }
 
@@ -43,9 +41,7 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	cb = CB;
 
 	wasWaitingForRealize = CB->waitTillRealize;
-	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
-	CB->unlockGsWhenWaiting = false;
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)
@@ -124,12 +120,12 @@ void CStupidAI::yourTacticPhase(const BattleID & battleID, int distance)
 
 void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable;
 	std::vector<EnemyInfo> enemiesReachable;
 	std::vector<EnemyInfo> enemiesUnreachable;
+	std::vector<EnemyInfo> enemiesInvincible;
 
 	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
@@ -152,7 +148,11 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 	for (const CStack *s : cb->getBattle(battleID)->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY))
 	{
-		if(cb->getBattle(battleID)->battleCanShoot(stack, s->getPosition()))
+		if (s->isInvincible())
+		{
+			enemiesInvincible.push_back(s);
+		}
+		else if(cb->getBattle(battleID)->battleCanShoot(stack, s->getPosition()))
 		{
 			enemiesShootable.push_back(s);
 		}
@@ -202,20 +202,33 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	}
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
-		auto closestEnemy = vstd::minElementByFun(enemiesUnreachable, [&](const EnemyInfo & ei) -> int
-		{
-			return dists.distToNearestNeighbour(stack, ei.s);
-		});
-
-		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
-		{
-			cb->battleMakeUnitAction(battleID, goTowards(battleID, stack, closestEnemy->s->getAttackableHexes(stack)));
+		if(moveStackToClosestEnemy(battleID, stack, dists, enemiesUnreachable))
 			return;
-		}
+	}
+	else if(enemiesInvincible.size())
+	{
+		if(moveStackToClosestEnemy(battleID, stack, dists, enemiesInvincible))
+			return;
 	}
 
 	cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 	return;
+}
+
+bool CStupidAI::moveStackToClosestEnemy(const BattleID & battleID, const CStack * stack, const ReachabilityInfo & dists, const std::vector<EnemyInfo> &enemyInfos)
+{
+	auto closestEnemy = vstd::minElementByFun(enemyInfos,[&](const EnemyInfo & ei) -> int
+		{
+			return dists.distToNearestNeighbour(stack, ei.s);
+		}
+	);
+
+	if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
+	{
+		cb->battleMakeUnitAction(battleID, goTowards(battleID, stack, closestEnemy->s->getAttackableHexes(stack)));
+		return true;
+	}
+	return false;
 }
 
 void CStupidAI::battleAttack(const BattleID & battleID, const BattleAttack *ba)

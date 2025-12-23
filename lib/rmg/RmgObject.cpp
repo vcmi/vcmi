@@ -13,7 +13,7 @@
 #include "RmgMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -27,12 +27,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 using namespace rmg;
 
-Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
+Object::Instance::Instance(const Object& parent, std::shared_ptr<CGObjectInstance> object): dParent(parent), dObject(object)
 {
 	setPosition(dPosition);
 }
 
-Object::Instance::Instance(const Object& parent, CGObjectInstance & object, const int3 & position): Instance(parent, object)
+Object::Instance::Instance(const Object& parent, std::shared_ptr<CGObjectInstance> object, const int3 & position): Instance(parent, object)
 {
 	setPosition(position);
 }
@@ -41,10 +41,10 @@ const Area & Object::Instance::getBlockedArea() const
 {
 	if(dBlockedAreaCache.empty())
 	{
-		std::set<int3> blockedArea = dObject.getBlockedPos();
+		std::set<int3> blockedArea = dObject->getBlockedPos();
 		dBlockedAreaCache.assign(rmg::Tileset(blockedArea.begin(), blockedArea.end()));
-		if(dObject.isVisitable() || dBlockedAreaCache.empty())
-			dBlockedAreaCache.add(dObject.visitablePos());
+		if(dObject->isVisitable() || dBlockedAreaCache.empty())
+			dBlockedAreaCache.add(dObject->visitablePos());
 	}
 	return dBlockedAreaCache;
 }
@@ -64,7 +64,7 @@ int3 Object::Instance::getPosition(bool isAbsolute) const
 
 int3 Object::Instance::getVisitablePosition() const
 {
-	return dObject.visitablePos();
+	return dObject->visitablePos();
 }
 
 const rmg::Area & Object::Instance::getAccessibleArea() const
@@ -87,7 +87,7 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 void Object::Instance::setPosition(const int3 & position)
 {
 	dPosition = position;
-	dObject.setAnchorPos(dPosition + dParent.getPosition());
+	dObject->setAnchorPos(dPosition + dParent.getPosition());
 	
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
@@ -96,45 +96,45 @@ void Object::Instance::setPosition(const int3 & position)
 
 void Object::Instance::setPositionRaw(const int3 & position)
 {
-	if(!dObject.anchorPos().valid())
+	if(!dObject->anchorPos().isValid())
 	{
-		dObject.setAnchorPos(dPosition + dParent.getPosition());
+		dObject->setAnchorPos(dPosition + dParent.getPosition());
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
 		dParent.clearCachedArea();
 	}
 		
-	auto shift = position + dParent.getPosition() - dObject.anchorPos();
+	auto shift = position + dParent.getPosition() - dObject->anchorPos();
 	
 	dAccessibleAreaCache.translate(shift);
 	dBlockedAreaCache.translate(shift);
 	
 	dPosition = position;
-	dObject.setAnchorPos(dPosition + dParent.getPosition());
+	dObject->setAnchorPos(dPosition + dParent.getPosition());
 }
 
 void Object::Instance::setAnyTemplate(vstd::RNG & rng)
 {
-	auto templates = dObject.getObjectHandler()->getTemplates();
+	auto templates = dObject->getObjectHandler()->getTemplates();
 	if(templates.empty())
-		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject.ID % dObject.getObjTypeIndex()));
+		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject->ID % dObject->getObjTypeIndex()));
 
-	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
+	dObject->appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
 
 void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 {
-	auto templates = dObject.getObjectHandler()->getMostSpecificTemplates(terrain);
+	auto templates = dObject->getObjectHandler()->getMostSpecificTemplates(terrain);
 
 	if (templates.empty())
 	{
-		auto terrainName = VLC->terrainTypeHandler->getById(terrain)->getNameTranslated();
-		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.getObjTypeIndex() % terrainName));
+		auto terrainName = LIBRARY->terrainTypeHandler->getById(terrain)->getNameTranslated();
+		throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject->ID % dObject->getObjTypeIndex() % terrainName));
 	}
 	
-	dObject.appearance = *RandomGeneratorUtil::nextItem(templates, rng);
+	dObject->appearance = *RandomGeneratorUtil::nextItem(templates, rng);
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
@@ -142,9 +142,8 @@ void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 void Object::Instance::clear()
 {
 	if (onCleared)
-		onCleared(&dObject);
+		onCleared(*dObject);
 
-	delete &dObject;
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dParent.clearCachedArea();
@@ -153,37 +152,42 @@ void Object::Instance::clear()
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
 	auto relPosition = position - getPosition(true);
-	return dObject.appearance->isVisitableFrom(relPosition.x, relPosition.y);
+	return dObject->appearance->isVisitableFrom(relPosition.x, relPosition.y);
 }
 
 bool Object::Instance::isBlockedVisitable() const
 {
-	return dObject.isBlockedVisitable();
+	return dObject->isBlockedVisitable();
 }
 
 bool Object::Instance::isRemovable() const
 {
-	return dObject.isRemovable();
+	return dObject->isRemovable();
 }
 
 CGObjectInstance & Object::Instance::object()
+{
+	return *dObject;
+}
+
+std::shared_ptr<CGObjectInstance> Object::Instance::pointer() const
 {
 	return dObject;
 }
 
 const CGObjectInstance & Object::Instance::object() const
 {
-	return dObject;
+	return *dObject;
 }
 
-Object::Object(CGObjectInstance & object, const int3 & position):
+Object::Object(std::shared_ptr<CGObjectInstance> object, const int3 & position):
 	guarded(false),
 	value(0)
 {
 	addInstance(object, position);
 }
 
-Object::Object(CGObjectInstance & object):
+Object::Object(std::shared_ptr<CGObjectInstance> object):
 	guarded(false),
 	value(0)
 {
@@ -195,7 +199,7 @@ Object::Object(const Object & object):
 	value(object.value)
 {
 	for(const auto & i : object.dInstances)
-		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
+		addInstance(i.pointer(), i.getPosition());
 	setPosition(object.getPosition());
 }
 
@@ -231,7 +235,7 @@ void Object::addInstance(Instance & object)
 	visibleTopOffset.reset();
 }
 
-Object::Instance & Object::addInstance(CGObjectInstance & object)
+Object::Instance & Object::addInstance(std::shared_ptr<CGObjectInstance> object)
 {
 	dInstances.emplace_back(*this, object);
 	setGuardedIfMonster(dInstances.back());
@@ -243,7 +247,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object)
 	return dInstances.back();
 }
 
-Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & position)
+Object::Instance & Object::addInstance(std::shared_ptr<CGObjectInstance> object, const int3 & position)
 {
 	dInstances.emplace_back(*this, object, position);
 	setGuardedIfMonster(dInstances.back());
@@ -498,16 +502,16 @@ rmg::Area Object::Instance::getBorderAbove() const
 void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 {
 	if(!map.isOnMap(getPosition(true)))
-		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
+		throw rmgException(boost::str(boost::format("Position of object %d at %s is outside the map") % dObject->id % getPosition(true).toString()));
 	
 	//If no specific template was defined for this object, select any matching
-	if (!dObject.appearance)
+	if (!dObject->appearance)
 	{
 		const auto * terrainType = map.getTile(getPosition(true)).getTerrain();
-		auto templates = dObject.getObjectHandler()->getTemplates(terrainType->getId());
+		auto templates = dObject->getObjectHandler()->getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
-			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.getObjTypeIndex() % getPosition(true).toString() % terrainType));
+			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject->ID % dObject->getObjTypeIndex() % getPosition(true).toString() % terrainType));
 		}
 		else
 		{
@@ -515,13 +519,13 @@ void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 		}
 	}
 
-	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
-		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.anchorPos().toString()));
+	if (dObject->isVisitable() && !map.isOnMap(dObject->visitablePos()))
+		throw rmgException(boost::str(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject->visitablePos().toString() % dObject->id % dObject->anchorPos().toString()));
 
-	for(const auto & tile : dObject.getBlockedPos())
+	for(const auto & tile : dObject->getBlockedPos())
 	{
 		if(!map.isOnMap(tile))
-			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.anchorPos().toString()));
+			throw rmgException(boost::str(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject->id % dObject->anchorPos().toString()));
 	}
 
 	for(const auto & tile : getBlockedArea().getTilesVector())
@@ -529,7 +533,7 @@ void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 		map.setOccupied(tile, ETileType::USED);
 	}
 	
-	map.getMapProxy()->insertObject(&dObject);
+	map.getMapProxy()->insertObject(dObject);
 }
 
 void Object::finalize(RmgMap & map, vstd::RNG & rng)

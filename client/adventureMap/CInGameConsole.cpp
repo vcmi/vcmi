@@ -11,12 +11,12 @@
 #include "StdInc.h"
 #include "CInGameConsole.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameChatHandler.h"
 #include "../ClientCommandManager.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
@@ -27,10 +27,9 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/mapObjects/CArmedInstance.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
 
 CInGameConsole::CInGameConsole()
@@ -47,7 +46,7 @@ void CInGameConsole::showAll(Canvas & to)
 
 void CInGameConsole::show(Canvas & to)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	int number = 0;
@@ -82,7 +81,7 @@ void CInGameConsole::tick(uint32_t msPassed)
 	);
 
 	if(sizeBefore != texts.size())
-		GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
+		ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 }
 
 void CInGameConsole::addMessageSilent(const std::string & timeFormatted, const std::string & senderName, const std::string & messageText)
@@ -111,14 +110,14 @@ void CInGameConsole::addMessage(const std::string & timeFormatted, const std::st
 {
 	addMessageSilent(timeFormatted, senderName, messageText);
 
-	GH.windows().totalRedraw(); // FIXME: ingame console has no parent widget set
+	ENGINE->windows().totalRedraw(); // FIXME: ingame console has no parent widget set
 
-	int volume = CCS->soundh->getVolume();
+	int volume = ENGINE->sound().getVolume();
 	if(volume == 0)
-		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
-	int handle = CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+		ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
+	int handle = ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
+		ENGINE->sound().setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) ENGINE->sound().setVolume(0); });
 }
 
 bool CInGameConsole::captureThisKey(EShortcut key)
@@ -143,7 +142,7 @@ bool CInGameConsole::captureThisKey(EShortcut key)
 
 void CInGameConsole::keyPressed (EShortcut key)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	if(!isEnteringText() && key != EShortcut::GAME_ACTIVATE_CONSOLE)
@@ -222,7 +221,7 @@ void CInGameConsole::keyPressed (EShortcut key)
 
 void CInGameConsole::textInputted(const std::string & inputtedText)
 {
-	if (LOCPLINT->cingconsole != this)
+	if (GAME->interface()->cingconsole != this)
 		return;
 
 	if(!isEnteringText())
@@ -243,7 +242,7 @@ void CInGameConsole::textEdited(const std::string & inputtedText)
 
 void CInGameConsole::showRecentChatHistory()
 {
-	auto const & history = CSH->getGameChat().getChatHistory();
+	auto const & history = GAME->server().getGameChat().getChatHistory();
 
 	texts.clear();
 
@@ -253,7 +252,7 @@ void CInGameConsole::showRecentChatHistory()
 	for (int i = firstEntryToShow; i < history.size(); ++i)
 		addMessageSilent(history[i].dateFormatted, history[i].senderName, history[i].messageText);
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void CInGameConsole::startEnteringText()
@@ -264,20 +263,20 @@ void CInGameConsole::startEnteringText()
 	if(isEnteringText())
 	{
 		// force-reset text input to re-show on-screen keyboard
-		GH.statusbar()->setEnteringMode(false);
-		GH.statusbar()->setEnteringMode(true);
-		GH.statusbar()->setEnteredText(enteredText);
+		ENGINE->statusbar()->setEnteringMode(false);
+		ENGINE->statusbar()->setEnteringMode(true);
+		ENGINE->statusbar()->setEnteredText(enteredText);
 		return;
 	}
 		
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
-	currentStatusBar = GH.statusbar();
+	currentStatusBar = ENGINE->statusbar();
 
 	enteredText = "_";
 
-	GH.statusbar()->setEnteringMode(true);
-	GH.statusbar()->setEnteredText(enteredText);
+	ENGINE->statusbar()->setEnteringMode(true);
+	ENGINE->statusbar()->setEnteredText(enteredText);
 
 	showRecentChatHistory();
 }
@@ -300,11 +299,11 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 				commandController.processCommand(txt.substr(1), true);
 			};
 
-			boost::thread clientCommandThread(threadFunction);
+			std::thread clientCommandThread(threadFunction);
 			clientCommandThread.detach();
 		}
 		else
-			CSH->getGameChat().sendMessageGameplay(txt);
+			GAME->server().getGameChat().sendMessageGameplay(txt);
 	}
 	enteredText.clear();
 

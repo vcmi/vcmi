@@ -15,16 +15,10 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGameState;
-class CConnection;
-
 class ICPackVisitor;
 
 struct DLL_LINKAGE CPack : public Serializeable
 {
-	/// Pointer to connection that pack received from
-	/// Only set & used on server
-	std::shared_ptr<CConnection> c;
-
 	CPack() = default;
 	virtual ~CPack() = default;
 
@@ -37,21 +31,15 @@ struct DLL_LINKAGE CPack : public Serializeable
 	void visit(ICPackVisitor & cpackVisitor);
 
 protected:
-	/// <summary>
 	/// For basic types of netpacks hierarchy like CPackForClient. Called first.
-	/// </summary>
 	virtual void visitBasic(ICPackVisitor & cpackVisitor);
 
-	/// <summary>
 	/// For leaf types of netpacks hierarchy. Called after visitBasic.
-	/// </summary>
 	virtual void visitTyped(ICPackVisitor & cpackVisitor);
 };
 
 struct DLL_LINKAGE CPackForClient : public CPack
 {
-	virtual void applyGs(CGameState * gs) = 0;
-
 protected:
 	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
@@ -59,6 +47,13 @@ protected:
 struct DLL_LINKAGE Query : public CPackForClient
 {
 	QueryID queryID; // equals to -1 if it is not an actual query (and should not be answered)
+};
+
+struct PackForClientBattle : public CPackForClient
+{
+	BattleID battleID;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 };
 
 struct DLL_LINKAGE CPackForServer : public CPack

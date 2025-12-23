@@ -132,7 +132,7 @@ private:
 	std::vector<ui8> compressedBuffer;
 
 	/** struct with current zlib inflate state */
-	z_stream_s * inflateState;
+	std::unique_ptr<z_stream_s> inflateState;
 
 	enum EState
 	{

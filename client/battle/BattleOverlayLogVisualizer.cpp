@@ -19,7 +19,7 @@
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
 #include "../gui/TextAlignment.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Graphics.h"
 
 BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
@@ -32,7 +32,7 @@ BattleOverlayLogVisualizer::BattleOverlayLogVisualizer(
 void BattleOverlayLogVisualizer::drawText(const BattleHex & hex, int lineNumber, const std::string & text)
 {
 	Point offset = owner.fieldController->hexPositionLocal(hex).topLeft() + Point(20, 20);
-	const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 	int h = font->getLineHeight();
 
 	offset.y += h * lineNumber;

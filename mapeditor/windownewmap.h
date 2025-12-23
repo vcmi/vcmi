@@ -87,7 +87,7 @@ private slots:
 
 	void on_sizeCombo_activated(int index);
 
-	void on_twoLevelCheck_stateChanged(int arg1);
+	void on_spinBoxLevels_valueChanged(int value);
 
 	void on_humanCombo_activated(int index);
 

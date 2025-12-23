@@ -19,6 +19,7 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../serializer/CLoadFile.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -30,15 +31,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapInfo::CMapInfo()
-	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
+	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
 
 }
 
-CMapInfo::~CMapInfo()
-{
-	vstd::clear_pointer(scenarioOptionsOfSave);
-}
+CMapInfo::~CMapInfo() = default;
+
 
 void CMapInfo::mapInit(const std::string & fname)
 {
@@ -46,23 +45,30 @@ void CMapInfo::mapInit(const std::string & fname)
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
+	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
+	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 	countPlayers();
 }
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), ESerializationVersion::MINIMAL);
-	lf.checkMagicBytes(SAVEGAME_MAGIC);
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), nullptr);
 
 	mapHeader = std::make_unique<CMapHeader>();
-	lf >> *(mapHeader) >> scenarioOptionsOfSave;
-	fileURI = file.getName();
-	originalFileURI = file.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
+	scenarioOptionsOfSave = std::make_unique<StartInfo>();
+	lf.load(*mapHeader);
+	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
+		lf.load(*scenarioOptionsOfSave);
+	else
+		lf.load(scenarioOptionsOfSave);
+
+	fileURI = file.getName(); // Name without file extension
+	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
+	fullFileURI = CResourceHandler::get()->getFullFileURI(file); // Includes absolute path + extension
 	countPlayers();
-	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
+	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 
 	// We absolutely not need this data for lobby and server will read it from save
@@ -74,8 +80,10 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
+	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
+	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 }
 
 void CMapInfo::countPlayers()
@@ -109,7 +117,7 @@ std::string CMapInfo::getNameTranslated() const
 		return mapHeader->name.toString();
 	}
 	else
-		return VLC->generaltexth->allTexts[508];
+		return LIBRARY->generaltexth->allTexts[508];
 }
 
 std::string CMapInfo::getNameForList() const
@@ -166,19 +174,19 @@ int CMapInfo::getMapSizeFormatIconId() const
 	switch(mapHeader->version)
 	{
 		case EMapFormat::ROE:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
 		case EMapFormat::AB:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
 		case EMapFormat::SOD:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
 		case EMapFormat::CHR:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
 		case EMapFormat::WOG:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
 		case EMapFormat::HOTA:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
 		case EMapFormat::VCMI:
-			return VLC->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
 	}
 	return 0;
 }

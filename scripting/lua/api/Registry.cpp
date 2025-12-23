@@ -65,7 +65,7 @@ const char * TypeRegistry::getKeyForType(const std::type_info & type)
 
 	std::type_index typeIndex(type);
 
-	boost::unique_lock<boost::mutex> lock(mutex);
+	std::unique_lock<std::mutex> lock(mutex);
 
 	auto iter = keys.find(typeIndex);
 

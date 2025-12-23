@@ -14,7 +14,7 @@
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/CConfigHandler.h"
 
 #include <boost/program_options.hpp>
@@ -71,18 +71,18 @@ int main(int argc, const char * argv[])
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 
-	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
-	logConfig.configureDefault();
+	CConsoleHandler console;
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", &console);
+	logConfigurator.configureDefault();
 	logGlobal->info(SERVER_NAME);
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console, false);
-	logConfig.configure();
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	logConfigurator.configure();
 
-	loadDLLClasses();
-	std::srand(static_cast<uint32_t>(time(nullptr)));
+	LIBRARY->initializeLibrary();
 
 	{
 		bool connectToLobby = opts.count("lobby");
@@ -95,11 +95,11 @@ int main(int argc, const char * argv[])
 		server.prepare(connectToLobby, true);
 		server.run();
 
-		// CVCMIServer destructor must be called here - before VLC cleanup
+		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 
-	logConfig.deconfigure();
-	vstd::clear_pointer(VLC);
+	logConfigurator.deconfigure();
 
+	delete LIBRARY;
 	return 0;
 }

@@ -31,7 +31,7 @@ public:
 	bool needsLastStack() const override;
 	std::shared_ptr<SpecialAction> getActorAction() const;
 
-	HeroExchangeArmy(): CArmedInstance(nullptr, true), requireBuyArmy(false) {}
+	HeroExchangeArmy(): CArmedInstance(nullptr, BonusNodeType::UNKNOWN, true), requireBuyArmy(false) {}
 };
 
 struct ExchangeResult
@@ -93,7 +93,7 @@ private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
 	const Nullkiller * ai;
-	boost::shared_mutex sync;
+	std::shared_mutex sync;
 
 public:
 	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);

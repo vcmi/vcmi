@@ -12,7 +12,7 @@
 
 #include "SDL_PixelAccess.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Graphics.h"
 #include "../render/IImage.h"
 #include "../render/IScreenHandler.h"
@@ -23,6 +23,8 @@
 #include "../../lib/GameConstants.h"
 
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
+#include <tbb/blocked_range2d.h>
 
 #include <SDL_render.h>
 #include <SDL_surface.h>
@@ -59,61 +61,37 @@ SDL_Color CSDL_Ext::toSDL(const ColorRGBA & color)
 	return result;
 }
 
-void CSDL_Ext::setColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
-{
-	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
-}
-
-void CSDL_Ext::setAlpha(SDL_Surface * bg, int value)
-{
-	SDL_SetSurfaceAlphaMod(bg, value);
-}
-
 SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions)
 {
-	return newSurface(dimensions, screen);
+	return newSurface(dimensions, nullptr);
 }
 
 SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	SDL_Surface * ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = nullptr;
+
+	if (mod != nullptr)
+		ret = SDL_CreateRGBSurface(0,dimensions.x,dimensions.y,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	else
+		ret = SDL_CreateRGBSurfaceWithFormat(0,dimensions.x,dimensions.y,32,SDL_PixelFormatEnum::SDL_PIXELFORMAT_ARGB8888);
 
 	if(ret == nullptr)
 	{
 		const char * error = SDL_GetError();
 
-		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
-		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % mod->format->BitsPerPixel % error);
+		std::string messagePattern = "Failed to create SDL Surface of size %d x %d. Reason: %s";
+		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % error);
 
 		throw std::runtime_error(message);
 	}
 
-	if (mod->format->palette)
+	if (mod && mod->format->palette)
 	{
 		assert(ret->format->palette);
 		assert(ret->format->palette->ncolors >= mod->format->palette->ncolors);
 		memcpy(ret->format->palette->colors, mod->format->palette->colors, mod->format->palette->ncolors * sizeof(SDL_Color));
 	}
 	return ret;
-}
-
-SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given surface
-{
-	//return SDL_DisplayFormat(mod);
-	return SDL_ConvertSurface(mod, mod->format, mod->flags);
-}
-
-template<int bpp>
-SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
-{
-	uint32_t rMask = 0, gMask = 0, bMask = 0, aMask = 0;
-
-	Channels::px<bpp>::r.set((uint8_t*)&rMask, 255);
-	Channels::px<bpp>::g.set((uint8_t*)&gMask, 255);
-	Channels::px<bpp>::b.set((uint8_t*)&bMask, 255);
-	Channels::px<bpp>::a.set((uint8_t*)&aMask, 255);
-
-	return SDL_CreateRGBSurface(0, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
 
 void CSDL_Ext::blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
@@ -186,6 +164,59 @@ SDL_Surface * CSDL_Ext::horizontalFlip(SDL_Surface * toRot)
 	SDL_UnlockSurface(ret);
 	SDL_UnlockSurface(toRot);
 	return ret;
+}
+
+SDL_Surface * CSDL_Ext::Rotate90(SDL_Surface * src)
+{
+	if (!src)
+		return nullptr;
+
+	const int w = src->w;
+	const int h = src->h;
+
+	SDL_Surface* dst = SDL_CreateRGBSurfaceWithFormat(0, h, w, src->format->BitsPerPixel, src->format->format);
+	if (!dst)
+		return nullptr;
+
+	SDL_LockSurface(src);
+	SDL_LockSurface(dst);
+
+	const Uint32* srcPixels = (Uint32*)src->pixels;
+	Uint32*       dstPixels = (Uint32*)dst->pixels;
+
+	const int srcPitch = src->pitch / 4;
+	const int dstPitch = dst->pitch / 4;
+
+	constexpr int B = 32; // Tile size (32 is nearly always optimal)
+
+	tbb::parallel_for(
+		tbb::blocked_range2d<int>(0, h, B, 0, w, B),
+		[&](const tbb::blocked_range2d<int>& r)
+		{
+			const int y0 = r.rows().begin();
+			const int y1 = r.rows().end();
+			const int x0 = r.cols().begin();
+			const int x1 = r.cols().end();
+
+			for (int y = y0; y < y1; ++y)
+			{
+				const Uint32* srow = srcPixels + y * srcPitch;
+
+				for (int x = x0; x < x1; ++x)
+				{
+					const int dx = h - 1 - y;
+					const int dy = x;
+
+					dstPixels[dx + dy * dstPitch] = srow[x];
+				}
+			}
+		}
+	);
+
+	SDL_UnlockSurface(src);
+	SDL_UnlockSurface(dst);
+
+	return dst;
 }
 
 uint32_t CSDL_Ext::getPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
@@ -537,54 +568,23 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const Rect &r, const SDL_Color &co
 	drawBorder(sur, r.x, r.y, r.w, r.h, color, depth);
 }
 
-CSDL_Ext::TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest)
-{
-	switch(dest->format->BytesPerPixel)
-	{
-		case 3:
-			return ColorPutter<3>::PutColor;
-		case 4:
-			return ColorPutter<4>::PutColor;
-	default:
-		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
-		return nullptr;
-	}
-}
-
 uint8_t * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
 {
 	return (uint8_t *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
 }
 
-bool CSDL_Ext::isTransparent( SDL_Surface * srf, const Point & position )
-{
-	return isTransparent(srf, position.x, position.y);
-}
-
-bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
-{
-	if (x < 0 || y < 0 || x >= srf->w || y >= srf->h)
-		return true;
-
-	SDL_Color color;
-
-	SDL_GetRGBA(CSDL_Ext::getPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
-
-	bool pixelTransparent = color.a < 128;
-	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
-
-	return pixelTransparent || pixelCyan;
-}
-
 void CSDL_Ext::putPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const uint8_t & R, const uint8_t & G, const uint8_t & B, uint8_t A)
 {
 	uint8_t *p = getPxPtr(ekran, x, y);
-	getPutterFor(ekran)(p, R, G, B);
 
 	switch(ekran->format->BytesPerPixel)
 	{
-	case 3: Channels::px<3>::a.set(p, A); break;
-	case 4: Channels::px<4>::a.set(p, A); break;
+	case 3:
+		ColorPutter<3>::PutColor(p, R, G, B);
+		Channels::px<3>::a.set(p, A); break;
+	case 4:
+		ColorPutter<4>::PutColor(p, R, G, B);
+		Channels::px<4>::a.set(p, A); break;
 	}
 }
 
@@ -597,38 +597,59 @@ void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x,
 		CSDL_Ext::putPixelWithoutRefresh(ekran, x, y, R, G, B, A);
 }
 
-template<int bpp>
-void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
+template<typename Functor>
+void loopOverPixel(SDL_Surface * surf, const Rect & rect, Functor functor)
 {
 	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
 
-	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
+	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& r)
 	{
-		uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
-		uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
-
-		for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+		for(int yp = r.begin(); yp != r.end(); ++yp)
 		{
-			int r = Channels::px<bpp>::r.get(pixel);
-			int g = Channels::px<bpp>::g.get(pixel);
-			int b = Channels::px<bpp>::b.get(pixel);
+			uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+			uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
 
-			int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
+			for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+			{
+				int r = Channels::px<4>::r.get(pixel);
+				int g = Channels::px<4>::g.get(pixel);
+				int b = Channels::px<4>::b.get(pixel);
 
-			Channels::px<bpp>::r.set(pixel, gray);
-			Channels::px<bpp>::g.set(pixel, gray);
-			Channels::px<bpp>::b.set(pixel, gray);
+				functor(r, g, b);
+
+				Channels::px<4>::r.set(pixel, r);
+				Channels::px<4>::g.set(pixel, g);
+				Channels::px<4>::b.set(pixel, b);
+			}
 		}
-	}
+	});
 }
 
-void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
+void CSDL_Ext::convertToGrayscale(SDL_Surface * surf, const Rect & rect )
 {
-	switch(surf->format->BytesPerPixel)
-	{
-		case 3: convertToGrayscaleBpp<3>(surf, rect); break;
-		case 4: convertToGrayscaleBpp<4>(surf, rect); break;
-	}
+	loopOverPixel(surf, rect, [](int &r, int &g, int &b){
+		int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 * b);
+		r = gray;
+		g = gray;
+		b = gray;
+	});
+}
+
+void CSDL_Ext::convertToH2Scheme(SDL_Surface * surf, const Rect & rect )
+{
+	loopOverPixel(surf, rect, [](int &r, int &g, int &b){
+		double gray = 0.3 * r + 0.59 * g + 0.11 * b;
+		double factor = 2.0;
+
+		//fast approximation instead of colorspace conversion
+		r = static_cast<int>(gray + (r - gray) * factor);
+		g = static_cast<int>(gray + (g - gray) * factor);
+		b = static_cast<int>(gray + (b - gray) * factor);
+
+		r = std::clamp(r, 0, 255);
+		g = std::clamp(g, 0, 255);
+		b = std::clamp(b, 0, 255);
+	});
 }
 
 void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPoint)
@@ -720,5 +741,331 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	other = CSDL_Ext::fromSDL(rect);
 }
 
-template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
-template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);
+SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& color, int thickness)
+{
+	if(thickness < 1)
+		return nullptr;
+
+	SDL_Surface* destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
+
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_LockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_LockSurface(destSurface);
+
+	int width = sourceSurface->w;
+	int height = sourceSurface->h;
+
+	// Helper lambda to get alpha
+	auto getAlpha = [&](int x, int y) -> Uint8 {
+		if (x < 0 || x >= width || y < 0 || y >= height)
+			return 0;
+		Uint32 pixel = *((Uint32*)sourceSurface->pixels + y * width + x);
+		Uint8 r;
+		Uint8 g;
+		Uint8 b;
+		Uint8 a;
+		SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
+		return a;
+	};
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
+	{
+		for (int y = r.begin(); y != r.end(); ++y)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				Uint8 alpha = getAlpha(x, y);
+				if (alpha != 0)
+					continue; // Skip opaque or semi-transparent pixels
+
+				Uint8 maxNearbyAlpha = 0;
+
+				for (int dy = -thickness; dy <= thickness; ++dy)
+				{
+					for (int dx = -thickness; dx <= thickness; ++dx)
+					{
+						if (dx * dx + dy * dy > thickness * thickness)
+							continue; // circular area
+
+						int nx = x + dx;
+						int ny = y + dy;
+						if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+							continue;
+
+						Uint8 neighborAlpha = getAlpha(nx, ny);
+						if (neighborAlpha > maxNearbyAlpha)
+							maxNearbyAlpha = neighborAlpha;
+					}
+				}
+
+				if (maxNearbyAlpha > 0)
+				{
+					Uint8 finalAlpha = maxNearbyAlpha - alpha; // alpha is 0 here, so effectively maxNearbyAlpha
+					Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, finalAlpha);
+					*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+				}
+			}
+		}
+	});
+
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
+
+	return destSurface;
+}
+
+void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b, double c, double d, double tx, double ty)
+{
+	// Check if the transform is purely scaling (and optionally translation)
+	bool isPureScaling = vstd::isAlmostZero(b) && vstd::isAlmostZero(c);
+
+	if (isPureScaling)
+	{
+		// Calculate target dimensions
+		int scaledW = static_cast<int>(src->w * a);
+		int scaledH = static_cast<int>(src->h * d);
+
+		SDL_Rect srcRect = { 0, 0, src->w, src->h };
+		SDL_Rect dstRect = { static_cast<int>(tx), static_cast<int>(ty), scaledW, scaledH };
+
+		// Convert surfaces to same format if needed
+		if (src->format->format != dst->format->format)
+		{
+			SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
+			if (!converted)
+				throw std::runtime_error("SDL_ConvertSurface failed!");
+
+			SDL_BlitScaled(converted, &srcRect, dst, &dstRect);
+			SDL_FreeSurface(converted);
+		}
+		else
+			SDL_BlitScaled(src, &srcRect, dst, &dstRect);
+
+		return;
+	}
+
+	// Lock surfaces for direct pixel access
+	if (SDL_MUSTLOCK(src)) SDL_LockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_LockSurface(dst);
+
+	// Calculate inverse matrix M_inv for mapping dst -> src
+	double det = a * d - b * c;
+	if (vstd::isAlmostZero(det))
+		throw std::runtime_error("Singular transform matrix!");
+	double invDet = 1.0 / det;
+	double ia =  d * invDet;
+	double ib = -b * invDet;
+	double ic = -c * invDet;
+	double id =  a * invDet;
+
+	auto srcPixels = (Uint32*)src->pixels;
+	auto dstPixels = (Uint32*)dst->pixels;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, dst->h), [&](const tbb::blocked_range<size_t>& r)
+	{
+		// For each pixel in the destination image
+		for(int y = r.begin(); y != r.end(); ++y)
+		{
+			for(int x = 0; x < dst->w; x++)
+			{
+				// Map destination pixel (x,y) back to source coordinates (srcX, srcY)
+				double srcX = ia * (x - tx) + ib * (y - ty);
+				double srcY = ic * (x - tx) + id * (y - ty);
+
+				// Nearest neighbor sampling (can be improved to bilinear)
+				auto srcXi = static_cast<int>(round(srcX));
+				auto srcYi = static_cast<int>(round(srcY));
+
+				// Check bounds
+				if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
+				{
+					Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
+					dstPixels[y * dst->w + x] = pixel;
+				}
+				else
+					dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
+			}
+		}
+	});
+
+	if (SDL_MUSTLOCK(src)) SDL_UnlockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_UnlockSurface(dst);
+}
+
+int getLowestNonTransparentY(SDL_Surface* surface)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	const int w = surface->w;
+	const int h = surface->h;
+	const int bpp = surface->format->BytesPerPixel;
+	auto pixels = static_cast<Uint8*>(surface->pixels);
+
+	// Use parallel_reduce to find the max y with non-transparent pixel
+	int lowestY = tbb::parallel_reduce(
+		tbb::blocked_range<int>(0, h),
+		-1,  // initial lowestY = -1 (fully transparent)
+		[&](const tbb::blocked_range<int>& r, int localMaxY) -> int
+		{
+			for (int y = r.begin(); y != r.end(); ++y)
+			{
+				Uint8* row = pixels + y * surface->pitch;
+				for (int x = 0; x < w; ++x)
+				{
+					Uint32 pixel = *(Uint32*)(row + x * bpp);
+					Uint8 a = (pixel >> 24) & 0xFF; // Fast path for ARGB8888
+					if (a > 0)
+					{
+						localMaxY = std::max(localMaxY, y);
+						break; // no need to scan rest of row
+					}
+				}
+			}
+			return localMaxY;
+		},
+		[](int a, int b) -> int
+		{
+			return std::max(a, b);
+		}
+	);
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+	return lowestY;
+}
+
+void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	auto pixels = (Uint32*)surface->pixels;
+	int pixelCount = surface->w * surface->h;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, pixelCount), [&](const tbb::blocked_range<size_t>& range)
+	{
+		for(int i = range.begin(); i != range.end(); ++i)
+		{
+			Uint32 pixel = pixels[i];
+			Uint8 pr;
+			Uint8 pg;
+			Uint8 pb;
+			Uint8 pa;
+			// Extract existing RGBA components using SDL_GetRGBA
+			SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
+
+			Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
+			if(pa < 128)
+				newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+
+			pixels[i] = newPixel;
+		}
+	});
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+void boxBlur(SDL_Surface* surface)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	int width = surface->w;
+	int height = surface->h;
+	int pixelCount = width * height;
+
+	Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+	std::vector<Uint32> temp(pixelCount);
+
+	tbb::parallel_for(0, height, [&](int y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			int sumR = 0;
+			int sumG = 0;
+			int sumB = 0;
+			int sumA = 0;
+			int count = 0;
+
+			for (int ky = -1; ky <= 1; ++ky)
+			{
+				int ny = std::clamp(y + ky, 0, height - 1);
+				for (int kx = -1; kx <= 1; ++kx)
+				{
+					int nx = std::clamp(x + kx, 0, width - 1);
+					Uint32 pixel = pixels[ny * width + nx];
+
+					sumA += (pixel >> 24) & 0xFF;
+					sumR += (pixel >> 16) & 0xFF;
+					sumG += (pixel >> 8)  & 0xFF;
+					sumB += (pixel >> 0)  & 0xFF;
+					++count;
+				}
+			}
+
+			Uint8 a = sumA / count;
+			Uint8 r = sumR / count;
+			Uint8 g = sumG / count;
+			Uint8 b = sumB / count;
+			temp[y * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
+		}
+	});
+
+	std::copy(temp.begin(), temp.end(), pixels);
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * sourceSurface, bool doSheer)
+{
+	SDL_Surface *destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
+
+	double shearX = doSheer ? 0.5 : 0.0;
+	double scaleY = doSheer ? 0.5 : 0.25;
+
+	int lowestSource = getLowestNonTransparentY(sourceSurface);
+	int lowestTransformed = lowestSource * scaleY;
+
+	// Parameters for applyAffineTransform
+	double a = 1.0;
+	double b = shearX;
+	double c = 0.0;
+	double d = scaleY;
+	double tx = -shearX * lowestSource;
+	double ty = lowestSource - lowestTransformed;
+
+	applyAffineTransform(sourceSurface, destSurface, a, b, c, d, tx, ty);
+	fillAlphaPixelWithRGBA(destSurface, 0, 0, 0, 128);
+	boxBlur(destSurface);
+
+	return destSurface;
+}
+
+void CSDL_Ext::adjustBrightness(SDL_Surface* surface, float factor)
+{
+    if (!surface || surface->format->BytesPerPixel != 4)
+        return;
+
+    SDL_LockSurface(surface);
+
+    Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+
+    for (int y = 0; y < surface->h; y++)
+    {
+        auto* row = reinterpret_cast<Uint32*>(static_cast<Uint8*>(surface->pixels) + y * surface->pitch);
+
+        for (int x = 0; x < surface->w; x++)
+        {
+            Uint32 pixel = row[x];
+
+            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+
+            r = std::min(255, static_cast<int>(r * factor));
+            g = std::min(255, static_cast<int>(g * factor));
+            b = std::min(255, static_cast<int>(b * factor));
+
+            row[x] = SDL_MapRGBA(surface->format, r, g, b, a);
+        }
+    }
+
+    SDL_UnlockSurface(surface);
+}

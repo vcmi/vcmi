@@ -11,12 +11,21 @@
 #include "StdInc.h"
 #include "FlaggableMapObject.h"
 
-#include "../IGameCallback.h"
 #include "CGHeroInstance.h"
-#include "../networkPacks/PacksForClient.h"
+
+#include "../CPlayerState.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+FlaggableMapObject::FlaggableMapObject(IGameInfoCallback *cb)
+	:CGObjectInstance(cb)
+	,CBonusSystemNode(BonusNodeType::UNKNOWN)
+{}
 
 const IOwnableObject * FlaggableMapObject::asOwnable() const
 {
@@ -33,37 +42,22 @@ std::vector<CreatureID> FlaggableMapObject::providedCreatures() const
 	return {};
 }
 
-void FlaggableMapObject::onHeroVisit( const CGHeroInstance * h ) const
+void FlaggableMapObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if (cb->getPlayerRelations(h->getOwner(), getOwner()) != PlayerRelations::ENEMIES)
 		return; // H3 behavior - revisiting owned Lighthouse is a no-op
 
-	if (getOwner().isValidPlayer())
-		takeBonusFrom(getOwner());
-
-	cb->setOwner(this, h->getOwner()); //not ours? flag it!
+	gameEvents.setOwner(this, h->getOwner()); //not ours? flag it!
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
 	iw.text.appendTextID(getFlaggableHandler()->getVisitMessageTextID());
-	cb->showInfoDialog(&iw);
-
-	giveBonusTo(h->getOwner());
+	gameEvents.showInfoDialog(&iw);
 }
 
-void FlaggableMapObject::markAsDeleted() const
+void FlaggableMapObject::initObj(IGameRandomizer & gameRandomizer)
 {
-	if(getOwner().isValidPlayer())
-		takeBonusFrom(getOwner());
-}
-
-void FlaggableMapObject::initObj(vstd::RNG & rand)
-{
-	if(getOwner().isValidPlayer())
-	{
-		// FIXME: This is dirty hack
-		giveBonusTo(getOwner(), true);
-	}
+	initBonuses();
 }
 
 std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHandler() const
@@ -71,41 +65,32 @@ std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHa
 	return std::dynamic_pointer_cast<FlaggableInstanceConstructor>(getObjectHandler());
 }
 
-void FlaggableMapObject::giveBonusTo(const PlayerColor & player, bool onInit) const
+void FlaggableMapObject::initBonuses()
 {
 	for (auto const & bonus : getFlaggableHandler()->getProvidedBonuses())
-	{
-		GiveBonus gb(GiveBonus::ETarget::PLAYER);
-		gb.id = player;
-		gb.bonus = *bonus;
-
-		// FIXME: better place for this code?
-		gb.bonus.duration = BonusDuration::PERMANENT;
-		gb.bonus.source = BonusSource::OBJECT_INSTANCE;
-		gb.bonus.sid = BonusSourceID(id);
-
-		// FIXME: This is really dirty hack
-		// Proper fix would be to make FlaggableMapObject into bonus system node
-		// Unfortunately this will cause saves breakage
-		if(onInit)
-			gb.applyGs(cb->gameState());
-		else
-			cb->sendAndApply(gb);
-	}
-}
-
-void FlaggableMapObject::takeBonusFrom(const PlayerColor & player) const
-{
-	RemoveBonus rb(GiveBonus::ETarget::PLAYER);
-	rb.whoID = player;
-	rb.source = BonusSource::OBJECT_INSTANCE;
-	rb.id = BonusSourceID(id);
-	cb->sendAndApply(rb);
+		addNewBonus(bonus);
 }
 
 void FlaggableMapObject::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
+}
+
+void FlaggableMapObject::attachToBonusSystem(CGameState & gs)
+{
+	if (getOwner().isValidPlayer())
+		attachTo(*gs.getPlayerState(getOwner()));
+}
+
+void FlaggableMapObject::detachFromBonusSystem(CGameState & gs)
+{
+	if (getOwner().isValidPlayer())
+		detachFrom(*gs.getPlayerState(getOwner()));
+}
+
+void FlaggableMapObject::restoreBonusSystem(CGameState & gs)
+{
+	attachToBonusSystem(gs);
 }
 
 VCMI_LIB_NAMESPACE_END

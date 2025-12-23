@@ -22,6 +22,7 @@ class IImage;
 class CAnimation;
 class CanvasImage;
 class SDLImageShared;
+class AssetGenerator;
 enum class EImageBlitMode : uint8_t;
 enum class CanvasScalingPolicy;
 enum EFonts : int8_t;
@@ -31,7 +32,7 @@ class IRenderHandler : public boost::noncopyable
 public:
 	virtual ~IRenderHandler() = default;
 
-	/// Must be called once VLC loading is over to initialize icons
+	/// Must be called once LIBRARY loading is over to initialize icons
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
 	/// Loads image using given path
@@ -52,4 +53,8 @@ public:
 	virtual std::shared_ptr<const IFont> loadFont(EFonts font) = 0;
 
 	virtual void exportGeneratedAssets() = 0;
+
+	virtual std::shared_ptr<AssetGenerator> getAssetGenerator() = 0;
+
+	virtual void updateGeneratedAssets() = 0;
 };

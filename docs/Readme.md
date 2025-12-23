@@ -1,9 +1,7 @@
 # VCMI Project
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.6.6/total)](https://github.com/vcmi/vcmi/releases/tag/1.6.6)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.6.7/total)](https://github.com/vcmi/vcmi/releases/tag/1.6.7)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.6.8/total)](https://github.com/vcmi/vcmi/releases/tag/1.6.8)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving it new and extended possibilities.
@@ -41,8 +39,8 @@ See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md
 
 <p>
   <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Antagarich%20Burning%20Battle.jpg?raw=true" alt="Forge Town in battle" style="height:120px;"/>
-  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Town%20and%20Unit.jpg?raw=true" alt="Asylum town with new creature dialog" style="height:120px;"/>
-  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Siege.jpg?raw=true" alt="Ruins town siege" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.6.0/New%20bonus%20descriptions.png?raw=true" alt="New creature dialog with ability descriptions" style="height:120px;"/>
+  <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.6.0/Preserve%20siege.jpg?raw=true" alt="Preserve town siege" style="height:120px;"/>
   <img src="https://github.com/vcmi/VCMI.eu/blob/master/static/img/screenshots/1.4.0/Editor.jpg?raw=true" alt="Map editor" style="height:120px;"/>
 </p>
 
@@ -99,4 +97,4 @@ Engine documentation: (NOTE: may be outdated)
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: <https://github.com/vcmi/vcmi-assets>
 
-Copyright (C) 2007-2024  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2025  VCMI Team (check AUTHORS file for the contributors list)

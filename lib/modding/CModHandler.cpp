@@ -20,7 +20,7 @@
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
 #include "../ScriptHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -71,7 +71,7 @@ static std::string getModDirectory(const TModID & modName)
 	return "MODS/" + result;
 }
 
-static ISimpleResourceLoader * genModFilesystem(const std::string & modName, const JsonNode & conf)
+static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string & modName, const JsonNode & conf)
 {
 	static const JsonNode defaultFS = genDefaultFS();
 
@@ -87,20 +87,20 @@ void CModHandler::loadModFilesystems()
 
 	const auto & activeMods = modManager->getActiveMods();
 
-	std::map<TModID, ISimpleResourceLoader *> modFilesystems;
+	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
 
 	for(const TModID & modName : activeMods)
 		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
 
-	for(const TModID & modName : activeMods)
-		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
-			CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
-
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);
+
+	for(const TModID & modName : activeMods)
+		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
+			CResourceHandler::addFilesystem("data", modName, std::move(modFilesystems[modName]));
 }
 
-void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, ISimpleResourceLoader *> & modFilesystems)
+void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems)
 {
 	for(const auto & [leftName, leftFilesystem] : modFilesystems)
 	{
@@ -172,7 +172,7 @@ std::string CModHandler::findResourceEncoding(const ResourcePath & resource) con
 		// in this case, this file may be in user-preferred language, and not in same language as the rest of H3 data
 		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
 		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
-		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 		std::string fileEncoding = Languages::getLanguageOptions(preferredLanguage).encoding;
 		return fileEncoding;
 	}
@@ -186,11 +186,11 @@ std::string CModHandler::findResourceEncoding(const ResourcePath & resource) con
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
 	if(modId == "core")
-		return VLC->generaltexth->getInstalledLanguage();
+		return LIBRARY->generaltexth->getInstalledLanguage();
 	if(modId == "map")
-		return VLC->generaltexth->getPreferredLanguage();
+		return LIBRARY->generaltexth->getPreferredLanguage();
 	if(modId == "mapEditor")
-		return VLC->generaltexth->getPreferredLanguage();
+		return LIBRARY->generaltexth->getPreferredLanguage();
 	return getModInfo(modId).getBaseLanguage();
 }
 
@@ -230,7 +230,7 @@ void CModHandler::initializeConfig()
 	{
 		const auto & mod = getModInfo(modName);
 		if (!mod.getLocalConfig()["settings"].isNull())
-			VLC->settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
+			LIBRARY->settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
 	}
 }
 
@@ -238,14 +238,14 @@ void CModHandler::loadTranslation(const TModID & modName)
 {
 	const auto & mod = getModInfo(modName);
 
-	std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+	std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = getModInfo(modName).getBaseLanguage();
 
 	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()["translations"]);
 	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()[preferredLanguage]["translations"]);
 
-	VLC->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
-	VLC->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);
+	LIBRARY->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
+	LIBRARY->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);
 }
 
 void CModHandler::load()
@@ -291,7 +291,7 @@ void CModHandler::load()
 	}
 
 #if SCRIPTING_ENABLED
-	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
+	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
 #endif
 
 	content->loadCustom();
@@ -300,8 +300,8 @@ void CModHandler::load()
 		loadTranslation(modName);
 
 	logMod->info("\tLoading mod data");
-	VLC->creh->loadCrExpMod();
-	VLC->identifiersHandler->finalize();
+	LIBRARY->creh->loadCrExpMod();
+	LIBRARY->identifiersHandler->finalize();
 	logMod->info("\tResolving identifiers");
 
 	content->afterLoadFinalization();
@@ -309,7 +309,7 @@ void CModHandler::load()
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad(bool onlyEssential)
+void CModHandler::afterLoad()
 {
 	JsonNode modSettings;
 	for (const auto & modEntry : getActiveMods())

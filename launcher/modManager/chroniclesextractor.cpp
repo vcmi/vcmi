@@ -103,7 +103,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{ "modType", "Expansion" },
 		{ "name", tr("Heroes Chronicles") },
 		{ "description", tr("Heroes Chronicles") },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 		{ "heroes", QJsonArray({"config/portraitsChronicles.json"}) },
@@ -121,8 +121,8 @@ void ChroniclesExtractor::createBaseMod() const
 	};
 
 	QFile jsonFile(dir.filePath("mod.json"));
-    jsonFile.open(QFile::WriteOnly);
-    jsonFile.write(QJsonDocument(mod).toJson());
+	jsonFile.open(QFile::WriteOnly);
+	jsonFile.write(QJsonDocument(mod).toJson());
 
 	for(auto & dataPath : VCMIDirs::get().dataPaths())
 	{
@@ -133,7 +133,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{
 			QDir().mkpath(pathToQString(destFolder));
 			QFile::remove(destFile);
-			QFile::copy(file, destFile);
+			Helper::performNativeCopy(file, destFile);
 		}
 	}
 }
@@ -151,14 +151,14 @@ void ChroniclesExtractor::createChronicleMod(int no)
 		{ "modType", "Expansion" },
 		{ "name", QString("%1 - %2").arg(no).arg(tmpChronicles) },
 		{ "description", tr("Heroes Chronicles %1 - %2").arg(no).arg(tmpChronicles) },
-		{ "author", "3DO" },
+		{ "author", "New World Computing, 3DO" },
 		{ "version", "1.0" },
 		{ "contact", "vcmi.eu" },
 	};
 	
 	QFile jsonFile(dir.filePath("mod.json"));
-    jsonFile.open(QFile::WriteOnly);
-    jsonFile.write(QJsonDocument(mod).toJson());
+	jsonFile.open(QFile::WriteOnly);
+	jsonFile.write(QJsonDocument(mod).toJson());
 
 	dir.cd("content");
 	
@@ -171,6 +171,10 @@ void ChroniclesExtractor::extractFiles(int no) const
 
 	std::string chroniclesDir = "chronicles_" + std::to_string(no);
 	QDir tmpDir = tempDir.filePath(tempDir.entryList({"app"}, QDir::Filter::Dirs).front());
+
+	if(!tmpDir.entryList({"data"}, QDir::Filter::Dirs).size()) // gog installer V2 has data and other folders outside "app" folder
+		tmpDir.cdUp();
+
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({QString(tmpChronicles)}, QDir::Filter::Dirs).front()));
 	tmpDir.setPath(tmpDir.filePath(tmpDir.entryList({"data"}, QDir::Filter::Dirs).front()));
 	auto basePath = VCMIDirs::get().userDataPath() / "Mods" / "chronicles" / "Mods" / chroniclesDir / "content";
@@ -224,7 +228,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 		auto mapping = std::map<std::string, int>{{ {"Intro", 1}, {"Intr2", 2}, {"Intr3", 3}, {"Intr4", 4}, {"Intro5", 7}, {"Intro6", 8} }};
 		std::vector<std::string> videoFiles;
 		for(auto & elem : mapping)
-			for(auto & ending : {".bik", ".smk"})
+			for(const auto & ending : {".bik", ".smk"})
 				videoFiles.push_back(elem.first + ending);
 		extract(tmpDirData, tmpDir, "Hchron.vid", videoFiles);
 		for(auto & ending : {".bik", ".smk"})
@@ -233,7 +237,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 				continue;
 			auto srcName = vstd::reverseMap(mapping).at(no);
 			auto dstName = (no == 7 || no == 8) ? srcName : "Intro";
-			QFile::copy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
+			Helper::performNativeCopy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
 		}
 	}
 
@@ -280,7 +284,7 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
 
-		for(auto & no : chronicleNo)
+		for(const auto & no : chronicleNo)
 		{
 			logGlobal->info("Creating Chronicle mod (%i)", no);
 			createChronicleMod(no);

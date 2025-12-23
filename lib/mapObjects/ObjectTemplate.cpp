@@ -12,7 +12,7 @@
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../texts/CLegacyConfigParser.h"
@@ -20,6 +20,8 @@
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../modding/IdentifierStorage.h"
+
+#include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -64,7 +66,7 @@ void ObjectTemplate::afterLoadFixup()
 	if(id == Obj::EVENT)
 	{
 		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
+		usedTiles[0][0] = VISITABLE | VISIBLE;
 		visitDir = 0xFF;
 	}
 }
@@ -218,19 +220,20 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	else
 		visitDir = 0x00;
 
-	if(withTerrain && !node["allowedTerrains"].isNull())
+	anyLandTerrain = true;
+	if(withTerrain)
 	{
-		for(const auto & entry : node["allowedTerrains"].Vector())
+		if (!node["allowedTerrains"].isNull())
 		{
-			VLC->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
-				allowedTerrains.insert(TerrainId(identifier));
-			});
+			anyLandTerrain = false;
+
+			for(const auto & entry : node["allowedTerrains"].Vector())
+			{
+				LIBRARY->identifiers()->requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
+					allowedTerrains.insert(TerrainId(identifier));
+				});
+			}
 		}
-		anyLandTerrain = false;
-	}
-	else
-	{
-		anyLandTerrain = true;
 	}
 
 	auto charToTile = [&](const char & ch) -> ui8
@@ -301,12 +304,12 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (VLC->terrainTypeHandler->size() - 2))
+		if(allowedTerrains.size() < (LIBRARY->terrainTypeHandler->size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
-				data.emplace_back(VLC->terrainTypeHandler->getById(type)->getJsonKey());
+				data.emplace_back(LIBRARY->terrainTypeHandler->getById(type)->getJsonKey());
 		}
 	}
 
@@ -498,11 +501,28 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
+int3 ObjectTemplate::getCornerOffset() const
+{
+	assert(isVisitable());
+
+	int3 ret = visitableOffset;
+	for (const auto & tile : blockedOffsets)
+	{
+		ret = {
+			std::min(-tile.x, ret.x),
+			std::min(-tile.y, ret.y),
+			ret.z
+		};
+	}
+
+	return ret;
+}
+
 bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
 	if (anyLandTerrain)
 	{
-		const auto & terrain = VLC->terrainTypeHandler->getById(terrainID);
+		const auto & terrain = LIBRARY->terrainTypeHandler->getById(terrainID);
 		return terrain->isLand() && terrain->isPassable();
 	}
 	return vstd::contains(allowedTerrains, terrainID);

@@ -11,7 +11,7 @@
 
 #include "Unit.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
 
 #include "../serializer/JsonDeserializer.h"
@@ -36,6 +36,16 @@ bool Unit::isDead() const
 bool Unit::isTurret() const
 {
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
+}
+
+bool Unit::isMeleeAttacker() const
+{
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return false;
+
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
+	return true;
 }
 
 std::string Unit::getDescription() const
@@ -68,27 +78,46 @@ const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & position, boo
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	const BattleHexArray & defenderHexes = getHexes();
-	
-	BattleHexArray targetableHexes;
-
-	for(const auto & defenderHex : defenderHexes)
+	if (!attacker->doubleWide())
 	{
-		auto hexes = battle::Unit::getHexes(defenderHex);
-
-		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
-			hexes.pop_back();
-
-		for(const auto & hex : hexes)
-			targetableHexes.insert(hex.getNeighbouringTiles());
+		return getSurroundingHexes();
 	}
+	else
+	{
+		BattleHexArray result;
 
-	return targetableHexes;
+		for (const auto & attackOrigin : getSurroundingHexes())
+		{
+			BattleHex occupiedHex = attacker->occupiedHex(attackOrigin); 
+			if (!coversPos(occupiedHex) && occupiedHex.isAvailable())
+				result.insert(attackOrigin);
+
+			BattleHex headHex = attackOrigin.cloneInDirection(attacker->headDirection());
+			if (!coversPos(headHex) && headHex.isAvailable())
+				result.insert(headHex);
+		}
+		return result;
+	}
 }
 
 bool Unit::coversPos(const BattleHex & pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
+}
+
+BattleHex::EDir Unit::headDirection() const
+{
+	if(doubleWide())
+	{
+		if(unitSide() == BattleSide::ATTACKER)
+			return BattleHex::EDir::RIGHT;
+		else
+			return BattleHex::EDir::LEFT;
+	}
+	else
+	{
+		return BattleHex::EDir::NONE;
+	}
 }
 
 const BattleHexArray & Unit::getHexes() const
@@ -176,11 +205,11 @@ BattleHex Unit::occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSid
 void Unit::addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural) const
 {
 	if(boost::logic::indeterminate(plural))
-		serial = VLC->generaltexth->pluralText(serial, getCount());
+		serial = LIBRARY->generaltexth->pluralText(serial, getCount());
 	else if(plural)
-		serial = VLC->generaltexth->pluralText(serial, 2);
+		serial = LIBRARY->generaltexth->pluralText(serial, 2);
 	else
-		serial = VLC->generaltexth->pluralText(serial, 1);
+		serial = LIBRARY->generaltexth->pluralText(serial, 1);
 
 	text.appendLocalString(type, serial);
 }
@@ -197,7 +226,7 @@ void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & p
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 {
-	const int32_t textId = VLC->generaltexth->pluralText(baseTextId, getCount());
+	const int32_t textId = LIBRARY->generaltexth->pluralText(baseTextId, getCount());
 
 	MetaString text;
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
@@ -237,8 +266,8 @@ void UnitInfo::save(JsonNode & data)
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("newUnitInfo", *this);
+	JsonDeserializer deser(nullptr, data);
+	deser.serializeStruct("newUnitInfo", *this);
 }
 
 }

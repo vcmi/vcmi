@@ -1,0 +1,118 @@
+{
+	// TODO: Mircea: Add proper description per field
+
+	"pawn" : {
+		"maxRoamingHeroes" : 3, //H3 value: 3,
+		"maxRoamingHeroesPerTown" : 0,
+		"maxPass" : 5,
+		"maxPriorityPass" : 2,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"threatTurnDistanceLimit" : 1,
+		"maxGoldPressure" : 0.3,
+		"updateHitmapOnTileReveal" : true,
+		"useTroopsFromGarrisons" : true,
+		"useOneWayMonoliths" : false,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1,
+		"pathfinderBucketSize" : 7,
+		"retreatThresholdRelative" : 0.1,
+		"retreatThresholdAbsolute" : 2000,
+		"safeAttackRatio" : 1.1,
+		"maxArmyLossTarget" : 0.65,
+		"useFuzzy" : false
+	},
+
+	"knight" : {
+		"maxRoamingHeroes" : 2, //H3 value: 3,
+		"maxRoamingHeroesPerTown" : 1,
+		"maxPass" : 10,
+		"maxPriorityPass" : 5,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"threatTurnDistanceLimit" : 4,
+		"maxGoldPressure" : 0.3,
+		"updateHitmapOnTileReveal" : true,
+		"useTroopsFromGarrisons" : true,
+		"useOneWayMonoliths" : false,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1,
+		"pathfinderBucketSize" : 7,
+		"retreatThresholdRelative" : 0.1,
+		"retreatThresholdAbsolute" : 5000,
+		"safeAttackRatio" : 1.1,
+		"maxArmyLossTarget" : 0.50,
+		"useFuzzy" : false
+	},
+
+	"rook" : {
+		"maxRoamingHeroes" : 2, //H3 value: 4
+		"maxRoamingHeroesPerTown" : 2,
+		"maxPass" : 40,
+		"maxPriorityPass" : 40,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"threatTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"updateHitmapOnTileReveal" : true,
+		"useTroopsFromGarrisons" : true,
+		"useOneWayMonoliths" : false,
+		"openMap": false,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1,
+		"pathfinderBucketSize" : 14,
+		"retreatThresholdRelative" : 0.3,
+		"retreatThresholdAbsolute" : 10000,
+		"safeAttackRatio" : 1.1,
+		"maxArmyLossTarget" : 0.35,
+		"useFuzzy" : false
+	},
+
+	"queen" : {
+		"maxRoamingHeroes" : 3, //H3 value: 5
+		"maxRoamingHeroesPerTown" : 2,
+		"maxPass" : 40,
+		"maxPriorityPass" : 40,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"threatTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"updateHitmapOnTileReveal" : true,
+		"useTroopsFromGarrisons" : true,
+		"useOneWayMonoliths" : false,
+		"openMap": true,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1,
+		"pathfinderBucketSize" : 14,
+		"retreatThresholdRelative" : 0.3,
+		"retreatThresholdAbsolute" : 10000,
+		"safeAttackRatio" : 1.1,
+		"maxArmyLossTarget" : 0.35,
+		"useFuzzy" : false
+	},
+
+	"king" : {
+		"maxRoamingHeroes" : 4, //H3 value: 6
+		"maxRoamingHeroesPerTown" : 2,
+		"maxPass" : 40,
+		"maxPriorityPass" : 40,
+		"mainHeroTurnDistanceLimit" : 10,
+		"scoutHeroTurnDistanceLimit" : 5,
+		"threatTurnDistanceLimit" : 5,
+		"maxGoldPressure" : 0.3,
+		"updateHitmapOnTileReveal" : true,
+		"useTroopsFromGarrisons" : true,
+		"useOneWayMonoliths" : false,
+		"openMap": true,
+		"allowObjectGraph": false,
+		"pathfinderBucketsCount" : 1,
+		"pathfinderBucketSize" : 14,
+		"retreatThresholdRelative" : 0.3,
+		"retreatThresholdAbsolute" : 10000,
+		"safeAttackRatio" : 1.1,
+		"maxArmyLossTarget" : 0.35,
+		"useFuzzy" : false
+	}
+}

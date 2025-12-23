@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-860</y>
         <width>729</width>
-        <height>1503</height>
+        <height>1758</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="20,5,5,5,5,10">
@@ -69,10 +69,24 @@
          </property>
         </widget>
        </item>
-       <item row="62" column="0">
+       <item row="63" column="0">
         <widget class="QLabel" name="labelModsValidation">
          <property name="text">
           <string>Mods Validation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="64" column="0">
+        <widget class="QLabel" name="labelConfigEditor">
+         <property name="text">
+          <string>Config editor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="64" column="1" colspan="5">
+        <widget class="QPushButton" name="buttonConfigEditor">
+         <property name="text">
+          <string>Open editor</string>
          </property>
         </widget>
        </item>
@@ -105,7 +119,7 @@
          </item>
         </widget>
        </item>
-       <item row="45" column="1" colspan="5">
+       <item row="46" column="1" colspan="5">
         <widget class="QSlider" name="sliderControllerSticksSensitivity">
          <property name="minimum">
           <number>500</number>
@@ -133,7 +147,7 @@
          </property>
         </widget>
        </item>
-       <item row="37" column="1" colspan="5">
+       <item row="38" column="1" colspan="5">
         <widget class="QPushButton" name="pushButtonResetTutorialTouchscreen">
          <property name="text">
           <string>Reset</string>
@@ -147,7 +161,7 @@
          </property>
         </widget>
        </item>
-       <item row="41" column="1" colspan="5">
+       <item row="42" column="1" colspan="5">
         <widget class="QSlider" name="sliderLongTouchDuration">
          <property name="minimum">
           <number>500</number>
@@ -172,7 +186,7 @@
          </property>
         </widget>
        </item>
-       <item row="56" column="1">
+       <item row="57" column="1">
         <widget class="QToolButton" name="buttonAutoCheck">
          <property name="enabled">
           <bool>true</bool>
@@ -239,7 +253,7 @@
          </property>
         </widget>
        </item>
-       <item row="57" column="1">
+       <item row="58" column="1">
         <widget class="QToolButton" name="buttonRepositoryDefault">
          <property name="enabled">
           <bool>true</bool>
@@ -268,14 +282,14 @@
          </property>
         </widget>
        </item>
-       <item row="40" column="0">
+       <item row="41" column="0">
         <widget class="QLabel" name="labelHapticFeedback">
          <property name="text">
           <string>Haptic Feedback</string>
          </property>
         </widget>
        </item>
-       <item row="43" column="0">
+       <item row="44" column="0">
         <widget class="QLabel" name="labelToleranceDistanceTouch">
          <property name="text">
           <string>Touch Tap Tolerance</string>
@@ -288,7 +302,7 @@
        <item row="1" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxLanguage"/>
        </item>
-       <item row="60" column="1" colspan="5">
+       <item row="61" column="1" colspan="5">
         <widget class="QSpinBox" name="spinBoxNetworkPortLobby">
          <property name="minimum">
           <number>1024</number>
@@ -301,7 +315,7 @@
          </property>
         </widget>
        </item>
-       <item row="62" column="5">
+       <item row="63" column="5">
         <widget class="QToolButton" name="buttonValidationFull">
          <property name="enabled">
           <bool>true</bool>
@@ -326,7 +340,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="44" column="0">
+       <item row="45" column="0">
         <widget class="QLabel" name="labelInputMouse_3">
          <property name="font">
           <font>
@@ -379,24 +393,14 @@
          </property>
         </widget>
        </item>
-       <item row="49" column="1" colspan="5">
+       <item row="50" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxEnemyPlayerAI">
          <property name="currentText">
-          <string notr="true">VCAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
         </widget>
        </item>
-       <item row="57" column="2" colspan="4">
+       <item row="58" column="2" colspan="4">
         <widget class="QLineEdit" name="lineEditRepositoryDefault">
          <property name="text">
           <string notr="true"/>
@@ -406,21 +410,11 @@
          </property>
         </widget>
        </item>
-       <item row="50" column="1" colspan="5">
+       <item row="51" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxAlliedPlayerAI">
          <property name="currentText">
-          <string notr="true">VCAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="4" column="0">
@@ -430,7 +424,7 @@
          </property>
         </widget>
        </item>
-       <item row="48" column="0">
+       <item row="49" column="0">
         <widget class="QLabel" name="labelArtificialIntelligence">
          <property name="font">
           <font>
@@ -445,7 +439,7 @@
          </property>
         </widget>
        </item>
-       <item row="57" column="0">
+       <item row="58" column="0">
         <widget class="QLabel" name="labelRepositoryDefault">
          <property name="text">
           <string>Default repository</string>
@@ -471,7 +465,7 @@
          </property>
         </widget>
        </item>
-       <item row="39" column="0">
+       <item row="40" column="0">
         <widget class="QLabel" name="labelRelativeCursorSpeed">
          <property name="text">
           <string>Relative Pointer Speed</string>
@@ -485,7 +479,7 @@
          </property>
         </widget>
        </item>
-       <item row="55" column="1" colspan="5">
+       <item row="56" column="1" colspan="5">
         <widget class="QToolButton" name="buttonIgnoreSslErrors">
          <property name="enabled">
           <bool>true</bool>
@@ -588,7 +582,7 @@
          </property>
         </widget>
        </item>
-       <item row="58" column="1">
+       <item row="59" column="1">
         <widget class="QToolButton" name="buttonRepositoryExtra">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -607,21 +601,21 @@
          </property>
         </widget>
        </item>
-       <item row="56" column="2" colspan="4">
+       <item row="57" column="2" colspan="4">
         <widget class="QPushButton" name="refreshRepositoriesButton">
          <property name="text">
           <string>Refresh now</string>
          </property>
         </widget>
        </item>
-       <item row="50" column="0">
+       <item row="51" column="0">
         <widget class="QLabel" name="labelAlliedPlayerAI">
          <property name="text">
           <string>Adventure Map Allies</string>
          </property>
         </widget>
        </item>
-       <item row="51" column="0">
+       <item row="52" column="0">
         <widget class="QLabel" name="labelNeutralAI">
          <property name="text">
           <string>Neutral AI in battles</string>
@@ -659,7 +653,7 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="1" colspan="5">
+       <item row="60" column="1" colspan="5">
         <widget class="QLineEdit" name="lineEditGameLobbyHost">
          <property name="text">
           <string notr="true"/>
@@ -673,7 +667,7 @@
          </property>
         </widget>
        </item>
-       <item row="38" column="0">
+       <item row="39" column="0">
         <widget class="QLabel" name="labelRelativeCursorMode">
          <property name="text">
           <string>Use Relative Pointer Mode</string>
@@ -683,14 +677,14 @@
        <item row="7" column="1" colspan="5">
         <widget class="QSpinBox" name="spinBoxAutoSaveLimit"/>
        </item>
-       <item row="52" column="0">
+       <item row="53" column="0">
         <widget class="QLabel" name="labelFriendlyAI">
          <property name="text">
           <string>Autocombat AI in battles</string>
          </property>
         </widget>
        </item>
-       <item row="62" column="1" colspan="2">
+       <item row="63" column="1" colspan="2">
         <widget class="QToolButton" name="buttonValidationOff">
          <property name="enabled">
           <bool>true</bool>
@@ -715,7 +709,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="33" column="0">
+       <item row="34" column="0">
         <widget class="QLabel" name="labelInputMouse">
          <property name="font">
           <font>
@@ -737,7 +731,7 @@
          </property>
         </widget>
        </item>
-       <item row="40" column="1" colspan="5">
+       <item row="41" column="1" colspan="5">
         <widget class="QToolButton" name="buttonHapticFeedback">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -768,7 +762,7 @@
          </property>
         </widget>
        </item>
-       <item row="58" column="0">
+       <item row="59" column="0">
         <widget class="QLabel" name="labelRepositoryExtra">
          <property name="text">
           <string>Additional repository</string>
@@ -791,7 +785,7 @@
          </property>
         </widget>
        </item>
-       <item row="49" column="0">
+       <item row="50" column="0">
         <widget class="QLabel" name="labelEnemyPlayerAI">
          <property name="text">
           <string>Adventure Map Enemies</string>
@@ -819,7 +813,7 @@
          </property>
         </widget>
        </item>
-       <item row="36" column="0">
+       <item row="37" column="0">
         <widget class="QLabel" name="labelInputMouse_2">
          <property name="font">
           <font>
@@ -853,7 +847,7 @@
        <item row="24" column="1">
         <widget class="QLabel" name="labelScalingCursorValue"/>
        </item>
-       <item row="38" column="1" colspan="5">
+       <item row="39" column="1" colspan="5">
         <widget class="QToolButton" name="buttonRelativeCursorMode">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -876,42 +870,32 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="0">
+       <item row="60" column="0">
         <widget class="QLabel" name="labelGameLobbyHost">
          <property name="text">
           <string>Online Lobby address</string>
          </property>
         </widget>
        </item>
-       <item row="60" column="0">
+       <item row="61" column="0">
         <widget class="QLabel" name="labelNetworkPortLobby">
          <property name="text">
           <string>Online Lobby port</string>
          </property>
         </widget>
        </item>
-       <item row="47" column="0">
+       <item row="48" column="0">
         <widget class="QLabel" name="labelToleranceDistanceController">
          <property name="text">
           <string>Controller Click Tolerance</string>
          </property>
         </widget>
        </item>
-       <item row="51" column="1" colspan="5">
+       <item row="52" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxNeutralAI">
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="26" column="1" colspan="5">
@@ -933,7 +917,7 @@
          </item>
         </widget>
        </item>
-       <item row="55" column="0">
+       <item row="56" column="0">
         <widget class="QLabel" name="labelIgnoreSslErrors">
          <property name="text">
           <string>Ignore SSL errors</string>
@@ -943,14 +927,14 @@
        <item row="21" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxDisplayIndex"/>
        </item>
-       <item row="37" column="0">
+       <item row="38" column="0">
         <widget class="QLabel" name="labelResetTutorialTouchscreen">
          <property name="text">
           <string>Show Tutorial again</string>
          </property>
         </widget>
        </item>
-       <item row="46" column="0">
+       <item row="47" column="0">
         <widget class="QLabel" name="labelControllerSticksAcceleration">
          <property name="text">
           <string>Sticks Acceleration</string>
@@ -972,24 +956,14 @@
          </property>
         </widget>
        </item>
-       <item row="53" column="1" colspan="5">
+       <item row="54" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxEnemyAI">
          <property name="editable">
           <bool>false</bool>
          </property>
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="4" column="5">
@@ -1006,21 +980,21 @@
          </property>
         </widget>
        </item>
-       <item row="34" column="0">
+       <item row="35" column="0">
         <widget class="QLabel" name="labelToleranceDistanceMouse">
          <property name="text">
           <string>Mouse Click Tolerance</string>
          </property>
         </widget>
        </item>
-       <item row="35" column="0">
+       <item row="36" column="0">
         <widget class="QLabel" name="labelHandleBackRightMouseButton">
          <property name="text">
           <string>Handle back as right mouse button</string>
          </property>
         </widget>
        </item>
-       <item row="35" column="1" colspan="5">
+       <item row="36" column="1" colspan="5">
         <widget class="QToolButton" name="buttonHandleBackRightMouseButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1036,7 +1010,7 @@
          </property>
         </widget>
        </item>
-       <item row="53" column="0">
+       <item row="54" column="0">
         <widget class="QLabel" name="labelEnemyAI">
          <property name="text">
           <string>Enemy AI in battles</string>
@@ -1050,7 +1024,7 @@
          </property>
         </widget>
        </item>
-       <item row="43" column="1" colspan="5">
+       <item row="44" column="1" colspan="5">
         <widget class="QSlider" name="sliderToleranceDistanceTouch">
          <property name="minimum">
           <number>0</number>
@@ -1092,27 +1066,17 @@
          </property>
         </widget>
        </item>
-       <item row="52" column="1" colspan="5">
+       <item row="53" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxFriendlyAI">
          <property name="editable">
           <bool>false</bool>
          </property>
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
-       <item row="58" column="2" colspan="4">
+       <item row="59" column="2" colspan="4">
         <widget class="QLineEdit" name="lineEditRepositoryExtra">
          <property name="text">
           <string notr="true"/>
@@ -1164,7 +1128,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="54" column="0">
+       <item row="55" column="0">
         <widget class="QLabel" name="labelNetwork">
          <property name="font">
           <font>
@@ -1179,7 +1143,7 @@
          </property>
         </widget>
        </item>
-       <item row="61" column="0">
+       <item row="62" column="0">
         <widget class="QLabel" name="labelMiscellaneous">
          <property name="font">
           <font>
@@ -1194,7 +1158,7 @@
          </property>
         </widget>
        </item>
-       <item row="46" column="1" colspan="5">
+       <item row="47" column="1" colspan="5">
         <widget class="QSlider" name="sliderControllerSticksAcceleration">
          <property name="minimum">
           <number>100</number>
@@ -1266,21 +1230,21 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </property>
         </widget>
        </item>
-       <item row="41" column="0">
+       <item row="42" column="0">
         <widget class="QLabel" name="labelLongTouchDuration">
          <property name="text">
           <string>Long Touch Duration</string>
          </property>
         </widget>
        </item>
-       <item row="56" column="0">
+       <item row="57" column="0">
         <widget class="QLabel" name="labelAutoCheck">
          <property name="text">
           <string>Check on startup</string>
          </property>
         </widget>
        </item>
-       <item row="47" column="1" colspan="5">
+       <item row="48" column="1" colspan="5">
         <widget class="QSlider" name="sliderToleranceDistanceController">
          <property name="minimum">
           <number>0</number>
@@ -1324,7 +1288,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </property>
         </widget>
        </item>
-       <item row="39" column="1" colspan="5">
+       <item row="40" column="1" colspan="5">
         <widget class="QSlider" name="sliderRelativeCursorSpeed">
          <property name="minimum">
           <number>100</number>
@@ -1366,7 +1330,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </property>
         </widget>
        </item>
-       <item row="34" column="1" colspan="5">
+       <item row="35" column="1" colspan="5">
         <widget class="QSlider" name="slideToleranceDistanceMouse">
          <property name="minimum">
           <number>0</number>
@@ -1439,7 +1403,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </property>
         </widget>
        </item>
-       <item row="45" column="0">
+       <item row="46" column="0">
         <widget class="QLabel" name="labelControllerSticksSensitivity">
          <property name="text">
           <string>Sticks Sensitivity</string>
@@ -1470,7 +1434,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
        <item row="12" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxResolution"/>
        </item>
-       <item row="62" column="3" colspan="2">
+       <item row="63" column="3" colspan="2">
         <widget class="QToolButton" name="buttonValidationBasic">
          <property name="enabled">
           <bool>true</bool>
@@ -1495,6 +1459,26 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </attribute>
         </widget>
        </item>
+       <item row="33" column="0">
+        <widget class="QLabel" name="labelIgnoreMuteSwitch">
+         <property name="text">
+          <string>Ignore mute switch</string>
+         </property>
+        </widget>
+       </item>
+       <item row="33" column="1" colspan="5">
+        <widget class="QToolButton" name="buttonIgnoreMuteSwitch">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -1504,7 +1488,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroupFonts"/>
   <buttongroup name="buttonGroupValidation"/>
+  <buttongroup name="buttonGroupFonts"/>
  </buttongroups>
 </ui>

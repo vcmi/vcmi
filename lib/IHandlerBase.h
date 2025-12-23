@@ -15,7 +15,7 @@ class JsonNode;
 class Entity;
 
 /// base class for all handlers that can be accessed from mod system
-class DLL_LINKAGE IHandlerBase
+class DLL_LINKAGE IHandlerBase : boost::noncopyable
 {
 protected:
 	static std::string getScopeBuiltin();
@@ -44,7 +44,8 @@ public:
 	virtual ~IHandlerBase() = default;
 };
 
-template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase> class CHandlerBase : public _ServiceBase, public IHandlerBase
+template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase>
+class CHandlerBase : public _ServiceBase, public IHandlerBase
 {
 	const _Object * getObjectImpl(const int32_t index) const
 	{

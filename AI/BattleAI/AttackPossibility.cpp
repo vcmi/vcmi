@@ -17,6 +17,8 @@
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
 
+#include "../../lib/GameLibrary.h"
+
 uint64_t averageDmg(const DamageRange & range)
 {
 	return (range.min + range.max) / 2;
@@ -38,7 +40,7 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 		if(!spellObstacle || !obst->triggersEffects())
 			continue;
 
-		auto triggerAbility = VLC->spells()->getById(obst->getTrigger());
+		auto triggerAbility = LIBRARY->spells()->getById(obst->getTrigger());
 		auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 		if(!triggerIsNegative)

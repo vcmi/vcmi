@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "VCMIDirs.h"
+#include "json/JsonNode.h"
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
@@ -65,7 +66,7 @@ void IVCMIDirs::init()
 #ifdef VCMI_WINDOWS
 
 #ifdef __MINGW32__
-    #define _WIN32_IE 0x0500
+	#define _WIN32_IE 0x0500
 
 	#ifndef CSIDL_MYDOCUMENTS
 	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
@@ -74,83 +75,16 @@ void IVCMIDirs::init()
 
 #include <windows.h>
 #include <shlobj.h>
-#include <shellapi.h>
-
-// Generates script file named _temp.bat in 'to' directory and runs it
-// Script will:
-// - Wait util 'exeName' ends.
-// - Copy all files from 'from' to 'to'
-// - Ask user to replace files existed in 'to'.
-// - Run 'exeName'
-// - Delete itself.
-bool StartBatchCopyDataProgram(
-	const bfs::path& from, const bfs::path& to, const bfs::path& exeName,
-	const bfs::path& currentPath = bfs::current_path())
-{
-	static const char base[] =
-		"@echo off"												"\n"
-		"echo Preparing to move VCMI data system."				"\n"
-
-		":CLIENT_RUNNING_LOOP"									"\n"
-		"TASKLIST | FIND /I %1% > nul"							"\n"
-		"IF ERRORLEVEL 1 ("										"\n"
-			"GOTO CLIENT_NOT_RUNNING"							"\n"
-		") ELSE ("												"\n"
-			"echo %1% is still running..."						"\n"
-			"echo Waiting until process ends..."				"\n"
-			"ping 1.1.1.1 -n 1 -w 3000 > nul"					"\n" // Sleep ~3 seconds. I love Windows :)
-			"goto :CLIENT_RUNNING_LOOP"							"\n"
-		")"														"\n"
-
-		":CLIENT_NOT_RUNNING"									"\n"
-		"echo %1% turned off..."								"\n"
-		"echo Attempt to move data."							"\n"
-		"echo From: %2%"										"\n"
-		"echo To: %4%"											"\n"
-		"echo Please resolve any conflicts..."					"\n"
-		"move /-Y %3% %4%"										"\n" // Move all files from %3% to %4%.
-																	 // /-Y ask what to do when file exists in %4%
-		":REMOVE_OLD_DIR"										"\n"
-		"rd %2% || rem"											"\n" // Remove empty directory. Sets error flag if fail.
-		"IF ERRORLEVEL 145 ("									"\n" // Directory not empty
-			"echo Directory %2% is not empty."					"\n"
-			"echo Please move rest of files manually now."		"\n"
-			"pause"												"\n" // Press any key to continue...
-			"goto REMOVE_OLD_DIR"								"\n"
-		")"														"\n"
-		"echo Game data updated successfully."					"\n"
-		"echo Please update your shortcuts."					"\n"
-		"echo Press any key to start a game . . ."				"\n"
-		"pause > nul"											"\n"
-		"%5%"													"\n"
-		"del \"%%~f0\"&exit"									"\n" // Script deletes itself
-		;
-
-	const auto startGameString =
-		bfs::equivalent(currentPath, from) ?
-		(boost::format("start \"\" %1%") % (to / exeName)) :						// Start game in new path.
-		(boost::format("start \"\" /D %1% %2%") % currentPath % (to / exeName));	// Start game in 'currentPath"
-
-	const bfs::path bathFilename = to / "_temp.bat";
-	bfs::ofstream bathFile(bathFilename, bfs::ofstream::trunc | bfs::ofstream::out);
-	if (!bathFile.is_open())
-		return false;
-	bathFile << (boost::format(base) % exeName % from % (from / "*.*") % to % startGameString.str()).str();
-	bathFile.close();
-
-	std::system(("start \"Updating VCMI data\" /D \"" + to.string() + "\" \"" + bathFilename.string() + '\"').c_str());
-	// start won't block std::system
-	// /D start bat in other directory insteand of current directory.
-
-	return true;
-}
 
 class VCMIDirsWIN32 final : public IVCMIDirs
 {
 	public:
+		VCMIDirsWIN32();
 		bfs::path userDataPath() const override;
 		bfs::path userCachePath() const override;
 		bfs::path userConfigPath() const override;
+		bfs::path userLogsPath() const override;
+		bfs::path userSavePath() const override;
 
 		std::vector<bfs::path> dataPaths() const override;
 
@@ -163,182 +97,104 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		std::string libraryName(const std::string& basename) const override;
 
-		void init() override;
 	protected:
-		bfs::path oldUserDataPath() const;
-		bfs::path oldUserSavePath() const;
+		std::unique_ptr<JsonNode> dirsConfig;
+
+		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
+		bfs::path getDefaultUserDataPath() const;
+
+		std::wstring utf8ToWstring(const std::string& str) const;
+		std::string pathToUtf8(const bfs::path& path) const;
 };
 
-void VCMIDirsWIN32::init()
+
+VCMIDirsWIN32::VCMIDirsWIN32()
 {
-	std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
-	boost::filesystem::path::imbue(std::locale());
+	wchar_t currentPath[MAX_PATH];
+	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
+	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
 
-	// Call base (init dirs)
-	IVCMIDirs::init();
+	if (!bfs::exists(configPath))
+		return;
 
-	// Moves one directory (from) contents to another directory (to)
-	// Shows user the "moving file dialog" and ask to resolve conflits.
-	// If necessary updates current directory.
-	auto moveDirIfExists = [](const bfs::path& from, const bfs::path& to) -> bool
+	std::ifstream in(pathToUtf8(configPath), std::ios::binary);
+	if (!in)
+		return;
+
+	std::string buffer((std::istreambuf_iterator<char>(in)), {});
+	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
+}
+
+std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
+{
+	std::wstring wstr = path.wstring();
+	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+	std::string result(size - 1, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
+	return result;
+}
+
+std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
+{
+	std::wstring result;
+	int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+	if (size_needed > 0)
 	{
-		if (!bfs::is_directory(from))
-			return true; // Nothing to do here. Flies away.
+		result.resize(size_needed - 1);
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, result.data(), size_needed);
+	}
+	return result;
+}
 
-		if (bfs::is_empty(from))
-		{
-			if (bfs::current_path() == from)
-				bfs::current_path(to);
+bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
+{
+	if (!dirsConfig || !dirsConfig->isStruct())
+		return fallbackFunc();
 
-			bfs::remove(from);
-			return true; // Nothing to do here. Flies away.
-		}
+	const JsonNode& node = (*dirsConfig)[key];
+	if (!node.isString())
+		return fallbackFunc();
 
-		if (!bfs::is_directory(to))
-		{
-			// IVCMIDirs::init() should create all destination directories.
-			// TODO: Log fact, that we shouldn't be here.
-			bfs::create_directories(to);
-		}
+	std::wstring raw = utf8ToWstring(node.String());
+	wchar_t expanded[MAX_PATH];
+	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
+		return bfs::path(expanded);
+	else
+		return bfs::path(raw);
+}
 
-		// Why the hell path strings should be end with double null :/
-		auto makeDoubleNulled = [](const bfs::path& path) -> std::unique_ptr<wchar_t[]>
-		{
-			const std::wstring& pathStr = path.native();
-			std::unique_ptr<wchar_t[]> result(new wchar_t[pathStr.length() + 2]);
-
-			size_t i = 0;
-			for (const wchar_t ch : pathStr)
-				result[i++] = ch;
-			result[i++] = L'\0';
-			result[i++] = L'\0';
-
-			return result;
-		};
-
-		auto fromDNulled = makeDoubleNulled(from / L"*.*");
-		auto toDNulled = makeDoubleNulled(to);
-
-		SHFILEOPSTRUCTW fileOp;
-		fileOp.hwnd = GetConsoleWindow();
-		fileOp.wFunc = FO_MOVE;
-		fileOp.pFrom = fromDNulled.get();
-		fileOp.pTo = toDNulled.get();
-		fileOp.fFlags = 0;
-		fileOp.hNameMappings = nullptr;
-		fileOp.lpszProgressTitle = nullptr;
-
-		const int errorCode = SHFileOperationW(&fileOp);
-		if (errorCode != 0) // TODO: Log error. User should try to move files.
-			return false;
-		else if (fileOp.fAnyOperationsAborted) // TODO: Log warn. User aborted operation. User should move files.
-			return false;
-		else if (!bfs::is_empty(from)) // TODO: Log warn. Some files not moved. User should try to move files.
-			return false;
-
-		if (bfs::current_path() == from)
-			bfs::current_path(to);
-
-		// TODO: Log fact that we moved files successfully.
-		bfs::remove(from);
-		return true;
-	};
-
-	// Retrieves the fully qualified path for the file that contains the specified module.
-	// The module must have been loaded by the current process.
-	// If this parameter is nullptr, retrieves the path of the executable file of the current process.
-	auto getModulePath = [](HMODULE hModule) -> bfs::path
-	{
-		wchar_t exePathW[MAX_PATH];
-		DWORD nSize = GetModuleFileNameW(hModule, exePathW, MAX_PATH);
-		DWORD error = GetLastError();
-		// WARN: Windows XP don't set ERROR_INSUFFICIENT_BUFFER error.
-		if (nSize != 0 && error != ERROR_INSUFFICIENT_BUFFER)
-			return bfs::path(std::wstring(exePathW, nSize));
-		// TODO: Error handling
-		return bfs::path();
-	};
-
-	// Moves one directory contents to another directory
-	// Shows user the "moving file dialog" and ask to resolve conflicts.
-	// It takes into account that 'from' path can contain current executable.
-	// If necessary closes program and starts update script.
-	auto advancedMoveDirIfExists = [getModulePath, moveDirIfExists](const bfs::path& from, const bfs::path& to) -> bool
-	{
-		const bfs::path executablePath = getModulePath(nullptr);
-
-		// VCMI can't determine executable path.
-		// Use standard way to move directory and exit function.
-		if (executablePath.empty())
-			return moveDirIfExists(from, to);
-
-		const bfs::path executableName = executablePath.filename();
-
-		// Current executabl isn't in 'from' path.
-		// Use standard way to move directory and exit function.
-		if (!bfs::equivalent(executablePath, from / executableName))
-			return moveDirIfExists(from, to);
-
-		// Try standard way to move directory.
-		// I don't know how other systems, but Windows 8.1 allow to move running executable.
-		if (moveDirIfExists(from, to))
-			return true;
-
-		// Start copying script and exit program.
-		if (StartBatchCopyDataProgram(from, to, executableName))
-			exit(ERROR_SUCCESS);
-
-		// Everything failed :C
-		return false;
-	};
-
-	moveDirIfExists(oldUserSavePath(), userSavePath());
-	advancedMoveDirIfExists(oldUserDataPath(), userDataPath());
+bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
+{
+	wchar_t profileDir[MAX_PATH];
+	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
+		return bfs::path(profileDir) / "My Games" / "vcmi";
+	return bfs::path(".");
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
 {
-	wchar_t profileDir[MAX_PATH];
-
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
-
-	return ".";
+	return getPathFromConfigOrDefault("userDataPath", [this] { return getDefaultUserDataPath(); });
 }
 
-bfs::path VCMIDirsWIN32::oldUserDataPath() const
+bfs::path VCMIDirsWIN32::userCachePath() const
 {
-	wchar_t profileDir[MAX_PATH];
-
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_PROFILE, FALSE) == FALSE) // WinAPI way failed
-	{
-#if defined(_MSC_VER) && _MSC_VER >= 1700
-		wchar_t* buffer;
-		size_t bufferSize;
-		errno_t result = _wdupenv_s(&buffer, &bufferSize, L"userprofile");
-		if (result == 0)
-		{
-			bfs::path result(std::wstring(buffer, bufferSize));
-			free(buffer);
-			return result;
-		}
-#else
-		const char* profileDirA;
-		if ((profileDirA = std::getenv("userprofile"))) // STL way succeed
-			return bfs::path(profileDirA) / "vcmi";
-#endif
-		else
-			return "."; // Every thing failed, return current directory.
-	}
-	else
-		return bfs::path(profileDir) / "vcmi";
-
-	//return dataPaths()[0] ???;
+	return getPathFromConfigOrDefault("userCachePath", [this] { return userDataPath() / "cache"; });
 }
-bfs::path VCMIDirsWIN32::oldUserSavePath() const { return userDataPath() / "Games"; }
 
-bfs::path VCMIDirsWIN32::userCachePath() const { return userDataPath(); }
-bfs::path VCMIDirsWIN32::userConfigPath() const { return userDataPath() / "config"; }
+bfs::path VCMIDirsWIN32::userConfigPath() const
+{
+	return getPathFromConfigOrDefault("userConfigPath", [this] { return userDataPath() / "config"; });
+}
+
+bfs::path VCMIDirsWIN32::userLogsPath() const
+{
+	return getPathFromConfigOrDefault("userLogsPath", [this] { return userDataPath() / "logs"; });
+}
+
+bfs::path VCMIDirsWIN32::userSavePath() const
+{
+	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "Saves"; });
+}
 
 std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 {

@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "TurnInfo.h"
 
-#include "../IGameCallback.h"
 #include "../IGameSettings.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -69,6 +69,11 @@ int TurnInfo::getRoughTerrainDiscountValue() const
 	return roughTerrainDiscountValue;
 }
 
+int TurnInfo::getMovementCostBase() const
+{
+	return moveCostBaseValue;
+}
+
 int TurnInfo::getMovePointsLimitLand() const
 {
 	return movePointsLimitLand;
@@ -81,7 +86,7 @@ int TurnInfo::getMovePointsLimitWater() const
 
 TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn)
 	: target(target)
-	, noterrainPenalty(VLC->terrainTypeHandler->size())
+	, noterrainPenalty(LIBRARY->terrainTypeHandler->size())
 {
 	CSelector daySelector = Selector::days(Turn);
 
@@ -121,6 +126,13 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 		static const CSelector selector = Selector::type()(BonusType::ROUGH_TERRAIN_DISCOUNT);
 		const auto & bonuses = sharedCache->roughTerrainDiscount.getBonusList(target, selector);
 		roughTerrainDiscountValue = bonuses->valOfBonuses(daySelector);
+	}
+
+	{
+		static const CSelector selector = Selector::type()(BonusType::BASE_TILE_MOVEMENT_COST);
+		const auto & bonuses = sharedCache->baseTileMovementCost.getBonusList(target, selector);
+		int baseMovementCost = target->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		moveCostBaseValue = bonuses->valOfBonuses(daySelector, baseMovementCost);
 	}
 
 	{
@@ -172,7 +184,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::AIR)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::AIR)
 			break;
 
 		if(!hasFlyingMovement())
@@ -181,7 +193,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::WATER)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::WATER)
 			break;
 
 		if(!hasWaterWalking())

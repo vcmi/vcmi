@@ -14,7 +14,8 @@
 #include "GlobalLobbyClient.h"
 
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
@@ -33,10 +34,10 @@ GlobalLobbyInviteAccountCard::GlobalLobbyInviteAccountCard(const GlobalLobbyAcco
 	addUsedEvents(LCLICK);
 
 	bool thisAccountInvited = false;
-	const auto & myRoomID = CSH->getGlobalLobby().getCurrentGameRoomID();
+	const auto & myRoomID = GAME->server().getGlobalLobby().getCurrentGameRoomID();
 	if (!myRoomID.empty())
 	{
-		const auto & myRoom = CSH->getGlobalLobby().getActiveRoomByName(myRoomID);
+		const auto & myRoom = GAME->server().getGlobalLobby().getActiveRoomByName(myRoomID);
 		for (auto const & invited : myRoom.invited)
 		{
 			if (invited.accountID == accountID)
@@ -67,7 +68,7 @@ void GlobalLobbyInviteAccountCard::clickPressed(const Point & cursorPosition)
 	message["type"].String() = "sendInvite";
 	message["accountID"].String() = accountID;
 
-	CSH->getGlobalLobby().sendMessage(message);
+	GAME->server().getGlobalLobby().sendMessage(message);
 }
 
 GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
@@ -86,7 +87,7 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 
 	const auto & createAccountCardCallback = [](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		const auto & accounts = CSH->getGlobalLobby().getActiveAccounts();
+		const auto & accounts = GAME->server().getGlobalLobby().getActiveAccounts();
 
 		if(index < accounts.size())
 			return std::make_shared<GlobalLobbyInviteAccountCard>(accounts[index]);
@@ -94,7 +95,7 @@ GlobalLobbyInviteWindow::GlobalLobbyInviteWindow()
 	};
 
 	listBackground = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, 220, 324), ColorRGBA(0, 0, 0, 64), ColorRGBA(64, 80, 128, 255), 1);
-	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, CSH->getGlobalLobby().getActiveAccounts().size(), 0, 1 | 4, Rect(200, 0, 320, 320));
+	accountList = std::make_shared<CListBox>(createAccountCardCallback, Point(10, 50), Point(0, 40), 8, GAME->server().getGlobalLobby().getActiveAccounts().size(), 0, 1 | 4, Rect(200, 0, 320, 320));
 	accountList->setRedrawParent(true);
 
 	buttonClose = std::make_shared<CButton>(Point(86, 384), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this]() { close(); }, EShortcut::GLOBAL_RETURN );

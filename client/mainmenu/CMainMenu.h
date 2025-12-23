@@ -139,29 +139,27 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
+class CMainMenu final : public CIntObject, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	std::vector<VideoPath> videoPlayList;
 
-	CMainMenu(); //Use CMainMenu::create
-
 public:
+	CMainMenu();
+
 	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
 	void activate() override;
 	void onScreenResize() override;
-	void update() override;
-	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode);
+	void makeActiveInterface();
+	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode, bool battleMode);
 	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
 	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
 	static void startTutorial();
 	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);
-
-	static std::shared_ptr<CMainMenu> create();
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
@@ -191,8 +189,11 @@ public:
 
 class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress
 {
+	std::shared_ptr<CPicture> backimg;
+	std::vector<std::shared_ptr<CPicture>> images;
+	std::shared_ptr<CPicture> loadFrame;
 	std::vector<std::shared_ptr<CAnimImage>> progressBlocks;
-	
+
 	ImagePath getBackground();
 
 public:	
@@ -203,4 +204,4 @@ public:
 	void tick(uint32_t msPassed) override;
 };
 
-extern std::shared_ptr<CMainMenu> CMM;
+

@@ -12,7 +12,7 @@
 #include "InputSourceMouse.h"
 #include "InputHandler.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 
@@ -27,45 +27,51 @@
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
+	,motionAccumulatedX(.0f)
+	,motionAccumulatedY(.0f)
 {
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 }
 
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
-	Point newPosition = Point(motion.x, motion.y) / GH.screenHandler().getScalingFactor();
-	Point distance = Point(-motion.xrel, -motion.yrel) / GH.screenHandler().getScalingFactor();
+	Point newPosition = Point(motion.x, motion.y) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedX += static_cast<float>(-motion.xrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedY += static_cast<float>(-motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	Point distance = Point(motionAccumulatedX, motionAccumulatedY);
+	motionAccumulatedX -= distance.x;
+	motionAccumulatedY -= distance.y;
 
 	mouseButtonsMask = motion.state;
 
 	if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_MIDDLE))
-		GH.events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
+		ENGINE->events().dispatchGesturePanning(middleClickPosition, newPosition, distance);
 	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_LEFT))
-		GH.events().dispatchMouseDragged(newPosition, distance);
+		ENGINE->events().dispatchMouseDragged(newPosition, distance);
 	else if (mouseButtonsMask & SDL_BUTTON(SDL_BUTTON_RIGHT))
-		GH.events().dispatchMouseDraggedPopup(newPosition, distance);
+		ENGINE->events().dispatchMouseDraggedPopup(newPosition, distance);
 	else
-		GH.input().setCursorPosition(newPosition);
+		ENGINE->input().setCursorPosition(newPosition);
 }
 
 void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & button)
 {
-	Point position = Point(button.x, button.y) / GH.screenHandler().getScalingFactor();
+	Point position = Point(button.x, button.y) / ENGINE->screenHandler().getScalingFactor();
 
 	switch(button.button)
 	{
 		case SDL_BUTTON_LEFT:
 			if(button.clicks > 1)
-				GH.events().dispatchMouseDoubleClick(position, mouseToleranceDistance);
+				ENGINE->events().dispatchMouseDoubleClick(position, mouseToleranceDistance);
 			else
-				GH.events().dispatchMouseLeftButtonPressed(position, mouseToleranceDistance);
+				ENGINE->events().dispatchMouseLeftButtonPressed(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchShowPopup(position, mouseToleranceDistance);
+			ENGINE->events().dispatchShowPopup(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_MIDDLE:
 			middleClickPosition = position;
-			GH.events().dispatchGesturePanningStarted(position);
+			ENGINE->events().dispatchGesturePanningStarted(position);
 			break;
 	}
 }
@@ -75,26 +81,26 @@ void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 	//NOTE: while mouseX / mouseY properties are available since 2.26.0, they are not converted into logical coordinates so don't account for resolution scaling
 	// This SDL bug was fixed in 2.30.1: https://github.com/libsdl-org/SDL/issues/9097
 #if SDL_VERSION_ATLEAST(2,30,1)
-	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(wheel.mouseX, wheel.mouseY) / GH.screenHandler().getScalingFactor());
+	ENGINE->events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(wheel.mouseX, wheel.mouseY) / ENGINE->screenHandler().getScalingFactor());
 #else
-	GH.events().dispatchMouseScrolled(Point(wheel.x, wheel.y), GH.getCursorPosition());
+	ENGINE->events().dispatchMouseScrolled(Point(wheel.x, wheel.y), ENGINE->getCursorPosition());
 #endif
 }
 
 void InputSourceMouse::handleEventMouseButtonUp(const SDL_MouseButtonEvent & button)
 {
-	Point position = Point(button.x, button.y) / GH.screenHandler().getScalingFactor();
+	Point position = Point(button.x, button.y) / ENGINE->screenHandler().getScalingFactor();
 
 	switch(button.button)
 	{
 		case SDL_BUTTON_LEFT:
-			GH.events().dispatchMouseLeftButtonReleased(position, mouseToleranceDistance);
+			ENGINE->events().dispatchMouseLeftButtonReleased(position, mouseToleranceDistance);
 			break;
 		case SDL_BUTTON_RIGHT:
-			GH.events().dispatchClosePopup(position);
+			ENGINE->events().dispatchClosePopup(position);
 			break;
 		case SDL_BUTTON_MIDDLE:
-			GH.events().dispatchGesturePanningEnded(middleClickPosition, position);
+			ENGINE->events().dispatchGesturePanningEnded(middleClickPosition, position);
 			break;
 	}
 }

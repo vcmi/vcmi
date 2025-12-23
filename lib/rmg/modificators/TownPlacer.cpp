@@ -46,12 +46,36 @@ void TownPlacer::process()
 
 void TownPlacer::init()
 {
+	for(auto & townHint : zone.getTownHints())
+	{
+		logGlobal->info("Town hint of zone %d: %d", zone.getId(), townHint.likeZone);
+		if(townHint.likeZone != rmg::ZoneOptions::NO_ZONE)
+		{
+			logGlobal->info("Dependency on town type of zone %d", townHint.likeZone);
+			dependency(map.getZones().at(townHint.likeZone)->getModificator<TownPlacer>());
+		}
+		else if(!townHint.notLikeZone.empty())
+		{
+			for(auto zoneId : townHint.notLikeZone)
+			{
+				logGlobal->info("Dependency on town unlike type of zone %d", zoneId);
+				dependency(map.getZones().at(zoneId)->getModificator<TownPlacer>());
+			}
+		}
+		else if(townHint.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
+		{
+			logGlobal->info("Dependency on town related to zone terrain of zone %d", townHint.relatedToZoneTerrain);
+			dependency(map.getZones().at(townHint.relatedToZoneTerrain)->getModificator<TownPlacer>());
+		}
+	}
 	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
 
 void TownPlacer::placeTowns(ObjectManager & manager)
 {
+	// TODO: Configurew each subseqquent town based on townHints
+
 	if(zone.getOwner() && ((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START)))
 	{
 		//set zone types to player faction, generate main town
@@ -72,21 +96,21 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		else //no player - randomize town
 		{
 			player = PlayerColor::NEUTRAL;
-			zone.setTownType(getRandomTownType());
+			zone.setTownType(getTownTypeFromHint(0));
 		}
 		
-		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
+		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 
-		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
 		town->addBuilding(BuildingID::FORT);
 		town->addBuilding(BuildingID::DEFAULT);
 		
 
-		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto spellID : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);
 		
-		auto position = placeMainTown(manager, *town);
+		auto position = placeMainTown(manager, town);
 		
 		totalTowns++;
 		//register MAIN town of zone only
@@ -114,9 +138,9 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			addNewTowns(zone.getPlayerTowns().getTownCount(), false, PlayerColor::NEUTRAL, manager);
 		}
 	}
-	else //randomize town types for any other zones as well
+	else //randomize town types for non-player zones
 	{
-		zone.setTownType(getRandomTownType());
+		zone.setTownType(getTownTypeFromHint(0));
 	}
 	
 	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL, manager);
@@ -124,6 +148,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	
 	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
 	{
+		// TODO: Use townHints also when there are no towns in zone
 		//25% chance for neutral
 		if (zone.getRand().nextInt(1, 100) <= 25)
 		{
@@ -141,7 +166,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	}
 }
 
-int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
+int3 TownPlacer::placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownInstance> town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
@@ -180,25 +205,69 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 	}
 }
 
+FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
+{
+	const auto & hints = zone.getTownHints();
+	if(hints.size() <= hintIndex)
+	{
+		return *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
+	}
+
+	const auto & townHints = hints[hintIndex];
+	FactionID subType = zone.getTownType();
+
+	if(townHints.likeZone != rmg::ZoneOptions::NO_ZONE)
+	{
+		// Copy directly from other zone
+		subType = map.getZones().at(townHints.likeZone)->getTownType();
+	}
+	else if(!townHints.notLikeZone.empty())
+	{
+		// Exclude type rolled for other zone
+		auto townTypes = zone.getTownTypes();
+		for(auto zoneId : townHints.notLikeZone)
+		{
+			townTypes.erase(map.getZones().at(zoneId)->getTownType());
+		}
+		zone.setTownTypes(townTypes);
+		
+		if(!townTypes.empty())
+			subType = *RandomGeneratorUtil::nextItem(townTypes, zone.getRand());
+	}
+	else if(townHints.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
+	{
+		auto townTerrain = map.getZones().at(townHints.relatedToZoneTerrain)->getTerrainType();
+		
+		auto townTypesAllowed = zone.getTownTypes();
+		vstd::erase_if(townTypesAllowed, [townTerrain](FactionID type)
+		{
+			return (*LIBRARY->townh)[type]->getNativeTerrain() != townTerrain;
+		});
+		zone.setTownTypes(townTypesAllowed);
+		
+		if(!townTypesAllowed.empty())
+			subType = *RandomGeneratorUtil::nextItem(townTypesAllowed, zone.getRand());
+	}
+
+	return subType;
+}
+
 void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager)
 {
 	for(int i = 0; i < count; i++)
 	{
 		FactionID subType = zone.getTownType();
 		
-		if(totalTowns>0)
+		if(totalTowns > 0)
 		{
 			if(!zone.areTownsSameType())
 			{
-				if(!zone.getTownTypes().empty())
-					subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
-				else
-					subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), zone.getRand()); //it is possible to have zone with no towns allowed
+				subType = getTownTypeFromHint(totalTowns);
 			}
 		}
 		
-		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;
@@ -206,7 +275,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			town->addBuilding(BuildingID::FORT);
 		town->addBuilding(BuildingID::DEFAULT);
 		
-		for(auto spellID : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto spellID : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);
 		
 		if(totalTowns <= 0)
@@ -215,7 +284,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			//register MAIN town of zone
 			map.registerZone(town->getFactionID());
 			//first town in zone goes in the middle
-			placeMainTown(manager, *town);
+			placeMainTown(manager, town);
 		}
 		else
 		{
@@ -233,7 +302,7 @@ FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 		std::set<FactionID> townTypesVerify;
 		for(auto factionIdx : townTypesAllowed)
 		{
-			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
+			bool preferUnderground = (*LIBRARY->townh)[factionIdx]->preferUndergroundPlacement;
 			if(zone.isUnderground() ? preferUnderground : !preferUnderground)
 			{
 				townTypesVerify.insert(factionIdx);

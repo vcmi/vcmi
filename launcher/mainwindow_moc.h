@@ -12,10 +12,13 @@
 #include <QStringList>
 #include <QTranslator>
 
+VCMI_LIB_NAMESPACE_BEGIN
+class CConsoleHandler;
+VCMI_LIB_NAMESPACE_END
+
 namespace Ui
 {
 class MainWindow;
-const QString teamName = "vcmi";
 const QString appName = "launcher";
 }
 
@@ -39,6 +42,10 @@ class MainWindow : public QMainWindow
 	QTranslator translator;
 #endif
 	Ui::MainWindow * ui;
+
+#ifndef VCMI_MOBILE
+	std::unique_ptr<CConsoleHandler> console;
+#endif
 
 	void load();
 

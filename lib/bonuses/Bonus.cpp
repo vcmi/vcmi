@@ -14,13 +14,12 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-#include "../CArtHandler.h"
+#include "../CBonusTypeHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../CSkillHandler.h"
-#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
@@ -37,38 +36,8 @@ CAddInfo::CAddInfo() = default;
 
 CAddInfo::CAddInfo(si32 value)
 {
-	if(value != CAddInfo::NONE)
-		push_back(value);
-}
-
-bool CAddInfo::operator==(si32 value) const
-{
-	switch(size())
-	{
-	case 0:
-		return value == CAddInfo::NONE;
-	case 1:
-		return operator[](0) == value;
-	default:
-		return false;
-	}
-}
-
-bool CAddInfo::operator!=(si32 value) const
-{
-	return !operator==(value);
-}
-
-si32 & CAddInfo::operator[](size_type pos)
-{
-	if(pos >= size())
-		resize(pos + 1, CAddInfo::NONE);
-	return vector::operator[](pos);
-}
-
-si32 CAddInfo::operator[](size_type pos) const
-{
-	return pos < size() ? vector::operator[](pos) : CAddInfo::NONE;
+	if (value != CAddInfo::NONE)
+		data_.push_back(value);
 }
 
 std::string CAddInfo::toString() const
@@ -80,12 +49,12 @@ JsonNode CAddInfo::toJsonNode() const
 {
 	if(size() < 2)
 	{
-		return JsonNode(operator[](0));
+		return JsonNode((*this)[0]);
 	}
 	else
 	{
 		JsonNode node;
-		for(si32 value : *this)
+		for(si32 value : data_)
 			node.Vector().emplace_back(value);
 		return node;
 	}
@@ -110,15 +79,15 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 				descriptionHelper.appendNamePlural(sid.as<CreatureID>());
 				break;
 			case BonusSource::SECONDARY_SKILL:
-				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::HERO_SPECIAL:
-				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(VLC)->getNameTextID());
+				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::OBJECT_INSTANCE:
 				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
 				if (object)
-					descriptionHelper.appendTextID(VLC->objtypeh->getObjectName(object->ID, object->subID));
+					descriptionHelper.appendTextID(LIBRARY->objtypeh->getObjectName(object->ID, object->subID));
 		}
 	}
 
@@ -173,7 +142,7 @@ JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root;
 	// only add values that might reasonably be found in config files
-	root["type"].String() = vstd::findKey(bonusNameMap, type);
+	root["type"].String() = LIBRARY->bth->bonusToString(type);
 	if(subtype != BonusSubtypeID())
 		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
@@ -204,6 +173,8 @@ JsonNode Bonus::toJsonNode() const
 		root["updater"] = updater->toJsonNode();
 	if(propagator)
 		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
+	if(hidden)
+		root["hidden"].Bool() = hidden;
 	return root;
 }
 
@@ -236,6 +207,12 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
+Bonus::Bonus(const Bonus & inst, const BonusSourceID & sourceId)
+	: Bonus(inst)
+{
+	sid = sourceId;
+}
+
 std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 {
 	propagator = Propagator;
@@ -244,9 +221,7 @@ std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
-	for(const auto & i : bonusNameMap)
-	if(i.second == bonus.type)
-		out << "\tType: " << i.first << " \t";
+	out << "\tType: " << LIBRARY->bth->bonusToString(bonus.type) << " \t";
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
@@ -275,17 +250,14 @@ std::shared_ptr<Bonus> Bonus::addLimiter(const TLimiterPtr & Limiter)
 {
 	if (limiter)
 	{
-		//If we already have limiter list, retrieve it
-		auto limiterList = std::dynamic_pointer_cast<AllOfLimiter>(limiter);
-		if(!limiterList)
-		{
-			//Create a new limiter list with old limiter and the new one will be pushed later
-			limiterList = std::make_shared<AllOfLimiter>();
-			limiterList->add(limiter);
-			limiter = limiterList;
-		}
+		auto newLimiterList = std::make_shared<AllOfLimiter>();
+		auto oldLimiterList = std::dynamic_pointer_cast<const AllOfLimiter>(limiter);
 
-		limiterList->add(Limiter);
+		if(oldLimiterList)
+			newLimiterList->limiters = oldLimiterList->limiters;
+
+		newLimiterList->add(Limiter);
+		limiter = newLimiterList;
 	}
 	else
 	{

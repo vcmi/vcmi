@@ -69,8 +69,17 @@ CDefFile::CDefFile(const AnimationPath & Name):
 		it+=12;
 		//8 unknown bytes - skipping
 
-		//13 bytes for name of every frame in this block - not used, skipping
-		it+= 13 * (int)totalEntries;
+		std::vector<std::string> names;
+		names.reserve(totalEntries);
+		for (ui32 j = 0; j < totalEntries; j++)
+		{
+			std::string n(reinterpret_cast<const char*>(data.get() + it), 13);
+			if (auto pos = n.find('\0'); pos != std::string::npos)
+				n.erase(pos);
+			names.push_back(std::move(n));
+			it += 13;
+		}
+		name[blockID] = std::move(names);
 
 		for (ui32 j=0; j<totalEntries; j++)
 		{
@@ -87,17 +96,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, IImageLoader &loader) const
 
 	const ui8 * FDef = data.get() + offset.at(group)[frame];
 
-	const SSpriteDef sd = *reinterpret_cast<const SSpriteDef *>(FDef);
-
-	SSpriteDef sprite;
-
-	sprite.format = read_le_u32(&sd.format);
-	sprite.fullWidth = read_le_u32(&sd.fullWidth);
-	sprite.fullHeight = read_le_u32(&sd.fullHeight);
-	sprite.width = read_le_u32(&sd.width);
-	sprite.height = read_le_u32(&sd.height);
-	sprite.leftMargin = read_le_u32(&sd.leftMargin);
-	sprite.topMargin = read_le_u32(&sd.topMargin);
+	SSpriteDef sprite = getFrameInfo(frame, group);
 
 	ui32 currentOffset = sizeof(SSpriteDef);
 
@@ -243,6 +242,44 @@ bool CDefFile::hasFrame(size_t frame, size_t group) const
 	}
 
 	return true;
+}
+
+std::string CDefFile::getName(size_t frame, size_t group) const
+{
+	std::map<size_t, std::vector <std::string> >::const_iterator it;
+	it = name.find(group);
+	if(it == name.end())
+	{
+		return "";
+	}
+
+	if(frame >= it->second.size())
+	{
+		return "";
+	}
+
+	return name.at(group)[frame];
+}
+
+CDefFile::SSpriteDef CDefFile::getFrameInfo(size_t frame, size_t group) const
+{
+	if(!hasFrame(frame, group))
+		return SSpriteDef();
+
+	const ui8 * FDef = data.get() + offset.at(group)[frame];
+	const SSpriteDef sd = *reinterpret_cast<const SSpriteDef *>(FDef);
+
+	SSpriteDef sprite;
+
+	sprite.format = read_le_u32(&sd.format);
+	sprite.fullWidth = read_le_u32(&sd.fullWidth);
+	sprite.fullHeight = read_le_u32(&sd.fullHeight);
+	sprite.width = read_le_u32(&sd.width);
+	sprite.height = read_le_u32(&sd.height);
+	sprite.leftMargin = read_le_u32(&sd.leftMargin);
+	sprite.topMargin = read_le_u32(&sd.topMargin);
+
+	return sprite;
 }
 
 CDefFile::~CDefFile() = default;

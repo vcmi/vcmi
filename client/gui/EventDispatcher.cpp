@@ -12,7 +12,7 @@
 
 #include "EventsReceiver.h"
 #include "FramerateManager.h"
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "MouseButton.h"
 #include "WindowHandler.h"
 #include "gui/Shortcut.h"
@@ -43,6 +43,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
 	processList(AEventsReceiver::GESTURE, panningInterested);
 	processList(AEventsReceiver::INPUT_MODE_CHANGE, inputModeChangeInterested);
+	processList(AEventsReceiver::KEY_NAME, keyNameInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -80,10 +81,10 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonPressed(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchMouseLeftButtonPressed(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchShowPopup(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -109,10 +110,10 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	bool keysCaptured = false;
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_LEFT))
-		dispatchMouseLeftButtonReleased(GH.getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
+		dispatchMouseLeftButtonReleased(ENGINE->getCursorPosition(), settings["input"]["shortcutToleranceDistance"].Integer());
 
 	if (vstd::contains(shortcutsVector, EShortcut::MOUSE_RIGHT))
-		dispatchClosePopup(GH.getCursorPosition());
+		dispatchClosePopup(ENGINE->getCursorPosition());
 
 	for(auto & i : keyinterested)
 		for(EShortcut shortcut : shortcutsVector)
@@ -131,6 +132,22 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 					return;
 			}
 	}
+}
+
+void EventDispatcher::dispatchKeyPressed(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyPressed(keyName);
+}
+
+void EventDispatcher::dispatchKeyReleased(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyReleased(keyName);
 }
 
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
@@ -183,7 +200,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 
 void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 {
-	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::LCLICK, tolerance);
+	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::SHOW_POPUP, tolerance);
 
 	auto hlp = rclickable;
 
@@ -201,7 +218,12 @@ void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 
 void EventDispatcher::dispatchClosePopup(const Point & position)
 {
-	bool popupOpen = GH.windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
+	bool popupOpen = ENGINE->windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
+
+	if(popupOpen)
+	{
+		ENGINE->windows().popWindows(1);
+	}
 
 	auto hlp = rclickable;
 
@@ -212,9 +234,6 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 
 		i->closePopupWindow(!popupOpen);
 	}
-
-	if(popupOpen)
-		GH.windows().popWindows(1);
 }
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)

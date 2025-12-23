@@ -19,15 +19,16 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
+#include "lobby/BattleOnlyModeTab.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
 
 #include "CServerHandler.h"
 #include "GameChatHandler.h"
-#include "CGameInfo.h"
 #include "Client.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/Buttons.h"
 #include "widgets/TextControls.h"
@@ -36,9 +37,17 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/GameConnection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	assert(handler.getState() == EClientState::GAMEPLAY);
+
+	handler.restartGameplay();
+	handler.sendStartGame();
+}
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
@@ -55,10 +64,10 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{
-			if (GH.windows().topWindow<CSimpleJoinScreen>())
-				GH.windows().popWindows(1);
+			if (ENGINE->windows().topWindow<CSimpleJoinScreen>())
+				ENGINE->windows().popWindows(1);
 
-			if (!GH.windows().findWindows<GlobalLobbyServerSetup>().empty())
+			if (!ENGINE->windows().findWindows<GlobalLobbyServerSetup>().empty())
 			{
 				assert(handler.serverMode == EServerMode::LOBBY_HOST);
 				// announce opened game room
@@ -72,14 +81,14 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 					handler.getGlobalLobby().sendOpenRoom("public", roomPlayerLimit);
 			}
 
-			while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+			while (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
 			{
 				// if global lobby is open, pop all dialogs on top of it as well as lobby itself
-				GH.windows().popWindows(1);
+				ENGINE->windows().popWindows(1);
 			}
 
 			bool hideScreen = handler.campaignStateToSend && (!handler.campaignStateToSend->campaignSet.empty() || handler.campaignStateToSend->lastScenario());
-			GH.windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
+			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -96,11 +105,11 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
-		GH.windows().popWindow(w);
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
+		ENGINE->windows().popWindow(w);
 	
-	if(GH.windows().count() > 0)
-		GH.windows().popWindows(1);
+	if(ENGINE->windows().count() > 0)
+		ENGINE->windows().popWindows(1);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -133,6 +142,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	case LobbyGuiAction::OPEN_EXTRA_OPTIONS:
 		lobby->toggleTab(lobby->tabExtraOptions);
 		break;
+	case LobbyGuiAction::BATTLE_MODE:
+		lobby->toggleTab(lobby->tabBattleOnlyMode);
+		break;
 	}
 }
 
@@ -146,32 +158,25 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
-	handler.client = std::make_unique<CClient>();
 	handler.logicConnection->enterLobbyConnectionMode();
-	handler.logicConnection->setCallback(handler.client.get());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.logicConnection->connectionID)
-	{
-		result = false;
-		return;
-	}
-	
 	handler.setState(EClientState::STARTING);
-	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.logicConnection->connectionID)
+	if(handler.si->mode != EStartMode::LOAD_GAME)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;
 		handler.si->mode = modeBackup;
 	}
+	handler.client = std::make_unique<CClient>();
 	handler.startGameplay(pack.initializedGameState);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
 	{
 		w->finish();
 		w->tick(0);
@@ -181,7 +186,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress & pack)
 {
-	if(auto w = GH.windows().topWindow<CLoadingScreen>())
+	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
 	{
 		w->set(pack.progress);
 		w->tick(0);
@@ -209,17 +214,20 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	{
 		auto bonusSel = std::make_shared<CBonusSelection>();
 		lobby->bonusSel = bonusSel;
-		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && CCS->videoh->open(handler.si->campState->getIntroVideo(), 1))
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getIntroVideo(), 1))
 		{
-			CCS->musich->stopMusic();
-			GH.windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
-				if(!CSH->si->campState->getMusic().empty())
-					CCS->musich->playMusic(CSH->si->campState->getMusic(), true, false);
-				GH.windows().pushWindow(bonusSel);
+			ENGINE->music().stopMusic();
+			auto rim = handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim();
+			if(handler.si->campState->getVideoRim() == ImagePath::builtin("NONE"))
+				rim = ImagePath();
+			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), rim, false, 1, [bonusSel](bool skipped){
+				if(!GAME->server().si->campState->getMusic().empty())
+					ENGINE->music().playMusic(GAME->server().si->campState->getMusic(), true, false);
+				ENGINE->windows().pushWindow(bonusSel);
 			});
 		}
 		else
-			GH.windows().pushWindow(bonusSel);
+			ENGINE->windows().pushWindow(bonusSel);
 	}
 
 	if(lobby->bonusSel)
@@ -238,4 +246,10 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 	
 	lobby->buttonStart->block(false);
 	handler.showServerError(pack.message.toString());
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	if(lobby->tabBattleOnlyMode)
+		lobby->tabBattleOnlyMode->applyStartInfo(pack.startInfo);
 }

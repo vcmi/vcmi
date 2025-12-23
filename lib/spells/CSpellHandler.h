@@ -14,7 +14,6 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Magic.h>
 #include "../IHandlerBase.h"
-#include "../ConstTransitivePtr.h"
 #include "../int3.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"
@@ -36,21 +35,8 @@ namespace test
 
 namespace spells
 {
-
-class ISpellMechanicsFactory;
-class IBattleCast;
-
-struct SchoolInfo
-{
-	SpellSchool id; //backlink
-	std::string jsonName;
-};
-
-}
-
-namespace SpellConfig
-{
-	extern const spells::SchoolInfo SCHOOL[4];
+	class ISpellMechanicsFactory;
+	class IBattleCast;
 }
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -104,7 +90,6 @@ public:
 	{
 		si32 cost = 0;
 		si32 power = 0;
-		si32 AIValue = 0;
 
 		bool smartTarget = true;
 		bool clearTarget = false;
@@ -116,6 +101,7 @@ public:
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
+		JsonNode adventureEffect;
 	};
 
 	/** \brief Low level accessor. Don`t use it if absolutely necessary
@@ -143,7 +129,6 @@ public:
 		bool smart;
 		bool massive;
 		bool clearAffected;
-		bool clearTarget;
 
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};
@@ -151,7 +136,7 @@ public:
 	using BTVector = std::vector<BonusType>;
 
 
-	std::map<SpellSchool, bool> school;
+	std::set<SpellSchool> schools;
 	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
 	bool onlyOnWaterMap; //Spell will be banned on maps without water
@@ -222,7 +207,7 @@ public:
 
 	void registerIcons(const IconRegistar & cb) const override;
 
-	const std::string & getIconImmune() const; ///< Returns resource name of icon for SPELL_IMMUNITY bonus
+	const ImagePath & getIconImmune() const; ///< Returns resource name of icon for SPELL_IMMUNITY bonus
 	const std::string & getIconBook() const;
 	const std::string & getIconEffect() const;
 	const std::string & getIconScenarioBonus() const;
@@ -281,7 +266,7 @@ private:
 	spells::AimType targetType;
 
 	///graphics related stuff
-	std::string iconImmune;
+	ImagePath iconImmune;
 	std::string iconBook;
 	std::string iconEffect;
 	std::string iconScenarioBonus;
@@ -304,8 +289,6 @@ private:
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
 };
-
-bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {

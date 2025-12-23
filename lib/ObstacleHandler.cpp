@@ -12,7 +12,7 @@
 #include "BattleFieldHandler.h"
 #include "json/JsonNode.h"
 #include "modding/IdentifierStorage.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -101,7 +101,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier){
+		LIBRARY->identifiers()->requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}

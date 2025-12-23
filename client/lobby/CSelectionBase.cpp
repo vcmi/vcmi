@@ -16,12 +16,10 @@
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
 
-#include "../../CCallback.h"
-
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -53,6 +51,7 @@
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/GameLibrary.h"
 
 ISelectionScreenInfo::ISelectionScreenInfo(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
@@ -93,15 +92,32 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	if(screenType == ESelectionScreen::campaignList)
 	{
 		setBackground(ImagePath::builtin("CamCust.bmp"));
+		pos = background->center();
 	}
 	else
 	{
-		const JsonVector & bgNames = CMainMenuConfig::get().getConfig()["game-select"].Vector();
-		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgNames, CRandomGenerator::getDefault())));
+
+		const JsonNode& gameSelectConfig = CMainMenuConfig::get().getConfig()["scenario-selection"];
+		const JsonVector* bgNames = nullptr;
+
+		if (!gameSelectConfig.isStruct()) 
+			bgNames = &CMainMenuConfig::get().getConfig()["game-select"].Vector();  // Fallback for 1.6 mods
+		else
+			bgNames = &gameSelectConfig["background"].Vector();
+		
+
+		setBackground(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(*bgNames, CRandomGenerator::getDefault())));
+		pos = background->center();
+
+		for (const JsonNode& node : gameSelectConfig["images"].Vector())
+		{
+			auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+			images.push_back(image);
+		}
 	}
-	pos = background->center();
+	
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -128,7 +144,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 		tabSel->filter(0, true);
 	}
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 InfoCard::InfoCard()
@@ -139,24 +155,24 @@ InfoCard::InfoCard()
 	pos.x += 393;
 	pos.y += 6;
 
-	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
-	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
+	labelSaveDate = std::make_shared<CLabel>(305, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+	labelMapSize = std::make_shared<CLabel>(327, 57, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 280);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
-	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
-	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), CGI->generaltexth->zelp[105], [](){ CSH->getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
+	buttonInvitePlayers = std::make_shared<CButton>(Point(20, 365), AnimationPath::builtin("pregameInvitePlayers"), LIBRARY->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateRoomInviteInterface(); }, EShortcut::LOBBY_INVITE_PLAYERS );
+	buttonOpenGlobalLobby = std::make_shared<CButton>(Point(188, 365), AnimationPath::builtin("pregameReturnToLobby"), LIBRARY->generaltexth->zelp[105], [](){ GAME->server().getGlobalLobby().activateInterface(); }, EShortcut::MAIN_MENU_LOBBY );
 
 	buttonInvitePlayers->setTextOverlay  (MetaString::createFromTextID("vcmi.lobby.invite.header").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 	buttonOpenGlobalLobby->setTextOverlay(MetaString::createFromTextID("vcmi.lobby.backToLobby").toString(), EFonts::FONT_SMALL, Colors::WHITE);
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
-		labelCampaignDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
+		labelCampaignDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[38]);
 	}
 	else
 	{
@@ -167,7 +183,7 @@ InfoCard::InfoCard()
 		parent->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
-		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 318, 22); //let it be custom size (frame 4) by default
+		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 313, 25); //let it be custom size (frame 4) by default
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
@@ -175,7 +191,7 @@ InfoCard::InfoCard()
 
 			for(int i = 0; i < 5; i++)
 			{
-				auto button = std::make_shared<CToggleButton>(Point(110 + i * 32, 450), AnimationPath::builtin(difButns[i]), CGI->generaltexth->zelp[24 + i]);
+				auto button = std::make_shared<CToggleButton>(Point(110 + i * 32, 450), AnimationPath::builtin(difButns[i]), LIBRARY->generaltexth->zelp[24 + i]);
 
 				iconDifficulty->addToggle(i, button);
 				if(SEL->screenType != ESelectionScreen::newGame)
@@ -184,13 +200,13 @@ InfoCard::InfoCard()
 		}
 
 		flagbox = std::make_shared<CFlagBox>(Rect(24, 400, 335, 23));
-		labelMapDiff = std::make_shared<CLabel>(33, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[494]);
-		labelPlayerDifficulty = std::make_shared<CLabel>(133, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[492] + ":");
-		labelRating = std::make_shared<CLabel>(290, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[218] + ":");
-		labelScenarioName = std::make_shared<CLabel>(26, 22, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[495]);
-		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
-		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[497]);
-		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[498]);
+		labelMapDiff = std::make_shared<CLabel>(33, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[494]);
+		labelPlayerDifficulty = std::make_shared<CLabel>(133, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[492] + ":");
+		labelRating = std::make_shared<CLabel>(290, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[218] + ":");
+		labelScenarioName = std::make_shared<CLabel>(26, 22, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[495]);
+		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
+		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[497]);
+		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[498]);
 		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
 		iconsLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS"), 0, 0, 24, 359);
 
@@ -204,7 +220,7 @@ InfoCard::InfoCard()
 		disableLabelRedraws();
 	}
 	setChat(false);
-	if (CSH->inLobbyRoom())
+	if (GAME->server().inLobbyRoom())
 		setChat(true); // FIXME: less ugly version?
 }
 
@@ -239,7 +255,7 @@ void InfoCard::changeSelection()
 
 	const CMapHeader * header = mapInfo->mapHeader.get();
 
-	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height));
+	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height) + "x" + std::to_string(header->mapLevels));
 	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
@@ -247,7 +263,8 @@ void InfoCard::changeSelection()
 	iconsLossCondition->setFrame(header->defeatIconIndex);
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
-	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
+	labelDifficulty->setText(LIBRARY->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
+	iconDifficulty->activate();
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
@@ -262,9 +279,9 @@ void InfoCard::changeSelection()
 	if(!showChat)
 		labelGroupPlayers->disable();
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 
-	for(const auto & p : CSH->playerNames)
+	for(const auto & p : GAME->server().playerNames)
 	{
 		int slotsUsed = labelGroupPlayers->currentSize();
 		Point labelPosition;
@@ -276,6 +293,24 @@ void InfoCard::changeSelection()
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
+}
+
+void InfoCard::clearSelection()
+{
+	labelSaveDate->setText("");
+	mapName->setText("");
+	mapDescription->setText("");
+
+	if(SEL->screenType == ESelectionScreen::campaignList)
+		return;
+
+	labelMapSize->setText("");
+
+	labelVictoryConditionText->setText("");
+	labelLossConditionText->setText("");
+	iconDifficulty->deactivate();
+	labelDifficulty->setText("");
+	labelDifficultyPercent->setText("");
 }
 
 void InfoCard::toggleChat()
@@ -316,7 +351,7 @@ void InfoCard::setChat(bool activateChat)
 			pvpBox->enable();
 			playerListBg->enable();
 		}
-		if (CSH->inLobbyRoom())
+		if (GAME->server().inLobbyRoom())
 		{
 			buttonInvitePlayers->enable();
 			buttonOpenGlobalLobby->enable();
@@ -356,7 +391,7 @@ void InfoCard::setChat(bool activateChat)
 	}
 
 	showChat = activateChat;
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 CChatBox::CChatBox(const Rect & rect)
@@ -366,7 +401,7 @@ CChatBox::CChatBox(const Rect & rect)
 	pos += rect.topLeft();
 	setRedrawParent(true);
 
-	const auto & font = GH.renderHandler().loadFont(FONT_SMALL);
+	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	const int height = font->getLineHeight();
 	Rect textInputArea(1, rect.h - height, rect.w - 1, height);
 	Rect chatHistoryArea(3, 1, rect.w - 3, rect.h - height - 1);
@@ -387,7 +422,7 @@ void CChatBox::keyPressed(EShortcut key)
 {
 	if(key == EShortcut::GLOBAL_ACCEPT && inputBox->getText().size())
 	{
-		CSH->sendMessage(inputBox->getText());
+		GAME->server().sendMessage(inputBox->getText());
 		inputBox->setText("");
 	}
 	else
@@ -396,7 +431,7 @@ void CChatBox::keyPressed(EShortcut key)
 
 void CChatBox::addNewMessage(const std::string & text)
 {
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->scrollToMax();
@@ -422,35 +457,35 @@ PvPBox::PvPBox(const Rect & rect)
 		return bannedTowns;
 	};
 
-	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.coin.help")), [](){
+	buttonFlipCoin = std::make_shared<CButton>(Point(190, 6), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.pvp.coin.help")), [](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::COIN;
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_FLIP_COIN);
-	buttonFlipCoin->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonFlipCoin->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.pvp.coin.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.help")), [getBannedTowns](){
+	buttonRandomTown = std::make_shared<CButton>(Point(190, 31), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.pvp.randomTown.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN;
 		lpa.bannedTowns = getBannedTowns();
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN);
-	buttonRandomTown->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonRandomTown->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.pvp.randomTown.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.help")), [getBannedTowns](){
+	buttonRandomTownVs = std::make_shared<CButton>(Point(190, 56), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.help")), [getBannedTowns](){
 		LobbyPvPAction lpa;
 		lpa.action = LobbyPvPAction::RANDOM_TOWN_VS;
 		lpa.bannedTowns = getBannedTowns();
-		CSH->sendLobbyPack(lpa);
+		GAME->server().sendLobbyPack(lpa);
 	}, EShortcut::LOBBY_RANDOM_TOWN_VS);
-	buttonRandomTownVs->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonRandomTownVs->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.pvp.randomTownVs.hover"), EFonts::FONT_SMALL, Colors::WHITE);
 
-	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", CGI->generaltexth->translate("vcmi.lobby.handicap")), [](){
-		if(!CSH->isHost())
+	buttonHandicap = std::make_shared<CButton>(Point(190, 81), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.handicap")), [](){
+		if(!GAME->server().isHost())
 			return;
-		GH.windows().createAndPushWindow<OptionsTab::HandicapWindow>();
+		ENGINE->windows().createAndPushWindow<OptionsTab::HandicapWindow>();
 	}, EShortcut::LOBBY_HANDICAP);
-	buttonHandicap->setTextOverlay(CGI->generaltexth->translate("vcmi.lobby.handicap"), EFonts::FONT_SMALL, Colors::WHITE);
+	buttonHandicap->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.handicap"), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 TownSelector::TownSelector(const Point & loc)
@@ -460,7 +495,7 @@ TownSelector::TownSelector(const Point & loc)
 	setRedrawParent(true);
 
 	int count = 0;
-	for(auto const & factionID : CGI->townh->getDefaultAllowed())
+	for(auto const & factionID : LIBRARY->townh->getDefaultAllowed())
 	{
 		townsEnabled[factionID] = true;
 		count++;
@@ -489,7 +524,7 @@ void TownSelector::updateListItems()
 
 	int x = 0;
 	int y = 0;
-	for (auto const & factionID : CGI->townh->getDefaultAllowed())
+	for (auto const & factionID : LIBRARY->townh->getDefaultAllowed())
 	{
 		if(y >= line && (y - line) < 3)
 		{
@@ -528,8 +563,8 @@ CFlagBox::CFlagBox(const Rect & rect)
 	pos.h = rect.h;
 	OBJECT_CONSTRUCTION;
 
-	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[390] + ":");
+	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[391] + ":");
 }
 
 void CFlagBox::recreate()
@@ -539,10 +574,10 @@ void CFlagBox::recreate()
 	OBJECT_CONSTRUCTION;
 	const int alliesX = 5 + (int)labelAllies->getWidth();
 	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
-	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
+	for(auto i = GAME->server().si->playerInfos.cbegin(); i != GAME->server().si->playerInfos.cend(); i++)
 	{
 		auto flag = std::make_shared<CAnimImage>(AnimationPath::builtin("ITGFLAGS.DEF"), i->first.getNum(), 0);
-		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
+		if(i->first == GAME->server().myFirstColor() || GAME->server().getPlayerTeamId(i->first) == GAME->server().getPlayerTeamId(GAME->server().myFirstColor()))
 		{
 			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
 			flagsAllies.push_back(flag);
@@ -558,7 +593,7 @@ void CFlagBox::recreate()
 void CFlagBox::showPopupWindow(const Point & cursorPosition)
 {
 	if(SEL->getMapInfo())
-		GH.windows().createAndPushWindow<CFlagBoxTooltipBox>();
+		ENGINE->windows().createAndPushWindow<CFlagBoxTooltipBox>();
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
@@ -566,7 +601,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 {
 	OBJECT_CONSTRUCTION;
 
-	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
+	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[657]);
 	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
 	std::vector<std::set<PlayerColor>> teams(PlayerColor::PLAYER_LIMIT_I);
@@ -585,7 +620,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox()
 		if(team.empty())
 			continue;
 
-		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(CGI->generaltexth->allTexts[656]) % (curIdx + 1)));
+		labelGroupTeams->add(128, 65 + 50 * curIdx, boost::str(boost::format(LIBRARY->generaltexth->allTexts[656]) % (curIdx + 1)));
 		int curx = 128 - 9 * team.size();
 		for(const auto & player : team)
 		{

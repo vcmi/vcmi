@@ -14,8 +14,11 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
-#include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../CPlayerInterface.h"
+#include "../CServerHandler.h"
+#include "../GameInstance.h"
+#include "../Client.h"
+#include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
@@ -23,15 +26,17 @@
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 
-#include "../../CCallback.h"
-
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
 struct NeighborTilesInfo
@@ -105,7 +110,7 @@ void MapTileStorage::load(size_t index, const AnimationPath & filename, EImageBl
 	for(auto & entry : terrainAnimations)
 	{
 		if (!filename.empty())
-			entry = GH.renderHandler().loadAnimation(filename, blitMode);
+			entry = ENGINE->renderHandler().loadAnimation(filename, blitMode);
 	}
 
 	if (terrainAnimations[1])
@@ -141,10 +146,10 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 }
 
 MapRendererTerrain::MapRendererTerrain()
-	: storage(VLC->terrainTypeHandler->objects.size())
+	: storage(LIBRARY->terrainTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map terrains");
-	for(const auto & terrain : VLC->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
 	logGlobal->debug("Done loading map terrains");
 }
@@ -153,7 +158,7 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	int32_t terrainIndex = mapTile.getTerrainID();
+	int32_t terrainIndex = mapTile.getTerrainID().getNum();
 	int32_t imageIndex = mapTile.terView;
 	int32_t rotationIndex = mapTile.extTileFlags % 4;
 
@@ -180,10 +185,10 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererRiver::MapRendererRiver()
-	: storage(VLC->riverTypeHandler->objects.size())
+	: storage(LIBRARY->riverTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map rivers");
-	for(const auto & river : VLC->riverTypeHandler->objects)
+	for(const auto & river : LIBRARY->riverTypeHandler->objects)
 		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map rivers");
 }
@@ -195,7 +200,7 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 	if(!mapTile.hasRiver())
 		return;
 
-	int32_t terrainIndex = mapTile.getRiverID();
+	int32_t terrainIndex = mapTile.getRiverID().getNum();
 	int32_t imageIndex = mapTile.riverDir;
 	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
 
@@ -215,10 +220,10 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 }
 
 MapRendererRoad::MapRendererRoad()
-	: storage(VLC->roadTypeHandler->objects.size())
+	: storage(LIBRARY->roadTypeHandler->objects.size())
 {
 	logGlobal->debug("Loading map roads");
-	for(const auto & road : VLC->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->objects)
 		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map roads");
 }
@@ -232,7 +237,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 		const TerrainTile & mapTileAbove = context.getMapTile(coordinatesAbove);
 		if(mapTileAbove.hasRoad())
 		{
-			int32_t terrainIndex = mapTileAbove.getRoadID();
+			int32_t terrainIndex = mapTileAbove.getRoadID().getNum();
 			int32_t imageIndex = mapTileAbove.roadDir;
 			int32_t rotationIndex = (mapTileAbove.extTileFlags >> 4) % 4;
 
@@ -244,7 +249,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 	if(mapTile.hasRoad())
 	{
-		int32_t terrainIndex = mapTile.getRoadID();
+		int32_t terrainIndex = mapTile.getRoadID().getNum();
 		int32_t imageIndex = mapTile.roadDir;
 		int32_t rotationIndex = (mapTile.extTileFlags >> 4) % 4;
 
@@ -260,7 +265,7 @@ uint8_t MapRendererRoad::checksum(IMapRendererContext & context, const int3 & co
 
 MapRendererBorder::MapRendererBorder()
 {
-	animation = GH.renderHandler().loadAnimation(AnimationPath::builtin("EDG"), EImageBlitMode::OPAQUE);
+	animation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("EDG"), EImageBlitMode::OPAQUE);
 }
 
 size_t MapRendererBorder::getIndexForTile(IMapRendererContext & context, const int3 & tile)
@@ -321,8 +326,8 @@ uint8_t MapRendererBorder::checksum(IMapRendererContext & context, const int3 & 
 
 MapRendererFow::MapRendererFow()
 {
-	fogOfWarFullHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"), EImageBlitMode::OPAQUE);
-	fogOfWarPartialHide = GH.renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::SIMPLE);
+	fogOfWarFullHide = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("TSHRC"), EImageBlitMode::OPAQUE);
+	fogOfWarPartialHide = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("TSHRE"), EImageBlitMode::SIMPLE);
 
 	static const std::vector<int> rotations = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
@@ -407,7 +412,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	if(it != animations.end())
 		return it->second;
 
-	auto ret = GH.renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR: EImageBlitMode::WITH_SHADOW);
+	auto ret = ENGINE->renderHandler().loadAnimation(filename, enableOverlay ? EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR: EImageBlitMode::WITH_SHADOW);
 	animations[filename] = ret;
 
 	if(generateMovementGroups)
@@ -420,6 +425,19 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 		ret->createFlippedGroup(7, 11);
 		ret->createFlippedGroup(8, 12);
 	}
+	return ret;
+}
+
+std::shared_ptr<IImage> MapRendererObjects::getImage(const ImagePath & filename) const
+{
+	auto it = images.find(filename);
+
+	if(it != images.end())
+		return it->second;
+
+	auto ret = ENGINE->renderHandler().loadImage(filename, EImageBlitMode::SIMPLE);
+	images[filename] = ret;
+
 	return ret;
 }
 
@@ -440,8 +458,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
-			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true, false);
+		if(boat && boat->getBoardedHero() && !boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()].empty())
+			return getAnimation(boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()], true, false);
 	}
 
 	return nullptr;
@@ -453,13 +471,13 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	{
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->overlayAnimation.empty())
+		if(boat && boat->getBoardedHero() && !boat->overlayAnimation.empty())
 			return getAnimation(boat->overlayAnimation, true, false);
 	}
 	return nullptr;
 }
 
-std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
+std::shared_ptr<IImage> MapRendererObjects::getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
 {
 	if(!animation)
 		return nullptr;
@@ -468,6 +486,17 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
+	
+	auto attackerPos = context.attackedMonsterDirection(obj);
+	if(attackerPos != -1)
+	{
+		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
+		auto const & creatureType = LIBRARY->creh->objects[creature->appearance->subid];
+		auto dir = std::vector<int>({1, 2, 7, 8});
+		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? creatureType->mapAttackFromRight : creatureType->mapAttackFromLeft;
+		if(!imgPath.empty())
+			return getImage(imgPath);
+	}
 
 	size_t frameIndex = context.objectImageIndex(obj->id, animation->size(groupIndex));
 
@@ -505,9 +534,9 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getOverlayAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -566,12 +595,14 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererOverlay::MapRendererOverlay()
-	: imageGrid(GH.renderHandler().loadImage(ImagePath::builtin("debug/grid"), EImageBlitMode::COLORKEY))
-	, imageBlocked(GH.renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::COLORKEY))
-	, imageVisitable(GH.renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::COLORKEY))
-	, imageSpellRange(GH.renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
+	: imageGrid(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/grid"), EImageBlitMode::COLORKEY))
+	, imageBlocked(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::COLORKEY))
+	, imageVisitable(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::COLORKEY))
+	, imageSpellRange(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
+	, imageEvent(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZevnt0"), EImageBlitMode::COLORKEY)->getImage(0))
+	, imageGrail(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZgrail"), EImageBlitMode::COLORKEY)->getImage(0))
+	, grailPos(GAME->server().client->gameState().getMap().grailPos)
 {
-
 }
 
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -579,7 +610,7 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(context.showVisitable() || context.showBlocked())
+	if(GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
 	{
 		bool blocking = false;
 		bool visitable = false;
@@ -587,6 +618,12 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 		for(const auto & objectID : context.getObjects(coordinates))
 		{
 			const auto * object = context.getObject(objectID);
+
+			if(object->ID == Obj::EVENT && context.showInvisible())
+				target.draw(imageEvent, Point(0,0));
+			
+			if(grailPos == coordinates && context.showInvisible())
+				target.draw(imageGrail, Point(0,0));
 
 			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))
 			{
@@ -621,11 +658,14 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 	if (context.showSpellRange(coordinates))
 		result += 8;
 
+	if (context.showInvisible())
+		result += 16;
+
 	return result;
 }
 
 MapRendererPath::MapRendererPath()
-	: pathNodes(GH.renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::SIMPLE))
+	: pathNodes(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("ADAG"), EImageBlitMode::SIMPLE))
 {
 }
 
@@ -680,7 +720,7 @@ void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target,
 {
 	size_t imageID = selectImage(context, coordinates);
 
-	if (imageID < pathNodes->size())
+	if (imageID < pathNodes->size() && settings["adventure"]["showMovePath"].Bool())
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
 }
 

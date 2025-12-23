@@ -12,6 +12,8 @@
 
 #include <vcmi/Creature.h>
 
+#include "../../lib/ResourceSet.h"
+
 class IBonusBearer;
 class FactionID;
 
@@ -59,6 +61,6 @@ public:
 	MOCK_CONST_METHOD0(isDoubleWide, bool());
 
 	MOCK_CONST_METHOD1(getRecruitCost, int32_t(GameResID));
-	MOCK_CONST_METHOD0(getFullRecruitCost, ResourceSet());
+	MOCK_CONST_METHOD0(getFullRecruitCost, const ResourceSet &());
 	MOCK_CONST_METHOD0(hasUpgrades, bool());
 };

@@ -14,7 +14,7 @@
 #include "../RmgMap.h"
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h"
@@ -41,7 +41,7 @@ void PrisonHeroPlacer::getAllowedHeroes()
 	// Call that only once
 	if (allowedHeroes.empty())
 	{
-    	allowedHeroes = generator.getAllPossibleHeroes();
+		allowedHeroes = generator.getAllPossibleHeroes();
 	}
 }
 
@@ -56,8 +56,8 @@ HeroTypeID PrisonHeroPlacer::drawRandomHero()
 	if (getPrisonsRemaining() > 0)
 	{
 		RandomGeneratorUtil::randomShuffle(allowedHeroes, zone.getRand());
-        HeroTypeID ret = allowedHeroes.back();
-        allowedHeroes.pop_back();
+		HeroTypeID ret = allowedHeroes.back();
+		allowedHeroes.pop_back();
 		return ret;
 	}
 	else

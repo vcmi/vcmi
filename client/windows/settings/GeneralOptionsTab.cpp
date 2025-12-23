@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "GeneralOptionsTab.h"
 
-#include "CGameInfo.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
 #include "media/IMusicPlayer.h"
@@ -19,7 +18,7 @@
 #include "windows/GUIClasses.h"
 
 #include "../../eventsSDL/InputHandler.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/Images.h"
@@ -28,6 +27,7 @@
 
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
+#include "../../../lib/GameLibrary.h"
 
 static void setIntSetting(std::string group, std::string field, int value)
 {
@@ -48,7 +48,7 @@ static std::string scalingToEntryString( int scaling)
 
 static std::string scalingToLabelString( int scaling)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
+	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.scalingButton.hover");
 	boost::replace_all(string, "%p", std::to_string(scaling));
 
 	return string;
@@ -56,7 +56,7 @@ static std::string scalingToLabelString( int scaling)
 
 static std::string longTouchToEntryString( int duration)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
+	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchMenu.entry");
 	boost::replace_all(string, "%d", std::to_string(duration));
 
 	return string;
@@ -64,7 +64,7 @@ static std::string longTouchToEntryString( int duration)
 
 static std::string longTouchToLabelString( int duration)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
+	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchButton.hover");
 	boost::replace_all(string, "%d", std::to_string(duration));
 
 	return string;
@@ -82,7 +82,7 @@ static std::string resolutionToEntryString( int w, int h)
 
 static std::string resolutionToLabelString( int w, int h)
 {
-	std::string string = CGI->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
+	std::string string = LIBRARY->generaltexth->translate("vcmi.systemOptions.resolutionButton.hover");
 
 	boost::replace_all(string, "%w", std::to_string(w));
 	boost::replace_all(string, "%h", std::to_string(h));
@@ -97,9 +97,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
 
-	addConditional("touchscreen", GH.input().getCurrentInputMode() == InputMode::TOUCH);
-	addConditional("keyboardMouse", GH.input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
-	addConditional("controller", GH.input().getCurrentInputMode() == InputMode::CONTROLLER);
+	addConditional("touchscreen", ENGINE->input().getCurrentInputMode() == InputMode::TOUCH);
+	addConditional("keyboardMouse", ENGINE->input().getCurrentInputMode() == InputMode::KEYBOARD_AND_MOUSE);
+	addConditional("controller", ENGINE->input().getCurrentInputMode() == InputMode::CONTROLLER);
 #ifdef VCMI_MOBILE
 	addConditional("mobile", true);
 	addConditional("desktop", false);
@@ -152,9 +152,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		selectLongTouchDuration();
 	});
-	addCallback("framerateChanged", [](bool value)
+	addCallback("performanceOverlayChanged", [](bool value)
 	{
-		setBoolSetting("video", "showfps", value);
+		Settings gameRes = settings.write["video"]["performanceOverlay"];
+		gameRes["show"].Bool() = value;
 	});
 	addCallback("hapticFeedbackChanged", [](bool value)
 	{
@@ -185,6 +186,11 @@ GeneralOptionsTab::GeneralOptionsTab()
 		setBoolSetting("general", "audioMuteFocus", value);
 	});
 
+	addCallback("enableSubtitleChanged", [](bool value)
+	{
+		setBoolSetting("general", "enableSubtitle", value);
+	});
+
 	//moved from "other" tab that is disabled for now to avoid excessible tabs with barely any content
 	addCallback("availableCreaturesAsDwellingChanged", [=](int value)
 	{
@@ -199,7 +205,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 	build(config);
 
 	std::shared_ptr<CLabel> scalingLabel = widget<CLabel>("scalingLabel");
-	scalingLabel->setText(scalingToLabelString(GH.screenHandler().getInterfaceScalingPercentage()));
+	scalingLabel->setText(scalingToLabelString(ENGINE->screenHandler().getInterfaceScalingPercentage()));
 
 	std::shared_ptr<CLabel> longTouchLabel = widget<CLabel>("longTouchLabel");
 	if (longTouchLabel)
@@ -220,8 +226,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	if (fullscreenExclusiveCheckbox)
 		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
 
-	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
-	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
+	std::shared_ptr<CToggleButton> infoboxCheckbox = widget<CToggleButton>("performanceOverlayCheckbox");
+	infoboxCheckbox->setSelected(settings["video"]["performanceOverlay"]["show"].Bool());
 
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)
@@ -243,11 +249,15 @@ GeneralOptionsTab::GeneralOptionsTab()
 	if (audioMuteFocusCheckbox)
 		audioMuteFocusCheckbox->setSelected(settings["general"]["audioMuteFocus"].Bool());
 
+	std::shared_ptr<CToggleButton> enableSubtitleCheckbox = widget<CToggleButton>("enableSubtitleCheckbox");
+	if (enableSubtitleCheckbox)
+		enableSubtitleCheckbox->setSelected(settings["general"]["enableSubtitle"].Bool());
+
 	std::shared_ptr<CSlider> musicSlider = widget<CSlider>("musicSlider");
-	musicSlider->scrollTo(CCS->musich->getVolume());
+	musicSlider->scrollTo(ENGINE->music().getVolume());
 
 	std::shared_ptr<CSlider> volumeSlider = widget<CSlider>("soundVolumeSlider");
-	volumeSlider->scrollTo(CCS->soundh->getVolume());
+	volumeSlider->scrollTo(ENGINE->sound().getVolume());
 
 	std::shared_ptr<CToggleGroup> creatureGrowthAsDwellingPicker = widget<CToggleGroup>("availableCreaturesAsDwellingPicker");
 	creatureGrowthAsDwellingPicker->setSelected(settings["gameTweaks"]["availableCreaturesAsDwellingLabel"].Bool());
@@ -256,10 +266,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	compactTownCreatureInfo->setSelected(settings["gameTweaks"]["compactTownCreatureInfo"].Bool());
 
 	std::shared_ptr<CLabel> musicVolumeLabel = widget<CLabel>("musicValueLabel");
-	musicVolumeLabel->setText(std::to_string(CCS->musich->getVolume()) + "%");
+	musicVolumeLabel->setText(std::to_string(ENGINE->music().getVolume()) + "%");
 
 	std::shared_ptr<CLabel> soundVolumeLabel = widget<CLabel>("soundValueLabel");
-	soundVolumeLabel->setText(std::to_string(CCS->soundh->getVolume()) + "%");
+	soundVolumeLabel->setText(std::to_string(ENGINE->sound().getVolume()) + "%");
 
 	updateResolutionSelector();
 }
@@ -279,14 +289,14 @@ void GeneralOptionsTab::updateResolutionSelector()
 
 	if (resolutionLabel)
 	{
-		Point resolution = GH.screenHandler().getRenderResolution();
+		Point resolution = ENGINE->screenHandler().getRenderResolution();
 		resolutionLabel->setText(resolutionToLabelString(resolution.x, resolution.y));
 	}
 }
 
 void GeneralOptionsTab::selectGameResolution()
 {
-	supportedResolutions = GH.screenHandler().getSupportedResolutions();
+	supportedResolutions = ENGINE->screenHandler().getSupportedResolutions();
 
 	std::vector<std::string> items;
 	size_t currentResolutionIndex = 0;
@@ -300,9 +310,9 @@ void GeneralOptionsTab::selectGameResolution()
 		items.push_back(std::move(resolutionStr));
 		++i;
 	}
-	GH.windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
-								   CGI->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(items, nullptr,
+								   LIBRARY->generaltexth->translate("vcmi.systemOptions.resolutionMenu.hover"),
+								   LIBRARY->generaltexth->translate("vcmi.systemOptions.resolutionMenu.help"),
 								   [this](int index)
 								   {
 									   setGameResolution(index);
@@ -325,8 +335,8 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -349,8 +359,8 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 
 	updateResolutionSelector();
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -361,7 +371,7 @@ void GeneralOptionsTab::selectGameScaling()
 	// generate list of all possible scaling values, with 10% step
 	// also add one value over maximum, so if player can use scaling up to 123.456% he will be able to select 130%
 	// and let screen handler clamp that value to actual maximum
-	auto [minimalScaling, maximalScaling] = GH.screenHandler().getSupportedScalingRange();
+	auto [minimalScaling, maximalScaling] = ENGINE->screenHandler().getSupportedScalingRange();
 	for (int i = 0; i <= maximalScaling + 10 - 1; i += 10)
 	{
 		if (i >= minimalScaling)
@@ -381,11 +391,11 @@ void GeneralOptionsTab::selectGameScaling()
 		++i;
 	}
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
-		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
-		CGI->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
+		LIBRARY->generaltexth->translate("vcmi.systemOptions.scalingMenu.hover"),
+		LIBRARY->generaltexth->translate("vcmi.systemOptions.scalingMenu.help"),
 		[this](int index)
 		{
 			setGameScaling(index);
@@ -408,8 +418,8 @@ void GeneralOptionsTab::setGameScaling(int index)
 
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
-	GH.dispatchMainThread([](){
-		GH.onScreenResize(true);
+	ENGINE->dispatchMainThread([](){
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -430,11 +440,11 @@ void GeneralOptionsTab::selectLongTouchDuration()
 		++i;
 	}
 
-	GH.windows().createAndPushWindow<CObjectListWindow>(
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
 		items,
 		nullptr,
-		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),
-		CGI->generaltexth->translate("vcmi.systemOptions.longTouchMenu.help"),
+		LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchMenu.hover"),
+		LIBRARY->generaltexth->translate("vcmi.systemOptions.longTouchMenu.help"),
 		[this](int index)
 		{
 			setLongTouchDuration(index);

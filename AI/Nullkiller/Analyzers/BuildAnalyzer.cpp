@@ -62,7 +62,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
-	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
+	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > 4)
 	{
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
@@ -202,17 +202,17 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	BuildingID building = toBuild;
 	auto townInfo = town->getTown();
 
-	const CBuilding * buildPtr = townInfo->buildings.at(building);
+	const auto & buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
 	CreatureID baseCreatureID;
 
 	int creatureLevel = -1;
 	int creatureUpgrade = 0;
 
-	if(toBuild.IsDwelling())
+	if(toBuild.isDwelling())
 	{
-		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
-		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
+		creatureLevel = BuildingID::getLevelIndexFromDwelling(toBuild);
+		creatureUpgrade = BuildingID::getUpgradeNoFromDwelling(toBuild);
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{
@@ -234,7 +234,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		creature = creatureID.toCreature();
 	}
 
-	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
+	auto info = BuildingInfo(buildPtr.get(), creature, baseCreatureID, town, ai);
 
 	//logAi->trace("checking %s buildInfo %s", info.name, info.toString());
 
@@ -267,7 +267,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			auto otherDwelling = [](const BuildingID & id) -> bool
 			{
-				return id.IsDwelling();
+				return id.isDwelling();
 			};
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
@@ -351,7 +351,7 @@ void BuildAnalyzer::updateDailyIncome()
 	}
 }
 
-bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
+bool BuildAnalyzer::hasAnyBuilding(FactionID alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
@@ -429,7 +429,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			if(id.IsDwelling())
+			if(id.isDwelling())
 			{
 				creatureGrows = creature->getGrowth();
 

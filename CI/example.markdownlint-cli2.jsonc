@@ -184,7 +184,7 @@
 		// MD040/fenced-code-language : Fenced code blocks should have a language specified : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md040.md
 		"MD040": {
 		// List of languages
-			"allowed_languages": [ "cpp", "json", "sh", "text", "nix", "powershell", "lua" ],
+			"allowed_languages": [ "cpp", "json", "sh", "text", "nix", "powershell", "lua", "batchfile" ],
 		// Require language only
 			"language_only": true
 		},
@@ -272,7 +272,10 @@
 		},
 		
 		// MD058 - Tables should be surrounded by blank lines
-		"MD058" : true
+		"MD058" : true,
+
+		// MD059 - Link text should be descriptive
+		"MD059" : false
 
 	}
 }

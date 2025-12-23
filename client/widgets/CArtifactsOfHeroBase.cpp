@@ -10,17 +10,18 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroBase.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
-#include "../../CCallback.h"
-
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -37,11 +38,11 @@ void CArtifactsOfHeroBase::putBackPickedArtifact()
 		auto slot = ArtifactUtils::getArtAnyPosition(curHero, art->getTypeId());
 		if(slot == ArtifactPosition::PRE_FIRST)
 		{
-			LOCPLINT->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
+			GAME->interface()->cb->eraseArtifactByClient(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS));
 		}
 		else
 		{
-			LOCPLINT->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
+			GAME->interface()->cb->swapArtifacts(ArtifactLocation(curHero->id, ArtifactPosition::TRANSITION_POS), ArtifactLocation(curHero->id, slot));
 		}
 	}
 }
@@ -157,7 +158,7 @@ const CGHeroInstance * CArtifactsOfHeroBase::getHero() const
 
 void CArtifactsOfHeroBase::scrollBackpack(bool left)
 {
-	LOCPLINT->cb->scrollBackpackArtifacts(curHero->id, left);
+	GAME->interface()->cb->scrollBackpackArtifacts(curHero->id, left);
 }
 
 void CArtifactsOfHeroBase::markPossibleSlots(const CArtifact * art, bool assumeDestRemoved)
@@ -268,14 +269,23 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	artPlace->slot = slot;
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
+		const auto curArt = slotInfo->getArt();
+
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->artifact->getTypeId(), slotInfo->artifact->getScrollSpellID());
-		if(slotInfo->locked || slotInfo->artifact->isCombined())
+		artPlace->setArtifact(curArt->getTypeId(), curArt->getScrollSpellID());
+		if(slotInfo->locked)
+			return;
+
+		// If the artifact has charges, add charges information
+		if(curArt->getType()->isCharged())
+			artPlace->addChargedArtInfo(curArt->getCharges());
+
+		if(curArt->isCombined())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
-		for(const auto combinedArt : slotInfo->artifact->getType()->getPartOf())
+		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
 			arts.try_emplace(combinedArt->getId());

@@ -14,15 +14,15 @@
 
 #include "../CGameHandler.h"
 
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/callback/IGameInfoCallback.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
-#include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 #include "../../lib/spells/AbilityCaster.h"
@@ -80,7 +80,7 @@ bool BattleActionProcessor::doSurrenderAction(const CBattleInfoCallback & battle
 		return false;
 	}
 
-	if (gameHandler->getResource(player, EGameResID::GOLD) < cost)
+	if (gameHandler->gameInfo().getResource(player, EGameResID::GOLD) < cost)
 	{
 		gameHandler->complain("Not enough gold to surrender!");
 		return false;
@@ -118,12 +118,13 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 		logGlobal->warn("Spell cannot be cast!");
 		std::vector<std::string> texts;
 		problem.getAll(texts);
-		for(auto s : texts)
-			logGlobal->warn(s);
+		for(const auto & text : texts)
+			logGlobal->warn(text);
 		return false;
 	}
 
-	parameters.cast(gameHandler->spellEnv, ba.getTarget(&battle));
+	parameters.cast(gameHandler->spellcastEnvironment(), ba.getTarget(&battle));
+	gameHandler->useChargeBasedSpell(h->id, ba.spell);
 
 	return true;
 }
@@ -136,14 +137,14 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 	if (!canStackAct(battle, stack))
 		return false;
 
-	if(target.size() < 1)
+	if(target.empty())
 	{
 		gameHandler->complain("Destination required for move action.");
 		return false;
 	}
 
-	int walkedTiles = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
-	if (!walkedTiles)
+	auto movementResult = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
+	if (movementResult.invalidRequest)
 	{
 		gameHandler->complain("Stack failed movement!");
 		return false;
@@ -186,7 +187,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	buffer.push_back(bonus2);
 
-	sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
+	sse.toUpdate.emplace_back(ba.stackNumber, buffer);
 	gameHandler->sendAndApply(sse);
 
 	BattleLogMessage message;
@@ -228,14 +229,21 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	BattleHex startingPos = stack->getPosition();
-	int distance = moveStack(battle, ba.stackNumber, attackPos);
+	int beforeAttackSpeed = stack->getMovementRange(0);
+	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
 
 	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
-	if(stack->getPosition() != attackPos && !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false))) )
+	if (movementResult.invalidRequest)
+	{
+		gameHandler->complain("Stack failed attack - unable to reach target!");
+		return false;
+	}
+
+	if(movementResult.obstacleHit)
 	{
 		// we were not able to reach destination tile, nor occupy specified hex
-		// abort attack attempt, but treat this case as legal - we may have stepped onto a quicksands/mine
+		// abort attack attempt, but treat this case as legal - we have stepped onto a quicksands/mine
 		return true;
 	}
 
@@ -267,7 +275,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
-	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
 
 	const bool retaliation = destinationStack->ableToRetaliate();
 	bool ferocityApplied = false;
@@ -284,7 +292,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
 		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
 		{
-			makeAttack(battle, stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
+			makeAttack(battle, stack, destinationStack, (i ? 0 : movementResult.distance), destinationTile, i==0, false, false);//no distance travelled on second attack
 
 			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
@@ -313,13 +321,19 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 
 	//return
 	if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
+		&& !stack->hasBonusOfType(BonusType::NOT_ACTIVE)
+		&& !stack->hasBonusOfType(BonusType::BIND_EFFECT)
 		&& target.size() == 3
 		&& startingPos != stack->getPosition()
 		&& startingPos == target.at(2).hexValue
 		&& stack->alive())
 	{
-		moveStack(battle, ba.stackNumber, startingPos);
-		//NOTE: curStack->unitId() == ba.stackNumber (rev 1431)
+		assert(stack->unitId() == ba.stackNumber);
+		int afterAttackSpeed = stack->getMovementRange(0);
+		std::pair<BattleHexArray, int> path = battle.getPath(stack->getPosition(), startingPos, stack);
+		size_t maxReachbleIndex = std::max(0, beforeAttackSpeed - afterAttackSpeed);
+		if(maxReachbleIndex < path.first.size())
+			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
 	}
 	return true;
 }
@@ -332,7 +346,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	if (!canStackAct(battle, stack))
 		return false;
 
-	if(target.size() < 1)
+	if(target.empty())
 	{
 		gameHandler->complain("Destination required for shot action.");
 		return false;
@@ -360,7 +374,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	if(!emptyTileAreaAttack)
 	{
 		static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
-		firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+		firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
 	}
 
 	if (!firstStrike)
@@ -419,7 +433,7 @@ bool BattleActionProcessor::doCatapultAction(const CBattleInfoCallback & battle,
 		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can shot infinitely by catapult
 		auto shotLevel = stack->valOfBonuses(Selector::typeSubtype(BonusType::CATAPULT_EXTRA_SHOTS, catapultAbility->subtype));
 		parameters.setSpellLevel(shotLevel);
-		parameters.cast(gameHandler->spellEnv, target);
+		parameters.cast(gameHandler->spellcastEnvironment(), target);
 	}
 	return true;
 }
@@ -477,7 +491,7 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	if(randSpellcaster)
 		vstd::amax(spellLvl, randSpellcaster->val);
 	parameters.setSpellLevel(spellLvl);
-	parameters.cast(gameHandler->spellEnv, target);
+	parameters.cast(gameHandler->spellcastEnvironment(), target);
 	return true;
 }
 
@@ -489,7 +503,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	if (!canStackAct(battle, stack))
 		return false;
 
-	if(target.size() < 1)
+	if(target.empty())
 	{
 		gameHandler->complain("Destination required for heal action.");
 		return false;
@@ -513,7 +527,7 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 		spells::BattleCast parameters(&battle, stack, spells::Mode::SPELL_LIKE_ATTACK, spell); //We can heal infinitely by first aid tent
 		auto dest = battle::Destination(destStack, target.at(0).hexValue);
 		parameters.setSpellLevel(0);
-		parameters.cast(gameHandler->spellEnv, {dest});
+		parameters.cast(gameHandler->spellcastEnvironment(), {dest});
 	}
 	return true;
 }
@@ -614,10 +628,8 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	return result;
 }
 
-int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
+BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
 {
-	int ret = 0;
-
 	const CStack *curStack = battle.battleGetStackByID(stack);
 	const CStack *stackAtEnd = battle.battleGetStackByPos(dest);
 
@@ -631,7 +643,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	auto start = curStack->getPosition();
 	if (start == dest)
-		return 0;
+		return { 0, false, false };
 
 	//initing necessary tables
 	auto accessibility = battle.getAccessibility(curStack);
@@ -644,7 +656,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
-		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir(), false);
+		BattleHex shifted = dest.cloneInDirection(curStack->headDirection(), false);
 
 		if(accessibility.accessible(shifted, curStack))
 			dest = shifted;
@@ -653,7 +665,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
 	{
 		gameHandler->complain("Given destination is not accessible!");
-		return 0;
+		return { 0, false, true };
 	}
 
 	bool canUseGate = false;
@@ -666,8 +678,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	}
 
 	std::pair< BattleHexArray, int > path = battle.getPath(start, dest, curStack);
-
-	ret = path.second;
+	int8_t passedHexes = path.second;
+	bool movementSuccess = true;
 
 	int creSpeed = curStack->getMovementRange(0);
 
@@ -708,7 +720,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	if (curStack->hasBonusOfType(BonusType::FLYING))
 	{
-		if (path.second <= creSpeed && path.first.size() > 0)
+		if (path.second <= creSpeed && !path.first.empty())
 		{
 			if (canUseGate && dbState != EGateState::OPENED &&
 				occupyGateDrawbridgeHex(dest))
@@ -734,15 +746,16 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	else //for non-flying creatures
 	{
 		BattleHexArray tiles;
-		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
-		int v = (int)path.first.size()-1;
+		const int tilesToMove = std::max<int>(path.first.size() - creSpeed, 0);
+		int v = static_cast<int>(path.first.size())-1;
 		path.first.insert(start);
 
 		// check if gate need to be open or closed at some point
-		BattleHex openGateAtHex, gateMayCloseAtHex;
+		BattleHex openGateAtHex;
+		BattleHex gateMayCloseAtHex;
 		if (canUseGate)
 		{
-			for (int i = (int)path.first.size()-1; i >= 0; i--)
+			for (int i = static_cast<int>(path.first.size())-1; i >= 0; i--)
 			{
 				auto needOpenGates = [&](const BattleHex & hex) -> bool
 				{
@@ -750,7 +763,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 						return true;
 					if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
 						return true;
-					else if (hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
+					if (hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
 						return true;
 
 					return false;
@@ -803,15 +816,10 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			}
 		}
 
-		bool stackIsMoving = true;
-
-		while(stackIsMoving)
+		while(movementSuccess)
 		{
 			if (v<tilesToMove)
-			{
-				logGlobal->error("Movement terminated abnormally");
-				break;
-			}
+				throw std::runtime_error("Movement terminated abnormally");
 
 			bool gateStateChanging = false;
 			//special handling for opening gate on from starting hex
@@ -863,9 +871,9 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if (curStack->getPosition() != dest)
 			{
-				if(stackIsMoving && start != curStack->getPosition())
+				if(movementSuccess && start != curStack->getPosition())
 				{
-					stackIsMoving = battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
+					movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 					passed.insert(curStack->getPosition());
 					if(curStack->doubleWide())
 						passed.insert(curStack->occupiedHex());
@@ -892,12 +900,14 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				}
 			}
 			else
+			{
 				//movement finished normally: we reached destination
-				stackIsMoving = false;
+				break;
+			}
 		}
 	}
 	//handle last hex separately for deviation
-	if (gameHandler->getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
+	if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
 	{
 		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->unitSide())
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
@@ -906,9 +916,9 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
 		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
+	movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 
-	return ret;
+	return { passedHexes, !movementSuccess, false };
 }
 
 void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
@@ -937,35 +947,22 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.flags |= BattleAttack::COUNTER;
 
 	const int attackerLuck = attacker->luckVal();
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
 
-	if(attackerLuck > 0)
-	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), attackerLuck) - 1; // array index, so 0-indexed
+	if(attackerLuck > 0 && gameHandler->randomizer->rollGoodLuck(ownerArmy, attackerLuck))
+		bat.flags |= BattleAttack::LUCKY;
 
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
-			bat.flags |= BattleAttack::LUCKY;
-	}
+	if(attackerLuck < 0 && gameHandler->randomizer->rollBadLuck(ownerArmy, -attackerLuck))
+		bat.flags |= BattleAttack::UNLUCKY;
 
-	if(attackerLuck < 0)
-	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), -attackerLuck) - 1; // array index, so 0-indexed
-
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
-			bat.flags |= BattleAttack::UNLUCKY;
-	}
-
-	if (gameHandler->getRandomGenerator().nextInt(99) < attacker->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE))
-	{
+	if (gameHandler->randomizer->rollCombatAbility(ownerArmy, attacker->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE)))
 		bat.flags |= BattleAttack::DEATH_BLOW;
-	}
 
-	const auto * owner = battle.battleGetFightingHero(attacker->unitSide());
-	if(owner)
+	const auto * ownerHero = battle.battleGetFightingHero(attacker->unitSide());
+	if(ownerHero)
 	{
-		int chance = owner->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, BonusSubtypeID(attacker->creatureId()));
-		if (chance > gameHandler->getRandomGenerator().nextInt(99))
+		int chance = ownerHero->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, BonusSubtypeID(attacker->creatureId()));
+		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, chance))
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 	}
 
@@ -976,14 +973,17 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
 
 	//multiple-hex normal attack
-	std::set<const CStack*> attackedCreatures = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
+	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
 			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
 	}
 
-	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+	if (useCustomAnimation)
+		bat.flags |= BattleAttack::CUSTOM_ANIMATION;
+
+	std::shared_ptr<const Bonus> bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -992,7 +992,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 		//TODO: should spell override creature`s projectile?
 
-		auto spell = bat.spellID.toSpell();
+		const auto * spell = bat.spellID.toSpell();
 
 		battle::Target target;
 		target.emplace_back(defender, targetHex);
@@ -1000,11 +1000,11 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		spells::BattleCast event(&battle, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
 		event.setSpellLevel(bonus->val);
 
-		auto attackedCreatures = spell->battleMechanics(&event)->getAffectedStacks(target);
+		auto affectedStacks = spell->battleMechanics(&event)->getAffectedStacks(target);
 
 		//TODO: get exact attacked hex for defender
 
-		for(const CStack * stack : attackedCreatures)
+		for(const CStack * stack : affectedStacks)
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
@@ -1034,9 +1034,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if (healInfo.healedHealthPoints > 0)
 		bat.flags |= BattleAttack::LIFE_DRAIN;
-
-	for (BattleStackAttacked & bsa : bat.bsa)
-		bsa.battleID = battle.getBattle()->getBattleID();
 
 	gameHandler->sendAndApply(bat);
 
@@ -1095,7 +1092,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			BattleStackAttacked bsa;
 
-			bsa.battleID = battle.getBattle()->getBattleID();
 			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
 			bsa.stackAttacked = attacker->unitId(); //invert
 			bsa.attackerID = defender->unitId();
@@ -1127,6 +1123,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
 {
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
@@ -1151,7 +1149,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 				if (meleeRanged == CAddInfo::NONE || meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
-			int chance = attacker->valOfBonuses((Selector::typeSubtype(attackMode, BonusSubtypeID(spellID))));
+			int chance = attacker->valOfBonuses(Selector::typeSubtype(attackMode, BonusSubtypeID(spellID)));
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
@@ -1170,19 +1168,19 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 				continue;
 
 			//check if spell should be cast (probability handling)
-			if(gameHandler->getRandomGenerator().nextInt(99) >= chance)
+			if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chance))
 				continue;
 
 			//casting
 			if(castMe)
 			{
-				parameters.cast(gameHandler->spellEnv, target);
+				parameters.cast(gameHandler->spellcastEnvironment(), target);
 			}
 		}
 	}
 }
 
-std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender)
+std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstBonusListPtr & spells, const CStack *defender)
 {
 	std::set<SpellID> spellsToCast;
 	constexpr int unlayeredItemsInternalLayer = -1;
@@ -1287,9 +1285,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 
 	if(killedCreatures)
 	{
-		//TODO: death stare or accurate shot was not originally available for multiple-hex attacks, but...
-
-		SpellID spellID = SpellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
+		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
 		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
 		if(bonus && bonus->additionalInfo[0] != SpellID::NONE)
 			spellID = SpellID(bonus->additionalInfo[0]);
@@ -1301,7 +1297,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 		spells::Target target;
 		target.emplace_back(defender);
 		parameters.setEffectValue(killedCreatures);
-		parameters.cast(gameHandler->spellEnv, target);
+		parameters.cast(gameHandler->spellcastEnvironment(), target);
 	}
 }
 
@@ -1326,9 +1322,11 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	int64_t acidDamage = 0;
 	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type()(BonusType::ACID_BREATH));
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+
 	for(const auto & b : *acidBreath)
 	{
-		if(b->additionalInfo[0] > gameHandler->getRandomGenerator().nextInt(99))
+		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, b->additionalInfo[0]))
 			acidDamage += b->val;
 	}
 
@@ -1343,19 +1341,17 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		target.emplace_back(defender);
 
 		parameters.setEffectValue(acidDamage * attacker->getCount());
-		parameters.cast(gameHandler->spellEnv, target);
+		parameters.cast(gameHandler->spellcastEnvironment(), target);
 	}
 
 
 	if(!defender->alive())
 		return;
 
-	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving()) //transmutation mechanics, similar to WoG werewolf ability
+	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving() && !defender->hasBonusOfType(BonusType::TRANSMUTATION_IMMUNITY)) //transmutation mechanics, similar to WoG werewolf ability
 	{
-		double chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION) / 100.0f;
-		vstd::amin(chanceToTrigger, 1); //cap at 100%
-
-		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
+		int chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION);
+		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
 			return;
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
@@ -1375,9 +1371,9 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		else
 			resurrectInfo.type = attacker->creatureId();
 
-		if(attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusCustomSubtype::transmutationPerHealth))
+		if(attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerHealth))
 			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
-		else if (attacker->hasBonusOfType((BonusType::TRANSMUTATION), BonusCustomSubtype::transmutationPerUnit))
+		else if (attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerUnit))
 			resurrectInfo.count = defender->getCount();
 		else
 			return; //wrong subtype
@@ -1402,24 +1398,22 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
 	{
-		double chanceToTrigger = 0;
+		int chanceToTrigger = 0;
 		int amountToDie = 0;
 
 		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) / 100.0f;
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
 			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)))->additionalInfo[0];
-			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
+			amountToDie = defender->getCount() * percentageToDie / 100;
 		}
 		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount) / 100.0f;
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
 			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)))->additionalInfo[0];
 		}
 
-		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
-
-		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
+		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
 			return;
 
 		BattleStackAttacked bsa;
@@ -1461,7 +1455,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	}
 
 	//life drain handling
-	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving())
+	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving() && attackerState->getTotalHealth() != attackerState->getAvailableHealth())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
 		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
@@ -1497,7 +1491,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	{
 		//TODO: use damage with bonus but without penalties
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(BonusType::FIRE_SHIELD)) / 100;
-		fireShield.push_back(std::make_pair(def, fireShieldDamage));
+		fireShield.emplace_back(def, fireShieldDamage);
 	}
 }
 
@@ -1555,7 +1549,12 @@ void BattleActionProcessor::addGenericDrainedLifeLog(BattleLogMessage& blm, cons
 	attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
 	attackerState->addNameReplacement(text);
 	text.replaceNumber(drainedLife);
-	defender->addNameReplacement(text);
+
+	if (defender)
+		defender->addNameReplacement(text);
+	else
+		text.replaceTextID("core.genrltxt.43"); // creatures
+
 	blm.lines.push_back(std::move(text));
 }
 
@@ -1563,9 +1562,8 @@ void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, cons
 {
 	if (resurrected > 0)
 	{
-		auto text = blm.lines.back().toString();
-		text.pop_back();	// erase '.' at the end of line with life drain info
-		MetaString ms = MetaString::createFromRawString(text);
+		MetaString & ms = blm.lines.back();
+
 		if (resurrected == 1)
 		{
 			ms.appendLocalString(EMetaText::GENERAL_TXT, 363);		// "\n and one rises from the dead."
@@ -1575,9 +1573,7 @@ void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, cons
 			ms.appendLocalString(EMetaText::GENERAL_TXT, 364);		// "\n and %d rise from the dead."
 			ms.replaceNumber(resurrected);
 		}
-		blm.lines[blm.lines.size() - 1] = std::move(ms);
-	}	
-
+	}
 }
 
 bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -1606,7 +1602,7 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	}
 	else
 	{
-		auto active = battle.battleActiveUnit();
+		const auto * active = battle.battleActiveUnit();
 		if(!active)
 		{
 			gameHandler->complain("No active unit in battle!");

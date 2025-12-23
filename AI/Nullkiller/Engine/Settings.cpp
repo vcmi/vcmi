@@ -15,10 +15,9 @@
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/modding/CModHandler.h"
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/json/JsonUtils.h"
 

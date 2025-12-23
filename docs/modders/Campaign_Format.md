@@ -57,7 +57,7 @@ In header are parameters describing campaign properties
 - `"loadingBackground"` is for setting a different loading screen background
 - `"introVideo"` is for defining an optional intro video
 - `"outroVideo"` is for defining an optional outro video
-- `"videoRim"` is for the Rim around the optional video (default is INTRORIM)
+- `"videoRim"` is for the Rim around the optional video (default is INTRORIM, set it to `NONE` if you don't want a rim)
 
 ## Scenario description
 
@@ -89,10 +89,6 @@ Scenario description looks like follow:
 - `"heroKeeps"` defines what hero will carry to the next scenario. Can be specified one or several attributes from list `"experience", "primarySkills", "secondarySkills", "spells", "artifacts"`
 - `"keepCreatures"` array of creature types which hero will carry to the next scenario. Game identifiers are used to specify creature type.
 - `"startOptions"` defines what type of bonuses player may have. Possible values are `"none", "bonus", "crossover", "hero"`
-  - `none`: player starts scenario without bonuses. [Description](#none-start-option)
-  - `bonus`: player chooses one of the predefined bonuses. [Description](#bonus-start-option)
-  - `crossover`: player will start with hero from previous scenario. [Description](#crossover-start-option)
-  - `hero` : player will start scenario with specified hero. [Description](#hero-start-option)
 - `"playerColor"` defines color id of flag which player will play for. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - "bonuses" array of possible bonus objects, format depends on `"startOptions"` parameter
 
@@ -102,20 +98,14 @@ Prolog and epilog properties are optional
 
 ```json
 {
-    "video": "NEUTRALA.smk", //video to show
+    "video": ["NEUTRALA.smk"], //video to show (if second video in array: this video will looped after playing the first)
     "music": "musicFile.ogg", //music to play, should be located in music directory
     "voice": "musicFile.wav", //voice to play, should be located in sounds directory
     "text": "some long text" //text to be shown
 }
 ```
 
-### Start options and bonuses
-
-#### None start option
-
-If `startOptions` is `none`, `bonuses` field will be ignored
-
-#### Bonus start option
+### Bonus start option
 
 If `startOptions` is `bonus`, bonus format may vary depending on its type.
 
@@ -127,22 +117,22 @@ If `startOptions` is `bonus`, bonus format may vary depending on its type.
 },
 ```
 
-- `"what"` field defines bonus type. Possible values are: `spell, creature, building, artifact, scroll, primarySkill, secondarySkill, resource`
+- `"what"` field defines bonus type. Possible values are: `spell, creature, building, artifact, scroll, primarySkill, secondarySkill, resource, prevHero, hero`
   - `"spell"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
-    - `"type"`: spell type, string, e.g. "firewall"
+    - `"spellType"`: spell type, string, e.g. "firewall"
   - `"creature"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
-    - `"type"`: creature type, string, e.g. "pikeman"
-    - `"amount"`: amount of creatures
+    - `"creatureType"`: creature type, string, e.g. "pikeman"
+    - `"creatureAmount"`: amount of creatures
   - `"building"` has following attributes (fields):
-    - `"type"`: building type (string), e.g. "citadel" or "dwellingLvl1"
+    - `"buildingType"`: building type (string), e.g. "citadel" or "dwellingLvl1"
   - `"artifact"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
-    - `"type"`: artifact type, string, e.g. "spellBook"
+    - `"artifactType"`: artifact type, string, e.g. "spellBook"
   - `"scroll"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
-    - `"type"`: spell type in the scroll, string, e.g. "firewall"
+    - `"spellType"`: spell type in the scroll, string, e.g. "firewall"
   - `"primarySkill"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
     - `"attack"`: amount of attack gained
@@ -151,44 +141,23 @@ If `startOptions` is `bonus`, bonus format may vary depending on its type.
     - `"knowledge"`: amount of knowledge gained
   - `"secondarySkill"` has following attributes (fields):
     - `"hero"`: hero who will get spell (see below)
-    - `"type"`: skill type, string, e.g. "logistics"
-    - `"amount"`: skill level, `1: beginner, 2: advanced, 3: expert`
+    - `"skillType"`: skill type, string, e.g. "logistics"
+    - `"skillMastery"`: skill level, `1: beginner, 2: advanced, 3: expert`
   - `"resource"` has following attributes (fields):
-    - `"type"`: resource type, one of `wood, ore, mercury, sulfur, crystal, gems, gold, common, rare`, where `common` is both wood and ore, `rare` means that bonus gives each rare resource
-    - `"amount"`: amount of resources
-- `"hero"` can be specified as explicit hero name and as one of keywords: `strongest`, `generated`
-
-#### Crossover start option
-
-If `startOptions` is `crossover`, heroes from specific scenario will be moved to this scenario. Bonus format is following
-
-```json
-{
-    "playerColor": 0,
-    "scenario": 0
-},
-```
-
-- `"playerColor"` from what player color heroes shall be taken. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
-- `"scenario"` from which scenario heroes shall be taken. 0 means first scenario
-
-#### Hero start option
-
-If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus format is following
-
-```json
-{
-    "playerColor": 0,
-    "hero": "random"
-}
-```
-
-- `"playerColor"` from what player color heroes shall be taken. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
-- `"hero"` can be specified as explicit hero name and as one of keywords: `random`
+    - `"resourceType"`: resource type, one of `wood, ore, mercury, sulfur, crystal, gems, gold, common, rare`, where `common` is both wood and ore, `rare` means that bonus gives each rare resource
+    - `"resourceAmount"`: amount of resources
+  - `"prevHero"` has following attributes (fields):
+    - `"scenario"`: scenario from which to pick heroes from
+    - `"playerColor"`: color which player will play as in current scenario
+  - `"hero"` has following attributes (fields):
+    - `"hero"`: hero that player would receive on start, or `random`
+    - `"playerColor"`: color which player will play as in current scenario
+  
+`hero` field in all bonus types can be specified as explicit hero name and as one of keywords: `strongest`, `generated`
 
 ### Regions description
 
-Predefined campaign regions are located in file `campaign_regions.json`
+Predefined campaign regions are located in file `campaignRegions.json`
 
 ```json
 {
@@ -220,6 +189,6 @@ The scenarios should be named as in `"map"` field from header. Subfolders are al
 
 ## Compatibility table
 
-| Version | Min VCMI | Max VCMI | Description |
-|---------|----------|----------|-------------|
+| Version | Min VCMI | Max VCMI | Description     |
+|---------|----------|----------|-----------------|
 | 1       | 1.3      |          | Initial release |

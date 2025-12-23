@@ -14,10 +14,12 @@
 #include "Images.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
 #include "../adventureMap/CInGameConsole.h"
+#include "../eventsSDL/InputHandler.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
@@ -56,7 +58,7 @@ CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const ColorRGBA 
 
 	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
-		const auto & fontPtr = GH.renderHandler().loadFont(font);
+		const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 		pos.w = fontPtr->getStringWidth(visibleText().c_str());
 		pos.h = fontPtr->getLineHeight();
 	}
@@ -116,7 +118,7 @@ void CLabel::trimText()
 {
 	if(maxWidth > 0)
 	{
-		const auto & fontPtr = GH.renderHandler().loadFont(font);
+		const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 		while (fontPtr->getStringWidth(visibleText().c_str()) > maxWidth)
 			TextOperations::trimRightUnicode(text);
@@ -137,7 +139,7 @@ void CLabel::setColor(const ColorRGBA & Color)
 
 size_t CLabel::getWidth()
 {
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	return fontPtr->getStringWidth(visibleText());
 }
 
@@ -180,28 +182,38 @@ std::vector<std::string> CMultiLineLabel::getLines()
 	return lines;
 }
 
-void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
+const std::string delimiters = "{}";
+
+int CTextContainer::getDelimitersWidth(EFonts font, std::string text)
 {
-	const auto f = GH.renderHandler().loadFont(font);
-	Point where = destRect.topLeft();
-	const std::string delimiters = "{}";
-	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimiters](char c)
+	const auto f = ENGINE->renderHandler().loadFont(font);
+	auto delimitersWidth = std::count_if(text.cbegin(), text.cend(), [](char c)
 	{
 		return delimiters.find(c) != std::string::npos;
 	});
 	//We should count delimiters length from string to correct centering later.
-	delimitersCount *= f->getStringWidth(delimiters)/2;
+	delimitersWidth *= f->getStringWidth(delimiters)/2;
 
 	std::smatch match;
 	std::regex expr("\\{(.*?)\\|");
-	std::string::const_iterator searchStart( what.cbegin() );
-	while(std::regex_search(searchStart, what.cend(), match, expr))
+	std::string::const_iterator searchStart( text.cbegin() );
+	while(std::regex_search(searchStart, text.cend(), match, expr))
 	{
 		std::string colorText = match[1].str();
 		if(auto c = Colors::parseColor(colorText))
-			delimitersCount += f->getStringWidth(colorText + "|");
+			delimitersWidth += f->getStringWidth(colorText + "|");
 		searchStart = match.suffix().first;
 	}
+
+	return delimitersWidth;
+}
+
+void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
+{
+	const auto f = ENGINE->renderHandler().loadFont(font);
+	Point where = destRect.topLeft();
+
+	int delimitersWidth = getDelimitersWidth(font, what);
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
@@ -210,10 +222,10 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		where.x += getBorderSize().x;
 
 	if(alignment == ETextAlignment::CENTER || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::BOTTOMCENTER)
-		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount)) / 2;
+		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersWidth)) / 2;
 
 	if(alignment == ETextAlignment::TOPRIGHT || alignment == ETextAlignment::BOTTOMRIGHT || alignment == ETextAlignment::CENTERRIGHT)
-		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount);
+		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersWidth);
 
 	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::TOPRIGHT)
 		where.y += getBorderSize().y;
@@ -275,7 +287,7 @@ void CMultiLineLabel::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	// calculate which lines should be visible
 	int totalLines = static_cast<int>(lines.size());
@@ -312,7 +324,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 {
 	lines.clear();
 
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	int lineHeight = fontPtr->getLineHeight();
 
 	lines = CMessage::breakText(Txt, pos.w, font);
@@ -333,17 +345,19 @@ Rect CMultiLineLabel::getTextLocation()
 	if(pos.h <= textSize.y)
 		return pos;
 
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	Point textSizeComputed(pos.w, fontPtr->getLineHeight() * lines.size()); //FIXME: how is this different from textSize member?
 	Point textOffset(pos.w - textSizeComputed.x, pos.h - textSizeComputed.y);
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
-	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
-	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::TOPLEFT:      return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::TOPCENTER:    return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::CENTER:       return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
+	case ETextAlignment::CENTERLEFT:   return Rect(pos.topLeft() + Point(0, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::CENTERRIGHT:  return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::BOTTOMRIGHT:  return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::BOTTOMCENTER: return Rect(pos.topLeft() + Point(textOffset.x / 2, textOffset.y), textSizeComputed);
 	}
 	assert(0);
 	return Rect();
@@ -433,7 +447,7 @@ void CTextBox::setText(const std::string & text)
 		label->pos.w = pos.w - 16;
 		assert(label->pos.w > 0);
 		label->setText(text);
-		const auto & fontPtr = GH.renderHandler().loadFont(label->font);
+		const auto & fontPtr = ENGINE->renderHandler().loadFont(label->font);
 
 		OBJECT_CONSTRUCTION;
 		slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
@@ -452,14 +466,14 @@ void CGStatusBar::setEnteringMode(bool on)
 	{
 		//assert(enteringText == false);
 		alignment = ETextAlignment::TOPLEFT;
-		GH.startTextInput(pos);
+		ENGINE->input().startTextInput(pos);
 		setText(consoleText);
 	}
 	else
 	{
 		//assert(enteringText == true);
 		alignment = ETextAlignment::CENTER;
-		GH.stopTextInput();
+		ENGINE->input().stopTextInput();
 		setText(hoverText);
 	}
 	enteringText = on;
@@ -535,7 +549,7 @@ CGStatusBar::CGStatusBar(int x, int y, const ImagePath & name, int maxw)
 
 CGStatusBar::~CGStatusBar()
 {
-	assert(GH.statusbar().get() != this);
+	assert(ENGINE->statusbar().get() != this);
 }
 
 void CGStatusBar::show(Canvas & to)
@@ -545,22 +559,22 @@ void CGStatusBar::show(Canvas & to)
 
 void CGStatusBar::clickPressed(const Point & cursorPosition)
 {
-	if(LOCPLINT && LOCPLINT->cingconsole->isActive())
-		LOCPLINT->cingconsole->startEnteringText();
+	if(GAME->interface() && GAME->interface()->cingconsole->isActive())
+		GAME->interface()->cingconsole->startEnteringText();
 }
 
 void CGStatusBar::activate()
 {
-	GH.setStatusbar(shared_from_this());
+	ENGINE->setStatusbar(shared_from_this());
 	CIntObject::activate();
 }
 
 void CGStatusBar::deactivate()
 {
-	GH.setStatusbar(nullptr);
+	ENGINE->setStatusbar(nullptr);
 
 	if (enteringText)
-		LOCPLINT->cingconsole->endEnteringText(false);
+		GAME->interface()->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
 }

@@ -13,8 +13,8 @@
 #include "ui_mapsettings.h"
 #include "mainwindow.h"
 
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 
@@ -25,14 +25,14 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	controller(ctrl)
 {
 	ui->setupUi(this);
-	
+
+	setWindowModality(Qt::WindowModal);
 	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 	
 	assert(controller.map());
-	
-	show();
+	controller.settingsDialog = this;
 
-	for(auto const & objectPtr : VLC->skillh->objects)
+	for(auto const & objectPtr : LIBRARY->skillh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -40,7 +40,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedAbilities.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(auto const & objectPtr : VLC->spellh->objects)
+	for(auto const & objectPtr : LIBRARY->spellh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -48,7 +48,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedSpells.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listSpells->addItem(item);
 	}
-	for(auto const & objectPtr : VLC->arth->objects)
+	for(auto const & objectPtr : LIBRARY->arth->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -56,7 +56,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedArtifact.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listArts->addItem(item);
 	}
-	for(auto const & objectPtr : VLC->heroh->objects)
+	for(auto const & objectPtr : LIBRARY->heroh->objects)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -75,7 +75,13 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 MapSettings::~MapSettings()
 {
+	controller.settingsDialog = nullptr;
 	delete ui;
+}
+
+ModSettings * MapSettings::getModSettings()
+{
+	return ui->mods;
 }
 
 void MapSettings::on_pushButton_clicked()

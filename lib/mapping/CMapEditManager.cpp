@@ -11,7 +11,7 @@
 #include "CMapEditManager.h"
 
 #include "../mapObjects/CGHeroInstance.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "CDrawRoadsOperation.h"
 #include "CMapOperation.h"
 
@@ -147,15 +147,15 @@ void CMapEditManager::drawRiver(RiverId riverType, vstd::RNG* customGen)
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::insertObject(CGObjectInstance * obj)
+void CMapEditManager::insertObject(std::shared_ptr<CGObjectInstance> obj)
 {
 	execute(std::make_unique<CInsertObjectOperation>(map, obj));
 }
 
-void CMapEditManager::insertObjects(std::set<CGObjectInstance*>& objects)
+void CMapEditManager::insertObjects(const std::set<std::shared_ptr<CGObjectInstance>>& objects)
 {
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
-	for(auto * obj : objects)
+	for(auto obj : objects)
 	{
 		composedOperation->addOperation(std::make_unique<CInsertObjectOperation>(map, obj));
 	}
@@ -172,10 +172,10 @@ void CMapEditManager::removeObject(CGObjectInstance * obj)
 	execute(std::make_unique<CRemoveObjectOperation>(map, obj));
 }
 
-void CMapEditManager::removeObjects(std::set<CGObjectInstance*> & objects)
+void CMapEditManager::removeObjects(std::set<CGObjectInstance *> & objects)
 {
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
-	for(auto * obj : objects)
+	for(auto obj : objects)
 	{
 		composedOperation->addOperation(std::make_unique<CRemoveObjectOperation>(map, obj));
 	}

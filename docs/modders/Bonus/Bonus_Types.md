@@ -27,12 +27,6 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 - subtype: school of magic
 - val: level
 
-### DARKNESS
-
-On each turn, hides area in fog of war around affected town for all players other than town owner. Currently does not work for any entities other than towns.
-
-- val: radius in tiles
-
 ## Player bonuses
 
 Intended to be setup as global effect, AI cheat etc.
@@ -78,9 +72,9 @@ Allows flying movement for affected heroes
 
 Eliminates terrain penalty on certain terrain types for affected heroes (Nomads ability).
 
-Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
+Note: to eliminate all terrain penalties see [ROUGH_TERRAIN_DISCOUNT](#rough_terrain_discount) bonus
 
-- subtype: type of terrain, eg `terrain.sand`
+- subtype: type of terrain, eg `sand`
 
 ### TERRAIN_NATIVE
 
@@ -91,7 +85,7 @@ Affected units will view any terrain as native. This means army containing these
 Changes selected primary skill for affected heroes and units
 
 - subtype: primary skill
-- additional info: 1 - only for melee attacks, 2 - only for ranged attacks
+- addInfo: 1 - only for melee attacks, 2 - only for ranged attacks
 
 ### SIGHT_RADIUS
 
@@ -99,15 +93,44 @@ Reveal area of fog of war around affected heroes when hero is recruited or moves
 
 - val: radius in tiles
 
+### DARKNESS
+
+On each turn, hides area in fog of war around affected objects for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+NOTE: when used by heroes, effect would still activate only on new turn, and not on every hero movement
+
+- val: radius in tiles
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_SCOUTING
+
+On each turn, reveals entire map for owner of the bonus
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_DARKNESS
+
+On each turn, hides entire map in fog of war for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
 ### MANA_REGENERATION
 
 Restores specific amount of mana points for affected heroes on new turn
 
 - val: amount of spell points to restore
 
-### FULL_MANA_REGENERATION
+### MANA_PERCENTAGE_REGENERATION
 
-Restores entire mana pool for affected heroes on new turn
+Restores specific percentage of mana pool for affected heroes on new turn. If hero has both MANA_REGENERATION and MANA_PERCENTAGE_REGENERATION, only bonus that gives more mana points will be active
+
+- val: percentage of spell points to restore
+
+### SKELETON_TRANSFORMER_TARGET
+
+Unit affected by this bonus will be transformed into creature other than Skeleton when placed into Skeleton Transformer
+
+- subtype: type of creature to which this unit should be converted
 
 ### NONEVIL_ALIGNMENT_MIX
 
@@ -121,18 +144,24 @@ Changes surrender cost for affected heroes
 
 ### IMPROVED_NECROMANCY
 
-Allows to raise different creatures than Skeletons after battle.
+Bonus allows the hero to raise specific creatures from corpses after battle.
+
+If the hero has multiple bonuses of the same type, the game will select the unit with the higher level. If the units have the same level, the game will select the unit with the higher market value (the total cost of the unit in gold, including converted resources).
+
+If the hero has no free space for the target creature but has space for its upgrade (including subsequent upgrades), the upgraded unit will be raised instead at a rate of two-thirds.
 
 - subtype: creature raised
 - val: Necromancer power
-- addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
-- Example (from Cloak Of The Undead King):
+- addInfo: Requried total level of Necromancer power for this bonus to be active (val of all bonuses of this type)
+
+Example (from Cloak Of The Undead King):
 
 ```json
 {
     "type" : "IMPROVED_NECROMANCY",
     "subtype" : "creature.walkingDead",
-    "addInfo" : 1
+    "addInfo" : 1, // requires 1 val of IMPROVED_NECROMANCY from other source, e.g. skill
+    "val" : 0 // does not provides levels of necromancer power on its own
 }
 ```
 
@@ -156,9 +185,15 @@ Allows affected heroes to learn spells from each other during hero exchange
 
 ### ROUGH_TERRAIN_DISCOUNT
 
-Reduces movement points penalty when moving on terrains with movement cost over 100 points. Can not reduce movement cost below 100 points
+Reduces movement point penalty when moving on terrain with movement cost higher than base movement cost Cannot reduce movement cost lower than base movement cost. See the `movementCostBase` parameter in the game config and the `BASE_TILE_MOVEMENT_COST` bonus type. Used for the Pathfinding skill
 
 - val: penalty reduction, in movement points per tile.
+
+### BASE_TILE_MOVEMENT_COST
+
+Change the minimum cost required to move from one tile to another while off-road by the specified value. Has no effect on road movement. Used for pathfinding in HotA
+
+- val: positive value increases the minimum cost, negative value decreases it.
 
 ### WANDERING_CREATURES_JOIN_BONUS
 
@@ -174,7 +209,7 @@ Allows affected heroes to position army before start of battle (Tactics)
 
 ### BEFORE_BATTLE_REPOSITION_BLOCK
 
-Reduces distance in which enemy hero can reposition. Counters BEFORE_BATTLE_REPOSITION bonus
+Reduces distance in which enemy hero can reposition. Counters [BEFORE_BATTLE_REPOSITION](#before_battle_reposition) bonus
 
 - val: distance within which hero can reposition his troops
 
@@ -184,9 +219,15 @@ Increases experience gain from all sources by affected heroes
 
 - val: additional experience bonus, percentage
 
+### STACK_EXPERIENCE_GAIN_PERCENT
+
+Increases experience gain from combat by affected units. No effect if stack experience is off. Has no effect on commanders
+
+- val: additional experience bonus, percentage
+
 ### UNDEAD_RAISE_PERCENTAGE
 
-Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by IMPROVED_NECROMANCY bonus
+Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by [IMPROVED_NECROMANCY](#improved_necromancy) bonus
 
 - val: percentage of raised troops
 
@@ -223,6 +264,12 @@ Defines maximum level of spells than hero can learn from any source (Wisdom)
 
 - val: maximal level to learn
 
+### COMBAT_MANA_BONUS
+
+Grants affected hero additional mana for the duration of combat. Bonus may give total mana above mana limit. Any additional mana not spent during combat will be lost.
+
+- val: amount of additional mana
+
 ## Hero specialties
 
 ### SPECIAL_SPELL_LEV
@@ -241,7 +288,7 @@ Gives additional bonus to effect of all spells of selected school
 
 ### SPECIFIC_SPELL_DAMAGE
 
-Gives additional bonus to effect of specific spell
+For `damage`, `heal` and `demonSummon` spell effects, increases spell power by specific percentage
 
 - subtype: identifier of affected spell
 - val: bonus to spell effect, percentage
@@ -251,6 +298,7 @@ Gives additional bonus to effect of specific spell
 Gives creature under effect of this spell additional bonus, which is hardcoded and depends on the creature tier.
 
 - subtype: affected spell identifier, ie. `spell.haste`
+- addInfo: must be set to 0, or 1 for Slayer specialty
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
@@ -328,7 +376,7 @@ Affected heroes will add specified resources amounts to player treasure on new d
 
 Increases weekly growth of creatures in affected towns (Legion artifacts)
 
-- value: number of additional weekly creatures
+- val: number of additional weekly creatures
 - subtype: dwelling level, in form `creatureLevelX` where X is desired level (1-7)
 
 ### CREATURE_GROWTH_PERCENT
@@ -355,6 +403,7 @@ In battle, army affected by this bonus will cast spell at the very start of the 
 
 - subtype: spell identifier
 - val: duration of the spell, in rounds
+- addInfo - spell mastery level (1 - Basic, 3 - Expert)
 
 ### FREE_SHIP_BOARDING
 
@@ -363,6 +412,14 @@ Heroes affected by this bonus will not lose all movement points when embarking o
 ### WHIRLPOOL_PROTECTION
 
 Heroes affected by this bonus won't lose army when moving through whirlpool
+
+### FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT
+
+When the hero engages neutral creatures, this bonus forces the number of stacks that the neutral army will be split into.
+
+- val: the neutral army will be split into (0 – enable weighted mode using addInfo)
+- addInfo – [W1, W2, W3, W4, W5, W6, W7]
+- W1–W7 – weights for generating 1–7 stacks when val = 0; missing entries are treated as 0.
 
 ## Creature bonuses
 
@@ -396,41 +453,45 @@ Increases starting amount of shots that unit has in battle
 
 ## Creature abilities
 
-## Static abilities and immunities
+## Creature Natures
+
+### LIVING
+
+Affected unit is considered to be alive. Automatically granted to any unit that does not have any other creature nature bonus
+
+Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
 
 ### NON_LIVING
 
-Affected unit is considered to not be alive and not affected by morale and certain spells
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells
 
 ### MECHANICAL
 
-Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (HotA Factory).
 
 ### GARGOYLE
 
-Affected unit is considered to be a gargoyle and not affected by certain spells
+Creature nature bonus. Affected unit is considered to be a gargoyle and not affected by certain spells
 
 ### UNDEAD
 
-Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
+Creature nature bonus. Affected unit is considered to be undead, which makes it immune to many effects, not affected by morale, and also reduce morale of allied living units.
 
 ### SIEGE_WEAPON
 
-Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+Creature nature bonus. Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+
+## Static abilities and immunities
 
 ### DRAGON_NATURE
 
-Affected unit is dragon. This bonus proved no effect, but is used as limiter several effects.
+Affected unit is dragon. This bonus provides no effects on its own, but is used as limiter for Mutare specialty
 
 ### KING
 
 Affected unit will take more damage from units under Slayer spell effect
 
 - val: required skill mastery of Slayer spell to affect this unit
-
-### FEARLESS
-
-Affected unit is immune to Fear ability
 
 ### NO_LUCK
 
@@ -472,7 +533,7 @@ Affected unit will always retaliate if able (Royal Griffin)
 
 Affected unit can retaliate multiple times per turn (basic Griffin)
 
-- value: number of additional retaliations
+- val: number of additional retaliations
 
 ### JOUSTING
 
@@ -480,35 +541,100 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 - val: additional damage per passed tile, percentage
 
+### VULNERABLE_FROM_BACK
+
+When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
+
+- val: additional damage for attacks from behind, percentage (0-100)
+
 ### HATE
 
 Affected unit will deal more damage when attacking specific creature
 
-- subtype - identifier of hated creature, ie. "creature.genie"
+- subtype - identifier of hated creature, ie. `genie`
 - val - additional damage, percentage
+
+### HATES_TRAIT
+
+Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
+
+- subtype - identifier of hated bonus, ie. `UNDEAD`
+- val - additional damage, percentage
+
+Example: Unit deals 50% more damage to any target that has UNDEAD bonus
+
+```json
+	"hatesUndead" : {
+		"type" : "HATES_TRAIT",
+		"subtype" : "UNDEAD",
+		"val" : 50
+	}
+```
 
 ### SPELL_LIKE_ATTACK
 
 Affected unit ranged attack will use animation and range of specified spell (Magog, Lich)
 
-- subtype - spell identifier
-- value - spell mastery level
-
-### THREE_HEADED_ATTACK
-
-Affected unit attacks creatures located on tiles to left and right of targeted tile (Cerberus). Only directly targeted creature will attempt to retaliate
+- subtype: spell identifier
+- val: spell mastery level
 
 ### ATTACKS_ALL_ADJACENT
 
-Affected unit attacks all adjacent creatures (Hydra). Only directly targeted creature will attempt to retaliate
+The affected unit attacks all adjacent units (Hydra). Only the unit that has been directly targeted will attempt to retaliate. If the unit is hypnotised, it will attack its former allies instead.
+
+### THREE_HEADED_ATTACK
+
+The affected unit will attack units located on the hexed to the left and right of the targeted tile (Cerberus). Only the unit that has been directly targeted will attempt to retaliate.
+Potentially deprecated. Consider using the more flexible [MULTIHEX_ENEMY_ATTACK](#multihex_unit_attack) instead with custom icon and description.
 
 ### TWO_HEX_ATTACK_BREATH
 
-Affected unit attacks creature located directly behind targeted tile (Dragons). Only directly targeted creature will attempt to retaliate
+The affected unit will also attack the hex located directly behind the targeted hex (Dragons). Only the unit that has been directly targeted will attempt to retaliate.
+Potentially deprecated. Consider using the more flexible [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
+
+### WIDE_BREATH
+
+The affected unit will attack any units in the hexes surrounding the attacked hex.
+Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
 
 ### PRISM_HEX_ATTACK_BREATH
 
-Like `TWO_HEX_ATTACK_BREATH` but affects also two additional cratures (in triangle form from target tile)
+Similar to `TWO_HEX_ATTACK_BREATH`, but affecting two additional hexes in a triangular formation from the target hex.
+Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
+
+### MULTIHEX_UNIT_ATTACK
+
+The affected unit attacks all units, friendly or not, located on specified hexes in addition to the primary target. Only the unit that has been directly targeted will attempt to retaliate.
+
+- addInfo: A list of strings describing which hexes this unit will attack, computed from the attacker's position. The possible values are: `F` (front), `L` (left), `R` (right), `B` (back). See below for more examples.
+
+Examples:
+
+- H3 Dragon Breath: `[ "FF" ]` – dragons also attack the hex located two hexes in front of the dragon's head.
+- H3 Cerberus three-headed attack: `[ "L", "R" ]` - Cerberus also attacks the hexes one hex to the left and right of itself.
+- Prism Breath (mods): `[ "FL", "FF", "FR" ]` — a more powerful version of Dragon Breath; all units behind the target are attacked.
+
+This is how all tiles can be referenced in the event of a frontal attack (green is the attacker and red is the defender). The hex on which defender is located is always included unconditionally.
+
+![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../../images/Bonus_Multihex_Attack_Horizontal.svg)
+
+In the case of a double-wide unit that can attack hexes to the left and right (e.g. Cerberi), the left or right hex may end up inside the attacker in certain attack configurations. To avoid this, the hex that ends up inside the unit will be 'pushed' one hex forward. This does not affect single-wide units. See below for reference:
+
+![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../../images/Bonus_Multihex_Attack_Vertical.svg)
+
+### MULTIHEX_ENEMY_ATTACK
+
+The affected unit will attack all enemies located on the specified hexes, in addition to its primary target. Only the unit that has been directly targeted will attempt to retaliate. If the unit is hypnotised, it will attack its former allies instead.
+
+- addInfo: see [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) for a detailed description.
+
+### MULTIHEX_ANIMATION
+
+The bonus does not affect the mechanics. If the affected unit hits any non-primary targets located on the specified tiles, the unit will play an alternative attack animation if one is present.
+
+If this bonus is not present, the unit will always use the alternative attack animation whenever its attack hits any unit other than the primary target.
+
+- addInfo: see [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) for a detailed description.
 
 ### RETURN_AFTER_STRIKE
 
@@ -529,6 +655,12 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeMelee: only melee damage will be reduced
   - damageTypeRanged: only ranged damage will be reduced
   - damageTypeAll: all damage will be reduced
+
+### DAMAGE_RECEIVED_CAP
+
+Limits maximal damage received by affected units based on max hp (HotA war machines)
+
+- val: maximal damage limit, percentage of max hp
 
 ### PERCENTAGE_DAMAGE_BOOST
 
@@ -582,13 +714,17 @@ Affected unit will gain new creatures for each enemy killed by this unit
 
 ### TRANSMUTATION
 
-Affected units have chance to transform attacked unit to other creature type
+Affected units have chance to transform attacked, living unit to other creature type, unless attacked unit is under TRANSMUTATION_IMMUNITY bonus
 
 - val: chance for ability to trigger, percentage
 - subtype:
   - transmutationPerHealth: transformed unit will have same HP pool as original stack,
   - transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
+
+### TRANSMUTATION_IMMUNITY
+
+Affected unit is immune to TRANSMUTATION bonus effects
 
 ### SUMMON_GUARDIANS
 
@@ -604,10 +740,6 @@ Affected units will retaliate against ranged attacks, if able
 ### BLOCKS_RANGED_RETALIATION
 
 Affected unit will never receive counterattack in ranged attacks. Counters RANGED_RETALIATION bonus
-
-### WIDE_BREATH
-
-Affected unit will attack units on all hexes that surround attacked hex
 
 ### FIRST_STRIKE
 
@@ -728,9 +860,11 @@ Affected unit has chance to deal double damage on attack (Death Knight)
 
 - val: chance to trigger, percentage
 
-### FEAR
+### FEARFUL
 
-If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance (Azure Dragon). Blocked by FEARLESS bonus.
+Affected unit has chance to freeze in fear and entirely skip its turn (Azure Dragons)
+
+- val: chance for the unit to freeze in fear
 
 ### HEALER
 
@@ -755,7 +889,7 @@ If affected unit is targeted by a spell it will reflect spell to a random enemy 
 Affected unit will deal additional damage after attack
 
 - val - additional damage to deal, multiplied by unit stack size
-- additional info: chance to trigger, percentage
+- addInfo: chance to trigger, percentage
 
 ### DEATH_STARE
 
@@ -786,11 +920,11 @@ Affected unit will not use spellcast as default attack option
 
 ### SPELLCASTER
 
-Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
+Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
 
 - subtype: spell identifier
-- value: spell mastery level
-- additional info: weighted chance to select this spell. Can be omitted for always available spells
+- val: spell mastery level
+- addInfo: weighted chance to select this spell. Can be omitted for always available spells
 
 ### ENCHANTER
 
@@ -798,7 +932,7 @@ Affected unit will cast specified spell before his turn (Enchanter)
 
 - val - spell mastery level
 - subtype - spell identifier
-- additionalInfo - cooldown before next cast, in number of turns
+- addInfo - cooldown before next cast, in number of turns
 
 ### RANDOM_SPELLCASTER
 
@@ -815,8 +949,8 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPELL_AFTER_ATTACK
 
 - subtype - spell id, eg. spell.iceBolt
-- value - chance (percent)
-- additional info - \[X, Y, Z\]
+- val - chance (percent)
+- addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
   - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
@@ -825,8 +959,8 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPELL_BEFORE_ATTACK
 
 - subtype - spell id
-- value - chance %
-- additional info - \[X, Y, Z\]
+- val - chance %
+- addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
   - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
@@ -835,6 +969,11 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPECIFIC_SPELL_POWER
 
 - value: Used for Thunderbolt and Resurrection cast by units (multiplied by stack size). Also used for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
+- subtype - spell id
+
+### SPECIFIC_SPELL_RANGE
+
+- value: Can be used to limit range of spells casted by creatures.
 - subtype - spell id
 
 ### CREATURE_SPELL_POWER
@@ -868,6 +1007,7 @@ Affected unit is permanently enchanted with a spell, that is cast again every tu
 Affected unit is immune to all spell with level below or equal to value of this bonus
 
 - val: level of spell up to which this unit is immune to
+- addInfo: if set to 1, this will be "absolute immunity" that can not be negated by Orb of Vulnerability
 
 ### MAGIC_RESISTANCE
 
@@ -1015,9 +1155,7 @@ Blocks casting spells of the level below specified one in battles affected by th
 
 Dummy bonus that acts as marker for Dendroid's Bind ability
 
-### SYNERGY_TARGET
-
-Dummy skill for alternative upgrades mod
+- addInfo: ID of stack that have bound the unit
 
 ### THIEVES_GUILD_ACCESS
 
@@ -1025,9 +1163,15 @@ Increases amount of information available in affected thieves guild (in town or 
 
 - val: additional number of 'levels' of information to grant access to
 
-### LEVEL_COUNTER
+### ARTIFACT_GROWING
 
 Internal bonus, do not use
+
+### ARTIFACT_CHARGE
+
+Consumable bonus. Used to perform actions specified by a charged artifact.
+
+- val: number of charges
 
 ### DISINTEGRATE
 

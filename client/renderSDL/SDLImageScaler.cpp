@@ -12,8 +12,7 @@
 
 #include "SDL_Extensions.h"
 
-#include "../gui/CGuiHandler.h"
-#include "../CMT.h"
+#include "../GameEngine.h"
 #include "../xBRZ/xbrz.h"
 
 #include <tbb/parallel_for.h>
@@ -212,7 +211,7 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 	if (optimizeImage)
 	{
 		SDLImageOptimizer optimizer(surf, virtualDimensions);
-		optimizer.optimizeSurface(screen);
+		optimizer.optimizeSurface(nullptr);
 		intermediate = optimizer.acquireResultSurface();
 		virtualDimensionsInput = optimizer.getResultDimensions();
 	}
@@ -235,10 +234,10 @@ SDLImageScaler::SDLImageScaler(SDL_Surface * surf, const Rect & virtualDimension
 
 SDLImageScaler::~SDLImageScaler()
 {
-	GH.dispatchMainThread([surface = intermediate]()
+	ENGINE->dispatchMainThread([surface = intermediate]()
 	{
-		// potentially SDL bug, execute SDL_FreeSurface in main thread to avoid thread races to its internal state
-		// may be fixed somewhere between 2.26.5 - 2.30
+		// SDL_FreeSurface must be executed in main thread to avoid thread races to its internal state
+		// will be no longer necessary in SDL 3
 		SDL_FreeSurface(surface);
 	});
 }

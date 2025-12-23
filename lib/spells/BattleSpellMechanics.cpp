@@ -16,6 +16,7 @@
 
 #include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
+#include "../battle/Unit.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
@@ -137,6 +138,21 @@ BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event,
 	targetCondition(std::move(targetCondition_))
 {}
 
+void BattleSpellMechanics::forEachEffect(const std::function<bool (const spells::effects::Effect &)> & fn) const
+{
+	if (!effects)
+		return;
+
+	effects->forEachEffect(getEffectLevel(), [&](const spells::effects::Effect * eff, bool & stop)
+	{
+		if(!eff)
+			return;
+
+		if(fn(*eff))
+			stop = true;
+	});
+}
+
 BattleSpellMechanics::~BattleSpellMechanics() = default;
 
 void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const
@@ -208,6 +224,46 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	return effects->applicable(problem, this);
 }
 
+bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
+{
+	if(mode == Mode::HERO)
+		return true;
+
+	if(!target)
+		return true;
+
+	auto spell = getSpell();
+	int range = caster->getEffectRange(spell);
+
+	if(range <= 0)
+		return true;
+
+	auto casterStack = battle()->battleGetStackByID(caster->getCasterUnitId(), false);
+	std::vector<BattleHex> casterPos = { casterStack->getPosition() };
+	BattleHex casterWidePos = casterStack->occupiedHex();
+	if(casterWidePos != BattleHex::INVALID)
+		casterPos.push_back(casterWidePos);
+
+	std::vector<BattleHex> destPos = { target->getPosition() };
+	BattleHex destWidePos = target->occupiedHex();
+	if(destWidePos != BattleHex::INVALID)
+		destPos.push_back(destWidePos);
+	
+	int minDistance = std::numeric_limits<int>::max();
+	for(auto & caster : casterPos)
+		for(auto & dest : destPos)
+		{
+			int distance = BattleHex::getDistance(caster, dest);
+			if(distance < minDistance)
+				minDistance = distance;
+		}
+
+	if(minDistance > range)
+		return false;
+	
+	return true;
+}
+
 bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
 	if(!canBeCast(problem))
@@ -225,6 +281,9 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 	{
 		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
 	}
+
+	if(!canCastAtTarget(mainTarget))
+		return false;
 
 	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
 	{
@@ -283,7 +342,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	sc.tile = target.at(0).hexValue;
 
 	sc.castByHero = mode == Mode::HERO;
-	sc.casterStack = caster->getCasterUnitId();
+	if (mode != Mode::HERO)
+		sc.casterStack = caster->getCasterUnitId();
 	sc.manaGained = 0;
 
 	sc.activeCast = false;
@@ -309,10 +369,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			int manaChannel = 0;
 			for(const auto * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->unitOwner() == otherHero->tempOwner)
-				{
+				if(stack->unitOwner() == otherHero->tempOwner && stack->alive())
 					vstd::amax(manaChannel, stack->valOfBonuses(BonusType::MANA_CHANNELING));
-				}
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
@@ -335,6 +393,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	case Mode::ENCHANTER:
 	case Mode::HERO:
 	case Mode::PASSIVE:
+	case Mode::MAGIC_MIRROR:
 		{
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
@@ -386,16 +445,21 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	std::vector <const battle::Unit *> resisted;
 
-	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	resistantUnitIds.clear();
+	if(isNegativeSpell() && isMagicalEffect())
 	{
-		if(isNegativeSpell() && isMagicalEffect())
+		//magic resistance
+		for (const auto * unit : battle()->battleGetAllUnits(false))
 		{
-			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
 			if(rng.nextInt(0, 99) < prob)
-				return true;
+				resistantUnitIds.insert(unit->unitId());
 		}
-		return false;
+	}
+
+	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	{
+		return resistantUnitIds.contains(unit->unitId());
 	};
 
 	auto filterUnit = [&](const battle::Unit * unit)
@@ -405,6 +469,15 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 		else
 			affectedUnits.push_back(unit);
 	};
+
+	if (!target.empty())
+	{
+		const battle::Unit * targetedUnit = battle()->battleGetUnitByPos(target.front().hexValue, true);
+		if (isReflected(targetedUnit, rng)) {
+			reflect(sc, rng, targetedUnit);
+			return;
+			}
+	}
 
 	//prepare targets
 	effectsToApply = effects->prepare(this, target, spellTarget);
@@ -426,16 +499,49 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 		});
 	}
 
-	if(mode == Mode::MAGIC_MIRROR)
-	{
-		if(caster->getHeroCaster() == nullptr)
-		{
-			sc.reflectedCres.insert(caster->getCasterUnitId());
-		}
-	}
-
 	for(const auto * unit : resisted)
 		sc.resistedCres.insert(unit->unitId());
+
+	resistantUnitIds.clear();
+}
+
+bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rng)
+{
+	if (unit == nullptr)
+		return false;
+	const std::vector<int> directSpellRange = { 0 };
+	bool isDirectSpell = !isMassive() && owner -> getLevelInfo(getRangeLevel()).range == directSpellRange;
+	bool spellIsReflectable = isDirectSpell && (mode == Mode::HERO || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
+	bool targetCanReflectSpell = spellIsReflectable && unit->getAllBonuses(Selector::type()(BonusType::MAGIC_MIRROR))->size()>0;
+	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(BonusType::MAGIC_MIRROR);
+}
+
+void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit)
+{
+	auto otherSide = battle()->otherSide(unit->unitSide());
+	auto newTarget = getRandomUnit(rng, otherSide);
+	if (newTarget == nullptr)
+		throw std::runtime_error("Failed to find random unit to reflect spell!");
+	auto reflectedTo = newTarget->getPosition();
+
+	mode = Mode::MAGIC_MIRROR;
+	sc.reflectedCres.insert(unit->unitId());
+	sc.tile = reflectedTo;
+
+	if (!isReceptive(newTarget))
+		sc.resistedCres.insert(newTarget->unitId());    //A spell can be reflected to then resisted by an immune unit. Consistent with the original game.
+
+	beforeCast(sc, rng, { Destination(reflectedTo) });
+}
+
+const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, const BattleSide & side)
+{
+	auto targets = battle()->getBattle()->getUnitsIf([&side](const battle::Unit * unit)
+	{
+		return unit->unitSide() == side && unit->isValidTarget(false) &&
+			!unit->hasBonusOfType(BonusType::SIEGE_WEAPON);
+	});
+	return !targets.empty() ? (*RandomGeneratorUtil::nextItem(targets, rng)) : nullptr;
 }
 
 void BattleSpellMechanics::castEval(ServerCallback * server, const Target & target)
@@ -659,6 +765,16 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
+bool BattleSpellMechanics::isSmart() const
+{
+	return mode != Mode::MAGIC_MIRROR && BaseMechanics::isSmart();
+}
+
+bool BattleSpellMechanics::wouldResist(const battle::Unit * unit) const
+{
+	return resistantUnitIds.contains(unit->unitId());
+}
+
 BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
@@ -680,6 +796,11 @@ BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) 
 	});
 
 	return effectRange;
+}
+
+Target BattleSpellMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return transformSpellTarget(aim);
 }
 
 const Spell * BattleSpellMechanics::getSpell() const

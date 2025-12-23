@@ -50,7 +50,7 @@
 					"created" : "desktop"
 				},
 				{
-					"text": "vcmi.systemOptions.framerateButton.hover"
+					"text": "vcmi.systemOptions.performanceOverlayButton.hover"
 				},
 				{
 					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
@@ -136,9 +136,9 @@
 					"created" : "desktop"
 				},
 				{
-					"name": "framerateCheckbox",
-					"help": "vcmi.systemOptions.framerateButton",
-					"callback": "framerateChanged"
+					"name": "performanceOverlayCheckbox",
+					"help": "vcmi.systemOptions.performanceOverlayButton",
+					"callback": "performanceOverlayChanged"
 				},
 				{
 					"name": "enableLargeSpellbookCheckbox",
@@ -227,6 +227,9 @@
 			"items" : [
 				{
 					"text": "vcmi.systemOptions.audioMuteFocus.hover"
+				},
+				{
+					"text": "core.genrltxt.575"
 				}
 			]
 		},
@@ -239,6 +242,11 @@
 					"name": "audioMuteFocusCheckbox",
 					"help": "vcmi.systemOptions.audioMuteFocus",
 					"callback": "audioMuteFocusChanged"
+				},
+				{
+					"name": "enableSubtitleCheckbox",
+					"help": "core.help.363",
+					"callback": "enableSubtitleChanged"
 				}
 			]
 		},

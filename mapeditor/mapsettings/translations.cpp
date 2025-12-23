@@ -14,14 +14,17 @@
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 
 void Translations::cleanupRemovedItems(CMap & map)
 {
 	std::set<std::string> existingObjects{"map", "header"};
 	for(auto object : map.objects)
-		existingObjects.insert(object->instanceName);
-	
+	{
+		if(object)
+			existingObjects.insert(object->instanceName);
+	}
+
 	for(auto & translations : map.translations.Struct())
 	{
 		JsonNode updateTranslations;
@@ -74,7 +77,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setItemData(ui->languageSelect->count() - 1, QVariant(QString::fromStdString(language.identifier)));
 		if(mapHeader.translations.Struct().count(language.identifier) && !mapHeader.translations[language.identifier].Struct().empty())
 			indexFoundLang.insert(ui->languageSelect->count() - 1);
-		if(language.identifier == VLC->generaltexth->getPreferredLanguage())
+		if(language.identifier == LIBRARY->generaltexth->getPreferredLanguage())
 			foundLang = ui->languageSelect->count() - 1;
 	}
 	ui->languageSelect->blockSignals(false);
@@ -89,7 +92,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setCurrentIndex(foundLang);
 	
 	if(mapPreferredLanguage.empty())
-		mapPreferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		mapPreferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 }
 
 Translations::~Translations()

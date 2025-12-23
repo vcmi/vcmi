@@ -21,6 +21,7 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../lib/CRandomGenerator.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -53,7 +54,6 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		if(unit && unit->alive())
 		{
 			BattleStackAttacked bsa;
-			bsa.battleID = m->battle()->getBattle()->getBattleID();
 			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
 			bsa.stackAttacked = unit->unitId();
 			bsa.attackerID = -1;
@@ -84,6 +84,38 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 	if(!blm.lines.empty())
 		server->apply(blm);
+}
+
+SpellEffectValue Damage::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result {};
+
+	size_t targetIndex = 0;
+	CRandomGenerator fakeRng;
+
+	for(auto const & t : spellTarget)
+	{
+		const battle::Unit * unit = t.unitValue;
+		if(unit && unit->alive())
+		{
+			BattleStackAttacked bsa;
+			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
+			bsa.stackAttacked = unit->unitId();
+			bsa.attackerID = -1;
+			auto state = unit->acquireState();
+			int64_t before = state->getAvailableHealth();
+			CStack::prepareAttacked(bsa, fakeRng, state);
+			int64_t after  = state->getAvailableHealth();
+			int64_t applied = before - after;
+
+			result.hpDelta -= applied;
+			result.unitsDelta -= static_cast<int32_t>(bsa.killedAmount);
+		}
+
+		targetIndex++;
+	}
+
+	return result;
 }
 
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
@@ -156,7 +188,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 	else if(m->getSpell()->getJsonKey().find("accurateShot") != std::string::npos && !multiple)
 	{
 		MetaString line;
-		std::string preferredLanguage = VLC->generaltexth->getPreferredLanguage();
+		std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 		std::string textID = "vcmi.battleWindow.accurateShot.resultDescription";
 		line.appendTextID(Languages::getPluralFormTextID( preferredLanguage, kills, textID));
 		line.replaceNumber(kills);
@@ -175,7 +207,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 		{
 			MetaString line;
 			//todo: handle newlines in metastring
-			std::string text = VLC->generaltexth->allTexts[343]; //Does %d points of damage.
+			std::string text = LIBRARY->generaltexth->allTexts[343]; //Does %d points of damage.
 			boost::algorithm::trim(text);
 			line.appendRawString(text);
 			line.replaceNumber(static_cast<int>(damage)); //no more text afterwards

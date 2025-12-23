@@ -11,15 +11,22 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class GameConnection;
+VCMI_LIB_NAMESPACE_END
+
 class ClientPermissionsCheckerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	bool result;
+	std::shared_ptr<GameConnection> connection;
 	CVCMIServer & srv;
+	bool result;
 
 public:
-	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv)
-		:srv(srv), result(false)
+	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<GameConnection> & connection)
+		: connection(connection)
+		, srv(srv)
+		, result(false)
 	{
 	}
 
@@ -29,6 +36,7 @@ public:
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -40,6 +48,7 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
@@ -49,11 +58,12 @@ private:
 
 public:
 	ApplyOnServerAfterAnnounceNetPackVisitor(CVCMIServer & srv)
-		:srv(srv)
+		: srv(srv)
 	{
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -64,12 +74,15 @@ public:
 class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	bool result;
+	std::shared_ptr<GameConnection> connection;
 	CVCMIServer & srv;
+	bool result;
 
 public:
-	ApplyOnServerNetPackVisitor(CVCMIServer & srv)
-		:srv(srv), result(true)
+	ApplyOnServerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<GameConnection> & connection)
+		: connection(connection)
+		, srv(srv)
+		, result(true)
 	{
 	}
 
@@ -78,6 +91,7 @@ public:
 		return result;
 	}
 
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;

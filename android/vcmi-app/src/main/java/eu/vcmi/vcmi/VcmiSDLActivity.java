@@ -77,7 +77,7 @@ public class VcmiSDLActivity extends SDLActivity
 
     @Override
     protected String[] getLibraries() {
-        // SDL is linked statically, no need to load anything
+        // app main library and SDL are loaded when launcher starts, no extra work to do
         return new String[] {
         };
     }
@@ -114,25 +114,12 @@ public class VcmiSDLActivity extends SDLActivity
     @Override
     protected void onDestroy()
     {
-        try
-        {
-            // since android can kill the activity unexpectedly (e.g. memory is low or device is inactive for some time), let's try creating
-            // an autosave so user might be able to resume the game; this isn't a very good impl (we shouldn't really sleep here and hope that the
-            // save is created, but for now it might suffice
-            // (better solution: listen for game's confirmation that the save has been created -- this would allow us to inform the users
-            // on the next app launch that there is an automatic save that they can use)
-            if (NativeMethods.tryToSaveTheGame())
-            {
-                Thread.sleep(1000L);
-            }
-        }
-        catch (final InterruptedException ignored)
-        {
-        }
-
         unbindServer();
 
         super.onDestroy();
+
+        finishAffinity();
+        System.exit(0);
     }
 
     private void initService()

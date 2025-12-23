@@ -9,19 +9,10 @@
  */
 #pragma once
 
-struct SDL_Texture;
 struct SDL_Renderer;
-struct SDL_Surface;
-
-extern SDL_Texture * screenTexture;
 extern SDL_Renderer * mainRenderer;
-
-extern SDL_Surface *screen;      // main screen surface
-extern SDL_Surface *screen2;     // and hlp surface (used to store not-active interfaces layer)
-extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 /// Notify user about encountered fatal error and terminate the game
 /// Defined in clientapp EntryPoint
 /// TODO: decide on better location for this method
 [[noreturn]] void handleFatalError(const std::string & message, bool terminate);
-void handleQuit(bool ask = true);

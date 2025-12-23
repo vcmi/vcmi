@@ -286,7 +286,9 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				}
+				},
+				"resource" : "wood",
+				"defaultQuantity": 2
 			},
 			"alchemistLab" : {
 				"index" : 1,
@@ -296,7 +298,9 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				}
+				},
+				"resource" : "mercury",
+				"defaultQuantity": 1
 			},
 			"orePit" : {
 				"index" : 2,
@@ -306,7 +310,9 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"resource" : "ore",
+				"defaultQuantity": 2
 			},
 			"sulfurDune" : {
 				"index" : 3,
@@ -316,7 +322,9 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"resource" : "sulfur",
+				"defaultQuantity": 1
 			},
 			"crystalCavern" : {
 				"index" : 4,
@@ -327,7 +335,9 @@
 				"sounds" : {
 					"ambient" : ["LOOPCRYS"]
 				},
-				"battleground": "subterranean"
+				"battleground": "subterranean",
+				"resource" : "crystal",
+				"defaultQuantity": 1
 			},
 			"gemPond" : {
 				"index" : 5,
@@ -337,7 +347,9 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				}
+				},
+				"resource" : "gems",
+				"defaultQuantity": 1
 			},
 			"goldMine" : {
 				"index" : 6,
@@ -348,7 +360,9 @@
 				"sounds" : {
 					"ambient" : ["LOOPMINE"]
 				},
-				"battleground": "subterranean"
+				"battleground": "subterranean",
+				"resource" : "gold",
+				"defaultQuantity": 1000
 			},
 			"abandoned" :	{
 				"index" : 7,

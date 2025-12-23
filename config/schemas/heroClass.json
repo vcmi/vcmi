@@ -54,8 +54,7 @@
 			}
 		},
 		"mapObject" : {
-			// TODO: this entry should be merged with corresponding base entry in hero object type and validated as objectType
-			// "$ref" : "objectType.json",
+			// NOTE: this entry is merged with corresponding base entry in hero object type and validated as objectType
 			"type" : "object",
 			"properties" : {
 				"filters" : {

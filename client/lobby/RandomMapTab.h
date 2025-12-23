@@ -27,6 +27,8 @@ class CLabel;
 class CLabelGroup;
 class CSlider;
 class CPicture;
+class CTextInput;
+class TransparentFilledRectangle;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -45,7 +47,8 @@ public:
 
 private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
-	std::vector<int> getPossibleMapSizes();
+	std::vector<int> getStandardMapSizes();
+	void onToggleMapSize(int btnId);
 
 	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -55,6 +58,8 @@ private:
 	std::set<int> playerTeamsAllowed;
 	std::set<int> compCountAllowed;
 	std::set<int> compTeamsAllowed;
+
+	int templateIndex;
 };
 
 class TeamAlignmentsWidget: public InterfaceObjectConfigurable
@@ -78,4 +83,18 @@ class TeamAlignments: public CWindowObject
 	std::shared_ptr<TeamAlignmentsWidget> widget;
 public:
 	TeamAlignments(RandomMapTab & randomMapTab);
+};
+
+class SetSizeWindow: public CWindowObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::vector<std::shared_ptr<CLabel>> titles;
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonCancel;
+	std::vector<std::shared_ptr<CLabel>> sizeLabels;
+
+	std::vector<std::shared_ptr<CTextInput>> numInputs;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> rectangles;
+public:
+	SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb);
 };

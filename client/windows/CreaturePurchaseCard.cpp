@@ -14,7 +14,7 @@
 #include "QuickRecruitmentWindow.h"
 #include "CCreatureWindow.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/Shortcut.h"
 #include "../gui/TextAlignment.h"
 #include "../gui/WindowHandler.h"
@@ -23,7 +23,6 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/CreatureCostBox.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 
 void CreaturePurchaseCard::initButtons()
@@ -125,5 +124,5 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 
 void CreaturePurchaseCard::CCreatureClickArea::showPopupWindow(const Point & cursorPosition)
 {
-	GH.windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
+	ENGINE->windows().createAndPushWindow<CStackWindow>(creatureOnTheCard, true);
 }

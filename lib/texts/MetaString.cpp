@@ -10,14 +10,16 @@
 #include "StdInc.h"
 #include "MetaString.h"
 
-#include "CArtHandler.h"
 #include "CCreatureHandler.h"
-#include "CCreatureSet.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
+#include "entities/hero/CHero.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
 #include "serializer/JsonSerializeFormat.h"
@@ -35,6 +37,13 @@ MetaString MetaString::createFromTextID(const std::string & value)
 {
 	MetaString result;
 	result.appendTextID(value);
+	return result;
+}
+
+MetaString MetaString::createFromName(const GameResID& id)
+{
+	MetaString result;
+	result.appendName(id);
 	return result;
 }
 
@@ -122,13 +131,13 @@ std::string MetaString::getLocalString(const std::pair<EMetaText, ui32> & txt) c
 	switch(type)
 	{
 		case EMetaText::GENERAL_TXT:
-			return VLC->generaltexth->translate("core.genrltxt", ser);
+			return LIBRARY->generaltexth->translate("core.genrltxt", ser);
 		case EMetaText::ARRAY_TXT:
-			return VLC->generaltexth->translate("core.arraytxt", ser);
+			return LIBRARY->generaltexth->translate("core.arraytxt", ser);
 		case EMetaText::ADVOB_TXT:
-			return VLC->generaltexth->translate("core.advevent", ser);
+			return LIBRARY->generaltexth->translate("core.advevent", ser);
 		case EMetaText::JK_TXT:
-			return VLC->generaltexth->translate("core.jktext", ser);
+			return LIBRARY->generaltexth->translate("core.jktext", ser);
 		default:
 			logGlobal->error("Failed string substitution because type is %d", static_cast<int>(type));
 			return "#@#";
@@ -156,7 +165,7 @@ DLL_LINKAGE std::string MetaString::toString() const
 				dst += getLocalString(localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				dst += VLC->generaltexth->translate(stringsTextID.at(textID++));
+				dst += LIBRARY->generaltexth->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
 				dst += std::to_string(numbers.at(nums++));
@@ -171,7 +180,7 @@ DLL_LINKAGE std::string MetaString::toString() const
 				boost::replace_first(dst, "%s", getLocalString(localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				boost::replace_first(dst, "%s", VLC->generaltexth->translate(stringsTextID.at(textID++)));
+				boost::replace_first(dst, "%s", LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
 				boost::replace_first(dst, "%d", std::to_string(numbers.at(nums++)));
@@ -211,7 +220,7 @@ DLL_LINKAGE std::string MetaString::buildList() const
 		if(i > 0 && (message.at(i) == EMessage::APPEND_RAW_STRING || message.at(i) == EMessage::APPEND_LOCAL_STRING))
 		{
 			if(exSt == exactStrings.size() - 1)
-				lista += VLC->generaltexth->allTexts[141]; //" and "
+				lista += LIBRARY->generaltexth->allTexts[141]; //" and "
 			else
 				lista += ", ";
 		}
@@ -224,7 +233,7 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				lista += getLocalString(localStrings.at(loSt++));
 				break;
 			case EMessage::APPEND_TEXTID_STRING:
-				lista += VLC->generaltexth->translate(stringsTextID.at(textID++));
+				lista += LIBRARY->generaltexth->translate(stringsTextID.at(textID++));
 				break;
 			case EMessage::APPEND_NUMBER:
 				lista += std::to_string(numbers.at(nums++));
@@ -239,7 +248,7 @@ DLL_LINKAGE std::string MetaString::buildList() const
 				lista.replace(lista.find("%s"), 2, getLocalString(localStrings.at(loSt++)));
 				break;
 			case EMessage::REPLACE_TEXTID_STRING:
-				lista.replace(lista.find("%s"), 2, VLC->generaltexth->translate(stringsTextID.at(textID++)));
+				lista.replace(lista.find("%s"), 2, LIBRARY->generaltexth->translate(stringsTextID.at(textID++)));
 				break;
 			case EMessage::REPLACE_NUMBER:
 				lista.replace(lista.find("%d"), 2, std::to_string(numbers.at(nums++)));
@@ -347,12 +356,12 @@ void MetaString::serializeJson(JsonSerializeFormat & handler)
 
 void MetaString::appendName(const ArtifactID & id)
 {
-	appendTextID(id.toEntity(VLC)->getNameTextID());
+	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
 void MetaString::appendName(const SpellID & id)
 {
-	appendTextID(id.toEntity(VLC)->getNameTextID());
+	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
 void MetaString::appendName(const PlayerColor & id)
@@ -370,32 +379,32 @@ void MetaString::appendName(const CreatureID & id, TQuantity count)
 
 void MetaString::appendName(const GameResID& id)
 {
-	appendTextID(TextIdentifier("core.restypes", id.getNum()).get());
+	appendTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::appendNameSingular(const CreatureID & id)
 {
-	appendTextID(id.toEntity(VLC)->getNameSingularTextID());
+	appendTextID(id.toEntity(LIBRARY)->getNameSingularTextID());
 }
 
 void MetaString::appendNamePlural(const CreatureID & id)
 {
-	appendTextID(id.toEntity(VLC)->getNamePluralTextID());
+	appendTextID(id.toEntity(LIBRARY)->getNamePluralTextID());
 }
 
 void MetaString::replaceName(const ArtifactID & id)
 {
-	replaceTextID(id.toEntity(VLC)->getNameTextID());
+	replaceTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
 void MetaString::replaceName(const FactionID & id)
 {
-	replaceTextID(id.toEntity(VLC)->getNameTextID());
+	replaceTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
 void MetaString::replaceName(const MapObjectID & id, const MapObjectSubID & subId)
 {
-	replaceTextID(VLC->objtypeh->getObjectName(id, subId));
+	replaceTextID(LIBRARY->objtypeh->getObjectName(id, subId));
 }
 
 void MetaString::replaceName(const PlayerColor & id)
@@ -405,27 +414,27 @@ void MetaString::replaceName(const PlayerColor & id)
 
 void MetaString::replaceName(const SecondarySkill & id)
 {
-	replaceTextID(VLC->skillh->getById(id)->getNameTextID());
+	replaceTextID(LIBRARY->skillh->getById(id)->getNameTextID());
 }
 
 void MetaString::replaceName(const SpellID & id)
 {
-	replaceTextID(id.toEntity(VLC)->getNameTextID());
+	replaceTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
 void MetaString::replaceName(const GameResID& id)
 {
-	replaceTextID(TextIdentifier("core.restypes", id.getNum()).get());
+	replaceTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::replaceNameSingular(const CreatureID & id)
 {
-	replaceTextID(id.toEntity(VLC)->getNameSingularTextID());
+	replaceTextID(id.toEntity(LIBRARY)->getNameSingularTextID());
 }
 
 void MetaString::replaceNamePlural(const CreatureID & id)
 {
-	replaceTextID(id.toEntity(VLC)->getNamePluralTextID());
+	replaceTextID(id.toEntity(LIBRARY)->getNamePluralTextID());
 }
 
 void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing or plural name;
@@ -438,7 +447,7 @@ void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing
 
 void MetaString::replaceName(const CStackBasicDescriptor & stack)
 {
-	replaceName(stack.getId(), stack.count);
+	replaceName(stack.getId(), stack.getCount());
 }
 
 VCMI_LIB_NAMESPACE_END

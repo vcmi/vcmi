@@ -13,10 +13,10 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
@@ -25,10 +25,7 @@
 #include "../render/Canvas.h"
 #include "../render/CanvasImage.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
@@ -44,7 +41,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName, Point ce
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if (options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if (background)
 		pos = background->center(centerAt);
@@ -64,12 +61,12 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 		assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	if(options & RCLICK_POPUP)
-		CCS->curh->hide();
+		ENGINE->cursor().hide();
 
 	if(background)
 		pos = background->center();
 	else
-		center(GH.screenDimensions() / 2);
+		center(ENGINE->screenDimensions() / 2);
 
 	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
@@ -78,7 +75,7 @@ CWindowObject::CWindowObject(int options_, const ImagePath & imageName):
 CWindowObject::~CWindowObject()
 {
 	if(options & RCLICK_POPUP)
-		CCS->curh->show();
+		ENGINE->cursor().show();
 }
 
 std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, bool playerColored)
@@ -89,8 +86,10 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
-	if(playerColored)
-		image->setPlayerColor(LOCPLINT->playerID);
+	if(!GAME->interface())
+		image->setPlayerColor(PlayerColor(1)); // in main menu we use blue
+	else if(playerColored)
+		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }
 
@@ -153,9 +152,9 @@ void CWindowObject::setShadow(bool on)
 		Point sizeBottom(size, fullsize.y - size);
 
 		//create base 8x8 piece of shadow
-		auto imageCorner = GH.renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
-		auto imageRight  = GH.renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
-		auto imageBottom = GH.renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
+		auto imageCorner = ENGINE->renderHandler().createImage(sizeCorner, CanvasScalingPolicy::AUTO);
+		auto imageRight  = ENGINE->renderHandler().createImage(sizeRight,  CanvasScalingPolicy::AUTO);
+		auto imageBottom = ENGINE->renderHandler().createImage(sizeBottom, CanvasScalingPolicy::AUTO);
 
 		Canvas canvasCorner = imageCorner->getCanvas();
 		Canvas canvasRight = imageRight->getCanvas();
@@ -183,12 +182,12 @@ void CWindowObject::setShadow(bool on)
 
 void CWindowObject::showAll(Canvas & to)
 {
-	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	auto color = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
 	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.dimensions() != GH.screenDimensions()))
+	if ((options & BORDERED) && (pos.dimensions() != ENGINE->screenDimensions()))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 

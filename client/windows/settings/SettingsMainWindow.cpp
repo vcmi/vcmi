@@ -17,12 +17,13 @@
 #include "OtherOptionsTab.h"
 
 #include "CMT.h"
-#include "CGameInfo.h"
-#include "texts/CGeneralTextHandler.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../lib/GameLibrary.h"
 #include "CPlayerInterface.h"
 #include "CServerHandler.h"
-#include "filesystem/ResourcePath.h"
-#include "gui/CGuiHandler.h"
+#include "../../../lib/filesystem/ResourcePath.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "render/Canvas.h"
 #include "lobby/CSavingScreen.h"
@@ -61,9 +62,9 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CButton> restartButton = widget<CButton>("restartButton");
 	assert(restartButton);
 
-	loadButton->block(CSH->isGuest());
-	saveButton->block(CSH->isGuest() || parentBattleUi);
-	restartButton->block(CSH->isGuest() || parentBattleUi);
+	loadButton->block(GAME->server().isGuest());
+	saveButton->block(GAME->server().isGuest() || parentBattleUi);
+	restartButton->block(GAME->server().isGuest());
 
 	int defaultTabIndex = 0;
 	if(parentBattleUi != nullptr)
@@ -78,7 +79,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 	std::shared_ptr<CToggleGroup> mainTabs = widget<CToggleGroup>("settingsTabs");
 	mainTabs->setSelected(defaultTabIndex);
 	
-	LOCPLINT->gamePause(true);
+	GAME->interface()->gamePause(true);
 }
 
 std::shared_ptr<CIntObject> SettingsMainWindow::createTab(size_t index)
@@ -110,26 +111,23 @@ void SettingsMainWindow::openTab(size_t index)
 
 void SettingsMainWindow::close()
 {
-	if(!GH.windows().isTopWindow(this))
+	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	
-	LOCPLINT->gamePause(false);
-	GH.windows().popWindows(1);
+	GAME->interface()->gamePause(false);
+	ENGINE->windows().popWindows(1);
 }
 
 void SettingsMainWindow::quitGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+	GAME->interface()->showYesNoDialog(
+		LIBRARY->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread( []()
-			{
-				handleQuit(false);
-			});
+			ENGINE->user().onShutdownRequested(false);
 		},
-		0
+		nullptr
 	);
 }
 
@@ -140,13 +138,13 @@ void SettingsMainWindow::backButtonCallback()
 
 void SettingsMainWindow::mainMenuButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[578],
+	GAME->interface()->showYesNoDialog(
+		LIBRARY->generaltexth->allTexts[578],
 		[this]()
 		{
 			close();
-			CSH->endGameplay();
-			CMM->menu->switchToTab("main");
+			GAME->server().endGameplay();
+			GAME->mainmenu()->menu->switchToTab("main");
 		},
 		0
 	);
@@ -155,24 +153,24 @@ void SettingsMainWindow::mainMenuButtonCallback()
 void SettingsMainWindow::loadGameButtonCallback()
 {
 	close();
-	LOCPLINT->proposeLoadingGame();
+	GAME->interface()->proposeLoadingGame();
 }
 
 void SettingsMainWindow::saveGameButtonCallback()
 {
 	close();
-	GH.windows().createAndPushWindow<CSavingScreen>();
+	ENGINE->windows().createAndPushWindow<CSavingScreen>();
 }
 
 void SettingsMainWindow::restartGameButtonCallback()
 {
-	LOCPLINT->showYesNoDialog(
-		CGI->generaltexth->allTexts[67],
+	GAME->interface()->showYesNoDialog(
+		LIBRARY->generaltexth->allTexts[67],
 		[this]()
 		{
 			close();
-			GH.dispatchMainThread([](){
-				CSH->sendRestartGame();
+			ENGINE->dispatchMainThread([](){
+				GAME->server().sendRestartGame();
 			});
 		},
 		0
@@ -181,7 +179,7 @@ void SettingsMainWindow::restartGameButtonCallback()
 
 void SettingsMainWindow::showAll(Canvas & to)
 {
-	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	auto color = GAME->interface() ? GAME->interface()->playerID : PlayerColor(1);
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 

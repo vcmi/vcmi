@@ -1,189 +1,74 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"title" : "VCMI bonus system format",
-	"description" : "Subsection of several formats, used to add generic bonuses to objects",
-	"required" : ["type"],
-	"definitions" :
-	{
-		"nestedLimiter" : {
-			"anyOf" : [
-				{ 
-					"type" : "string",
-					"enum" : [ "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURE_FACTION", "SAME_FACTION", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
-					"description" : "parameterless limiter or boolean operator at start of array"
-				},
-				{
-					"type" : "object",
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "CREATURE_TYPE_LIMITER", "HAS_ANOTHER_BONUS_LIMITER", "CREATURE_ALIGNMENT_LIMITER", "FACTION_LIMITER", "CREATURE_LEVEL_LIMITER", "CREATURE_TERRAIN_LIMITER", "UNIT_ON_HEXES" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
-						}
-					}
-				},
-				{
-					"type" : "array",
-					"additionalItems" : {
-						"$ref" : "#/definitions/nestedLimiter",
-						"description" : "nested limiters optionally prefixed with boolean operator"
-					}
-				}
-			]
-		}
-	},
+	"title" : "VCMI bonus type format",
+	"description" : "Definition of bonus types",
+	"required" : [],
 	"additionalProperties" : false,
 	"properties" : {
-		"type" : {
-			"type" : "string",
-			"description" : "type"
+		"hidden" : {
+			"type" : "boolean",
+			"description" : "If set to true, all instances of this bonus will be hidden in UI"
 		},
-		"subtype" : {
-			"type" : "string",
-			"description" : "subtype"
+
+		"creatureNature" : {
+			"type" : "boolean",
+			"description" : "If set to true, this bonus will be considered 'creature nature' bonus, and such creature won't be automatically granted LIVING bonus"
 		},
-		"sourceID" : {
-			"type" : "number",
-			"description" : "sourceID"
+		
+		"blockDescriptionPropagation" : {
+			"type" : "boolean",
+			"description" : "If set to true, this ability description will not be displayed if a creature receives it by propagation"
 		},
-		"sourceType" : {
-			"type" : "string",
-			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER", ],
-			"description" : "sourceType"
-		},
-		"targetSourceType" : {
-			"type" : "string",
-			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER", ],
-			"description" : "targetSourceType"
-		},
-		"propagator" : {
-			"description" : "propagator",
-			"type" : "string",
-			"enum" : [ "BATTLE_WIDE", "VISITED_TOWN_AND_VISITOR", "PLAYER_PROPAGATOR", "HERO", "TEAM_PROPAGATOR", "GLOBAL_EFFECT" ]
-		},
-		"updater" : {
-			"anyOf" : [
-				{
-					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
-				},
-				{
-					"description" : "updater",
-					"type" : "object",
-					"required" : ["type", "parameters"],
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
-						}
-					}
-				}
-			]
-		},
-		"propagationUpdater" : {
-			"anyOf" : [
-				{
-					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
-				},
-				{
-					"description" : "propagationUpdater",
-					"type" : "object",
-					"required" : ["type", "parameters"],
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
-						}
-					}
-				}
-			]
-		},
-		"limiters" : {
-			"$ref" : "#/definitions/nestedLimiter",
-			"description" : "limiter"
-		},
-		"effectRange" : {
-			"type" : "string",
-			"enum" : [ "NO_LIMIT", "ONLY_DISTANCE_FIGHT", "ONLY_MELEE_FIGHT" ],
-			"description" : "effectRange"
-		},
-		"val" : {
-			"type" : "number",
-			"description" : "val"
-		},
-		"valueType" : {
-			"type" : "string",
-			"enum" : ["ADDITIVE_VALUE", "BASE_NUMBER", "PERCENT_TO_ALL", "PERCENT_TO_BASE", "PERCENT_TO_SOURCE", "PERCENT_TO_TARGET_TYPE", "INDEPENDENT_MAX", "INDEPENDENT_MIN" ],
-			"description" : "valueType"
-		},
-		"addInfo" : {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" },
-				{
-					"type" : "array",
-					"items" : {
-						"anyof" : [
-							{ "type" : "string" },
-							{ "type" : "number" }
-						]
-					}
-				}
-			],
-			"description" : "addInfo"
-		},
-		"duration" : {
-			"anyOf" : [
-				{
-					"type" : "string",
-					"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
-				},
-				{
-					"type" : "array", 
-					"items" : {
-						"type" : "string",
-						"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
-					}
-				}
-			],
-			"description" : "duration"
-		},
-		"turns" : {
-			"type" : "number",
-			"description" : "turns"
-		},
-		"stacking" : {
-			"type" : "string",
-			"description" : "stacking"
-		},
+
 		"description" : {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" }
-			],
-			"description" : "description"
+			"type" : "string"
+		},
+
+		"subtypeDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus subtype",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
+
+		"valueDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus value",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
+
+		"graphics" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"icon" : {
+					"type" : "string",
+					"description" : "Resourse path of generic icon for this bonus",
+					"format" : "imageFile"
+				},
+				
+				"subtypeIcons" : {
+					"type" : "object",
+					"description" : "Resourse path of icon for this bonus subtype",
+					"additionalProperties" : {
+						"type" : "string",
+						"format" : "imageFile"
+					}
+				},
+				
+				"valueIcons" : {
+					"type" : "object",
+					"description" : "Resourse path of icon for this bonus value",
+					"additionalProperties" : {
+						"type" : "string",
+						"format" : "imageFile"
+					}
+				}
+			}
 		}
 	}
 }

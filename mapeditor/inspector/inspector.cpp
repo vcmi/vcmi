@@ -9,14 +9,13 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
-#include "../lib/ArtifactUtils.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
@@ -38,9 +37,12 @@
 #include "../mapcontroller.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
+Initializer::Initializer(MapController & controller, CGObjectInstance * o, const PlayerColor & pl)
+	: controller(controller)
+	, defaultPlayer(pl)
 {
 	logGlobal->info("New object instance initialized");
+	o->cb = controller.getCallback();
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
 	INIT_OBJ_TYPE(CGArtifact);
@@ -74,10 +76,10 @@ void Initializer::initialize(CGSignBottle * o)
 void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
-	
+
 	o->character = CGCreature::Character::HOSTILE;
 	if(!o->hasStackAtSlot(SlotID(0)))
-	   o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
+		o->putStack(SlotID(0), std::make_unique<CStackInstance>(o->cb, CreatureID(o->subID), 1, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
@@ -150,7 +152,7 @@ void Initializer::initialize(CGHeroInstance * o)
 
 	if(o->ID == Obj::HERO)
 	{
-		for(auto const & t : VLC->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->objects)
 		{
 			if(t->heroClass->getId() == HeroClassID(o->subID))
 			{
@@ -182,7 +184,7 @@ void Initializer::initialize(CGTownInstance * o)
 
 	if(o->possibleSpells.empty())
 	{
-		for(auto const & spellId : VLC->spellh->getDefaultAllowed()) //add all regular spells to town
+		for(auto const & spellId : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 		{
 			o->possibleSpells.push_back(spellId);
 		}
@@ -196,16 +198,23 @@ void Initializer::initialize(CGArtifact * o)
 	if(o->ID == Obj::SPELL_SCROLL)
 	{
 		std::vector<SpellID> out;
-		for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+		for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
 		{
-			if(VLC->spellh->getDefaultAllowed().count(spell->id) != 0)
+			if(LIBRARY->spellh->getDefaultAllowed().count(spell->id) != 0)
 			{
 				out.push_back(spell->id);
 			}
 		}
-		auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-		o->storedArtifact = a;
+		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		o->setArtifactInstance(a);
 	}
+	else if(o->ID == Obj::ARTIFACT || (o->ID >= Obj::RANDOM_ART && o->ID <= Obj::RANDOM_RELIC_ART))
+	{
+		auto instance = controller.map()->createArtifact(o->getArtifactType());
+		o->setArtifactInstance(instance);
+	}
+	else
+		throw std::runtime_error("Unimplemented initializer for CGArtifact object ID = "+ std::to_string(o->ID.getNum()));
 }
 
 void Initializer::initialize(CGMine * o)
@@ -220,7 +229,10 @@ void Initializer::initialize(CGMine * o)
 	}
 	else
 	{
-		o->producedResource = GameResID(o->subID);
+		if(o->getResourceHandler()->getResourceType() == GameResID::NONE) // fallback
+			o->producedResource = GameResID(o->subID);
+		else
+			o->producedResource = o->getResourceHandler()->getResourceType();
 		o->producedQuantity = o->defaultResProduction();
 	}
 }
@@ -291,11 +303,11 @@ void Inspector::updateProperties(CGHeroPlaceholder * o)
 	
 	{
 		auto * delegate = new InspectorDelegate;
-		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
+		for(int i = 0; i < LIBRARY->heroh->objects.size(); ++i)
 		{
-			delegate->options.push_back({QObject::tr(VLC->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(VLC->heroh->objects[i]->getId().getNum())});
+			delegate->options.push_back({QObject::tr(LIBRARY->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(LIBRARY->heroh->objects[i]->getId().getNum())});
 		}
-		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? VLC->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
+		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? LIBRARY->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
 	}
 }
 
@@ -310,7 +322,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	
 	{ //Gender
 		auto * delegate = new InspectorDelegate;
-		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(int(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(int(EHeroGender::FEMALE))}};
+		delegate->options = {{QObject::tr("MALE"), QVariant::fromValue(static_cast<int>(EHeroGender::MALE))}, {QObject::tr("FEMALE"), QVariant::fromValue(static_cast<int>(EHeroGender::FEMALE))}};
 		addProperty<std::string>(QObject::tr("Gender"), (o->gender == EHeroGender::FEMALE ? QObject::tr("FEMALE") : QObject::tr("MALE")).toStdString(), delegate , false);
 	}
 	addProperty(QObject::tr("Name"), o->getNameTranslated(), false);
@@ -320,12 +332,12 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty(QObject::tr("Skills"), PropertyEditorPlaceholder(), delegate, false);
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
-	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
+	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(controller, *o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
-		for(const auto & heroPtr : VLC->heroh->objects)
+		for(const auto & heroPtr : LIBRARY->heroh->objects)
 		{
 			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
@@ -365,22 +377,22 @@ void Inspector::updateProperties(CGTownInstance * o)
 void Inspector::updateProperties(CGArtifact * o)
 {
 	if(!o) return;
-	
+
 	addProperty(QObject::tr("Message"), o->message, false);
-	
-	CArtifactInstance * instance = o->storedArtifact;
-	if(instance)
+
+	const CArtifactInstance * instance = o->getArtifactInstance();
+	if(instance && o->ID == Obj::SPELL_SCROLL)
 	{
 		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != SpellID::NONE)
 		{
 			auto * delegate = new InspectorDelegate;
-			for(auto const & spell : VLC->spellh->objects)
+			for(auto const & spell : LIBRARY->spellh->objects)
 			{
 				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
 			}
-			addProperty(QObject::tr("Spell"), VLC->spellh->getById(spellId)->getNameTranslated(), delegate, false);
+			addProperty(QObject::tr("Spell"), LIBRARY->spellh->getById(spellId)->getNameTranslated(), delegate, false);
 		}
 	}
 }
@@ -390,7 +402,8 @@ void Inspector::updateProperties(CGMine * o)
 	if(!o) return;
 	
 	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
-	addProperty(QObject::tr("Resource"), o->producedResource);
+	if(o->producedResource != GameResID::NONE)
+		addProperty(QObject::tr("Resource"), o->producedResource);
 	addProperty(QObject::tr("Productivity"), o->producedQuantity);
 }
 
@@ -417,13 +430,13 @@ void Inspector::updateProperties(CGCreature * o)
 	{ //Character
 		auto * delegate = new InspectorDelegate;
 		delegate->options = characterIdentifiers;
-		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
+		addProperty<CGCreature::Character>(QObject::tr("Character"), (CGCreature::Character)o->character, delegate, false);
 	}
 	addProperty(QObject::tr("Never flees"), o->neverFlees, false);
 	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
 	addProperty(QObject::tr("Artifact reward"), o->gainedArtifact); //TODO: implement in setProperty
 	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), true);
-	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->count, false);
+	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->getCount(), false);
 	//addProperty(QObject::tr("Resources reward"), o->resources); //TODO: implement in setProperty
 }
 
@@ -454,26 +467,26 @@ void Inspector::updateProperties(CGEvent * o)
 
 void Inspector::updateProperties(CGSeerHut * o)
 {
-	if(!o || !o->quest) return;
+	if(!o) return;
 	
-	addProperty(QObject::tr("First visit text"), o->quest->firstVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Next visit text"), o->quest->nextVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Completed text"), o->quest->completedText, new MessageDelegate, false);
-	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, false);
-	addProperty(QObject::tr("Time limit"), o->quest->lastDay, false);
+	addProperty(QObject::tr("First visit text"), o->getQuest().firstVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Next visit text"), o->getQuest().nextVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Completed text"), o->getQuest().completedText, new MessageDelegate, false);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, false);
+	addProperty(QObject::tr("Time limit"), o->getQuest().lastDay, false);
 	
 	{ //Quest
-		auto * delegate = new QuestDelegate(controller, *o->quest);
+		auto * delegate = new QuestDelegate(controller, o->getQuest());
 		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
 
 void Inspector::updateProperties(CGQuestGuard * o)
 {
-	if(!o || !o->quest) return;
+	if(!o) return;
 	
 	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), nullptr, true);
-	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, true);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, true);
 }
 
 void Inspector::updateProperties()
@@ -489,7 +502,7 @@ void Inspector::updateProperties()
 	
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		addProperty(QObject::tr("IsStatic"), factory->isStaticObject());
 	}
 	
@@ -638,9 +651,9 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
-	if(o->storedArtifact && key == QObject::tr("Spell"))
+	if(key == QObject::tr("Spell"))
 	{
-		o->storedArtifact = ArtifactUtils::createScroll(SpellID(value.toInt()));
+		o->setArtifactInstance(controller.map()->createScroll(SpellID(value.toInt())));
 	}
 }
 
@@ -718,7 +731,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	
 	if(key == QObject::tr("Hero type"))
 	{
-		for(auto const & t : VLC->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->objects)
 		{
 			if(t->getId() == value.toInt())
 				o->subID = value.toInt();
@@ -763,7 +776,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(key == QObject::tr("Not growing"))
 		o->notGrowingTeam = value.toBool();
 	if(key == QObject::tr("Amount"))
-		o->stacks[SlotID(0)]->count = value.toString().toInt();
+		o->stacks[SlotID(0)]->setCount(value.toString().toInt());
 }
 
 void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant & value)
@@ -771,18 +784,18 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(!o) return;
 	
 	if(key == QObject::tr("First visit text"))
-		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Next visit text"))
-		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Completed text"))
-		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
 	if(key == QObject::tr("Repeat quest"))
-		o->quest->repeatedQuest = value.toBool();
+		o->getQuest().repeatedQuest = value.toBool();
 	if(key == QObject::tr("Time limit"))
-		o->quest->lastDay = value.toString().toInt();
+		o->getQuest().lastDay = value.toString().toInt();
 }
 
 void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)
@@ -837,7 +850,7 @@ QTableWidgetItem * Inspector::addProperty(const std::string & value)
 
 QTableWidgetItem * Inspector::addProperty(const TextIdentifier & value)
 {
-	return addProperty(VLC->generaltexth->translate(value.get()));
+	return addProperty(LIBRARY->generaltexth->translate(value.get()));
 }
 
 QTableWidgetItem * Inspector::addProperty(const MetaString & value)
@@ -893,7 +906,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 	item->setFlags(Qt::NoItemFlags);
 	item->setData(Qt::UserRole, QVariant::fromValue(int(value)));
 	
-	for(auto & i : characterIdentifiers)
+	for(const auto & i : characterIdentifiers)
 	{
 		if(i.second.toInt() == value)
 		{

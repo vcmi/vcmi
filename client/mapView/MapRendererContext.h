@@ -13,10 +13,7 @@
 
 #include "../lib/GameConstants.h"
 #include "../lib/int3.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
-struct ObjectPosInfo;
-VCMI_LIB_NAMESPACE_END
+#include "../lib/spells/ViewSpellInt.h"
 
 struct MapRendererContextState;
 
@@ -36,6 +33,7 @@ public:
 	bool tileAnimated(const int3 & coordinates) const override;
 
 	bool isActiveHero(const CGObjectInstance* obj) const override;
+	int attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const override;
 
 	const TerrainTile & getMapTile(const int3 & coordinates) const override;
 	const MapObjectsList & getObjects(const int3 & coordinates) const override;
@@ -61,6 +59,7 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlocked() const override;
+	bool showInvisible() const override;
 	bool showSpellRange(const int3 & position) const override;
 };
 
@@ -71,7 +70,7 @@ public:
 	bool settingShowGrid = false;
 	bool settingShowVisitable = false;
 	bool settingShowBlocked = false;
-	bool settingSpellRange= false;
+	bool settingShowInvisible = false;
 	bool settingTextOverlay = false;
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;
@@ -88,6 +87,7 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlocked() const override;
+	bool showInvisible() const override;
 	bool showTextOverlay() const override;
 
 	bool showSpellRange(const int3 & position) const override;

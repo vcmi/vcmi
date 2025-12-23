@@ -85,6 +85,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  ifndef NOMINMAX
 #    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
 #  endif
+#  ifndef NOGDI
+#    define NOGDI
+#  endif
 #  ifndef _NO_W32_PSEUDO_MODIFIERS
 #    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
 #  endif
@@ -119,7 +122,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <chrono>
 #include <climits>
 #include <cmath>
-#include <codecvt>
+#include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -138,60 +141,58 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
 
-//The only available version is 3, as of Boost 1.50
+// VCMI requires features that were added to TBB 2021.4
+// However, until TBB 2021.7 they were only available with this define
+// For versions TBB 2021.7 and later this define is not required
+#define TBB_PREVIEW_TASK_GROUP_EXTENSIONS 1
+
 #include <boost/version.hpp>
 
+// As of Boost 1.50+, the only available version is 3,
+// Version 4 has been added in Boost 1.77
 #define BOOST_FILESYSTEM_VERSION 3
-#if BOOST_VERSION > 105000
-#  define BOOST_THREAD_VERSION 3
-#endif
 #if BOOST_VERSION == 107400
 #  define BOOST_ALLOW_DEPRECATED_HEADERS
 #endif
-#define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
-//need to link boost thread dynamically to avoid https://stackoverflow.com/questions/35978572/boost-thread-interupt-does-not-work-when-crossing-a-dll-boundary
-//for example VCAI::finish() may freeze on thread join after interrupt when linking this statically
-#ifndef BOOST_THREAD_USE_DLL
-#  define BOOST_THREAD_USE_DLL
-#endif
-#define BOOST_BIND_NO_PLACEHOLDERS
 
-#if BOOST_VERSION >= 106600
-#define BOOST_ASIO_ENABLE_OLD_SERVICES
-#endif
-
-#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/crc.hpp>
-#include <boost/current_function.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/date_time/posix_time/time_formatters.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+// C++ 20 -> std::source_location::function_name
+#include <boost/current_function.hpp>
+// C++ 17 -> std::filesystem
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/exception.hpp>
+#include <boost/filesystem/file_status.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
-#include <boost/functional/hash.hpp>
-#include <boost/lexical_cast.hpp>
-#ifdef VCMI_WINDOWS
-#include <boost/locale/generator.hpp>
-#endif
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_array.hpp>
+// C++ 20 -> std::range
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/algorithm.hpp>
-#include <boost/thread/thread_only.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/once.hpp>
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/range/algorithm/count.hpp>
+#include <boost/range/algorithm/count_if.hpp>
+#include <boost/range/algorithm/fill.hpp>
+#include <boost/range/algorithm/find.hpp>
+#include <boost/range/algorithm/find_if.hpp>
+#include <boost/range/algorithm/max_element.hpp>
+#include <boost/range/algorithm/min_element.hpp>
+#include <boost/range/algorithm/remove.hpp>
+#include <boost/range/algorithm/remove_if.hpp>
+#include <boost/range/algorithm/replace.hpp>
+#include <boost/range/algorithm/sort.hpp>
+#include <boost/range/algorithm/unique.hpp>
+#include <boost/range/algorithm/upper_bound.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -201,7 +202,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* Usings */
 /* ---------------------------------------------------------------------------- */
 using namespace std::placeholders;
-namespace range = boost::range;
 
 /* ---------------------------------------------------------------------------- */
 /* Typedefs */
@@ -249,8 +249,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #else
 #  define DLL_LINKAGE DLL_IMPORT
 #endif
-
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
@@ -340,7 +338,7 @@ namespace vstd
 	template <typename Container, typename Func>
 	int find_pos_if(const Container & c, const Func &f)
 	{
-		auto ret = boost::range::find_if(c, f);
+		auto ret = std::find_if(c.begin(), c.end(), f);
 		if(ret != std::end(c))
 			return std::distance(std::begin(c), ret);
 
@@ -470,14 +468,6 @@ namespace vstd
 		}
 	};
 
-	//deleted pointer and sets it to nullptr
-	template <typename T>
-	void clear_pointer(T* &ptr)
-	{
-		delete ptr;
-		ptr = nullptr;
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -491,13 +481,13 @@ namespace vstd
 	template <typename Container, typename Item>
 	void erase(Container &c, const Item &item)
 	{
-		c.erase(boost::remove(c, item), c.end());
+		c.erase(std::remove(c.begin(), c.end(), item), c.end());
 	}
 
 	template<typename Range, typename Predicate>
 	void erase_if(Range &vec, Predicate pred)
 	{
-		vec.erase(boost::remove_if(vec, pred),vec.end());
+		vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
 	}
 
 	template<typename Elem, typename Predicate>
@@ -577,14 +567,14 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
-	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::min_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::min_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -592,14 +582,14 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
-	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::max_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::max_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -722,13 +712,16 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
-	/// Divides dividend by divisor and rounds result up
+	/// Divides dividend by divisor and rounds result away from zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndCeil(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor - 1) / divisor;
+		else
+			return (dividend - divisor + 1) / divisor;
 	}
 
 	/// Divides dividend by divisor and rounds result to nearest
@@ -737,10 +730,13 @@ namespace vstd
 	Integer1 divideAndRound(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor / 2 - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor / 2 - 1) / divisor;
+		else
+			return (dividend - divisor / 2 + 1) / divisor;
 	}
 
-	/// Divides dividend by divisor and rounds result down
+	/// Divides dividend by divisor and rounds result towards zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndFloor(const Integer1 & dividend, const Integer2 & divisor)

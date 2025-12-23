@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.cpp, part of VCMI engine
+ * CGObjectInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,9 +14,10 @@
 #include "CGHeroInstance.h"
 #include "ObjectTemplate.h"
 
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -30,7 +31,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 //TODO: remove constructor
-CGObjectInstance::CGObjectInstance(IGameCallback *cb):
+CGObjectInstance::CGObjectInstance(IGameInfoCallback *cb):
 	IObjectInterface(cb),
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),
@@ -121,20 +122,20 @@ const std::set<int3> & CGObjectInstance::getBlockedOffsets() const
 void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
-	auto oldOffset = getVisitableOffset();
-	auto &tile = cb->gameState()->map->getTile(position);
+	auto oldOffset = appearance->getCornerOffset();
+	const auto * tile = cb->getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
-	cb->gameState()->map->removeBlockVisTiles(this, true);
-	auto handler = VLC->objtypeh->getHandlerFor(newID, newSubID);
+	cb->gameState().getMap().hideObject(this);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
 
-	if(!handler->getTemplates(tile.getTerrainID()).empty())
+	if(!handler->getTemplates(tile->getTerrainID()).empty())
 	{
-		appearance = handler->getTemplates(tile.getTerrainID())[0];
+		appearance = handler->getTemplates(tile->getTerrainID())[0];
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.getTerrain()->getNameTranslated());
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile->getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
@@ -144,26 +145,27 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
 	needToAdjustOffset |= this->ID == Obj::PRISON && newID == Obj::HERO;
 	needToAdjustOffset |= newID == Obj::MONSTER;
+	needToAdjustOffset |= newID == Obj::CREATURE_GENERATOR1 || newID == Obj::CREATURE_GENERATOR2 || newID == Obj::CREATURE_GENERATOR3 || newID == Obj::CREATURE_GENERATOR4;
 
 	if(needToAdjustOffset)
 	{
 		// adjust position since object visitable offset might have changed
-		auto newOffset = getVisitableOffset();
+		auto newOffset = appearance->getCornerOffset();
 		pos = pos - oldOffset + newOffset;
 	}
 
 	this->ID = Obj(newID);
 	this->subID = newSubID;
 
-	cb->gameState()->map->addBlockVisTiles(this);
+	cb->gameState().getMap().showObject(this);
 }
 
-void CGObjectInstance::pickRandomObject(vstd::RNG & rand)
+void CGObjectInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	// no-op
 }
 
-void CGObjectInstance::initObj(vstd::RNG & rand)
+void CGObjectInstance::initObj(IGameRandomizer & gameRandomizer)
 {
 	// no-op
 }
@@ -189,7 +191,7 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 
 TObjectTypeHandler CGObjectInstance::getObjectHandler() const
 {
-	return VLC->objtypeh->getHandlerFor(ID, subID);
+	return LIBRARY->objtypeh->getHandlerFor(ID, subID);
 }
 
 std::string CGObjectInstance::getTypeName() const
@@ -222,7 +224,7 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return appearance->getVisitableOffset();
 }
 
-void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration) const
+void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const ObjectInstanceID & heroID, BonusDuration::Type duration) const
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = BonusType::NONE;
@@ -230,17 +232,17 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = BonusSource::OBJECT_TYPE;
 	gbonus.bonus.sid = BonusSourceID(ID);
-	cb->giveHeroBonus(&gbonus);
+	gameEvents.giveHeroBonus(&gbonus);
 }
 
 std::string CGObjectInstance::getObjectName() const
 {
-	return VLC->objtypeh->getObjectName(ID, subID);
+	return LIBRARY->objtypeh->getObjectName(ID, subID);
 }
 
 std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).ambient;
 	if(!sounds.empty())
 		return sounds.front(); // TODO: Support randomization of ambient sounds
 
@@ -249,7 +251,7 @@ std::optional<AudioPath> CGObjectInstance::getAmbientSound(vstd::RNG & rng) cons
 
 std::optional<AudioPath> CGObjectInstance::getVisitSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).visit;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
@@ -258,7 +260,7 @@ std::optional<AudioPath> CGObjectInstance::getVisitSound(vstd::RNG & rng) const
 
 std::optional<AudioPath> CGObjectInstance::getRemovalSound(vstd::RNG & rng) const
 {
-	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
+	const auto & sounds = LIBRARY->objtypeh->getObjectSounds(ID, subID).removal;
 	if(!sounds.empty())
 		return *RandomGeneratorUtil::nextItem(sounds, rng);
 
@@ -269,7 +271,7 @@ std::string CGObjectInstance::getHoverText(PlayerColor player) const
 {
 	auto text = getObjectName();
 	if (tempOwner.isValidPlayer())
-		text += "\n" + VLC->generaltexth->arraytxt[23 + tempOwner.getNum()];
+		text += "\n" + LIBRARY->generaltexth->arraytxt[23 + tempOwner.getNum()];
 	return text;
 }
 
@@ -297,19 +299,19 @@ std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance
 	return getPopupComponents(hero->getOwner());
 }
 
-void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
+void CGObjectInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	switch(ID.toEnum())
 	{
 	case Obj::SANCTUARY:
 		{
 			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			h->showInfoDialog(114);
+			h->showInfoDialog(gameEvents, 114);
 		}
 		break;
 	case Obj::TAVERN:
 		{
-			cb->showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
+			gameEvents.showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
 		}
 		break;
 	}
@@ -365,6 +367,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 
 		handler.serializeString("type", ourTypeName);
 		handler.serializeString("subtype", ourSubtypeName);
+		handler.serializeString("instanceName", instanceName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);
@@ -380,16 +383,6 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CGObjectInstance::afterAddToMap(CMap * map)
-{
-	//nothing here
-}
-
-void CGObjectInstance::afterRemoveFromMap(CMap * map)
-{
-	//nothing here
-}
-
 void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//nothing here
@@ -402,7 +395,7 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 
 BattleField CGObjectInstance::getBattlefield() const
 {
-	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const

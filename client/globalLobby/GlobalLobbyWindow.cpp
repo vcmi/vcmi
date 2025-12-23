@@ -16,7 +16,8 @@
 #include "GlobalLobbyWidget.h"
 
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/Slider.h"
@@ -35,11 +36,11 @@ GlobalLobbyWindow::GlobalLobbyWindow()
 	pos = widget->pos;
 	center();
 
-	widget->getAccountNameLabel()->setText(CSH->getGlobalLobby().getAccountDisplayName());
+	widget->getAccountNameLabel()->setText(GAME->server().getGlobalLobby().getAccountDisplayName());
 	doOpenChannel("global", "english", Languages::getLanguageOptions("english").nameNative);
 
 	widget->getChannelListHeader()->setText(MetaString::createFromTextID("vcmi.lobby.header.channels").toString());
-	widget->getChannelList()->resize(CSH->getGlobalLobby().getActiveChannels().size()+1);
+	widget->getChannelList()->resize(GAME->server().getGlobalLobby().getActiveChannels().size()+1);
 }
 
 bool GlobalLobbyWindow::isChannelOpen(const std::string & testChannelType, const std::string & testChannelName) const
@@ -54,7 +55,7 @@ void GlobalLobbyWindow::doOpenChannel(const std::string & channelType, const std
 	chatHistory.clear();
 	unreadChannels.erase(channelType + "_" + channelName);
 
-	auto history = CSH->getGlobalLobby().getChannelHistory(channelType, channelName);
+	auto history = GAME->server().getGlobalLobby().getChannelHistory(channelType, channelName);
 
 	for(const auto & entry : history)
 		onGameChatMessage(entry.displayName, entry.messageText, entry.timeFormatted, channelType, channelName);
@@ -87,14 +88,14 @@ void GlobalLobbyWindow::doSendChatMessage()
 
 	assert(TextOperations::isValidUnicodeString(messageText));
 
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 
 	widget->getMessageInput()->setText("");
 }
 
 void GlobalLobbyWindow::doCreateGameRoom()
 {
-	GH.windows().createAndPushWindow<GlobalLobbyServerSetup>();
+	ENGINE->windows().createAndPushWindow<GlobalLobbyServerSetup>();
 }
 
 void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
@@ -103,7 +104,7 @@ void GlobalLobbyWindow::doInviteAccount(const std::string & accountID)
 	toSend["type"].String() = "sendInvite";
 	toSend["accountID"].String() = accountID;
 
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 }
 
 void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
@@ -112,7 +113,7 @@ void GlobalLobbyWindow::doJoinRoom(const std::string & roomID)
 	toSend["type"].String() = "joinGameRoom";
 	toSend["gameRoomID"].String() = roomID;
 
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 }
 
 void GlobalLobbyWindow::onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName)
@@ -185,7 +186,7 @@ void GlobalLobbyWindow::onMatchesHistory(const std::vector<GlobalLobbyRoom> & hi
 
 void GlobalLobbyWindow::refreshActiveChannels()
 {
-	const auto & activeChannels = CSH->getGlobalLobby().getActiveChannels();
+	const auto & activeChannels = GAME->server().getGlobalLobby().getActiveChannels();
 
 	if (activeChannels.size()+1 == widget->getChannelList()->size())
 		widget->getChannelList()->reset();

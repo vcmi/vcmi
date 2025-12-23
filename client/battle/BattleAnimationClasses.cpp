@@ -10,24 +10,23 @@
 #include "StdInc.h"
 #include "BattleAnimationClasses.h"
 
+#include "BattleEffectsController.h"
+#include "BattleFieldController.h"
+#include "BattleHero.h"
 #include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleProjectileController.h"
 #include "BattleSiegeController.h"
-#include "BattleFieldController.h"
-#include "BattleEffectsController.h"
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
-#include "../gui/CGuiHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/CStack.h"
 
 BattleAnimation::BattleAnimation(BattleInterface & owner)
@@ -124,7 +123,7 @@ void StackActionAnimation::setSound( const AudioPath & sound )
 bool StackActionAnimation::init()
 {
 	if (!sound.empty())
-		CCS->soundh->playSound(sound);
+		ENGINE->sound().playSound(sound);
 
 	if (myAnim->framesInGroup(currGroup) > 0)
 	{
@@ -358,7 +357,7 @@ bool MovementAnimation::init()
 
 	if (moveSoundHandler == -1)
 	{
-		moveSoundHandler = CCS->soundh->playSound(stack->unitType()->sounds.move, -1);
+		moveSoundHandler = ENGINE->sound().playSoundLooped(stack->unitType()->sounds.move);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
@@ -419,7 +418,7 @@ MovementAnimation::~MovementAnimation()
 	assert(stack);
 
 	if(moveSoundHandler != -1)
-		CCS->soundh->stopSound(moveSoundHandler);
+		ENGINE->sound().stopSound(moveSoundHandler);
 }
 
 MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, const BattleHexArray & _destTiles, int _distance)
@@ -455,7 +454,7 @@ bool MovementEndAnimation::init()
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
-	CCS->soundh->playSound(stack->unitType()->sounds.endMoving);
+	ENGINE->sound().playSound(stack->unitType()->sounds.endMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
 	{
@@ -475,7 +474,7 @@ MovementEndAnimation::~MovementEndAnimation()
 	if(myAnim->getType() != ECreatureAnimType::DEAD)
 		myAnim->setType(ECreatureAnimType::HOLDING); //resetting to default
 
-	CCS->curh->show();
+	ENGINE->cursor().show();
 }
 
 MovementStartAnimation::MovementStartAnimation(BattleInterface & owner, const CStack * _stack)
@@ -496,7 +495,7 @@ bool MovementStartAnimation::init()
 	}
 
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
-	CCS->soundh->playSound(stack->unitType()->sounds.startMoving);
+	ENGINE->sound().playSound(stack->unitType()->sounds.startMoving);
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
 	{
@@ -816,7 +815,7 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	auto soundFilename  = AudioPath::builtin((catapultDamage > 0) ? "WALLHIT" : "WALLMISS");
 	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
-	CCS->soundh->playSound( soundFilename );
+	ENGINE->sound().playSound( soundFilename );
 	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
 }
 
@@ -888,7 +887,7 @@ uint32_t CastAnimation::getAttackClimaxFrame() const
 
 EffectAnimation::EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects, float transparencyFactor, bool reversed):
 	BattleAnimation(owner),
-	animation(GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
+	animation(ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE)),
 	transparencyFactor(transparencyFactor),
 	effectFlags(effects),
 	effectFinished(false),

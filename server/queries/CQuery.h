@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +34,7 @@ using QueryPtr = std::shared_ptr<CQuery>;
 // - object visit
 // - hero movement
 // Queries can cause another queries, forming a stack of queries for each player. Eg: hero movement -> object visit -> dialog.
-class CQuery
+class CQuery : boost::noncopyable
 {
 public:
 	std::vector<PlayerColor> players; //players that are affected (often "blocked") by query
@@ -80,7 +80,7 @@ std::ostream &operator<<(std::ostream &out, QueryPtr query);
 class CDialogQuery : public CQuery
 {
 public:
-	CDialogQuery(CGameHandler * owner);
+	explicit CDialogQuery(CGameHandler * owner);
 	bool endsByPlayerAnswer() const override;
 	bool blocksPack(const CPackForServer *pack) const override;
 	void setReply(std::optional<int32_t> reply) override;
@@ -91,7 +91,7 @@ protected:
 class CGenericQuery : public CQuery
 {
 public:
-	CGenericQuery(CGameHandler * gh, PlayerColor color, std::function<void(std::optional<int32_t>)> Callback);
+	CGenericQuery(CGameHandler * gh, PlayerColor color, const std::function<void(std::optional<int32_t>)> & callback);
 
 	bool blocksPack(const CPackForServer * pack) const override;
 	bool endsByPlayerAnswer() const override;

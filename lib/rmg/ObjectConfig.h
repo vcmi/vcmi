@@ -16,6 +16,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE ObjectConfig
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ObjectSelector;
+#endif
+
 public:
 
 	enum class EObjectCategory
@@ -36,7 +40,7 @@ public:
 	};
 
 	void addBannedObject(const CompoundMapObjectID & objid);
-	void addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid);
+	void addCustomObject(const ObjectInfo & object);
 	void clearBannedObjects();
 	void clearCustomObjects();
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;

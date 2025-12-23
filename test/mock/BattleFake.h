@@ -20,6 +20,7 @@
 #endif
 
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/gameState/GameStatePackVisitor.h"
 
 namespace test
 {
@@ -83,12 +84,13 @@ public:
 	template <typename T>
 	void accept(T & pack)
 	{
-		pack.applyBattle(this);
+		BattleStatePackVisitor visitor(*this);
+		pack.visit(visitor);
 	}
 
 	const IBattleInfo * getBattle() const override
 	{
-		return nullptr;
+		return this;
 	}
 
 	std::optional<PlayerColor> getPlayerID() const override

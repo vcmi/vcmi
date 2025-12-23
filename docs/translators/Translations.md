@@ -4,17 +4,23 @@
 
 This is list of all languages that are currently supported by VCMI. If your languages is missing from the list and you wish to translate VCMI - please contact our team and we'll add support for your language in next release.
 
+- Belarusian
+- Bulgarian
 - Czech
 - Chinese (Simplified)
 - English
 - Finnish
 - French
 - German
+- Greek
 - Hungarian
 - Italian
+- Japanese
 - Korean
+- Norwegian
 - Polish
 - Portuguese (Brazilian)
+- Romanian
 - Russian
 - Spanish
 - Swedish
@@ -215,3 +221,35 @@ Generally, this should be as simple as overwriting old files. Things that may be
 
 - Rebuild subproject (map editor/launcher).
 - Regenerate translations via `lupdate -no-obsolete * -ts translation/*.ts`
+
+### Translating the Installer
+
+VCMI uses an Inno Setup installer that supports multiple languages. To add a new translation to the installer, follow these steps:
+
+1. **Download the ISL file for your language:**
+   - Visit the Inno Setup repository to find the language file you need:  
+     [Inno Setup Languages](https://github.com/jrsoftware/issrc/tree/main/Files/Languages).
+
+2. **Add custom VCMI messages:**
+   - Open the downloaded ISL file and include the necessary VCMI-specific custom messages.
+   - Refer to the `English.isl` file in the repository for examples of required custom messages.
+   - Ensure that all messages, such as `WindowsVersionNotSupported` and `ConfirmUninstall`, are correctly translated and match the functionality described in the English version.
+
+3. **Modify the `ConfirmUninstall` message:**
+   - The VCMI installer uses a custom Uninstall Wizard. Ensure the `ConfirmUninstall` message is consistent with the English version and accurately reflects the intended functionality.
+
+4. **Modify the `WindowsVersionNotSupported` message:**
+   - Translate and update this message to ensure it aligns with the intended warning in the English version.
+
+5. **Add the new language to the installer script:**
+   - Edit the `[Languages]` section of the Inno Setup script.
+   - Add an entry for your language, specifying the corresponding ISL file.
+
+Example syntax for adding a language:
+
+```text
+[Languages]
+Name: "english"; MessagesFile: "{#LangPath}\English.isl"
+Name: "czech"; MessagesFile: "{#LangPath}\Czech.isl"
+Name: "<your-language>"; MessagesFile: "{#LangPath}\<your-language>.isl"
+```

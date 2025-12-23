@@ -10,13 +10,13 @@
 
 #pragma once
 
+#include "../../lib/Point.h"
+#include "../render/IScreenHandler.h"
+
 struct SDL_Texture;
 struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Surface;
-
-#include "../../lib/Point.h"
-#include "../render/IScreenHandler.h"
 
 enum class EWindowMode
 {
@@ -44,7 +44,12 @@ enum class EUpscalingFilter
 /// This class is responsible for management of game window and its main rendering surface
 class ScreenHandler final : public IScreenHandler
 {
+	SDL_Window * mainWindow = nullptr;
+	SDL_Texture * screenTexture = nullptr;
+	SDL_Surface * screen = nullptr;
+
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
+	ColorScheme colorScheme = ColorScheme::NONE;
 
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
@@ -92,12 +97,10 @@ public:
 
 	/// Creates and initializes screen, window and SDL state
 	ScreenHandler();
+	~ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onScreenResize() final;
-
-	/// De-initializes and destroys screen, window and SDL state
-	void close() final;
+	bool onScreenResize(bool keepWindowResolution) final;
 
 	/// Fills screen with black color, erasing any existing content
 	void clearScreen() final;
@@ -114,8 +117,14 @@ public:
 
 	int getInterfaceScalingPercentage() const final;
 
+	Canvas getScreenCanvas() const final;
+	void updateScreenTexture() final;
+	void presentScreenTexture() final;
+
 	std::vector<Point> getSupportedResolutions() const final;
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;
 	Rect convertLogicalPointsToWindow(const Rect & input) const final;
+
+	void setColorScheme(ColorScheme filter) final;
 };

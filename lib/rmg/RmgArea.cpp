@@ -213,6 +213,19 @@ DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap
 	return result;
 }
 
+int3 Area::getCenterOfMass() const
+{
+	auto tiles = getTilesVector();
+	int3 total(0, 0, 0);
+	for(const auto & tile : tiles)
+	{
+		total += tile;
+	}
+	int size = static_cast<int>(tiles.size());
+	assert(size);
+	return int3(total.x / size, total.y / size, total.z / size);
+}
+
 bool Area::empty() const
 {
 	return dTiles.empty();

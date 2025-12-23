@@ -12,26 +12,32 @@
 
 #include "maphandler.h"
 #include "mapview.h"
+#include "lib/modding/ModVerificationInfo.h"
+#include "../lib/callback/EditorCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-struct ModVerificationInfo;
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 class EditorObstaclePlacer;
 VCMI_LIB_NAMESPACE_END
 
 class MainWindow;
-class MapController
+class MapController : public QObject
 {
+	Q_OBJECT
+
 public:
+	explicit MapController(QObject * parent = nullptr);
 	MapController(MainWindow *);
 	MapController(const MapController &) = delete;
 	MapController(const MapController &&) = delete;
 	~MapController();
 	
+	void setCallback(std::unique_ptr<EditorCallback>);
+	EditorCallback * getCallback();
 	void setMap(std::unique_ptr<CMap>);
 	void initObstaclePainters(CMap * map);
 	
-	void repairMap(CMap * map) const;
+	static void repairMap(CMap * map);
 	void repairMap();
 	
 	const std::unique_ptr<CMap> & getMapUniquePtr() const; //to be used for map saving
@@ -42,8 +48,8 @@ public:
 	
 	void resetMapHandler();
 	
+	void initializeMap();
 	void sceneForceUpdate();
-	void sceneForceUpdate(int level);
 	
 	void commitTerrainChange(int level, const TerrainId & terrain);
 	void commitRoadOrRiverChange(int level, ui8 type, bool isRoad);
@@ -59,25 +65,47 @@ public:
 	void pasteFromClipboard(int level);
 	
 	bool discardObject(int level) const;
-	void createObject(int level, CGObjectInstance * obj) const;
-	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
+	void createObject(int level, std::shared_ptr<CGObjectInstance> obj) const;
+	bool canPlaceObject(const CGObjectInstance * obj, QString & error) const;
+	bool canPlaceGrail(const CGObjectInstance * grailObj, QString & error) const;
+	bool canPlaceHero(const CGObjectInstance * heroObj, QString & error) const;
 	
+	/// Ensures that the object's mod is listed in the map's required mods.
+	/// If the mod is missing, prompts the user to add it. Returns false if the user declines,
+	/// making the object invalid for placement.
+	bool checkRequiredMods(const CGObjectInstance * obj, QString & error) const;
+
+	/// These functions collect mod verification data for gameplay objects by scanning map objects
+	/// and their nested elements (like spells and artifacts). The gathered information
+	/// is used to assess compatibility and integrity of mods used in a given map or game state
+	static void modAssessmentObject(const CGObjectInstance * obj, ModCompatibilityInfo & result);
 	static ModCompatibilityInfo modAssessmentAll();
 	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
+
+	/// Returns formatted message string describing a missing mod requirement for the map.
+	/// Used in both warnings and confirmations related to required mod dependencies.
+	static QString modMissingMessage(const ModVerificationInfo & info);
 
 	void undo();
 	void redo();
 	
 	PlayerColor defaultPlayer;
+	QDialog * settingsDialog = nullptr;
+
+signals:
+	void requestModsUpdate(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged) const;
 	
 private:
+	std::unique_ptr<EditorCallback> _cb;
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;
 	MainWindow * main;
-	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
-	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
+	mutable std::map<int, std::unique_ptr<MapScene>> _scenes;
+	mutable std::map<int, std::unique_ptr<MinimapScene>> _miniscenes;
 	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
 	int _clipboardShiftIndex = 0;
+
+	const int MAX_LEVELS = 10; // TODO: multilevel support: remove this constant
 
 	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> _obstaclePainters;
 

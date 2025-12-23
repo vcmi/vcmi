@@ -9,9 +9,10 @@
  */
 #include "StdInc.h"
 #include "CreatureCostBox.h"
-#include "widgets/Images.h"
-#include "widgets/TextControls.h"
-#include "gui/CGuiHandler.h"
+
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
+#include "../GameEngine.h"
 
 CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 {
@@ -38,7 +39,7 @@ void CreatureCostBox::createItems(TResources res)
 	TResources::nziterator iter(res);
 	while(iter.valid())
 	{
-		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), iter->resType);
+		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), iter->resType.getNum());
 		auto text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
 
 		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));

@@ -42,7 +42,7 @@ Zone::~Zone() = default;
 
 bool Zone::isUnderground() const
 {
-	return getPos().z;
+	return getPos().z == 1; // TODO: multilevel support
 }
 
 void Zone::setOptions(const ZoneOptions& options)
@@ -169,6 +169,15 @@ TerrainId Zone::getTerrainType() const
 void Zone::setTerrainType(TerrainId terrain)
 {
 	terrainType = terrain;
+}
+
+void Zone::moveToCenterOfMass()
+{
+	auto newPos = area()->getCenterOfMass();
+	setPos(newPos);
+	setCenter(float3(float(newPos.x) / map.getMapGenOptions().getWidth(), 
+		float(newPos.y) / map.getMapGenOptions().getHeight(), 
+		newPos.z));
 }
 
 rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
@@ -347,7 +356,7 @@ void Zone::fractalize()
 			}
 			
 			possibleTiles.subtract(tilesToIgnore);
-			if(!nodeFound.valid()) //nothing else can be done (?)
+			if(!nodeFound.isValid()) //nothing else can be done (?)
 				break;
 			tilesToIgnore.clear();
 		}

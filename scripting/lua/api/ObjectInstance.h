@@ -14,8 +14,6 @@
 
 #include "../LuaWrapper.h"
 
-#include "../../../lib/mapObjects/CObjectHandler.h"
-
 namespace scripting
 {
 namespace api

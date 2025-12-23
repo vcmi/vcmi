@@ -12,19 +12,13 @@
 
 #include "CTown.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CFaction::~CFaction()
-{
-	if (town)
-	{
-		delete town;
-		town = nullptr;
-	}
-}
+CFaction::CFaction() = default;
+CFaction::~CFaction() = default;
 
 int32_t CFaction::getIndex() const
 {
@@ -69,7 +63,7 @@ void CFaction::registerIcons(const IconRegistar & cb) const
 
 std::string CFaction::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CFaction::getNameTextID() const
@@ -79,7 +73,7 @@ std::string CFaction::getNameTextID() const
 
 std::string CFaction::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CFaction::getDescriptionTextID() const

@@ -42,9 +42,11 @@ public slots:
 private slots:
 	void on_comboBoxResolution_currentTextChanged(const QString & arg1);
 	void on_comboBoxFullScreen_currentIndexChanged(int index);
-	void on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1);
-	void on_comboBoxNeutralAI_currentTextChanged(const QString & arg1);
-	void on_comboBoxEnemyAI_currentTextChanged(const QString & arg1);
+	void on_comboBoxFriendlyAI_currentIndexChanged(int index);
+	void on_comboBoxNeutralAI_currentIndexChanged(int index);
+	void on_comboBoxEnemyAI_currentIndexChanged(int index);
+	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
+	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 	void on_buttonShowIntro_toggled(bool value);
 	void on_buttonAllowPortrait_toggled(bool value);
@@ -60,10 +62,9 @@ private slots:
 	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
 	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 	void on_refreshRepositoriesButton_clicked();
+	void on_buttonConfigEditor_clicked();
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 	void on_buttonVSync_toggled(bool value);
-	void on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1);
-	void on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1);
 	void on_buttonAutoSavePrefix_toggled(bool value);
 	void on_spinBoxAutoSaveLimit_valueChanged(int arg1);
 	void on_lineEditAutoSavePrefix_textEdited(const QString &arg1);
@@ -91,18 +92,13 @@ private slots:
 	void on_buttonFontScalable_clicked(bool checked);
 	void on_buttonFontOriginal_clicked(bool checked);
 
-
 	void on_buttonValidationOff_clicked(bool checked);
-
 	void on_buttonValidationBasic_clicked(bool checked);
-
 	void on_buttonValidationFull_clicked(bool checked);
-
 	void on_sliderScalingCursor_valueChanged(int value);
-
 	void on_buttonScalingAuto_toggled(bool checked);
-
 	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
+	void on_buttonIgnoreMuteSwitch_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;
@@ -111,4 +107,9 @@ private:
 	void fillValidResolutionsForScreen(int screenIndex);
 	void fillValidScalingRange();
 	QSize getPreferredRenderingResolution();
+
+	void fillValidAILibraries();
+	void fillValidCombatAILibraries(QComboBox *, QString activeAI);
+	void fillValidAdventureAILibraries(QComboBox *, QString activeAI);
+	void fillValidAnyAILibraries(QComboBox *, QString activeAI);
 };

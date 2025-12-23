@@ -10,13 +10,13 @@
 #include "StdInc.h"
 #include "CIntObject.h"
 
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "WindowHandler.h"
 #include "EventDispatcher.h"
 #include "Shortcut.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../windows/CMessage.h"
-#include "../CMT.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
@@ -27,8 +27,8 @@ CIntObject::CIntObject(int used_, Point pos_):
 	recActions(ALL_ACTIONS),
 	pos(pos_, Point())
 {
-	if(GH.captureChildren)
-		GH.createdObj.front()->addChild(this, true);
+	if(ENGINE->captureChildren)
+		ENGINE->createdObj.front()->addChild(this, true);
 }
 
 CIntObject::~CIntObject()
@@ -121,6 +121,11 @@ void CIntObject::enable()
 	recActions = ALL_ACTIONS;
 }
 
+bool CIntObject::isDisabled() const
+{
+	return recActions == NO_ACTIONS;
+}
+
 void CIntObject::setEnabled(bool on)
 {
 	if (on)
@@ -157,7 +162,7 @@ void CIntObject::setRedrawParent(bool on)
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
 {
-	fitToRect(Rect(Point(0, 0), GH.screenDimensions()), borderWidth, propagate);
+	fitToRect(Rect(Point(0, 0), ENGINE->screenDimensions()), borderWidth, propagate);
 }
 
 void CIntObject::fitToRect(Rect rect, int borderWidth, bool propagate)
@@ -238,15 +243,8 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			Canvas buffer = Canvas::createFromSurface(screenBuf, CanvasScalingPolicy::AUTO);
-
+			Canvas buffer = ENGINE->screenHandler().getScreenCanvas();
 			showAll(buffer);
-			if(screenBuf != screen)
-			{
-				Canvas screenBuffer = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
-
-				showAll(screenBuffer);
-			}
 		}
 	}
 }
@@ -284,7 +282,7 @@ const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	return center(Point(GH.screenDimensions().x/2, GH.screenDimensions().y/2), propagate);
+	return center(Point(ENGINE->screenDimensions().x/2, ENGINE->screenDimensions().y/2), propagate);
 }
 
 const Rect & CIntObject::center( bool propagate )
@@ -305,6 +303,15 @@ bool CIntObject::captureThisKey(EShortcut key)
 	return false;
 }
 
+Point CIntObject::adjustNegativeCoordinate(int posx, int posy)
+{
+	if(posx < 0)
+		posx = pos.w + posx;
+	if(posy < 0)
+		posy = pos.h + posy;
+	return Point(posx, posy);
+}
+
 CKeyShortcut::CKeyShortcut()
 	: assignedKey(EShortcut::NONE)
 	, shortcutPressed(false)
@@ -321,7 +328,7 @@ void CKeyShortcut::keyPressed(EShortcut key)
 	if( assignedKey == key && assignedKey != EShortcut::NONE && !shortcutPressed)
 	{
 		shortcutPressed = true;
-		clickPressed(GH.getCursorPosition());
+		clickPressed(ENGINE->getCursorPosition());
 	}
 }
 
@@ -330,7 +337,7 @@ void CKeyShortcut::keyReleased(EShortcut key)
 	if( assignedKey == key && assignedKey != EShortcut::NONE && shortcutPressed)
 	{
 		shortcutPressed = false;
-		clickReleased(GH.getCursorPosition());
+		clickReleased(ENGINE->getCursorPosition());
 	}
 }
 
@@ -342,10 +349,10 @@ WindowBase::WindowBase(int used_, Point pos_)
 
 void WindowBase::close()
 {
-	if(!GH.windows().isTopWindow(this))
+	if(!ENGINE->windows().isTopWindow(this))
 	{
-		auto topWindow = GH.windows().topWindow<IShowActivatable>().get();
+		auto topWindow = ENGINE->windows().topWindow<IShowActivatable>().get();
 		throw std::runtime_error(std::string("Only top interface can be closed! Top window is ") + typeid(*topWindow).name() + " but attempted to close " + typeid(*this).name());
 	}
-	GH.windows().popWindows(1);
+	ENGINE->windows().popWindows(1);
 }

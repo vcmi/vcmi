@@ -11,8 +11,12 @@
 #include "artifactwidget.h"
 #include "ui_artifactwidget.h"
 #include "inspector.h"
-#include "../../lib/ArtifactUtils.h"
+
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 
 ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * parent) :
 	QDialog(parent),
@@ -39,19 +43,18 @@ ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * paren
 	}
 	ui->possiblePositions->addItem(QString::fromStdString(NArtifactPosition::backpack), ArtifactPosition::BACKPACK_START);
 	fillArtifacts();
-
-
 }
 
 void ArtifactWidget::fillArtifacts()
 {
 	ui->artifact->clear();
 	auto currentSlot = ui->possiblePositions->currentData().toInt();
-	for (const auto& art : VLC->arth->getDefaultAllowed())
+	for (const auto & art : LIBRARY->arth->getDefaultAllowed())
 	{
 		auto artifact = art.toArtifact();
 		// forbid spell scroll for now as require special handling
-		if (artifact->canBePutAt(&fittingSet, currentSlot, true) && artifact->getId() != ArtifactID::SPELL_SCROLL) {
+		if (artifact->canBePutAt(&fittingSet, currentSlot, true) && artifact->getId() != ArtifactID::SPELL_SCROLL)
+		{
 			ui->artifact->addItem(QString::fromStdString(artifact->getNameTranslated()), QVariant::fromValue(artifact->getIndex()));
 		}
 	}

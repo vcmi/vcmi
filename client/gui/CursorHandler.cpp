@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CursorHandler.h"
 
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "FramerateManager.h"
 #include "../renderSDL/CursorSoftware.h"
 #include "../renderSDL/CursorHardware.h"
@@ -21,6 +21,7 @@
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/json/JsonUtils.h"
 
 std::unique_ptr<ICursor> CursorHandler::createCursor()
 {
@@ -41,57 +42,161 @@ CursorHandler::CursorHandler()
 	, frameTime(0.f)
 	, showing(false)
 	, pos(0,0)
+	, dndObject(nullptr)
 {
-
-	type = Cursor::Type::DEFAULT;
-	dndObject = nullptr;
-
-	cursors =
-	{
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRADVNTR"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRDEFLT"), EImageBlitMode::COLORKEY),
-		GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY)
-	};
-
-	set(Cursor::Map::POINTER);
 	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
 }
 
 CursorHandler::~CursorHandler() = default;
 
-void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
+void CursorHandler::init()
+{
+	JsonNode cursorConfig = JsonUtils::assembleFromFiles("config/cursors.json");
+	std::vector<AnimationPath> animations;
+
+	for (const auto & cursorEntry : cursorConfig.Struct())
+	{
+		CursorParameters parameters;
+		parameters.cursorID = cursorEntry.first;
+		parameters.image = ImagePath::fromJson(cursorEntry.second["image"]);
+		parameters.animation = AnimationPath::fromJson(cursorEntry.second["animation"]);
+		parameters.animationFrameIndex = cursorEntry.second["frame"].Integer();
+		parameters.isAnimated = cursorEntry.second["animated"].Bool();
+		parameters.pivot.x = cursorEntry.second["pivotX"].Integer();
+		parameters.pivot.y = cursorEntry.second["pivotY"].Integer();
+
+		cursors.push_back(parameters);
+	}
+
+	set(Cursor::Map::POINTER);
+}
+
+void CursorHandler::set(const std::string & index)
 {
 	assert(dndObject == nullptr);
 
-	if (type == this->type && index == this->frame)
+	if (index == currentCursorID)
 		return;
 
-	this->type = type;
-	this->frame = index;
+	currentCursorID = index;
+	currentCursorIndex = 0;
+	frameTime = 0;
+	for (size_t i = 0; i < cursors.size(); ++i)
+	{
+		if (cursors[i].cursorID == index)
+		{
+			currentCursorIndex = i;
+			break;
+		}
+	}
+
+	const auto & currentCursor = cursors.at(currentCursorIndex);
+
+	if (currentCursor.image.empty())
+	{
+		if (!loadedAnimations.count(currentCursor.animation))
+			loadedAnimations[currentCursor.animation] = ENGINE->renderHandler().loadAnimation(currentCursor.animation, EImageBlitMode::COLORKEY);
+
+		if (currentCursor.isAnimated)
+			cursorImage = loadedAnimations[currentCursor.animation]->getImage(0);
+		else
+			cursorImage = loadedAnimations[currentCursor.animation]->getImage(currentCursor.animationFrameIndex);
+	}
+	else
+	{
+		if (!loadedImages.count(currentCursor.image))
+			loadedImages[currentCursor.image] = ENGINE->renderHandler().loadImage(currentCursor.image, EImageBlitMode::COLORKEY);
+		cursorImage = loadedImages[currentCursor.image];
+	}
 
 	cursor->setImage(getCurrentImage(), getPivotOffset());
 }
 
-void CursorHandler::set(Cursor::Default index)
-{
-	changeGraphic(Cursor::Type::DEFAULT, static_cast<size_t>(index));
-}
-
 void CursorHandler::set(Cursor::Map index)
 {
-	changeGraphic(Cursor::Type::ADVENTURE, static_cast<size_t>(index));
+	constexpr std::array mapCursorNames =
+	{
+		"mapPointer",
+		"mapHourglass",
+		"mapHero",
+		"mapTown",
+		"mapTurn1Move",
+		"mapTurn1Attack",
+		"mapTurn1Sail",
+		"mapTurn1Disembark",
+		"mapTurn1Exchange",
+		"mapTurn1Visit",
+		"mapTurn2Move",
+		"mapTurn2Attack",
+		"mapTurn2Sail",
+		"mapTurn2Disembark",
+		"mapTurn2Exchange",
+		"mapTurn2Visit",
+		"mapTurn3Move",
+		"mapTurn3Attack",
+		"mapTurn3Sail",
+		"mapTurn3Disembark",
+		"mapTurn3Exchange",
+		"mapTurn3Visit",
+		"mapTurn4Move",
+		"mapTurn4Attack",
+		"mapTurn4Sail",
+		"mapTurn4Disembark",
+		"mapTurn4Exchange",
+		"mapTurn4Visit",
+		"mapTurn1SailVisit",
+		"mapTurn2SailVisit",
+		"mapTurn3SailVisit",
+		"mapTurn4SailVisit",
+		"mapScrollNorth",
+		"mapScrollNorthEast",
+		"mapScrollEast",
+		"mapScrollSouthEast",
+		"mapScrollSouth",
+		"mapScrollSouthWest",
+		"mapScrollWest",
+		"mapScrollNorthWest",
+		"UNUSED",
+		"mapDimensionDoor",
+		"mapScuttleBoat"
+	};
+
+	set(mapCursorNames.at(static_cast<int>(index)));
 }
 
 void CursorHandler::set(Cursor::Combat index)
 {
-	changeGraphic(Cursor::Type::COMBAT, static_cast<size_t>(index));
+	constexpr std::array combatCursorNames =
+	{
+		"combatBlocked",
+		"combatMove",
+		"combatFly",
+		"combatShoot",
+		"combatHero",
+		"combatQuery",
+		"combatPointer",
+		"combatHitNorthEast",
+		"combatHitEast",
+		"combatHitSouthEast",
+		"combatHitSouthWest",
+		"combatHitWest",
+		"combatHitNorthWest",
+		"combatHitNorth",
+		"combatHitSouth",
+		"combatShootPenalty",
+		"combatShootCatapult",
+		"combatHeal",
+		"combatSacrifice",
+		"combatTeleport"
+	};
+
+	set(combatCursorNames.at(static_cast<int>(index)));
 }
 
 void CursorHandler::set(Cursor::Spellcast index)
 {
-	//Note: this is animated cursor, ignore specified frame and only change type
-	changeGraphic(Cursor::Type::SPELLBOOK, frame);
+	//Note: this is animated cursor, ignore requested frame and only change type
+	set("castSpell");
 }
 
 void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
@@ -102,7 +207,7 @@ void CursorHandler::dragAndDropCursor(std::shared_ptr<IImage> image)
 
 void CursorHandler::dragAndDropCursor (const AnimationPath & path, size_t index)
 {
-	auto anim = GH.renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
+	auto anim = ENGINE->renderHandler().loadAnimation(path, EImageBlitMode::COLORKEY);
 	dragAndDropCursor(anim->getImage(index));
 }
 
@@ -114,120 +219,12 @@ void CursorHandler::cursorMove(const int & x, const int & y)
 	cursor->setCursorPosition(pos);
 }
 
-Point CursorHandler::getPivotOffsetDefault(size_t index)
-{
-	return {0, 0};
-}
-
-Point CursorHandler::getPivotOffsetMap(size_t index)
-{
-	static const std::array<Point, 43> offsets = {{
-		{  0,  0}, // POINTER          =  0,
-		{  0,  0}, // HOURGLASS        =  1,
-		{ 12, 10}, // HERO             =  2,
-		{ 12, 12}, // TOWN             =  3,
-
-		{ 15, 13}, // T1_MOVE          =  4,
-		{ 13, 13}, // T1_ATTACK        =  5,
-		{ 16, 32}, // T1_SAIL          =  6,
-		{ 13, 20}, // T1_DISEMBARK     =  7,
-		{  8,  9}, // T1_EXCHANGE      =  8,
-		{ 14, 16}, // T1_VISIT         =  9,
-
-		{ 15, 13}, // T2_MOVE          = 10,
-		{ 13, 13}, // T2_ATTACK        = 11,
-		{ 16, 32}, // T2_SAIL          = 12,
-		{ 13, 20}, // T2_DISEMBARK     = 13,
-		{  8,  9}, // T2_EXCHANGE      = 14,
-		{ 14, 16}, // T2_VISIT         = 15,
-
-		{ 15, 13}, // T3_MOVE          = 16,
-		{ 13, 13}, // T3_ATTACK        = 17,
-		{ 16, 32}, // T3_SAIL          = 18,
-		{ 13, 20}, // T3_DISEMBARK     = 19,
-		{  8,  9}, // T3_EXCHANGE      = 20,
-		{ 14, 16}, // T3_VISIT         = 21,
-
-		{ 15, 13}, // T4_MOVE          = 22,
-		{ 13, 13}, // T4_ATTACK        = 23,
-		{ 16, 32}, // T4_SAIL          = 24,
-		{ 13, 20}, // T4_DISEMBARK     = 25,
-		{  8,  9}, // T4_EXCHANGE      = 26,
-		{ 14, 16}, // T4_VISIT         = 27,
-
-		{ 16, 32}, // T1_SAIL_VISIT    = 28,
-		{ 16, 32}, // T2_SAIL_VISIT    = 29,
-		{ 16, 32}, // T3_SAIL_VISIT    = 30,
-		{ 16, 32}, // T4_SAIL_VISIT    = 31,
-
-		{  6,  1}, // SCROLL_NORTH     = 32,
-		{ 16,  2}, // SCROLL_NORTHEAST = 33,
-		{ 21,  6}, // SCROLL_EAST      = 34,
-		{ 16, 16}, // SCROLL_SOUTHEAST = 35,
-		{  6, 21}, // SCROLL_SOUTH     = 36,
-		{  1, 16}, // SCROLL_SOUTHWEST = 37,
-		{  1,  5}, // SCROLL_WEST      = 38,
-		{  2,  1}, // SCROLL_NORTHWEST = 39,
-
-		{  0,  0}, // POINTER_COPY     = 40,
-		{ 14, 16}, // TELEPORT         = 41,
-		{ 20, 20}, // SCUTTLE_BOAT     = 42
-	}};
-
-	assert(offsets.size() == size_t(Cursor::Map::COUNT)); //Invalid number of pivot offsets for cursor
-	assert(index < offsets.size());
-	return offsets[index] * GH.screenHandler().getScalingFactor();
-}
-
-Point CursorHandler::getPivotOffsetCombat(size_t index)
-{
-	static const std::array<Point, 20> offsets = {{
-		{ 12, 12 }, // BLOCKED        = 0,
-		{ 10, 14 }, // MOVE           = 1,
-		{ 14, 14 }, // FLY            = 2,
-		{ 12, 12 }, // SHOOT          = 3,
-		{ 12, 12 }, // HERO           = 4,
-		{  8, 12 }, // QUERY          = 5,
-		{  0,  0 }, // POINTER        = 6,
-		{ 21,  0 }, // HIT_NORTHEAST  = 7,
-		{ 31,  5 }, // HIT_EAST       = 8,
-		{ 21, 21 }, // HIT_SOUTHEAST  = 9,
-		{  0, 21 }, // HIT_SOUTHWEST  = 10,
-		{  0,  5 }, // HIT_WEST       = 11,
-		{  0,  0 }, // HIT_NORTHWEST  = 12,
-		{  6,  0 }, // HIT_NORTH      = 13,
-		{  6, 31 }, // HIT_SOUTH      = 14,
-		{ 14,  0 }, // SHOOT_PENALTY  = 15,
-		{ 12, 12 }, // SHOOT_CATAPULT = 16,
-		{ 12, 12 }, // HEAL           = 17,
-		{ 12, 12 }, // SACRIFICE      = 18,
-		{ 14, 20 }, // TELEPORT       = 19
-	}};
-
-	assert(offsets.size() == size_t(Cursor::Combat::COUNT)); //Invalid number of pivot offsets for cursor
-	assert(index < offsets.size());
-	return offsets[index] * GH.screenHandler().getScalingFactor();
-}
-
-Point CursorHandler::getPivotOffsetSpellcast()
-{
-	return Point(18, 28) * GH.screenHandler().getScalingFactor();
-}
-
 Point CursorHandler::getPivotOffset()
 {
 	if (dndObject)
 		return dndObject->dimensions() / 2;
 
-	switch (type) {
-	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
-	case Cursor::Type::COMBAT:    return getPivotOffsetCombat(frame);
-	case Cursor::Type::DEFAULT:   return getPivotOffsetDefault(frame);
-	case Cursor::Type::SPELLBOOK: return getPivotOffsetSpellcast();
-	};
-
-	assert(0);
-	return {0, 0};
+	return cursors.at(currentCursorIndex).pivot;
 }
 
 std::shared_ptr<IImage> CursorHandler::getCurrentImage()
@@ -235,15 +232,17 @@ std::shared_ptr<IImage> CursorHandler::getCurrentImage()
 	if (dndObject)
 		return dndObject;
 
-	return cursors[static_cast<size_t>(type)]->getImage(frame);
+	return cursorImage;
 }
 
-void CursorHandler::updateSpellcastCursor()
+void CursorHandler::updateAnimatedCursor()
 {
 	static const float frameDisplayDuration = 0.1f; // H3 uses 100 ms per frame
 
-	frameTime += GH.framerate().getElapsedMilliseconds() / 1000.f;
-	size_t newFrame = frame;
+	frameTime += ENGINE->framerate().getElapsedMilliseconds() / 1000.f;
+	int32_t newFrame = currentFrame;
+	const auto & animationName = cursors.at(currentCursorIndex).animation;
+	const auto & animation = loadedAnimations.at(animationName);
 
 	while (frameTime >= frameDisplayDuration)
 	{
@@ -251,12 +250,12 @@ void CursorHandler::updateSpellcastCursor()
 		newFrame++;
 	}
 
-	auto & animation = cursors.at(static_cast<size_t>(type));
-
 	while (newFrame >= animation->size())
 		newFrame -= animation->size();
 
-	changeGraphic(Cursor::Type::SPELLBOOK, newFrame);
+	currentFrame = newFrame;
+	cursorImage = animation->getImage(currentFrame);
+	cursor->setImage(getCurrentImage(), getPivotOffset());
 }
 
 void CursorHandler::render()
@@ -264,10 +263,18 @@ void CursorHandler::render()
 	if(!showing)
 		return;
 
-	if (type == Cursor::Type::SPELLBOOK)
-		updateSpellcastCursor();
-
 	cursor->render();
+}
+
+void CursorHandler::update()
+{
+	if(!showing)
+		return;
+
+	if (cursors.at(currentCursorIndex).isAnimated)
+		updateAnimatedCursor();
+
+	cursor->update();
 }
 
 void CursorHandler::hide()

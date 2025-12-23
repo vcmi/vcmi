@@ -24,7 +24,8 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"jabarkas":
@@ -93,16 +94,7 @@
 			{ "skill" : "offence", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"offence" : {
-					"subtype" : "damageTypeMelee",
-					"type" : "PERCENTAGE_DAMAGE_BOOST",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "offence"
 		}
 	},
 	"tyraxor":
@@ -131,16 +123,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"sorcery" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "sorcery"
 		}
 	},
 	"vey":
@@ -170,16 +153,7 @@
 			{ "skill" : "logistics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"logistics" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : "heroMovementLand",
-					"type" : "MOVEMENT",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "logistics"
 		}
 	},
 	"terek":
@@ -236,16 +210,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"offence" : {
-					"subtype" : "damageTypeMelee",
-					"type" : "PERCENTAGE_DAMAGE_BOOST",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "offence"
 		}
 	},
 	"oris":
@@ -260,15 +225,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"saurug":

@@ -11,7 +11,7 @@
 #pragma once
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "threadpool/MapProxy.h"
+#include "MapProxy.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -38,7 +38,7 @@ public:
 	std::shared_ptr<MapProxy> getMapProxy() const;
 	CMap & getMap(const CMapGenerator *) const; //limited access
 	
-	RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb);
+	RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb);
 	~RmgMap() = default;
 
 	CMapEditManager* getEditManager() const;

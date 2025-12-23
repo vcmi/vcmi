@@ -17,16 +17,18 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/SThievesGuildInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CCastleEvent.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
@@ -41,12 +43,12 @@ NewTurnProcessor::NewTurnProcessor(CGameHandler * gameHandler)
 
 void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 {
-	for (auto const & event : gameHandler->gameState()->map->events)
+	for (auto const & event : gameHandler->gameState().getMap().events)
 	{
-		if (!event.occursToday(gameHandler->gameState()->day))
+		if (!event.occursToday(gameHandler->gameState().day))
 			continue;
 
-		if (!event.affectsPlayer(color, gameHandler->getPlayerState(color)->isHuman()))
+		if (!event.affectsPlayer(color, gameHandler->gameInfo().getPlayerState(color)->isHuman()))
 			continue;
 
 		InfoWindow iw;
@@ -57,7 +59,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.resources.empty())
 		{
 			gameHandler->giveResources(color, event.resources);
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -65,7 +67,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		//remove objects specified by event
 		for(const ObjectInstanceID objectIdToRemove : event.deletedObjectsInstances)
 		{
-			auto objectInstance = gameHandler->getObj(objectIdToRemove, false);
+			const auto * objectInstance = gameHandler->gameInfo().getObj(objectIdToRemove, false);
 			if(objectInstance != nullptr)
 				gameHandler->removeObject(objectInstance, PlayerColor::NEUTRAL);
 		}
@@ -77,11 +79,11 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 {
 	for (auto const & event : town->events)
 	{
-		if (!event.occursToday(gameHandler->gameState()->day))
+		if (!event.occursToday(gameHandler->gameState().day))
 			continue;
 
 		PlayerColor player = town->getOwner();
-		if (!event.affectsPlayer(player, gameHandler->getPlayerState(player)->isHuman()))
+		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
 
 		// dialog
@@ -93,7 +95,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		{
 			gameHandler->giveResources(player, event.resources);
 
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -134,7 +136,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 
 void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 {
-	const auto * playerState = gameHandler->gameState()->getPlayerState(which);
+	const auto * playerState = gameHandler->gameState().getPlayerState(which);
 
 	handleTimeEvents(which);
 	for (const auto * t : playerState->getTowns())
@@ -143,17 +145,17 @@ void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 	for (const auto * t : playerState->getTowns())
 	{
 		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
-		if (t->garrisonHero != nullptr)
-			gameHandler->objectVisited(t, t->garrisonHero);
+		if (t->getGarrisonHero() != nullptr)
+			gameHandler->objectVisited(t, t->getGarrisonHero());
 
-		if (t->visitingHero != nullptr)
-			gameHandler->objectVisited(t, t->visitingHero);
+		if (t->getVisitingHero() != nullptr)
+			gameHandler->objectVisited(t, t->getVisitingHero());
 	}
 }
 
 void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 {
-	const auto * playerState = gameHandler->gameState()->getPlayerState(which);
+	const auto * playerState = gameHandler->gameState().getPlayerState(which);
 	assert(playerState->status == EPlayerStatus::INGAME);
 
 	if (playerState->getTowns().empty())
@@ -177,7 +179,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 	// check for 7 days without castle
 	gameHandler->checkVictoryLossConditionsForPlayer(which);
 
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
 
 	if (newWeek) //new heroes in tavern
 		gameHandler->heroPool->onNewWeek(which);
@@ -185,8 +187,8 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 
 ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool newWeek)
 {
-	const auto & playerSettings = gameHandler->getPlayerSettings(playerID);
-	const PlayerState & state = gameHandler->gameState()->players.at(playerID);
+	const auto & playerSettings = gameHandler->gameInfo().getPlayerSettings(playerID);
+	const PlayerState & state = gameHandler->gameState().players.at(playerID);
 	ResourceSet income;
 
 	for (const auto & town : state.getTowns())
@@ -217,7 +219,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		}
 	}
 
-	for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
+	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		income += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
 		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
@@ -227,12 +229,12 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	{
 		bool hasCrystalGenCreature = false;
 		for (const auto & hero : state.getHeroes())
-			for(auto stack : hero->stacks)
+			for(const auto & stack : hero->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
 
 		for(const auto & town : state.getTowns())
-			for(auto stack : town->stacks)
+			for(const auto & stack : town->stacks)
 				if(stack.second->hasBonusOfType(BonusType::SPECIAL_CRYSTAL_GENERATION))
 					hasCrystalGenCreature = true;
 
@@ -243,23 +245,23 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 	TResources incomeHandicapped = income;
 	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);
 
-	for (auto obj :	state.getOwnedObjects())
+	for (const auto * obj :	state.getOwnedObjects())
 		incomeHandicapped += obj->asOwnable()->dailyIncome();
 
 	if (!state.isHuman())
 	{
 		// Initialize bonuses for different resources
-		int difficultyIndex = gameHandler->gameState()->getStartInfo()->difficulty;
+		int difficultyIndex = gameHandler->gameState().getStartInfo()->difficulty;
 		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyIndex];
-		const JsonNode & weeklyBonusesConfig = gameHandler->gameState()->getSettings().getValue(EGameSettings::RESOURCES_WEEKLY_BONUSES_AI);
+		const JsonNode & weeklyBonusesConfig = gameHandler->gameState().getSettings().getValue(EGameSettings::RESOURCES_WEEKLY_BONUSES_AI);
 		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
 
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
-		for (GameResID i : GameResID::ALL_RESOURCES())
+		for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			const std::string & name = GameConstants::RESOURCE_NAMES[i];
+			const std::string & name = i.toResource()->getJsonKey();
 			int64_t weeklyBonus = difficultyConfig[name].Integer();
-			int64_t dayOfWeek = gameHandler->gameState()->getDate(Date::DAY_OF_WEEK);
+			int64_t dayOfWeek = gameHandler->gameState().getDate(Date::DAY_OF_WEEK);
 			int64_t dailyIncome = incomeHandicapped[i];
 			int64_t amountTillToday = dailyIncome * weeklyBonus * (dayOfWeek-1) / 7 / 100;
 			int64_t amountAfterToday = dailyIncome * weeklyBonus * dayOfWeek / 7 / 100;
@@ -385,8 +387,8 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		if (creature->getLevel() != tierToGrow)
 			continue;
 
-		StackLocation stackLocation(t, slot.first);
-		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
+		StackLocation stackLocation(t->id, slot.first);
+		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), ChangeValueMode::RELATIVE);
 		takeFromAvailable(creature->getGrowth());
 
 		if (upgradeUnit && !creature->upgrades.empty())
@@ -407,10 +409,10 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		{
 			CreatureID baseCreature	= tierVector.at(0);
 
-			if (baseCreature.toEntity(VLC)->getLevel() != tierToGrow)
+			if (baseCreature.toEntity(LIBRARY)->getLevel() != tierToGrow)
 				continue;
 
-			StackLocation stackLocation(t, freeSlotID);
+			StackLocation stackLocation(t->id, freeSlotID);
 
 			if (upgradeUnit && !baseCreature.toCreature()->upgrades.empty())
 			{
@@ -436,7 +438,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(gameHandler->gameState()->map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+	if(gameHandler->gameState().getMap().grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
 		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
 
 	int rumorId = -1;
@@ -451,11 +453,11 @@ RumorState NewTurnProcessor::pickNewRumor()
 			case RumorState::TYPE_SPECIAL:
 			{
 				SThievesGuildInfo tgi;
-				gameHandler->gameState()->obtainPlayersStats(tgi, 20);
+				gameHandler->gameState().obtainPlayersStats(tgi, 20);
 				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 				if(rumorId == RumorState::RUMOR_GRAIL)
 				{
-					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->getTerrainID().getNum();
+					rumorExtra = gameHandler->gameState().getTile(gameHandler->gameState().getMap().grailPos)->getTerrainID().getNum();
 					break;
 				}
 
@@ -484,9 +486,9 @@ RumorState NewTurnProcessor::pickNewRumor()
 			}
 			case RumorState::TYPE_MAP:
 				// Makes sure that map rumors only used if there enough rumors too choose from
-				if(!gameHandler->gameState()->map->rumors.empty() && (gameHandler->gameState()->map->rumors.size() > 1 || !gameHandler->gameState()->currentRumor.last.count(RumorState::TYPE_MAP)))
+				if(!gameHandler->gameState().getMap().rumors.empty() && (gameHandler->gameState().getMap().rumors.size() > 1 || !gameHandler->gameState().currentRumor.last.count(RumorState::TYPE_MAP)))
 				{
-					rumorId = rand.nextInt(gameHandler->gameState()->map->rumors.size() - 1);
+					rumorId = rand.nextInt(gameHandler->gameState().getMap().rumors.size() - 1);
 					break;
 				}
 				else
@@ -494,8 +496,8 @@ RumorState NewTurnProcessor::pickNewRumor()
 				[[fallthrough]];
 
 			case RumorState::TYPE_RAND:
-				auto vector = VLC->generaltexth->findStringsWithPrefix("core.randtvrn");
-				rumorId = rand.nextInt((int)vector.size() - 1);
+				auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randtvrn");
+				rumorId = rand.nextInt(static_cast<int>(vector.size()) - 1);
 
 				break;
 		}
@@ -507,13 +509,14 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 {
-	for (const CGTownInstance *t : gameHandler->gameState()->map->towns)
+	for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
 	{
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
+		const auto * t = gameHandler->gameState().getTown(townID);
+		if (t->hasBuilt(BuildingSubID::DEITY_OF_FIRE))
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
 
-	if(!gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
+	if(!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		return { EWeekType::NORMAL, CreatureID::NONE};
 
 	int monthType = gameHandler->getRandomGenerator().nextInt(99);
@@ -521,14 +524,14 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 	{
 		if (monthType < 40) //double growth
 		{
-			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
+			if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
-				CreatureID creatureID = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
-			else if (VLC->creh->doubledCreatures.size())
+			else if (!LIBRARY->creh->doubledCreatures.empty())
 			{
-				CreatureID creatureID = *RandomGeneratorUtil::nextItem(VLC->creh->doubledCreatures, gameHandler->getRandomGenerator());
+				CreatureID creatureID = *RandomGeneratorUtil::nextItem(LIBRARY->creh->doubledCreatures, gameHandler->getRandomGenerator());
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
 			else
@@ -550,9 +553,8 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
 			{
-				newMonster.second = VLC->creh->pickRandomMonster(gameHandler->getRandomGenerator());
-			} while (VLC->creh->objects[newMonster.second] &&
-					(*VLC->townh)[VLC->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
+				newMonster.second = gameHandler->randomizer->rollCreature();
+			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
 		}
@@ -564,14 +566,14 @@ std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
 {
 	std::vector<SetMana> result;
 
-	for (auto & elem : gameHandler->gameState()->players)
+	for (const auto & elem : gameHandler->gameState().players)
 	{
-		for (CGHeroInstance *h : elem.second.getHeroes())
+		for (const CGHeroInstance *h : elem.second.getHeroes())
 		{
 			int32_t newMana = h->getManaNewTurn();
 
 			if (newMana != h->mana)
-				result.emplace_back(h->id, newMana, true);
+				result.emplace_back(h->id, newMana, ChangeValueMode::ABSOLUTE);
 		}
 	}
 	return result;
@@ -581,16 +583,16 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 {
 	std::vector<SetMovePoints> result;
 
-	for (auto & elem : gameHandler->gameState()->players)
+	for (const auto & elem : gameHandler->gameState().players)
 	{
-		for (CGHeroInstance *h : elem.second.getHeroes())
+		for (const CGHeroInstance *h : elem.second.getHeroes())
 		{
 			auto ti = h->getTurnInfo(1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).isLand(), ti.get());
+			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
-				result.emplace_back(h->id, newMovementPoints, true);
+				result.emplace_back(h->id, newMovementPoints);
 		}
 	}
 	return result;
@@ -625,12 +627,12 @@ InfoWindow NewTurnProcessor::createInfoWindow(EWeekType weekType, CreatureID cre
 		default:
 			if (newMonth)
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, (130));
+				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 130);
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(32, 41));
 			}
 			else
 			{
-				iw.text.appendLocalString(EMetaText::ARRAY_TXT, (133));
+				iw.text.appendLocalString(EMetaText::ARRAY_TXT, 133);
 				iw.text.replaceLocalString(EMetaText::ARRAY_TXT, gameHandler->getRandomGenerator().nextInt(43, 57));
 			}
 	}
@@ -642,15 +644,15 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 	NewTurn n;
 	n.specialWeek = EWeekType::FIRST_WEEK;
 	n.creatureid = CreatureID::NONE;
-	n.day = gameHandler->gameState()->day + 1;
+	n.day = gameHandler->gameState().day + 1;
 
-	bool firstTurn = !gameHandler->getDate(Date::DAY);
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
-	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+	bool firstTurn = !gameHandler->gameInfo().getDate(Date::DAY);
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->gameInfo().getDate(Date::DAY_OF_MONTH) == 28;
 
 	if (!firstTurn)
 	{
-		for (const auto & player : gameHandler->gameState()->players)
+		for (const auto & player : gameHandler->gameState().players)
 			n.playerIncome[player.first] = generatePlayerIncome(player.first, newWeek);
 	}
 
@@ -666,15 +668,14 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 
 	if (newWeek)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+		{
+			const auto * t = gameHandler->gameState().getTown(townID);
 			n.availableCreatures.push_back(generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
-	}
+		}
 
-	if (newWeek)
 		n.newRumor = pickNewRumor();
 
-	if (newWeek)
-	{
 		//new week info popup
 		if (n.specialWeek != EWeekType::FIRST_WEEK)
 			n.newWeekNotification = createInfoWindow(n.specialWeek, n.creatureid, newMonth);
@@ -687,25 +688,29 @@ void NewTurnProcessor::onNewTurn()
 {
 	NewTurn n = generateNewTurnPack();
 
-	bool firstTurn = !gameHandler->getDate(Date::DAY);
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
-	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+	bool firstTurn = !gameHandler->gameInfo().getDate(Date::DAY);
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->gameInfo().getDate(Date::DAY_OF_MONTH) == 28;
 
 	gameHandler->sendAndApply(n);
 
 	if (newWeek)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+		{
+			const auto * t = gameHandler->gameState().getTown(townID);
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
-				gameHandler->setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
+				gameHandler->setPortalDwelling(t, true, n.specialWeek == EWeekType::PLAGUE); //set creatures for Portal of Summoning
+		}
 	}
 
 	if (newWeek && !firstTurn)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
 		{
+			const auto * t = gameHandler->gameState().getTown(townID);
 			if (!t->getOwner().isValidPlayer())
-				updateNeutralTownGarrison(t, 1 + gameHandler->getDate(Date::DAY) / 7);
+				updateNeutralTownGarrison(t, 1 + gameHandler->gameInfo().getDate(Date::DAY) / 7);
 		}
 	}
 

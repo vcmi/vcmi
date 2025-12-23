@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CanvasImage.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../renderSDL/SDLImageScaler.h"
@@ -20,7 +20,7 @@
 #include <SDL_surface.h>
 
 CanvasImage::CanvasImage(const Point & size, CanvasScalingPolicy scalingPolicy)
-	: surface(CSDL_Ext::newSurface(scalingPolicy == CanvasScalingPolicy::IGNORE ? size : (size * GH.screenHandler().getScalingFactor())))
+	: surface(CSDL_Ext::newSurface(scalingPolicy == CanvasScalingPolicy::IGNORE ? size : (size * ENGINE->screenHandler().getScalingFactor())))
 	, scalingPolicy(scalingPolicy)
 {
 }
@@ -40,7 +40,7 @@ void CanvasImage::draw(SDL_Surface * where, const Point & pos, const Rect * src,
 
 void CanvasImage::scaleTo(const Point & size, EScalingAlgorithm algorithm)
 {
-	Point scaledSize = size * GH.screenHandler().getScalingFactor();
+	Point scaledSize = size * ENGINE->screenHandler().getScalingFactor();
 
 	SDLImageScaler scaler(surface);
 	scaler.scaleSurface(scaledSize, algorithm);
@@ -65,6 +65,8 @@ Rect CanvasImage::contentRect() const
 
 Point CanvasImage::dimensions() const
 {
+	if (scalingPolicy != CanvasScalingPolicy::IGNORE)
+		return Point(surface->w, surface->h) / ENGINE->screenHandler().getScalingFactor();
 	return {surface->w, surface->h};
 }
 

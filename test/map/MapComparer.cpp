@@ -151,7 +151,7 @@ void MapComparer::compareHeader()
 	//map size parameters are vital for further checks
 	VCMI_REQUIRE_FIELD_EQUAL_P(height);
 	VCMI_REQUIRE_FIELD_EQUAL_P(width);
-	VCMI_REQUIRE_FIELD_EQUAL_P(twoLevel);
+	VCMI_REQUIRE_FIELD_EQUAL_P(mapLevels);
 
 	VCMI_CHECK_FIELD_EQUAL_P(name);
 	VCMI_CHECK_FIELD_EQUAL_P(description);
@@ -180,12 +180,12 @@ void MapComparer::compareHeader()
 	boost::sort (expectedEvents, sortByIdentifier);
 
 	checkEqual(actualEvents, expectedEvents);
+	checkEqual(actual->disposedHeroes, expected->disposedHeroes);
 }
 
 void MapComparer::compareOptions()
 {
 	checkEqual(actual->rumors, expected->rumors);
-	checkEqual(actual->disposedHeroes, expected->disposedHeroes);
 	//todo: compareOptions predefinedHeroes
 
 	checkEqual(actual->allowedAbilities, expected->allowedAbilities);
@@ -211,14 +211,10 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 
 void MapComparer::compareObjects()
 {
-	EXPECT_EQ(actual->objects.size(), expected->objects.size());
+	EXPECT_EQ(actual->getObjects().size(), expected->getObjects().size());
 
-	for(size_t idx = 0; idx < expected->objects.size(); idx++)
+	for(const auto & expectedObject : expected->getObjects())
 	{
-		auto expectedObject = expected->objects[idx];
-
-		ASSERT_EQ(idx, expectedObject->id.getNum());
-
 		{
 			auto it = expected->instanceNames.find(expectedObject->instanceName);
 
@@ -232,7 +228,7 @@ void MapComparer::compareObjects()
 
 			auto actualObject = it->second;
 
-			compareObject(actualObject, expectedObject);
+			compareObject(actualObject.get(), expectedObject);
 		}
 	}
 }

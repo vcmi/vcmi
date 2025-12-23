@@ -11,12 +11,13 @@
 #include "StdInc.h"
 #include "mapcontroller.h"
 
-#include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
+#include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
@@ -29,31 +30,39 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/CMemorySerializer.h"
+#include "mapsettings/modsettings.h"
 #include "mapview.h"
 #include "scenelayer.h"
 #include "maphandler.h"
 #include "mainwindow.h"
 #include "inspector/inspector.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
+#include "PlayerSelectionDialog.h"
+
+MapController::MapController(QObject * parent)
+	: QObject(parent)
+{
+}
 
 MapController::MapController(MainWindow * m): main(m)
 {
-	for(int i : {0, 1})
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		_scenes[i].reset(new MapScene(i));
 		_miniscenes[i].reset(new MinimapScene(i));
 	}
 	connectScenes();
+	_cb = std::make_unique<EditorCallback>(nullptr);
 }
 
 void MapController::connectScenes()
 {
-	for (int level = 0; level <= 1; level++)
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		//selections for both layers will be handled separately
-		QObject::connect(_scenes[level].get(), &MapScene::selected, [this, level](bool anythingSelected)
+		QObject::connect(_scenes[i].get(), &MapScene::selected, [this, i](bool anythingSelected)
 		{
-			main->onSelectionMade(level, anythingSelected);
+			main->onSelectionMade(i, anythingSelected);
 		});
 	}
 }
@@ -61,6 +70,16 @@ void MapController::connectScenes()
 MapController::~MapController()
 {
 	main = nullptr;
+}
+
+void MapController::setCallback(std::unique_ptr<EditorCallback> cb)
+{
+	_cb = std::move(cb);
+}
+
+EditorCallback * MapController::getCallback()
+{
+	return _cb.get();
 }
 
 const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
@@ -93,10 +112,12 @@ void MapController::repairMap()
 	repairMap(map());
 }
 
-void MapController::repairMap(CMap * map) const
+void MapController::repairMap(CMap * map)
 {
 	if(!map)
 		return;
+
+	assert(map->cb);
 	
 	//make sure events/rumors has name to have proper identifiers
 	int emptyNameId = 1;
@@ -109,24 +130,26 @@ void MapController::repairMap(CMap * map) const
 			e.name = "rumor_" + std::to_string(emptyNameId++);
 	
 	//fix owners for objects
-	auto allImpactedObjects(map->objects);
-	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
+	std::vector<CGObjectInstance*> allImpactedObjects;
+
+	for (const auto & object : map->objects)
+		allImpactedObjects.push_back(object.get());
+
+	for (const auto & hero : map->getHeroesInPool())
+		allImpactedObjects.push_back(map->tryGetFromHeroPool(hero));
+
 	for(auto obj : allImpactedObjects)
 	{
+		if(obj == nullptr)
+			continue;
+
 		//fix flags
-		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
+		if(obj->asOwnable() != nullptr && obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			if(dynamic_cast<CGMine*>(obj.get()) ||
-			   dynamic_cast<CGDwelling*>(obj.get()) ||
-			   dynamic_cast<CGTownInstance*>(obj.get()) ||
-			   dynamic_cast<CGGarrison*>(obj.get()) ||
-			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
-			   dynamic_cast<CGHeroInstance*>(obj.get()))
-				obj->tempOwner = PlayerColor::NEUTRAL;
+			obj->tempOwner = PlayerColor::NEUTRAL;
 		}
 		//fix hero instance
-		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
+		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj))
 		{
 			// All heroes present on map or in prisons need to be allowed to rehire them after they are defeated
 
@@ -134,22 +157,22 @@ void MapController::repairMap(CMap * map) const
 
 			map->allowedHeroes.insert(nih->getHeroTypeID());
 
-			auto const & type = VLC->heroh->objects[nih->subID];
+			auto const & type = LIBRARY->heroh->objects[nih->subID];
 			assert(type->heroClass);
 
 			if(nih->ID == Obj::HERO) //not prison
-				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, map->createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}
 		//fix town instance
-		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj.get()))
+		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj))
 		{
 			if(tnh->getTown())
 			{
@@ -165,28 +188,31 @@ void MapController::repairMap(CMap * map) const
 			}
 		}
 		//fix spell scrolls
-		if(auto * art = dynamic_cast<CGArtifact*>(obj.get()))
+		if(auto * art = dynamic_cast<CGArtifact*>(obj))
 		{
-			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
+			if(art->ID == Obj::SPELL_SCROLL && !art->getArtifactInstance())
 			{
 				std::vector<SpellID> out;
-				for(auto const & spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+				for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
 				{
 					//if(map->isAllowedSpell(spell->id))
 					{
 						out.push_back(spell->id);
 					}
 				}
-				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-				art->storedArtifact = a;
+				auto a = map->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				art->setArtifactInstance(a);
 			}
 		}
 		//fix mines 
-		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		if(auto * mine = dynamic_cast<CGMine*>(obj))
 		{
 			if(!mine->isAbandoned())
 			{
-				mine->producedResource = GameResID(mine->subID);
+				if(mine->getResourceHandler()->getResourceType() == GameResID::NONE) // fallback
+					mine->producedResource = GameResID(mine->subID);
+				else
+					mine->producedResource = mine->getResourceHandler()->getResourceType();
 				mine->producedQuantity = mine->defaultResProduction();
 			}
 		}
@@ -195,17 +221,19 @@ void MapController::repairMap(CMap * map) const
 
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
+	cmap->cb = _cb.get();
 	_map = std::move(cmap);
+	_cb->setMap(_map.get());
 	
 	repairMap();
 	
-	for(int i : {0, 1})
+	for(int i = 0; i < _map->mapLevels; i++)
 	{
 		_scenes[i].reset(new MapScene(i));
 		_miniscenes[i].reset(new MinimapScene(i));
 	}
 	resetMapHandler();
-	sceneForceUpdate();
+	initializeMap();
 
 	connectScenes();
 
@@ -224,7 +252,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 void MapController::initObstaclePainters(CMap * map)
 {
-	for (auto const & terrain : VLC->terrainTypeHandler->objects)
+	for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		auto terrainId = terrain->getId();
 		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);
@@ -232,21 +260,22 @@ void MapController::initObstaclePainters(CMap * map)
 	}
 }
 
-void MapController::sceneForceUpdate()
+void MapController::initializeMap()
 {
-	_scenes[0]->updateViews();
-	_miniscenes[0]->updateViews();
-	if(_map->twoLevel)
+	for(int i = 0; i < _map->mapLevels; i++)
 	{
-		_scenes[1]->updateViews();
-		_miniscenes[1]->updateViews();
+		_scenes[i]->createMap();
+		_miniscenes[i]->createMap();
 	}
 }
 
-void MapController::sceneForceUpdate(int level)
+void MapController::sceneForceUpdate()
 {
-	_scenes[level]->updateViews();
-	_miniscenes[level]->updateViews();
+	for(int i = 0; i < _map->mapLevels; i++)
+	{
+		_scenes[i]->updateMap();
+		_miniscenes[i]->updateMap();
+	}
 }
 
 void MapController::resetMapHandler()
@@ -254,7 +283,7 @@ void MapController::resetMapHandler()
 	if(!_mapHandler)
 		_mapHandler.reset(new MapHandler());
 	_mapHandler->reset(map());
-	for(int i : {0, 1})
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		_scenes[i]->initialize(*this);
 		_miniscenes[i]->initialize(*this);
@@ -271,16 +300,13 @@ void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 		return;
 	
 	_scenes[level]->selectionTerrainView.clear();
-	_scenes[level]->selectionTerrainView.draw();
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
 	_map->getEditManager()->drawTerrain(terrain, terrainDecorationPercentageLevel, &CRandomGenerator::getDefault());
 	
-	for(auto & t : v)
-		_scenes[level]->terrainView.setDirty(t);
-	_scenes[level]->terrainView.draw();
+	_scenes[level]->terrainView.redrawTerrain(v);
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
@@ -292,19 +318,16 @@ void MapController::commitRoadOrRiverChange(int level, ui8 type, bool isRoad)
 		return;
 	
 	_scenes[level]->selectionTerrainView.clear();
-	_scenes[level]->selectionTerrainView.draw();
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
 	if(isRoad)
 		_map->getEditManager()->drawRoad(RoadId(type), &CRandomGenerator::getDefault());
 	else
 		_map->getEditManager()->drawRiver(RiverId(type), &CRandomGenerator::getDefault());
+
+	_scenes[level]->terrainView.redrawTerrain(v);
 	
-	for(auto & t : v)
-		_scenes[level]->terrainView.setDirty(t);
-	_scenes[level]->terrainView.draw();
-	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
@@ -329,15 +352,13 @@ void MapController::commitObjectErase(int level)
 	{
 		//invalidate tiles under objects
 		_mapHandler->removeObject(obj);
-		_scenes[level]->objectsView.setDirty(obj);
 	}
+	_scenes[level]->objectsView.redrawObjects(selectedObjects);
 
 	_scenes[level]->selectionObjectsView.clear();
-	_scenes[level]->objectsView.draw();
-	_scenes[level]->selectionObjectsView.draw();
-	_scenes[level]->passabilityView.update();
+	_scenes[level]->passabilityView.redraw();
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
@@ -349,7 +370,7 @@ void MapController::copyToClipboard(int level)
 	for(auto * obj : selectedObjects)
 	{
 		assert(obj->pos.z == level);
-		_clipboard.push_back(CMemorySerializer::deepCopy(*obj));
+		_clipboard.push_back(CMemorySerializer::deepCopy(*obj, _cb.get()));
 	}
 }
 
@@ -364,9 +385,9 @@ void MapController::pasteFromClipboard(int level)
 	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
-		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr, _cb.get());
 		QString errorMsg;
-		if (!canPlaceObject(level, obj, errorMsg))
+		if(!canPlaceObject(obj.get(), errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));
 			continue;
@@ -375,20 +396,21 @@ void MapController::pasteFromClipboard(int level)
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
 		obj->pos.z = level;
-		
-		Initializer init(obj, defaultPlayer);
+
+		obj->id = {};
+		Initializer init(*this, obj.get(), defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
-		_scenes[level]->selectionObjectsView.selectObject(obj);
-		_mapHandler->invalidate(obj);
+		_scenes[level]->selectionObjectsView.selectObject(obj.get());
+		_mapHandler->invalidate(obj.get());
 	}
 	if(!errors.isEmpty())
 		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
 	
-	_scenes[level]->objectsView.draw();
-	_scenes[level]->passabilityView.update();
-	_scenes[level]->selectionObjectsView.draw();
+	_scenes[level]->objectsView.redraw();
+	_scenes[level]->passabilityView.redraw();
+	_scenes[level]->selectionObjectsView.redraw();
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
@@ -397,21 +419,19 @@ bool MapController::discardObject(int level) const
 	_scenes[level]->selectionObjectsView.clear();
 	if(_scenes[level]->selectionObjectsView.newObject)
 	{
-		delete _scenes[level]->selectionObjectsView.newObject;
-		_scenes[level]->selectionObjectsView.newObject = nullptr;
-		_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
+		_scenes[level]->selectionObjectsView.newObject.reset();
+		_scenes[level]->selectionObjectsView.setShift(0, 0);
 		_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
-		_scenes[level]->selectionObjectsView.draw();
 		return true;
 	}
 	return false;
 }
 
-void MapController::createObject(int level, CGObjectInstance * obj) const
+void MapController::createObject(int level, std::shared_ptr<CGObjectInstance> obj) const
 {
 	_scenes[level]->selectionObjectsView.newObject = obj;
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
-	_scenes[level]->selectionObjectsView.draw();
+	_scenes[level]->selectionObjectsView.redraw();
 }
 
 void MapController::commitObstacleFill(int level)
@@ -438,32 +458,29 @@ void MapController::commitObstacleFill(int level)
 	
 	for(auto & sel : _obstaclePainters)
 	{
-		for(auto * o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
+		for(auto o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
 		{
-			_mapHandler->invalidate(o);
-			_scenes[level]->objectsView.setDirty(o);
+			_mapHandler->invalidate(o.get());
+			_scenes[level]->objectsView.redrawObjects({o.get()});
 		}
 	}
 	
 	_scenes[level]->selectionTerrainView.clear();
-	_scenes[level]->selectionTerrainView.draw();
-	_scenes[level]->objectsView.draw();
+	_scenes[level]->objectsView.update();
 	_scenes[level]->passabilityView.update();
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
 void MapController::commitObjectChange(int level)
 {	
-	for( auto * o : _scenes[level]->selectionObjectsView.getSelection())
-		_scenes[level]->objectsView.setDirty(o);
+	_scenes[level]->objectsView.redrawObjects(_scenes[level]->selectionObjectsView.getSelection());
 	
-	_scenes[level]->objectsView.draw();
-	_scenes[level]->selectionObjectsView.draw();
-	_scenes[level]->passabilityView.update();
+	_scenes[level]->selectionObjectsView.redraw();
+	_scenes[level]->passabilityView.redraw();
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
@@ -480,36 +497,37 @@ void MapController::commitObjectShift(int level)
 	bool makeShift = !shift.isNull();
 	if(makeShift)
 	{
-		for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
+		std::set<CGObjectInstance*> movedObjects = _scenes[level]->selectionObjectsView.getSelection();
+		for(auto * obj : movedObjects)
 		{
 			int3 pos = obj->pos;
 			pos.z = level;
 			pos.x += shift.x(); pos.y += shift.y();
 			
-			_scenes[level]->objectsView.setDirty(obj); //set dirty before movement
 			_map->getEditManager()->moveObject(obj, pos);
 			_mapHandler->invalidate(obj);
 		}
+		_scenes[level]->objectsView.redrawObjects(movedObjects);
 	}
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
-	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
+	_scenes[level]->selectionObjectsView.setShift(0, 0);
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 	
 	if(makeShift)
 	{
-		_scenes[level]->objectsView.draw();
-		_scenes[level]->selectionObjectsView.draw();
-		_scenes[level]->passabilityView.update();
+		_scenes[level]->objectsView.redraw();
+		_scenes[level]->passabilityView.redraw();
+		_scenes[level]->selectionObjectsView.redraw();
 		
-		_miniscenes[level]->updateViews();
+		_miniscenes[level]->updateMap();
 		main->mapChanged();
 	}
 }
 
 void MapController::commitObjectCreate(int level)
 {
-	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
+	auto newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
 	
@@ -521,48 +539,109 @@ void MapController::commitObjectCreate(int level)
 	
 	newObj->pos = pos;
 	
-	Initializer init(newObj, defaultPlayer);
+	Initializer init(*this, newObj.get(), defaultPlayer);
 	
 	_map->getEditManager()->insertObject(newObj);
-	_mapHandler->invalidate(newObj);
-	_scenes[level]->objectsView.setDirty(newObj);
+	_mapHandler->invalidate(newObj.get());
+	_scenes[level]->objectsView.redrawObjects({newObj.get()});
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
-	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
+	_scenes[level]->selectionObjectsView.setShift(0, 0);
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
-	_scenes[level]->objectsView.draw();
-	_scenes[level]->selectionObjectsView.draw();
-	_scenes[level]->passabilityView.update();
+	_scenes[level]->passabilityView.redraw();
 	
-	_miniscenes[level]->updateViews();
+	_miniscenes[level]->updateMap();
 	main->mapChanged();
 }
 
-bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString & error) const
+bool MapController::canPlaceObject(const CGObjectInstance * newObj, QString & error) const
+{	
+	if(newObj->ID == Obj::GRAIL) //special case for grail
+		return canPlaceGrail(newObj, error);
+	
+	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
+		return canPlaceHero(newObj, error);
+	
+	return checkRequiredMods(newObj, error);
+}
+
+bool MapController::canPlaceGrail(const CGObjectInstance * grailObj, QString & error) const
 {
+	assert(grailObj->ID == Obj::GRAIL);
+
 	//find all objects of such type
 	int objCounter = 0;
 	for(auto o : _map->objects)
 	{
-		if(o->ID == newObj->ID && o->subID == newObj->subID)
+		if(o->ID == grailObj->ID && o->subID == grailObj->subID)
 		{
 			++objCounter;
 		}
 	}
-	
-	if(newObj->ID == Obj::GRAIL && objCounter >= 1) //special case for grail
+
+	if(objCounter >= 1)
 	{
 		error = QObject::tr("There can only be one grail object on the map.");
 		return false; //maplimit reached
 	}
 	
-	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
+	return true;
+}
+
+bool MapController::canPlaceHero(const CGObjectInstance * heroObj, QString & error) const
+{
+	assert(heroObj->ID == Obj::HERO || heroObj->ID == Obj::RANDOM_HERO);
+
+	PlayerSelectionDialog dialog(main);
+	if(dialog.exec() == QDialog::Accepted)
 	{
-		error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(newObj->instanceName));
-		return false;
+		main->switchDefaultPlayer(dialog.getSelectedPlayer());
+		return true;
 	}
 	
+	error = tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(heroObj->instanceName));
+	return false;
+}
+
+bool MapController::checkRequiredMods(const CGObjectInstance * obj, QString & error) const
+{
+	ModCompatibilityInfo modsInfo;
+	modAssessmentObject(obj, modsInfo);
+
+	for(auto & mod : modsInfo)
+	{
+		if(!_map->mods.count(mod.first))
+		{
+			auto reply = QMessageBox::question(main,
+				tr("Missing Required Mod"), modMissingMessage(mod.second) + tr("\n\nDo you want to do that now ?"),
+				QMessageBox::Yes | QMessageBox::No);
+
+			if(reply == QMessageBox::Yes)
+			{
+				_map->mods[mod.first] = LIBRARY->modh->getModInfo(mod.first).getVerificationInfo();
+				Q_EMIT requestModsUpdate(modsInfo, true); // signal for MapSettings
+			}
+			else
+			{
+				error = tr("This object's mod is mandatory for map to remain valid.");
+				return false;
+			}
+		}
+	}
 	return true;
+}
+
+QString MapController::modMissingMessage(const ModVerificationInfo & info)
+{
+	QString modName = QString::fromStdString(info.name);
+	QString submod;
+	if(!info.parent.empty())
+		submod = QObject::tr(" (submod of %1)").arg(QString::fromStdString(info.parent));
+
+	return QObject::tr("The mod '%1'%2, is required by an object on the map.\n"
+		"Add it to the map's required mods in Map->General settings.",
+		"should be consistent with Map->General menu entry translation")
+		.arg(modName, submod);
 }
 
 void MapController::undo()
@@ -584,75 +663,82 @@ void MapController::redo()
 ModCompatibilityInfo MapController::modAssessmentAll()
 {
 	ModCompatibilityInfo result;
-	for(auto primaryID : VLC->objtypeh->knownObjects())
+	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
-		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
-			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
-			if(modName != "core")
-				result[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto modScope = handler->getModScope();
+			if(modScope != "core")
+				result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 		}
 	}
 	return result;
+}
+
+void MapController::modAssessmentObject(const CGObjectInstance * obj, ModCompatibilityInfo & result)
+{
+	auto extractEntityMod = [&result](const auto & entity)
+	{
+		auto modScope = entity->getModScope();
+		if(modScope != "core")
+			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
+	};
+
+	auto handler = obj->getObjectHandler();
+	auto modScope = handler->getModScope();
+	if(modScope != "core")
+		result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
+
+	if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+	{
+		auto town = dynamic_cast<const CGTownInstance *>(obj);
+		for(const auto & spellID : town->possibleSpells)
+		{
+			if(spellID == SpellID::PRESET)
+				continue;
+			extractEntityMod(spellID.toEntity(LIBRARY));
+		}
+
+		for(const auto & spellID : town->obligatorySpells)
+		{
+			extractEntityMod(spellID.toEntity(LIBRARY));
+		}
+	}
+
+	if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+	{
+		auto hero = dynamic_cast<const CGHeroInstance *>(obj);
+		for(const auto & spellID : hero->getSpellsInSpellbook())
+		{
+			if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
+				continue;
+			extractEntityMod(spellID.toEntity(LIBRARY));
+		}
+
+		for(const auto & [_, slotInfo] : hero->artifactsWorn)
+		{
+			extractEntityMod(slotInfo.getArt()->getTypeId().toEntity(LIBRARY));
+		}
+
+		for(const auto & art : hero->artifactsInBackpack)
+		{
+			extractEntityMod(art.getArt()->getTypeId().toEntity(LIBRARY));
+		}
+	}
+
+//TODO: terrains?
 }
 
 ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 {
 	ModCompatibilityInfo result;
 
-	auto extractEntityMod = [&result](const auto & entity) 
-	{
-		auto modScope = entity->getModScope();
-		if(modScope != "core")
-			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
-	};
-
 	for(auto obj : map.objects)
 	{
-		auto handler = obj->getObjectHandler();
-		auto modScope = handler->getModScope();
-		if(modScope != "core")
-			result[modScope] = VLC->modh->getModInfo(modScope).getVerificationInfo();
-
-		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
-		{
-			auto town = dynamic_cast<CGTownInstance *>(obj.get());
-			for(const auto & spellID : town->possibleSpells)
-			{
-				if(spellID == SpellID::PRESET)
-					continue;
-				extractEntityMod(spellID.toEntity(VLC));
-			}
-
-			for(const auto & spellID : town->obligatorySpells)
-			{
-				extractEntityMod(spellID.toEntity(VLC));
-			}
-		}
-
-		if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
-		{
-			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
-			for(const auto & spellID : hero->getSpellsInSpellbook())
-			{
-				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
-					continue;
-				extractEntityMod(spellID.toEntity(VLC));
-			}
-
-			for(const auto & [_, slotInfo] : hero->artifactsWorn)
-			{
-				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(VLC));
-			}
-
-			for(const auto & art : hero->artifactsInBackpack)
-			{
-				extractEntityMod(art.artifact->getTypeId().toEntity(VLC));
-			}
-		}
+		if(!obj)
+			continue;
+		modAssessmentObject(obj.get(), result);
 	}
-
-	//TODO: terrains?
 	return result;
 }

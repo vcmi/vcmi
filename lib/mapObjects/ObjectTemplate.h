@@ -124,6 +124,11 @@ public:
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;
 
+	/// Returns number of completely empty rows & columns in template
+	/// Such as shifted wandering monster def's from hota, or Portal of Glory dwelling from H3
+	/// object must be visitable
+	int3 getCornerOffset() const;
+
 	CompoundMapObjectID getCompoundID() const;
 
 	ObjectTemplate();

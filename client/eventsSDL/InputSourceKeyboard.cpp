@@ -12,13 +12,11 @@
 #include "InputSourceKeyboard.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/Shortcut.h"
 #include "../gui/ShortcutHandler.h"
-#include "../CServerHandler.h"
-#include "../globalLobby/GlobalLobbyClient.h"
 
 #include <SDL_clipboard.h>
 #include <SDL_events.h>
@@ -58,7 +56,7 @@ std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & key
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), false);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), false);
 	logGlobal->trace("keyboard: key '%s' pressed", keyName);
 	assert(key.state == SDL_PRESSED);
 
@@ -70,7 +68,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			std::string clipboardContent = clipboardBuffer;
 			boost::erase_all(clipboardContent, "\r");
 			boost::erase_all(clipboardContent, "\n");
-			GH.events().dispatchTextInput(clipboardContent);
+			ENGINE->events().dispatchTextInput(clipboardContent);
 			SDL_free(clipboardBuffer);
 			return;
 	 	}
@@ -84,20 +82,22 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
 	{
-		GH.events().dispatchShowPopup(GH.getCursorPosition(), settings["input"]["mouseToleranceDistance"].Integer());
+		ENGINE->events().dispatchShowPopup(ENGINE->getCursorPosition(), settings["input"]["mouseToleranceDistance"].Integer());
 		return;
 	}
 
-	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
+	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
+
+	ENGINE->events().dispatchKeyPressed(keyName);
 
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
-		CSH->getGlobalLobby().activateInterface();
+		ENGINE->user().onGlobalLobbyInterfaceActivated();
 
 	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_FULLSCREEN))
 	{
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();
-		GH.onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	}
 
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
@@ -118,7 +118,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 		s["spectate-skip-battle-result"].Bool() = !settings["session"]["spectate-skip-battle-result"].Bool();
 	}
 
-	GH.events().dispatchShortcutPressed(shortcutsVector);
+	ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 }
 
 void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
@@ -128,11 +128,11 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 
 	if(handleBackRightMouseButton && key.keysym.scancode ==  SDL_SCANCODE_AC_BACK) // on some android devices right mouse button is "back"
 	{
-		GH.events().dispatchClosePopup(GH.getCursorPosition());
+		ENGINE->events().dispatchClosePopup(ENGINE->getCursorPosition());
 		return;
 	}
 
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), true);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), true);
 	logGlobal->trace("keyboard: key '%s' released", keyName);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
@@ -143,9 +143,11 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 
 	assert(key.state == SDL_RELEASED);
 
-	auto shortcutsVector = GH.shortcuts().translateKeycode(keyName);
+	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
+	
+	ENGINE->events().dispatchKeyReleased(keyName);
 
-	GH.events().dispatchShortcutReleased(shortcutsVector);
+	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }
 
 bool InputSourceKeyboard::isKeyboardCmdDown() const

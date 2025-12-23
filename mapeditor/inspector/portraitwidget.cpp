@@ -11,6 +11,8 @@
 #include "portraitwidget.h"
 #include "ui_portraitwidget.h"
 #include "../Animation.h"
+
+#include "../lib/GameLibrary.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 
 PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
@@ -32,10 +34,14 @@ PortraitWidget::~PortraitWidget()
 
 void PortraitWidget::obtainData()
 {
-	portraitIndex = VLC->heroh->getById(hero.getPortraitSource())->getIndex();
-	if(hero.customPortraitSource.isValid())
+	auto portraitSource = hero.getPortraitSource();
+	if(portraitSource.isValid())
 	{
-		ui->isDefault->setChecked(true);
+		portraitIndex = LIBRARY->heroh->getById(portraitSource)->getIndex();
+		if(hero.customPortraitSource.isValid())
+		{
+			ui->isDefault->setChecked(false);
+		}
 	}
 	
 	drawPortrait();
@@ -43,17 +49,17 @@ void PortraitWidget::obtainData()
 
 void PortraitWidget::commitChanges()
 {
-	if(portraitIndex == VLC->heroh->getById(HeroTypeID(hero.subID))->getIndex())
+	if(portraitIndex == LIBRARY->heroh->getById(HeroTypeID(hero.subID))->getIndex())
 		hero.customPortraitSource = HeroTypeID::NONE;
 	else
-		hero.customPortraitSource = VLC->heroh->getByIndex(portraitIndex)->getId();
+		hero.customPortraitSource = LIBRARY->heroh->getByIndex(portraitIndex)->getId();
 }
 
 void PortraitWidget::drawPortrait()
 {
 	static Animation portraitAnimation(AnimationPath::builtin("PortraitsLarge").getOriginalName());
 	portraitAnimation.preload();
-	auto icon = VLC->heroTypes()->getByIndex(portraitIndex)->getIconIndex();
+	auto icon = LIBRARY->heroTypes()->getByIndex(portraitIndex)->getIconIndex();
 	pixmap = QPixmap::fromImage(*portraitAnimation.getImage(icon));
 	scene.addPixmap(pixmap);
 	ui->portraitView->fitInView(scene.itemsBoundingRect(), Qt::KeepAspectRatio);
@@ -70,7 +76,7 @@ void PortraitWidget::on_isDefault_toggled(bool checked)
 	{
 		ui->buttonNext->setEnabled(false);
 		ui->buttonPrev->setEnabled(false);
-		portraitIndex = VLC->heroh->getById(HeroTypeID(hero.subID))->getIndex();
+		portraitIndex = LIBRARY->heroh->getById(HeroTypeID(hero.subID))->getIndex();
 	}
 	else
 	{
@@ -83,7 +89,7 @@ void PortraitWidget::on_isDefault_toggled(bool checked)
 
 void PortraitWidget::on_buttonNext_clicked()
 {
-	if(portraitIndex < VLC->heroh->size() - 1)
+	if(portraitIndex < LIBRARY->heroh->size() - 1)
 		++portraitIndex;
 	else
 		portraitIndex = 0;
@@ -97,12 +103,14 @@ void PortraitWidget::on_buttonPrev_clicked()
 	if(portraitIndex > 0)
 		--portraitIndex;
 	else
-		portraitIndex = VLC->heroh->size() - 1;
+		portraitIndex = LIBRARY->heroh->size() - 1;
 	
 	drawPortrait();
 }
 
-PortraitDelegate::PortraitDelegate(CGHeroInstance & h): hero(h), BaseInspectorItemDelegate()
+PortraitDelegate::PortraitDelegate(CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, hero(h)
 {
 }
 

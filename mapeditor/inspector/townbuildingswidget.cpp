@@ -142,7 +142,7 @@ TownBuildingsWidget::~TownBuildingsWidget()
 QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, std::set<si32> & remaining)
 {
 	BuildingID buildingId(bId);
-	const CBuilding * building = ctown.buildings.at(buildingId);
+	const auto & building = ctown.buildings.at(buildingId);
 	if(!building)
 	{
 		remaining.erase(bId);
@@ -175,7 +175,7 @@ QStandardItem * TownBuildingsWidget::addBuilding(const CTown & ctown, int bId, s
 	}
 	else
 	{
-		QStandardItem * parent = getBuildingParentFromTreeModel(building, model);
+		QStandardItem * parent = getBuildingParentFromTreeModel(building.get(), model);
 		
 		if(!parent)
 			parent = addBuilding(ctown, building->upgrade.getNum(), remaining);
@@ -318,7 +318,9 @@ void TownBuildingsWidget::onItemChanged(const QStandardItem * item) {
 	connect(&model, &QStandardItemModel::itemChanged, this, &TownBuildingsWidget::onItemChanged);
 }
 
-TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t): town(t), BaseInspectorItemDelegate()
+TownBuildingsDelegate::TownBuildingsDelegate(CGTownInstance & t)
+	: BaseInspectorItemDelegate()
+	, town(t)
 {
 }
 

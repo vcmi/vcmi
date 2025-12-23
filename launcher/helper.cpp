@@ -10,6 +10,10 @@
 #include "StdInc.h"
 #include "helper.h"
 
+#include "mainwindow_moc.h"
+#include "settingsView/csettingsview_moc.h"
+#include "modManager/cmodlistview_moc.h"
+
 #include "../lib/CConfigHandler.h"
 
 #include <QObject>
@@ -22,6 +26,7 @@
 
 #ifdef VCMI_IOS
 #include "ios/revealdirectoryinfiles.h"
+#include "iOS_utils.h"
 #endif
 
 #ifdef VCMI_MOBILE
@@ -37,12 +42,38 @@ static QScrollerProperties generateScrollerProperties()
 }
 #endif
 
+#ifdef VCMI_ANDROID
+static QString safeEncode(QString uri)
+{
+	// %-encode unencoded parts of string.
+	// This is needed because Qt returns a mixed content url with %-encoded and unencoded parts. On Android >= 13 this causes problems reading these files, when using spaces and unicode characters in folder or filename.
+	// Only these should be encoded (other typically %-encoded chars should not be encoded because this leads to errors).
+	// Related, but seems not completly fixed (at least in our setup): https://bugreports.qt.io/browse/QTBUG-114435
+	if (!uri.startsWith("content://", Qt::CaseInsensitive))
+		return uri;
+	return QString::fromUtf8(QUrl::toPercentEncoding(uri, "!#$&'()*+,/:;=?@[]<>{}\"`^~%"));
+}
+#endif
+
 namespace Helper
 {
 void loadSettings()
 {
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
+}
+
+void reLoadSettings()
+{
+	loadSettings();
+	for(const auto widget : qApp->allWidgets())
+		if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+		{
+			settingsView->loadSettings();
+			break;
+		}
+	getMainWindow()->updateTranslation();
+	getMainWindow()->getModView()->reload();
 }
 
 void enableScrollBySwiping(QObject * scrollTarget)
@@ -59,24 +90,28 @@ QString getRealPath(QString path)
 #ifdef VCMI_ANDROID
 	if(path.contains("content://", Qt::CaseInsensitive))
 	{
-		auto str = QAndroidJniObject::fromString(path);
+		auto str = QAndroidJniObject::fromString(safeEncode(path));
 		return QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;Landroid/content/Context;)Ljava/lang/String;", str.object<jstring>(), QtAndroid::androidContext().object()).toString();
 	}
-	else
-		return path;
+	return path;
 #else
 	return path;
 #endif
 }
 
-void performNativeCopy(QString src, QString dst)
+bool performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-	auto srcStr = QAndroidJniObject::fromString(src);
-	auto dstStr = QAndroidJniObject::fromString(dst);
+	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
+	auto dstStr = QAndroidJniObject::fromString(safeEncode(dst));
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
+
+	if(QFileInfo(dst).exists())
+		return true;
+	else
+		return false;
 #else
-	QFile::copy(src, dst);
+	return QFile::copy(src, dst);
 #endif
 }
 
@@ -87,6 +122,43 @@ void revealDirectoryInFileBrowser(QString path)
 	iOS_utils::revealDirectoryInFiles(dirUrl);
 #else
 	QDesktopServices::openUrl(dirUrl);
+#endif
+}
+
+MainWindow * getMainWindow()
+{
+	foreach(QWidget *w, qApp->allWidgets())
+		if(auto mainWin = qobject_cast<MainWindow*>(w))
+			return mainWin;
+	return nullptr;
+}
+
+
+void keepScreenOn(bool isEnabled)
+{
+#if defined(VCMI_ANDROID)
+	QtAndroid::runOnAndroidThread([isEnabled]
+	{
+		QtAndroid::androidActivity().callMethod<void>("keepScreenOn", "(Z)V", isEnabled);
+	});
+#elif defined(VCMI_IOS)
+	iOS_utils::keepScreenOn(isEnabled);
+#endif
+}
+
+void sendFileToApp(QString path)
+{
+#if defined(VCMI_ANDROID)
+	// delegate to Android activity which will copy to cache and share via FileProvider
+	auto jstr = QAndroidJniObject::fromString(path);
+	QtAndroid::runOnAndroidThread([jstr]() mutable {
+		QtAndroid::androidActivity().callMethod<void>("shareFile", "(Ljava/lang/String;)V", jstr.object<jstring>());
+	});
+#elif defined(VCMI_IOS)
+	// use iOS share sheet
+	iOS_utils::shareFile(path.toStdString());
+#else
+	Q_UNUSED(path);
 #endif
 }
 }

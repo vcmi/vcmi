@@ -77,7 +77,7 @@ public:
 
 	void insert(const BattleHex & hex) noexcept
 	{
-		if(contains(hex))
+		if(!isValidToInsert(hex))
 			return;
 
 		presenceFlags.set(hex.toInt());
@@ -86,6 +86,9 @@ public:
 
 	void set(size_type index, const BattleHex & hex)
 	{
+		if(!isValidToInsert(hex))
+			return;
+
 		if(index >= internalStorage.size())
 		{
 			logGlobal->error("Invalid BattleHexArray::set index parameter. It is " + std::to_string(index)
@@ -93,9 +96,6 @@ public:
 			throw std::out_of_range("Invalid BattleHexArray::set index parameter. It is " + std::to_string(index)
 				+ " and current size is " + std::to_string(internalStorage.size()));
 		}
-
-		if(contains(hex))
-			return;
 
 		presenceFlags.set(hex.toInt());
 		internalStorage[index] = hex;
@@ -159,7 +159,7 @@ public:
 		return std::vector<BattleHex>(internalStorage.begin(), internalStorage.end());
 	}
 
-	[[nodiscard]] std::string toString(std::string delimiter = ", ") const noexcept
+	[[nodiscard]] std::string toString(const std::string & delimiter = ", ") const noexcept
 	{
 		std::string result = "[";
 		for(auto it = internalStorage.begin(); it != internalStorage.end(); ++it)
@@ -198,7 +198,7 @@ public:
 	{
 		static const BattleHexArray invalid;
 
-		if (hex.isValid())
+		if(hex.isValid())
 			return allNeighbouringTiles[hex.toInt()];
 		else
 			return invalid;
@@ -209,7 +209,7 @@ public:
 	{
 		static const BattleHexArray invalid;
 
-		if (hex.isValid())
+		if(hex.isValid())
 			return neighbouringTiles[hex.toInt()];
 		else
 			return invalid;
@@ -223,13 +223,23 @@ public:
 		return neighbouringTilesDoubleWide.at(side)[hex.toInt()];
 	}
 
-	/// note: returns true when param is ivalid BattleHex
+	[[nodiscard]] inline bool isValidToInsert(const BattleHex & hex) const noexcept
+	{
+		if(!hex.isValid())
+			return false;
+
+		if(contains(hex))
+			return false;
+
+		return true;
+	}
+
 	[[nodiscard]] inline bool contains(const BattleHex & hex) const noexcept
 	{
 		if(hex.isValid())
 			return presenceFlags.test(hex.toInt());
 		
-		return true;
+		return false;
 	}
 
 	template <typename Serializer>

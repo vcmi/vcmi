@@ -17,17 +17,16 @@
 #include "BattleRenderer.h"
 #include "CreatureAnimation.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
@@ -50,11 +49,11 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 	{
 		// obstacle uses single bitmap image for animations
-		obstacleImages[oi.uniqueID] = GH.renderHandler().loadImage(animationName.toType<EResType::IMAGE>(), EImageBlitMode::SIMPLE);
+		obstacleImages[oi.uniqueID] = ENGINE->renderHandler().loadImage(animationName.toType<EResType::IMAGE>(), EImageBlitMode::SIMPLE);
 	}
 	else
 	{
-		obstacleAnimations[oi.uniqueID] = GH.renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE);
+		obstacleAnimations[oi.uniqueID] = ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE);
 		obstacleImages[oi.uniqueID] = obstacleAnimations[oi.uniqueID]->getImage(0);
 	}
 }
@@ -78,7 +77,7 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 		if(animationPath.empty())
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
+		auto animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -105,7 +104,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		if(!oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
 			continue;
 
-		auto animation = GH.renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
+		auto animation = ENGINE->renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
 		auto first = animation->getImage(0, 0);
 		if(!first)
 			continue;
@@ -113,7 +112,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		CCS->soundh->playSound( oi->getAppearSound() );
+		ENGINE->sound().playSound( oi->getAppearSound() );
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos));
 
 		//so when multiple obstacles are added, they show up one after another

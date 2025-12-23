@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../render/IRenderHandler.h"
+#include "../render/CDefFile.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class EntityService;
@@ -19,20 +20,25 @@ class CDefFile;
 class SDLImageShared;
 class ScalableImageShared;
 class AssetGenerator;
+class HdImageLoader;
 
 class RenderHandler final : public IRenderHandler
 {
 	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 
+	std::map<AnimationPath, std::map<int, std::map<int, std::pair<std::string, CDefFile::SSpriteDef>>>> animationSpriteDefs;
 	std::map<AnimationPath, std::weak_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
 	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
-	std::unique_ptr<AssetGenerator> assetGenerator;
+	std::shared_ptr<AssetGenerator> assetGenerator;
+	std::shared_ptr<HdImageLoader> hdImageLoader;
 
+	std::pair<std::string, CDefFile::SSpriteDef> getAnimationSpriteDef(const AnimationPath & path, int frame, int group);
+	ImagePath getAnimationFrameName(const AnimationPath & path, int frame, int group);
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode);
-	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config, EImageBlitMode mode);
+	void initFromJson(AnimationLayoutMap & layout, const JsonNode & config, EImageBlitMode mode) const;
 
 	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	void addImageListEntries(const EntityService * service);
@@ -67,4 +73,7 @@ public:
 	std::shared_ptr<const IFont> loadFont(EFonts font) override;
 
 	void exportGeneratedAssets() override;
+
+	std::shared_ptr<AssetGenerator> getAssetGenerator() override;
+	void updateGeneratedAssets() override;
 };

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "OptionsTabBase.h"
 #include "CSelectionBase.h"
+#include "TurnOptionsTab.h"
+#include "CLobbyScreen.h"
 
 #include "../widgets/ComboBox.h"
 #include "../widgets/CTextInput.h"
@@ -17,13 +19,14 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
-#include "../CGameInfo.h"
+#include "../GameInstance.h"
 
 #include "../../lib/StartInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 
 static std::string timeToString(int time)
 {
@@ -71,12 +74,18 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	recActions = 0;
 
 	auto setTimerPresetCallback = [this](int index){
-		CSH->setTurnTimerInfo(getTimerPresets().at(index));
+		GAME->server().setTurnTimerInfo(getTimerPresets().at(index));
 	};
 
 	auto setSimturnsPresetCallback = [this](int index){
-		CSH->setSimturnsInfo(getSimturnsPresets().at(index));
+		GAME->server().setSimturnsInfo(getSimturnsPresets().at(index));
 	};
+
+	addCallback("tabTurnOptions", [&](int)
+	{
+		auto lobby = (static_cast<CLobbyScreen *>(parent));
+		lobby->toggleTab(lobby->tabTurnOptions);
+	});
 
 	addCallback("setTimerPreset", setTimerPresetCallback);
 	addCallback("setSimturnPreset", setSimturnsPresetCallback);
@@ -85,50 +94,50 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.requiredTurns = index;
 		info.optionalTurns = std::max(info.optionalTurns, index);
-		CSH->setSimturnsInfo(info);
+		GAME->server().setSimturnsInfo(info);
 	});
 
 	addCallback("setSimturnDurationMax", [&](int index){
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.optionalTurns = index;
 		info.requiredTurns = std::min(info.requiredTurns, index);
-		CSH->setSimturnsInfo(info);
+		GAME->server().setSimturnsInfo(info);
 	});
 
 	addCallback("setSimturnAI", [&](int index){
 		SimturnsInfo info = SEL->getStartInfo()->simturnsInfo;
 		info.allowHumanWithAI = index;
-		CSH->setSimturnsInfo(info);
+		GAME->server().setSimturnsInfo(info);
 	});
 
 	addCallback("setCheatAllowed", [&](int index){
-		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
 		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"][isMultiplayer ? "cheatsAllowed" : "cheatsNotAllowed"];
 		entry->Bool() = isMultiplayer ? index : !index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.cheatsAllowed = index;
-		CSH->setExtraOptionsInfo(info);
+		GAME->server().setExtraOptionsInfo(info);
 	});
 
 	addCallback("setUnlimitedReplay", [&](int index){
-		bool isMultiplayer = CSH->loadMode == ELoadMode::MULTI;
+		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
 		Settings entry = persistentStorage.write["startExtraOptions"][isMultiplayer ? "multiPlayer" : "singlePlayer"]["unlimitedReplay"];
 		entry->Bool() = index;
 		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
 		info.unlimitedReplay = index;
-		CSH->setExtraOptionsInfo(info);
+		GAME->server().setExtraOptionsInfo(info);
 	});
 
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;
-		CSH->setTurnTimerInfo(info);
+		GAME->server().setTurnTimerInfo(info);
 	});
 
 	addCallback("setUnitTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingUnitTimer = index;
-		CSH->setTurnTimerInfo(info);
+		GAME->server().setTurnTimerInfo(info);
 	});
 
 	//helper function to parse string containing time to integer reflecting time in seconds
@@ -179,7 +188,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.baseTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
+			GAME->server().setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBase"))
 				ww->setText(timeToString(time));
 		}
@@ -190,7 +199,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.turnTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
+			GAME->server().setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldTurn"))
 				ww->setText(timeToString(time));
 		}
@@ -201,7 +210,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.battleTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
+			GAME->server().setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldBattle"))
 				ww->setText(timeToString(time));
 		}
@@ -212,7 +221,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		{
 			TurnTimerInfo tinfo = SEL->getStartInfo()->turnTimerInfo;
 			tinfo.unitTimer = time;
-			CSH->setTurnTimerInfo(tinfo);
+			GAME->server().setTurnTimerInfo(tinfo);
 			if(auto ww = widget<CTextInput>("chessFieldUnit"))
 				ww->setText(timeToString(time));
 		}
@@ -256,7 +265,7 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 						tinfo.turnTimer = (*tObj)["default"].Vector().at(1).Integer() * 1000;
 						tinfo.battleTimer = (*tObj)["default"].Vector().at(2).Integer() * 1000;
 						tinfo.unitTimer = (*tObj)["default"].Vector().at(3).Integer() * 1000;
-						CSH->setTurnTimerInfo(tinfo);
+						GAME->server().setTurnTimerInfo(tinfo);
 					}
 				}
 				redraw();
@@ -309,10 +318,10 @@ void OptionsTabBase::recreate(bool campaign)
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
 		if (days == 0)
-			return CGI->generaltexth->translate("core.genrltxt.523");
+			return LIBRARY->generaltexth->translate("core.genrltxt.523");
 
 		if (days >= 1000000) // Not "unlimited" but close enough
-			return CGI->generaltexth->translate("core.turndur.10");
+			return LIBRARY->generaltexth->translate("core.turndur.10");
 
 		bool canUseMonth = days % 28 == 0 && days >= 28*2;
 		bool canUseWeek = days % 7 == 0 && days >= 7*2;
@@ -333,7 +342,7 @@ void OptionsTabBase::recreate(bool campaign)
 		}
 
 		MetaString message;
-		message.appendTextID(Languages::getPluralFormTextID( CGI->generaltexth->getPreferredLanguage(), value, text));
+		message.appendTextID(Languages::getPluralFormTextID( LIBRARY->generaltexth->getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
 		return message.toString();
 	};
@@ -360,17 +369,17 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto chessFieldTurnLabel = widget<CLabel>("chessFieldTurnLabel"))
 	{
 		if (SEL->getStartInfo()->turnTimerInfo.accumulatingTurnTimer)
-			chessFieldTurnLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldTurnAccumulate.help"));
+			chessFieldTurnLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldTurnAccumulate.help"));
 		else
-			chessFieldTurnLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldTurnDiscard.help"));
+			chessFieldTurnLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldTurnDiscard.help"));
 	}
 
 	if(auto chessFieldUnitLabel = widget<CLabel>("chessFieldUnitLabel"))
 	{
 		if (SEL->getStartInfo()->turnTimerInfo.accumulatingUnitTimer)
-			chessFieldUnitLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldUnitAccumulate.help"));
+			chessFieldUnitLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldUnitAccumulate.help"));
 		else
-			chessFieldUnitLabel->setText(CGI->generaltexth->translate("vcmi.optionsTab.chessFieldUnitDiscard.help"));
+			chessFieldUnitLabel->setText(LIBRARY->generaltexth->translate("vcmi.optionsTab.chessFieldUnitDiscard.help"));
 	}
 
 	if(auto buttonUnitTimerAccumulate = widget<CToggleButton>("buttonUnitTimerAccumulate"))
@@ -390,7 +399,7 @@ void OptionsTabBase::recreate(bool campaign)
 				{
 					turnSlider->scrollTo(idx, false);
 					if(auto w = widget<CLabel>("labelTurnDurationValue"))
-						w->setText(CGI->generaltexth->turnDurations[idx]);
+						w->setText(LIBRARY->generaltexth->turnDurations[idx]);
 				}
 			}
 		}
@@ -418,13 +427,18 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonCheatAllowed = widget<CToggleButton>("buttonCheatAllowed"))
 	{
 		buttonCheatAllowed->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.cheatsAllowed);
-		buttonCheatAllowed->block(CSH->isGuest());
+		buttonCheatAllowed->block(GAME->server().isGuest());
 	}
 
 	if(auto buttonUnlimitedReplay = widget<CToggleButton>("buttonUnlimitedReplay"))
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
-		buttonUnlimitedReplay->block(CSH->isGuest());
+		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
+	{
+		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))

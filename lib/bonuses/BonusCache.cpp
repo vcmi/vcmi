@@ -15,8 +15,9 @@
 #include "BonusSelector.h"
 #include "BonusList.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../IGameSettings.h"
+#include "../spells/SpellSchoolHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -59,22 +60,18 @@ bool BonusValueCache::hasBonus() const
 
 MagicSchoolMasteryCache::MagicSchoolMasteryCache(const IBonusBearer * target)
 	:target(target)
+	,schools(LIBRARY->spellSchoolHandler->getAllObjects().size() + 1)
 {}
 
 void MagicSchoolMasteryCache::update() const
 {
 	static const CSelector allBonusesSelector = Selector::type()(BonusType::MAGIC_SCHOOL_SKILL);
-	static const std::array schoolsSelector = {
-		Selector::subtype()(SpellSchool::ANY),
-		Selector::subtype()(SpellSchool::AIR),
-		Selector::subtype()(SpellSchool::FIRE),
-		Selector::subtype()(SpellSchool::WATER),
-		Selector::subtype()(SpellSchool::EARTH),
-	};
 
 	auto list = target->getBonuses(allBonusesSelector);
-	for (int i = 0; i < schoolsSelector.size(); ++i)
-		schools[i] = list->valOfBonuses(schoolsSelector[i]);
+	schools[0] = list->valOfBonuses(Selector::subtype()(SpellSchool::ANY));
+
+	for (int i = 1; i < schools.size(); ++i)
+		schools[i] = list->valOfBonuses(Selector::subtype()(SpellSchool(i-1)));
 
 	version = target->getTreeVersion();
 }
@@ -99,10 +96,10 @@ void PrimarySkillsCache::update() const
 	static const CSelector knowledgeSelector = Selector::subtype()(PrimarySkill::KNOWLEDGE);
 
 	std::array<int, 4> minValues = {
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::ATTACK),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::DEFENSE),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::SPELL_POWER),
-		VLC->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::KNOWLEDGE)
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::ATTACK),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::DEFENSE),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::SPELL_POWER),
+		LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, PrimarySkill::KNOWLEDGE)
 	};
 
 	auto list = target->getBonuses(primarySkillsSelector);

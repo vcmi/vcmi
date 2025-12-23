@@ -15,7 +15,10 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
+#include "serializer/PlayerConnectionID.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -51,11 +54,7 @@ struct DLL_LINKAGE SimturnsInfo
 		h & requiredTurns;
 		h & optionalTurns;
 		h & allowHumanWithAI;
-
-		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
-			h & ignoreAlliedContacts;
-		else
-			ignoreAlliedContacts = true;
+		h & ignoreAlliedContacts;
 	}
 };
 
@@ -84,8 +83,6 @@ struct DLL_LINKAGE Handicap {
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
-	enum { PLAYER_AI = 0 }; // for use in playerID
-
 	PlayerStartingBonus bonus;
 	FactionID castle;
 	HeroTypeID hero;
@@ -97,7 +94,7 @@ struct DLL_LINKAGE PlayerSettings
 	Handicap handicap;
 
 	std::string name;
-	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
+	std::set<PlayerConnectionID> connectedPlayerIDs; //Empty - AI, or connectrd player ids
 	bool compOnly; //true if this player is a computer only player; required for RMG
 	template <typename Handler>
 	void serialize(Handler &h)
@@ -108,14 +105,7 @@ struct DLL_LINKAGE PlayerSettings
 		h & heroNameTextId;
 		h & bonus;
 		h & color;
-		if (h.version >= Handler::Version::PLAYER_HANDICAP)
-			h & handicap;
-		else
-		{
-			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-			EHandicap handicapLegacy = NO_HANDICAP;
-			h & handicapLegacy;
-		}
+		h & handicap;
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;
@@ -159,13 +149,13 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 
 	PlayerSettings & getIthPlayersSettings(const PlayerColor & no);
 	const PlayerSettings & getIthPlayersSettings(const PlayerColor & no) const;
-	PlayerSettings * getPlayersSettings(const ui8 connectedPlayerId);
+	PlayerSettings * getPlayersSettings(PlayerConnectionID connectedPlayerId);
 
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
 
-	/// Controls hardcoded check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
-	bool isRestorationOfErathiaCampaign() const;
+	/// Controls check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
+	bool restrictedGarrisonsForAI() const;
 
 	template <typename Handler>
 	void serialize(Handler &h)
@@ -173,24 +163,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
-		if (h.version < Handler::Version::REMOVE_LIB_RNG)
-		{
-			uint32_t oldSeeds = 0;
-			h & oldSeeds;
-			h & oldSeeds;
-			h & oldSeeds;
-		}
-		if (h.version < Handler::Version::FOLDER_NAME_REWORK)
-		{
-			std::string startTimeLegacy;
-			h & startTimeLegacy;
-			struct std::tm tm;
-			std::istringstream ss(startTimeLegacy);
-			ss >> std::get_time(&tm, "%Y%m%dT%H%M%S");
-			startTime = mktime(&tm);
-		}
-		else
-			h & startTime;
+		h & startTime;
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;
@@ -211,7 +184,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 
 struct ClientPlayer
 {
-	int connection;
+	GameConnectionID connection;
 	std::string name;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -225,14 +198,14 @@ struct DLL_LINKAGE LobbyState
 {
 	std::shared_ptr<StartInfo> si;
 	std::shared_ptr<CMapInfo> mi;
-	std::map<ui8, ClientPlayer> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
-	int hostClientId;
+	std::map<PlayerConnectionID, ClientPlayer> playerNames; // id of player <-> player name;
+	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	// TODO: Campaign-only and we don't really need either of them.
 	// Before start both go into CCampaignState that is part of StartInfo
 	CampaignScenarioID campaignMap;
 	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
+	LobbyState() : si(new StartInfo()), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -253,19 +226,56 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 
 	void verifyStateBeforeStart(bool ignoreNoHuman = false) const;
 
-	bool isClientHost(int clientId) const;
+	bool isClientHost(GameConnectionID clientId) const;
 	bool isPlayerHost(const PlayerColor & color) const;
-	std::set<PlayerColor> getAllClientPlayers(int clientId) const;
-	std::vector<ui8> getConnectedPlayerIdsForClient(int clientId) const;
+	std::set<PlayerColor> getAllClientPlayers(GameConnectionID clientId) const;
+	std::vector<PlayerConnectionID> getConnectedPlayerIdsForClient(GameConnectionID clientId) const;
 
 	// Helpers for lobby state access
-	std::set<PlayerColor> clientHumanColors(int clientId);
-	PlayerColor clientFirstColor(int clientId) const;
-	bool isClientColor(int clientId, const PlayerColor & color) const;
-	ui8 clientFirstId(int clientId) const; // Used by chat only!
+	std::set<PlayerColor> clientHumanColors(GameConnectionID clientId);
+	PlayerColor clientFirstColor(GameConnectionID clientId) const;
+	bool isClientColor(GameConnectionID clientId, const PlayerColor & color) const;
+	PlayerConnectionID clientFirstId(GameConnectionID clientId) const; // Used by chat only!
 	PlayerInfo & getPlayerInfo(PlayerColor color);
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 
+class DLL_LINKAGE BattleOnlyModeStartInfo : public Serializeable
+{
+public:
+	TerrainId selectedTerrain;
+	FactionID selectedTown;
+
+	std::array<HeroTypeID, 2> selectedHero;
+	std::array<std::array<CStackBasicDescriptor, GameConstants::ARMY_SIZE>, 2> selectedArmy;
+
+	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
+	std::array<std::array<std::pair<SecondarySkill, MasteryLevel::Type>, 8>, 2> secSkillLevel;
+
+	std::array<std::map<ArtifactPosition, ArtifactID>, 2> artifacts;
+	std::array<std::vector<SpellID>, 2> spells;
+
+	std::array<bool, 2> warMachines;
+
+	std::array<bool, 2> spellBook;
+
+	BattleOnlyModeStartInfo();
+
+	void serializeJson(JsonSerializeFormat & handler);
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & selectedTerrain;
+		h & selectedTown;
+		h & selectedHero;
+		h & selectedArmy;
+		h & primSkillLevel;
+		h & secSkillLevel;
+		h & artifacts;
+		h & warMachines;
+		h & spellBook;
+		h & spells;
+	}
+};
 
 VCMI_LIB_NAMESPACE_END

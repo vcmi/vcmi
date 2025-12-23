@@ -1,25 +1,62 @@
 {
-	//images used in game selection screen
-	"game-select" : ["gamselb0", "gamselb1"],
-
-	//Loading screen background and progress bar
+	// Image around main menu
+	"backgroundAround" : "diboxbck",
+	
+	// Images used in game selection screen
+	"scenario-selection" :
+	{
+		"background" : ["gamselb0", "gamselb1"],
+		
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+	},
+	
 	"loading" :
 	{
 		"background" : ["loadbar"],
-		"x": 395, "y": 548, "size": 18, "amount": 20,
-		"name": "loadprog"
-	},
+		
+		"loadbar" : {
+			"name": ["loadprog"],
+			"x": 395, "y": 548, "size": 18, "amount": 20,
+		},
 
-	//Multiplayer selection image
-	"multiplayer" : ["mumap"],
+		//"loadframe" : {
+		//	"name": ["loadframe0", "loadframe1", "loadframe2", "loadframe3"],
+		//	"x": 390, "y": 543
+		//},
+
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+		
+	},
 	
-	//Main menu window, consists of several sub-menus aka items
+	// Multiplayer selection image
+	"multiplayer" : ["mumap"],
+
+	// Main menu window, consists of several sub-menus aka items
 	"window":
 	{
-		"background" : "gamselbk",
-		//"scalable" : true, //background will be scaled to screen size
-		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo. Disabled due to different position in various versions of H3.
-		//"images" : [],//Optional, contains any additional images in the same format as video
+		//"scalable" : true, // Background will be scaled to screen size
+		
+		"background" : ["gamselbk"],
+
+		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" }, // Floating WoG logo. Disabled due to different position in various versions of H3.
+		
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+
 		"items" : 
 		[
 			{
@@ -61,11 +98,11 @@
 				"name" : "campaign",
 				"buttons":
 				[
-					{"x": 634, "y":  67, "center" : true, "name":"CSSSOD",  "shortcut" : "mainMenuCampaignSod", "command": "campaigns sod"},
-					{"x": 637, "y": 181, "center" : true, "name":"CSSROE",  "shortcut" : "mainMenuCampaignRoe", "command": "campaigns roe"},
-					{"x": 638, "y": 301, "center" : true, "name":"CSSARM",  "shortcut" : "mainMenuCampaignAb", "command": "campaigns ab"},
-					{"x": 638, "y": 413, "center" : true, "name":"CSSCUS",  "shortcut" : "mainMenuCampaign", "command": "start campaign"},
-					{"x": 639, "y": 518, "center" : true, "name":"CSSEXIT", "shortcut" : "mainMenuBack",  "command": "to new"}
+					{"x": 634, "y":  67, "center" : true, "name":"CSSSOD",  "shortcut" : "mainMenuCampaignSod", "help": "core.genrltxt.734", "command": "campaigns sod"},
+					{"x": 637, "y": 181, "center" : true, "name":"CSSROE",  "shortcut" : "mainMenuCampaignRoe", "help": "core.genrltxt.725", "command": "campaigns roe"},
+					{"x": 638, "y": 301, "center" : true, "name":"CSSARM",  "shortcut" : "mainMenuCampaignAb", "help": "core.genrltxt.724", "command": "campaigns ab"},
+					{"x": 638, "y": 413, "center" : true, "name":"CSSCUS",  "shortcut" : "mainMenuCampaign", "help": "core.genrltxt.726", "command": "start campaign"},
+					{"x": 639, "y": 518, "center" : true, "name":"CSSEXIT", "shortcut" : "mainMenuBack", "help": "core.genrltxt.727", "command": "to new"}
 				],
 			}
 		]

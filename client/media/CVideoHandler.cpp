@@ -14,10 +14,9 @@
 
 #include "ISoundPlayer.h"
 
-#include "../CGameInfo.h"
 #include "../CMT.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
@@ -26,6 +25,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
+#include "../../lib/GameLibrary.h"
 
 #include <SDL_render.h>
 
@@ -199,7 +199,7 @@ bool CVideoInstance::openVideo()
 void CVideoInstance::prepareOutput(float scaleFactor, bool useTextureOutput)
 {
 	//setup scaling
-	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * GH.screenHandler().getScalingFactor();
+	dimensions = Point(getCodecContext()->width * scaleFactor, getCodecContext()->height * scaleFactor) * ENGINE->screenHandler().getScalingFactor();
 
 	// Allocate a place to put our YUV image on that screen
 	if (useTextureOutput)
@@ -373,12 +373,17 @@ FFMpegStream::~FFMpegStream()
 	avcodec_free_context(&codecContext);
 
 	avformat_close_input(&formatContext);
+
+	// for some reason, buffer is managed (e.g. reallocated) by FFmpeg
+	// however, it must still be freed manually by user
+	if (context && context->buffer)
+		av_free(context->buffer);
 	av_free(context);
 }
 
 Point CVideoInstance::size()
 {
-	return dimensions / GH.screenHandler().getScalingFactor();
+	return dimensions / ENGINE->screenHandler().getScalingFactor();
 }
 
 void CVideoInstance::show(const Point & position, SDL_Surface * to)
@@ -386,7 +391,7 @@ void CVideoInstance::show(const Point & position, SDL_Surface * to)
 	if(sws == nullptr)
 		throw std::runtime_error("No video to show!");
 
-	CSDL_Ext::blitSurface(surface, to, position * GH.screenHandler().getScalingFactor());
+	CSDL_Ext::blitSurface(surface, to, position * ENGINE->screenHandler().getScalingFactor());
 }
 
 double FFMpegStream::getCurrentFrameEndTime() const
@@ -524,7 +529,7 @@ int FFMpegStream::findAudioStream() const
 		}
 	}
 
-	std::string preferredLanguageName = CGI->generaltexth->getPreferredLanguage();
+	std::string preferredLanguageName = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string preferredTag = Languages::getLanguageOptions(preferredLanguageName).tagISO2;
 
 	for (auto const & entry : streamToLanguage)

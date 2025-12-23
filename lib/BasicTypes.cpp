@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 #include "GameConstants.h"
 #include "IGameSettings.h"
 #include "bonuses/BonusList.h"
@@ -32,10 +32,10 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
+	//this code is used in the TerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonusOfType(BonusType::TERRAIN_NATIVE)
-			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(VLC)->getNativeTerrain();
+			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
 
 int32_t AFactionMember::magicResistance() const
@@ -69,10 +69,19 @@ int AFactionMember::getMaxDamage(bool ranged) const
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
+bool AFactionMember::unaffectedByMorale() const
+{
+	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::MECHANICAL)).Or(Selector::type()(BonusType::UNDEAD))
+													   .Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
+
+	static const std::string cachingStrUn = "AFactionMember::unaffectedByMoraleSelector";
+	return getBonusBearer()->hasBonus(unaffectedByMoraleSelector, cachingStrUn);
+}
+
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodMorale = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxGoodMorale = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE).size();
+	int32_t maxBadMorale = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_MORALE))
 	{
@@ -81,12 +90,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return maxGoodMorale;
 	}
 
-	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::MECHANICAL)).Or(Selector::type()(BonusType::UNDEAD))
-													.Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
-
-	static const std::string cachingStrUn = "AFactionMember::unaffectedByMoraleSelector";
-	auto unaffected = getBonusBearer()->hasBonus(unaffectedByMoraleSelector, cachingStrUn);
-	if(unaffected)
+	if(unaffectedByMorale())
 	{
 		if(bonusList && !bonusList->empty())
 			bonusList = std::make_shared<const BonusList>();
@@ -100,8 +104,8 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodLuck = VLC->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = - (int32_t) VLC->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxGoodLuck = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_CHANCE).size();
+	int32_t maxBadLuck = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_CHANCE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_LUCK))
 	{
@@ -186,14 +190,7 @@ ui32 ACreature::getMovementRange(int turn) const
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
-	static const std::string cachingStr = "ACreature::isLiving";
-	static const CSelector selector = Selector::type()(BonusType::UNDEAD)
-		.Or(Selector::type()(BonusType::NON_LIVING))
-		.Or(Selector::type()(BonusType::MECHANICAL))
-		.Or(Selector::type()(BonusType::GARGOYLE))
-		.Or(Selector::type()(BonusType::SIEGE_WEAPON));
-
-	return !getBonusBearer()->hasBonus(selector, cachingStr);
+	return getBonusBearer()->hasBonusOfType(BonusType::LIVING);
 }
 
 

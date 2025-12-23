@@ -12,10 +12,10 @@
 
 #include "CHeroWindow.h"
 #include "CSpellWindow.h"
-#include "CExchangeWindow.h"
 #include "CHeroBackpackWindow.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 
@@ -26,15 +26,15 @@
 #include "../widgets/CComponent.h"
 
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
-#include "../../lib/CConfigHandler.h"
-
-#include "../../CCallback.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CWindowWithArtifacts::CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets)
 {
@@ -52,7 +52,7 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 	const CGHeroInstance * hero = nullptr;
 
 	for(const auto & artSet : artSets)
-		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
+		if(artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS) != nullptr)
 		{
 			hero = artSet->getHero();
 			break;
@@ -73,7 +73,7 @@ const CArtifactInstance * CWindowWithArtifacts::getPickedArtifact() const
 void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, const ArtifactPosition & slot,
 	bool allowExchange, bool altarTrading, bool closeWindow, const Point & cursorPosition)
 {
-	if(!LOCPLINT->makingTurn)
+	if(!GAME->interface()->makingTurn)
 		return;
 	if(hero == nullptr)
 		return;
@@ -83,13 +83,13 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 		if(allowExchange || hero->id == heroArtOwner->id)
 			putPickedArtifact(*hero, slot);
 	}
-	else if(GH.isKeyboardShiftDown())
+	else if(ENGINE->isKeyboardShiftDown())
 	{
 		showQuickBackpackWindow(hero, slot, cursorPosition);
 	}
 	else if(auto art = hero->getArt(slot))
 	{
-		if(hero->getOwner() == LOCPLINT->playerID)
+		if(hero->getOwner() == GAME->interface()->playerID)
 		{
 			if(checkSpecialArts(*art, *hero, altarTrading))
 				onClickPressedCommonArtifact(*hero, slot, closeWindow);
@@ -99,7 +99,7 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 			for(const auto & artSlot : ArtifactUtils::unmovableSlots())
 				if(slot == artSlot)
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+					GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[21]);
 					break;
 				}
 		}
@@ -109,21 +109,26 @@ void CWindowWithArtifacts::clickPressedOnArtPlace(const CGHeroInstance * hero, c
 void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & artsInst, const ArtifactPosition & slot,
 	const ArtifactLocation & dstLoc)
 {
-	LOCPLINT->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
+	GAME->interface()->cb->swapArtifacts(ArtifactLocation(artsInst.getHero()->id, slot), dstLoc);
 	close();
 }
 
-void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
+void CWindowWithArtifacts::showArtifactPopup(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
 	const Point & cursorPosition) const
 {
 	if(artsInst.getArt(artPlace.slot))
 	{
-		if(LOCPLINT->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
+		if(GAME->interface()->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
-		if(LOCPLINT->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
-			return;
-		if(artPlace.text.size())
+		if(!artPlace.text.empty())
+		{
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
+			artPlace.setClosePopupWindowCallback([hero = artsInst.getHero(), artPlacePtr = &artPlace]()
+			{
+				GAME->interface()->artifactController->askToAssemble(hero, artPlacePtr->slot);
+				artPlacePtr->setClosePopupWindowCallback([](){});
+			});
+		}
 	}
 }
 
@@ -136,8 +141,8 @@ void CWindowWithArtifacts::showQuickBackpackWindow(const CGHeroInstance * hero, 
 	if(!ArtifactUtils::isSlotEquipment(slot))
 		return;
 
-	GH.windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
-	auto backpackWindow = GH.windows().topWindow<CHeroQuickBackpackWindow>();
+	ENGINE->windows().createAndPushWindow<CHeroQuickBackpackWindow>(hero, slot);
+	auto backpackWindow = ENGINE->windows().topWindow<CHeroQuickBackpackWindow>();
 	backpackWindow->moveTo(cursorPosition - Point(1, 1));
 	backpackWindow->fitToScreen(15);
 }
@@ -154,7 +159,7 @@ void CWindowWithArtifacts::activate()
 
 void CWindowWithArtifacts::deactivate()
 {
-	CCS->curh->dragAndDropCursor(nullptr);
+	ENGINE->cursor().dragAndDropCursor(nullptr);
 	CWindowObject::deactivate();
 }
 
@@ -164,7 +169,7 @@ void CWindowWithArtifacts::enableKeyboardShortcuts() const
 		artSet->enableKeyboardShortcuts();
 }
 
-void CWindowWithArtifacts::update()
+void CWindowWithArtifacts::updateArtifacts()
 {
 	for(const auto & artSet : artSets)
 	{
@@ -179,11 +184,11 @@ void CWindowWithArtifacts::update()
 		else
 		{
 			artSet->unmarkSlots();
-			CCS->curh->dragAndDropCursor(nullptr);
+			ENGINE->cursor().dragAndDropCursor(nullptr);
 		}
 
 		// Make sure the status bar is updated so it does not display old text
-		if(auto artPlace = artSet->getArtPlace(GH.getCursorPosition()))
+		if(auto artPlace = artSet->getArtPlace(ENGINE->getCursorPosition()))
 			artPlace->hover(true);
 	}
 	redraw();
@@ -200,7 +205,7 @@ void CWindowWithArtifacts::markPossibleSlots() const
 				continue;
 
 			if(getHeroPickedArtifact() == hero || !std::dynamic_pointer_cast<CArtifactsOfHeroKingdom>(artSet))
-				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == LOCPLINT->playerID);
+				artSet->markPossibleSlots(pickedArtInst->getType(), hero->tempOwner == GAME->interface()->playerID);
 		}
 	}
 }
@@ -211,19 +216,19 @@ bool CWindowWithArtifacts::checkSpecialArts(const CArtifactInstance & artInst, c
 	
 	if(artId == ArtifactID::SPELLBOOK)
 	{
-		GH.windows().createAndPushWindow<CSpellWindow>(&hero, LOCPLINT, LOCPLINT->battleInt.get());
+		ENGINE->windows().createAndPushWindow<CSpellWindow>(&hero, GAME->interface(), GAME->interface()->battleInt.get());
 		return false;
 	}
 	if(artId == ArtifactID::CATAPULT)
 	{
 		// The Catapult must be equipped
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312],
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[312],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, ArtifactID(ArtifactID::CATAPULT))));
 		return false;
 	}
 	if(isTrade && !artInst.getType()->isTradable())
 	{
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21],
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[21],
 			std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(ComponentType::ARTIFACT, artId)));
 		return false;
 	}
@@ -235,14 +240,14 @@ void CWindowWithArtifacts::setCursorAnimation(const CArtifactInstance & artInst)
 	if(artInst.isScroll() && settings["general"]["enableUiEnhancements"].Bool())
 	{
 		assert(artInst.getScrollSpellID().num >= 0);
-		auto image = GH.renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("spellscr"), artInst.getScrollSpellID().num, 0, EImageBlitMode::COLORKEY);
 		image->scaleTo(Point(44,34), EScalingAlgorithm::BILINEAR);
 
-		CCS->curh->dragAndDropCursor(image);
+		ENGINE->cursor().dragAndDropCursor(image);
 	}
 	else
 	{
-		CCS->curh->dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
+		ENGINE->cursor().dragAndDropCursor(AnimationPath::builtin("artifact"), artInst.getType()->getIconIndex());
 	}
 }
 
@@ -258,20 +263,20 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 		if(pickedArt->getType()->isBig())
 		{
 			// War machines cannot go to backpack
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
+			GAME->interface()->showInfoDialog(boost::str(boost::format(LIBRARY->generaltexth->allTexts[153]) % pickedArt->getType()->getNameTranslated()));
 		}
 		else
 		{
 			if(ArtifactUtils::isBackpackFreeSlots(heroArtOwner))
-				LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+				GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 			else
-				LOCPLINT->showInfoDialog(CGI->generaltexth->translate("core.genrltxt.152"));
+				GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.152"));
 		}
 	}
 	// Check if artifact transfer is possible
-	else if(pickedArt->canBePutAt(&curHero, dstLoc.slot, true) && (!curHero.getArt(targetSlot) || curHero.tempOwner == LOCPLINT->playerID))
+	else if(pickedArt->canBePutAt(&curHero, dstLoc.slot, true) && (!curHero.getArt(targetSlot) || curHero.tempOwner == GAME->interface()->playerID))
 	{
-		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+		GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 	}
 }
 
@@ -281,7 +286,7 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 	auto srcLoc = ArtifactLocation(curHero.id, slot);
 	auto dstLoc = ArtifactLocation(curHero.id, ArtifactPosition::TRANSITION_POS);
 
-	if(GH.isKeyboardCmdDown())
+	if(ENGINE->isKeyboardCmdDown())
 	{
 		for(const auto & anotherSet : artSets)
 		{
@@ -299,7 +304,7 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 			}
 		}
 	}
-	else if(GH.isKeyboardAltDown())
+	else if(ENGINE->isKeyboardAltDown())
 	{
 		const auto artId = curHero.getArt(slot)->getTypeId();
 		if(ArtifactUtils::isSlotEquipment(slot))
@@ -312,5 +317,5 @@ void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & c
 		close();
 	}
 	if(dstLoc.slot != ArtifactPosition::PRE_FIRST)
-		LOCPLINT->cb->swapArtifacts(srcLoc, dstLoc);
+		GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 }

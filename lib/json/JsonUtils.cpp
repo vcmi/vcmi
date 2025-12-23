@@ -19,6 +19,26 @@ VCMI_LIB_USING_NAMESPACE
 
 static const JsonNode nullNode;
 
+static std::optional<int> getIndexSafe(const JsonNode & node, const std::string & keyName)
+{
+	try {
+		int index = std::stoi(keyName);
+		if (index <= 0 || index > node.Vector().size())
+			throw std::out_of_range("dummy");
+		return index - 1; // 1-based index -> 0-based index
+	}
+	catch(const std::invalid_argument &)
+	{
+		logMod->warn("Failed to interpret key '%s' when replacing individual items in array. Expected 'appendItem', 'appendItems', 'modify@NUM' or 'insert@NUM", keyName);
+		return std::nullopt;
+	}
+	catch(const std::out_of_range & )
+	{
+		logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exist in targeted array of %d items", keyName, node.Vector().size());
+		return std::nullopt;
+	}
+};
+
 static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
 	const JsonNode & fieldProps = schema["properties"][fieldName];
@@ -209,9 +229,45 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 				if (copyMeta)
 					dest.setModScope(source.getModScope(), false);
 
-				//recursively merge all entries from struct
-				for(auto & node : source.Struct())
-					merge(dest[node.first], node.second, ignoreOverride);
+				if (dest.isStruct())
+				{
+					//recursively merge all entries from struct
+					for(auto & node : source.Struct())
+						merge(dest[node.first], node.second, ignoreOverride);
+					break;
+				}
+				if (dest.isVector())
+				{
+					for(auto & node : source.Struct())
+					{
+						if (node.first == "append")
+						{
+							dest.Vector().push_back(std::move(node.second));
+						}
+						else if (node.first == "appendItems")
+						{
+							assert(node.second.isVector());
+							auto& srcVec = node.second.Vector();
+							std::move(srcVec.begin(), srcVec.end(), std::back_inserter(dest.Vector()));
+						}
+						else if (boost::algorithm::starts_with(node.first, "insert@"))
+						{
+							constexpr int numberPosition = std::char_traits<char>::length("insert@");
+							auto index = getIndexSafe(dest, node.first.substr(numberPosition));
+							if (index)
+								dest.Vector().insert(dest.Vector().begin() + index.value(), std::move(node.second));
+						}
+						else if (boost::algorithm::starts_with(node.first, "modify@"))
+						{
+							constexpr int numberPosition = std::char_traits<char>::length("modify@");
+							auto index = getIndexSafe(dest,	node.first.substr(numberPosition));
+							if (index)
+								merge(dest.Vector().at(index.value()), node.second, ignoreOverride);
+						}
+					}
+					break;
+				}
+				assert(false);
 			}
 		}
 	}
@@ -307,10 +363,32 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 		case JsonNode::JsonType::DATA_FLOAT:
 		case JsonNode::JsonType::DATA_INTEGER:
 		case JsonNode::JsonType::DATA_STRING:
-		case JsonNode::JsonType::DATA_VECTOR: // NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
 		{
 			result[keyName][left.getModScope()] = left;
 			result[keyName][right.getModScope()] = right;
+			return;
+		}
+		case JsonNode::JsonType::DATA_VECTOR:
+		{
+			if (right.isStruct())
+			{
+				for(const auto & node : right.Struct())
+				{
+					if (boost::algorithm::starts_with(node.first, "modify@"))
+					{
+						constexpr int numberPosition = std::char_traits<char>::length("modify@");
+						auto index = getIndexSafe(node.second, node.first.substr(numberPosition));
+						if (index)
+							detectConflicts(result, left[*index], node.second, keyName + "/" + node.first.substr(numberPosition));
+					}
+				}
+			}
+			else
+			{
+				// NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
+				result[keyName][left.getModScope()] = left;
+				result[keyName][right.getModScope()] = right;
+			}
 			return;
 		}
 		case JsonNode::JsonType::DATA_STRUCT:

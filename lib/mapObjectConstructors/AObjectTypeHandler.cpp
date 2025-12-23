@@ -13,7 +13,7 @@
 
 #include "IObjectInfo.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../json/JsonUtils.h"
 #include "../modding/IdentifierStorage.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -115,7 +115,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 	if(!input["battleground"].isNull())
 	{
-		VLC->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
 		{
 			battlefield = BattleField(identifier);
 		});
@@ -159,7 +159,7 @@ std::string AObjectTypeHandler::getNameTextID() const
 
 std::string AObjectTypeHandler::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 SObjectSounds AObjectTypeHandler::getSounds() const
@@ -175,6 +175,7 @@ void AObjectTypeHandler::clearTemplates()
 void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate> & templ)
 {
 	templates.push_back(templ);
+	onTemplateAdded(templ);
 }
 
 void AObjectTypeHandler::addTemplate(JsonNode config)

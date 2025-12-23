@@ -1,4 +1,36 @@
 {
-	// Price of each resource in gold, in usual resource order
-	"resources_prices": [ 250, 500, 250, 500, 500, 500, 1, 0 ]
+	"wood": {
+		"index" : 0,
+		"price": 250
+	},
+	
+	"mercury": {
+		"index" : 1,
+		"price": 500
+	},
+	
+	"ore": {
+		"index" : 2,
+		"price": 250
+	},
+	
+	"sulfur": {
+		"index" : 3,
+		"price": 500
+	},
+	
+	"crystal": {
+		"index" : 4,
+		"price": 500
+	},
+	
+	"gems": {
+		"index" : 5,
+		"price": 500
+	},
+	
+	"gold": {
+		"index" : 6,
+		"price": 1
+	}
 }

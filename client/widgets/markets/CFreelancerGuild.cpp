@@ -11,19 +11,19 @@
 #include "StdInc.h"
 #include "CFreelancerGuild.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
-#include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/IMarket.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance * hero)
 	: CMarketBase(market, hero)
@@ -35,11 +35,11 @@ CFreelancerGuild::CFreelancerGuild(const IMarket * market, const CGHeroInstance 
 	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-		VLC->generaltexth->translate("object.core.freelancersGuild.name")));
+		LIBRARY->generaltexth->translate("object.core.freelancersGuild.name")));
 	labels.emplace_back(std::make_shared<CLabel>(155, 103, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-		boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->getNameTranslated())));
+		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[595], [this]() {CFreelancerGuild::makeDeal();}, EShortcut::MARKET_DEAL);
 	offerSlider->moveTo(pos.topLeft() + Point(232, 489));
 
 	// Hero creatures panel
@@ -69,7 +69,7 @@ void CFreelancerGuild::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getHighlightedItemId()), bidQty * toTrade, hero);
+		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_RESOURCE, SlotID(bidTradePanel->highlightedSlot->serial), GameResID(offerTradePanel->getHighlightedItemId()), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
 	}
@@ -80,7 +80,7 @@ CMarketBase::MarketShowcasesParams CFreelancerGuild::getShowcasesParams() const
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 		return MarketShowcasesParams
 		{
-			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), CGI->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()},
+			ShowcaseParams {std::to_string(bidQty * offerSlider->getValue()), LIBRARY->creatures()->getByIndex(bidTradePanel->getHighlightedItemId())->getIconIndex()},
 			ShowcaseParams {std::to_string(offerQty * offerSlider->getValue()), offerTradePanel->getHighlightedItemId()}
 		};
 	else
@@ -96,7 +96,7 @@ void CFreelancerGuild::highlightingChanged()
 		offerSlider->scrollTo(0);
 		offerSlider->block(false);
 		maxAmount->block(false);
-		deal->block(!LOCPLINT->makingTurn);
+		deal->block(!GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();
@@ -108,7 +108,7 @@ std::string CFreelancerGuild::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.269");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		if(bidQty == 1)
@@ -119,6 +119,6 @@ std::string CFreelancerGuild::getTraderText()
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? LIBRARY->generaltexth->allTexts[162] : LIBRARY->generaltexth->allTexts[163];
 	}
 }

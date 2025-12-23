@@ -14,28 +14,28 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
-#include "../../CCallback.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
-	return CGI->mh->compareObjectBlitOrder(CGI->mh->getMap()->objects[left.getNum()], CGI->mh->getMap()->objects[right.getNum()]);
+	return CMap::compareObjectBlitOrder(GAME->map().getMap()->getObject(left), GAME->map().getMap()->getObject(right));
 }
 
 MapRendererContextState::MapRendererContextState()
 {
-	auto mapSize = LOCPLINT->cb->getMapSize();
+	auto mapSize = GAME->interface()->cb->getMapSize();
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
 	logGlobal->debug("Loading map objects");
-	for(const auto & obj : CGI->mh->getMap()->objects)
+	for(const auto & obj : GAME->map().getMap()->getObjects())
 		addObject(obj);
 	logGlobal->debug("Done loading map objects");
 }
@@ -51,7 +51,7 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 		{
 			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(LOCPLINT->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
+			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
 				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
@@ -74,7 +74,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 		{
 			int3 currTile(x, y, object->anchorPos().z);
 
-			if(LOCPLINT->cb->isInTheMap(currTile))
+			if(GAME->interface()->cb->isInTheMap(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
 
@@ -87,8 +87,8 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 void MapRendererContextState::removeObject(const CGObjectInstance * object)
 {
-	for(int z = 0; z < LOCPLINT->cb->getMapSize().z; z++)
-		for(int x = 0; x < LOCPLINT->cb->getMapSize().x; x++)
-			for(int y = 0; y < LOCPLINT->cb->getMapSize().y; y++)
+	for(int z = 0; z < GAME->interface()->cb->getMapSize().z; z++)
+		for(int x = 0; x < GAME->interface()->cb->getMapSize().x; x++)
+			for(int y = 0; y < GAME->interface()->cb->getMapSize().y; y++)
 				vstd::erase(objects[z][x][y], object->id);
 }

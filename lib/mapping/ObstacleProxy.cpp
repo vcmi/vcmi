@@ -16,7 +16,7 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/ObstacleSetHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vstd/RNG.h>
 
@@ -25,16 +25,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 {
 	//get all possible obstacles for this terrain
-	for(auto primaryID : VLC->objtypeh->knownObjects())
+	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
-		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(handler->isStaticObject())
 			{
 				for(const auto & temp : handler->getTemplates())
 				{
-					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().valid())
+					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().isValid())
 						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
@@ -71,7 +71,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 	auto localFilter = filter;
 	localFilter.setType(ObstacleSet::EObstacleType::MOUNTAINS);
 
-	TObstacleTypes mountainSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes mountainSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 
 	if (!mountainSets.empty())
 	{
@@ -86,7 +86,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 	}
 
 	localFilter.setType(ObstacleSet::EObstacleType::TREES);
-	TObstacleTypes treeSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes treeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 
 	// 1 or 2 tree sets
 	size_t treeSetsCount = std::min<size_t>(treeSets.size(), rand.nextInt(1, 2));
@@ -99,7 +99,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 
 	// Some obstacle types may be completely missing from water, but it's not a problem
 	localFilter.setTypes({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS});
-	TObstacleTypes largeSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes largeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 
 	// We probably don't want to have lakes and craters at the same time, choose one of them
 
@@ -113,7 +113,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 	}
 
 	localFilter.setType(ObstacleSet::EObstacleType::ROCKS);
-	TObstacleTypes rockSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes rockSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 
 	size_t rockSetsCount = std::min<size_t>(rockSets.size(), rand.nextInt(1, 2));
 	for (size_t i = 0; i < rockSetsCount; i++)
@@ -124,7 +124,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 	logGlobal->info("Added %d rock sets", rockSetsCount);
 
 	localFilter.setType(ObstacleSet::EObstacleType::PLANTS);
-	TObstacleTypes plantSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes plantSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 
 	// 1 or 2 sets (3 - rock sets)
 	size_t plantSetsCount = std::min<size_t>(plantSets.size(), rand.nextInt(1, std::max<size_t>(3 - rockSetsCount, 2)));
@@ -145,11 +145,11 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 	size_t smallSets = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
 
 	localFilter.setTypes({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS});
-	TObstacleTypes smallObstacleSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes smallObstacleSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 	RandomGeneratorUtil::randomShuffle(smallObstacleSets, rand);
 
 	localFilter.setType(ObstacleSet::EObstacleType::OTHER);
-	TObstacleTypes otherSets = VLC->biomeHandler->getObstacles(localFilter);
+	TObstacleTypes otherSets = LIBRARY->biomeHandler->getObstacles(localFilter);
 	RandomGeneratorUtil::randomShuffle(otherSets, rand);
 
 	while (smallSets > 0)
@@ -193,7 +193,7 @@ bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & r
 		{
 			for (const auto & temp : os->getObstacles())
 			{
-				if(temp->getBlockMapOffset().valid())
+				if(temp->getBlockMapOffset().isValid())
 				{
 					obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
@@ -230,7 +230,7 @@ bool ObstacleProxy::isProhibited(const rmg::Area& objArea) const
 	return false;
 };
 
-int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGameCallback * cb, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
+int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGameInfoCallback * cb, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
 {
 	int maxWeight = std::numeric_limits<int>::min();
 	for(auto & possibleObstacle : possibleObstacles)
@@ -243,9 +243,9 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 
 		for(const auto & temp : shuffledObstacles)
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto * obj = handler->create(nullptr, temp);
-			allObjects.emplace_back(*obj);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
+			auto obj = handler->create(cb, temp);
+			allObjects.emplace_back(obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())
 			{
@@ -311,12 +311,12 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 	return maxWeight;
 }
 
-std::set<CGObjectInstance*> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameCallback * cb)
+std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameInfoCallback * cb)
 {
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
 	int tilePos = 0;
-	std::set<CGObjectInstance*> objs;
+	std::set<std::shared_ptr<CGObjectInstance>> objs;
 
 	while(!blockedArea.empty() && tilePos < blockedArea.getTilesVector().size())
 	{
@@ -356,7 +356,7 @@ std::set<CGObjectInstance*> ObstacleProxy::createObstacles(vstd::RNG & rand, IGa
 
 //FIXME: Only editor placer obstacles directly
 
-void ObstacleProxy::finalInsertion(CMapEditManager * manager, std::set<CGObjectInstance*> & instances)
+void ObstacleProxy::finalInsertion(CMapEditManager * manager, const std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
 	manager->insertObjects(instances); //insert as one operation - for undo purposes
 }
@@ -366,11 +366,11 @@ std::pair<bool, bool> ObstacleProxy::verifyCoverage(const int3 & t) const
 	return {blockedArea.contains(t), false};
 }
 
-void ObstacleProxy::placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances)
+void ObstacleProxy::placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
-	for (auto * instance : object.instances())
+	for (const auto * instance : object.instances())
 	{
-		instances.insert(&instance->object());
+		instances.insert(instance->pointer());
 	}
 }
 
@@ -384,7 +384,7 @@ bool EditorObstaclePlacer::isInTheMap(const int3& tile)
 	return map->isInTheMap(tile);
 }
 
-std::set<CGObjectInstance*> EditorObstaclePlacer::placeObstacles(vstd::RNG & rand)
+std::set<std::shared_ptr<CGObjectInstance>> EditorObstaclePlacer::placeObstacles(vstd::RNG & rand)
 {
 	auto obstacles = createObstacles(rand, map->cb);
 	finalInsertion(map->getEditManager(), obstacles);

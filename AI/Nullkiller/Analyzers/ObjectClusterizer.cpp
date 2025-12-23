@@ -100,7 +100,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		if (ai->cb->isVisible(node.coord))
 			blockers = ai->cb->getVisitableObjs(node.coord);
 
-		if(guardPos.valid() && ai->cb->isVisible(guardPos))
+		if(guardPos.isValid() && ai->cb->isVisible(guardPos))
 		{
 			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
 
@@ -425,7 +425,7 @@ void ObjectClusterizer::clusterizeObject(
 	for(auto & path : pathCache)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Checking path %s", path.toString());
+		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
 		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)

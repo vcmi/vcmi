@@ -12,6 +12,7 @@
 
 #include "CMapService.h"
 #include "MapFeaturesH3M.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,6 +20,7 @@ class CGHeroInstance;
 class MapReaderH3M;
 class MetaString;
 class CArtifactInstance;
+class CArmedInstance;
 class CGObjectInstance;
 class CGSeerHut;
 class IQuestObject;
@@ -27,6 +29,7 @@ class CCreatureSet;
 class CInputStream;
 class TextIdentifier;
 class CGPandoraBox;
+class CMapEvent;
 
 class ObjectInstanceID;
 class BuildingID;
@@ -83,7 +86,7 @@ public:
 	 *
 	 * @return a unique ptr of the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap(IGameCallback * cb) override;
+	std::unique_ptr<CMap> loadMap(IGameInfoCallback * cb) override;
 
 	/**
 	 * Loads the VCMI/H3 map header.
@@ -185,32 +188,37 @@ private:
 	void readObjects();
 
 	/// Reads single object from input stream based on template
-	CGObjectInstance * readObject(std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-
-	CGObjectInstance * readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readSign(const int3 & position);
-	CGObjectInstance * readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readGarrison(const int3 & mapPosition);
-	CGObjectInstance * readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readMine(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
-	CGObjectInstance * readDwelling(const int3 & position);
-	CGObjectInstance * readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readHeroPlaceholder(const int3 & position);
-	CGObjectInstance * readGrail(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	CGObjectInstance * readQuestGuard(const int3 & position);
-	CGObjectInstance * readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	CGObjectInstance * readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readSign(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readGarrison(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readMine(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readAbandonedMine(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readDwelling(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readHeroPlaceholder(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
 	/**
 	 * Reads a creature set.
@@ -218,14 +226,12 @@ private:
 	 * @param out the loaded creature set
 	 * @param number the count of creatures to read
 	 */
-	void readCreatureSet(CCreatureSet * out, int number);
+	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven);
 
-	/**
-	 * Reads a quest for the given quest guard.
-	 *
-	 * @param guard the quest guard where that quest should be applied to
-	 */
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
+	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
+
+	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID);
 
 	/**
 	 * Reads a quest for the given quest guard.
@@ -244,7 +250,7 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position);
+	void readMessageAndGuards(MetaString & message, CArmedInstance * guards, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();
@@ -260,7 +266,12 @@ private:
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
-	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
+	std::vector<std::shared_ptr<ObjectTemplate>> originalTemplates;
+	std::vector<std::shared_ptr<ObjectTemplate>> remappedTemplates;
+
+	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
+	std::map<si32, ObjectInstanceID> questIdentifierToId;
+	std::map<IQuestObject*, si32> questsToResolve;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

@@ -14,7 +14,7 @@
 					"level" : {
 						"type" : "number"
 					},
-					"bonus" : { "$ref" : "bonus.json" }
+					"bonus" : { "$ref" : "bonusInstance.json" }
 				}
 			}
 		}
@@ -43,7 +43,7 @@
 				{
 					"type" : "array",
 					"minItems" : 1,
-					"additionalItems" : { "type" : "string" }
+					"items" : { "type" : "string" }
 				}
 			]
 		},
@@ -66,9 +66,18 @@
 			"description" : "Used together with components fild. Marks the artifact as fused. Cannot be disassembled."
 		},
 		"bonuses" : {
-			"type" : "array",
 			"description" : "Bonuses provided by this artifact using bonus system",
-			"items" : { "$ref" : "bonus.json" }
+			"type" : "object",
+			"additionalProperties" : {
+				"$ref" : "bonusInstance.json"
+			}
+		},
+		"instanceBonuses" : {
+			"description" : "Bonuses provided by every instance of this artifact using bonus system",
+			"type" : "object",
+			"additionalProperties" : {
+				"$ref" : "bonusInstance.json"
+			}
 		},
 		"growing" : {
 			"type" : "object",
@@ -82,16 +91,16 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"description" : "Graphical files associated with the artifact",
-			"required" : [ "image", "map" ],
+			"required" : [ "image", "map", "scenarioBonus" ],
 			"properties" : {
 				"image" : {
 					"type" : "string",
 					"description" : "Base image for this artifact, used for example in hero screen",
 					"format" : "imageFile"
 				},
-				"large" : {
+				"scenarioBonus" : {
 					"type" : "string",
-					"description" : "Large image, used for drag-and-drop and popup messages",
+					"description" : "Image 58x64 in size, for use as campaign scenario starting bonus selection",
 					"format" : "imageFile"
 				},
 				"map" : {
@@ -128,6 +137,25 @@
 		"onlyOnWaterMap" : {
 			"type" : "boolean",
 			"description" : "If set to true, artifact won't spawn on a map without water"
+		},
+		"charged": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Determines charged artifact behavior",
+			"required" : ["usageType"],
+			"properties" : {
+				"usageType": {
+					"type" : "string",
+					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"]
+				},
+				"removeOnDepletion" : {
+					"type" : "boolean"
+				},
+				"startingCharges" : {
+					"type" : "number",
+					"description" : "Default starting charge amount"
+				}
+			}
 		}
 	}
 }

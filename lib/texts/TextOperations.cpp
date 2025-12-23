@@ -10,13 +10,14 @@
 #include "StdInc.h"
 #include "TextOperations.h"
 
-#include "texts/CGeneralTextHandler.h"
+#include "../GameLibrary.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 
 #include <vstd/DateUtils.h>
 
-#include <boost/locale.hpp>
+#include <boost/locale/encoding.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -96,7 +97,7 @@ bool TextOperations::isValidASCII(const char * data, size_t size)
 	return true;
 }
 
-bool TextOperations::isValidUnicodeString(const std::string & text)
+bool TextOperations::isValidUnicodeString(std::string_view text)
 {
 	for (size_t i=0; i<text.size(); i += getUnicodeCharacterSize(text[i]))
 	{
@@ -209,10 +210,14 @@ void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
 	}
 }
 
-size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
+size_t TextOperations::getUnicodeCharactersCount(std::string_view text)
 {
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-	return conv.from_bytes(text).size(); 
+	size_t charactersCount = 0;
+
+	for (size_t i=0; i<text.size(); i += getUnicodeCharacterSize(text[i]))
+		charactersCount++;
+
+	return charactersCount;
 }
 
 std::string TextOperations::escapeString(std::string input)
@@ -248,10 +253,65 @@ std::string TextOperations::getCurrentFormattedDateTimeLocal(std::chrono::second
 	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
 }
 
-int TextOperations::getLevenshteinDistance(const std::string & s, const std::string & t)
+static const std::locale & getLocale()
 {
-	int n = t.size();
-	int m = s.size();
+	auto getLocale = []() -> std::locale
+	{
+		const std::string & baseLocaleName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
+		const std::string fallbackLocale = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).localeName;
+
+		for (const auto & localeName : { baseLocaleName + ".UTF-8", baseLocaleName, fallbackLocale + ".UTF-8", fallbackLocale })
+		{
+			try
+			{
+				// Locale generation may fail (and throw an exception) in two cases:
+				// - if the corresponding locale is not installed on the system
+				// - on Android named locales are not supported at all and always throw an exception
+				return std::locale(localeName);
+			}
+			catch (const std::exception & e)
+			{
+				logGlobal->warn("Failed to set locale '%s'", localeName);
+			}
+		}
+		return std::locale();
+	};
+
+	static const std::locale locale = getLocale();
+	return locale;
+}
+
+int TextOperations::getLevenshteinDistance(std::string_view s, std::string_view t)
+{
+	assert(isValidUnicodeString(s));
+	assert(isValidUnicodeString(t));
+
+	auto charactersEqual = [&s, &t](int sPoint, int tPoint)
+	{
+		uint32_t sUTF32 = getUnicodeCodepoint(s.data() + sPoint, s.size() - sPoint);
+		uint32_t tUTF32 = getUnicodeCodepoint(t.data() + tPoint, t.size() - tPoint);
+
+		if (sUTF32 == tUTF32)
+			return true;
+
+		// Windows - wchar_t represents UTF-16 symbol that does not cover entire Unicode
+		// In UTF-16 such characters can only be represented as 2 wchar_t's, but toupper can only operate on single wchar
+		// Assume symbols are different if one of them cannot be represented as a single UTF-16 symbol
+		if constexpr (sizeof(wchar_t) == 2)
+		{
+			if (sUTF32 > 0xFFFF || (sUTF32 >= 0xD800 && sUTF32 <= 0xDFFF ))
+				return false;
+
+			if (tUTF32 > 0xFFFF || (tUTF32 >= 0xD800 && tUTF32 <= 0xDFFF ))
+				return false;
+		}
+
+		const auto & facet = std::use_facet<std::ctype<wchar_t>>(getLocale());
+		return facet.toupper(sUTF32) == facet.toupper(tUTF32);
+	};
+
+	int n = getUnicodeCharactersCount(t);
+	int m = getUnicodeCharactersCount(s);
 
 	// create two work vectors of integer distances
 	std::vector<int> v0(n+1, 0);
@@ -263,8 +323,9 @@ int TextOperations::getLevenshteinDistance(const std::string & s, const std::str
 	for (int i = 0; i < n; ++i)
 		v0[i] = i;
 
-	for (int i = 0; i < m; ++i)
+	for (int i = 0, iPoint = 0; i < m; ++i, iPoint += getUnicodeCharacterSize(s[iPoint]))
 	{
+
 		// calculate v1 (current row distances) from the previous row v0
 
 		// first element of v1 is A[i + 1][0]
@@ -272,14 +333,14 @@ int TextOperations::getLevenshteinDistance(const std::string & s, const std::str
 		v1[0] = i + 1;
 
 		// use formula to fill in the rest of the row
-		for (int j = 0; j < n; ++j)
+		for (int j = 0, jPoint = 0; j < n; ++j, jPoint += getUnicodeCharacterSize(t[jPoint]))
 		{
 			// calculating costs for A[i + 1][j + 1]
 			int deletionCost = v0[j + 1] + 1;
 			int insertionCost = v1[j] + 1;
 			int substitutionCost;
 
-			if (s[i] == t[j])
+			if (charactersEqual(iPoint, jPoint))
 				substitutionCost = v0[j];
 			else
 				substitutionCost = v0[j] + 1;
@@ -296,30 +357,84 @@ int TextOperations::getLevenshteinDistance(const std::string & s, const std::str
 	return v0[n];
 }
 
-bool TextOperations::textSearchSimilar(const std::string & s, const std::string & t)
+DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, std::string_view str2)
 {
-	boost::locale::generator gen;
-	std::locale loc = gen("en_US.UTF-8"); // support for UTF8 lowercase
-	
-	auto haystack = boost::locale::to_lower(t, loc);
-	auto needle = boost::locale::to_lower(s, loc);
+	const std::collate<char> & col = std::use_facet<std::collate<char>>(getLocale());
+	return col.compare(
+		str1.data(), str1.data() + str1.size(),
+		str2.data(), str2.data() + str2.size()
+	) < 0;
+}
 
-	if(boost::algorithm::contains(haystack, needle))
-		return true;
+std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & needle, const std::string & haystack)
+{
+	// 0 - Best possible match: text starts with the search string
+	if(haystack.rfind(needle, 0) == 0)
+		return 0;
 
-	if(needle.size() > haystack.size())
-		return false;
+	// 1 - Strong match: text contains the search string
+	if(haystack.find(needle) != std::string::npos)
+		return 1;
 
-	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
+	// Dynamic threshold: Reject if too many typos based on word length
+	int haystackCodepoints = getUnicodeCharactersCount(haystack);
+	int needleCodepoints = getUnicodeCharactersCount(needle);
+	int maxAllowedDistance = needleCodepoints / 2;
+
+	// Compute Levenshtein distance for fuzzy similarity
+	int minDist = std::numeric_limits<int>::max();
+
+	for(int i = 0; i <= haystackCodepoints - needleCodepoints; ++i)
 	{
-		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
-		if(needle.size() > 2 && dist <= 1)
-			return true;
-		else if(needle.size() > 4 && dist <= 2)
-			return true;
+		int haystackBegin = 0;
+		for(int j = 0; j < i; ++j)
+			haystackBegin += getUnicodeCharacterSize(haystack[haystackBegin]);
+
+		int haystackEnd = haystackBegin;
+		for(int j = 0; j < needleCodepoints; ++j)
+			haystackEnd += getUnicodeCharacterSize(haystack[haystackEnd]);
+
+		int dist = getLevenshteinDistance(haystack.substr(haystackBegin, haystackEnd - haystackBegin), needle);
+		minDist = std::min(minDist, dist);
 	}
-	
-	return false;
+
+	// Apply scaling: Short words tolerate smaller distances
+	if(needle.size() > 2 && minDist <= 2)
+		minDist += 1;
+
+	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
+}
+
+std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& path)
+{
+#ifdef VCMI_WINDOWS
+	return boost::locale::conv::utf_to_utf<char>(path.native());
+#else
+	return path.string();
+#endif
+}
+
+boost::filesystem::path TextOperations::Utf8TofilesystemPath(const std::string& path)
+{
+#ifdef VCMI_WINDOWS
+	return boost::filesystem::path(boost::locale::conv::utf_to_utf<wchar_t>(path));
+#else
+	return boost::filesystem::path(path);
+#endif
+}
+
+std::string TextOperations::convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+	boost::algorithm::erase_all(input, ".");
+
+	size_t slashPos = input.find_last_of('/');
+
+	if(slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
 }
 
 VCMI_LIB_NAMESPACE_END

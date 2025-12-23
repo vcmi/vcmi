@@ -44,6 +44,8 @@ void ModSettings::initialize(MapController & c)
 	QMap<QString, QTreeWidgetItem*> addedMods;
 	QSet<QString> modsToProcess;
 	ui->treeMods->blockSignals(true);
+	ui->treeMods->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	ui->treeMods->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
 	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const ModDescription & modInfo)
 	{
@@ -57,12 +59,14 @@ void ModSettings::initialize(MapController & c)
 		return item;
 	};
 
-	for(const auto & modName : VLC->modh->getActiveMods())
+	for(const auto & modName : LIBRARY->modh->getActiveMods())
 	{
+		if(modName == "core")
+			continue;
 		QString qmodName = QString::fromStdString(modName);
 		if(qmodName.split(".").size() == 1)
 		{
-			const auto & modInfo = VLC->modh->getModInfo(modName);
+			const auto & modInfo = LIBRARY->modh->getModInfo(modName);
 			addedMods[qmodName] = createModTreeWidgetItem(nullptr, modInfo);
 			ui->treeMods->addTopLevelItem(addedMods[qmodName]);
 		}
@@ -83,7 +87,7 @@ void ModSettings::initialize(MapController & c)
 
 		if(addedMods.count(qs))
 		{
-			const auto & modInfo = VLC->modh->getModInfo(qmodName.toStdString());
+			const auto & modInfo = LIBRARY->modh->getModInfo(qmodName.toStdString());
 			addedMods[qmodName] = createModTreeWidgetItem(addedMods[qs], modInfo);
 			modsToProcess.erase(qmodIter);
 			qmodIter = modsToProcess.begin();
@@ -103,7 +107,7 @@ void ModSettings::update()
 		if(item->checkState(0) == Qt::Checked)
 		{
 			auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-			controller->map()->mods[modName] = VLC->modh->getModInfo(modName).getVerificationInfo();
+			controller->map()->mods[modName] = LIBRARY->modh->getModInfo(modName).getVerificationInfo();
 		}
 	};
 
@@ -115,13 +119,21 @@ void ModSettings::update()
 	}
 }
 
-void ModSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods)
+void ModSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged)
 {
 	//Mod management
 	auto widgetAction = [&](QTreeWidgetItem * item)
 	{
 		auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-		item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+		if(leaveCheckedUnchanged)
+		{
+			if(mods.count(modName))
+				item->setCheckState(0, Qt::Checked);
+		}
+		else
+		{
+			item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+		}
 	};
 
 	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)

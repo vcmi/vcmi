@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/AI_Base.h"
 #include "../../lib/battle/ReachabilityInfo.h"
 #include "PotentialTargets.h"
 #include "StackWithBonuses.h"
@@ -133,7 +132,6 @@ class ReachabilityMapCache
 	std::map<uint32_t, ReachabilityInfo> unitReachabilityMap; // unit ID -> reachability
 	std::map<uint32_t, PerTurnData> hexReachabilityPerTurn;
 
-	//const ReachabilityInfo & update();
 	battle::Units computeOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex);
 public:
 	const battle::Units & getOneTurnReachableUnits(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env, const std::vector<battle::Units> & turnOrder, uint8_t turn, const BattleHex & hex);
@@ -158,7 +156,7 @@ private:
 		PotentialTargets & targets,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb,
-		battle::Units additionalUnits = {}) const;
+		const battle::Units & additionalUnits = {}) const;
 
 	bool canBeHitThisTurn(const AttackPossibility & ap);
 
@@ -193,9 +191,9 @@ public:
 		uint8_t turn,
 		PotentialTargets & targets,
 		std::shared_ptr<HypotheticBattle> hb,
-		battle::Units additionalUnits = {}) const;
+		const battle::Units & additionalUnits = {}) const;
 
-	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, const BattleHex & position);
+	bool checkPositionBlocksOurStacks(const HypotheticBattle & hb, const battle::Unit * unit, const BattleHex & position);
 
 	MoveTarget findMoveTowardsUnreachable(
 		const battle::Unit * activeStack,

@@ -69,7 +69,6 @@ set(lib_MAIN_SRCS
 	bonuses/BonusCache.cpp
 	bonuses/BonusEnum.cpp
 	bonuses/BonusList.cpp
-	bonuses/BonusParams.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
 	bonuses/CBonusSystemNode.cpp
@@ -78,13 +77,33 @@ set(lib_MAIN_SRCS
 	bonuses/Propagators.cpp
 	bonuses/Updaters.cpp
 
+	callback/CAdventureAI.cpp
+	callback/CBattleCallback.cpp
+	callback/CCallback.cpp
+	callback/CDynLibHandler.cpp
+	callback/CGameInfoCallback.cpp
+	callback/CNonConstInfoCallback.cpp
+	callback/CPlayerSpecificInfoCallback.cpp
+	callback/GameRandomizer.cpp
+	callback/MapInfoCallback.cpp
+	callback/EditorCallback.cpp
+
+	campaign/CampaignBonus.cpp
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
+	campaign/CampaignRegions.cpp
+	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
 
+	entities/artifact/ArtifactUtils.cpp
+	entities/artifact/ArtSlotInfo.cpp
+	entities/artifact/CArtHandler.cpp
+	entities/artifact/CArtifact.cpp
+	entities/artifact/CArtifactFittingSet.cpp
+	entities/artifact/CArtifactInstance.cpp
+	entities/artifact/CArtifactSet.cpp
 	entities/building/CBuilding.cpp
-	entities/building/CBuildingHandler.cpp
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
@@ -92,6 +111,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClass.cpp
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
+	entities/ResourceTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -105,25 +125,25 @@ set(lib_MAIN_SRCS
 
 	gameState/CGameState.cpp
 	gameState/CGameStateCampaign.cpp
+	gameState/GameStatePackVisitor.cpp
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/QuestInfo.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
 	gameState/UpgradeInfo.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
-	mapObjectConstructors/CBankInstanceConstructor.cpp
 	mapObjectConstructors/CObjectClassesHandler.cpp
 	mapObjectConstructors/CommonConstructors.cpp
 	mapObjectConstructors/CRewardableConstructor.cpp
 	mapObjectConstructors/DwellingInstanceConstructor.cpp
 	mapObjectConstructors/FlaggableInstanceConstructor.cpp
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
+	mapObjectConstructors/MarketInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
-	mapObjects/CArmedInstance.cpp
-	mapObjects/CBank.cpp
 	mapObjects/CGCreature.cpp
 	mapObjects/CGDwelling.cpp
 	mapObjects/CGHeroInstance.cpp
@@ -133,7 +153,6 @@ set(lib_MAIN_SRCS
 	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
-	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
 	mapObjects/FlaggableMapObject.cpp
@@ -142,6 +161,12 @@ set(lib_MAIN_SRCS
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
+
+	mapObjects/army/CArmedInstance.cpp
+	mapObjects/army/CCommanderInstance.cpp
+	mapObjects/army/CCreatureSet.cpp
+	mapObjects/army/CStackBasicDescriptor.cpp
+	mapObjects/army/CStackInstance.cpp
 
 	mapping/CDrawRoadsOperation.cpp
 	mapping/CMap.cpp
@@ -156,6 +181,7 @@ set(lib_MAIN_SRCS
 	mapping/MapFormatH3M.cpp
 	mapping/MapReaderH3M.cpp
 	mapping/MapFormatJson.cpp
+	mapping/MapFormatSettings.cpp
 	mapping/ObstacleProxy.cpp
 
 	modding/ActiveModsInSaveList.cpp
@@ -192,6 +218,7 @@ set(lib_MAIN_SRCS
 	rmg/CRmgTemplate.cpp
 	rmg/CRmgTemplateStorage.cpp
 	rmg/CZonePlacer.cpp
+	rmg/CRoadRandomizer.cpp
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
@@ -217,15 +244,12 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ObstaclePlacer.cpp
 	rmg/modificators/RiverPlacer.cpp
 	rmg/modificators/TerrainPainter.cpp
-	rmg/threadpool/MapProxy.cpp
+	rmg/MapProxy.cpp
 
-	serializer/BinaryDeserializer.cpp
-	serializer/BinarySerializer.cpp
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
-	serializer/Connection.cpp
+	serializer/GameConnection.cpp
 	serializer/CSaveFile.cpp
-	serializer/CSerializer.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp
@@ -234,7 +258,6 @@ set(lib_MAIN_SRCS
 	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
-	spells/AdventureSpellMechanics.cpp
 	spells/BattleSpellMechanics.cpp
 	spells/BonusCaster.cpp
 	spells/CSpellHandler.cpp
@@ -243,8 +266,17 @@ set(lib_MAIN_SRCS
 	spells/ObstacleCasterProxy.cpp
 	spells/Problem.cpp
 	spells/ProxyCaster.cpp
+	spells/SpellSchoolHandler.cpp
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
+
+	spells/adventure/AdventureSpellEffect.cpp
+	spells/adventure/AdventureSpellMechanics.cpp
+	spells/adventure/DimensionDoorEffect.cpp
+	spells/adventure/RemoveObjectEffect.cpp
+	spells/adventure/SummonBoatEffect.cpp
+	spells/adventure/TownPortalEffect.cpp
+	spells/adventure/ViewWorldEffect.cpp
 
 	spells/effects/Catapult.cpp
 	spells/effects/Clone.cpp
@@ -270,24 +302,17 @@ set(lib_MAIN_SRCS
 	texts/MetaString.cpp
 	texts/TextLocalizationContainer.cpp
 
-	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
 	CAndroidVMHelper.cpp
-	CArtHandler.cpp
-	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
 	CCreatureHandler.cpp
-	CCreatureSet.cpp
-	CGameInfoCallback.cpp
-	CGameInterface.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
 	GameSettings.cpp
-	IGameCallback.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
@@ -299,7 +324,7 @@ set(lib_MAIN_SRCS
 	ScriptHandler.cpp
 	TerrainHandler.cpp
 	TurnTimerInfo.cpp
-	VCMI_Lib.cpp
+	GameLibrary.cpp
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
@@ -403,6 +428,8 @@ set(lib_MAIN_HEADERS
 	../include/vcmi/HeroClassService.h
 	../include/vcmi/HeroType.h
 	../include/vcmi/HeroTypeService.h
+	../include/vcmi/ResourceType.h
+	../include/vcmi/ResourceTypeService.h
 	../include/vcmi/Metatype.h
 	../include/vcmi/Player.h
 	../include/vcmi/ServerCallback.h
@@ -422,6 +449,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
+	battle/BattleUnitTurnReason.h
 	battle/CBattleInfoCallback.h
 	battle/CBattleInfoEssentials.h
 	battle/CObstacleInstance.h
@@ -442,7 +470,6 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
 	bonuses/BonusList.h
-	bonuses/BonusParams.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
 	bonuses/CBonusSystemNode.h
@@ -451,8 +478,35 @@ set(lib_MAIN_HEADERS
 	bonuses/Propagators.h
 	bonuses/Updaters.h
 
+	callback/CAdventureAI.h
+	callback/CBattleCallback.h
+	callback/CBattleGameInterface.h
+	callback/CCallback.h
+	callback/CDynLibHandler.h
+	callback/CGameInfoCallback.h
+	callback/CGameInterface.h
+	callback/CGlobalAI.h
+	callback/CNonConstInfoCallback.h
+	callback/CPlayerSpecificInfoCallback.h
+	callback/GameCallbackHolder.h
+	callback/IBattleCallback.h
+	callback/IBattleEventsReceiver.h
+	callback/IClient.h
+	callback/IGameActionCallback.h
+	callback/CGameInfoCallback.h
+	callback/IGameEventCallback.h
+	callback/IGameEventsReceiver.h
+	callback/IGameInfoCallback.h
+	callback/IGameRandomizer.h
+	callback/GameRandomizer.h
+	callback/MapInfoCallback.h
+	callback/EditorCallback.h
+	
+	campaign/CampaignBonus.h
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
+	campaign/CampaignRegions.h
+	campaign/CampaignRegionsHandler.h
 	campaign/CampaignScenarioPrologEpilog.h
 	campaign/CampaignState.h
 
@@ -463,8 +517,16 @@ set(lib_MAIN_HEADERS
 	constants/NumericConstants.h
 	constants/StringConstants.h
 
+	entities/artifact/ArtBearer.h
+	entities/artifact/ArtifactUtils.h
+	entities/artifact/ArtSlotInfo.h
+	entities/artifact/CArtHandler.h
+	entities/artifact/CArtifact.h
+	entities/artifact/CArtifactInstance.h
+	entities/artifact/CArtifactFittingSet.h
+	entities/artifact/CArtifactSet.h
+	entities/artifact/EArtifactClass.h
 	entities/building/CBuilding.h
-	entities/building/CBuildingHandler.h
 	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
@@ -474,6 +536,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroClassHandler.h
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
+	entities/ResourceTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -488,6 +551,7 @@ set(lib_MAIN_HEADERS
 	gameState/CGameState.h
 	gameState/CGameStateCampaign.h
 	gameState/EVictoryLossCheckResult.h
+	gameState/GameStatePackVisitor.h
 	gameState/HighScore.h
 	gameState/InfoAboutArmy.h
 	gameState/RumorState.h
@@ -498,7 +562,6 @@ set(lib_MAIN_HEADERS
 	gameState/QuestInfo.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
-	mapObjectConstructors/CBankInstanceConstructor.h
 	mapObjectConstructors/CDefaultObjectTypeHandler.h
 	mapObjectConstructors/CObjectClassesHandler.h
 	mapObjectConstructors/CommonConstructors.h
@@ -507,12 +570,11 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/HillFortInstanceConstructor.h
 	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
+	mapObjectConstructors/MarketInstanceConstructor.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
 	mapObjectConstructors/SObjectSounds.h
 
-	mapObjects/CArmedInstance.h
-	mapObjects/CBank.h
 	mapObjects/CGCreature.h
 	mapObjects/CGDwelling.h
 	mapObjects/CGHeroInstance.h
@@ -522,7 +584,6 @@ set(lib_MAIN_HEADERS
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
-	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
 	mapObjects/FlaggableMapObject.h
@@ -535,9 +596,17 @@ set(lib_MAIN_HEADERS
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 
+	mapObjects/army/CArmedInstance.h
+	mapObjects/army/CCommanderInstance.h
+	mapObjects/army/CCreatureSet.h
+	mapObjects/army/CSimpleArmy.h
+	mapObjects/army/CStackBasicDescriptor.h
+	mapObjects/army/CStackInstance.h
+
 	mapping/CDrawRoadsOperation.h
-	mapping/CMapDefines.h
+	mapping/CCastleEvent.h
 	mapping/CMapEditManager.h
+	mapping/CMapEvent.h
 	mapping/CMapHeader.h
 	mapping/CMap.h
 	mapping/CMapInfo.h
@@ -548,9 +617,11 @@ set(lib_MAIN_HEADERS
 	mapping/MapFeaturesH3M.h
 	mapping/MapFormatH3M.h
 	mapping/MapFormat.h
+	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
+	mapping/TerrainTile.h
 
 	modding/ActiveModsInSaveList.h
 	modding/CModHandler.h
@@ -607,6 +678,7 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplate.h
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
+	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
 	rmg/Zone.h
 	rmg/RmgMap.h
@@ -633,29 +705,28 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ObstaclePlacer.h
 	rmg/modificators/RiverPlacer.h
 	rmg/modificators/TerrainPainter.h
-	rmg/threadpool/BlockingQueue.h
-	rmg/threadpool/ThreadPool.h
-	rmg/threadpool/MapProxy.h
+	rmg/MapProxy.h
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
 	serializer/CLoadFile.h
 	serializer/CMemorySerializer.h
-	serializer/Connection.h
+	serializer/GameConnection.h
 	serializer/CSaveFile.h
 	serializer/CSerializer.h
 	serializer/CTypeList.h
+	serializer/GameConnectionID.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
 	serializer/JsonUpdater.h
 	serializer/ESerializationVersion.h
+	serializer/PlayerConnectionID.h
 	serializer/RegisterTypes.h
 	serializer/Serializeable.h
 	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
-	spells/AdventureSpellMechanics.h
 	spells/BattleSpellMechanics.h
 	spells/BonusCaster.h
 	spells/CSpellHandler.h
@@ -664,8 +735,17 @@ set(lib_MAIN_HEADERS
 	spells/ObstacleCasterProxy.h
 	spells/Problem.h
 	spells/ProxyCaster.h
+	spells/SpellSchoolHandler.h
 	spells/TargetCondition.h
 	spells/ViewSpellInt.h
+
+	spells/adventure/AdventureSpellMechanics.h
+	spells/adventure/AdventureSpellEffect.h
+	spells/adventure/DimensionDoorEffect.h
+	spells/adventure/RemoveObjectEffect.h
+	spells/adventure/SummonBoatEffect.h
+	spells/adventure/TownPortalEffect.h
+	spells/adventure/ViewWorldEffect.h
 
 	spells/effects/Catapult.h
 	spells/effects/Clone.h
@@ -693,18 +773,12 @@ set(lib_MAIN_HEADERS
 	texts/TextIdentifier.h
 	texts/TextLocalizationContainer.h
 
-	AI_Base.h
-	ArtifactUtils.h
+	AsyncRunner.h
 	BattleFieldHandler.h
 	CAndroidVMHelper.h
-	CArtHandler.h
-	CArtifactInstance.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
-	CCreatureSet.h
-	CGameInfoCallback.h
-	CGameInterface.h
-	ConstTransitivePtr.h
+	ConditionalWait.h
 	Color.h
 	CPlayerState.h
 	CRandomGenerator.h
@@ -716,12 +790,9 @@ set(lib_MAIN_HEADERS
 	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h
-	GameCallbackHolder.h
 	GameConstants.h
 	GameSettings.h
 	IBonusTypeHandler.h
-	IGameCallback.h
-	IGameEventsReceiver.h
 	IGameSettings.h
 	IHandlerBase.h
 	int3.h
@@ -741,7 +812,7 @@ set(lib_MAIN_HEADERS
 	TurnTimerInfo.h
 	UnlockGuard.h
 	vcmi_endian.h
-	VCMI_Lib.h
+	GameLibrary.h
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
@@ -759,29 +830,40 @@ endif()
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
 	minizip::minizip ZLIB::ZLIB TBB::tbb
-	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
+	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	target_link_libraries(vcmi PRIVATE EmptyAI)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller)
+	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
+		target_link_libraries(vcmi PRIVATE Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		target_link_libraries(vcmi PRIVATE StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		target_link_libraries(vcmi PRIVATE BattleAI)
+	endif()
+
+	if(ENABLE_MMAI)
+		target_link_libraries(vcmi PRIVATE MMAI)
 	endif()
 endif()
 
 # no longer necessary, but might be useful to keep in future
 # unfortunately at the moment tests do not support namespaced build, so enable only on some systems
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	target_compile_definitions(vcmi PUBLIC VCMI_LIB_NAMESPACE=VCMI)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	target_link_libraries(vcmi PUBLIC iOS_utils)
 endif()
 
@@ -797,6 +879,10 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_lib"
 			PROJECT_LABEL "VCMI_lib"
 	)
+	if (MINGW)
+		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
+	endif()
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files
@@ -804,7 +890,7 @@ endif()
 if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set_source_files_properties(
 		serializer/SerializerReflection.cpp
-		IGameCallback.cpp
+		CGameInfoCallback.cpp
 		PROPERTIES
 		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()
@@ -832,7 +918,7 @@ if(NOT ENABLE_STATIC_LIBS)
 	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()
 
-if(APPLE_IOS AND NOT USING_CONAN)
+if(IOS AND NOT USING_CONAN)
 	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
 
 	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)

@@ -13,12 +13,11 @@
 #include "Images.h"
 #include "TextControls.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../eventsSDL/InputHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../gui/InterfaceObjectConfigurable.h"
@@ -30,6 +29,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/GameLibrary.h"
 
 void ButtonBase::update()
 {
@@ -60,6 +60,11 @@ void ButtonBase::update()
 void CButton::setBorderColor(std::optional<ColorRGBA> newBorderColor)
 {
 	borderColor = newBorderColor;
+}
+
+void CButton::setHighlightedBorderColor(std::optional<ColorRGBA> newBorderColor)
+{
+	highlightedBorderColor = newBorderColor;
 }
 
 void CButton::addCallback(const std::function<void()> & callback)
@@ -100,7 +105,7 @@ void ButtonBase::setImage(const AnimationPath & defName, bool playerColoredButto
 	pos = image->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 const JsonNode & ButtonBase::getCurrentConfig() const
@@ -135,7 +140,7 @@ void ButtonBase::setConfigurable(const JsonPath & jsonName, bool playerColoredBu
 	pos = configurable->pos;
 
 	if (playerColoredButton)
-		image->setPlayerColor(LOCPLINT->playerID);
+		image->setPlayerColor(GAME->interface()->playerID);
 }
 
 void CButton::addHoverText(EButtonState state, const std::string & text)
@@ -262,8 +267,8 @@ void CButton::clickPressed(const Point & cursorPosition)
 	{
 		if (!soundDisabled)
 		{
-			CCS->soundh->playSound(soundBase::button);
-			GH.input().hapticFeedback();
+			ENGINE->sound().playSound(soundBase::button);
+			ENGINE->input().hapticFeedback();
 		}
 		setState(EButtonState::PRESSED);
 
@@ -325,9 +330,9 @@ void CButton::hover (bool on)
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
 		if (on)
-			GH.statusbar()->write(name);
+			ENGINE->statusbar()->write(name);
 		else
-			GH.statusbar()->clearIfMatching(name);
+			ENGINE->statusbar()->clearIfMatching(name);
 	}
 }
 
@@ -378,6 +383,12 @@ void CButton::showAll(Canvas & to)
 
 	if (borderColor)
 		to.drawBorder(Rect::createAround(pos, 1), *borderColor);
+
+	if (highlightedBorderColor && isHighlighted())
+	{
+		to.drawBorder(pos, *highlightedBorderColor);
+		to.drawBorder(Rect(pos.topLeft() + Point(1,1), pos.dimensions() - Point(1,1)), *highlightedBorderColor);
+	}
 }
 
 std::pair<std::string, std::string> CButton::tooltip()
@@ -388,8 +399,8 @@ std::pair<std::string, std::string> CButton::tooltip()
 std::pair<std::string, std::string> CButton::tooltipLocalized(const std::string & key)
 {
 	return std::make_pair(
-		CGI->generaltexth->translate(key, "hover"),
-		CGI->generaltexth->translate(key, "help")
+		LIBRARY->generaltexth->translate(key, "hover"),
+		LIBRARY->generaltexth->translate(key, "help")
 	);
 }
 
@@ -489,8 +500,8 @@ void CToggleButton::clickPressed(const Point & cursorPosition)
 
 	if (canActivate())
 	{
-		CCS->soundh->playSound(soundBase::button);
-		GH.input().hapticFeedback();
+		ENGINE->sound().playSound(soundBase::button);
+		ENGINE->input().hapticFeedback();
 		setState(EButtonState::PRESSED);
 	}
 }
@@ -548,7 +559,7 @@ void CToggleGroup::addToggle(int identifier, const std::shared_ptr<CToggleBase> 
 		addChild(intObj.get());
 	}
 
-	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
+	button->addCallback([this, identifier] (bool on) { if (on) selectionChanged(identifier);});
 	button->setAllowDeselection(false);
 
 	if(buttons.count(identifier)>0)

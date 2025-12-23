@@ -36,18 +36,13 @@
 		},
 		"type" : {
 			"type" : "string",
-			"enum" : [ "mysticPond", "castleGate", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank" ],
+			"enum" : [ "mysticPond", "castleGate", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank", "auroraBorealis", "deityOfFire" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {
 			"type" : "string",
 			"enum" : [ "normal", "auto", "special", "grail" ],
 			"description" : "Mode in which this building will be built"
-		},
-		"height" : {
-			"type" : "string",
-			"enum" : [ "skyship", "high", "average", "low"],
-			"description" : "Height for lookout towers and some grails"
 		},
 		"requires" : {
 			"$ref" : "#/definitions/buildingRequirement",
@@ -91,31 +86,17 @@
 		},
 		"cost" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"description" : "Resources needed to build building",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Resources needed to build building"
 		},
 		"produce" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"description" : "Resources produced each day by this building",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Resources produced each day by this building"
 		},
 		"warMachine" : {
 			"type" : "string",
@@ -124,15 +105,22 @@
 		"bonuses" : {
 			"type" : "array",
 			"description" : "Bonuses that are provided by this building in any town where this building has been built. Only affects town itself (including siege), to propagate effect to player or team please use bonus propagators",
-			"items" : { "$ref" : "bonus.json" }
+			"items" : { "$ref" : "bonusInstance.json" }
 		},
 		"marketModes" : {
 			"type" : "array",
 			"items" : {
 				"type" : "string",
-				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"],
+				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"]
 			},
 			"description" : "List of modes available in this market"
+		},
+		"marketOffer" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "List of predefined items available on market from this building"
 		}
 	}
 }

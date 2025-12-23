@@ -61,7 +61,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	static const CSelector selectorSTACKS_SPEED = Selector::type()(BonusType::STACKS_SPEED);
 	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)BonusType::STACKS_SPEED);
 
-	for(auto s : army->Slots())
+	for(const auto & s : army->Slots())
 	{
 		bool walker = true;
 		auto bearer = s.second->getType()->getBonusBearer();
@@ -131,17 +131,21 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 		castleWalls = new fl::InputVariable("CastleWalls");
 		engine.addInputVariable(castleWalls);
 		{
-			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
+			int wallsNone = CGTownInstance::NONE;
+			int wallsFort = CGTownInstance::FORT;
+			int wallsCitadel = CGTownInstance::CITADEL;
+			int wallsCastle = CGTownInstance::CASTLE;
+
+			fl::Rectangle * none = new fl::Rectangle("NONE", wallsNone, wallsNone + (wallsFort - wallsNone) * 0.5f);
 			castleWalls->addTerm(none);
 
-			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
-				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
+			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (wallsFort - wallsNone) * 0.5f, wallsFort, wallsCitadel, wallsCitadel + (wallsCastle - wallsCitadel) * 0.5f);
 			castleWalls->addTerm(medium);
 
-			fl::Ramp * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
+			fl::Ramp * high = new fl::Ramp("HIGH", wallsCitadel - 0.1, wallsCastle);
 			castleWalls->addTerm(high);
 
-			castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
+			castleWalls->setRange(wallsNone, wallsCastle);
 		}
 
 

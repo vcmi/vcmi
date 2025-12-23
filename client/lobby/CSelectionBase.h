@@ -29,6 +29,7 @@ class OptionsTab;
 class TurnOptionsTab;
 class ExtraOptionsTab;
 class SelectionTab;
+class BattleOnlyModeTab;
 class InfoCard;
 class CChatBox;
 class PvPBox;
@@ -65,17 +66,20 @@ public:
 	std::shared_ptr<CButton> buttonSelect;
 	std::shared_ptr<CButton> buttonRMG;
 	std::shared_ptr<CButton> buttonOptions;
-	std::shared_ptr<CButton> buttonTurnOptions;
+	std::shared_ptr<CButton> buttonBattleMode;
 	std::shared_ptr<CButton> buttonExtraOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;
 	std::shared_ptr<CButton> buttonSimturns;
+
+	std::vector<std::shared_ptr<CPicture>> images;
 
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
 	std::shared_ptr<TurnOptionsTab> tabTurnOptions;
 	std::shared_ptr<ExtraOptionsTab> tabExtraOptions;
 	std::shared_ptr<RandomMapTab> tabRand;
+	std::shared_ptr<BattleOnlyModeTab> tabBattleOnlyMode;
 	std::shared_ptr<CIntObject> curTab;
 
 	CSelectionBase(ESelectionScreen type);
@@ -125,6 +129,7 @@ public:
 	InfoCard();
 	void disableLabelRedraws();
 	void changeSelection();
+	void clearSelection();
 	void toggleChat();
 	void setChat(bool activateChat);
 };

@@ -9,22 +9,20 @@
  */
 
 #include "StdInc.h"
+#include "CSkillHandler.h"
 
 #include <cctype>
 
-#include "CSkillHandler.h"
-
+#include "GameLibrary.h"
+#include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
+#include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
-#include "json/JsonBonus.h"
-#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
-#include "modding/ModUtility.h"
-#include "modding/ModScope.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "texts/TextOperations.h"
-#include "VCMI_Lib.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -63,7 +61,7 @@ std::string CSkill::getNameTextID() const
 
 std::string CSkill::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CSkill::getJsonKey() const
@@ -84,7 +82,7 @@ std::string CSkill::getDescriptionTextID(int level) const
 
 std::string CSkill::getDescriptionTranslated(int level) const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID(level));
+	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
 void CSkill::registerIcons(const IconRegistar & cb) const
@@ -109,8 +107,11 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 	b->source = BonusSource::SECONDARY_SKILL;
 	b->sid = BonusSourceID(id);
 	b->duration = BonusDuration::PERMANENT;
-	b->description.appendTextID(getNameTextID());
-	b->description.appendRawString(" %+d");
+	if (b->description.empty() && (b->type == BonusType::LUCK || b->type == BonusType::MORALE))
+	{
+		b->description.appendTextID(getNameTextID());
+		b->description.appendRawString(" %+d");
+	}
 	levels[level-1].effects.push_back(b);
 }
 
@@ -220,7 +221,30 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
 	skill->special = json["special"].Bool();
 
-	VLC->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+
+	for(auto skillPair : json["gainChance"].Struct())
+	{
+		int probability = static_cast<int>(skillPair.second.Integer());
+
+		if (skillPair.first == "might")
+		{
+			skill->gainChance[0] = probability;
+			continue;
+		}
+
+		if (skillPair.first == "magic")
+		{
+			skill->gainChance[1] = probability;
+			continue;
+		}
+
+		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		{
+			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+		});
+	}
+
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -245,10 +269,31 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		VLC->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
+		LIBRARY->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
+		if (!levelNode["images"]["scenarioBonus"].isNull())
+			skillAtLevel.scenarioBonus = levelNode["images"]["scenarioBonus"].String();
+		else
+			skillAtLevel.scenarioBonus = skillAtLevel.iconMedium; // MOD COMPATIBILITY fallback for pre-1.7 mods
+	}
+
+	for(const auto & b : json["specialty"].Vector())
+	{
+		const auto & bonusNode = json["basic"]["effects"][b.String()];
+
+		if (bonusNode.isStruct())
+		{
+			auto bonus = JsonUtils::parseBonus(bonusNode);
+			bonus->val = 0; // set by HeroHandler on specialty load
+			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
+			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
+			skill->specialtyTargetBonuses.push_back(bonus);
+		}
+		else
+			logMod->warn("Failed to load speciality bonus '%s' for skill '%s'", b.String(), identifier);
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, skill->id.getNum());
 
@@ -271,6 +316,8 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
+	object.Struct().erase("base");
 }
 
 std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const

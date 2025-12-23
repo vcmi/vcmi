@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleResultProcessor.h"
+#include "battle/BattleInfo.h"
 
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
@@ -16,24 +17,24 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
-#include "../../lib/battle/CBattleInfoCallback.h"
-#include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/SideInBattle.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
-#include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/spells/CSpellHandler.h"
 
-#include <vstd/RNG.h>
+#include <boost/lexical_cast.hpp>
 
-BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
-//	: owner(owner)
-	: gameHandler(newGameHandler)
+BattleResultProcessor::BattleResultProcessor(CGameHandler * gameHandler)
+	: gameHandler(gameHandler)
 {
 }
 
@@ -62,7 +63,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 	{
 		// Use const cast - in order to call non-const "takeResurrected" for proper calculation of casualties
 		// TODO: better solution
-		CStack * st = const_cast<CStack*>(stConst);
+		auto * st = const_cast<CStack*>(stConst);
 
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
@@ -108,7 +109,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				if(c)
 				{
 					auto h = dynamic_cast <const CGHeroInstance *>(army);
-					if(h && h->commander == c && (st->getCount() == 0 || !st->alive()))
+					if(h && h->getCommander() == c && (st->getCount() == 0 || !st->alive()))
 					{
 						logGlobal->debug("Commander is dead.");
 						heroWithDeadCommander = army->id; //TODO: unify commander handling
@@ -124,13 +125,13 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 			if(st->getCount() == 0 || !st->alive())
 			{
 				logGlobal->debug("Stack has been destroyed.");
-				StackLocation sl(army, st->unitSlot());
+				StackLocation sl(army->id, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
 			else if(st->getCount() != army->getStackCount(st->unitSlot()))
 			{
 				logGlobal->debug("Stack size changed: %d -> %d units.", army->getStackCount(st->unitSlot()), st->getCount());
-				StackLocation sl(army, st->unitSlot());
+				StackLocation sl(army->id, st->unitSlot());
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->getCount()));
 			}
 		}
@@ -143,13 +144,13 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
-	if (gh->getObjInstance(army->id) == nullptr)
+	if (gh->gameInfo().getObjInstance(army->id) == nullptr)
 		throw std::runtime_error("Object " + army->getObjectName() + " is not on the map!");
 
-	for (TStackAndItsNewCount &ncount : newStackCounts)
+	for (const auto & ncount : newStackCounts)
 	{
 		if (ncount.second > 0)
-			gh->changeStackCount(ncount.first, ncount.second, true);
+			gh->changeStackCount(ncount.first, ncount.second, ChangeValueMode::ABSOLUTE);
 		else
 			gh->eraseStack(ncount.first, true);
 	}
@@ -158,7 +159,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 		SlotID slot = army->getSlotFor(summoned_iter.first);
 		if (slot.validSlot())
 		{
-			StackLocation location(army, slot);
+			StackLocation location(army->id, slot);
 			gh->addToSlot(location, summoned_iter.first.toCreature(), summoned_iter.second);
 		}
 		else
@@ -184,17 +185,19 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 
 FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, const BattleResult & result, int remainingBattleQueriesCount)
 {
+	const auto attackerHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
+	const auto defenderHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
 	if (result.winner == BattleSide::ATTACKER)
 	{
-		winnerHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
-		loserHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
+		winnerId = attackerHero ? attackerHero->id : ObjectInstanceID::NONE;
+		loserId = defenderHero ? defenderHero->id : ObjectInstanceID::NONE;
 		victor = info.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 		loser = info.getBattle()->getSidePlayer(BattleSide::DEFENDER);
 	}
 	else
 	{
-		winnerHero = info.getBattle()->getSideHero(BattleSide::DEFENDER);
-		loserHero = info.getBattle()->getSideHero(BattleSide::ATTACKER);
+		winnerId = defenderHero ? defenderHero->id : ObjectInstanceID::NONE;
+		loserId = attackerHero ? attackerHero->id : ObjectInstanceID::NONE;
 		victor = info.getBattle()->getSidePlayer(BattleSide::DEFENDER);
 		loser = info.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 	}
@@ -217,7 +220,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		r.exp[BattleSide::DEFENDER] = 0;
 		for (auto i = r.casualties[battle.otherSide(r.winner)].begin(); i!=r.casualties[battle.otherSide(r.winner)].end(); i++)
 		{
-			r.exp[r.winner] += VLC->creh->objects.at(i->first)->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
+			r.exp[r.winner] += i->first.toCreature()->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
 		}
 	};
 
@@ -261,14 +264,14 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	battleQuery->result = std::make_optional(*battleResult);
 
 	//Check how many battle gameHandler->queries were created (number of players blocked by battle)
-	const int queriedPlayers = battleQuery ? (int)boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
+	const int queriedPlayers = battleQuery ? boost::count(gameHandler->queries->allQueries(), battleQuery) : 0;
 
 	assert(finishingBattles.count(battle.getBattle()->getBattleID()) == 0);
 	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
-	const auto * attackerPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
-	const auto * defenderPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
+	const auto * attackerPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
+	const auto * defenderPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
 	bool isAttackerHuman = attackerPlayer && attackerPlayer->isHuman();
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
@@ -308,10 +311,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		return;
 	}
 
-	auto * battleResult = battleResults.at(battle.getBattle()->getBattleID()).get();
-	auto * finishingBattle = finishingBattles.at(battle.getBattle()->getBattleID()).get();
-
-	const EBattleResult result = battleResult->result;
+	const auto * battleResult = battleResults.at(battle.getBattle()->getBattleID()).get();
+	const auto * finishingBattle = finishingBattles.at(battle.getBattle()->getBattleID()).get();
 
 	//calculate casualties before deleting battle
 	CasualtiesAfterBattle cab1(battle, BattleSide::ATTACKER);
@@ -320,218 +321,61 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	cab1.updateArmy(gameHandler);
 	cab2.updateArmy(gameHandler); //take casualties after battle is deleted
 
-	if(battleResult->winner == BattleSide::DEFENDER
-	   && finishingBattle->winnerHero
-	   && finishingBattle->winnerHero->visitedTown
-	   && !finishingBattle->winnerHero->inTownGarrison
-	   && finishingBattle->winnerHero->visitedTown->garrisonHero == finishingBattle->winnerHero)
-	{
-		gameHandler->swapGarrisonOnSiege(finishingBattle->winnerHero->visitedTown->id); //return defending visitor from garrison to its rightful place
-	}
+	const auto attackerHero = battle.battleGetFightingHero(BattleSide::ATTACKER);
+	const auto defenderHero = battle.battleGetFightingHero(BattleSide::DEFENDER);
+
+	const auto winnerHero = battle.battleGetFightingHero(finishingBattle->winnerSide);
+	const auto loserHero = battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
+
 	//give exp
-	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
-		gameHandler->giveExperience(finishingBattle->winnerHero, battleResult->exp[finishingBattle->winnerSide]);
-
-	// Eagle Eye handling
-	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
+	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide])
 	{
-		ChangeSpells spells;
-
-		if(auto eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
-		{
-			auto eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE);
-			for(auto & spellId : battle.getBattle()->getUsedSpells(battle.otherSide(battleResult->winner)))
-			{
-				auto spell = spellId.toEntity(VLC->spells());
-				if(spell
-					&& spell->getLevel() <= eagleEyeLevel
-					&& !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId())
-					&& gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
-				{
-					spells.spells.insert(spell->getId());
-				}
-			}
-		}
-
-		if(!spells.spells.empty())
-		{
-			spells.learn = 1;
-			spells.hid = finishingBattle->winnerHero->id;
-
-			InfoWindow iw;
-			iw.player = finishingBattle->winnerHero->tempOwner;
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-			iw.text.replaceRawString(finishingBattle->winnerHero->getNameTranslated());
-
-			std::ostringstream names;
-			for(int i = 0; i < spells.spells.size(); i++)
-			{
-				names << "%s";
-				if(i < spells.spells.size() - 2)
-					names << ", ";
-				else if(i < spells.spells.size() - 1)
-					names << "%s";
-			}
-			names << ".";
-
-			iw.text.replaceRawString(names.str());
-
-			auto it = spells.spells.begin();
-			for(int i = 0; i < spells.spells.size(); i++, it++)
-			{
-				iw.text.replaceName(*it);
-				if(i == spells.spells.size() - 2) //we just added pre-last name
-					iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
-				iw.components.emplace_back(ComponentType::SPELL, *it);
-			}
-			gameHandler->sendAndApply(iw);
-			gameHandler->sendAndApply(spells);
-		}
-	}
-	// Artifacts handling
-	if(result == EBattleResult::NORMAL && !finishingBattle->isDraw() && finishingBattle->winnerHero)
-	{
-		std::vector<const CArtifactInstance*> arts; // display them in window
-		CArtifactFittingSet artFittingSet(*finishingBattle->winnerHero);
-
-		const auto addArtifactToTransfer = [&artFittingSet, &arts](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
-		{
-			assert(art);
-			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
-			if(dstSlot != ArtifactPosition::PRE_FIRST)
-			{
-				pack.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
-				if(ArtifactUtils::isSlotEquipment(dstSlot))
-					pack.artsPack0.back().askAssemble = true;
-				arts.emplace_back(art);
-				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));
-			}
-		};
-		const auto sendArtifacts = [this](BulkMoveArtifacts & bma)
-		{
-			if(!bma.artsPack0.empty())
-				gameHandler->sendAndApply(bma);
-		};
-
-		BulkMoveArtifacts packHero(finishingBattle->winnerHero->getOwner(), ObjectInstanceID::NONE, finishingBattle->winnerHero->id, false);
-		if(finishingBattle->loserHero)
-		{
-			packHero.srcArtHolder = finishingBattle->loserHero->id;
-			for(const auto & slot : ArtifactUtils::commonWornSlots())
-			{
-				if(const auto artSlot = finishingBattle->loserHero->artifactsWorn.find(slot);
-					artSlot != finishingBattle->loserHero->artifactsWorn.end() && ArtifactUtils::isArtRemovable(*artSlot))
-				{
-					addArtifactToTransfer(packHero, artSlot->first, artSlot->second.getArt());
-				}
-			}
-			for(const auto & artSlot : finishingBattle->loserHero->artifactsInBackpack)
-			{
-				if(const auto art = artSlot.getArt(); art->getTypeId() != ArtifactID::GRAIL)
-					addArtifactToTransfer(packHero, finishingBattle->loserHero->getArtPos(art), art);
-			}
-
-			if(finishingBattle->loserHero->commander)
-			{
-				BulkMoveArtifacts packCommander(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
-				packCommander.srcCreature = finishingBattle->loserHero->findStack(finishingBattle->loserHero->commander);
-				for(const auto & artSlot : finishingBattle->loserHero->commander->artifactsWorn)
-					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
-				sendArtifacts(packCommander);
-			}
-			auto armyObj = battle.battleGetArmyObject(battle.otherSide(battleResult->winner));
-			for(const auto & armySlot : armyObj->stacks)
-			{
-				BulkMoveArtifacts packsArmy(finishingBattle->winnerHero->getOwner(), finishingBattle->loserHero->id, finishingBattle->winnerHero->id, false);
-				packsArmy.srcArtHolder = armyObj->id;
-				packsArmy.srcCreature = armySlot.first;
-				for(const auto & artSlot : armySlot.second->artifactsWorn)
-					addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
-				sendArtifacts(packsArmy);
-			}
-		}
-		// Display loot
-		if(!arts.empty())
-		{
-			InfoWindow iw;
-			iw.player = finishingBattle->winnerHero->tempOwner;
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 30); //You have captured enemy artifact
-
-			for(const auto art : arts) //TODO; separate function to display loot for various objects?
-			{
-				if(art->isScroll())
-					iw.components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());
-				else
-					iw.components.emplace_back(ComponentType::ARTIFACT, art->getTypeId());
-
-				if(iw.components.size() >= GameConstants::INFO_WINDOW_ARTIFACTS_MAX_ITEMS)
-				{
-					gameHandler->sendAndApply(iw);
-					iw.components.clear();
-				}
-			}
-			gameHandler->sendAndApply(iw);
-		}
-		if(!packHero.artsPack0.empty())
-			sendArtifacts(packHero);
+		gameHandler->giveStackExperience(battle.battleGetArmyObject(finishingBattle->winnerSide), battleResult->exp[finishingBattle->winnerSide]);
+		if (winnerHero)
+			gameHandler->giveExperience(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
 	}
 
-	// Remove beaten hero
-	if(finishingBattle->loserHero)
+	// Add statistics
+	if(loserHero && !finishingBattle->isDraw())
 	{
-		//add statistics
-		if(!finishingBattle->isDraw())
-		{
-			ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;
-			for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->getHeroes())
-				if(!strongestHero || hero->exp > strongestHero->exp)
-					strongestHero = hero;
-			if(strongestHero->id == finishingBattle->loserHero->id && strongestHero->level > 5)
-				gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState()->getDate(Date::DAY);
-		}
-
-		RemoveObject ro(finishingBattle->loserHero->id, finishingBattle->victor);
-		gameHandler->sendAndApply(ro);
+		const CGHeroInstance * strongestHero = nullptr;
+		for(auto & hero : gameHandler->gameState().getPlayerState(finishingBattle->loser)->getHeroes())
+			if(!strongestHero || hero->exp > strongestHero->exp)
+				strongestHero = hero;
+		if(strongestHero->id == finishingBattle->loserId && strongestHero->level > 5)
+			gameHandler->statistics->accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
 	}
-	// For draw case both heroes should be removed
-	if(finishingBattle->isDraw() && finishingBattle->winnerHero)
-	{
-		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->loser);
-		gameHandler->sendAndApply(ro);
-	}
-
-	// add statistic
 	if(battle.sideToPlayer(BattleSide::ATTACKER) == PlayerColor::NEUTRAL || battle.sideToPlayer(BattleSide::DEFENDER) == PlayerColor::NEUTRAL)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
+			gameHandler->statistics->accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
 	}
 	else
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
+			gameHandler->statistics->accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
 	}
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[BattleSide::ATTACKER].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::ATTACKER));
-	raccepted.heroResult[BattleSide::DEFENDER].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::DEFENDER));
-	raccepted.heroResult[BattleSide::ATTACKER].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::ATTACKER));
-	raccepted.heroResult[BattleSide::DEFENDER].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::DEFENDER));
+	raccepted.heroResult[BattleSide::ATTACKER].heroID = attackerHero ? attackerHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::DEFENDER].heroID = defenderHero ? defenderHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::ATTACKER].armyID = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
+	raccepted.heroResult[BattleSide::DEFENDER].armyID = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
 	raccepted.heroResult[BattleSide::DEFENDER].exp = battleResult->exp[BattleSide::DEFENDER];
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(raccepted);
 
-	gameHandler->queries->popIfTop(battleQuery);
-	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
+	gameHandler->queries->popIfTop(battleQuery); // Workaround to remove battle query for AI case. TODO Think of a cleaner solution.
+	//--> continuation (battleFinalize) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
-void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult & result)
+void BattleResultProcessor::battleFinalize(const BattleID & battleID, const BattleResult & result)
 {
 	LOG_TRACE(logGlobal);
 
@@ -552,49 +396,241 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 	// but the battle consequences are applied after final player is unblocked. Hard to abuse...
 	// Still, it looks like a hole.
 
-	// Necromancy if applicable.
-	const CStackBasicDescriptor raisedStack = finishingBattle->winnerHero ? finishingBattle->winnerHero->calculateNecromancy(result) : CStackBasicDescriptor();
-	// Give raised units to winner and show dialog, if any were raised,
-	// units will be given after casualties are taken
-	const SlotID necroSlot = raisedStack.getCreature() ? finishingBattle->winnerHero->getSlotFor(raisedStack.getCreature()) : SlotID();
+	const auto battle = std::find_if(gameHandler->gameState().currentBattles.begin(), gameHandler->gameState().currentBattles.end(),
+		[battleID](const auto & desiredBattle)
+		{
+			return desiredBattle->battleID == battleID;
+		});
+	assert(battle != gameHandler->gameState().currentBattles.end());
 
-	if (necroSlot != SlotID() && !finishingBattle->isDraw())
+	const CGHeroInstance * winnerHero = nullptr;
+	const CGHeroInstance * loserHero = nullptr;
+
+	const auto attackerHero = (*battle)->battleGetFightingHero(BattleSide::ATTACKER);
+	const auto defenderHero = (*battle)->battleGetFightingHero(BattleSide::DEFENDER);
+	const auto attackerSide = (*battle)->getSidePlayer(BattleSide::ATTACKER);
+	const auto defenderSide = (*battle)->getSidePlayer(BattleSide::DEFENDER);
+	bool winnerHasUnitsLeft = true;
+
+	if (!finishingBattle->isDraw())
 	{
-		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
-		gameHandler->addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.getCreature(), raisedStack.count);
+		winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
+		loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
+		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 || (winnerHero->getCommander() && winnerHero->getCommander()->alive) : true;
 	}
 
 	BattleResultsApplied resultsApplied;
+
+	std::vector<ArtifactInstanceID> dyingArtifacts;
+
+	const auto addArtifactToDischarging = [&resultsApplied, &dyingArtifacts](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
+			const ObjectInstanceID & id, const std::optional<SlotID> & creature = std::nullopt)
+	{
+		for(const auto & [slot, slotInfo] : artMap)
+		{
+			auto artInst = slotInfo.getArt();
+			assert(artInst);
+			const auto condition = artInst->getType()->getDischargeCondition();
+			if (condition == DischargeArtifactCondition::BATTLE)
+			{
+				if (artInst->getCharges() <= 1 && artInst->getType()->getRemoveOnDepletion())
+					dyingArtifacts.push_back(artInst->getId());
+
+				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
+				discharging.artLoc.emplace(id, creature, slot);
+			}
+		}
+	};
+
+	if(winnerHero && winnerHasUnitsLeft)
+	{
+		// Eagle Eye handling
+		if(auto eagleEyeLevel = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
+		{
+			resultsApplied.learnedSpells.learn = 1;
+			resultsApplied.learnedSpells.hid = finishingBattle->winnerId;
+			for(const auto & spellId : (*battle)->getUsedSpells(CBattleInfoEssentials::otherSide(result.winner)))
+			{
+				const auto spell = spellId.toEntity(LIBRARY->spells());
+				if(spell
+					&& spell->getLevel() <= eagleEyeLevel
+					&& !winnerHero->spellbookContainsSpell(spell->getId())
+					&& gameHandler->getRandomGenerator().nextInt(99) < winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE))
+				{
+					resultsApplied.learnedSpells.spells.insert(spell->getId());
+				}
+			}
+		}
+
+		// Growing artifacts handling
+		const auto addArtifactToGrowing = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
+		{
+			for(const auto & [slot, slotInfo] : artMap)
+			{
+				const auto artInst = slotInfo.getArt();
+				assert(artInst);
+				if(artInst->getType()->isGrowing())
+					resultsApplied.growingArtifacts.emplace_back(artInst->getId());
+			}
+		};
+
+		if(const auto commander = winnerHero->getCommander(); commander && commander->alive)
+			addArtifactToGrowing(commander->artifactsWorn);
+		addArtifactToGrowing(winnerHero->artifactsWorn);
+
+		// Charged artifacts handling
+		addArtifactToDischarging(winnerHero->artifactsWorn, winnerHero->id);
+		if(const auto commander = winnerHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn, winnerHero->id, winnerHero->findStack(winnerHero->getCommander()));
+
+		// Necromancy handling
+		// Give raised units to winner, if any were raised, units will be given after casualties are taken
+		resultsApplied.raisedStack = winnerHero->calculateNecromancy(result);
+		const SlotID necroSlot = resultsApplied.raisedStack.getCreature() ? winnerHero->getSlotFor(resultsApplied.raisedStack.getCreature()) : SlotID();
+		if(necroSlot != SlotID() && !finishingBattle->isDraw())
+			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.getCount());
+	}
+
+	if(loserHero)
+	{
+		// Charged artifacts handling
+		addArtifactToDischarging(loserHero->artifactsWorn, loserHero->id);
+		if(const auto commander = loserHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn, loserHero->id, loserHero->findStack(loserHero->getCommander()));
+	}
+
+	// Moving artifacts handling
+	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft)
+	{
+		CArtifactFittingSet artFittingSet(*winnerHero);
+		const auto addArtifactToTransfer = [&artFittingSet, &dyingArtifacts](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
+		{
+			assert(art);
+			if (vstd::contains(dyingArtifacts, art->getId()))
+				return; // artifact will be removed soon and can't be transferred to winner hero
+
+			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
+			if(dstSlot != ArtifactPosition::PRE_FIRST)
+			{
+				pack.artsPack0.emplace_back(MoveArtifactInfo(srcSlot, dstSlot));
+				if(ArtifactUtils::isSlotEquipment(dstSlot))
+					pack.artsPack0.back().askAssemble = true;
+				artFittingSet.putArtifact(dstSlot, art);
+			}
+		};
+
+		if (loserHero)
+		{
+			BulkMoveArtifacts packHero(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+			packHero.srcArtHolder = finishingBattle->loserId;
+			for(const auto & slot : ArtifactUtils::commonWornSlots())
+			{
+				if(const auto artSlot = loserHero->artifactsWorn.find(slot); artSlot != loserHero->artifactsWorn.end() && ArtifactUtils::isArtRemovable(*artSlot))
+				{
+					addArtifactToTransfer(packHero, artSlot->first, artSlot->second.getArt());
+				}
+			}
+			for(const auto & artSlot : loserHero->artifactsInBackpack)
+			{
+				if(const auto art = artSlot.getArt(); art->getTypeId() != ArtifactID::GRAIL)
+					addArtifactToTransfer(packHero, loserHero->getArtPos(art), art);
+			}
+			if(!packHero.artsPack0.empty())
+				resultsApplied.movingArtifacts.emplace_back(std::move(packHero));
+
+			if(loserHero->getCommander())
+			{
+				BulkMoveArtifacts packCommander(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				packCommander.srcCreature = loserHero->findStack(loserHero->getCommander());
+				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
+					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
+
+				if(!packCommander.artsPack0.empty())
+					resultsApplied.movingArtifacts.emplace_back(std::move(packCommander));
+			}
+
+			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->gameInfo().getObj(finishingBattle->loserId));
+			for(const auto & armySlot : armyObj->stacks)
+			{
+				BulkMoveArtifacts packArmy(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				packArmy.srcArtHolder = armyObj->id;
+				packArmy.srcCreature = armySlot.first;
+				for(const auto & artSlot : armySlot.second->artifactsWorn)
+					addArtifactToTransfer(packArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
+
+				if(!packArmy.artsPack0.empty())
+					resultsApplied.movingArtifacts.emplace_back(std::move(packArmy));
+			}
+		}
+	}
+
 	resultsApplied.battleID = battleID;
-	resultsApplied.player1 = finishingBattle->victor;
-	resultsApplied.player2 = finishingBattle->loser;
+	resultsApplied.victor = finishingBattle->victor;
+	resultsApplied.loser = finishingBattle->loser;
+	//BattleResultsApplied does not end the battle, it only applies most of its consequences
 	gameHandler->sendAndApply(resultsApplied);
 
-	//handle victory/loss of engaged players
-	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
-	gameHandler->checkVictoryLossConditions(playerColors);
+	// Remove beaten hero
+	if(loserHero)
+	{
+		RemoveObject ro(loserHero->id, finishingBattle->victor);
+		gameHandler->sendAndApply(ro);
+	}
+
+	//retreat the victor if he/she has no pernament creatures left
+	if (winnerHero && !winnerHasUnitsLeft)
+	{
+		RemoveObject ro(winnerHero->id, finishingBattle->loser);
+		gameHandler->sendAndApply(ro);
+		gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
+	}
+
+	// For draw case both heroes should be removed
+	if(finishingBattle->isDraw())
+	{
+
+		if (attackerHero)
+		{
+			RemoveObject ro(attackerHero->id, defenderSide);
+			gameHandler->sendAndApply(ro);
+		}
+
+		if (defenderHero)
+		{
+			RemoveObject ro(defenderHero->id, attackerSide);
+			gameHandler->sendAndApply(ro);
+		}
+
+		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
+		{
+			if (attackerHero)
+				gameHandler->heroPool->onHeroEscaped(attackerSide, attackerHero);
+			if (defenderHero)
+				gameHandler->heroPool->onHeroEscaped(defenderSide, defenderHero);
+		}
+	}
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
-		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, finishingBattle->loserHero);
+		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
+		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
 	}
 
 	if (result.result == EBattleResult::ESCAPE)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
-		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, finishingBattle->loserHero);
+		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroEscaped++;
+		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
 
-	if (result.winner != BattleSide::NONE && finishingBattle->winnerHero && finishingBattle->winnerHero->stacks.empty()
-		&& (!finishingBattle->winnerHero->commander || !finishingBattle->winnerHero->commander->alive))
-	{
-		RemoveObject ro(finishingBattle->winnerHero->id, finishingBattle->winnerHero->getOwner());
-		gameHandler->sendAndApply(ro);
+	//notify all players that battle has ended after all consequences are applied
+	BattleEnded ended;
+	ended.battleID = battleID;
+	ended.victor = finishingBattle->victor;
+	ended.loser = finishingBattle->loser;
+	gameHandler->sendAndApply(ended);
 
-		if (gameHandler->getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
-			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, finishingBattle->winnerHero);
-	}
+	//handle victory/loss of engaged players
+	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
 	finishingBattles.erase(battleID);
 	battleResults.erase(battleID);
@@ -610,6 +646,7 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	battleResult->battleID = battle.getBattle()->getBattleID();
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
+	battleResult->attacker = battle.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 
 	auto allStacks = battle.battleGetStacksIf([](const CStack * stack){
 

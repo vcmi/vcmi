@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ObjectLists.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "Slider.h"
 
 CObjectList::CObjectList(CreateFunc create)
@@ -122,6 +122,8 @@ void CListBox::updatePositions()
 		moveChildForeground(slider.get());
 	}
 	redraw();
+	if(onScroll)
+		onScroll();
 }
 
 void CListBox::reset()

@@ -23,7 +23,7 @@ class RmgMap;
 class CMap;
 class Zone;
 class CZonePlacer;
-class IGameCallback;
+class IGameInfoCallback;
 
 using JsonVector = std::vector<JsonNode>;
 
@@ -51,10 +51,11 @@ public:
 		std::vector<int> pandoraCreatureValues;
 		std::vector<int> questValues;
 		std::vector<int> questRewardValues;
+		int seerHutValue;
 		bool singleThread;
 	};
 	
-	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed);
+	explicit CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed);
 	~CMapGenerator(); // required due to std::unique_ptr
 	
 	const Config & getConfig() const;

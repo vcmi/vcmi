@@ -11,7 +11,7 @@
 #include "BattleOptionsTab.h"
 
 #include "../../battle/BattleInterface.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"

@@ -11,9 +11,8 @@
 #include "StdInc.h"
 #include "ArmyManager.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/TerrainHandler.h"
@@ -98,7 +97,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 
 			slotInfp.creature = cre;
 			slotInfp.power += i.second->getPower();
-			slotInfp.count += i.second->count;
+			slotInfp.count += i.second->getCount();
 		}
 	}
 
@@ -120,8 +119,8 @@ std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<Slo
 	for (const auto & unit : army)
 		totalPower += unit.power;
 
-	// TODO: replace with EGameSettings::HEROES_MOVEMENT_COST_BASE in 1.7
-	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(VLC)->moveCost != GameConstants::BASE_MOVEMENT_COST;
+	int baseMovementCost = cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(LIBRARY)->moveCost != baseMovementCost;
 
 	// arbitrary threshold - don't give scout more than specified part of total AI value of our army
 	uint64_t maxUnitValue = totalPower / 100;
@@ -173,7 +172,7 @@ class TemporaryArmy : public CArmedInstance
 public:
 	void armyChanged() override {}
 	TemporaryArmy()
-		:CArmedInstance(nullptr, true)
+		:CArmedInstance(nullptr, BonusNodeType::UNKNOWN, true)
 	{
 	}
 };
@@ -232,18 +231,19 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
-			const auto & badMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-			const auto & highMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+			const auto & badMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+			const auto & highMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+			int moraleDiceSize = cb->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
 
-			if(morale < 0 && !badMoraleDice.empty())
+			if(morale < 0 && !badMoraleChance.empty())
 			{
-				size_t diceIndex = std::min<size_t>(badMoraleDice.size(), -morale) - 1;
-				multiplier -= 1.0 / badMoraleDice.at(diceIndex);
+				size_t chanceIndex = std::min<size_t>(badMoraleChance.size(), -morale) - 1;
+				multiplier -= 1.0 / moraleDiceSize * badMoraleChance.at(chanceIndex);
 			}
-			else if(morale > 0 && !highMoraleDice.empty())
+			else if(morale > 0 && !highMoraleChance.empty())
 			{
-				size_t diceIndex = std::min<size_t>(highMoraleDice.size(), morale) - 1;
-				multiplier += 1.0 / highMoraleDice.at(diceIndex);
+				size_t chanceIndex = std::min<size_t>(highMoraleChance.size(), morale) - 1;
+				multiplier += 1.0 / moraleDiceSize * highMoraleChance.at(chanceIndex);
 			}
 
 			newValue += multiplier * slot.second->getPower();
@@ -488,9 +488,9 @@ void ArmyManager::update()
 
 	for(auto army : total)
 	{
-		for(auto slot : army->Slots())
+		for(const auto & slot : army->Slots())
 		{
-			totalArmy[slot.second->getCreatureID()].count += slot.second->count;
+			totalArmy[slot.second->getCreatureID()].count += slot.second->getCount();
 		}
 	}
 
@@ -505,12 +505,12 @@ std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) con
 {
 	std::vector<SlotInfo> result;
 
-	for(auto slot : army->Slots())
+	for(const auto & slot : army->Slots())
 	{
 		SlotInfo slotInfo;
 
 		slotInfo.creature = slot.second->getCreatureID().toCreature();
-		slotInfo.count = slot.second->count;
+		slotInfo.count = slot.second->getCount();
 		slotInfo.power = evaluateStackPower(slotInfo.creature, slotInfo.count);
 
 		result.push_back(slotInfo);
@@ -523,7 +523,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 {
 	std::vector<StackUpgradeInfo> upgrades;
 
-	for(auto creature : army->Slots())
+	for(const auto & creature : army->Slots())
 	{
 		CreatureID initial = creature.second->getCreatureID();
 		auto possibleUpgrades = initial.toCreature()->upgrades;
@@ -536,7 +536,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 			return cre.toCreature()->getAIValue();
 		});
 
-		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());
 
 		if(initial.toCreature()->getLevel() == 1)
 			upgrade.cost = TResources();
@@ -551,7 +551,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 {
 	std::vector<StackUpgradeInfo> upgrades;
 
-	for(auto creature : army->Slots())
+	for(const auto & creature : army->Slots())
 	{
 		CreatureID initial = creature.second->getCreatureID();
 		auto possibleUpgrades = initial.toCreature()->upgrades;
@@ -575,7 +575,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 			return cre.toCreature()->getAIValue();
 		});
 
-		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());
 
 		upgrades.push_back(upgrade);
 	}

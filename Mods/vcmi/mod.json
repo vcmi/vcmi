@@ -10,9 +10,43 @@
 	"creatures" : [ "config/towerCreature" ],
 	"spells" : [ "config/spells" ],
 
+	"belarusian" : {
+		"name" : "Асноўныя файлы VCMI",
+		"description" : "Асноўныя файлы, неабходныя для карэктнай працы VCMI",
+		"author" : "Каманда VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/belarusian.json"
+		]
+	},
+
+	"bulgarian" : {
+		"name" : "Основни файлове на VCMI",
+		"description" : "Основни файлове, необходими за правилното функциониране на VCMI",
+		"author" : "Екип на VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/bulgarian.json"
+		]
+	},
+
+	"czech" : {
+		"name" : "Nezbytné soubory VCMI",
+		"description" : "Nezbytné soubory pro správný běh VCMI",
+		"author" : "Tým VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/czech.json"
+		]
+	},
+
 	"chinese" : {
-		"name" : "VCMI essential files",
-		"description" : "Essential files required for VCMI to run correctly",
+		"name" : "VCMI 基本檔案",
+		"description" : "VCMI 正確執行所需的基本檔案",
+		"author" : "VCMI 團隊",
 
 		"skipValidation" : true,
 		"translations" : [
@@ -20,13 +54,14 @@
 		]
 	},
 
-	"czech" : {
-		"name" : "Nezbytné soubory VCMI",
-		"description" : "Nezbytné soubory pro správný běh VCMI",
+	"finnish" : {
+		"name" : "VCMI - tarvittavat tiedostot",
+		"description" : "VCMI:n asianmukaiseen käyttöön tarvittavat tiedostot",
+		"author" : "VCMI-tiimi",
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/czech.json"
+			"config/finnish.json"
 		]
 	},
 
@@ -52,16 +87,70 @@
 		]
 	},
 
-	"italian" : {
-    "name" : "VCMI - File di base",
-    "description" : "File di base necessari per il corretto funzionamento di VCMI",
-    "author" : "Team VCMI",
+	"greek" : {
+		"name" : "VCMI - βασικά αρχεία",
+		"description" : "Βασικά αρχεία που απαιτούνται για τη σωστή εκτέλεση του VCMI",
+		"author" : "Ομάδα VCMI",
 
-    "skipValidation" : true,
-    "translations" : [
-        "config/italian.json"
-    ]
-},
+		"skipValidation" : true,
+		"translations" : [
+			"config/greek.json"
+		]
+	},
+
+	"hungarian" : {
+		"name" : "VCMI - alapvető fájlok",
+		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
+		"author" : "VCMI csapat",
+		"skipValidation" : true,
+		"translations" : [
+			"config/hungarian.json"
+		]
+	},
+
+	"italian" : {
+		"name" : "VCMI - File di base",
+		"description" : "File di base necessari per il corretto funzionamento di VCMI",
+		"author" : "Team VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/italian.json"
+		]
+	},
+
+	"japanese" : {
+		"name" : "VCMI - 基本ファイル",
+		"description" : "VCMIが正常に機能するために必要な基本ファイル",
+		"author" : "チームVCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/japanese.json"
+		]
+	},
+
+	"korean" : {
+		"name" : "VCMI - 기본 파일",
+		"description" : "FVCMI가 제대로 작동하는 데 필요한 기본 파일",
+		"author" : "VCMI 팀",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/korean.json"
+		]
+	},
+
+	"norwegian" : {
+		"name" : "VCMI - Grunnleggende filer",
+		"description" : "Grunnleggende filer som kreves for at VCMI skal fungere korrekt",
+		"author" : "VCMI-teamet",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/norwegian.json"
+		]
+	},
 
 	"polish" : {
 		"name" : "Podstawowe pliki VCMI",
@@ -82,6 +171,17 @@
 		"skipValidation" : true,
 		"translations" : [
 			"config/portuguese.json"
+		]
+	},
+
+	"romanian" : {
+		"name" : "Fișiere esențiale VCMI",
+		"description" : "Fișiere esențiale necesare pentru ca VCMI să funcționeze corect",
+		"author" : "Echipa VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/romanian.json"
 		]
 	},
 
@@ -139,13 +239,13 @@
 		]
 	},
 
-	"hungarian" : {
-		"name" : "VCMI - alapvető fájlok",
-		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
-		"author" : "VCMI csapat",
-		"skipValidation" : true,
-		"translations" : [
-			"config/hungarian.json"
+	"turkish": {
+		"name": "VCMI - Temel dosyalar",
+		"description": "VCMI'nin doğru çalışması için gereken temel dosyalar",
+		"author": "Erthon",
+		"skipValidation": true,
+		"translations": [
+			"config/turkish.json"
 		]
 	},
 

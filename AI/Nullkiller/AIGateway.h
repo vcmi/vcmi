@@ -11,24 +11,28 @@
 
 #include "AIUtility.h"
 #include "Goals/AbstractGoal.h"
-#include "../../lib/AI_Base.h"
-#include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+class AsyncRunner;
+VCMI_LIB_NAMESPACE_END
 
 namespace NKAI
 {
 
 class AIStatus
 {
-	boost::mutex mx;
-	boost::condition_variable cv;
+	AIGateway * gateway;
+	std::mutex mx;
+	std::condition_variable cv;
 
 	BattleState battle;
 	std::map<QueryID, std::string> remainingQueries;
@@ -40,7 +44,7 @@ class AIStatus
 	bool havingTurn;
 
 public:
-	AIStatus();
+	AIStatus(AIGateway * gateway);
 	~AIStatus();
 	void setBattle(BattleState BS);
 	void setMove(bool ongoing);
@@ -67,23 +71,11 @@ public:
 	ObjectInstanceID destinationTeleport;
 	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
-	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
-
-	//std::set<HeroPtr> invalidPathHeroes; //FIXME, just a workaround
-	//std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
-	//std::map<HeroPtr, std::set<const CGObjectInstance *>> reservedHeroesMap; //objects reserved by specific heroes
-	//std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
-
-	//sets are faster to search, also do not contain duplicates
-	//std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
-	//std::map<HeroPtr, std::set<HeroPtr>> visitedHeroes; //visited this turn //FIXME: this is just bug workaround
 
 	AIStatus status;
 	std::string battlename;
 	std::shared_ptr<CCallback> myCb;
-	std::unique_ptr<boost::thread> makingTurn;
-private:
-	boost::mutex turnInterruptionMutex;
+	std::unique_ptr<AsyncRunner> asyncTasks;
 
 public:
 	ObjectInstanceID selectedObject;
@@ -91,7 +83,7 @@ public:
 	std::unique_ptr<Nullkiller> nullkiller;
 
 	AIGateway();
-	virtual ~AIGateway();
+	~AIGateway();
 
 	//TODO: extract to appropriate goals
 	void tryRealize(Goals::DigAtTile & g);
@@ -114,7 +106,7 @@ public:
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
-	void tileHidden(const std::unordered_set<int3> & pos) override;
+	void tileHidden(const FowTilesType & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
 	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
@@ -129,8 +121,9 @@ public:
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
 	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
-	void tileRevealed(const std::unordered_set<int3> & pos) override;
+	void tileRevealed(const FowTilesType & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
+	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
 	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
@@ -148,6 +141,7 @@ public:
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void battleResultsApplied() override;
+	void battleEnded() override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
 	void objectPropertyChanged(const SetObjectProperty * sop) override;
 	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
@@ -190,7 +184,7 @@ public:
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
-	void requestActionASAP(std::function<void()> whatToDo);
+	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 };
 
 }

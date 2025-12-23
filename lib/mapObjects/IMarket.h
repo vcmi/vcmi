@@ -11,35 +11,37 @@
 
 #include "../networkPacks/TradeItem.h"
 #include "../constants/Enumerations.h"
-#include "../CArtHandler.h"
+#include "../entities/artifact/CArtifactSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE IMarket : public virtual Serializeable, boost::noncopyable
 {
 public:
-	IMarket();
+	explicit IMarket(IGameInfoCallback *cb);
 	~IMarket();
 
 	class CArtifactSetAltar : public CArtifactSet
 	{
+		IGameInfoCallback *cb;
 	public:
-		ArtBearer::ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
+		CArtifactSetAltar(IGameInfoCallback *cb)
+			: CArtifactSet(cb)
+			, cb(cb)
+		{}
+
+		IGameInfoCallback * getCallback() const override {return cb;};
+		ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 
 	virtual ObjectInstanceID getObjInstanceID() const = 0;	// The market is always an object on the map
-	virtual int getMarketEfficiency() const = 0;
+	virtual int getMarketEfficiency() const = 0; // marketCount in CGTownInstance::getMarketEfficiency()
 	virtual bool allowsTrade(const EMarketMode mode) const;
 	virtual int availableUnits(const EMarketMode mode, const int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<TradeItemBuy> availableItemsIds(const EMarketMode mode) const;
 	virtual std::set<EMarketMode> availableModes() const = 0;
 	CArtifactSet * getArtifactsStorage() const;
-	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
-
-	template <typename Handler> void serializeArtifactsAltar(Handler &h)
-	{
-		h & *altarArtifactsStorage;
-	}
+	virtual bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 
 private:
 	std::unique_ptr<CArtifactSetAltar> altarArtifactsStorage;

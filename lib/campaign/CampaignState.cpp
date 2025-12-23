@@ -12,11 +12,12 @@
 
 #include "../Point.h"
 #include "../filesystem/ResourcePath.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../mapping/CMapService.h"
 #include "../mapping/CMapInfo.h"
 #include "../mapping/CMap.h"
+#include "../mapping/MapFormatSettings.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -33,170 +34,14 @@ void CampaignScenario::loadPreconditionRegions(ui32 regions)
 	}
 }
 
-CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(const JsonNode & node)
-{
-	CampaignRegions::RegionDescription rd;
-	rd.infix = node["infix"].String();
-	rd.pos = Point(static_cast<int>(node["x"].Float()), static_cast<int>(node["y"].Float()));
-	if(!node["labelPos"].isNull())
-		rd.labelPos = Point(static_cast<int>(node["labelPos"]["x"].Float()), static_cast<int>(node["labelPos"]["y"].Float()));
-	else
-		rd.labelPos = std::nullopt;
-	return rd;
-}
-
-JsonNode CampaignRegions::RegionDescription::toJson(CampaignRegions::RegionDescription & rd)
-{
-	JsonNode node;
-	node["infix"].String() = rd.infix;
-	node["x"].Float() = rd.pos.x;
-	node["y"].Float() = rd.pos.y;
-	if(rd.labelPos != std::nullopt)
-	{
-		node["labelPos"]["x"].Float() = (*rd.labelPos).x;
-		node["labelPos"]["y"].Float() = (*rd.labelPos).y;
-	}
-	else
-		node["labelPos"].clear();
-	return node;
-}
-
-CampaignRegions CampaignRegions::fromJson(const JsonNode & node)
-{
-	CampaignRegions cr;
-	cr.campPrefix = node["prefix"].String();
-	cr.colorSuffixLength = static_cast<int>(node["colorSuffixLength"].Float());
-	cr.campSuffix = node["suffix"].isNull() ? std::vector<std::string>() : std::vector<std::string>{node["suffix"].Vector()[0].String(), node["suffix"].Vector()[1].String(), node["suffix"].Vector()[2].String()};
-	cr.campBackground = node["background"].isNull() ? "" : node["background"].String();
-
-	for(const JsonNode & desc : node["desc"].Vector())
-		cr.regions.push_back(CampaignRegions::RegionDescription::fromJson(desc));
-
-	return cr;
-}
-
-JsonNode CampaignRegions::toJson(CampaignRegions cr)
-{
-	JsonNode node;
-	node["prefix"].String() = cr.campPrefix;
-	node["colorSuffixLength"].Float() = cr.colorSuffixLength;
-	if(!cr.campSuffix.size())
-		node["suffix"].clear();
-	else
-		node["suffix"].Vector() = JsonVector{ JsonNode(cr.campSuffix[0]), JsonNode(cr.campSuffix[1]), JsonNode(cr.campSuffix[2]) };
-	if(cr.campBackground.empty())
-		node["background"].clear();
-	else
-		node["background"].String() = cr.campBackground;
-	node["desc"].Vector() = JsonVector();
-	for(auto & region : cr.regions)
-		node["desc"].Vector().push_back(CampaignRegions::RegionDescription::toJson(region));
-	return node;
-}
-
-CampaignRegions CampaignRegions::getLegacy(int campId)
-{
-	static std::vector<CampaignRegions> campDescriptions;
-	if(campDescriptions.empty()) //read once
-	{
-		const JsonNode config(JsonPath::builtin("config/campaign_regions.json"));
-		for(const JsonNode & campaign : config["campaign_regions"].Vector())
-			campDescriptions.push_back(CampaignRegions::fromJson(campaign));
-	}
-
-	return campDescriptions.at(campId);
-}
-
-ImagePath CampaignRegions::getBackgroundName() const
-{
-	if(campBackground.empty())
-		return ImagePath::builtin(campPrefix + "_BG.BMP");
-	else
-		return ImagePath::builtin(campBackground);
-}
-
-Point CampaignRegions::getPosition(CampaignScenarioID which) const
-{
-	auto const & region = regions[which.getNum()];
-	return region.pos;
-}
-
-std::optional<Point> CampaignRegions::getLabelPosition(CampaignScenarioID which) const
-{
-	auto const & region = regions[which.getNum()];
-	return region.labelPos;
-}
-
-ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
-{
-	auto const & region = regions[which.getNum()];
-
-	static const std::array<std::array<std::string, 8>, 3> colors = {{
-		{ "", "", "", "", "", "", "", "" },
-		{ "R", "B", "N", "G", "O", "V", "T", "P" },
-		{ "Re", "Bl", "Br", "Gr", "Or", "Vi", "Te", "Pi" }
-	}};
-
-	std::string color = colors[colorSuffixLength][colorIndex];
-
-	return ImagePath::builtin(campPrefix + region.infix + "_" + type + color + ".BMP");
-}
-
-ImagePath CampaignRegions::getAvailableName(CampaignScenarioID which, int color) const
-{
-	if(campSuffix.empty())
-		return getNameFor(which, color, "En");
-	else
-		return getNameFor(which, color, campSuffix[0]);
-}
-
-ImagePath CampaignRegions::getSelectedName(CampaignScenarioID which, int color) const
-{
-	if(campSuffix.empty())
-		return getNameFor(which, color, "Se");
-	else
-		return getNameFor(which, color, campSuffix[1]);
-}
-
-ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color) const
-{
-	if(campSuffix.empty())
-		return getNameFor(which, color, "Co");
-	else
-		return getNameFor(which, color, campSuffix[2]);
-}
-
-
-bool CampaignBonus::isBonusForHero() const
-{
-	return type == CampaignBonusType::SPELL ||
-		   type == CampaignBonusType::MONSTER ||
-		   type == CampaignBonusType::ARTIFACT ||
-		   type == CampaignBonusType::SPELL_SCROLL ||
-		   type == CampaignBonusType::PRIMARY_SKILL ||
-		   type == CampaignBonusType::SECONDARY_SKILL;
-}
-
-void CampaignHeader::loadLegacyData(ui8 campId)
-{
-	campaignRegions = CampaignRegions::getLegacy(campId);
-	numberOfScenarios = VLC->generaltexth->getCampaignLength(campId);
-}
-
-void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
-{
-	campaignRegions = regions;
-	numberOfScenarios = numOfScenario;
-}
-
 bool CampaignHeader::playerSelectedDifficulty() const
 {
 	return difficultyChosenByPlayer;
 }
 
-bool CampaignHeader::formatVCMI() const
+CampaignVersion CampaignHeader::getFormat() const
 {
-	return version == CampaignVersion::VCMI;
+	return version;
 }
 
 std::string CampaignHeader::getDescriptionTranslated() const
@@ -327,13 +172,12 @@ std::set<HeroTypeID> CampaignState::getReservedHeroes() const
 	return result;
 }
 
-const CGHeroInstance * CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
+std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
 {
 	std::function<bool(const JsonNode & node)> isOwned = [&](const JsonNode & node)
 	{
-		auto * h = CampaignState::crossoverDeserialize(node, nullptr);
+		auto h = CampaignState::crossoverDeserialize(node, nullptr);
 		bool result = h->tempOwner == owner;
-		vstd::clear_pointer(h);
 		return result;
 	};
 	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
@@ -372,9 +216,9 @@ const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
 
 void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
 {
-	range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
+	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
-		return a->getValueForCampaign() > b->getValueForCampaign();
+		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
 	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());
@@ -421,7 +265,7 @@ std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 	return chosenCampaignBonuses.at(which);
 }
 
-std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameCallback * cb)
+std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb)
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
 	if(scenarioId == CampaignScenarioID::NONE)
@@ -431,6 +275,10 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
+
+	if(!mapPieces.count(scenarioId))
+		return nullptr;
+
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 
@@ -468,19 +316,20 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
 	hero->serializeJsonOptions(handler);
+	node.setModScope(ModScope::scopeGame());
+	logGlobal->info(node.toString());
 	return node;
 }
 
-CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
+std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
 {
 	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
-	auto * hero = new CGHeroInstance(map ? map->cb : nullptr);
+	auto hero = std::make_shared<CGHeroInstance>(map ? map->cb : nullptr);
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)
 	{
-		hero->serializeJsonArtifacts(handler, "artifacts");
-		map->addNewArtifactInstance(*hero);
+		hero->serializeJsonArtifacts(handler, "artifacts", map);
 	}
 	return hero;
 }
@@ -531,43 +380,45 @@ std::set<CampaignScenarioID> Campaign::allScenarios() const
 
 void Campaign::overrideCampaign()
 {
-	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
-	for (auto & entry : node.Struct())
-		if(filename == entry.first)
-		{
-			if(!entry.second["regions"].isNull() && !entry.second["scenarioCount"].isNull())
-				loadLegacyData(CampaignRegions::fromJson(entry.second["regions"]), entry.second["scenarioCount"].Integer());
-			if(!entry.second["loadingBackground"].isNull())
-				loadingBackground = ImagePath::builtin(entry.second["loadingBackground"].String());
-			if(!entry.second["videoRim"].isNull())
-				videoRim = ImagePath::builtin(entry.second["videoRim"].String());
-			if(!entry.second["introVideo"].isNull())
-				introVideo = VideoPath::builtin(entry.second["introVideo"].String());
-			if(!entry.second["outroVideo"].isNull())
-				outroVideo = VideoPath::builtin(entry.second["outroVideo"].String());
-		}
+	const JsonNode & overrides = LIBRARY->mapFormat->campaignOverrides(filename);
+
+	if(!overrides["regions"].isNull())
+		campaignRegions = CampaignRegions(overrides["regions"]);
+	if (!overrides["scenarioCount"].isNull())
+		numberOfScenarios = overrides["scenarioCount"].Integer();
+	if(!overrides["loadingBackground"].isNull())
+		loadingBackground = ImagePath::builtin(overrides["loadingBackground"].String());
+	if(!overrides["videoRim"].isNull())
+		videoRim = ImagePath::builtin(overrides["videoRim"].String());
+	if(!overrides["introVideo"].isNull())
+		introVideo = VideoPath::builtin(overrides["introVideo"].String());
+	if(!overrides["outroVideo"].isNull())
+		outroVideo = VideoPath::builtin(overrides["outroVideo"].String());
+	if(!overrides["heroGemSorceress"].isNull())
+		gemSorceressID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroGemSorceress"]));
+	if(!overrides["heroYogWizard"].isNull())
+		yogWizardID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroYogWizard"]));
+
+	restrictGarrisonsAI	= overrides["restrictedGarrisonsForAI"].Bool();
 }
 
 void Campaign::overrideCampaignScenarios()
 {
-	const JsonNode node = JsonUtils::assembleFromFiles("config/campaignOverrides.json");
-	for (auto & entry : node.Struct())
-		if(filename == entry.first)
+	const JsonNode & overrides = LIBRARY->mapFormat->campaignOverrides(filename);
+
+	if(!overrides["scenarios"].isNull())
+	{
+		auto sc = overrides["scenarios"].Vector();
+		for(int i = 0; i < sc.size(); i++)
 		{
-			if(!entry.second["scenarios"].isNull())
-			{
-				auto sc = entry.second["scenarios"].Vector();
-				for(int i = 0; i < sc.size(); i++)
-				{
-					auto it = scenarios.begin();
-					std::advance(it, i);
-					if(!sc.at(i)["voiceProlog"].isNull())
-						it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
-					if(!sc.at(i)["voiceEpilog"].isNull())
-						it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
-				}
-			}
+			auto it = scenarios.begin();
+			std::advance(it, i);
+			if(!sc.at(i)["voiceProlog"].isNull())
+				it->second.prolog.prologVoice = AudioPath::builtin(sc.at(i)["voiceProlog"].String());
+			if(!sc.at(i)["voiceEpilog"].isNull())
+				it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
 		}
+	}
 }
 
 int Campaign::scenariosCount() const
@@ -586,6 +437,19 @@ const CampaignScenario & Campaign::scenario(CampaignScenarioID which) const
 bool CampaignState::isCampaignFinished() const
 {
 	return conqueredScenarios() == allScenarios();
+}
+
+HeroTypeID CampaignHeader::getYogWizardID() const
+{
+	return yogWizardID;
+}
+HeroTypeID CampaignHeader::getGemSorceressID() const
+{
+	return gemSorceressID;
+}
+bool CampaignHeader::restrictedGarrisonsForAI() const
+{
+	return restrictGarrisonsAI;
 }
 
 VCMI_LIB_NAMESPACE_END

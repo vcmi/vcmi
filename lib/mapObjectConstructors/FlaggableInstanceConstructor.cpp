@@ -11,7 +11,7 @@
 #include "FlaggableInstanceConstructor.h"
 
 #include "../CConfigHandler.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -36,11 +36,11 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 		else
 		{
 			visitMessageTextID = TextIdentifier(getBaseTextID(), "onVisit").get();
-			VLC->generaltexth->registerString( config.getModScope(), visitMessageTextID, config["message"]);
+			LIBRARY->generaltexth->registerString( config.getModScope(), visitMessageTextID, config["message"]);
 		}
 	}
 
-	dailyIncome = ResourceSet(config["dailyIncome"]);
+	dailyIncome.resolveFromJson(config["dailyIncome"]);
 }
 
 void FlaggableInstanceConstructor::initializeObject(FlaggableMapObject * flaggable) const

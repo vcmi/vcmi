@@ -93,45 +93,7 @@ public:
 	void serialize(Handler & h)
 	{
 		std::lock_guard globalLock(globalTextMutex);
-
-		if (h.version >= Handler::Version::SIMPLE_TEXT_CONTAINER_SERIALIZATION)
-		{
-			h & stringsLocalizations;
-		}
-		else
-		{
-			std::string key;
-			int64_t sz = stringsLocalizations.size();
-
-			if (h.version >= Handler::Version::REMOVE_TEXT_CONTAINER_SIZE_T)
-			{
-				int64_t size = sz;
-				h & size;
-				sz = size;
-			}
-			else
-			{
-				h & sz;
-			}
-
-			if(h.saving)
-			{
-				for(auto & s : stringsLocalizations)
-				{
-					key = s.first;
-					h & key;
-					h & s.second;
-				}
-			}
-			else
-			{
-				for(size_t i = 0; i < sz; ++i)
-				{
-					h & key;
-					h & stringsLocalizations[key];
-				}
-			}
-		}
+		h & stringsLocalizations;
 	}
 };
 

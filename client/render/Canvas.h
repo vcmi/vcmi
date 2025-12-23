@@ -122,6 +122,9 @@ public:
 
 	/// get the render area
 	Rect getRenderArea() const;
+
+	/// get pixel color
+	ColorRGBA getPixel(const Point & position) const;
 };
 
 class CanvasClipRectGuard : boost::noncopyable

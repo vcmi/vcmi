@@ -26,12 +26,6 @@ struct DamageRange;
 template<typename ContainedClass>
 class LogicalExpression;
 
-class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
-{
-public:
-	CTownAndVisitingHero();
-};
-
 struct DLL_LINKAGE GrowthInfo
 {
 	struct Entry
@@ -52,21 +46,23 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 {
 	friend class CTownInstanceConstructor;
 	std::string nameTextId; // name of town
+	std::string customName;
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
 
+	ObjectInstanceID garrisonHero;
+	ObjectInstanceID visitingHero;
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
-	CTownAndVisitingHero townAndVis;
+	CBonusSystemNode townAndVis;
 	si32 built; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
-	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
-	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
+	std::map<BuildingID, std::unique_ptr<TownRewardableBuildingInstance>> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
@@ -80,11 +76,28 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
+		if (h.version >= Handler::Version::CUSTOM_NAMES)
+			h & customName;
 		h & built;
 		h & destroyed;
 		h & identifier;
-		h & garrisonHero;
-		h & visitingHero;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & garrisonHero;
+			h & visitingHero;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrGarr;
+			std::shared_ptr<CGObjectInstance> ptrVisit;
+			h & ptrGarr;
+			h & ptrVisit;
+
+			garrisonHero = ptrGarr ? ptrGarr->id : ObjectInstanceID();
+			visitingHero = ptrVisit ? ptrVisit->id : ObjectInstanceID();
+		}
+
 		h & alignmentToPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;
@@ -93,42 +106,11 @@ public:
 		h & obligatorySpells;
 		h & spells;
 		h & events;
-
-		if (h.version >= Handler::Version::SPELL_RESEARCH)
-		{
-			h & spellResearchCounterDay;
-			h & spellResearchAcceptedCounter;
-			h & spellResearchAllowed;
-		}
-
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			h & rewardableBuildings;
-		}
-		else
-		{
-			std::vector<TownRewardableBuildingInstance*> oldVector;
-			h & oldVector;
-			rewardableBuildings = convertOldBuildings(oldVector);
-		}
-
-		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
-		{
-			FactionID faction;
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & faction;
-		}
-
+		h & spellResearchCounterDay;
+		h & spellResearchAcceptedCounter;
+		h & spellResearchAllowed;
+		h & rewardableBuildings;
 		h & townAndVis;
-		BONUS_TREE_DESERIALIZATION_FIX
-
-		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			std::set<BuildingID> overriddenBuildings;
-			h & overriddenBuildings;
-		}
 
 		if(!h.saving)
 			postDeserialize();
@@ -138,16 +120,18 @@ public:
 	CBonusSystemNode & whatShouldBeAttached() override;
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
-	void deserializationFix();
 	void postDeserialize();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
+	const CGHeroInstance * getVisitingHero() const;
+	const CGHeroInstance * getGarrisonHero() const;
 
 	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
 	void setNameTextId(const std::string & newName);
+	void setCustomName(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -176,18 +160,17 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	bool hasBuiltSomeTradeBuilding() const;
+	bool hasBuiltResourceMarketplace() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 	void addBuilding(const BuildingID & buildingID);
 	void removeBuilding(const BuildingID & buildingID);
 	void removeAllBuildings();
 	std::set<BuildingID> getBuildings() const;
 
-	TResources getBuildingCost(const BuildingID & buildingID) const;
+	ResourceSet getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
 
@@ -197,10 +180,10 @@ public:
 
 	LogicalExpression<BuildingID> genBuildingRequirements(const BuildingID & build, bool deep = false) const;
 
-	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
-	void removeCapitols(const PlayerColor & owner) const;
-	void clearArmy() const;
-	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
+	void mergeGarrisonOnSiege(IGameEventCallback & gameEvents) const; // merge garrison into army of visiting hero
+	void removeCapitols(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void clearArmy(IGameEventCallback & gameEvents) const;
+	void addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
@@ -221,16 +204,16 @@ public:
 	/// Returns true if provided war machine is available in any of built buildings of this town
 	bool isWarMachineAvailable(ArtifactID) const;
 
-	CGTownInstance(IGameCallback *cb);
+	CGTownInstance(IGameInfoCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn(vstd::RNG & rand) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void onHeroLeave(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
@@ -240,7 +223,7 @@ public:
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
 	{
-		return defendingHero && garrisonHero && defendingHero != garrisonHero;
+		return defendingHero && getGarrisonHero() && defendingHero != getGarrisonHero();
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
@@ -248,11 +231,11 @@ protected:
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);
-	void setOwner(const PlayerColor & owner) const;
-	void onTownCaptured(const PlayerColor & winner) const;
+	void setOwner(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 

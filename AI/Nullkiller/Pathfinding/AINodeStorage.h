@@ -16,10 +16,6 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualizat
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
-#include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../AIUtility.h"
-#include "../Engine/FuzzyHelper.h"
-#include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
@@ -41,8 +37,8 @@ struct AIPathNode : public CGPathNode
 {
 	std::shared_ptr<const SpecialAction> specialAction;
 
-	const AIPathNode * chainOther;
-	const ChainActor * actor;
+	const AIPathNode * chainOther = nullptr;
+	const ChainActor * actor = nullptr;
 
 	uint64_t danger;
 	uint64_t armyLoss;
@@ -129,8 +125,8 @@ struct AIPath
 
 struct ExchangeCandidate : public AIPathNode
 {
-	AIPathNode * carrierParent;
-	AIPathNode * otherParent;
+	AIPathNode * carrierParent = nullptr;
+	AIPathNode * otherParent = nullptr;
 };
 
 enum EHeroChainPass
@@ -149,7 +145,7 @@ class AISharedStorage
 	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
 	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
 public:
-	static boost::mutex locker;
+	static std::mutex locker;
 	static uint32_t version;
 
 	AISharedStorage(int3 sizes, int numChains);
@@ -186,7 +182,7 @@ public:
 	AINodeStorage(const Nullkiller * ai, const int3 & sizes);
 	~AINodeStorage();
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+	void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) override;
 
 	bool increaseHeroChainTurnLimit();
 	bool selectFirstActor();
@@ -286,12 +282,12 @@ public:
 
 	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
 	{
-		return (*this->accessibility)[tile.z][tile.x][tile.y][layer];
+		return (*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()];
 	}
 
 	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
 	{
-		(*this->accessibility)[tile.z][tile.x][tile.y][layer] = tileAccessibility;
+		(*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()] = tileAccessibility;
 	}
 
 	inline int getBucket(const ChainActor * actor) const

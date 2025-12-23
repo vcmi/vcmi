@@ -16,9 +16,9 @@
 #include "GlobalLobbyObserver.h"
 #include "GlobalLobbyWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../media/ISoundPlayer.h"
@@ -29,6 +29,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
+#include "../../lib/GameLibrary.h"
 
 GlobalLobbyClient::GlobalLobbyClient()
 {
@@ -37,8 +38,8 @@ GlobalLobbyClient::GlobalLobbyClient()
 	if (customChannels.empty())
 	{
 		activeChannels.emplace_back("english");
-		if (CGI->generaltexth->getPreferredLanguage() != "english")
-			activeChannels.emplace_back(CGI->generaltexth->getPreferredLanguage());
+		if (LIBRARY->generaltexth->getPreferredLanguage() != "english")
+			activeChannels.emplace_back(LIBRARY->generaltexth->getPreferredLanguage());
 	}
 	else
 	{
@@ -58,7 +59,7 @@ void GlobalLobbyClient::addChannel(const std::string & channel)
 	toSend["type"].String() = "requestChatHistory";
 	toSend["channelType"].String() = "global";
 	toSend["channelName"].String() = channel;
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 
 	Settings languageRooms = settings.write["lobby"]["languageRooms"];
 
@@ -86,7 +87,7 @@ GlobalLobbyClient::~GlobalLobbyClient() = default;
 
 void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	JsonNode json(message.data(), message.size(), "<lobby network packet>");
 
@@ -127,7 +128,7 @@ void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
 {
 	auto loginWindowPtr = loginWindow.lock();
 
-	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !ENGINE->windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
 	{
@@ -158,7 +159,7 @@ void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 
 	auto loginWindowPtr = loginWindow.lock();
 
-	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !ENGINE->windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection finished without active login window!");
 
 	loginWindowPtr->onLoginSuccess();
@@ -217,7 +218,7 @@ void GlobalLobbyClient::receiveChatMessage(const JsonNode & json)
 		lobbyWindowPtr->refreshChatText();
 
 		if(channelType == "player" || (lobbyWindowPtr->isChannelOpen(channelType, channelName) && lobbyWindowPtr->isActive()))
-			CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+			ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 	}
 }
 
@@ -240,7 +241,7 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onActiveAccounts(activeAccounts);
 
-	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+	for (auto const & window : ENGINE->windows().findWindows<GlobalLobbyObserver>())
 		window->onActiveAccounts(activeAccounts);
 }
 
@@ -287,7 +288,7 @@ void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 	if(lobbyWindowPtr)
 		lobbyWindowPtr->onActiveGameRooms(activeRooms);
 
-	for (auto const & window : GH.windows().findWindows<GlobalLobbyObserver>())
+	for (auto const & window : ENGINE->windows().findWindows<GlobalLobbyObserver>())
 		window->onActiveGameRooms(activeRooms);
 }
 
@@ -342,33 +343,33 @@ void GlobalLobbyClient::receiveInviteReceived(const JsonNode & json)
 		lobbyWindowPtr->refreshChatText();
 	}
 
-	CCS->soundh->playSound(AudioPath::builtin("CHAT"));
+	ENGINE->sound().playSound(AudioPath::builtin("CHAT"));
 }
 
 void GlobalLobbyClient::receiveJoinRoomSuccess(const JsonNode & json)
 {
 	if (json["proxyMode"].Bool())
 	{
-		CSH->resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { CSH->getGlobalLobby().getAccountDisplayName() });
-		CSH->loadMode = ELoadMode::MULTI;
+		GAME->server().resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOBBY_GUEST, { GAME->server().getGlobalLobby().getAccountDisplayName() });
+		GAME->server().loadMode = ELoadMode::MULTI;
 
 		std::string hostname = getServerHost();
 		uint16_t port = getServerPort();
-		CSH->connectToServer(hostname, port);
+		GAME->server().connectToServer(hostname, port);
 	}
 
-	// NOTE: must be set after CSH->resetStateForLobby call
+	// NOTE: must be set after GAME->server().resetStateForLobby call
 	currentGameRoomUUID = json["gameRoomID"].String();
 }
 
 void GlobalLobbyClient::onConnectionEstablished(const std::shared_ptr<INetworkConnection> & connection)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 	networkConnection = connection;
 
 	auto loginWindowPtr = loginWindow.lock();
 
-	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !ENGINE->windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection established without active login window!");
 
 	loginWindowPtr->onConnectionSuccess();
@@ -379,7 +380,7 @@ void GlobalLobbyClient::sendClientRegister(const std::string & accountName)
 	JsonNode toSend;
 	toSend["type"].String() = "clientRegister";
 	toSend["displayName"].String() = accountName;
-	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["language"].String() = LIBRARY->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 	sendMessage(toSend);
 }
@@ -390,7 +391,7 @@ void GlobalLobbyClient::sendClientLogin()
 	toSend["type"].String() = "clientLogin";
 	toSend["accountID"].String() = getAccountID();
 	toSend["accountCookie"].String() = getAccountCookie();
-	toSend["language"].String() = CGI->generaltexth->getPreferredLanguage();
+	toSend["language"].String() = LIBRARY->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 
 	for (const auto & language : activeChannels)
@@ -401,11 +402,11 @@ void GlobalLobbyClient::sendClientLogin()
 
 void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	auto loginWindowPtr = loginWindow.lock();
 
-	if(!loginWindowPtr || !GH.windows().topWindow<GlobalLobbyLoginWindow>())
+	if(!loginWindowPtr || !ENGINE->windows().topWindow<GlobalLobbyLoginWindow>())
 		throw std::runtime_error("lobby connection failed without active login window!");
 
 	logGlobal->warn("Connection to game lobby failed! Reason: %s", errorMessage);
@@ -414,16 +415,16 @@ void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 
 void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	assert(connection == networkConnection);
 	networkConnection.reset();
 	accountLoggedIn = false;
 
-	while (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+	while (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
 	{
 		// if global lobby is open, pop all dialogs on top of it as well as lobby itself
-		GH.windows().popWindows(1);
+		ENGINE->windows().popWindows(1);
 	}
 
 	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
@@ -449,7 +450,7 @@ void GlobalLobbyClient::connect()
 {
 	std::string hostname = getServerHost();
 	uint16_t port = getServerPort();
-	CSH->getNetworkHandler().connectToRemote(*this, hostname, port);
+	GAME->server().getNetworkHandler().connectToRemote(*this, hostname, port);
 }
 
 bool GlobalLobbyClient::isLoggedIn() const
@@ -477,7 +478,7 @@ std::shared_ptr<GlobalLobbyLoginWindow> GlobalLobbyClient::createLoginWindow()
 std::shared_ptr<GlobalLobbyWindow> GlobalLobbyClient::createLobbyWindow()
 {
 	auto lobbyWindowPtr = lobbyWindow.lock();
-	if(lobbyWindowPtr && GH.screenDimensions().x >= lobbyWindowPtr->pos.w) // if wide window doesn't fit anymore after ingame screen resolution change
+	if(lobbyWindowPtr && ENGINE->screenDimensions().x >= lobbyWindowPtr->pos.w) // if wide window doesn't fit anymore after ingame screen resolution change
 		return lobbyWindowPtr;
 
 	lobbyWindowPtr = std::make_shared<GlobalLobbyWindow>();
@@ -531,7 +532,7 @@ const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHist
 			toSend["type"].String() = "requestChatHistory";
 			toSend["channelType"].String() = channelType;
 			toSend["channelName"].String() = channelName;
-			CSH->getGlobalLobby().sendMessage(toSend);
+			GAME->server().getGlobalLobby().sendMessage(toSend);
 		}
 		return emptyVector;
 	}
@@ -541,29 +542,29 @@ const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHist
 
 void GlobalLobbyClient::activateInterface()
 {
-	if (GH.windows().topWindow<GlobalLobbyWindow>() != nullptr)
+	if (ENGINE->windows().topWindow<GlobalLobbyWindow>() != nullptr)
 	{
-		GH.windows().popWindows(1);
+		ENGINE->windows().popWindows(1);
 		return;
 	}
 
-	if (!GH.windows().findWindows<GlobalLobbyWindow>().empty())
+	if (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
 		return;
 
-	if (!GH.windows().findWindows<GlobalLobbyLoginWindow>().empty())
+	if (!ENGINE->windows().findWindows<GlobalLobbyLoginWindow>().empty())
 		return;
 
 	if (isLoggedIn())
-		GH.windows().pushWindow(createLobbyWindow());
+		ENGINE->windows().pushWindow(createLobbyWindow());
 	else
-		GH.windows().pushWindow(createLoginWindow());
+		ENGINE->windows().pushWindow(createLoginWindow());
 
-	GH.windows().topWindow<CIntObject>()->center();
+	ENGINE->windows().topWindow<CIntObject>()->center();
 }
 
 void GlobalLobbyClient::activateRoomInviteInterface()
 {
-	GH.windows().createAndPushWindow<GlobalLobbyInviteWindow>();
+	ENGINE->windows().createAndPushWindow<GlobalLobbyInviteWindow>();
 }
 
 void GlobalLobbyClient::setAccountID(const std::string & accountID)
@@ -647,7 +648,7 @@ void GlobalLobbyClient::sendMatchChatMessage(const std::string & messageText)
 
 	assert(TextOperations::isValidUnicodeString(messageText));
 
-	CSH->getGlobalLobby().sendMessage(toSend);
+	GAME->server().getGlobalLobby().sendMessage(toSend);
 }
 
 bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
@@ -655,7 +656,7 @@ bool GlobalLobbyClient::isInvitedToRoom(const std::string & gameRoomID)
 	if (activeInvites.count(gameRoomID) > 0)
 		return true;
 
-	const auto & gameRoom = CSH->getGlobalLobby().getActiveRoomByName(gameRoomID);
+	const auto & gameRoom = GAME->server().getGlobalLobby().getActiveRoomByName(gameRoomID);
 	for (auto const & invited : gameRoom.invited)
 	{
 		if (invited.accountID == getAccountID())

@@ -16,16 +16,17 @@
 #include "MapViewCache.h"
 #include "MapViewModel.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -132,7 +133,7 @@ void MapViewController::modifyTileSize(int stepsChange, bool useDeadZone)
 		bool isInDeadZone = targetTileSize != actualZoom || actualZoom == Point(defaultTileSize, defaultTileSize);
 
 		if(!wasInDeadZone && isInDeadZone)
-			GH.input().hapticFeedback();
+			ENGINE->input().hapticFeedback();
 
 		wasInDeadZone = isInDeadZone;
 
@@ -181,9 +182,9 @@ void MapViewController::tick(uint32_t timeDelta)
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
-		double heroMoveTime = LOCPLINT->playerID == hero->getOwner() ?
+		double heroMoveTime = GAME->interface()->playerID == hero->getOwner() ?
 			settings["adventure"]["heroMoveTime"].Float() :
 			settings["adventure"]["enemyMoveTime"].Float();
 
@@ -232,8 +233,8 @@ void MapViewController::updateState()
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
-		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
-		adventureContext->settingTextOverlay = (GH.isKeyboardAltDown() || GH.input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
+		adventureContext->settingShowInvisible = settings["session"]["showInvisible"].Bool();
+		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
 
@@ -248,7 +249,7 @@ void MapViewController::afterRender()
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
 		if(movementContext->progress >= 0.999)
 		{
@@ -294,10 +295,10 @@ bool MapViewController::isEventInstant(const CGObjectInstance * obj, const Playe
 	if (!initiator.isValidPlayer())
 		return true; // skip effects such as new monsters on new month
 
-	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
+	if(initiator != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
-	if(initiator == LOCPLINT->playerID && settings["adventure"]["heroMoveTime"].Float() <= 0)
+	if(initiator == GAME->interface()->playerID && settings["adventure"]["heroMoveTime"].Float() <= 0)
 		return true; // instant movement speed
 
 	return false;
@@ -308,18 +309,18 @@ bool MapViewController::isEventVisible(const CGObjectInstance * obj, const Playe
 	if(adventureContext == nullptr)
 		return false;
 
-	if(initiator != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(initiator != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(!GH.windows().isTopWindow(adventureInt))
+	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (initiator != LOCPLINT->playerID && initiator.isValidPlayer())
+	if (initiator != GAME->interface()->playerID && initiator.isValidPlayer())
 	{
-		if (LOCPLINT->makingTurn)
+		if (GAME->interface()->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(initiator).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 
@@ -334,18 +335,18 @@ bool MapViewController::isEventVisible(const CGHeroInstance * obj, const int3 & 
 	if(adventureContext == nullptr)
 		return false;
 
-	if(obj->getOwner() != LOCPLINT->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
+	if(obj->getOwner() != GAME->interface()->playerID && settings["adventure"]["enemyMoveTime"].Float() < 0)
 		return false; // enemy move speed set to "hidden/none"
 
-	if(!GH.windows().isTopWindow(adventureInt))
+	if(!ENGINE->windows().isTopWindow(adventureInt))
 		return false;
 
 	// do not focus on actions of other players except for AI with simturns off
-	if (obj->getOwner() != LOCPLINT->playerID)
+	if (obj->getOwner() != GAME->interface()->playerID)
 	{
-		if (LOCPLINT->makingTurn)
+		if (GAME->interface()->makingTurn)
 			return false;
-		if (LOCPLINT->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
+		if (GAME->interface()->cb->getStartInfo()->playerInfos.at(obj->getOwner()).isControlledByHuman() && !settings["session"]["adventureTrackHero"].Bool())
 			return false;
 	}
 
@@ -371,8 +372,8 @@ void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
-			movingObject = hero->boat;
+		if (hero->inBoat())
+			movingObject = hero->getBoat();
 	}
 
 	fadingOutContext->target = movingObject->id;
@@ -392,8 +393,8 @@ void MapViewController::fadeInObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
-			movingObject = hero->boat;
+		if (hero->inBoat())
+			movingObject = hero->getBoat();
 	}
 
 	fadingInContext->target = movingObject->id;
@@ -405,20 +406,20 @@ void MapViewController::removeObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::BOAT)
 	{
 		auto * boat = dynamic_cast<const CGBoat*>(obj);
-		if (boat->hero)
+		if (boat->getBoardedHero())
 		{
-			view->invalidate(context, boat->hero->id);
-			state->removeObject(boat->hero);
+			view->invalidate(context, boat->getBoardedHero()->id);
+			state->removeObject(boat->getBoardedHero());
 		}
 	}
 
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
+		if (hero->inBoat())
 		{
-			view->invalidate(context, hero->boat->id);
-			state->removeObject(hero->boat);
+			view->invalidate(context, hero->getBoat()->id);
+			state->removeObject(hero->getBoat());
 		}
 	}
 
@@ -513,8 +514,8 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 	assert(!hasOngoingAnimations());
 
 	const CGObjectInstance * movingObject = obj;
-	if(obj->boat)
-		movingObject = obj->boat;
+	if(obj->inBoat())
+		movingObject = obj->getBoat();
 
 	removeObject(movingObject);
 	addObject(movingObject);
@@ -540,8 +541,8 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 		return;
 
 	const CGObjectInstance * movingObject = obj;
-	if(obj->boat)
-		movingObject = obj->boat;
+	if(obj->inBoat())
+		movingObject = obj->getBoat();
 
 	removeObject(movingObject);
 
@@ -551,7 +552,7 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 		return;
 	}
 
-	double movementTime = LOCPLINT->playerID == obj->tempOwner ?
+	double movementTime = GAME->interface()->playerID == obj->tempOwner ?
 		settings["adventure"]["heroMoveTime"].Float() :
 		settings["adventure"]["enemyMoveTime"].Float();
 
@@ -580,24 +581,14 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 bool MapViewController::hasOngoingAnimations()
 {
-	if(movementContext)
-		return true;
-
-	if(fadingOutContext)
-		return true;
-
-	if(fadingInContext)
-		return true;
-
-	if(teleportContext)
-		return true;
-
-	return false;
+	// We need to be consistent with waitForOngoingAnimations, to check against the same thing here as there,
+	// otherwise we can have tricky race conditions, as we used to before this change
+	return animationWait.isBusy();
 }
 
 void MapViewController::waitForOngoingAnimations()
 {
-	auto unlockInterface = vstd::makeUnlockGuard(GH.interfaceMutex);
+	auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 	animationWait.waitWhileBusy();
 }
 

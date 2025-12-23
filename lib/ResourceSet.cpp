@@ -13,17 +13,39 @@
 #include "ResourceSet.h"
 #include "constants/StringConstants.h"
 #include "serializer/JsonSerializeFormat.h"
-#include "mapObjects/CObjectHandler.h"
-#include "VCMI_Lib.h"
+#include "entities/ResourceTypeHandler.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ResourceSet::ResourceSet() = default;
-
-ResourceSet::ResourceSet(const JsonNode & node)
+ResourceSet::ResourceSet()
 {
-	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		container[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
+	resizeContainer();
+};
+
+ResourceSet::ResourceSet(const ResourceSet& rhs)
+	: container(rhs.container) // vector copy constructor
+{
+	resizeContainer();
+}
+
+void ResourceSet::resizeContainer()
+{
+	container.resize(std::max({
+		static_cast<int>(container.size()),
+		static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size()),
+		GameConstants::RESOURCE_QUANTITY
+	}));
+}
+
+void ResourceSet::resolveFromJson(const JsonNode & node)
+{
+	for(auto & n : node.Struct())
+		LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
+		{
+			container.resize(std::max(static_cast<int>(container.size()), identifier + 1)); // creature cost will access before resize
+			(*this)[identifier] = static_cast<int>(n.second.Float());
+		});
 }
 
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
@@ -32,9 +54,8 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 		return;
 	auto s = handler.enterStruct(fieldName);
 
-	//TODO: add proper support for mithril to map format
-	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx ++)
-		handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], this->operator[](idx), 0);
+	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
 }
 
 bool ResourceSet::nonZero() const
@@ -76,8 +97,7 @@ void ResourceSet::applyHandicap(int percentage)
 
 static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 {
-	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		if(price[i] > res[i])
 			return false;
 
@@ -97,8 +117,8 @@ bool ResourceSet::canAfford(const ResourceSet &price) const
 TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		total += static_cast<TResourceCap>(VLC->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
+		total += static_cast<TResourceCap>(i.toResource()->getPrice()) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }
 
@@ -117,7 +137,7 @@ std::string ResourceSet::toString() const
 
 bool ResourceSet::nziterator::valid() const
 {
-	return cur.resType < GameResID::COUNT && cur.resVal;
+	return static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && cur.resVal;
 }
 
 ResourceSet::nziterator ResourceSet::nziterator::operator++()
@@ -148,9 +168,9 @@ void ResourceSet::nziterator::advance()
 	do
 	{
 		++cur.resType;
-	} while(cur.resType < GameResID::COUNT && !(cur.resVal=rs[cur.resType]));
+	} while(static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && !(cur.resVal=rs[cur.resType]));
 
-	if(cur.resType >= GameResID::COUNT)
+	if(static_cast<int>(cur.resType) >= LIBRARY->resourceTypeHandler->getAllObjects().size())
 		cur.resVal = -1;
 }
 

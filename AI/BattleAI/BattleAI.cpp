@@ -17,6 +17,9 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -34,8 +37,7 @@
 
 CBattleAI::CBattleAI()
 	: side(BattleSide::NONE),
-	wasWaitingForRealize(false),
-	wasUnlockingGs(false)
+	wasWaitingForRealize(false)
 {
 }
 
@@ -45,7 +47,6 @@ CBattleAI::~CBattleAI()
 	{
 		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
 		cb->waitTillRealize = wasWaitingForRealize;
-		cb->unlockGsWhenWaiting = wasUnlockingGs;
 	}
 }
 
@@ -66,9 +67,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	cb = CB;
 	playerID = *CB->getPlayerID();
 	wasWaitingForRealize = CB->waitTillRealize;
-	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
-	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
 
 	logHexNumbers();
@@ -143,49 +142,42 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	try
+	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
-		if(stack->creatureId() == CreatureID::CATAPULT)
-		{
-			cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
-			return;
-		}
-		if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
-		{
-			cb->battleMakeUnitAction(battleID, useHealingTent(battleID, stack));
-			return;
-		}
+		cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
+		return;
+	}
+	if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON) && stack->hasBonusOfType(BonusType::HEALER))
+	{
+		cb->battleMakeUnitAction(battleID, useHealingTent(battleID, stack));
+		return;
+	}
 
 #if BATTLE_TRACE_LEVEL>=1
-		logAi->trace("Build evaluator and targets");
+	logAi->trace("Build evaluator and targets");
 #endif
 
-		BattleEvaluator evaluator(
-			env, cb, stack, playerID, battleID, side, 
-			getStrengthRatio(cb->getBattle(battleID), side),
-			getSimulationTurnsCount(env->game()->getStartInfo()));
+	BattleEvaluator evaluator(
+		env, cb, stack, playerID, battleID, side,
+		getStrengthRatio(cb->getBattle(battleID), side),
+		getSimulationTurnsCount(env->game()->getStartInfo()));
 
-		result = evaluator.selectStackAction(stack);
+	result = evaluator.selectStackAction(stack);
 
-		if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
-		{
-			auto spelCasted = evaluator.attemptCastingSpell(stack);
-
-			if(spelCasted)
-				return;
-		}
-
-		logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
-
-		if(auto action = considerFleeingOrSurrendering(battleID))
-		{
-			cb->battleMakeUnitAction(battleID, *action);
-			return;
-		}
-	}
-	catch(boost::thread_interrupted &)
+	if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
 	{
-		throw;
+		auto spelCasted = evaluator.attemptCastingSpell(stack);
+
+		if(spelCasted)
+			return;
+	}
+
+	logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
+
+	if(auto action = considerFleeingOrSurrendering(battleID))
+	{
+		cb->battleMakeUnitAction(battleID, *action);
+		return;
 	}
 
 	if(result.actionType == EActionType::DEFEND)

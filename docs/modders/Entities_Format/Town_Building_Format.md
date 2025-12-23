@@ -150,16 +150,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	// Generally only needs to be specified for "special" buildings
 	// See 'List of unique town buildings' section below for detailed description of this field
 	"type" : "",
-	
-	// If set, building will have Lookout Tower logic - extend sight radius of a town.
-	// Possible values: 
-	// low - increases town sight radius by 5 tiles
-	// average - sight radius extended by 15 tiles
-	// high - sight radius extended by 20 tiles
-	// skyship - entire map will be revealed
-	// If not set, building will not affect sight radius of a town
-	"height" : "average"
-	
+
 	// Resources produced each day by this building
 	"produce" : { 
 		"sulfur" : 1,
@@ -213,6 +204,10 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	
 	// If the building is a market, it requires market mode.
 	"marketModes" : [ "resource-resource", "resource-player" ],
+	
+	// Required if building offers resource-skill trade.
+	// NOTE: multiple resource-skill buildings in the same town are not supported
+	"marketOffer" : [ "fireMagic", "airMagic", "waterMagic", "earthMagic" ],
 }
 ```
 
@@ -243,15 +238,13 @@ Building requirements can be described using logical expressions:
 Following Heroes III buildings can be used as unique buildings for a town. Their functionality should be identical to a corresponding H3 building. H3 buildings that are not present in this list contain no hardcoded functionality. See vcmi json configuration to see how such buildings can be implemented in a mod.
 
 - `mysticPond`
-- `artifactMerchant`
-- `freelancersGuild`
-- `magicUniversity`
 - `castleGate`
-- `creatureTransformer`
 - `portalOfSummoning`
 - `library`
 - `escapeTunnel`
 - `treasury`
+- `auroraBorealis`
+- `deityOfFire`
 
 #### Buildings from other Heroes III mods
 

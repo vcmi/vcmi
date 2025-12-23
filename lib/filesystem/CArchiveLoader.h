@@ -70,6 +70,8 @@ public:
 	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, const ArchiveEntry & entry, bool absolute = false) const;
 	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
 	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry, bool absolute = false) const;
+	std::string getFullFileURI(const ResourcePath& resourceName) const override;
+	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
 
 private:
 	/**

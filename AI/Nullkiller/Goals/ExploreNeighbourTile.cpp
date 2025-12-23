@@ -54,7 +54,7 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 				}
 			});
 
-		if(!target.valid())
+		if(!target.isValid())
 		{
 			return;
 		}

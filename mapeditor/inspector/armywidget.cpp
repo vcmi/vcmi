@@ -13,6 +13,8 @@
 #include "ui_armywidget.h"
 #include "CCreatureHandler.h"
 
+#include "../../lib/GameLibrary.h"
+#include "../../lib/mapObjects/army/CStackInstance.h"
 
 ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	QDialog(parent),
@@ -34,9 +36,9 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 		uiSlots[i]->addItem("");
 		uiSlots[i]->setItemData(0, -1);
 		
-		for(int c = 0; c < VLC->creh->objects.size(); ++c)
+		for(int c = 0; c < LIBRARY->creh->objects.size(); ++c)
 		{
-			auto const & creature = VLC->creh->objects[c];
+			auto const & creature = LIBRARY->creh->objects[c];
 			uiSlots[i]->insertItem(c + 1, creature->getNamePluralTranslated().c_str());
 			uiSlots[i]->setItemData(c + 1, creature->getIndex());
 		}
@@ -99,7 +101,7 @@ bool ArmyWidget::commitChanges()
 			{
 				if(army.hasStackAtSlot(SlotID(i)))
 					army.eraseStack(SlotID(i));
-				army.putStack(SlotID(i), new CStackInstance(creId, amount, false));
+				army.putStack(SlotID(i), std::make_unique<CStackInstance>(army.cb, creId, amount, false));
 			}
 		}
 	}
@@ -113,9 +115,9 @@ ArmyWidget::~ArmyWidget()
 	delete ui;
 }
 
-
-
-ArmyDelegate::ArmyDelegate(CArmedInstance & t): army(t), BaseInspectorItemDelegate()
+ArmyDelegate::ArmyDelegate(CArmedInstance & t)
+	: BaseInspectorItemDelegate()
+	, army(t)
 {
 }
 
@@ -154,8 +156,8 @@ void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex
 	QStringList textList;
 	for(const auto & [_, stack] : army.stacks)
 	{
-		if(stack->count != 0 && stack->getCreature() != nullptr)
-			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
+		if(stack->getCount() != 0 && stack->getCreature() != nullptr)
+			textList += QString("%1 %2").arg(stack->getCount()).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
 	}
 
 	setModelTextData(model, index, textList);

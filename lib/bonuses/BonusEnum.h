@@ -16,14 +16,15 @@ class JsonNode;
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
-	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
+	BONUS_NAME(ARTIFACT_GROWING) \
+	BONUS_NAME(ARTIFACT_CHARGE) \
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
 	BONUS_NAME(SIGHT_RADIUS) \
 	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
-	BONUS_NAME(FULL_MANA_REGENERATION) /*all mana points are replenished every day*/  \
+	BONUS_NAME(MANA_PERCENTAGE_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
 	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
@@ -90,8 +91,8 @@ class JsonNode;
 	BONUS_NAME(DEFENSIVE_STANCE) /* val - bonus to defense while defending */ \
 	BONUS_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
 	BONUS_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
-	BONUS_NAME(FEAR)									\
-	BONUS_NAME(FEARLESS)								\
+	BONUS_NAME(FEARFUL)									\
+	BONUS_NAME(LIVING)									\
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
 	BONUS_NAME(ENCHANTER)/* for Enchanter spells, val - skill level, subtype - spell id, additionalInfo - cooldown */ \
 	BONUS_NAME(HEALER)									\
@@ -141,13 +142,13 @@ class JsonNode;
 	BONUS_NAME(MANUAL_CONTROL) /* manually control warmachine with id = subtype, chance = val */  \
 	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
-	BONUS_NAME(SYNERGY_TARGET) /* dummy skill for alternative upgrades mod */\
+	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighbouring with target) without spell-like mechanics */\
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
 	BONUS_NAME(SPECIAL_CRYSTAL_GENERATION) /*crystal dragon crystal generation*/ \
 	BONUS_NAME(NO_SPELLCAST_BY_DEFAULT) /*spellcast will not be default attack option for this creature*/ \
-	BONUS_NAME(GARGOYLE) /* gargoyle is special than NON_LIVING, cannot be rised or healed */ \
+	BONUS_NAME(SKELETON_TRANSFORMER_TARGET) /* for skeleton transformer */ \
 	BONUS_NAME(SPECIAL_ADD_VALUE_ENCHANT) /*specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add*/\
 	BONUS_NAME(SPECIAL_FIXED_VALUE_ENCHANT) /*specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.*/\
 	BONUS_NAME(THIEVES_GUILD_ACCESS) \
@@ -182,6 +183,20 @@ class JsonNode;
 	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
 	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
 	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
+	BONUS_NAME(BASE_TILE_MOVEMENT_COST) /*minimal cost for moving offroad*/	\
+	BONUS_NAME(HERO_SPELL_CASTS_PER_COMBAT_TURN) /**/	\
+	BONUS_NAME(MULTIHEX_UNIT_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
+	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
+	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
+	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
+	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
+	BONUS_NAME(COMBAT_MANA_BONUS) /* Additional mana per combat */ \
+	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
+	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
+	BONUS_NAME(DAMAGE_RECEIVED_CAP) /* limits the damage dealt to affected unit */ \
+	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/
 	/* end of list */
 
 
@@ -216,11 +231,12 @@ class JsonNode;
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 
-enum class BonusType : uint8_t
+enum class BonusType : uint16_t
 {
 #define BONUS_NAME(x) x,
     BONUS_LIST
 #undef BONUS_NAME
+    BUILTIN_BONUSES_COUNT
 };
 namespace BonusDuration  //when bonus is automatically removed
 {
@@ -265,7 +281,29 @@ enum class BonusValueType : uint8_t
 #undef BONUS_VALUE
 };
 
-extern DLL_LINKAGE const std::map<std::string, BonusType> bonusNameMap;
+enum class BonusNodeType
+{
+	NONE = -1,
+	UNKNOWN,
+	STACK_INSTANCE,
+	STACK_BATTLE,
+	ARMY,
+	ARTIFACT,
+	CREATURE,
+	ARTIFACT_INSTANCE,
+	HERO,
+	PLAYER,
+	TEAM,
+	TOWN_AND_VISITOR,
+	BATTLE_WIDE,
+	COMMANDER,
+	GLOBAL_EFFECTS,
+	BOAT,
+	TOWN
+};
+
+
+
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;

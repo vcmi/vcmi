@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Canvas.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../media/IVideoPlayer.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
@@ -67,7 +67,7 @@ int Canvas::getScalingFactor() const
 {
 	if (scalingPolicy == CanvasScalingPolicy::IGNORE)
 		return 1;
-	return GH.screenHandler().getScalingFactor();
+	return ENGINE->screenHandler().getScalingFactor();
 }
 
 Point Canvas::transformPos(const Point & input)
@@ -181,7 +181,7 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
 {
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	switch (alignment)
 	{
@@ -194,7 +194,7 @@ void Canvas::drawText(const Point & position, const EFonts & font, const ColorRG
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
 {
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	switch (alignment)
 	{
@@ -238,10 +238,17 @@ Rect Canvas::getRenderArea() const
 	return renderArea;
 }
 
+ColorRGBA Canvas::getPixel(const Point & position) const
+{
+	SDL_Color color;
+	SDL_GetRGBA(CSDL_Ext::getPixel(surface, position.x, position.y), surface->format, &color.r, &color.g, &color.b, &color.a);
+	return ColorRGBA(color.r, color.g, color.b, color.a);
+}
+
 CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
 {
 	CSDL_Ext::getClipRect(surf, oldRect);
-	CSDL_Ext::setClipRect(surf, rect * GH.screenHandler().getScalingFactor());
+	CSDL_Ext::setClipRect(surf, rect * ENGINE->screenHandler().getScalingFactor());
 }
 
 CanvasClipRectGuard::~CanvasClipRectGuard()

@@ -21,7 +21,7 @@
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 #include "../gui/TextAlignment.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 
 MapOverlayLogVisualizer::MapOverlayLogVisualizer(Canvas & target, std::shared_ptr<MapViewModel> model)
@@ -36,7 +36,7 @@ void MapOverlayLogVisualizer::drawLine(int3 start, int3 end)
 	if(start.z != level || end.z != level)
 		return;
 
-	int scaling = GH.screenHandler().getScalingFactor();
+	int scaling = ENGINE->screenHandler().getScalingFactor();
 	auto pStart = model->getTargetTileArea(start).center();
 	auto pEnd = model->getTargetTileArea(end).center();
 	Rect viewPortRaw = target.getRenderArea();
@@ -77,7 +77,7 @@ void MapOverlayLogVisualizer::drawText(
 
 	if(viewPort.isInside(pStart))
 	{
-		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 
 		int w = font->getStringWidth(text);
 		int h = font->getLineHeight();

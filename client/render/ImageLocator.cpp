@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ImageLocator.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "IScreenHandler.h"
 
 #include "../../lib/json/JsonNode.h"
@@ -25,6 +25,12 @@ SharedImageLocator::SharedImageLocator(const JsonNode & config, EImageBlitMode m
 
 	if(!config["defFile"].isNull())
 		defFile = AnimationPath::fromJson(config["defFile"]);
+
+	if(!config["generateShadow"].isNull())
+		generateShadow = static_cast<SharedImageLocator::ShadowMode>(config["generateShadow"].Integer());
+
+	if(!config["generateOverlay"].isNull())
+		generateOverlay = static_cast<SharedImageLocator::OverlayMode>(config["generateOverlay"].Integer());
 }
 
 SharedImageLocator::SharedImageLocator(const ImagePath & path, EImageBlitMode mode)
@@ -60,6 +66,10 @@ bool SharedImageLocator::operator < (const SharedImageLocator & other) const
 		return defFrame < other.defFrame;
 	if(layer != other.layer)
 		return layer < other.layer;
+	if(generateShadow != other.generateShadow)
+		return generateShadow < other.generateShadow;
+	if(generateOverlay != other.generateOverlay)
+		return generateOverlay < other.generateOverlay;
 
 	return false;
 }

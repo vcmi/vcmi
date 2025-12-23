@@ -29,7 +29,7 @@ public:
 
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(mock, getAllBonuses(_, _, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
+		EXPECT_CALL(mock, getAllBonuses(_, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
 		EXPECT_CALL(mock, getTreeVersion()).WillRepeatedly(Return(1));
 
 		bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, UNIT_HEALTH, BonusSourceID()));
@@ -235,7 +235,7 @@ TEST_F(HealthTest, singleUnitStack)
 
 	//one Titan
 
-	EXPECT_CALL(mock, getAllBonuses(_, _, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
+	EXPECT_CALL(mock, getAllBonuses(_, _)).WillRepeatedly(Invoke(&bonusMock, &BonusBearerMock::getAllBonuses));
 	EXPECT_CALL(mock, getTreeVersion()).WillRepeatedly(Return(1));
 
 	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 300, BonusSourceID()));

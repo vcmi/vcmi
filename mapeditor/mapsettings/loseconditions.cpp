@@ -103,8 +103,9 @@ void LoseConditions::initialize(MapController & c)
 							assert(loseValueWidget);
 							loseValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
+						}
 
-						case EventCondition::IS_HUMAN:
+						case EventCondition::IS_HUMAN: {
 							break; //ignore because always applicable for defeat conditions
 						}
 
@@ -310,12 +311,12 @@ void LoseConditions::onObjectSelect()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller->settingsDialog->hide();
 }
 
 void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller->settingsDialog->show();
 	
 	for(int lvl : {0, 1})
 	{
@@ -331,7 +332,7 @@ void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 	for(int i = 0; i < loseTypeWidget->count(); ++i)
 	{
 		auto data = controller->map()->objects.at(loseTypeWidget->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			loseTypeWidget->setCurrentIndex(i);
 			break;

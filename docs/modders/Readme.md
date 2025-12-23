@@ -134,6 +134,70 @@ Note that modification of existing objects does not requires a dependency on edi
 
 This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
 
+### Modifying properties of existing objects
+
+As mentioned above, you can change any properties of existing objects using this form:
+
+```json
+"core:archer" : {
+	"hitPoints" : 10
+},
+```
+
+Note that you only need to specify changed properties. This will make your mod smaller and easier to read or maintain, and will reduce potential conflicts with other mods.
+
+When replacing booleans, numbers, or strings in this way, you only need to specify desired value. When replacing list of values, you can use the same approach, but if you only need to modify some values in the list, in order to reduce potential conflicts with other mods, you may want to consider different approach. Consider this:
+
+```json
+"core:archer" : {
+	"upgrades": ["marksman", "crossbowman" ],
+}
+```
+
+Such form will allow you to make an alternative upgrade of Archer, so it may be upgraded to either Marksman or to your new unit, Crossbowman. This will work, however if there is another mod that also attempts to add upgrade to the same unit, this would result in a mod conflict, and only one value will be used.
+
+To avoid such conflict, you can use following form:
+
+```json
+"core:archer" : {
+	"upgrades": {
+		"append" : "crossbowman"
+	}
+}
+```
+
+This form will preserve all existing upgrades for such unit, and will append new upgrade to Crossbowman to list of potential upgrades. And if there is another mod that also adds new upgrades, both mods will work as intended, without conflict.
+
+More complete description of such syntax:
+
+```json
+"core:archer" : {
+	"upgrades": {
+		// appends a single item to the end of list
+		"append" : "crossbowman"
+
+		// appends multiple items from the provided list to the end of list
+		"appendItems" : [ "crossbowman", "arbalist" ]
+		
+		// insert new item before specified position
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
+		// Following example will insert new item before 0th item - at the very beginning of the list
+		// Item with provided index must exist in the list
+		"insert@0" : "crossbowman"
+		
+		// modify existing item at specified position
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
+		// Following example will modify 0th item
+		// If item is a json object with multiple properties, e.g. { "key" : "value" } 
+		// you only need to provide changed properites, as usually
+		// Item with provided index must exist in the list
+		"modify@0" : "crossbowman"
+	}
+}
+```
+
+Such formatting is not unique to creature upgrades, and can be used in any place that uses json lists (`[ valueA, valueB ]`)
+
 ## Overriding graphical files from Heroes III
 
 Any graphical replacer mods fall under this category. In VCMI directory **<mod name>/Content** acts as mod-specific game root directory. So for example file **<mod name>/Content/Data/AISHIELD.PNG** will replace file with same name from **H3Bitmap.lod** game archive.

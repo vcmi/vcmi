@@ -12,20 +12,21 @@
 #include "CSavingScreen.h"
 #include "SelectionTab.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/GameLibrary.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
@@ -33,16 +34,16 @@ CSavingScreen::CSavingScreen()
 	OBJECT_CONSTRUCTION;
 	center(pos);
 	localMi = std::make_shared<CMapInfo>();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
 	tabSel->toggleMode();
 	curTab = tabSel;
 		
-	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), CGI->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
 	
-	LOCPLINT->gamePause(true);
+	GAME->interface()->gamePause(true);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
@@ -53,8 +54,8 @@ const CMapInfo * CSavingScreen::getMapInfo()
 const StartInfo * CSavingScreen::getStartInfo()
 {
 	if (localMi)
-		return localMi->scenarioOptionsOfSave;
-	return LOCPLINT->cb->getStartInfo();
+		return localMi->scenarioOptionsOfSave.get();
+	return GAME->interface()->cb->getStartInfo();
 }
 
 void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
@@ -69,7 +70,7 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 void CSavingScreen::close()
 {
-	LOCPLINT->gamePause(false);
+	GAME->interface()->gamePause(false);
 	CSelectionBase::close();
 }
 
@@ -84,15 +85,15 @@ void CSavingScreen::saveGame()
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
-		LOCPLINT->cb->save(path);
+		GAME->interface()->cb->save(path);
 		close();
 	};
 
 	if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
 	{
-		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
+		std::string hlp = LIBRARY->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
-		LOCPLINT->showYesNoDialog(hlp, overWrite, nullptr);
+		GAME->interface()->showYesNoDialog(hlp, overWrite, nullptr);
 	}
 	else
 	{

@@ -28,6 +28,7 @@ class TurnTimerWidget;
 class HeroInfoBasicPanel;
 class StackInfoBasicPanel;
 class QuickSpellPanel;
+class UnitActionPanel;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleWindow : public InterfaceObjectConfigurable
@@ -42,6 +43,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<StackInfoBasicPanel> defenderStackWindow;
 
 	std::shared_ptr<QuickSpellPanel> quickSpellWindow;
+	std::shared_ptr<UnitActionPanel> unitActionWindow;
 
 	std::shared_ptr<TurnTimerWidget> attackerTimerWidget;
 	std::shared_ptr<TurnTimerWidget> defenderTimerWidget;
@@ -53,7 +55,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();
-	void bSwitchActionf();
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
@@ -66,11 +67,6 @@ class BattleWindow : public InterfaceObjectConfigurable
 	void reallyFlee();
 	void reallySurrender();
 	
-	/// management of alternative actions
-	std::list<PossiblePlayerBattleAction> alternativeActions;
-	PossiblePlayerBattleAction lastAlternativeAction;
-	void showAlternativeActionIcon(PossiblePlayerBattleAction);
-
 	void useSpellIfPossible(int slot);
 
 	/// flip battle queue visibility to opposite
@@ -86,6 +82,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
 	bool onlyOnePlayerHuman;
+
+	bool hasSpaceForQuickActions() const;
+	bool quickActionsPanelActive() const;
+	bool placeInfoWindowsOutside() const;
 
 public:
 	BattleWindow(BattleInterface & owner );
@@ -133,6 +133,7 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void onScreenResize() override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();
@@ -140,8 +141,8 @@ public:
 	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
 
-	/// Set possible alternative options. If more than 1 - the last will be considered as default option
-	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
+	/// Set possible alternative options to fill unit actions panel
+	void setPossibleActions(const std::vector<PossiblePlayerBattleAction> & allActions);
 
 	/// ends battle with autocombat
 	void endWithAutocombat();

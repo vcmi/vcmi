@@ -20,7 +20,7 @@
 #include "../../mapObjects/ObjectTemplate.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../RmgPath.h"
 #include "ObjectManager.h"
 #include "ObstaclePlacer.h"
@@ -210,7 +210,7 @@ void RiverPlacer::preprocess()
 	//calculate delta positions
 	if(connectedToWaterZoneId > -1)
 	{
-		auto river = VLC->terrainTypeHandler->getById(zone.getTerrainType())->river;
+		auto river = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType())->river;
 		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
 		auto availableArea = zone.areaForRoads();
 		for(const auto & tileToProcess : availableArea.getTilesVector())
@@ -336,8 +336,8 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	auto riverType = VLC->terrainTypeHandler->getById(zone.getTerrainType())->river;
-	const auto * river = VLC->riverTypeHandler->getById(riverType);
+	auto riverType = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType())->river;
+	const auto * river = LIBRARY->riverTypeHandler->getById(riverType);
 	if(river->getId() == River::NO_RIVER)
 		return;
 	
@@ -382,7 +382,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		assert(deltaPos.getTilesVector().size() == 1);
 		
 		auto pos = deltaPos.getTilesVector().front();
-		auto handler = VLC->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
+		auto handler = LIBRARY->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
 		assert(handler->isStaticObject());
 		
 		std::vector<std::shared_ptr<const ObjectTemplate>> tmplates;
@@ -403,8 +403,8 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			{
 				if(templ->animationFile == targetTemplateName)
 				{
-					auto * obj = handler->create(map.mapInstance->cb, templ);
-					rmg::Object deltaObj(*obj, deltaPositions[pos]);
+					auto obj = handler->create(map.mapInstance->cb, templ);
+					rmg::Object deltaObj(obj, deltaPositions[pos]);
 					deltaObj.finalize(map, zone.getRand());
 				}
 			}

@@ -15,6 +15,8 @@
 #include "../lib/VCMIDirs.h"
 
 #include <QApplication>
+#include <QNetworkProxy>
+#include <QNetworkProxyFactory>
 
 // Conan workaround https://github.com/conan-io/conan-center-index/issues/13332
 #ifdef VCMI_IOS
@@ -48,6 +50,14 @@ int MAIN_EXPORT main(int argc, char * argv[])
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 	QApplication vcmilauncher(argc, argv);
+
+	// use system proxy
+	{
+		QNetworkProxyFactory::setUseSystemConfiguration(true);
+		const auto systemProxies = QNetworkProxyFactory::systemProxyForQuery();
+		if(!systemProxies.isEmpty())
+			QNetworkProxy::setApplicationProxy(systemProxies[0]);
+	}
 
 	launcher::prepare();
 

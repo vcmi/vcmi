@@ -19,6 +19,8 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -33,14 +35,14 @@ int TurnOrderProcessor::simturnsTurnsMaxLimit() const
 {
 	if (simturnsMaxDurationDays)
 		return *simturnsMaxDurationDays;
-	return gameHandler->getStartInfo()->simturnsInfo.optionalTurns;
+	return gameHandler->gameInfo().getStartInfo()->simturnsInfo.optionalTurns;
 }
 
 int TurnOrderProcessor::simturnsTurnsMinLimit() const
 {
 	if (simturnsMinDurationDays)
 		return *simturnsMinDurationDays;
-	return gameHandler->getStartInfo()->simturnsInfo.requiredTurns;
+	return gameHandler->gameInfo().getStartInfo()->simturnsInfo.requiredTurns;
 }
 
 std::vector<TurnOrderProcessor::PlayerPair> TurnOrderProcessor::computeContactStatus() const
@@ -101,22 +103,22 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	boost::multi_array<bool, 3> leftReachability;
 	boost::multi_array<bool, 3> rightReachability;
 
-	int3 mapSize = gameHandler->getMapSize();
+	int3 mapSize = gameHandler->gameInfo().getMapSize();
 
 	leftReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 	rightReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	const auto * leftInfo = gameHandler->getPlayerState(left, false);
-	const auto * rightInfo = gameHandler->getPlayerState(right, false);
+	const auto * leftInfo = gameHandler->gameInfo().getPlayerState(left, false);
+	const auto * rightInfo = gameHandler->gameInfo().getPlayerState(right, false);
 
-	for (auto obj : gameHandler->gameState()->map->objects)
+	for (auto obj : gameHandler->gameState().getMap().getObjects())
 	{
-		if (obj && obj->isVisitable())
+		if (obj->asOwnable())
 		{
 			int3 pos = obj->visitablePos();
-			if (obj->tempOwner == left)
+			if (obj->getOwner() == left)
 				leftReachability[pos.z][pos.x][pos.y] = true;
-			if (obj->tempOwner == right)
+			if (obj->getOwner() == right)
 				rightReachability[pos.z][pos.x][pos.y] = true;
 		}
 	}
@@ -170,8 +172,8 @@ bool TurnOrderProcessor::isContactAllowed(PlayerColor active, PlayerColor waitin
 
 bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerColor waiting) const
 {
-	const auto * activeInfo = gameHandler->getPlayerState(active, false);
-	const auto * waitingInfo = gameHandler->getPlayerState(waiting, false);
+	const auto * activeInfo = gameHandler->gameInfo().getPlayerState(active, false);
+	const auto * waitingInfo = gameHandler->gameInfo().getPlayerState(waiting, false);
 
 	assert(active != waiting);
 	assert(activeInfo);
@@ -180,7 +182,7 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 	if (activeInfo->human != waitingInfo->human)
 	{
 		// only one AI and one human can play simultaneously from single connection
-		if (!gameHandler->getStartInfo()->simturnsInfo.allowHumanWithAI)
+		if (!gameHandler->gameInfo().getStartInfo()->simturnsInfo.allowHumanWithAI)
 			return false;
 	}
 	else
@@ -190,13 +192,13 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 			return false;
 	}
 
-	if (gameHandler->getDate(Date::DAY) < simturnsTurnsMinLimit())
+	if (gameHandler->gameInfo().getDate(Date::DAY) < simturnsTurnsMinLimit())
 		return true;
 
-	if (gameHandler->getDate(Date::DAY) > simturnsTurnsMaxLimit())
+	if (gameHandler->gameInfo().getDate(Date::DAY) > simturnsTurnsMaxLimit())
 		return false;
 
-	if (gameHandler->getStartInfo()->simturnsInfo.ignoreAlliedContacts && activeInfo->team == waitingInfo->team)
+	if (gameHandler->gameInfo().getStartInfo()->simturnsInfo.ignoreAlliedContacts && activeInfo->team == waitingInfo->team)
 		return true;
 
 	if (playersInContact(active, waiting))
@@ -207,8 +209,8 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 
 bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) const
 {
-	const auto * leftInfo = gameHandler->getPlayerState(left, false);
-	const auto * rightInfo = gameHandler->getPlayerState(right, false);
+	const auto * leftInfo = gameHandler->gameInfo().getPlayerState(left, false);
+	const auto * rightInfo = gameHandler->gameInfo().getPlayerState(right, false);
 
 	assert(left != right);
 	assert(leftInfo && rightInfo);
@@ -254,13 +256,13 @@ void TurnOrderProcessor::doStartNewDay()
 	bool activePlayer = false;
 	for (auto player : actedPlayers)
 	{
-		if (gameHandler->getPlayerState(player)->status == EPlayerStatus::INGAME)
+		if (gameHandler->gameInfo().getPlayerState(player)->status == EPlayerStatus::INGAME)
 			activePlayer = true;
 	}
 
 	if(!activePlayer)
 	{
-		gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
+		gameHandler->gameServer().setState(EServerState::SHUTDOWN);
 		return;
 	}
 
@@ -272,8 +274,8 @@ void TurnOrderProcessor::doStartNewDay()
 
 void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 {
-	assert(gameHandler->getPlayerState(which));
-	assert(gameHandler->getPlayerState(which)->status == EPlayerStatus::INGAME);
+	assert(gameHandler->gameInfo().getPlayerState(which));
+	assert(gameHandler->gameInfo().getPlayerState(which)->status == EPlayerStatus::INGAME);
 
 	// Only if player is actually starting his turn (and not loading from save)
 	if (!actingPlayers.count(which))
@@ -296,7 +298,7 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 {
 	assert(isPlayerMakingTurn(which));
-	assert(gameHandler->getPlayerStatus(which) == EPlayerStatus::INGAME);
+	assert(gameHandler->gameInfo().getPlayerStatus(which) == EPlayerStatus::INGAME);
 
 	actingPlayers.erase(which);
 	actedPlayers.insert(which);
@@ -305,11 +307,7 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 	pet.player = which;
 	gameHandler->sendAndApply(pet);
 
-	if (!awaitingPlayers.empty())
-		tryStartTurnsForPlayers();
-
-	if (actingPlayers.empty())
-		doStartNewDay();
+	resumeTurnOrder();
 
 	assert(!actingPlayers.empty());
 }
@@ -319,12 +317,15 @@ void TurnOrderProcessor::addPlayer(PlayerColor which)
 	awaitingPlayers.insert(which);
 }
 
-void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+void TurnOrderProcessor::removePlayer(PlayerColor which)
 {
 	awaitingPlayers.erase(which);
 	actingPlayers.erase(which);
 	actedPlayers.erase(which);
+}
 
+void TurnOrderProcessor::resumeTurnOrder()
+{
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();
 
@@ -340,7 +341,7 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 		return false;
 	}
 
-	if(gameHandler->getPlayerStatus(which) != EPlayerStatus::INGAME)
+	if(gameHandler->gameInfo().getPlayerStatus(which) != EPlayerStatus::INGAME)
 	{
 		gameHandler->complain("Can not end turn for player that is not in game!");
 		return false;
@@ -355,8 +356,8 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 	gameHandler->onPlayerTurnEnded(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town
-	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by onPlayerEndsGame
-	if(gameHandler->getPlayerStatus(which) == EPlayerStatus::INGAME)
+	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder
+	if(gameHandler->gameInfo().getPlayerStatus(which) == EPlayerStatus::INGAME)
 		doEndPlayerTurn(which);
 
 	return true;
@@ -364,6 +365,18 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 void TurnOrderProcessor::onGameStarted()
 {
+	if(gameHandler->gameInfo().getMapHeader()->battleOnly)
+	{
+		auto towns = gameHandler->gameState().getMap().getObjects<CGTownInstance>();
+		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
+		if(!towns.size() && heroes.size() == 2)
+			gameHandler->startBattle(heroes.at(0), heroes.at(1));
+		else
+			towns.at(0)->onHeroVisit(*gameHandler, heroes.at(0));
+
+		return;
+	}
+
 	if (actingPlayers.empty())
 		blockedContacts = computeContactStatus();
 
@@ -402,10 +415,10 @@ bool TurnOrderProcessor::isPlayerAwaitsNewDay(PlayerColor which) const
 
 void TurnOrderProcessor::setMinSimturnsDuration(int days)
 {
-	simturnsMinDurationDays = gameHandler->getDate(Date::DAY) + days;
+	simturnsMinDurationDays = gameHandler->gameInfo().getDate(Date::DAY) + days;
 }
 
 void TurnOrderProcessor::setMaxSimturnsDuration(int days)
 {
-	simturnsMaxDurationDays = gameHandler->getDate(Date::DAY) + days;
+	simturnsMaxDurationDays = gameHandler->gameInfo().getDate(Date::DAY) + days;
 }

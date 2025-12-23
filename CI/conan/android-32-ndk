@@ -1,4 +1,0 @@
-include(android-32)
-
-[tool_requires]
-android-ndk/r25c

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CBuilding.h"
 
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../faction/CFaction.h"
 #include "../faction/CTown.h"
@@ -25,14 +25,6 @@ const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 		{ "grail", CBuilding::BUILD_GRAIL }
 };
 
-const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
-	{
-		{ "low", CBuilding::HEIGHT_LOW },
-		{ "average", CBuilding::HEIGHT_AVERAGE },
-		{ "high", CBuilding::HEIGHT_HIGH },
-		{ "skyship", CBuilding::HEIGHT_SKYSHIP }
-};
-
 BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 {
 	return BuildingTypeUniqueID(town->faction->getId(), bid);
@@ -45,12 +37,12 @@ std::string CBuilding::getJsonKey() const
 
 std::string CBuilding::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string CBuilding::getDescriptionTranslated() const
 {
-	return VLC->generaltexth->translate(getDescriptionTextID());
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 std::string CBuilding::getBaseTextID() const
@@ -73,7 +65,7 @@ BuildingID CBuilding::getBase() const
 	const CBuilding * build = this;
 	while (build->upgrade != BuildingID::NONE)
 	{
-		build = build->town->buildings.at(build->upgrade);
+		build = build->town->buildings.at(build->upgrade).get();
 	}
 
 	return build->bid;
@@ -81,11 +73,11 @@ BuildingID CBuilding::getBase() const
 
 si32 CBuilding::getDistance(const BuildingID & buildID) const
 {
-	const CBuilding * build = town->buildings.at(buildID);
+	const CBuilding * build = town->buildings.at(buildID).get();
 	int distance = 0;
 	while (build->upgrade != BuildingID::NONE && build != this)
 	{
-		build = build->town->buildings.at(build->upgrade);
+		build = build->town->buildings.at(build->upgrade).get();
 		distance++;
 	}
 	if (build == this)

@@ -1,0 +1,394 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI bonus system format",
+	"description" : "Subsection of several formats, used to add generic bonuses to objects",
+	"required" : ["type"],
+	"definitions" :
+	{
+		"nestedLimiter" : {
+			"allOf" : [
+				{ 
+					"if" : {
+						"type" : "string"
+					},
+					"then" : {
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"description" : "parameterless limiter or boolean operator at start of array"
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TYPE_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"required" : [ "type", "creature" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TYPE_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"creature" : { "type" : "string" },
+							"includeUpgrades" : { "type" : "boolean" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_ANOTHER_BONUS_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_ANOTHER_BONUS_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"bonusType" : { "type" : "string" },
+							"bonusSubtype" : { "type" : "string" },
+							"bonusSourceType" : { "type" : "string" },
+							"bonusSourceID" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_ALIGNMENT_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_ALIGNMENT_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"alignment" : { "type" : "string", "enum" : [ "good", "evil", "neutral" ] }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_FACTION_LIMITER", "FACTION_LIMITER" ] }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_FACTION_LIMITER", "FACTION_LIMITER" ] },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"faction" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_LEVEL_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_LEVEL_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"minLevel" : { "type" : "number" },
+							"maxlevel" : { "type" : "number" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_TERRAIN_LIMITER", "TERRAIN_LIMITER" ] }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_TERRAIN_LIMITER", "TERRAIN_LIMITER" ] },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"terrain" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ON_HEXES" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ON_HEXES" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"hexes" : { "type" : "array", "items" : { "type" : "number" } }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_CHARGES_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_CHARGES_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"cost" : { "type" : "number" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "array"
+					},
+					"then" : {
+						"items" : {
+							"$ref" : "#/definitions/nestedLimiter",
+							"description" : "nested limiters optionally prefixed with boolean operator"
+						}
+					}
+				}
+			]
+		},
+		"updater" : 
+		{
+			"anyOf" : [
+				{
+					"type" : "string",
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
+				},
+				{
+					"description" : "GROWS_WITH_LEVEL updater",
+					"type" : "object",
+					"required" : ["type", "valPer20", "stepSize"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "GROWS_WITH_LEVEL"
+						},
+						"valPer20" : {
+							"type" : "integer",
+							"description" : "Bonus value for each 20 steps"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						}
+					}
+				},
+				{
+					"description" : "TIMES_HERO_LEVEL updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_HERO_LEVEL"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						}
+					}
+				},
+				{
+					"description" : "TIMES_STACK_SIZE updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_STACK_SIZE"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						},
+						"minimum" : {
+							"type" : "integer",
+							"description" : "Minimal bonus value"
+						},
+						"maximum" : {
+							"type" : "integer",
+							"description" : "Maximal bonus value"
+						}
+					}
+				},
+				{
+					"description" : "TIMES_ARMY_SIZE updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_ARMY_SIZE"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						},
+						"minimum" : {
+							"type" : "integer",
+							"description" : "Minimal bonus value"
+						},
+						"maximum" : {
+							"type" : "integer",
+							"description" : "Maximal bonus value"
+						},
+						"filteredLevel" : {
+							"type" : "integer",
+							"description" : "Level of units to count"
+						},
+						"filteredFaction" : {
+							"type" : "string",
+							"description" : "Faction of units to count"
+						},
+						"filteredCreature" : {
+							"type" : "string",
+							"description" : "Specific unit to count"
+						}
+					}
+				}
+			]
+		}
+	},
+	"additionalProperties" : false,
+	"properties" : {
+		"type" : {
+			"type" : "string",
+			"description" : "type"
+		},
+		"subtype" : {
+			"type" : "string",
+			"description" : "subtype"
+		},
+		"sourceID" : {
+			"type" : "number",
+			"description" : "sourceID"
+		},
+		"sourceType" : {
+			"type" : "string",
+			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER" ],
+			"description" : "sourceType"
+		},
+		"targetSourceType" : {
+			"type" : "string",
+			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER" ],
+			"description" : "targetSourceType"
+		},
+		"propagator" : {
+			"description" : "propagator",
+			"type" : "string",
+			"enum" : [ "BATTLE_WIDE", "TOWN_AND_VISITOR", "PLAYER", "HERO", "TOWN", "ARMY", "TEAM", "GLOBAL_EFFECT" ]
+		},
+		"updater" : {
+			"$ref" : "#/definitions/updater"
+		},
+		"propagationUpdater" : {
+			"$ref" : "#/definitions/updater"
+		},
+		"limiters" : {
+			"$ref" : "#/definitions/nestedLimiter",
+			"description" : "limiter"
+		},
+		"effectRange" : {
+			"type" : "string",
+			"enum" : [ "NO_LIMIT", "ONLY_DISTANCE_FIGHT", "ONLY_MELEE_FIGHT" ],
+			"description" : "effectRange"
+		},
+		"val" : {
+			"type" : "number",
+			"description" : "val"
+		},
+		"valueType" : {
+			"type" : "string",
+			"enum" : ["ADDITIVE_VALUE", "BASE_NUMBER", "PERCENT_TO_ALL", "PERCENT_TO_BASE", "PERCENT_TO_SOURCE", "PERCENT_TO_TARGET_TYPE", "INDEPENDENT_MAX", "INDEPENDENT_MIN" ],
+			"description" : "valueType"
+		},
+		"addInfo" : {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" },
+				{
+					"type" : "array",
+					"items" : {
+						"anyof" : [
+							{ "type" : "string" },
+							{ "type" : "number" }
+						]
+					}
+				}
+			],
+			"description" : "addInfo"
+		},
+		"duration" : {
+			"anyOf" : [
+				{
+					"type" : "string",
+					"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
+				},
+				{
+					"type" : "array", 
+					"items" : {
+						"type" : "string",
+						"enum" : ["PERMANENT", "ONE_BATTLE", "ONE_DAY", "ONE_WEEK", "N_TURNS", "N_DAYS", "UNTIL_BEING_ATTACKED", "UNTIL_ATTACK", "STACK_GETS_TURN", "COMMANDER_KILLED", "UNTIL_OWN_ATTACK" ]
+					}
+				}
+			],
+			"description" : "duration"
+		},
+		"turns" : {
+			"type" : "number",
+			"description" : "turns"
+		},
+		"stacking" : {
+			"type" : "string",
+			"description" : "stacking"
+		},
+		"icon" : {
+			"type" : "string",
+			"description" : "Optional, custom icons to show in creature window",
+			"format" : "imageFile"
+		},
+		"description" : {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" }
+			],
+			"description" : "description"
+		},
+		"hidden" : {
+			"type" : "boolean",
+			"description" : "Optional, hide bonus in creature window"
+		}
+	}
+}

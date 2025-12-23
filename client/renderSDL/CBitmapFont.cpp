@@ -13,15 +13,14 @@
 #include "SDL_Extensions.h"
 #include "SDLImageScaler.h"
 
-#include "../CGameInfo.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
 #include "../render/IScreenHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/Rect.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
@@ -102,7 +101,7 @@ static AtlasLayout doAtlasPacking(const std::map<int, Point> & images)
 void CBitmapFont::loadFont(const ResourcePath & resource, std::unordered_map<CodePoint, EntryFNT> & loadedChars)
 {
 	auto data = CResourceHandler::get()->load(resource)->readAll();
-	std::string modEncoding = VLC->modh->findResourceEncoding(resource);
+	std::string modEncoding = LIBRARY->modh->findResourceEncoding(resource);
 
 	height = data.first[5];
 
@@ -199,7 +198,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		chars[symbol.first] = storedEntry;
 	}
 
-	if (GH.screenHandler().getScalingFactor() != 1)
+	if (ENGINE->screenHandler().getScalingFactor() != 1)
 	{
 		static const std::map<std::string, EScalingAlgorithm> filterNameToEnum = {
 			{ "nearest", EScalingAlgorithm::NEAREST},
@@ -210,7 +209,7 @@ CBitmapFont::CBitmapFont(const std::string & filename):
 		auto filterName = settings["video"]["fontUpscalingFilter"].String();
 		EScalingAlgorithm algorithm = filterNameToEnum.at(filterName);
 		SDLImageScaler scaler(atlasImage);
-		scaler.scaleSurfaceIntegerFactor(GH.screenHandler().getScalingFactor(), algorithm);
+		scaler.scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
 		SDL_FreeSurface(atlasImage);
 		atlasImage = scaler.acquireResultSurface();
 	}
@@ -269,7 +268,7 @@ bool CBitmapFont::canRepresentString(const std::string & data) const
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const
 {
-	int scalingFactor = GH.screenHandler().getScalingFactor();
+	int scalingFactor = ENGINE->screenHandler().getScalingFactor();
 
 	posX += character.leftOffset * scalingFactor;
 

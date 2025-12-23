@@ -11,7 +11,6 @@
 #pragma once
 
 #include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/CGameInfoCallback.h"
 #include "../../lib/battle/BattleHexArray.h"
 
 namespace spells
@@ -35,6 +34,7 @@ public:
 	MOCK_METHOD2(castEval, void(ServerCallback *, const Target &));
 
 	MOCK_CONST_METHOD1(isReceptive, bool(const battle::Unit * ));
+	MOCK_CONST_METHOD1(wouldResist, bool(const battle::Unit * ));
 	MOCK_CONST_METHOD0(getTargetTypes, std::vector<AimType>());
 	MOCK_CONST_METHOD4(getPossibleDestinations, std::vector<Destination>(size_t, AimType, const Target &, bool));
 
@@ -65,6 +65,7 @@ public:
 	MOCK_CONST_METHOD2(applySpellBonus,int64_t(int64_t, const battle::Unit *));
 	MOCK_CONST_METHOD1(applySpecificSpellBonus,int64_t(int64_t));
 	MOCK_CONST_METHOD2(calculateRawEffectValue, int64_t(int32_t, int32_t));
+	MOCK_CONST_METHOD1(canonicalizeTarget, Target(const Target &));
 
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));

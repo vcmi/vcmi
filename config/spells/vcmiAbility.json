@@ -9,14 +9,15 @@
 		"defaultGainChance": 0,
 		"gainChance": {},
 		"animation":{
+			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
 		},
 		"sounds": {
 			"cast": "RESURECT"
 		},
+		"graphics" : {},
 		"levels" : {
 			"base": {
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 40,
 				"cost" : 1,
 				"targetModifier":{"smart":true},
@@ -58,7 +59,7 @@
 		"defaultGainChance": 0,
 		"gainChance": {},
 		"animation":{
-			"affect":["SP12_"]
+			"affect":[{ "defName" : "SP12_", "transparency" : 0.5}]
 		},
 
 		"sounds": {
@@ -67,7 +68,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 10,
 				"cost" : 0,
 				"targetModifier":{"smart":true},
@@ -116,7 +116,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 1,
 				"cost" : 0,
 				"targetModifier":{"smart":true},
@@ -197,7 +196,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 1,
 				"cost" : 0,
 				"targetModifier":{"smart":true},

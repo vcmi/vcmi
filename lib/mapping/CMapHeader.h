@@ -202,6 +202,24 @@ enum class EMapDifficulty : uint8_t
 	IMPOSSIBLE = 4
 };
 
+/// The disposed hero struct describes which hero can be hired from which player.
+struct DLL_LINKAGE DisposedHero
+{
+	HeroTypeID heroId;
+	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
+	std::string name;
+	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		h & heroId;
+		h & portrait;
+		h & name;
+		h & players;
+	}
+};
+
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
 class DLL_LINKAGE CMapHeader: public Serializeable
 {
@@ -221,12 +239,14 @@ public:
 
 	ui8 levels() const;
 
+	void banWaterHeroes(bool isWaterMap);
+
 	EMapFormat version; /// The default value is EMapFormat::SOD.
 	ModCompatibilityInfo mods; /// set of mods required to play a map
 
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
-	bool twoLevel; /// The default value is true.
+	si32 mapLevels; /// The default value is 2.
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;
@@ -248,7 +268,11 @@ public:
 	std::set<HeroTypeID> allowedHeroes;
 	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserved for campaign
 
+	std::vector<DisposedHero> disposedHeroes;
+
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
+
+	bool battleOnly; /// Battle only mode
 
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
@@ -267,28 +291,35 @@ public:
 		h & mods;
 		h & name;
 		h & description;
-		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
-		{
-			h & author;
-			h & authorContact;
-			h & mapVersion;
-			h & creationDateTime;
-		}
+		h & author;
+		h & authorContact;
+		h & mapVersion;
+		h & creationDateTime;
 		h & width;
 		h & height;
-		h & twoLevel;
-
-		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
-			h & difficulty;
+		if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+			h & mapLevels;
 		else
 		{
-			uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
-			h & difficultyInteger;
-			difficulty = static_cast<EMapDifficulty>(difficultyInteger);
+			if (h.saving)
+			{
+				bool hasTwoLevels = mapLevels == 2;
+				h & hasTwoLevels;
+			}
+			else
+			{
+				bool hasTwoLevels;
+				h & hasTwoLevels;
+				mapLevels = hasTwoLevels ? 2 : 1;
+			}
 		}
+
+		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;
+		if (h.version >= Handler::Version::BATTLE_ONLY)
+			h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
@@ -298,6 +329,8 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		if (h.version >= Handler::Version::MAP_HEADER_DISPOSED_HEROES)
+			h & disposedHeroes;
 		h & translations;
 		if(!h.saving)
 			registerMapStrings();
