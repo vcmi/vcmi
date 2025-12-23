@@ -387,7 +387,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character && !joinOnlyForMoney)
 			return JOIN_FOR_FREE;
 
 		if(diplomacy * 2 + sympathy + 1 >= character)
@@ -573,13 +573,23 @@ bool CGCreature::containsUpgradedStack() const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=830557#focus
 
-	float a = 2992.911117f;
-	float b = 14174.264968f;
-	float c = 5325.181015f;
-	float d = 32788.727920f;
+	static constexpr float a = 2992.911117f;
+	static constexpr float b = 14174.264968f;
+	static constexpr float c = 5325.181015f;
+	static constexpr float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
-	return ((val % 32768) % 100) < 50;
+	switch (upgradedStackPresence)
+	{
+		case UpgradedStackPresence::ALWAYS:
+			return true;
+		case UpgradedStackPresence::NEVER:
+			return false;
+		default:
+		{
+			int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
+			return ((val % 32768) % 100) < 50;
+		}
+	}
 }
 
 int CGCreature::getNumberOfStacks(const CGHeroInstance * hero) const
