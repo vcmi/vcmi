@@ -41,7 +41,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
