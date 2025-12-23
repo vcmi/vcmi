@@ -1560,6 +1560,9 @@ void CModListView::importPreset(const JsonNode & data)
 	{
 		activatingPreset = presetName;
 		for (const auto & modID : modList)
-			doInstallMod(modID);
+		{
+			if (modStateModel->isModExists(modID))
+				doInstallMod(modID);
+		}
 	}
 }
