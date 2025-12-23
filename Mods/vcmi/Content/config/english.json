@@ -105,7 +105,7 @@
 	"vcmi.spellBook.search" : "search...",
 	"vcmi.spellBook.tab.hover" : "%s Spells",
 	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
-    "vcmi.spellBook.zero_level.hint" : "0th lev",
+	"vcmi.spellBook.zero_level.hint" : "0th lev",
 
 	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
@@ -176,7 +176,7 @@
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
 	"vcmi.lobby.customRmgSize.title" : "Select custom size",
-	"vcmi.lobby.customRmgSize.experimental" : "Multilevel support is highly experimental yet. Expect issues.",
+	"vcmi.lobby.customRmgSize.experimental" : "{More than 2 layers}\n\nTwo layers are fully supported. Additional layers are experimental and may not work correctly.\n\nPlease report any issues you encounter!",
 	"vcmi.lobby.customRmgSize.0" : "Width",
 	"vcmi.lobby.customRmgSize.1" : "Height",
 	"vcmi.lobby.customRmgSize.2" : "Layers",

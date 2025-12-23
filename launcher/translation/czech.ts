@@ -89,47 +89,47 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportovat logy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit logy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivy ZIP (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Chyba</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se vytvořit archiv: %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Odeslat logy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiv bude odeslán prostřednictvím jiné aplikace. Sdílejte své logy s vývojáři, např. přes Discord.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokončeno</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Logy byly uloženy do %1, pošlete je prosím vývojářům</translation>
     </message>
 </context>
 <context>
@@ -302,12 +302,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Git-Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub repozitář</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>GitHub-Stars</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub hodnocení</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -419,41 +419,35 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mapa existuje</translation>
+        <translation>Mapa již existuje</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mapa &apos;%1&apos; již existuje. Chcete ji přepsat?</translation>
+        <translation>Mapa &apos;%1&apos; již existuje. Chcete ji přepsat?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ano pro všechny</translation>
+        <translation>Ano pro všechny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ne pro všechny</translation>
+        <translation>Ne pro všechny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Import dokončen</translation>
+        <translation>Import dokončen</translation>
     </message>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-            <numerusform>%n mapa(y) byla úspěšně importována.</numerusform>
-            <numerusform>%n mapa(y) byla úspěšně importována.</numerusform>
-            <numerusform>%n mapa(y) byla úspěšně importována.</numerusform>
+        <translation>
+            <numerusform>%n mapa byla úspěšně importována.</numerusform>
+            <numerusform>%n mapy byly úspěšně importovány.</numerusform>
+            <numerusform>%n map bylo úspěšně importováno.</numerusform>
         </translation>
     </message>
     <message>
@@ -464,15 +458,13 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Import se nezdařil</translation>
+        <translation>Import se nezdařil</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nepodařilo se importovat následující mapy:
+        <translation>Nepodařilo se importovat následující mapy:
 %1</translation>
     </message>
     <message>
@@ -923,38 +915,32 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">StupidAI (zastaralé)</translation>
+        <translation>StupidAI (zastaralé)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">BattleAI (výchozí, doporučeno)</translation>
+        <translation>BattleAI (výchozí, doporučeno)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">MMAI (experimentální)</translation>
+        <translation>MMAI (experimentální)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller (nahrazeno Nullkiller2)</translation>
+        <translation>Nullkiller (nahrazeno verzí Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller2 (výchozí, doporučeno)</translation>
+        <translation>Nullkiller2 (výchozí, doporučeno)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">EmptyAI – Nenalezeny žádné platné knihovny AI!</translation>
+        <translation>EmptyAI – Nebyly nalezeny žádné platné AI knihovny!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -1359,32 +1345,27 @@ Vyberte prosím adresář s nainstalovanými daty Heroes III.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vyberte adresář s HD Edition (složka Steam)</translation>
+        <translation>Vyberte složku s HD edicí (složka ze Steamu)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Neplatná složka</translation>
+        <translation>Neplatná složka</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybraná složka neobsahuje HOMM3 2.0.exe! Vyberte prosím instalační složku HD Edition.</translation>
+        <translation>Vybraná složka neobsahuje soubor HOMM3_2.0.exe! Vyberte prosím instalační složku HD edice.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Chyba rozbalení</translation>
+        <translation>Chyba při rozbalování</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Prosím smažte mod a zkuste to znovu! Nepodařilo se zkopírovat soubor %1 do %2</translation>
+        <translation>Smažte prosím modifikaci a zkuste to znovu. Nepodařilo se zkopírovat soubor %1 do %2</translation>
     </message>
 </context>
 <context>
@@ -1677,12 +1658,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
-        <translation>Druh</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
-        <translation type="unfinished"></translation>
+        <translation>⭐</translation>
     </message>
 </context>
 <context>
@@ -1877,8 +1858,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zdroje</translation>
+        <translation>Suroviny</translation>
     </message>
 </context>
 <context>
@@ -2005,8 +1985,7 @@ Důvod: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nainstalovat HD Edition (Steam)</translation>
+        <translation>Nainstalovat HD edici (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2176,10 +2155,9 @@ Pro vyřešení tohoto problému ručně zkopírujte chybějící datové soubor
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Můžete nainstalovat zdroje z oficiální Heroes III HD Edition (Steam) pro zlepšení kvality grafiky ve VCMI. Vyberte ve Steamu svou složku Heroes HD.
+        <translation>Chcete-li zlepšit kvalitu grafiky ve VCMI, můžete nainstalovat soubory z oficiální HD verze Heroes III ze Steamu. Vyberte složku Heroes HD ze Steamu.
 
-Po instalaci musíte také nastavit faktor zvětšení &gt; 1, abyste viděli HD grafiku.</translation>
+Po instalaci je nutné nastavit filtr škálování na hodnotu x2 nebo vyšší, aby se HD grafika skutečně zobrazila.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>
