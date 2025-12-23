@@ -18,7 +18,7 @@
 * Added translation to Romanian and Turkish languages
 * Initial support for maps with more than two layers
 * It is now possible to import data from Heroes 3: HD Edition into VCMI. Shadow of Death or Complete edition is still required as a base game
-* Game will now show number of start of Github repository as mod ranking in Launcher
+* The Launcher now shows the number of GitHub stars as the mod ranking
 * Added support for exporting game logs via Launcher
 
 ### Stability

@@ -572,7 +572,7 @@
 	"vcmi.keyBindings.keyBinding.listTownUp": "Lista miast - Przenieś do góry",
 	"vcmi.keyBindings.keyBinding.listTownDown": "Lista miast - Przenieś na dół",
 	"vcmi.keyBindings.keyBinding.listTownTop": "Lista miast - Przenieś na samą górę",
-	"vcmi.keyBindings.keyBinding.listTownBottom": "Lista miast - Lista miast - Przenieś na sam dół",
+	"vcmi.keyBindings.keyBinding.listTownBottom": "Lista miast - Przenieś na sam dół",
 	"vcmi.keyBindings.keyBinding.mouseCursorX" : "Poziomy ruch kursorem myszy",
 	"vcmi.keyBindings.keyBinding.mouseCursorY" : "Pionowy ruch kursorem myszy",
 	"vcmi.keyBindings.keyBinding.mouseSwipeX" : "Poziome przesunięcie myszą",
