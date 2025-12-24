@@ -47,7 +47,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="135"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
         <source>VCMI Campaign Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Редактор кампаний VCMI</translation>
@@ -58,114 +58,152 @@
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
         <source>Edit</source>
         <translation>Правка</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
         <source>View</source>
         <translation>Вид</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
         <source>Toolbar</source>
         <translation>Панель инструментов</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <source>Open Campaignset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
         <source>New</source>
         <translation>Создать</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
         <source>Save as...</source>
         <translation>Сохранить как</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
         <source>Campaign Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Свойства кампании</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Свойства сценария</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
         <source>Show full background</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Показать полный фон</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="100"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
         <source>Scenario editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Редактор сценариев</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Confirmation</source>
         <translation>Подтверждение</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Несохранённые изменения будут потеряны. Вы уверены?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сценариев меньше, чем регионов</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">У вас сценариев меньше, чем регионов. Это допускается только если отсутствующие сценарии находятся в последних регионах, а не в середине или в начале.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="209"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
         <source>Open map</source>
         <translation>Открыть карту</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="211"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Все поддерживаемые кампании (*.vcmp *.h3c);;Кампании VCMI (*.vcmp);;Кампании HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Open Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Select Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Open Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Select Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>Save campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Сохранить кампанию</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Кампании VCMI (*.vcmp)</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <source>Mods are required</source>
+        <translation type="unfinished">Требуются моды</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished">Не удалось открыть карту</translation>
     </message>
 </context>
 <context>
@@ -295,61 +333,66 @@
         <translation type="unfinished">Изображение рамки видео</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
+        <source>Enable rim image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Вступительное видео</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Заключительное видео</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="55"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="57"/>
         <source>Custom</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Пользовательский</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Infix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Инфикс</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Позиция метки X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Позиция метки Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Меньше сценариев</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Новая настройка региона поддерживает меньше сценариев, чем раньше. Некоторые будут удалены. Продолжить?</translation>
@@ -2261,6 +2304,7 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Количество</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="433"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -3020,7 +3064,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Свойства сценария</translation>
@@ -3119,7 +3163,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Video 2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Видео 2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
@@ -3241,8 +3286,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Player position</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Позиция игрока</translation>
@@ -3272,82 +3317,82 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Изменить...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="118"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
         <source>Strongest</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Сильнейший</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
         <source>Generated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Сгенерированный</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Random</source>
         <translation>Случайно</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="137"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
         <source>No map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Нет карты</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
         <source>Player</source>
         <translation>Игрок</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>Open map</source>
         <translation>Открыть карту</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Все поддерживаемые карты  (*.vmap *.h3m);;Карты VCMI (*.vmap);;Карты Героев III (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Error</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Could not open the file.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Не удалось открыть файл.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>Save map</source>
         <translation>Сохранить карту</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>VCMI maps (*.vmap);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Карты VCMI (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Карты HoMM3 (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
         <source>Source scenario</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Исходный сценарий</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Герой</translation>
@@ -3513,12 +3558,14 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Главный город случайной фракции</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">У игрока нет главного города!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -3796,7 +3843,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Forced level</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Принудительный уровень</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="741"/>
@@ -4128,17 +4176,18 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автоматически</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Surface</source>
-        <translation type="unfinished">Поверхность</translation>
+        <translation>Поверхность</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Underground</source>
-        <translation type="unfinished">Подземелье</translation>
+        <translation>Подземелье</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="378"/>

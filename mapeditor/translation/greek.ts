@@ -54,7 +54,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="135"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
         <source>VCMI Campaign Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI Επεξεργαστής Εκστρατείας</translation>
@@ -66,125 +66,163 @@
         <translation type="unfinished">Αρχείο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
         <source>Edit</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Επεξεργασία</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
         <source>View</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Προβολή</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
         <source>Toolbar</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Γραμμή εργαλείων</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
         <source>Open</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Άνοιγμα</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <source>Open Campaignset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
         <source>Save</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Αποθήκευση</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
         <source>New</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Νέο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
         <source>Save as...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Αποθήκευση ως...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
         <source>Ctrl+Shift+S</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
         <source>Campaign Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ιδιότητες Εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ιδιότητες Σεναρίου</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
         <source>Show full background</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Εμφάνιση πλήρους φόντου</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="100"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
         <source>Scenario editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Επεξεργαστής σεναρίου</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Επιβεβαίωση</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Οι μη αποθηκευμένες αλλαγές θα χαθούν, είστε βέβαιοι;</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Λιγότερα σενάρια από περιοχές</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Έχετε λιγότερα σενάρια από περιοχές. Αυτό επιτρέπεται μόνο αν τα σενάρια που λείπουν βρίσκονται στις τελευταίες περιοχές, όχι στη μέση ή στην αρχή.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="209"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Άνοιγμα χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="211"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Όλες οι υποστηριζόμενες εκστρατείες (*.vcmp *.h3c);;VCMI εκστρατείες(*.vcmp);;HoMM3 εκστρατείες(*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Open Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Select Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Open Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Select Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>Save campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Αποθήκευση εκστρατείας</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI εκστρατείες (*.vcmp)</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <source>Mods are required</source>
+        <translation type="unfinished">Απαιτούνται mods</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished">Αποτυχία ανοίγματος χάρτη</translation>
     </message>
 </context>
 <context>
@@ -318,61 +356,66 @@
         <translation type="unfinished">Εικόνα βίντεο περιγράμματος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
+        <source>Enable rim image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Εισαγωγικό βίντεο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Τελικό βίντεο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="55"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="57"/>
         <source>Custom</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Προσαρμοσμένο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Infix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ενδιάμεσο</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Θέση ετικέτας Χ</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Θέση ετικέτας Υ</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Λιγότερα σενάρια</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Η νέα ρύθμιση περιοχής υποστηρίζει λιγότερα σενάρια από πριν. Μερικά θα αφαιρεθούν. Συνέχεια;</translation>
@@ -2488,6 +2531,7 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Ποσότητα</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="433"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -3333,7 +3377,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ιδιότητες Σεναρίου</translation>
@@ -3435,7 +3479,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Video 2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Βίντεο 2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
@@ -3562,8 +3607,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Player position</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Θέση παίκτη</translation>
@@ -3593,87 +3638,87 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Επεξεργασία...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="118"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
         <source>Strongest</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ισχυρότερος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
         <source>Generated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Δημιουργήθηκε</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Random</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Τυχαίος</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="137"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
         <source>No map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Χωρίς χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
         <source>Player</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Παίκτης</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Άνοιγμα χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Όλοι οι υποστηριζόμενοι χάρτες (*.vmap *.h3m);;Χάρτες VCMI(*.vmap);;Χάρτες HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Error</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Σφάλμα</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Could not open the file.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Δεν ήταν δυνατό το άνοιγμα του αρχείου.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>Save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Αποθήκευση χάρτη</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>VCMI maps (*.vmap);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Χάρτες VCMI (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Χάρτες HoMM3 (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
         <source>Source scenario</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Σενάριο πηγής</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ήρωας</translation>
@@ -3844,12 +3889,14 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Η κύρια πόλη είναι τυχαίας παράταξης</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ο παίκτης δεν έχει κύρια πόλη!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -4128,7 +4175,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Forced level</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Εξαναγκασμένο επίπεδο</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="741"/>
@@ -4462,17 +4510,18 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Αυτόματο</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Surface</source>
-        <translation type="unfinished">Επιφάνεια</translation>
+        <translation>Επιφάνεια</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Underground</source>
-        <translation type="unfinished">Υπόγειο</translation>
+        <translation>Υπόγειο</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="378"/>

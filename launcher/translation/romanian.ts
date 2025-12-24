@@ -86,6 +86,51 @@
         <source>Report a bug</source>
         <translation>Raportează o problema</translation>
     </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
+        <source>Export logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Save logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Zip archives (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Failed to create archive: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>Send logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Logs saved to %1, please send them to the developers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -126,7 +171,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translation>Descriere</translation>
     </message>
@@ -142,31 +187,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Uninstall</source>
         <translation>Dezinstalează</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="516"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Enable</source>
         <translation>Activează</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="511"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Disable</source>
         <translation>Dezactivează</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="531"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Update</source>
         <translation>Actualizează</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Install</source>
         <translation>Instalează</translation>
     </message>
@@ -186,151 +231,161 @@
         <translation>Anulează</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translation>Numele modului</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
         <source>Installed version</source>
         <translation>Versiune instalată</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Latest version</source>
         <translation>Ultima versiune</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Size</source>
         <translation>Dimensiune</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Download size</source>
         <translation>Dimensiune descărcare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>Authors</source>
         <translation>Autori</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>License</source>
         <translation>Licență</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Contact</source>
         <translation>Contact</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Compatibility</source>
         <translation>Compatibilitate</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Required VCMI version</source>
         <translation>Versiune VCMI necesară</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Supported VCMI version</source>
         <translation>Versiune VCMI suportată</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>please upgrade mod</source>
         <translation>te rugăm actualizează modulul</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="190"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="933"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
         <source>mods repository index</source>
         <translation>index repository de moduri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <source>Git-Repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <source>GitHub-Stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>or newer</source>
         <translation>sau mai nouă</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>Supported VCMI versions</source>
         <translation>Versiuni VCMI suportate</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>Languages</source>
         <translation>Limbi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>Required mods</source>
         <translation>Moduri necesare</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Conflicting mods</source>
         <translation>Moduri în conflict</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Acest modul nu poate fi activat deoarece traduce într-o altă limbă.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>Acest modul nu poate fi activat deoarece lipsesc următoarele dependențe</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>Acest modul nu poate fi instalat deoarece lipsesc următoarele dependențe</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Acesta este un submod și nu poate fi instalat sau dezinstalat separat de modulul părinte</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Notes</source>
         <translation>Note</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
         <source>Context menu</source>
         <translation>Meniu contextual</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="536"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Open directory</source>
         <translation>Deschide directorul</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open repository</source>
         <translation>Deschide repository</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="794"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Se descarcă %1. %p% (%v MB din %m MB) finalizat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
         <source>Download failed</source>
         <translation>Descărcarea a eșuat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="821"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -343,7 +398,7 @@ Erori întâlnite:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="822"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -352,47 +407,48 @@ Install successfully downloaded?</source>
 Instalarea a fost descărcată cu succes?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="981"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Se instalează Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1064"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
         <source>Installing mod %1</source>
         <translation>Se instalează modul %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
         <translation>Harta există</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Harta &apos;%1&apos; există deja. Doriți să o suprascrieți?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
         <translation>Da pentru toate</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
         <translation>Nu pentru toate</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
         <translation>Import finalizat</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n hartă(hărți) importată(e) cu succes.</numerusform>
+            <numerusform>%n hartă(hărți) importată(e) cu succes.</numerusform>
+            <numerusform>%n hartă(hărți) importată(e) cu succes.</numerusform>
         </translation>
     </message>
     <message>
@@ -400,41 +456,41 @@ Instalarea a fost descărcată cu succes?</translation>
         <translation type="vanished">%1 hartă(i) importată(e) cu succes.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translation>Import nereușit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Importul următoarelor hărți a eșuat:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
         <source>Operation failed</source>
         <translation>Operațiune eșuată</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
         <source>Encountered errors:
 </source>
         <translation>Au apărut erori:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>screenshots</source>
         <translation>capturi de ecran</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
         <source>Screenshot %1</source>
         <translation>Captură de ecran %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Mod is incompatible</source>
         <translation>Modul este incompatibil</translation>
     </message>
@@ -859,32 +915,38 @@ Ecran complet exclusiv - jocul va acoperi întregul ecran și va folosi rezoluț
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">StupidAI (învechit)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">BattleAI (implicit, recomandat)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">MMAI (experimental)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller (înlocuit de Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller2 (implicit, recomandat)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">EmptyAI - Nu s-au găsit biblioteci AI valide!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -987,7 +1049,7 @@ Ecran complet exclusiv - jocul va acoperi întregul ecran și va folosi rezoluț
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstate.cpp" line="145"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1290,27 +1352,32 @@ Te rugăm selectează directorul cu datele Heroes III instalate.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selectați directorul cu HD Edition (folder Steam)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Folder invalid</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Folderul selectat nu conține HOMM3 2.0.exe! Vă rugăm să selectați folderul de instalare pentru HD Edition.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Eroare la extragere</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vă rugăm să ștergeți mod-ul și să încercați din nou! Nu s-a putut copia fișierul %1 în %2</translation>
     </message>
 </context>
 <context>
@@ -1596,14 +1663,19 @@ Bin (%n octeți):
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Name</source>
         <translation>Nume</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
         <translation>Tip</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
+        <source>⭐</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1925,7 +1997,8 @@ Motiv: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Instalați HD Edition (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2095,7 +2168,10 @@ Pentru a rezolva problema, copiază manual fișierele lipsă din Heroes III în 
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Puteți instala resurse din Heroes III HD Edition oficial (Steam) pentru a îmbunătăți calitatea graficii în VCMI. Alegeți folderul Heroes HD din Steam.
+
+După instalare, trebuie să setați și un factor de upscaling &gt; 1 pentru a vedea grafica HD.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>

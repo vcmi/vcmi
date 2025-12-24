@@ -103,12 +103,12 @@ MainWindow::MainWindow(QWidget * parent)
 	//load window settings
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
-	auto size = s.value("MainWindow/Size").toSize();
+	auto size = s.value("MainWindow/WindowSize").toSize();
 	if(size.isValid())
 	{
 		resize(size);
 	}
-	auto position = s.value("MainWindow/Position").toPoint();
+	auto position = s.value("MainWindow/WindowPosition").toPoint();
 	if(!position.isNull())
 	{
 		move(position);
@@ -210,8 +210,8 @@ MainWindow::~MainWindow()
 #ifndef VCMI_MOBILE
 	//save window settings
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	s.setValue("MainWindow/Size", size());
-	s.setValue("MainWindow/Position", pos());
+	s.setValue("MainWindow/WindowSize", size());
+	s.setValue("MainWindow/WindowPosition", pos());
 #endif
 
 	delete ui;

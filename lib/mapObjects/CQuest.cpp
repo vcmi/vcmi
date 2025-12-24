@@ -128,32 +128,22 @@ void CQuest::completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance
 
 	for(auto & elem : mission.artifacts)
 	{
-		if(h->hasArt(elem))
+		// hero does not have such artifact alone, but he might have it as part of assembled artifact
+		if(!h->hasArt(elem))
 		{
-			gameEvents.removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
-			continue;
-		}
-
-		// perhaps artifact is part of a combined artifact?
-		const auto * assembly = h->getCombinedArtWithPart(elem);
-		if (assembly)
-		{
-			auto parts = assembly->getPartsInfo();
-
-			// Remove the assembly
-			gameEvents.removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
-
-			// Disassemble this backpack artifact
-			for(const auto & ci : parts)
+			const auto * assembly = h->getCombinedArtWithPart(elem);
+			if (assembly)
 			{
-				if(ci.getArtifact()->getTypeId() != elem)
-					gameEvents.giveHeroNewArtifact(h, ci.getArtifact()->getTypeId(), ArtifactPosition::BACKPACK_START);
+				DisassembledArtifact da;
+				da.al = ArtifactLocation(h->id, h->getArtPos(assembly));
+				gameEvents.sendAndApply(da);
 			}
-
-			continue;
 		}
 
-		logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(LIBRARY)->getJsonKey(), h->getHeroTypeID());
+		if(h->hasArt(elem))
+			gameEvents.removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
+		else
+			logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(LIBRARY)->getJsonKey(), h->getHeroTypeID());
 	}
 
 	gameEvents.takeCreatures(h->id, mission.creatures, allowFullArmyRemoval);

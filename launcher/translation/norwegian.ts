@@ -102,6 +102,51 @@
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rapporter en feil</translation>
     </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
+        <source>Export logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Save logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Zip archives (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Failed to create archive: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>Send logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Logs saved to %1, please send them to the developers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -149,7 +194,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Beskrivelse</translation>
@@ -168,35 +213,35 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Uninstall</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Avinstaller</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="516"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Enable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Aktiver</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="511"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Disable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Deaktiver</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="531"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Update</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oppdater</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Install</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Installer</translation>
@@ -220,179 +265,189 @@
         <translation type="unfinished">Avbryt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Mod-navn</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
         <source>Installed version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Installert versjon</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Latest version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Siste versjon</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Størrelse</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Download size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nedlastingsstørrelse</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>Authors</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Forfattere</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>License</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lisens</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Contact</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Compatibility</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kompatibilitet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Required VCMI version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Påkrevd VCMI-versjon</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Supported VCMI version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Støttet VCMI-versjon</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>please upgrade mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">oppdater modden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="190"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="933"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
         <source>mods repository index</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">mod-depotindeks</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <source>Git-Repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <source>GitHub-Stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>or newer</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">eller nyere</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>Supported VCMI versions</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Støttede VCMI-versjoner</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>Languages</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Språk</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>Required mods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Påkrevde modder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Conflicting mods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Konfliktende modder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Denne modden kan ikke aktiveres fordi den oversetter til et annet språk.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Denne modden kan ikke aktiveres fordi følgende avhengigheter mangler</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Denne modden kan ikke installeres fordi følgende avhengigheter mangler</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dette er en undermod og kan ikke installeres eller avinstalleres separat fra hovedmodden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Notes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Notater</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
         <source>Context menu</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kontekstmeny</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="536"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Open directory</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne katalog</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne depot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="794"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Laster ned %1. %p% (%v MB av %m MB) fullført</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
         <source>Download failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nedlasting mislyktes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="821"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -406,7 +461,7 @@ Oppstod feil:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="822"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -417,53 +472,54 @@ Install successfully downloaded?</source>
 Installasjon lastet ned vellykket?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="981"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Installing Heroes Chronicles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Installerer Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1064"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
         <source>Installing mod %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Installerer modden %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kart finnes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kartet &apos;%1&apos; finnes allerede. Vil du overskrive det?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ja til alle</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nei til alle</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Import fullført</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n kart(er) ble importert.</numerusform>
+            <numerusform>%n kart(er) ble importert.</numerusform>
         </translation>
     </message>
     <message>
@@ -472,13 +528,13 @@ Installasjon lastet ned vellykket?</translation>
         <translation type="obsolete">%1 kart importert.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Import mislyktes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -486,13 +542,13 @@ Installasjon lastet ned vellykket?</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
         <source>Operation failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Operasjon mislyktes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
         <source>Encountered errors:
 </source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -500,19 +556,19 @@ Installasjon lastet ned vellykket?</translation>
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>screenshots</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">skjermbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
         <source>Screenshot %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Skjermbilde %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Mod is incompatible</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Modden er ikke kompatibel</translation>
@@ -1018,32 +1074,38 @@ Eksklusiv fullskjerm – spillet dekker hele skjermen og bruker valgt oppløsnin
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">StupidAI (utgått)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">BattleAI (standard, anbefalt)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">MMAI (eksperimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller (erstattet av Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller2 (standard, anbefalt)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">EmptyAI - Ingen gyldige AI-biblioteker funnet!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -1164,7 +1226,7 @@ Eksklusiv fullskjerm – spillet dekker hele skjermen og bruker valgt oppløsnin
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstate.cpp" line="145"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -1520,27 +1582,32 @@ Velg mappen med installerte Heroes III-data.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Velg mappe med HD Edition (Steam-mappe)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ugyldig mappe</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Den valgte mappen inneholder ikke HOMM3 2.0.exe! Velg installasjonsmappen for HD Edition.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Utpakkingsfeil</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Slett modden og prøv igjen! Klarte ikke å kopiere fil %1 til %2</translation>
     </message>
 </context>
 <context>
@@ -1865,16 +1932,21 @@ Bin (%n byte):
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Name</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Navn</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
+        <source>⭐</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2254,7 +2326,8 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Installer HD Edition (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2444,7 +2517,10 @@ For å løse dette, kopier manglende datafiler fra Heroes III til VCMI-datamappe
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Du kan installere ressurser fra den offisielle Heroes III HD Edition (Steam) for å forbedre grafikkvaliteten i VCMI. Velg Heroes HD-mappen din i Steam.
+
+Etter installasjonen må du også sette en oppskaleringsfaktor &gt; 1 for å se HD-grafikk.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>

@@ -86,6 +86,51 @@
         <source>Report a bug</source>
         <translation>Hiba bejelentése</translation>
     </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
+        <source>Export logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Save logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Zip archives (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Failed to create archive: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>Send logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Logs saved to %1, please send them to the developers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -126,7 +171,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translation>Leírás</translation>
     </message>
@@ -142,31 +187,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Uninstall</source>
         <translation>Eltávolítás</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="516"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Enable</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="511"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Disable</source>
         <translation>Letiltás</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="531"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Update</source>
         <translation>Frissítés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Install</source>
         <translation>Telepítés</translation>
     </message>
@@ -186,154 +231,164 @@
         <translation>Megszakítás</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translation>Mod neve</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
         <source>Installed version</source>
         <translation>Telepített verzió</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Latest version</source>
         <translation>Legújabb verzió</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Size</source>
         <translation>Méret</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Download size</source>
         <translation>Letöltési méret</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>Authors</source>
         <translation>Szerzők</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>License</source>
         <translation>Licenc</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Contact</source>
         <translation>Kapcsolat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Compatibility</source>
         <translation>Kompatibilitás</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Required VCMI version</source>
         <translation>Szükséges VCMI verzió</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Supported VCMI version</source>
         <translation>Támogatott VCMI verzió</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>please upgrade mod</source>
         <translation>kérjük frissítsd a modot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="190"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="933"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
         <source>mods repository index</source>
         <translation>mod adatbázis index</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <source>Git-Repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <source>GitHub-Stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>or newer</source>
         <translation>vagy újabb</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>Supported VCMI versions</source>
         <translation>Támogatott VCMI verziók</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>Languages</source>
         <translation>Nyelvek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>Required mods</source>
         <translation>Szükséges modok</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Conflicting mods</source>
         <translation>Ütköző modok</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Ez a mod nem engedélyezhető, mert másik nyelvre fordít.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>Ez a mod nem engedélyezhető, mert a következő függőségek hiányoznak</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>Ez a mod nem telepíthető, mert a következő függőségek hiányoznak</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Ez egy almodul, amely nem telepíthető vagy eltávolítható külön az alapmodultól</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Notes</source>
         <translation>Jegyzetek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
         <source>Context menu</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kontextus menü</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="536"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Open directory</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Könyvtár megnyitása</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tároló megnyitása</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="794"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Letöltés %1. %p% (%v MB / %m MB) befejeződött</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
         <source>Download failed</source>
         <translation>Letöltési hiba</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="821"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -346,7 +401,7 @@ Talált hibák:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="822"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -355,47 +410,47 @@ Install successfully downloaded?</source>
 Sikeresen letöltött telepítés?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="981"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Heroes Chronicles telepítése</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1064"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
         <source>Installing mod %1</source>
         <translation>%1 mod telepítése</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Térkép létezik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">A(z) &apos;%1&apos; térkép már létezik. Felül szeretnéd írni?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Igen mindet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nem mindet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Importálás befejezve</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -407,13 +462,13 @@ Sikeresen letöltött telepítés?</translation>
         <translation type="obsolete">%1 térkép sikeresen importálva.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Importálás sikertelen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -421,29 +476,29 @@ Sikeresen letöltött telepítés?</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
         <source>Operation failed</source>
         <translation>Művelet sikertelen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
         <source>Encountered errors:
 </source>
         <translation>Talált hibák:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>screenshots</source>
         <translation>képernyőképek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
         <source>Screenshot %1</source>
         <translation>Képernyőkép %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Mod is incompatible</source>
         <translation>A mod inkompatibilis</translation>
     </message>
@@ -872,32 +927,38 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">StupidAI (elavult)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">BattleAI (alapértelmezett, ajánlott)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">MMAI (kísérleti)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller (a Nullkiller2 váltotta fel)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller2 (alapértelmezett, ajánlott)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">EmptyAI – Nem található érvényes AI-könyvtár!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -1006,7 +1067,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstate.cpp" line="145"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1310,27 +1371,32 @@ Kérjük, válassza ki az installált Heroes III adatokat tartalmazó könyvtár
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Válassza ki a HD Edition könyvtárát (Steam mappa)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Érvénytelen mappa</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A kiválasztott mappa nem tartalmazza a HOMM3 2.0.exe fájlt! Kérjük, válassza ki a HD Edition telepítési mappáját.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kibontási hiba</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kérjük törölje a modot és próbálja újra! Nem sikerült a(z) %1 fájlt a(z) %2 helyre másolni</translation>
     </message>
 </context>
 <context>
@@ -1610,14 +1676,19 @@ Bin (%n bájt):
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Name</source>
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
         <translation>Típus</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
+        <source>⭐</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1940,7 +2011,8 @@ Indok: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">HD Edition telepítése (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2104,7 +2176,10 @@ A probléma megoldásához kérjük, manuálisan másolja a hiányzó adatfájlo
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Telepíthet erőforrásokat a hivatalos Heroes III HD Editionből (Steam), hogy javítsa a grafika minőségét a VCMI-ben. Válassza ki a Steamben a Heroes HD mappáját.
+
+A telepítés után a HD grafika megjelenítéséhez állítson be nagyítási tényezőt &gt; 1.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>

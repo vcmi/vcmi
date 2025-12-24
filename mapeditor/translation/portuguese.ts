@@ -47,7 +47,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="135"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
         <source>VCMI Campaign Editor</source>
         <translation>Editor de Campanhas VCMI</translation>
     </message>
@@ -57,107 +57,145 @@
         <translation>Arquivo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
         <source>View</source>
         <translation>Visualizar</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
         <source>Toolbar</source>
         <translation>Barra de Ferramentas</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <source>Open Campaignset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
         <source>Save</source>
         <translation>Salvar</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
         <source>New</source>
         <translation>Novo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
         <source>Save as...</source>
         <translation>Salvar como...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
         <source>Campaign Properties</source>
         <translation>Propriedades da Campanha</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
         <source>Scenario Properties</source>
         <translation>Propriedades do Cenário</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
         <source>Show full background</source>
         <translation>Mostrar fundo completo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="100"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
         <source>Scenario editor</source>
         <translation>Editor de Cenário</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Confirmation</source>
         <translation>Confirmação</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>As alterações não salvas serão perdidas, tem certeza?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Menos cenários do que regiões</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Você tem menos cenários do que regiões. Isso só é permitido se os cenários ausentes ocorrerem nas últimas regiões, e não no meio ou no início.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="209"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
         <source>Open map</source>
         <translation>Abrir mapa</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="211"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translation>Todas as campanhas suportadas (*.vcmp *.h3c);;Campanhas VCMI (*.vcmp);;Campanhas HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Open Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Select Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Open Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Select Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>Save campaign</source>
         <translation>Salvar campanha</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>Campanhas VCMI (*.vcmp)</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <source>Mods are required</source>
+        <translation type="unfinished">Mods são necessários</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished">Falha ao abrir o mapa</translation>
     </message>
 </context>
 <context>
@@ -270,52 +308,57 @@
         <translation>Imagem da borda do vídeo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
+        <source>Enable rim image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
         <translation>Vídeo de introdução</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
         <translation>Vídeo de finalização</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="55"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="57"/>
         <source>Custom</source>
         <translation>Personalizado</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Infix</source>
         <translation>Infixo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>X</source>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Y</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos X</source>
         <translation>Posição X do Rótulo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos Y</source>
         <translation>Posição Y do Rótulo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
         <translation>Menos Cenários</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translation>A nova configuração de Região suporta menos cenários do que antes. Alguns serão removidos. Continuar?</translation>
     </message>
@@ -2137,6 +2180,7 @@ Você quer fazer isso agora?</translation>
         <translation>Quantidade</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="433"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translation>Personagem</translation>
@@ -2852,7 +2896,7 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
         <source>Scenario Properties</source>
         <translation>Propriedades do Cenário</translation>
     </message>
@@ -2938,7 +2982,8 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Video 2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vídeo 2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
@@ -3045,8 +3090,8 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Player position</source>
         <translation>Posição do jogador</translation>
     </message>
@@ -3071,74 +3116,74 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
         <translation>Editar...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="118"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
         <source>Strongest</source>
         <translation>Mais forte</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
         <source>Generated</source>
         <translation>Gerado</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Random</source>
         <translation>Aleatório</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="137"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
         <source>No map</source>
         <translation>Sem mapa</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
         <source>Player</source>
         <translation>Jogador</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>Open map</source>
         <translation>Abrir mapa</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Todos os mapas suportados (*.vmap *.h3m);;Mapas VCMI (*.vmap);;Mapas HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Error</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Could not open the file.</source>
         <translation>Não foi possível abrir o arquivo.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>Save map</source>
         <translation>Salvar mapa</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>VCMI maps (*.vmap);</source>
         <translation>Mapas VCMI (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translation>Mapas HoMM3 (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
         <source>Source scenario</source>
         <translation>Cenário de origem</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Hero</source>
         <translation>Herói</translation>
     </message>
@@ -3285,12 +3330,14 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A cidade principal é de uma facção aleatória</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">O jogador não tem uma cidade principal!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -3543,7 +3590,8 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Forced level</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nível forçado</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="741"/>
@@ -3839,17 +3887,18 @@ Adicione-o aos mods obrigatórios do mapa em Mapa-&gt;Configurações gerais.</t
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Automático</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Surface</source>
-        <translation type="unfinished">Superfície</translation>
+        <translation>Superfície</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Underground</source>
-        <translation type="unfinished">Subterrâneo</translation>
+        <translation>Subterrâneo</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="378"/>

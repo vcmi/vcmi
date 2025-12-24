@@ -11,6 +11,7 @@
 #include "scenarioproperties.h"
 #include "ui_scenarioproperties.h"
 #include "startingbonus.h"
+#include "campaigneditor.h"
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
@@ -403,6 +404,13 @@ void ScenarioProperties::on_pushButtonImport_clicked()
 	QFileInfo fileInfo(filename);
 	QString baseName = fileInfo.fileName();
 	campaignState->scenarios.at(scenario).mapName = baseName.toStdString();
+
+	if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario))
+	{
+		campaignState->mapPieces.erase(scenario);
+		campaignState->scenarios.at(scenario) = CampaignScenario();
+		return;
+	}
 
 	reloadMapRelatedUi();
 }

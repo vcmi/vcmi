@@ -86,6 +86,51 @@
         <source>Report a bug</source>
         <translation>バグを報告</translation>
     </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
+        <source>Export logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Save logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Zip archives (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Failed to create archive: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>Send logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Logs saved to %1, please send them to the developers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -126,7 +171,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translation>説明</translation>
     </message>
@@ -142,31 +187,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Uninstall</source>
         <translation>アンインストール</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="516"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Enable</source>
         <translation>有効にする</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="511"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Disable</source>
         <translation>無効にする</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="531"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Update</source>
         <translation>更新</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Install</source>
         <translation>インストール</translation>
     </message>
@@ -187,152 +232,162 @@
         <translation>中止</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translation>モッド名</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
         <source>Installed version</source>
         <translation>インストール済みのバージョン</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Latest version</source>
         <translation>最新バージョン</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Size</source>
         <translation>サイズ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Download size</source>
         <translation>ダウンロードサイズ</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>Authors</source>
         <translation>著者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>License</source>
         <translation>ライセンス</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Contact</source>
         <translation>連絡先</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Compatibility</source>
         <translation>互換性</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Required VCMI version</source>
         <translation>必要なVCMIバージョン</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Supported VCMI version</source>
         <translation>サポートされているVCMIバージョン</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>please upgrade mod</source>
         <translation>モッドをアップグレードしてください</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="190"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="933"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
         <source>mods repository index</source>
         <translation>モッズリポジトリインデックス</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <source>Git-Repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <source>GitHub-Stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>or newer</source>
         <translation>または新しい</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>Supported VCMI versions</source>
         <translation>サポートされているVCMIバージョン</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>Languages</source>
         <translation>言語</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>Required mods</source>
         <translation>必要なモッド</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Conflicting mods</source>
         <translation>競合するモッド</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>このモッドは、異なる言語に翻訳されるため、有効にすることができません。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>このモッドは、以下の依存関係が存在しないため、有効にできません</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>このモッドは、以下の依存関係が存在しないため、インストールできません</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>これはサブモッドであり、親モッドとは別にインストールまたはアンインストールすることはできません</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Notes</source>
         <translation>ノート</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
         <source>Context menu</source>
         <translation>コンテキストメニュー</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="536"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Open directory</source>
         <translation>ディレクトリを開く</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open repository</source>
         <translation>リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="794"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">「%1」をダウンロード中。%p%（%m MB 中 %v MB）完了</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
         <source>Download failed</source>
         <translation>ダウンロードに失敗しました</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="821"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -343,54 +398,54 @@ Encountered errors:
 エラーが発生しました：</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="822"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
         <source>
 
 Install successfully downloaded?</source>
         <translation>インストールが成功裏にダウンロードされましたか？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="981"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Installing Heroes Chronicles</source>
         <translation>ヒーローズクロニクルのインストール</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1064"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
         <source>Installing mod %1</source>
         <translation>モッド %1 をインストール中</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">マップが存在します</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">マップ &apos;%1&apos; は既に存在します。上書きしますか？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">すべてに「はい」</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">すべてに「いいえ」</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">インポート完了</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -402,13 +457,13 @@ Install successfully downloaded?</source>
         <translation type="obsolete">%1 個のマップを正常にインポートしました。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">インポートに失敗しました</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -416,28 +471,28 @@ Install successfully downloaded?</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
         <source>Operation failed</source>
         <translation>操作が失敗しました</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
         <source>Encountered errors:
 </source>
         <translation>エラーが発生しました:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>screenshots</source>
         <translation>スクリーンショット</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
         <source>Screenshot %1</source>
         <translation>スクリーンショット %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Mod is incompatible</source>
         <translation>モッドは互換性がありません</translation>
     </message>
@@ -862,32 +917,38 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">StupidAI（非推奨）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">BattleAI（既定、推奨）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">MMAI（実験的）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller（Nullkiller2 に置き換え）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nullkiller2（既定、推奨）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">EmptyAI - 有効なAIライブラリが見つかりません！</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -990,7 +1051,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstate.cpp" line="145"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1291,27 +1352,32 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">HD Edition のディレクトリを選択（Steam フォルダー）</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">無効なフォルダー</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">選択したフォルダーに HOMM3 2.0.exe がありません！HD Edition のインストールフォルダーを選択してください。</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">展開エラー</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">MOD を削除して再試行してください！ファイル %1 を %2 にコピーできませんでした</translation>
     </message>
 </context>
 <context>
@@ -1580,14 +1646,19 @@ Bin (%n bytes):
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
         <translation>タイプ</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
+        <source>⭐</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1909,7 +1980,8 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">HD Edition をインストール（Steam）</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2086,7 +2158,10 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI のグラフィック品質を向上させるため、公式 Heroes III HD Edition（Steam）からリソースをインストールできます。Steam から Heroes HD フォルダーを選択してください。
+
+インストール後、HD グラフィックを見るにはアップスケール係数を &gt; 1 に設定する必要があります。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>

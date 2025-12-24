@@ -47,7 +47,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="135"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
         <source>VCMI Campaign Editor</source>
         <translation>Editor de campanii VCMI</translation>
     </message>
@@ -57,107 +57,145 @@
         <translation>Fișier</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
         <source>Edit</source>
         <translation>Editare</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
         <source>View</source>
         <translation>Vizualizare</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
         <source>Toolbar</source>
         <translation>Bară de unelte</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
         <source>Open</source>
         <translation>Deschide</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <source>Open Campaignset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
         <source>Save</source>
         <translation>Salvează</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
         <source>New</source>
         <translation>Nou</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
         <source>Save as...</source>
         <translation>Salvează ca...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
         <source>Campaign Properties</source>
         <translation>Proprietăți campanie</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
         <source>Scenario Properties</source>
         <translation>Proprietăți scenariu</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
         <source>Show full background</source>
         <translation>Afișează fundal complet</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="100"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
         <source>Scenario editor</source>
         <translation>Editor de scenarii</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Confirmation</source>
         <translation>Confirmare</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Modificările nesalvate vor fi pierdute, ești sigur?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mai puține scenarii decât regiuni</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="179"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Aveți mai puține scenarii decât regiuni. Acest lucru este permis doar dacă scenariile lipsă apar în ultimele regiuni, nu la mijloc sau la început.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="209"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
         <source>Open map</source>
         <translation>Deschide hartă</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="211"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translation>Toate campaniile suportate (*.vcmp *.h3c);;Campanii VCMI (*.vcmp);;Campanii HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Open Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Select Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Open Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Select Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>Save campaign</source>
         <translation>Salvează campania</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="229"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>Campanii VCMI (*.vcmp)</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <source>Mods are required</source>
+        <translation type="unfinished">Sunt necesare moduri</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished">Nu s-a putut deschide harta</translation>
     </message>
 </context>
 <context>
@@ -270,52 +308,57 @@
         <translation>Imagine cadru video</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
+        <source>Enable rim image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
         <translation>Video de introducere</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
         <translation>Video de încheiere</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="55"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="57"/>
         <source>Custom</source>
         <translation>Personalizat</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Infix</source>
         <translation>Infix</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>X</source>
         <translation>X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Y</source>
         <translation>Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos X</source>
         <translation>Poziție etichetă X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="141"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos Y</source>
         <translation>Poziție etichetă Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
         <translation>Mai puține scenarii</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="193"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translation>Configurarea noii regiuni suportă mai puține scenarii decât înainte. Unele vor fi eliminate. Continuă?</translation>
     </message>
@@ -2116,6 +2159,7 @@ Vrei să faci asta acum?</translation>
         <translation>Cantitate</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="433"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translation>Caracter</translation>
@@ -2832,7 +2876,7 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
         <source>Scenario Properties</source>
         <translation>Proprietăți scenariu</translation>
     </message>
@@ -2918,7 +2962,8 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Video 2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Video 2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
@@ -3025,8 +3070,8 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Player position</source>
         <translation>Poziția jucătorului</translation>
     </message>
@@ -3051,74 +3096,74 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
         <translation>Editează...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="118"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
         <source>Strongest</source>
         <translation>Cel mai puternic</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
         <source>Generated</source>
         <translation>Generat</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Random</source>
         <translation>Aleatoriu</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="137"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
         <source>No map</source>
         <translation>Fără hartă</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
         <source>Player</source>
         <translation>Jucător</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>Open map</source>
         <translation>Deschide hartă</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="388"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Toate hărțile suportate (*.vmap *.h3m);;Hărți VCMI(*.vmap);;Hărți HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Error</source>
         <translation>Eroare</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="421"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Could not open the file.</source>
         <translation>Nu s-a putut deschide fișierul.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>Save map</source>
         <translation>Salvează hartă</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>VCMI maps (*.vmap);</source>
         <translation>Hărți VCMI (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="414"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translation>Hărți HoMM3 (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="450"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
         <source>Source scenario</source>
         <translation>Scenariu sursă</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Hero</source>
         <translation>Erou</translation>
     </message>
@@ -3265,12 +3310,14 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Orașul principal este al unei facțiuni aleatoare</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Jucătorul nu are un oraș principal!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -3518,7 +3565,8 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Forced level</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nivel forțat</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="741"/>
@@ -3814,17 +3862,18 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Automat</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Surface</source>
-        <translation type="unfinished">Suprafață</translation>
+        <translation>Suprafață</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Underground</source>
-        <translation type="unfinished">Subteran</translation>
+        <translation>Subteran</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="378"/>

@@ -53,8 +53,9 @@ enum class ESerializationVersion : int32_t
 	CUSTOM_NAMES, // custom names
 	BATTLE_ONLY, // battle only mode
 	CAMPAIGN_VIDEO, // second video for prolog/epilog in campaigns
+	HOTA_MAP_STACK_COUNT, // support Hota 1.7 stack count feature
 
-	CURRENT = CAMPAIGN_VIDEO,
+	CURRENT = HOTA_MAP_STACK_COUNT,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

@@ -459,7 +459,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	for(auto i : vinfo.reward.grantedArtifacts)
 		ui->rArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : vinfo.reward.spells)
-		ui->rArtifacts->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->rSpells->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : vinfo.reward.secondary)
 	{
 		int index = LIBRARY->skills()->getById(i.first)->getIndex();

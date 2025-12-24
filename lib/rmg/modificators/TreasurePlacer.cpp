@@ -108,8 +108,19 @@ void TreasurePlacer::addAllPossibleObjects()
 
 void TreasurePlacer::addCommonObjects()
 {
+	//objects with these IDs are added elsewhere, see addAllPossibleObjects()
+	std::set<MapObjectID> excludedIDs = {
+		Obj::PRISON,
+		Obj::CREATURE_GENERATOR1,
+		Obj::CREATURE_GENERATOR4,
+		Obj::SPELL_SCROLL,
+		Obj::PANDORAS_BOX,
+		Obj::SEER_HUT
+	};
 	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
+		if(excludedIDs.find(primaryID) != excludedIDs.end())
+			continue;
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
@@ -139,7 +150,11 @@ void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID obj
 {
 	oi.generateObject = [this, objid]() -> std::shared_ptr<CGObjectInstance>
 	{
-		return LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		auto obj = LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		// adjust ownership for ownable objects (such as dwellings)
+		if (obj->asOwnable() && obj->tempOwner == PlayerColor::UNFLAGGABLE)
+			obj->setOwner(PlayerColor::NEUTRAL);		
+		return obj;
 	};
 	oi.setTemplates(objid.primaryID, objid.secondaryID, zone.getTerrainType());
 }
@@ -237,19 +252,29 @@ void TreasurePlacer::addDwellings()
 			const auto * cre = creatures.front();
 			if(cre->getFactionID() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				// value increases, if there are more native zones for the faction
+				float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
-				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
-				oi.probability = 40;
-				
-				oi.generateObject = [this, secondaryID, dwellingType]() -> std::shared_ptr<CGObjectInstance>
+				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->getRMGInfo();
+				// rmg info set for dwelling
+				if(rmgInfo.value)
 				{
-					auto obj = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(map.mapInstance->cb, nullptr);
-					obj->tempOwner = PlayerColor::NEUTRAL;
-					return obj;
-				};
+					if (rmgInfo.value > zone.getMaxTreasureValue())
+						continue;
+					oi.value = rmgInfo.value * valueModifier;
+					oi.probability = rmgInfo.rarity;
+					if (rmgInfo.zoneLimit != std::numeric_limits<ui32>::max())
+						oi.maxPerZone = rmgInfo.zoneLimit;
+					// FIXME: rmgInfo.mapLimit is not allowed for dwellings
+				}
+				else
+				{
+					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
+					oi.probability = 40;
+				}
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}

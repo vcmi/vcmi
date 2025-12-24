@@ -162,7 +162,7 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	auto currentBattle = std::make_unique<BattleInfo>(cb, layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
-		currentBattle->sides[i].init(heroes[i], armies[i]);
+		currentBattle->sides[i].init(heroes[i], armies[i], i == BattleSide::RIGHT_SIDE ? town : nullptr);
 
 	currentBattle->tile = tile;
 	currentBattle->terrainType = terrain;

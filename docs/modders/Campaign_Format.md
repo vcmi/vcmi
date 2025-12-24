@@ -57,7 +57,7 @@ In header are parameters describing campaign properties
 - `"loadingBackground"` is for setting a different loading screen background
 - `"introVideo"` is for defining an optional intro video
 - `"outroVideo"` is for defining an optional outro video
-- `"videoRim"` is for the Rim around the optional video (default is INTRORIM)
+- `"videoRim"` is for the Rim around the optional video (default is INTRORIM, set it to `NONE` if you don't want a rim)
 
 ## Scenario description
 

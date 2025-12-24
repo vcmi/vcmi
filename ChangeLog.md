@@ -1,6 +1,6 @@
 # VCMI Project Changelog
 
-## 1.6.8 -> 1.7.0 (in development)
+## 1.6.8 -> 1.7.0
 
 ### Key Changes
 
@@ -11,12 +11,15 @@
 * Battle-only mode has been implemented, consisting solely of combat between heroes without an adventure map phase.
 * Implemented unit action panel in combat for easy selection of unit's alternative actions
 * Implemented quick save & quick load options in game
+* Game will now automatically make save before visiting objects
 * Added an improved Nullkiller2 adventure map AI as the default option.
 * Added an experimental machine learning-based combat AI, MMAI
 * Removed the deprecated VCAI adventure map AI
 * Added translation to Romanian and Turkish languages
 * Initial support for maps with more than two layers
 * It is now possible to import data from Heroes 3: HD Edition into VCMI. Shadow of Death or Complete edition is still required as a base game
+* The Launcher now shows the number of GitHub stars as the mod ranking
+* Added support for exporting game logs via Launcher
 
 ### Stability
 
@@ -32,6 +35,9 @@
 * Fixed crash on loading of community-made maps with out-of-bounds towns
 * Fixed possible crashes on ending battle in a draw in objects like town, pandora boxes or creature banks
 * Fixed a crash when accessing a shipyard placed adjacent to the left border of the map
+* Fixed crash when unit with attack-and-return attack is slowed by retaliation and can’t return to origin
+* Fixed possible client crash on ending the game when playing through online lobby
+* Fixed crash on attempt to import mod preset that contains unknown mod
 
 ### Interface - General
 
@@ -151,6 +157,9 @@
 * Garrisoned hero will no longer receive bonuses from town buildings that give bonuses during siege, and will only receive them for the duration of combat
 * Fixed bug that allowed to attack heroes inside Sanctuary
 * Assembling an artifact will now correctly trigger victory conditions, if any
+* Game will now correctly disassemble combined artifact when its part is needed for Seer Hut quest
+* University, Scholar, and Witch Hut will no longer grant special secondary skills from mods
+* Fixed bug that could cause battle to start on battlefield from nearby map object, instead of current terrain
 
 ### Mechanics - Combat
 
@@ -195,6 +204,7 @@
 ### Random Maps Generator
 
 * Placement of main town in center of zone will now account for water tiles
+* It is now possible to enable normally banned heroes, spells or skills in RMG template
 * Added support for town type hints `likeZone`, `notLikeZone`, `relatedToZoneTerrain`
 * Map generator will now place curved roads
 * Fixed missing road on 6lm10a template
@@ -202,6 +212,8 @@
 * Removed roads that don't end with towns or zone entry points
 * Fixed possible freeze on attempt to revert unsucessful treasure placement
 * Simplified syntax and fixed logic of object customization of map objects in random map template
+* Random map generator will now respect customized RMG parameters for dwellings
+* Seer Huts will have low RMG value while quest artifacts will be guarded instead
 
 ### Launcher
 
@@ -232,6 +244,11 @@
 * Added word wrap for item text activates only when the map validation window reaches a defined width limit
 * Fixed potentially corrupted tiling of terrains in some edge cases when multiple types of terrain are adjacent to each other
 * When changing terrain, the orientation of pre-existing rivers on affected tiles will now be preserved correctly
+* Fixed discrepancy in map object rendering between editor and client
+* Fixed selected spells changing to artifacts in reward box on reopening
+* Fixed possible crash on changing inspector table instantly after reloading a map
+* Fixed changing neutral armies character when non-English locale is in use
+* Fixed possible crash on changing victory conditions
 * Map editor now uses .ini format to save settings on all platforms
 
 ### Modding - General
@@ -258,6 +275,7 @@
 ### Modding - Adventure Map Objects
 
 * It is now possible to completely remove skill as part of reward of a configurable adventure map object
+* It is now possible to configure cost of purchasing skill in on-map University and Magic University in Conflux
 * Mod validation will now report map dwellings with invalid dimensions that were found in mods
 * Added `playerGlobal` visit mode to configurable map objects. After visit of such object, all map objects of the same type are considered as visited by player
 * Added `forceCombat` property to configurable map objects. If such object is guarded, visiting it would immediately force combat without asking a player
@@ -316,6 +334,7 @@
 * Added SPECIFIC_SPELL_RANGE that limits possible range for casting spells by creatures in combat
 * Added MANA_PERCENTAGE_REGENERATION bonus that replaces less configurable FULL_MANA_REGENERATION bonus
 * Added HATES_TRAIT bonus that functions like HATE bonus but allows to target all units with specific bonus
+* Added FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT bonus that allows to override number of enemy stacks when attacking wandering monsters
 * GENERATE_RESOURCE bonus is now also checked in town, mine, and garrison scope
 * ENCHANTER bonus will no longer cast mass spells by default. Spell would still be massive it is massive on specified school master level
 * CREATURE_UPGRADE bonus is now checked from unit scope and will only allow upgrades of this unit (unless propagated to hero)

@@ -82,8 +82,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Looking for a system onnxruntime")
   find_path(ONNXRUNTIME_INCLUDE_DIR
     NAMES onnxruntime_cxx_api.h
-    PATH_SUFFIXES onnxruntime include
-  )
+    PATH_SUFFIXES
+        onnxruntime
+        include
+        include/onnxruntime
+)
 
   find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime libonnxruntime)
 

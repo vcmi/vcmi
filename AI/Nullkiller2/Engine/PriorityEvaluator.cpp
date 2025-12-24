@@ -341,7 +341,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	if(auto * m = dynamic_cast<const IMarket *>(target))
 	{
 		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
-			return 2000;
+			return aiNk->cc->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
 	}
 
 	switch(target->ID)
@@ -1647,7 +1647,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
-						for (GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
+						for (const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
 							if (i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;

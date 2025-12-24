@@ -28,6 +28,7 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
 	"vcmi.adventureMap.confirmQuickLoadGame"             : "Ви впевнені, що хочете завантажити швидке збереження?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Запис гри в %s",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nЧи хотіли б ви найняти %s чи %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nЧи хотіли б ви найняти %s, %s, чи %s?",
@@ -141,6 +142,7 @@
 	"vcmi.lobby.deleteFolder" : "Чи бажаєте вилучити цю теку?",
 	"vcmi.lobby.deleteMode" : "Перехід у режим видалення та назад",
 	"vcmi.lobby.battleOnlyMode" : "Режим одного бою",
+	"vcmi.lobby.battleOnlyMode.help" : "Зіграти простий бій без гри на мапи пригод",
 	"vcmi.lobby.battleOnlyModeSubTitle" : "Оберіть героїв, армію, навички, артефакти та поле бою для швидкої битви без мапи пригод",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "Поле Бою",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Обрати Поле Бою",
@@ -568,6 +570,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
+	"vcmi.randomMapTab.template.minimalSize" : "Мінімальний розмір: %dx%d, рівнів: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Максимальний розмір: %dx%d, рівнів: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Параметри ходів",
 	"vcmi.optionsTab.turnOptions.help" : "Виберіть опції таймера ходів та одночасних ходів",
@@ -836,6 +840,7 @@
 	"core.bonus.UNDEAD.description" : "{Нежить}\nІстота є нежиттю і має імунітет до ефектів, які впливають тільки на живе",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Необмежена кількість ударів у відповідь}\nЦей загін може відбивати необмежену кількість атак",
 	"core.bonus.WIDE_BREATH.description" : "{Широкий подих}\nЦей загін атакує усі загони навколо своєї цілі",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Максимум шкоди (${val}%)}\nНіяка атака не зможе завдати більше шкоди, ніж ${val}% від максимального здоров'я.",
 
 	"spell.core.castleMoat.name" : "Рів",
 	"spell.core.castleMoatTrigger.name" : "Рів",

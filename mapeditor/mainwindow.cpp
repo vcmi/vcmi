@@ -457,7 +457,7 @@ void MainWindow::initializeMap(bool isNew)
 		controller.map()->players[0].canComputerPlay = true;
 		controller.map()->players[0].canHumanPlay = true;
 	}
-	
+	ui->inspectorWidget->setRowCount(0);
 	onPlayersChanged();
 }
 

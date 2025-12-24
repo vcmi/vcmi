@@ -485,6 +485,18 @@ void CMapGenerator::addHeaderInfo()
 
 	for (const auto & hero : mapGenOptions.getMapTemplate()->getBannedHeroes())
 		m.allowedHeroes.erase(hero);
+
+	for (const auto & spell : mapGenOptions.getMapTemplate()->getEnabledSpells())
+		m.allowedSpells.insert(spell);
+
+	for (const auto & artifact : mapGenOptions.getMapTemplate()->getEnabledArtifacts())
+		m.allowedArtifact.insert(artifact);
+
+	for (const auto & skill : mapGenOptions.getMapTemplate()->getEnabledSkills())
+		m.allowedAbilities.insert(skill);
+
+	for (const auto & hero : mapGenOptions.getMapTemplate()->getEnabledHeroes())
+		m.allowedHeroes.insert(hero);
 }
 
 int CMapGenerator::getNextMonlithIndex()
