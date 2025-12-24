@@ -566,7 +566,7 @@ bfs::path VCMIDirsXDG::userConfigPath() const
 	const char * tempResult = getenv("XDG_CONFIG_HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / "vcmi";
-	
+
 	tempResult = getenv("HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / ".config" / "vcmi";
