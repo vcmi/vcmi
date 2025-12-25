@@ -384,8 +384,10 @@ void CMainMenu::onScreenResize()
 	pos.w = ENGINE->screenDimensions().x;
 	pos.h = ENGINE->screenDimensions().y;
 
+	auto oldMenu = menu;
 	menu = nullptr;
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
+	ENGINE->windows().tryReplaceWindow(oldMenu, menu);
 
 	backgroundAroundMenu->pos = pos;
 }
