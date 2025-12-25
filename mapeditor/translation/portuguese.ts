@@ -79,7 +79,8 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
         <source>Open Campaignset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abrir conjunto de campanhas</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
@@ -159,22 +160,26 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Open Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abrir conjunto de campanhas</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Select Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selecionar conjunto de campanhas</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Open Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abrir campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Select Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selecionar campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
@@ -189,13 +194,13 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Mods são necessários</translation>
+        <translation>Mods são necessários</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
         <source>Failed to open map</source>
-        <translation type="unfinished">Falha ao abrir o mapa</translation>
+        <translation>Falha ao abrir o mapa</translation>
     </message>
 </context>
 <context>
@@ -310,7 +315,8 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ativar imagem da borda</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
