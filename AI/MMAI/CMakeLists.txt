@@ -79,30 +79,38 @@ endif()
 target_link_libraries(MMAI PRIVATE vcmi)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(ONNXRUNTIME_ROOT "/opt/onnxruntime" CACHE PATH "Path to onnxruntime containing lib/onnxruntime.so and include/onnxruntime_cxx_api.h")
-
-  message(STATUS "Looking for a system onnxruntime")
-  find_path(ONNXRUNTIME_INCLUDE_DIR
-    NAMES onnxruntime_cxx_api.h
-    PATH_SUFFIXES
-        onnxruntime
-        include
-        include/onnxruntime
-)
-
-  find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime libonnxruntime)
-
-  if(ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
-    message(STATUS "Using system onnxruntime:")
-    message(STATUS "  include: ${ONNXRUNTIME_INCLUDE_DIR}")
-    message(STATUS "  library: ${ONNXRUNTIME_LIBRARY}")
-
-    target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_INCLUDE_DIR}")
-    target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_LIBRARY}")
+  # First try CMake config (works on Fedora, Debian, Ubuntu, Arch)
+  find_package(onnxruntime CONFIG QUIET)
+  if(onnxruntime_FOUND)
+    message(STATUS "Found onnxruntime via CMake config")
+    target_link_libraries(MMAI PRIVATE onnxruntime::onnxruntime)
   else()
-    message(STATUS "System onnxruntime not found, falling back to ${ONNXRUNTIME_ROOT}")
-    target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_ROOT}/include")
-    target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_ROOT}/lib/libonnxruntime.so")
+    # Fallback to manual search for custom installs
+    message(STATUS "onnxruntime CMake config not found, trying system installation")
+    set(ONNXRUNTIME_ROOT "/opt/onnxruntime" CACHE PATH "Path to onnxruntime containing lib/onnxruntime.so and include/onnxruntime_cxx_api.h")
+    message(STATUS "Looking for onnxruntime via find_path/find_library (hint: ${ONNXRUNTIME_ROOT})")
+    find_path(ONNXRUNTIME_INCLUDE_DIR
+      NAMES onnxruntime_cxx_api.h
+      HINTS "${ONNXRUNTIME_ROOT}/include"
+      PATH_SUFFIXES
+          onnxruntime
+          include
+          include/onnxruntime
+    )
+
+    find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime libonnxruntime
+      HINTS "${ONNXRUNTIME_ROOT}/lib"
+    )
+
+    if(ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
+      message(STATUS "Using onnxruntime:")
+      message(STATUS "  include: ${ONNXRUNTIME_INCLUDE_DIR}")
+      message(STATUS "  library: ${ONNXRUNTIME_LIBRARY}")
+      target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_INCLUDE_DIR}")
+      target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_LIBRARY}")
+    else()
+      message(FATAL_ERROR "onnxruntime not found. Install onnxruntime-devel or set ONNXRUNTIME_ROOT to a custom installation path, or disable MMAI with -DENABLE_MMAI=OFF")
+    endif()
   endif()
 else()
   find_package(onnxruntime CONFIG REQUIRED)
