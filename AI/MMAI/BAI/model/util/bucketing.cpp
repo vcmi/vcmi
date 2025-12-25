@@ -79,11 +79,21 @@ bool BucketBuilder::bucket_satisfies(const std::vector<std::vector<int32_t>> & s
 
 void BucketBuilder::log_bucket_choice(int chosen, const Requirements & req) const
 {
-	logAi->debug("Size: %d", chosen);
+	if(chosen < 0)
+		logAi->warn("Failed to find suitable bucket size.");
+
+	static const std::vector<int32_t> nullBucket = {-1, -1};
+	std::string msg;
+	msg.reserve(40 * LT_COUNT);
+	msg += (boost::format("Size: %1%") % chosen).str();
+
 	for(int i = 0; i < LT_COUNT; ++i)
 	{
-		logAi->debug("  %d: [%ld, %ld] -> [%lld, %lld]", i, req.e_req[i], req.k_req[i], all_sizes_[chosen][i][0], all_sizes_[chosen][i][1]);
+		auto bucket = chosen >= 0 ? all_sizes_[chosen][i] : nullBucket;
+		msg += (boost::format("\n  %1%: [%2%, %3%] -> [%4%, %5%]") % i % req.e_req[i] % req.k_req[i] % bucket[0] % bucket[1]).str();
 	}
+
+	logAi->debug(msg);
 }
 
 BucketChoice BucketBuilder::choose_bucket(const Requirements & req) const
@@ -105,8 +115,7 @@ BucketChoice BucketBuilder::choose_bucket(const Requirements & req) const
 		break;
 	}
 
-	if(choice.index >= 0)
-		log_bucket_choice(choice.index, req);
+	log_bucket_choice(choice.index, req);
 
 	return choice;
 }
