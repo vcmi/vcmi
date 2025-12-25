@@ -398,7 +398,11 @@ int main(int argc, char * argv[])
 		logGlobal->info("Main loop termination requested");
 	}
 
-	GAME->server().endNetwork();
+	{
+		//aquire interfaceMutex to prevent undefined behavior on vstd::makeUnlockGuard(ENGINE->interfaceMutex)
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		GAME->server().endNetwork();
+	}
 
 	if(!settings["session"]["headless"].Bool())
 	{
