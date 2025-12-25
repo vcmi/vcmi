@@ -250,15 +250,31 @@ QModelIndex ModStateItemModel::index(int row, int column, const QModelIndex & pa
 
 QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 {
-	QString modID = modNameToID[child.internalId()];
-	for(auto entry = modIndex.begin(); entry != modIndex.end(); entry++) // because using range-for entry type is QMap::value_type oO
-	{
-		if(entry.key() != "" && entry.value().indexOf(modID) != -1)
-		{
-			return createIndex(entry.value().indexOf(modID), child.column(), modNameToID.indexOf(entry.key()));
-		}
-	}
-	return QModelIndex();
+	if (!child.isValid())
+		return QModelIndex();
+
+	int id = child.internalId();
+	if (id < 0 || id >= modNameToID.size())
+		return QModelIndex();
+
+	const QString &modID = modNameToID[id];
+
+	// top-level item → no parent
+	if (!modID.contains('.'))
+		return QModelIndex();
+
+	QString parentID = modID.section('.', 0, -2);
+
+	int parentRow = modIndex[""].indexOf(parentID);
+	if (parentRow == -1)
+		return QModelIndex();
+
+	int parentInternalId = modNameToID.indexOf(parentID);
+	if (parentInternalId == -1)
+		return QModelIndex();
+
+	// column MUST be 0
+	return createIndex(parentRow, 0, parentInternalId);
 }
 
 void CModFilterModel::setTypeFilter(ModFilterMask newFilterMask)
