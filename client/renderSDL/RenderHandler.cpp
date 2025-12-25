@@ -326,6 +326,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 			if(!settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1)
 				return nullptr;
 
+			if(!CResourceHandler::get("core")->existsResource(*locator.defFile)) // HD mod supports only core
+				return nullptr;
+
 			auto info = getAnimationSpriteDef(*locator.defFile, locator.defFrame, locator.defGroup);
 			defMargins = Point(info.second.leftMargin, info.second.topMargin);
 			defFullSize = Point(info.second.fullWidth, info.second.fullHeight);
