@@ -27,6 +27,7 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_server"
 			PROJECT_LABEL "VCMI_server"
 	)
+	target_link_libraries(vcmiserver PRIVATE bcrypt)
 endif()
 
 vcmi_set_output_dir(vcmiserver "")
