@@ -251,13 +251,22 @@ QModelIndex ModStateItemModel::index(int row, int column, const QModelIndex & pa
 QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 {
 	if (!child.isValid())
+	{
+		logGlobal->warn("ModStateItemModel::parent called with invalid child index");
 		return QModelIndex();
+	}
 
 	int id = child.internalId();
 	if (id < 0 || id >= modNameToID.size())
+	{
+		logGlobal->warn(
+			"ModStateItemModel::parent called with out-of-range internalId %s (valid range: 0..%s)",
+			id, modNameToID.size() - 1
+		);
 		return QModelIndex();
+	}
 
-	const QString &modID = modNameToID[id];
+	const QString & modID = modNameToID[id];
 
 	// top-level item → no parent
 	if (!modID.contains('.'))
@@ -267,11 +276,23 @@ QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 
 	int parentRow = modIndex[""].indexOf(parentID);
 	if (parentRow == -1)
+	{
+		logGlobal->warn(
+			"ModStateItemModel::parent failed: parent mod '%s' not found for child mod '%s'",
+			parentID.toStdString(), modID.toStdString()
+		);
 		return QModelIndex();
+	}
 
 	int parentInternalId = modNameToID.indexOf(parentID);
 	if (parentInternalId == -1)
+	{
+		logGlobal->warn(
+			"ModStateItemModel::parent failed: parent mod '%s' missing from modNameToID (child '%s')",
+			parentID.toStdString(), modID.toStdString()
+		);
 		return QModelIndex();
+	}
 
 	// column MUST be 0
 	return createIndex(parentRow, 0, parentInternalId);
