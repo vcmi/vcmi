@@ -149,9 +149,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & sid;
 		h & description;
 
-		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-			type = vstd::next(type, 1); // hack to restore correct bonus ID after bad commit
-
 		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
 			h & customIconPath;
 		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
