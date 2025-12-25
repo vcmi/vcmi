@@ -899,6 +899,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Kroniky hrdinů",
 	"vcmi.campaignSet.hota" : "Roh propasti",
+	"vcmi.campaignSet.wog" : "Ve stopách bohů",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
