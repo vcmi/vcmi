@@ -161,10 +161,10 @@ void CModListView::reload(const QString & modToSelect)
 
 	if (!modToSelect.isEmpty())
 	{
-		QModelIndexList matches = filterModel->match(filterModel->index(0, 0), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
+		QModelIndexList matches = modModel->match(modModel->index(0, 0, QModelIndex()), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
 
 		if (!matches.isEmpty())
-			ui->allModsView->setCurrentIndex(matches.first());
+			ui->allModsView->setCurrentIndex(filterModel->mapFromSource(matches.first()));
 	}
 }
 
