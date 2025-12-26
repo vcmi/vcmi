@@ -41,8 +41,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-	template<typename rett>
-	std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
+template<typename rett>
+std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
 #ifdef STATIC_AI
 	// android currently doesn't support loading libs dynamically, so the access to the known libraries
