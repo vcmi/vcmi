@@ -156,10 +156,12 @@ void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString active
 
 	int indexToSelect = comboBox->findData(activeAI);
 
+	comboBox->blockSignals(true);
 	if (indexToSelect == -1)
 		comboBox->setCurrentIndex(0);
 	else
 		comboBox->setCurrentIndex(indexToSelect);
+	comboBox->blockSignals(false);
 }
 
 void CSettingsView::fillValidAILibraries()

@@ -269,7 +269,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
+		if(defFile && defFile->hasFrame(locator.defFrame, locator.defGroup))
 		{
 			auto img = std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
 

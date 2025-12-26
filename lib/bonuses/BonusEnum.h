@@ -238,6 +238,9 @@ enum class BonusType : uint16_t
 #undef BONUS_NAME
     BUILTIN_BONUSES_COUNT
 };
+
+static_assert(static_cast<int>(BonusType::SPELL_DAMAGE_REDUCTION) == 50 && static_cast<int>(BonusType::SPECIAL_UPGRADE) == 100 && static_cast<int>(BonusType::BONUS_DAMAGE_PERCENTAGE) == 150, "DO NOT ADD OR REMOVE BONUSES FROM THE MIDDLE OF THE LIST. THIS WILL BREAK SAVES");
+
 namespace BonusDuration  //when bonus is automatically removed
 {
 	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.

@@ -1350,8 +1350,14 @@ void AIGateway::finish()
 
 	if (asyncTasks)
 	{
-		asyncTasks->wait();
-		asyncTasks.reset();
+		try {
+			asyncTasks->wait();
+			asyncTasks.reset();
+		}
+		catch (const TerminationRequestedException &)
+		{
+			// ignore, tbb caught this exception from task and propagated it to our thread
+		}
 	}
 }
 
