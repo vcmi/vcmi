@@ -443,6 +443,11 @@ void CTownList::CTownItem::select(bool on)
 		GAME->interface()->localState->setSelection(town);
 }
 
+void CTownList::CTownItem::forceSelect()
+{
+	GAME->interface()->localState->setSelection(town, true);
+}
+
 void CTownList::CTownItem::open()
 {
 	GAME->interface()->openTownWindow(town);
@@ -593,4 +598,10 @@ void CTownList::updateWidget()
 		select(GAME->interface()->localState->getCurrentTown());
 
 	CList::update();
+}
+
+void CTownList::refreshSelected()
+{
+	if(getSelectedIndex() != -1)
+		dynamic_cast<CTownItem*>(this->listBox->getItem(getSelectedIndex()).get())->forceSelect();
 }
