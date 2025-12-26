@@ -804,7 +804,6 @@
 				{
 					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
 					"val" : 1,
-					"valueType" : "INDEPENDENT_MAX", // to ensure that 1.7 saves don't have duplicated bonus (global + per hero)
 					"valueType" : "BASE_NUMBER"
 				}
 			},
