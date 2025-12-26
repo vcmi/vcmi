@@ -687,7 +687,11 @@ void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 
 std::string CGArtifact::getObjectName() const
 {
-	return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+	if(ID == Obj::SPELL_SCROLL || ID == Obj::ARTIFACT)
+		return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+
+	// random artifact
+	return CGObjectInstance::getObjectName();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const
