@@ -42,8 +42,8 @@ BucketData BucketBuilder::build_minimal_bucket(const BucketSize & req) const
 	res.req = req;
 	for(size_t i = 0; i < LT_COUNT; ++i)
 	{
-		res.size.emax[i] = static_cast<int32_t>(req.emax[i] == 0 ? 1 : req.emax[i]);
-		res.size.kmax[i] = static_cast<int32_t>(req.kmax[i] == 0 ? 1 : req.kmax[i]);
+		res.size.emax[i] = (req.emax[i] == 0 ? 1 : req.emax[i]);
+		res.size.kmax[i] = (req.kmax[i] == 0 ? 1 : req.kmax[i]);
 	}
 	return res;
 }
@@ -78,10 +78,8 @@ bool BucketBuilder::bucket_satisfies(const std::vector<std::vector<int32_t>> & s
 		const int32_t emax_l = sz[l][0];
 		const int32_t kmax_l = sz[l][1];
 
-		if(emax_l < static_cast<int32_t>(req.emax[l]) || kmax_l < static_cast<int32_t>(req.kmax[l]))
-		{
+		if(emax_l < req.emax[l] || kmax_l < req.kmax[l])
 			return false;
-		}
 	}
 	return true;
 }
