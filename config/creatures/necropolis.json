@@ -457,12 +457,16 @@
 			},
 			"decreaseMorale" :
 			{
+				"type" : "decreaseMorale_DESCRIPTION",
+				"description" : "@creatures.core.boneDragon.bonus.decreaseMorale"
+			},
+			"decreasedMorale" :
+			{
 				"type" : "MORALE",
 				"val" : -1,
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"description" : "PLACEHOLDER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -515,12 +519,16 @@
 			},
 			"decreaseMorale" :
 			{
+				"type" : "decreaseMorale_DESCRIPTION",
+				"description" : "@creatures.core.boneDragon.bonus.decreaseMorale"
+			},
+			"decreasedMorale" :
+			{
 				"type" : "MORALE",
 				"val" : -1,
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"description" : "@creatures.core.boneDragon.bonus.decreaseMorale",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise

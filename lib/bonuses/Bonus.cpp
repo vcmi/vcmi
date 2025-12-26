@@ -274,4 +274,17 @@ std::shared_ptr<Bonus> Bonus::addUpdater(const TUpdaterPtr & Updater)
 	return this->shared_from_this();
 }
 
+void Bonus::instantiateMetaVariables(std::string & text, const IBonusBearer * bearer) const
+{
+	int bonusValue = bearer->valOfBonuses(type, subtype);
+	if (text.find("${val}") != std::string::npos)
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
+
+	if (text.find("${subtype.creature}") != std::string::npos && subtype.as<CreatureID>().hasValue())
+		boost::algorithm::replace_all(text, "${subtype.creature}", subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
+
+	if (text.find("${subtype.spell}") != std::string::npos && subtype.as<SpellID>().hasValue())
+		boost::algorithm::replace_all(text, "${subtype.spell}", subtype.as<SpellID>().toSpell()->getNameTranslated());
+}
+
 VCMI_LIB_NAMESPACE_END

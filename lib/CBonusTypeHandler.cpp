@@ -80,15 +80,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		text = LIBRARY->generaltexth->translate(fullTextID);
 	}
 
-	if (text.find("${val}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
-
-	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>().hasValue())
-		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
-
-	if (text.find("${subtype.spell}") != std::string::npos && bonus->subtype.as<SpellID>().hasValue())
-		boost::algorithm::replace_all(text, "${subtype.spell}", bonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
-
+	bonus->instantiateMetaVariables(text, bearer);
 	return text;
 }
 

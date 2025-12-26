@@ -67,6 +67,7 @@ All parameters but type are optional.
 	
 	// Optional custom description, at the moment limited to creature abilities
 	// Visible only in creature window
+	// If a propagationUpdater is present, description describes the updated bonus (not the original)
 	"description" : "{Ability Name}\nLong description text",
 	
 	// Optional, path to custom icon that will be visible in creature window
