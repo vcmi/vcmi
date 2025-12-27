@@ -728,8 +728,8 @@ void ScreenHandler::screenShot() const
 	auto img = std::make_shared<SDLImageShared>(screen);
 	img->exportBitmap(filePath, nullptr);
 	MetaString txt;
-	txt.appendTextID("vcmi.client.screenShot");	
-	txt.replaceTextID(filePath.string());
+	txt.appendTextID("vcmi.client.screenShot");
+	txt.replaceRawString(filePath.string());
 	if(GAME->interface())
 		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 }
