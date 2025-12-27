@@ -12,6 +12,7 @@
 #include "InputSourceKeyboard.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../GameEngine.h"
 #include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
@@ -99,6 +100,9 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 		full->Bool() = !full->Bool();
 		ENGINE->onScreenResize(true, false);
 	}
+
+	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_SCREENSHOT))
+		ENGINE->screenHandler().screenShot();
 
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
 	{

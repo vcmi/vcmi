@@ -105,6 +105,7 @@
 		"globalBackspace":          "Backspace",
 		"globalCancel":             "Escape",
 		"globalFullscreen":         "F4",
+		"globalScreenshot":         "F3",
 		"globalMoveFocus":          "Tab",
 		"globalOptions":            "O",
 		"globalReturn":             [ "Escape", "Return", "Keypad Enter"],
