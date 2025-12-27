@@ -92,6 +92,9 @@ public:
 	/// - current creature is spellcaster and preferred action for current hex is spellcast
 	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
+	/// returns true if current hex action is "walk and spellcast" with active stack
+	bool currentActionWalkAndCast(const BattleHex& hoveredHex);
+
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
 
