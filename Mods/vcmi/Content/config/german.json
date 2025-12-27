@@ -284,6 +284,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Schreibe zwei beliebige Städte in den Chat",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Screenshot hier gespeichert: %s",
 	"vcmi.client.errors.invalidMap" : "{Ungültige Karte oder Kampagne}\n\nDas Spiel konnte nicht gestartet werden! Die ausgewählte Karte oder Kampagne ist möglicherweise ungültig oder beschädigt. Grund:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod Ladefehler}\n\nKritische Probleme beim Laden von Mods gefunden! Das Spiel könnte nicht korrekt funktionieren oder abstürzen! Bitte aktualisiere oder deaktiviere folgende Mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
@@ -419,6 +420,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Global Rückschritt",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Global abbrechen",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Global Vollbild",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Global Screenshot",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Global Fokus verschieben",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Global Optionen",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Global zurück",

@@ -126,5 +126,7 @@ public:
 	std::tuple<int, int> getSupportedScalingRange() const final;
 	Rect convertLogicalPointsToWindow(const Rect & input) const final;
 
+	void screenShot() const final;
+
 	void setColorScheme(ColorScheme filter) final;
 };
