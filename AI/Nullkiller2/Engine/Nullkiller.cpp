@@ -250,30 +250,41 @@ void Nullkiller::invalidatePathfinderData()
 
 void Nullkiller::updateState()
 {
+	const auto start = std::chrono::high_resolution_clock::now();
+	auto startMethod = start;
+	std::map<std::string, uint64_t> methodToElapsedMs = {};
 	logAi->info("PERFORMANCE: AI updateState started");
 
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
-	const auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 	setTargetObject(-1);
 	decomposer->reset();
 
 	buildAnalyzer->update();
+	methodToElapsedMs.emplace("buildAnalyzer->update", timeElapsed(startMethod));
 
 	if(!pathfinderInvalidated && dangerHitMap->isHitMapUpToDate() && dangerHitMap->isTileOwnersUpToDate())
 		logAi->trace("Skipping full state regeneration - up to date");
 	else
 	{
+		startMethod = std::chrono::high_resolution_clock::now();
 		memory->removeInvisibleOrDeletedObjects(*cc);
+		methodToElapsedMs.emplace("memory->removeInvisibleOrDeletedObjects(*cc)", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		dangerHitMap->updateHitMap();
+		methodToElapsedMs.emplace("dangerHitMap->updateHitMap()", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		dangerHitMap->calculateTileOwners();
+		methodToElapsedMs.emplace("dangerHitMap->calculateTileOwners()", timeElapsed(startMethod));
 
+		startMethod = std::chrono::high_resolution_clock::now();
 		makingTurnInterruption.interruptionPoint();
 		heroManager->update();
-		logAi->trace("Updating paths");
+		methodToElapsedMs.emplace("heroManager->update()", timeElapsed(startMethod));
 
+		logAi->trace("Updating paths");
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
 		cfg.allowBypassObjects = true;
@@ -289,27 +300,45 @@ void Nullkiller::updateState()
 		}
 
 		makingTurnInterruption.interruptionPoint();
+		startMethod = std::chrono::high_resolution_clock::now();
 		const auto heroes = getHeroesForPathfinding();
+		methodToElapsedMs.emplace("getHeroesForPathfinding()", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		pathfinder->updatePaths(heroes, cfg);
+		methodToElapsedMs.emplace("pathfinder->updatePaths(heroes, cfg)", timeElapsed(startMethod));
 
 		if(isObjectGraphAllowed())
 		{
+			startMethod = std::chrono::high_resolution_clock::now();
 			pathfinder->updateGraphs(
 				heroes,
 				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10,
 				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3);
+			methodToElapsedMs.emplace("pathfinder->updateGraphs", timeElapsed(startMethod));
 		}
 
 		makingTurnInterruption.interruptionPoint();
+		startMethod = std::chrono::high_resolution_clock::now();
 		objectClusterizer->clusterize();
+		methodToElapsedMs.emplace("objectClusterizer->clusterize()", timeElapsed(startMethod));
 		pathfinderInvalidated = false;
 	}
 
+	startMethod = std::chrono::high_resolution_clock::now();
 	armyManager->update();
+	methodToElapsedMs.emplace("armyManager->update()", timeElapsed(startMethod));
 
-	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 999)
+	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 250)
 	{
 		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+
+		for(const auto & [name, elapsedMs] : methodToElapsedMs)
+		{
+#if NK2AI_TRACE_LEVEL >= 1
+			if(elapsedMs > 25)
+				logAi->warn("PERFORMANCE: AI updateState %s took %ld ms", name, elapsedMs);
+#endif
+		}
 	}
 	else
 	{
