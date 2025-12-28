@@ -878,4 +878,9 @@ void ResponseStatistic::visitTyped(ICPackVisitor & visitor)
 	visitor.visitResponseStatistic(*this);
 }
 
+void VerifyGameState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitVerifyGameState(*this);
+}
+
 VCMI_LIB_NAMESPACE_END

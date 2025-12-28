@@ -1619,7 +1619,7 @@ CArtifactInstance * CGameState::createArtifact(const ArtifactID & artID, const S
 	return map->createArtifact(artID, spellId);
 }
 
-void CGameState::saveGame(CSaveFile & file) const
+void CGameState::saveGame(ISaveFile & file) const
 {
 	ActiveModsInSaveList activeModsDummy;
 	logGlobal->info("Saving game state");

@@ -26,7 +26,7 @@ class Services;
 class IGameRandomizer;
 class IMapService;
 class CMap;
-class CSaveFile;
+class ISaveFile;
 class CLoadFile;
 struct CPackForClient;
 class CHeroClass;
@@ -172,7 +172,7 @@ public:
 	scripting::Pool * getGlobalContextPool() const override;
 #endif
 
-	void saveGame(CSaveFile & file) const;
+	void saveGame(ISaveFile & file) const;
 	void loadGame(CLoadFile & file);
 
 	template <typename Handler> void serialize(Handler &h)

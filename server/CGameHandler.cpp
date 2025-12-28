@@ -1621,11 +1621,17 @@ void CGameHandler::save(const std::string & filename)
 
 	try
 	{
-		CSaveFile save;
+		SaveFile save;
 		gameState().saveGame(save);
+#if 0
+		VerifyGameState vgs;
+		vgs.data = save.currentContent();
+		sendAndApply(vgs);
+#endif
 		logGlobal->info("Saving server state");
 		save.save(*this);
-		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
+		save.writeFile(*CResourceHandler::get("local")->getResourceName(savePath));
+
 	}
 	catch(std::exception &e)
 	{
