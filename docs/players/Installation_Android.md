@@ -28,7 +28,7 @@ d) The process may take a few seconds. Please be patient.
 
 e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
-- Set **Reserved Screen Area** to **0%**.
+- If you have black bars on either side and want to play without them, set **Reserved Screen Area** to **0%**. This may hide some minor things such as fps counter, rounded edges and waterdrop notches.
 - Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" tablet).
 - Set **Upscaling filter** to **xBRZ x2** if not selected by default. This will enable the VCMI HD upscaling that is similar in effect to HOMM3 HD mod. Higher xBRZ selections may tank your Android device perfomance without providing a tangible benefit.
 
