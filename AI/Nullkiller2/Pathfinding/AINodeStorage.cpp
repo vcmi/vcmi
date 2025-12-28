@@ -177,13 +177,23 @@ void AINodeStorage::clear()
 	turnDistanceLimit[HeroRole::SCOUT] = PathfinderSettings::MaxTurnDistanceLimit;;
 }
 
+int AINodeStorage::getBucketIndex(const ChainActor* actor, EPathfindingLayer layer, const int3& pos) {
+	uint64_t hash = pos.x;
+	hash = hash * 31 + pos.y;
+	hash = hash * 31 + pos.z;
+	hash = hash * 31 + (reinterpret_cast<uint64_t>(actor) >> 4);
+	hash = hash * 31 + static_cast<int>(layer);
+
+	return hash % aiNk->settings->getPathfinderBucketsCount();
+}
+
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const int3 & pos, 
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
 	// Mircea: A bit more CPU to drop buckets but better memory usage to use all nodes, then we avoid unbalanced distribution
-	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % aiNk->settings->getPathfinderBucketsCount();
+	int bucketIndex = getBucketIndex(actor, layer, pos);
 	int bucketOffset = bucketIndex * aiNk->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
@@ -501,9 +511,8 @@ private:
 	std::vector<DelayedWork> delayedWork;
 
 public:
-	HeroChainCalculationTask(
-		AINodeStorage & storage, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
-		:existingChains(), newChains(), delayedWork(), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+	HeroChainCalculationTask(AINodeStorage & storage, const std::vector<int3> & tiles, const uint64_t chainMask, const int heroChainTurn)
+		: storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), tiles(tiles)
 	{
 		existingChains.reserve(storage.getBucketCount() * storage.getBucketSize());
 		newChains.reserve(storage.getBucketCount() * storage.getBucketSize());
@@ -520,20 +529,21 @@ public:
 			for(auto layer : phisycalLayers)
 			{
 				existingChains.clear();
-
-				storage.iterateValidNodes(pos, layer, [this](AIPathNode & node)
+				storage.iterateValidNodes(
+					pos,
+					layer,
+					[this](AIPathNode & node)
 					{
 						if(node.turns <= heroChainTurn && node.action != EPathNodeAction::UNKNOWN)
 							existingChains.push_back(&node);
-					});
+					}
+				);
 
 				if(existingChains.empty())
 					continue;
 
 				newChains.clear();
-
 				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
-
 				for(AIPathNode * node : existingChains)
 				{
 					if(node->actor->isMovable)
@@ -544,16 +554,15 @@ public:
 
 				for(auto delayed = delayedWork.begin(); delayed != delayedWork.end();)
 				{
-					auto newActor = delayed->carrier->actor->tryExchangeNoLock(delayed->other->actor);
-
+					const auto newActor = delayed->carrier->actor->tryExchangeNoLock(delayed->other->actor);
 					if(!newActor.lockAcquired) continue;
-					
+
 					if(newActor.actor)
 					{
 						newChains.push_back(calculateExchange(newActor.actor, delayed->carrier, delayed->other));
 					}
-					
-					delayed++;
+
+					++delayed;
 				}
 
 				delayedWork.clear();
@@ -593,27 +602,27 @@ bool AINodeStorage::calculateHeroChain()
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
-	std::vector<int3> data(committedTiles.begin(), committedTiles.end());
-
-	int maxConcurrency = tbb::this_task_arena::max_concurrency();
+	const std::vector<int3> tiles(committedTiles.begin(), committedTiles.end());
+	const int maxConcurrency = tbb::this_task_arena::max_concurrency();
 	std::vector<std::vector<CGPathNode *>> results(maxConcurrency);
+	logAi->trace("Calculating hero chain for %d items", tiles.size());
 
-	logAi->trace("Caculating hero chain for %d items", data.size());
-
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
-	{
-		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
-		int ourThread = tbb::this_task_arena::current_thread_index();
-		task.execute(r);
-		task.flushResult(results.at(ourThread));
-	});
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, tiles.size()),
+		[&](const tbb::blocked_range<size_t> & r)
+		{
+			HeroChainCalculationTask task(*this, tiles, chainMask, heroChainTurn);
+			const int ourThread = tbb::this_task_arena::current_thread_index();
+			task.execute(r);
+			task.flushResult(results.at(ourThread));
+		}
+	);
 
 	// FIXME: potentially non-deterministic behavior due to parallel_for
-	for (const auto & result : results)
+	for(const auto & result : results)
 		vstd::concatenate(heroChain, result);
 
 	committedTiles.clear();
-
 	return !heroChain.empty();
 }
 
