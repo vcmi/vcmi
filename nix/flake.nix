@@ -29,11 +29,11 @@
       }: {
         devShells.default = import ./shell.nix {
           inherit pkgs;
-          ninja = pkgs.ninja;
+          generator = pkgs.ninja;
         };
-        packages.default = pkgs.stdenv.mkDerivation (import ./default.nix {
+        packages.default = (import ./default.nix {
           inherit pkgs;
-          ninja = pkgs.ninja;
+          generator = pkgs.ninja;
         });
         formatter = pkgs.alejandra;
       };
