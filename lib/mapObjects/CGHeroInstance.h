@@ -245,8 +245,8 @@ public:
 	CCommanderInstance * getCommander();
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
-	void initHero(IGameRandomizer & gameRandomizer);
-	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID);
+	void initHero(IGameRandomizer & gameRandomizer, bool isFake = false);
+	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID, bool isFake = false);
 
 	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
