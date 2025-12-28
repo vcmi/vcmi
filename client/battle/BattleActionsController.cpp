@@ -436,7 +436,7 @@ const CSpell * BattleActionsController::getStackSpellToCast(const BattleHex & ho
 
 	if(action.get() == PossiblePlayerBattleAction::WALK_AND_SPELLCAST)
 	{
-		auto bonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::WALKING_SPELLCASTER));
+		auto bonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER));
 		return bonus->subtype.as<SpellID>().toSpell();
 	}
 

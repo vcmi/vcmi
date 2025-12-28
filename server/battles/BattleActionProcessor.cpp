@@ -557,7 +557,7 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 		return false;
 	}
 
-	auto bonus = stack->getBonus(Selector::typeSubtype(BonusType::WALKING_SPELLCASTER, BonusSubtypeID(spellID)));
+	auto bonus = stack->getBonus(Selector::typeSubtype(BonusType::ADJACENT_SPELLCASTER, BonusSubtypeID(spellID)));
 	if (!bonus)
 	{
 		gameHandler->complain("Creature cannot walk and spellcast.");

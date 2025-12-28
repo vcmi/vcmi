@@ -1028,6 +1028,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional ${val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Adjacent Spellcaster}\nUnit can cast ${subtype.spell} while standing next to target",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximum Damage}\nThis unit always deals the maximum possible damage",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attack all around}\nAttacks all adjacent enemies in addition to the primary target",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{No ranged retaliation}\nThe enemy cannot retaliate when shot by this unit",

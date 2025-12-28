@@ -376,7 +376,7 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
-	if(stack->hasBonusOfType(BonusType::WALKING_SPELLCASTER) && stack->canCast() && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
+	if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast() && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
 	{
 		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
 		if(fromHex.isValid())
@@ -388,7 +388,7 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 		}
 	}
 
-	if((owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) || (stack->hasBonusOfType(BonusType::WALKING_SPELLCASTER) && stack->canCast()))
+	if((owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) || (stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast()))
 		&& owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
 	{
 		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
