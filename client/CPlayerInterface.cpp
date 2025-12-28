@@ -1799,8 +1799,8 @@ void CPlayerInterface::quickSaveGame()
 {
 	// notify player about saving
 	MetaString txt;
-	txt.appendTextID("vcmi.adventureMap.savingQuickSave");	
-	txt.replaceTextID(QUICKSAVE_PATH);
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
+	txt.replaceRawString(QUICKSAVE_PATH);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 	GAME->interface()->cb->save(QUICKSAVE_PATH);
 	hasQuickSave = true;
