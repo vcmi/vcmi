@@ -768,7 +768,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			{
 				const CStack * currentStack = owner.stacksController->getActiveStack();
-				if (!currentStack || !targetStack || !targetStack->alive() || targetStack->unitSide() != currentStack->unitSide())
+				if (!currentStack || !targetStack || !targetStack->alive())
 					return false;
 
 				if (targetStack == currentStack)
