@@ -557,7 +557,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 
 
 	BattleHexArray hoveredMouseHexes;
-	if(owner.actionsController->currentActionWalkAndCast(getHoveredHex()))
+	if(hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionWalkAndCast(getHoveredHex()))
 	{
 		hoveredMouseHexes = hoveredSpellHexes;
 		for(const auto & hex : useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex)
