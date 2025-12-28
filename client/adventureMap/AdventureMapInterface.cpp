@@ -591,7 +591,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 
 			if(GAME->interface()->localState->hasPath(currentHero) &&
 			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&
-				 GAME->interface()->localState->getPath(currentHero).endLayer() == destinationLayer &&
+				 (destinationLayer == EPathfindingLayer::AUTO || GAME->interface()->localState->getPath(currentHero).endLayer() == destinationLayer) &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!GAME->map().hasOngoingAnimations());
