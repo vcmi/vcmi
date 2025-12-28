@@ -26,15 +26,21 @@
         pkgs,
         system,
         ...
-      }: {
+      }: let src = (with pkgs.lib.fileset;
+     toSource {
+      root = ./..;
+      fileset = gitTrackedWith {recurseSubmodules = true;} ./..;
+    }) // ((if self ? rev then { inherit (self) rev; } else {}) // (if self ? dirtyRev then { inherit (self) dirtyRev;} else {})); in {
         devShells.default = import ./shell.nix {
           inherit pkgs;
           generator = pkgs.ninja;
+          inherit src;
         };
-        packages.default = (import ./default.nix {
+        packages.default = import ./default.nix {
           inherit pkgs;
           generator = pkgs.ninja;
-        });
+          inherit src;
+        };
         formatter = pkgs.alejandra;
       };
     };

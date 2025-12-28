@@ -1,5 +1,6 @@
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  src,
   libsquish ? (pkgs.callPackage ./libsquish.nix {}),
   minizip ? pkgs.minizip,
   generator ? pkgs.gnumake,
@@ -8,10 +9,12 @@
   client ? true,
   video ? true,
   scripting ? true,
-}: rec {
+}: let
+  rev = builtins.substring 0 7 (src.rev or src.dirtyRev or "HEAD");
+in {
   pname = "vcmi";
-  src = ./..;
-  version = "1.18-dev"; #TODO: Update from git?
+  inherit src;
+  version = "${rev}-dev"; #TODO: Update from git?
   meta = {
     description = "Open-source engine for Heroes of Might and Magic III";
     longDescription = ''
@@ -20,7 +23,7 @@
       data files.
     '';
     homepage = "https://vcmi.eu";
-    changelog = "https://github.com/vcmi/vcmi/blob/${version}/ChangeLog.md";
+    changelog = "https://github.com/vcmi/vcmi/blob/${rev}/ChangeLog.md";
     license = with pkgs.lib.licenses; [
       gpl2Plus
       cc-by-sa-40
@@ -77,13 +80,14 @@
       ]
     }"
   '';
-  cmakeFlags = with pkgs; [
+  cmakeFlags = with pkgs;
+    [
       (lib.cmakeFeature "CMAKE_INSTALL_RPATH" "$out/lib/vcmi")
       (lib.cmakeFeature "CMAKE_INSTALL_BINDIR" "bin")
       (lib.cmakeFeature "CMAKE_INSTALL_LIBDIR" "lib")
       (lib.cmakeFeature "CMAKE_INSTALL_DATAROOTDIR" "share")
-    ] ++
-    (
+    ]
+    ++ (
       if !client
       then ["-DENABLE_CLIENT=OFF"]
       else []
