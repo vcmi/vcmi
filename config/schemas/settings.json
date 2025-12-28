@@ -40,6 +40,7 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
+				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
 				"audioMuteFocus",
@@ -112,6 +113,10 @@
 				"extraDump" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"saveBeforeVisit" : {
+					"type" : "boolean",
+					"default" : true
 				},
 				"userRelativePointer" : {
 					"type" : "boolean",

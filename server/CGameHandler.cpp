@@ -1001,7 +1001,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	};
 
-	if (gameInfo().getPlayerState(h->getOwner())->human && (guardian || objectToVisit) && movementMode == EMovementMode::STANDARD)
+	if (settings["general"]["saveBeforeVisit"].Bool() &&
+		gameInfo().getPlayerState(h->getOwner())->human &&
+	   (guardian || objectToVisit) &&
+	   movementMode == EMovementMode::STANDARD)
 		save("Saves/BeforeVisitSave");
 
 	if (!transit && embarking)
