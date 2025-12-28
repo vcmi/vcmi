@@ -107,6 +107,7 @@ public:
 	void visitPlayerCheated(PlayerCheated & pack) override;
 	void visitChangeTownName(ChangeTownName & pack) override;
 	void visitResponseStatistic(ResponseStatistic & pack) override;
+	void visitVerifyGameState(VerifyGameState & pack) override;
 };
 
 class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
