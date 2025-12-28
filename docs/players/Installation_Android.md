@@ -2,7 +2,7 @@
 
 ## Step 1: Download and install VCMI
 
-**This app requires original Heroes of Might and Magic 3 SOD / Complete files to operate, they are not supplied with this installer. It is recommended to purchase version from GOG.com. It is frequently discounted. Heroes of Might and Magic 3 "HD edition" (steam version) files are not supported !!!** 
+**This app requires original Heroes of Might and Magic 3 SOD / Complete files to operate, they are not supplied with this installer. It is recommended to purchase version from GOG.com. It is frequently discounted. Heroes of Might and Magic 3 "HD edition" (steam version) files are not supported !!!**
 
 Installation is a two step process. First you need to install VCMI, then you need to upload HOMM 3 original data files to your android device.
 
