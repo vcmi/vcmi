@@ -652,9 +652,16 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 	h->setOwner(pack.player);
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
-	gs.getMap().heroAddedToMap(h);
-	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 
+	// Before adding, check if hero is already on map.
+	// Without this check, game dies on Myth_and_Legen map when orange reaches the place to unlock a new hero
+	if(!gs.getMap().isHeroOnMap(h->id))
+	{
+		// TODO: Mircea: Ivan: either don't call that method when releasing hero from prison or make sure that heroes in prisons are not part of that list
+		gs.getMap().heroAddedToMap(h);
+	}
+
+	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 	gs.getMap().showObject(h);
 	h->setVisitedTown(nullptr, false);
 }
