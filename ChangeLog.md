@@ -16,6 +16,7 @@
 * Fixed possible crash on AI shutdown
 * Avoid crash and display error message on failure to install mod after opening screenshot tab during mod download on some systems
 * Fixed desynchronization between client and server caused by temporary artifacts generated during AI turn
+* Fixed rare crash on having growing artifacts in inventory in the same time as having expired charging artifact
 
 ### Mechanics
 
@@ -38,6 +39,7 @@
 
 ### Launcher
 
+* Fixed reset of AI settings on opening Launcher. AI settings will be reset to default for all players
 * Added option to disable before visit saves
 * Fixed not visible star in mod list title on some systems
 
