@@ -83,11 +83,8 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	currentVersion = GameConstants::VCMI_VERSION;
 	currentCommit = GameConstants::VCMI_COMMIT;
 
-	setWindowTitle(tr("VCMI Updates center"));
-	ui->title->setText(tr("VCMI Updates center"));
-	
-	//setWindowTitle(QString::fromStdString(GameConstants::VCMI_BRANCH));
-	//ui->title->setText(QString::fromStdString(GameConstants::VCMI_BRANCH));
+	setWindowTitle(tr("VCMI Updates Center"));
+	ui->title->setText(tr("VCMI Updates Center"));
 
 	// Testing build info
 	if(ui->testingBuilds->isChecked())
@@ -333,8 +330,7 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing)
 	const std::string changeLog = node["changeLog"].getType() == JsonNode::JsonType::DATA_STRING ? node["changeLog"].String() : "";
 
 	// Decide if update is offered, but never early-return or close the dialog
-	//const std::string curSha = commitShort(currentCommit);
-	const std::string curSha = commitShort("1a2b3c4d5e6f"); // TODO: replace with commitShort(currentCommit);
+	const std::string curSha = commitShort(currentCommit);
 	const std::string jsonSha = commitShort(newCommit);
 
 	bool offer = false;
@@ -391,7 +387,6 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing)
 		if(testing)
 			ui->tabWidget->setCurrentIndex(1);
 	}
-
 }
 
 void UpdateDialog::on_installButton_clicked()
