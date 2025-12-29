@@ -652,7 +652,6 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 	h->setOwner(pack.player);
 	h->setMovementPoints(h->movementPointsLimit(true));
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
-	gs.getMap().heroAddedToMap(h);
 	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 
 	gs.getMap().showObject(h);
