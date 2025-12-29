@@ -367,7 +367,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : LIBRARY->skillh->objects)
-			if (cb->isAllowed(skill->getId()) && !skill->special)
+			if (cb->isAllowed(skill->getId()) && !skill->special && !skill->banInMapObjects)
 				defaultSkills.insert(skill->getId());
 
 		std::set<SecondarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
@@ -389,7 +389,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : LIBRARY->skillh->objects)
-				if (cb->isAllowed(skill->getId()) && !skill->special)
+				if(cb->isAllowed(skill->getId()) && !skill->special && !skill->banInMapObjects)
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())
