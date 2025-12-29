@@ -194,24 +194,19 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			std::string objectType = LIBRARY->objtypeh->getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
-			if(object.secondaryID != 0)
-			{
-				auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
-				std::string subtypeName = handler->getSubTypeName();
-				objectStruct->serializeString("subtype", subtypeName);
-			}
+			auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
+			std::string subtypeName = handler->getSubTypeName();
+			objectStruct->serializeString("subtype", subtypeName);
 			
 			// Serialize RMG properties
-			{
-				auto rmgStruct = objectStruct->enterStruct("rmg");
-				int value = object.value;
-				int rarity = object.probability;
-				int zoneLimit = (object.maxPerZone == std::numeric_limits<int>::max()) ? 0 : object.maxPerZone;
+			auto rmgStruct = objectStruct->enterStruct("rmg");
+			int value = object.value;
+			int rarity = object.probability;
+			int zoneLimit = (object.maxPerZone == std::numeric_limits<int>::max()) ? 0 : object.maxPerZone;
 				
-				rmgStruct->serializeInt("value", value);
-				rmgStruct->serializeInt("rarity", rarity);
-				rmgStruct->serializeInt("zoneLimit", zoneLimit);
-			}
+			rmgStruct->serializeInt("value", value);
+			rmgStruct->serializeInt("rarity", rarity);
+			rmgStruct->serializeInt("zoneLimit", zoneLimit);
 		}
 	}
 	else
