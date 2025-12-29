@@ -1171,6 +1171,23 @@ int3 CGShipyard::bestLocation() const
 	return int3 (-1,-1,-1);
 }
 
+void CGShipyard::getBoatCost(ResourceSet & cost) const
+{
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, createdBoat);
+	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	auto layer = boatConstructor->getLayer();
+
+	if (layer == EPathfindingLayer::AVIATE)
+	{
+		cost[EGameResID::WOOD] = 20;
+		cost[EGameResID::GOLD] = 5000;
+	}
+	else
+	{
+		IShipyard::getBoatCost(cost);
+	}
+}
+
 const IOwnableObject * CGShipyard::asOwnable() const
 {
 	return this;
