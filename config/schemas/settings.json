@@ -40,6 +40,7 @@
 				"autosaveCountLimit",
 				"useSavePrefix",
 				"savePrefix",
+				"saveBeforeVisit",
 				"startTurnAutosave",
 				"enableUiEnhancements",
 				"audioMuteFocus",
@@ -112,6 +113,10 @@
 				"extraDump" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"saveBeforeVisit" : {
+					"type" : "boolean",
+					"default" : true
 				},
 				"userRelativePointer" : {
 					"type" : "boolean",
@@ -236,7 +241,6 @@
 				},
 				"reservedWidth" : {
 					"type" : "number",
-					"defaultIOS" : 0.1, // iOS camera cutout / notch is not excluded from available area by SDL, handle it this way
 					"default" : 0
 				},
 				"fullscreen" : {
@@ -589,22 +593,27 @@
 				},
 				"playerAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"alliedAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"friendlyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
 				"neutralAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				}
 			}
