@@ -365,7 +365,7 @@ protected:
 
 public:
 	using CGObjectInstance::CGObjectInstance;
-
+	int3 bestLocation() const override; //returns location when the boat should be placed
 	template<typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
