@@ -744,7 +744,7 @@
 				},
 				"testingBuilds" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"updateConfigUrl" : {
 					"type" : "string",
