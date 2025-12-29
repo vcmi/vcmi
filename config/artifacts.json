@@ -2015,6 +2015,10 @@
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
 						"bonusType" : "GARGOYLE"
+					},
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType" : "SIEGE_WEAPON"
 					}
 				]
 			}
