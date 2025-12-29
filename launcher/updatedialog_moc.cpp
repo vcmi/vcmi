@@ -51,7 +51,11 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	calledManually(calledManually)
 {
 	ui->setupUi(this);
-	
+
+#ifdef VCMI_MOBILE
+    setStyleSheet("QDialog { border: 2px solid rgba(0,0,0,160); border-radius: 6px; }");
+#endif
+
 	//setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
 	ui->progressBar->setHidden(true);
