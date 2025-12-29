@@ -302,6 +302,8 @@ void CSettingsView::loadToggleButtonSettings()
 
 	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
 
+	setCheckbuttonState(ui->buttonSaveBeforeVisit, settings["general"]["saveBeforeVisit"].Bool());
+
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
 	setCheckbuttonState(ui->buttonCursorType, cursorTypeIndex);
@@ -575,6 +577,13 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 {
 	Settings node = settings.write["server"]["port"];
 	node->Float() = arg1;
+}
+
+void CSettingsView::on_buttonSaveBeforeVisit_toggled(bool value)
+{
+	Settings node = settings.write["general"]["saveBeforeVisit"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonSaveBeforeVisit);
 }
 
 void CSettingsView::on_buttonShowIntro_toggled(bool value)
