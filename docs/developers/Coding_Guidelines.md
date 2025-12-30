@@ -784,12 +784,16 @@ Directories start with a lowercase letter and use the camel casing where necessa
 
 ### Logging
 
-Outdated. There is separate entry for [Logging API](Logging_API.md)
+For comprehensive logging information, see the [Logging API](Logging_API.md) documentation.
 
-If you want to trace the control flow of VCMI, then you should use the macro LOG_TRACE or LOG_TRACE_PARAMS. The first one prints a message when the function is entered or leaved. The name of the function will also be logged. In addition to this the second macro, let's you specify parameters which you want to print. You should print traces with parameters like this:
+Use the appropriate logging macros for different severity levels:
 
 ```cpp
-LOG_TRACE_PARAMS(logGlobal, "hero '%s', spellId '%d', pos '%s'.", hero, spellId, pos);
+logGlobal->error("Critical error occurred: %s", errorDetails);
+logGlobal->warn("Warning: %s", warningMessage);
+logGlobal->info("Information: %s", infoMessage);
+logGlobal->debug("Debug information: %s", debugInfo);
+logGlobal->trace("Detailed trace: %s", traceInfo);
 ```
 
 When using the macro every "simple" parameter should be logged. The parameter can be a number, a string or a type with a ostream operator\<\<. You should not log contents of a whole text file, a byte array or sth. like this. If there is a simple type with a few members you want to log, you should write an ostream operator\<\<. The produced message can look like this:
