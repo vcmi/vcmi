@@ -161,7 +161,14 @@ void GameStatePackVisitor::visitSetResearchedSpells(SetResearchedSpells & pack)
 	town->spells[pack.level] = pack.spells;
 	town->spellResearchCounterDay++;
 	if(pack.accepted)
+	{
 		town->spellResearchAcceptedCounter++;
+		town->spellResearchPendingRerollsCounters[pack.level] = 0;
+	}
+	else
+	{
+		town->spellResearchPendingRerollsCounters[pack.level]++;
+	}
 }
 
 void GameStatePackVisitor::visitSetMana(SetMana & pack)

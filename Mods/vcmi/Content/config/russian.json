@@ -102,7 +102,7 @@
 	"vcmi.spellBook.tab.hover" : "Заклинания %s",
 	"vcmi.spellBook.tab.help" : "Показать заклинания %s",
 	
-	"vcmi.spellResearch.canNotAfford" : "Вы не можете позволить себе заменить {%SPELL1} на {%SPELL2}. Но вы все равно можете пропустить это заклинание и продолжить изучение заклинаний.",
+	"vcmi.spellResearch.canNotAfford" : "Вы не можете позволить себе заменить {%SPELL1} на {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Исследование уже было проведено сегодня. Приходите завтра.",
 	"vcmi.spellResearch.pay" : "Вы бы хотели заменить {%SPELL1} на {%SPELL2}? Или пропустить это заклинание и продолжить изучение заклинаний?",
 	"vcmi.spellResearch.research" : "Исследовать это заклинание",

@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "切换以查看%s法术",
     "vcmi.spellBook.zero_level.hint" : "0级",
 
-	"vcmi.spellResearch.canNotAfford" : "你没有足够的资源来将{%SPELL1}替换为{%SPELL2}。但你依然可以弃掉此法术，继续法术研究。",
+	"vcmi.spellResearch.canNotAfford" : "你没有足够的资源来将{%SPELL1}替换为{%SPELL2}。",
 	"vcmi.spellResearch.comeAgain" : "今日已研究过法术，请明日再来。",
 	"vcmi.spellResearch.pay" : "你想将{%SPELL1}替换为{%SPELL2}吗？或者弃掉此法术，继续法术研究？",
 	"vcmi.spellResearch.research" : "研究此法术",

@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Перегорнути щоб побачити закляття школи %s",
 	"vcmi.spellBook.zero_level.hint" : "0го рангу",
 
-	"vcmi.spellResearch.canNotAfford" : "Ви не можете дозволити собі замінити {%SPELL1} на {%SPELL2}. Але ви все одно можете відкинути це закляття і продовжити дослідження заклять.",
+	"vcmi.spellResearch.canNotAfford" : "Ви не можете дозволити собі замінити {%SPELL1} на {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Сьогодні дослідження вже зроблено. Приходьте завтра..",
 	"vcmi.spellResearch.pay" : "Ви хочете замінити {%SPELL1} на {%SPELL2}? Або відкинути це закляття і продовжити дослідження заклять??",
 	"vcmi.spellResearch.research" : "Дослідити це закляття",
