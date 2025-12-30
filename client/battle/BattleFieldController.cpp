@@ -376,7 +376,20 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
-	if(owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
+	if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast() && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
+	{
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
+		if(fromHex.isValid())
+		{
+			if(stack->doubleWide())
+				return {fromHex, stack->occupiedHex(fromHex)};
+
+			return {fromHex};
+		}
+	}
+
+	if((owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) || (stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast()))
+		&& owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
 	{
 		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
 		assert(fromHex.isValid());
@@ -542,7 +555,22 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 			|| owner.actionsController->creatureSpellcastingModeActive()); //at least shooting with SPELL_LIKE_ATTACK can operate in spellcasting mode without being actual spellcast
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
 
-	const auto & hoveredMouseHexes = useSpellRangeForMouse ? hoveredSpellHexes : ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
+
+	BattleHexArray hoveredMouseHexes;
+	if(hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionWalkAndCast(getHoveredHex()))
+	{
+		hoveredMouseHexes = hoveredSpellHexes;
+		for(const auto & hex : useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex)
+		{
+			hoveredMouseHexes.insert(hex);
+		}
+	}
+	else
+	{
+		hoveredMouseHexes = useSpellRangeForMouse
+			? hoveredSpellHexes
+			: ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
+	}
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{

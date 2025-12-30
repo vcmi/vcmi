@@ -406,6 +406,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
+			if (stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
+			{
+				addToAnimationStage(EAnimationEvents::MOVEMENT, [this, casterStack]()
+				{
+					stacksController->addNewAnim(new ReverseAnimation(*this, casterStack, casterStack->getPosition()));
+				});
+			}
+
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, casterStack, targetedTile, spell]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
