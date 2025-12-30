@@ -620,6 +620,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapFormat.h
 	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
+	mapping/MapTilesStorage.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
 	mapping/TerrainTile.h
