@@ -358,8 +358,13 @@ bool CPathfinder::isLayerTransitionPossible() const
 
 		break;
 
+	case ELayer::AVIATE:
+		if((destLayer == ELayer::LAND && !destination.tile->isWater()) || destLayer == ELayer::AIR)
+			return true;
+		break;
+
 	case ELayer::AIR:
-		if(destLayer == ELayer::LAND)
+		if(destLayer == ELayer::LAND || destLayer == ELayer::AVIATE)
 			return true;
 
 		break;

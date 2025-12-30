@@ -40,8 +40,8 @@ public:
 	std::optional<PlayerColor> getPlayerID() const override;
 
 //commands
-	void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) override;
-	void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit) override;
+	void moveHero(const CGHeroInstance *h, const std::vector<std::pair<int3, EPathfindingLayer>> & path, bool transit) override;
+	void moveHero(const CGHeroInstance *h, const int3 & destination, bool transit, const EPathfindingLayer & layer = EPathfindingLayer::AUTO) override;
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, QueryID queryID) override;
 	int sendQueryReply(std::optional<int32_t> reply, QueryID queryID) override;

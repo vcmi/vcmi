@@ -184,7 +184,8 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
-		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::AIR)
+		//airship with aviation uses both AIR and AVIATE layers
+		if(target && target->inBoat() && (target->getBoat()->layer == EPathfindingLayer::AIR || target->getBoat()->layer == EPathfindingLayer::AVIATE))
 			break;
 
 		if(!hasFlyingMovement())

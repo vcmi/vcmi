@@ -61,9 +61,10 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	for (auto const & dest : pack.path)
+	//TODO use layer
+	for (auto const & [dest, layer] : pack.path)
 	{
-		if (!gh.moveHero(pack.hid, dest, EMovementMode::STANDARD, pack.transit, pack.player))
+		if (!gh.moveHero(pack.hid, dest, EMovementMode::STANDARD, pack.transit, pack.player, layer))
 		{
 			result = false;
 			return;

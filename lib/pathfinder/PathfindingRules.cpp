@@ -126,13 +126,12 @@ void DestinationActionRule::process(
 	switch(destination.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
-		if(source.node->layer == EPathfindingLayer::SAIL)
+		if((source.node->layer == EPathfindingLayer::SAIL || source.node->layer == EPathfindingLayer::AVIATE))
 		{
 			// TODO: Handle dismebark into guarded areaa
 			action = EPathNodeAction::DISEMBARK;
 			break;
 		}
-
 		/// don't break - next case shared for both land and sail layers
 		[[fallthrough]];
 
@@ -194,7 +193,22 @@ void DestinationActionRule::process(
 			action = EPathNodeAction::BATTLE;
 
 		break;
+
+	case EPathfindingLayer::AVIATE:
+	/*
+		if(destination.node->accessible == EPathAccessibility::VISITABLE)
+		{
+			if(destination.nodeObject->ID == Obj::BOAT)
+			{
+				auto boat = dynamic_cast<const CGBoat *>(destination.nodeObject);
+				if(boat && boat->layer == EPathfindingLayer::AVIATE)
+					action = EPathNodeAction::EMBARK;
+			}
+		}*/
+		break;
 	}
+
+
 
 	destination.action = action;
 }
@@ -369,7 +383,7 @@ void LayerTransitionRule::process(
 	switch(source.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
-		if(destination.node->layer == EPathfindingLayer::SAIL)
+		if(destination.node->layer == EPathfindingLayer::SAIL || destination.node->layer == EPathfindingLayer::AVIATE)
 		{
 			/// Cannot enter empty water tile from land -> it has to be visitable
 			if(destination.node->accessible == EPathAccessibility::ACCESSIBLE)
@@ -389,7 +403,31 @@ void LayerTransitionRule::process(
 
 		break;
 
+	case EPathfindingLayer::AVIATE:
+	  if(destination.node->layer == EPathfindingLayer::LAND)
+	  {
+			//disembark before visiting objects on land
+			if(destination.tile->visitable())
+				destination.blocked = true;
+			//can disembark only on accessible tiles or tiles guarded by nearby monster
+			if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::GUARDED))
+				destination.blocked = true;
+		}
+		else if(destination.node->layer == EPathfindingLayer::AIR)
+		{
+			if(destination.node->accessible != EPathAccessibility::FLYABLE)
+				destination.blocked = true;
+		}
+
+		break;
+
 	case EPathfindingLayer::AIR:
+		if(destination.node->layer == EPathfindingLayer::AVIATE)
+	  {
+			if(destination.node->accessible != EPathAccessibility::ACCESSIBLE)
+				destination.blocked = true;
+			break;
+		}
 		if(pathfinderConfig->options.originalFlyRules)
 		{
 			if(source.node->accessible != EPathAccessibility::ACCESSIBLE && source.node->accessible != EPathAccessibility::VISITABLE)

@@ -1139,6 +1139,64 @@ BoatId CGShipyard::getBoatType() const
 	return createdBoat;
 }
 
+int3 CGShipyard::bestLocation() const
+{
+	std::vector<int3> offsets;
+	getOutOffsets(offsets);
+
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, createdBoat);
+  auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	auto layer = boatConstructor->getLayer();
+
+	for (auto & offset : offsets)
+	{
+		int3 targetTile = getObject()->visitablePos() + offset;
+		const TerrainTile *tile = getObject()->cb->getTile(targetTile, false);
+
+		if(!tile)
+			continue; // tile not visible / outside the map
+
+		if(layer == EPathfindingLayer::SAIL && !tile->isWater())
+			continue;
+
+		if (tile->blocked())
+			continue;
+
+		if (tile->visitable())
+		{
+			bool hasBoat = false;
+			for (auto const & objectID : tile->visitableObjects)
+			{
+				const auto * object = getObject()->cb->getObj(objectID);
+				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
+					hasBoat = true;
+			}
+
+			if (!hasBoat)
+				continue; // tile is blocked, but not by boat -> check next potential position
+		}
+		return targetTile;
+	}
+	return int3 (-1,-1,-1);
+}
+
+void CGShipyard::getBoatCost(ResourceSet & cost) const
+{
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, createdBoat);
+	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	auto layer = boatConstructor->getLayer();
+
+	if (layer == EPathfindingLayer::AVIATE)
+	{
+		cost[EGameResID::WOOD] = 20;
+		cost[EGameResID::GOLD] = 5000;
+	}
+	else
+	{
+		IShipyard::getBoatCost(cost);
+	}
+}
+
 const IOwnableObject * CGShipyard::asOwnable() const
 {
 	return this;

@@ -102,7 +102,7 @@ public:
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)=0; //use hero=nullptr for no hero
 	virtual void startBattle(const CArmedInstance *army1, const CArmedInstance *army2)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveMove, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveMove, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL, const EPathfindingLayer & layer = EPathfindingLayer::AUTO)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setMovePoints(ObjectInstanceID hid, int val)=0;
