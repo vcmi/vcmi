@@ -12,7 +12,9 @@
 
 #include "../int3.h"
 
-template<typename DataType>
+VCMI_LIB_NAMESPACE_BEGIN
+
+	template<typename DataType>
 class MapTilesStorage
 {
 	using TInternalContainer = std::vector<DataType>;
@@ -33,11 +35,11 @@ class MapTilesStorage
 	}
 
 public:
-	using const_reference = TInternalContainer::const_reference;
-	using value_type = TInternalContainer::value_type;
+	using const_reference = typename TInternalContainer::const_reference;
+	using value_type = typename TInternalContainer::value_type;
 
-	using const_iterator = TInternalContainer::const_iterator;
-	using iterator = TInternalContainer::iterator;
+	using const_iterator = typename TInternalContainer::const_iterator;
+	using iterator = typename TInternalContainer::iterator;
 
 	MapTilesStorage() = default;
 	MapTilesStorage(int3 dimensions) :
@@ -45,10 +47,10 @@ public:
 		dimensions(dimensions)
 	{}
 
-	TInternalContainer::const_iterator begin() const { return storage.begin(); }
-	TInternalContainer::const_iterator end() const { return storage.end(); }
-	TInternalContainer::iterator begin() { return storage.begin(); }
-	TInternalContainer::iterator end() { return storage.end(); }
+	const_iterator begin() const { return storage.begin(); }
+	const_iterator end() const { return storage.end(); }
+	iterator begin() { return storage.begin(); }
+	iterator end() { return storage.end(); }
 
 	const DataType & operator[] (const int3 & tile) const { return storage[getTileIndex(tile)];}
 	DataType & operator[](const int3 & tile) { return storage[getTileIndex(tile)];}
@@ -68,3 +70,5 @@ public:
 			h & element;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END
