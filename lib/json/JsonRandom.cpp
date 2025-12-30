@@ -374,7 +374,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, const Variables & variables)
+	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, const Variables & variables, bool loadBanned)
 	{
 		std::map<SecondarySkill, si32> ret;
 		if(value.isStruct())
@@ -389,7 +389,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : LIBRARY->skillh->objects)
-				if(cb->isAllowed(skill->getId()) && !skill->special && !skill->banInMapObjects)
+				if(cb->isAllowed(skill->getId()) && !skill->special && (loadBanned || !skill->banInMapObjects))
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())

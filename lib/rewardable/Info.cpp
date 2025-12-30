@@ -145,7 +145,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 	limiter.resources = randomizer.loadResources(source["resources"], variables);
 
 	limiter.primary = randomizer.loadPrimaries(source["primary"], variables);
-	limiter.secondary = randomizer.loadSecondaries(source["secondary"], variables);
+	limiter.secondary = randomizer.loadSecondaries(source["secondary"], variables, true);
 	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], variables);
 	limiter.availableSlots = randomizer.loadArtifactSlots(source["availableSlots"], variables);
 	limiter.spells  = randomizer.loadSpells(source["spells"], variables);
