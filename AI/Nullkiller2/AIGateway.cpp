@@ -1350,8 +1350,14 @@ void AIGateway::finish()
 
 	if (asyncTasks)
 	{
-		asyncTasks->wait();
-		asyncTasks.reset();
+		try {
+			asyncTasks->wait();
+			asyncTasks.reset();
+		}
+		catch (const TerminationRequestedException &)
+		{
+			// ignore, tbb caught this exception from task and propagated it to our thread
+		}
 	}
 }
 
@@ -1399,8 +1405,8 @@ void AIGateway::requestSent(const CPackForServer * pack, int requestID)
 
 std::string AIGateway::getBattleAIName() const
 {
-	if(settings["server"]["enemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
-		return settings["server"]["enemyAI"].String();
+	if(settings["ai"]["combatEnemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
+		return settings["ai"]["combatEnemyAI"].String();
 	else
 		return "BattleAI";
 }

@@ -627,8 +627,9 @@ ArtifactID CGArtifact::getArtifactType() const
 {
 	if(ID == Obj::SPELL_SCROLL)
 		return ArtifactID::SPELL_SCROLL;
-	else
-		return getObjTypeIndex().getNum();
+
+	assert(ID == Obj::ARTIFACT);
+	return getObjTypeIndex().getNum();
 }
 
 void CGArtifact::pickRandomObject(IGameRandomizer & gameRandomizer)
@@ -668,6 +669,7 @@ void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
 
 void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 {
+	assert(ID == Obj::ARTIFACT || ID == Obj::SPELL_SCROLL);
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
@@ -685,7 +687,11 @@ void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 
 std::string CGArtifact::getObjectName() const
 {
-	return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+	if(ID == Obj::SPELL_SCROLL || ID == Obj::ARTIFACT)
+		return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+
+	// random artifact
+	return CGObjectInstance::getObjectName();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const

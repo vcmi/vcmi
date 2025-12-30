@@ -450,7 +450,10 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	std::unique_ptr<std::function<void()>> task;
 
 	if (!dispatchedTasks.try_pop(task))
-		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
+	{
+		logGlobal->error("InputHandler::handleUserEvent received without active task!");
+		return;
+	}
 
 	(*task)();
 }

@@ -134,7 +134,7 @@
       <x>220</x>
       <y>40</y>
       <width>211</width>
-      <height>40</height>
+      <height>70</height>
      </rect>
     </property>
     <property name="title">
@@ -150,69 +150,95 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>5</y>
        <width>194</width>
-       <height>24</height>
+       <height>54</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <layout class="QVBoxLayout" name="verticalLayout_1">
       <item>
-       <widget class="QLabel" name="label">
-        <property name="minimumSize">
-         <size>
-          <width>48</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>96</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Width</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="minimumSize">
+           <size>
+            <width>48</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>96</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Width</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="widthTxt">
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>36</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
-       <widget class="QSpinBox" name="widthTxt">
-        <property name="maximum">
-         <number>999</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="minimumSize">
-         <size>
-          <width>48</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Height</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="heightTxt">
-        <property name="maximum">
-         <number>999</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="minimumSize">
+           <size>
+            <width>48</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Height</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="heightTxt">
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>36</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -300,6 +326,9 @@
        </property>
        <property name="minimum">
         <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>99</number>
        </property>
       </widget>
      </item>

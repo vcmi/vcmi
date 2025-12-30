@@ -280,6 +280,9 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 bfs::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
 {
 	// iOS has flat libs directory structure
+	// a library can be either a framework or a plain dylib
+	if(const auto frameworkPath = libraryPath() / (baseLibName + ".framework") / baseLibName; bfs::exists(frameworkPath))
+		return frameworkPath;
 	return libraryPath() / libraryName(baseLibName);
 }
 
@@ -563,7 +566,7 @@ bfs::path VCMIDirsXDG::userConfigPath() const
 	const char * tempResult = getenv("XDG_CONFIG_HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / "vcmi";
-	
+
 	tempResult = getenv("HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / ".config" / "vcmi";

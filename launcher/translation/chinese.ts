@@ -89,47 +89,56 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">导出日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">保存日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">ZIP 压缩包 (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">错误</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">创建压缩包失败：%1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">发送日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">压缩包将通过其他应用发送。请将日志（例如通过 Discord）分享给开发者。</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">成功</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">日志已保存到 %1，请将其发送给开发者</translation>
     </message>
 </context>
 <context>
@@ -303,12 +312,14 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Git-Repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Git 仓库</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>GitHub-Stars</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GitHub 星标</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -1666,7 +1677,8 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">⭐</translation>
     </message>
 </context>
 <context>

@@ -287,6 +287,7 @@ MainWindow::MainWindow(QWidget* parent) :
 		// Add the combo box
 		QComboBox* combo = new QComboBox;
 		combo->setFixedHeight(ui->menuView->fontMetrics().height() + 6);
+		combo->setMinimumWidth(120);
 		connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int index) {
 			for(auto & box : levelComboBoxes)
 				if (box->currentIndex() != index && combo != box)
@@ -1070,8 +1071,8 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 	if(controller.map())
 	{
-		controller.scene(0)->passabilityView.show(checked);
-		controller.scene(1)->passabilityView.show(checked);
+		for(int level = 0; level < controller.map()->mapLevels; ++level)
+			controller.scene(level)->passabilityView.show(checked);
 	}
 }
 
@@ -1083,8 +1084,8 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 
 	if(controller.map())
 	{
-		controller.scene(0)->gridView.show(checked);
-		controller.scene(1)->gridView.show(checked);
+		for(int level = 0; level < controller.map()->mapLevels; ++level)
+			controller.scene(level)->gridView.show(checked);
 	}
 }
 
