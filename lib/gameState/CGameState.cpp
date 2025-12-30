@@ -66,6 +66,7 @@
 #include "../serializer/CSaveFile.h"
 #include "../spells/CSpellHandler.h"
 #include "UpgradeInfo.h"
+#include "mapObjects/CGPandoraBox.h"
 
 #include <vstd/RNG.h>
 
@@ -922,6 +923,10 @@ void CGameState::initTowns(vstd::RNG & randomGenerator)
 void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
+
+	for(auto & obj : map->getObjects<CGPandoraBox>())
+		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
+			map->eraseObject(obj->id);
 
 	for(auto & obj : map->getObjects())
 		obj->initObj(gameRandomizer);

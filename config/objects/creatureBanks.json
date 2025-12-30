@@ -29,6 +29,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 4, "type" : "cyclop" },
@@ -51,6 +52,7 @@
 
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 6, "type" : "cyclop" },
@@ -71,6 +73,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 8, "type" : "cyclop" },
@@ -91,6 +94,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 10, "type" : "cyclop" },
@@ -130,6 +134,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 10, "type" : "dwarf" },
@@ -146,6 +151,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 15, "type" : "dwarf" },
@@ -162,6 +168,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 20, "type" : "dwarf" },
@@ -178,6 +185,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 30, "type" : "dwarf" },
@@ -213,6 +221,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 10, "type" : "griffin" },
@@ -225,6 +234,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 20, "type" : "griffin" },
@@ -237,6 +247,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 30, "type" : "griffin" },
@@ -249,6 +260,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 40, "type" : "griffin" },
@@ -281,6 +293,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 20, "type" : "imp" },
@@ -296,6 +309,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 30, "type" : "imp" },
@@ -312,6 +326,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 40, "type" : "imp" },
@@ -328,6 +343,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 60, "type" : "imp" },
@@ -363,6 +379,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 4, "type" : "medusa" },
@@ -379,6 +396,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 6, "type" : "medusa" },
@@ -395,6 +413,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 8, "type" : "medusa" },
@@ -411,6 +430,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 10, "type" : "medusa" },
@@ -446,6 +466,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 2, "type" : "naga" },
@@ -462,6 +483,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 3, "type" : "naga" },
@@ -478,6 +500,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 4, "type" : "naga" },
@@ -494,6 +517,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 6, "type" : "naga" },
@@ -529,6 +553,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 6, "type" : "fireDragonFly" },
@@ -541,6 +566,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 9, "type" : "fireDragonFly" },
@@ -553,6 +579,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 12, "type" : "fireDragonFly" },
@@ -565,6 +592,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 18, "type" : "fireDragonFly" },
@@ -612,6 +640,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 2, "type" : "wight" },
@@ -627,6 +656,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 3, "type" : "wight" },
@@ -642,6 +672,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 5, "type" : "wight" },
@@ -658,6 +689,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 10, "type" : "wight" },
@@ -708,6 +740,7 @@
 				"rewards" : [
 					{
 						"message" : 43,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 4, "type" : "waterElemental" },
@@ -723,6 +756,7 @@
 					},
 					{
 						"message" : 43,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 6, "type" : "waterElemental" },
@@ -738,6 +772,7 @@
 					},
 					{
 						"message" : 43,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 8, "type" : "waterElemental" },
@@ -753,6 +788,7 @@
 					},
 					{
 						"message" : 43,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 12, "type" : "waterElemental" },
@@ -803,6 +839,7 @@
 				"rewards" : [
 					{
 						"appearChance" : { "min" : 0, "max" : 30 },
+						"mapDice" : 0,
 						"guards" : [
 							{ "amount" : 10, "type" : "skeleton" },
 							{ "amount" : 10, "type" : "walkingDead" },
@@ -818,6 +855,7 @@
 					},
 					{
 						"appearChance" : { "min" : 30, "max" : 60 },
+						"mapDice" : 1,
 						"guards" : [
 							{ "amount" : 13, "type" : "skeleton" },
 							{ "amount" : 10, "type" : "walkingDead" },
@@ -833,6 +871,7 @@
 					},
 					{
 						"appearChance" : { "min" : 60, "max" : 90 },
+						"mapDice" : 2,
 						"guards" : [
 							{ "amount" : 20, "type" : "skeleton" },
 							{ "amount" : 20, "type" : "walkingDead" },
@@ -848,6 +887,7 @@
 					},
 					{
 						"appearChance" : { "min" : 90, "max" : 100 },
+						"mapDice" : 3,
 						"guards" : [
 							{ "amount" : 20, "type" : "skeleton" },
 							{ "amount" : 20, "type" : "walkingDead" },
@@ -893,6 +933,7 @@
 				"rewards" : [
 					{
 						"message" : 34,
+						"mapDice" : 0,
 						"appearChance" : { "min" : 0, "max" : 30 },
 						"guards" : [
 							{ "amount" : 8, "type" : "greenDragon" },
@@ -913,6 +954,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 1,
 						"appearChance" : { "min" : 30, "max" : 60 },
 						"guards" : [
 							{ "amount" : 8, "type" : "greenDragon" },
@@ -933,6 +975,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 2,
 						"appearChance" : { "min" : 60, "max" : 90 },
 						"guards" : [
 							{ "amount" : 8, "type" : "greenDragon" },
@@ -953,6 +996,7 @@
 					},
 					{
 						"message" : 34,
+						"mapDice" : 3,
 						"appearChance" : { "min" : 90, "max" : 100 },
 						"guards" : [
 							{ "amount" : 8, "type" : "greenDragon" },

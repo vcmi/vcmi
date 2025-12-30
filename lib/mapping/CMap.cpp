@@ -68,6 +68,11 @@ bool CMapEvent::occursToday(int currentDay) const
 	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
+bool CMapEvent::affectsDifficulty(EMapDifficulty difficulty) const
+{
+	return affectedDifficulties.contains(difficulty);
+}
+
 bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
 	if (players.count(color) == 0)
