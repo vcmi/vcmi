@@ -196,7 +196,8 @@ class JsonNode;
 	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
 	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
 	BONUS_NAME(DAMAGE_RECEIVED_CAP) /* limits the damage dealt to affected unit */ \
-	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/
+	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/\
+	BONUS_NAME(ADJACENT_SPELLCASTER) /* subtype - spell id */
 	/* end of list */
 
 
@@ -238,6 +239,9 @@ enum class BonusType : uint16_t
 #undef BONUS_NAME
     BUILTIN_BONUSES_COUNT
 };
+
+static_assert(static_cast<int>(BonusType::SPELL_DAMAGE_REDUCTION) == 50 && static_cast<int>(BonusType::SPECIAL_UPGRADE) == 100 && static_cast<int>(BonusType::BONUS_DAMAGE_PERCENTAGE) == 150, "DO NOT ADD OR REMOVE BONUSES FROM THE MIDDLE OF THE LIST. THIS WILL BREAK SAVES");
+
 namespace BonusDuration  //when bonus is automatically removed
 {
 	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.

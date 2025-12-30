@@ -117,6 +117,7 @@ void CSettingsView::updateCheckbuttonText(QToolButton * button)
 
 void CSettingsView::fillValidCombatAILibraries(QComboBox * comboBox, QString activeAI)
 {
+	comboBox->blockSignals(true);
 	comboBox->clear();
 
 #ifdef ENABLE_STUPID_AI
@@ -132,10 +133,12 @@ void CSettingsView::fillValidCombatAILibraries(QComboBox * comboBox, QString act
 #endif
 
 	fillValidAnyAILibraries(comboBox, activeAI);
+	comboBox->blockSignals(false);
 }
 
 void CSettingsView::fillValidAdventureAILibraries(QComboBox * comboBox, QString activeAI)
 {
+	comboBox->blockSignals(true);
 	comboBox->clear();
 
 #ifdef ENABLE_NULLKILLER_AI
@@ -147,6 +150,7 @@ void CSettingsView::fillValidAdventureAILibraries(QComboBox * comboBox, QString 
 #endif
 
 	fillValidAnyAILibraries(comboBox, activeAI);
+	comboBox->blockSignals(false);
 }
 
 void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString activeAI)
@@ -164,13 +168,13 @@ void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString active
 
 void CSettingsView::fillValidAILibraries()
 {
-	const auto & serverSettings = settings["server"];
+	const auto & aiSettings = settings["ai"];
 
-	fillValidAdventureAILibraries(ui->comboBoxAlliedPlayerAI,QString::fromStdString(serverSettings["alliedAI"].String()));
-	fillValidAdventureAILibraries(ui->comboBoxEnemyPlayerAI, QString::fromStdString(serverSettings["playerAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(serverSettings["enemyAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(serverSettings["friendlyAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(serverSettings["neutralAI"].String()));
+	fillValidAdventureAILibraries(ui->comboBoxAlliedPlayerAI,QString::fromStdString(aiSettings["adventureAlliedAI"].String()));
+	fillValidAdventureAILibraries(ui->comboBoxEnemyPlayerAI, QString::fromStdString(aiSettings["adventureEnemyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(aiSettings["combatEnemyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(aiSettings["combatAlliedAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(aiSettings["combatNeutralAI"].String()));
 }
 
 void CSettingsView::loadSettings()
@@ -299,6 +303,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
 
 	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
+
+	setCheckbuttonState(ui->buttonSaveBeforeVisit, settings["general"]["saveBeforeVisit"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -528,7 +534,7 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 {
 	QString aiName = ui->comboBoxFriendlyAI->itemData(index).toString();
-	Settings node = settings.write["server"]["friendlyAI"];
+	Settings node = settings.write["ai"]["combatAlliedAI"];
 	node->String() = aiName.toUtf8().data();
 
 	if (node->String() == "MMAI")
@@ -538,7 +544,7 @@ void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 {
 	QString aiName = ui->comboBoxNeutralAI->itemData(index).toString();
-	Settings node = settings.write["server"]["neutralAI"];
+	Settings node = settings.write["ai"]["combatNeutralAI"];
 	node->String() = aiName.toUtf8().data();
 
 	if (node->String() == "MMAI")
@@ -548,7 +554,7 @@ void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 {
 	QString aiName = ui->comboBoxEnemyAI->itemData(index).toString();
-	Settings node = settings.write["server"]["enemyAI"];
+	Settings node = settings.write["ai"]["combatEnemyAI"];
 	node->String() = aiName.toUtf8().data();
 
 	if (node->String() == "MMAI")
@@ -558,14 +564,14 @@ void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
 {
 	QString aiName = ui->comboBoxEnemyPlayerAI->itemData(index).toString();
-	Settings node = settings.write["server"]["playerAI"];
+	Settings node = settings.write["ai"]["adventureEnemyAI"];
 	node->String() = aiName.toUtf8().data();
 }
 
 void CSettingsView::on_comboBoxAlliedPlayerAI_currentIndexChanged(int index)
 {
 	QString aiName = ui->comboBoxAlliedPlayerAI->itemData(index).toString();
-	Settings node = settings.write["server"]["alliedAI"];
+	Settings node = settings.write["ai"]["adventureAlliedAI"];
 	node->String() = aiName.toUtf8().data();
 }
 
@@ -573,6 +579,13 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 {
 	Settings node = settings.write["server"]["port"];
 	node->Float() = arg1;
+}
+
+void CSettingsView::on_buttonSaveBeforeVisit_toggled(bool value)
+{
+	Settings node = settings.write["general"]["saveBeforeVisit"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonSaveBeforeVisit);
 }
 
 void CSettingsView::on_buttonShowIntro_toggled(bool value)

@@ -68,6 +68,11 @@ bool CMapEvent::occursToday(int currentDay) const
 	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
+bool CMapEvent::affectsDifficulty(EMapDifficulty difficulty) const
+{
+	return affectedDifficulties.contains(difficulty);
+}
+
 bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
 	if (players.count(color) == 0)
@@ -928,8 +933,13 @@ std::vector<HeroTypeID> CMap::getHeroesInPool() const
 {
 	std::vector<HeroTypeID> result;
 	for (const auto & hero : heroesPool)
-		if (hero)
-			result.push_back(hero->getHeroTypeID());
+	{
+		if (!hero)
+			continue;
+
+		result.push_back(hero->getHeroTypeID());
+		assert(heroesPool.at(hero->getHeroTypeID().getNum()) == hero);
+	}
 
 	return result;
 }
@@ -1052,6 +1062,14 @@ bool CMap::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInst
 
 	// or, if all other tests fail to determine priority - simply based on H3M order
 	return a->id < b->id;
+}
+
+void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > & poolFromSave)
+{
+	heroesPool.resize(poolFromSave.size());
+	for (const auto & hero : poolFromSave)
+		if (hero)
+			heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
 }
 
 

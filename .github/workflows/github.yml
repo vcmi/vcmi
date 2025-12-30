@@ -327,7 +327,7 @@ jobs:
       id: upload_artifact
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
         compression-level: 9
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
@@ -337,7 +337,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-aab
         compression-level: 9
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
@@ -347,7 +347,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols
         compression-level: 9
         path: |
             ${{github.workspace}}/**/*.pdb
@@ -610,7 +610,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v7
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
 
     - name: Extract Artifact
@@ -640,7 +640,7 @@ jobs:
       id: upload_installer
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-installer
         compression-level: 9
         path: |
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe

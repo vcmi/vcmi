@@ -39,6 +39,10 @@ CBonusTypeHandler::CBonusTypeHandler()
 {
 	//register predefined bonus types
 
+	// MOD COMPATIBILITY FOR 1.6
+	registerObject(ModScope::scopeBuiltin(), "bonus", "FEAR", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonus", "FEARLESS", 0);
+
 #define BONUS_NAME(x) { #x },
 	builtinBonusNames = {
 		BONUS_LIST

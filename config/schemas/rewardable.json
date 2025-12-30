@@ -89,6 +89,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"mapDice" : { "type" : "number" },
 				"appearChance" : {
 					"type" : "object", 
 					"additionalProperties" : false,

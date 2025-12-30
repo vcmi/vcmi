@@ -284,12 +284,12 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 				for (const auto& pair : namesWithIndex)
 					namesTranslated.push_back(pair.second.second);
 
-				ENGINE->windows().createAndPushWindow<CampaignSetSelector>(namesTranslated, [this, namesIdentifier](int index)
-				{
+				auto window = std::make_shared<CObjectListWindow>(namesTranslated, nullptr, LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), [this, namesIdentifier](int index){
 					GAME->server().sendClientDisconnecting();
 					(static_cast<CLobbyScreen *>(parent))->close();
 					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, namesIdentifier[index]);
-				});
+				}, 0, std::vector<std::shared_ptr<IImage>>(), true, true);
+				ENGINE->windows().pushWindow(window);
 			}, EShortcut::LOBBY_CAMPAIGN_SETS);
 			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);
 		}
@@ -1167,32 +1167,3 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	labelName->setColor(color);
 }
 
-CampaignSetSelector::CampaignSetSelector(const std::vector<std::string> & texts, const std::function<void(int selectedIndex)> & cb)
-	: CWindowObject(BORDERED), texts(texts), cb(cb)
-{
-	OBJECT_CONSTRUCTION;
-	pos = center(Rect(0, 0, 200 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
-	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	filledBackground->setPlayerColor(PlayerColor(1));
-
-	slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, [this](int to){ update(to); redraw(); }, LINES, texts.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
-	slider->setPanningStep(40);
-	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, pos.h));
-
-	update(0);
-}
-
-void CampaignSetSelector::update(int to)
-{
-	OBJECT_CONSTRUCTION;
-	buttons.clear();
-	for(int i = to; i < LINES + to; i++)
-	{
-		if(i>=texts.size())
-			continue;
-
-		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
-		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
-		buttons.emplace_back(button);
-	}
-}

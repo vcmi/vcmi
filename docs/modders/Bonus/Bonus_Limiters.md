@@ -118,14 +118,15 @@ If parameters is empty, any creature will pass this limiter
 
 Parameters:
 
-- `minLevel` - minimal level that creature must have to pass limiter
-- `maxlevel` - maximal level that creature must have to pass limiter
+- `minLevel`: level starting from which creature will pass the limiter
+- `maxLevel`: level starting from which creature will no longer pass the limiter
 
 ```json
 "limiters": [
 	{
+		// accepts creatures of levels 2,3,4, but rejects creatures of level 1 or 5+
 		"type" : "CREATURE_LEVEL_LIMITER",
-		"minLevel" : 1,
+		"minLevel" : 2,
 		"maxlevel" : 5
 	}
 ],

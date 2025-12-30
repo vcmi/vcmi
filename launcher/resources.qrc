@@ -12,5 +12,6 @@
         <file>icons/mod-enabled.png</file>
         <file>icons/submod-enabled.png</file>
         <file>icons/mod-update.png</file>
+        <file>icons/star.png</file>
     </qresource>
 </RCC>

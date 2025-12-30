@@ -1094,13 +1094,14 @@ void CMapLoaderJson::MapObjectLoader::configure()
 				spellID = 0;
 			artID = ArtifactID::SPELL_SCROLL;
 		}
-		else if (art->ID == Obj::ARTIFACT || (art->ID >= Obj::RANDOM_ART && art->ID <= Obj::RANDOM_RELIC_ART))
+		else if (art->ID == Obj::ARTIFACT)
 		{
 			//specific artifact
 			artID = art->getArtifactType();
 		}
 
-		art->setArtifactInstance(owner->map->createArtifact(artID, spellID.getNum()));
+		if (art->ID == Obj::SPELL_SCROLL || art->ID == Obj::ARTIFACT)
+			art->setArtifactInstance(owner->map->createArtifact(artID, spellID.getNum()));
  	}
 
 	if(auto hero = std::dynamic_pointer_cast<CGHeroInstance>(instance))
