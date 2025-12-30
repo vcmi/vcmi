@@ -8,8 +8,8 @@
 	"onlyOnWaterMap" : false,
 	// Skill is not available on maps at random
 	"special" : true,
-    // Skill is not available on map objects: such as Witch Hut, University and Scholars
-    "banInMapObjects" : true
+  // Skill is not available on map objects: such as Witch Hut, University and Scholars
+  "banInMapObjects" : true
 }
 ```
 
