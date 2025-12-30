@@ -104,6 +104,17 @@ JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSet
 	*this = parser.parse(fileName);
 }
 
+JsonNode::JsonNode(const char * data, size_t datasize, const std::string & fileName)
+	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
+{
+}
+
+JsonNode::JsonNode(const char * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+{
+	JsonParser parser(data, datasize, parserSettings);
+	*this = parser.parse(fileName);
+}
+
 JsonNode::JsonNode(const JsonPath & fileURI)
 	:JsonNode(fileURI, JsonParsingSettings())
 {
@@ -240,6 +251,11 @@ void JsonNode::setType(JsonType Type)
 bool JsonNode::isNull() const
 {
 	return getType() == JsonType::DATA_NULL;
+}
+
+bool JsonNode::isBool() const
+{
+	return getType() == JsonType::DATA_BOOL;
 }
 
 bool JsonNode::isNumber() const

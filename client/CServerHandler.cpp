@@ -695,7 +695,18 @@ void CServerHandler::endGameplay()
 std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
 {
 	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+	try
+	{
+		mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+	}
+	catch(const IdentifierResolutionException & e)
+	{
+		return "Identifier not found.";
+	}
+	catch(const std::exception & e)
+	{
+		return "Generic error loading save.";
+	}
 
 	// initial start info from quick load slot
 	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
@@ -770,7 +781,10 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
-				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](bool skipped){
+				auto rim = ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim();
+				if(ourCampaign->getVideoRim() == ImagePath::builtin("NONE"))
+					rim = ImagePath();
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
 					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}

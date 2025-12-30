@@ -88,11 +88,11 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 
 		for (const auto & attackOrigin : getSurroundingHexes())
 		{
-			if (!coversPos(attacker->occupiedHex(attackOrigin)) && attackOrigin.isAvailable())
+			BattleHex occupiedHex = attacker->occupiedHex(attackOrigin); 
+			if (!coversPos(occupiedHex) && occupiedHex.isAvailable())
 				result.insert(attackOrigin);
 
 			BattleHex headHex = attackOrigin.cloneInDirection(attacker->headDirection());
-
 			if (!coversPos(headHex) && headHex.isAvailable())
 				result.insert(headHex);
 		}

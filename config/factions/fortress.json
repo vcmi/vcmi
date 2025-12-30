@@ -102,7 +102,6 @@
 				"special2":       { "animation" : "TBFREXT0.def", "x" : 341, "y" : 174, "z" : 0,  "campaignBonus" : "BoFcastD.pcx", "border" : "TOFCASD.bmp",  "area" : "TZFCASD.bmp" },
 				"special3":       { "animation" : "TBFREXT1.def", "x" : 349, "y" : 79,  "z" : -3, "campaignBonus" : "BoFcastA.pcx", "border" : "TOFCASA.bmp",  "area" : "TZFCASA.bmp" },
 				"grail":          { "animation" : "TBFRHOLY.def", "x" : 468, "y" : 260, "z" : 5,  "campaignBonus" : "BoFgrail.pcx", "border" : "TOFHLYAA.bmp", "area" : "TZFHLYAA.bmp" },
-				"extraCapitol":   { "animation" : "TBFRWTRW.def", "x" : 320, "y" : 141, "z" : 2 },
 				"dwellingLvl1":   { "animation" : "TBFRDW_0.def", "x" : 641, "y" : 168, "z" : 1,  "campaignBonus" : "BoFgnol1.pcx", "border" : "TOFGNL1.bmp",  "area" : "TZFGNL1.bmp" },
 				"dwellingLvl2":   { "animation" : "TBFRDW_1.def", "x" : 141, "y" : 178,           "campaignBonus" : "BoFlizr1.pcx", "border" : "TOFLIZ1.bmp",  "area" : "TZFLIZ1.bmp" },
 				"dwellingLvl3":   { "animation" : "TBFRDW_3.def", "x" : 192, "y" : 85,            "campaignBonus" : "BoFfly1.pcx",  "border" : "TOFFLY1A.bmp", "area" : "TZFFLY1A.bmp" },
@@ -216,7 +215,6 @@
 					]
 				},
 
-				"extraCapitol":   { "requires" : [ "capitol" ] },
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
 				"dwellingLvl3":   { "requires" : [ "dwellingLvl1" ] },

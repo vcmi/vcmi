@@ -49,6 +49,7 @@ SDL_Color toSDL(const ColorRGBA & color);
 
 	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
+	SDL_Surface * Rotate90(SDL_Surface * src);
 	uint32_t getPixel(SDL_Surface * surface, const int & x, const int & y, bool colorByte = false);
 
 	uint8_t * getPxPtr(const SDL_Surface * const & srf, const int x, const int y);
@@ -79,4 +80,6 @@ SDL_Color toSDL(const ColorRGBA & color);
 
 	SDL_Surface * drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness);
 	SDL_Surface * drawShadow(SDL_Surface * source, bool doSheer);
+
+	void adjustBrightness(SDL_Surface* surface, float factor);
 }

@@ -28,6 +28,7 @@
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 	"vcmi.adventureMap.confirmQuickLoadGame"             : "Are you sure you want to load the quicksave?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Saving game to %s",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nWould you like to recruit %s or %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
@@ -104,7 +105,7 @@
 	"vcmi.spellBook.search" : "search...",
 	"vcmi.spellBook.tab.hover" : "%s Spells",
 	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
-    "vcmi.spellBook.zero_level.hint" : "0th lev",
+	"vcmi.spellBook.zero_level.hint" : "0th lev",
 
 	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
@@ -140,7 +141,8 @@
 	"vcmi.lobby.deleteFile" : "Do you want to delete following file?",
 	"vcmi.lobby.deleteFolder" : "Do you want to delete following folder?",
 	"vcmi.lobby.deleteMode" : "Switch to delete mode and back",
-	"vcmi.lobby.battleOnlyMode" : "Battle Only Mode",
+	"vcmi.lobby.battleOnlyMode" : "Battle Mode",
+	"vcmi.lobby.battleOnlyMode.help" : "Play a simple battle without adventure map",
 	"vcmi.lobby.battleOnlyModeSubTitle" : "Select heroes, army, skills, artifact and battleground for simple battle without adventure map",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "Battlefield",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Select Battlefield",
@@ -174,7 +176,7 @@
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
 	"vcmi.lobby.customRmgSize.title" : "Select custom size",
-	"vcmi.lobby.customRmgSize.experimental" : "Multilevel support is highly experimental yet. Expect issues.",
+	"vcmi.lobby.customRmgSize.experimental" : "{More than 2 layers}\n\nTwo layers are fully supported. Additional layers are experimental and may not work correctly.\n\nPlease report any issues you encounter!",
 	"vcmi.lobby.customRmgSize.0" : "Width",
 	"vcmi.lobby.customRmgSize.1" : "Height",
 	"vcmi.lobby.customRmgSize.2" : "Layers",
@@ -843,6 +845,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Setup...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
+	"vcmi.randomMapTab.template.minimalSize" : "Minimal size: %dx%d, layers: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Maximal size: %dx%d, layers: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Turn Options",
 	"vcmi.optionsTab.turnOptions.help" : "Select turn timer and simultaneous turns options",
@@ -883,7 +887,7 @@
 	"vcmi.optionsTab.turnTime.chess.2"    : "Chess: 02:00 + 01:00 + 00:15 + 00:00",
 	"vcmi.optionsTab.turnTime.chess.1"    : "Chess: 01:00 + 01:00 + 00:00 + 00:00",
 
-	"vcmi.optionsTab.simturns.select"         : "Select simultaneous turns preset",
+	"vcmi.optionsTab.simturns.select"         : "Select sim. turns preset",
 	"vcmi.optionsTab.simturns.none"           : "No simultaneous turns",
 	"vcmi.optionsTab.simturns.tillContactMax" : "Simturns: Until contact",
 	"vcmi.optionsTab.simturns.tillContact1"   : "Simturns: 1 week, break on contact",
@@ -1111,6 +1115,7 @@
 	"core.bonus.UNDEAD.description" : "{Undead}\nCreature is Undead and is immune to effects that only affect living",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Unlimited retaliations}\nThis unit can retaliate against an unlimited number of attacks",
 	"core.bonus.WIDE_BREATH.description" : "{Wide breath}\nThis unit attacks all units around its target",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Damage limit (${val}%) }\nNo single attack can deal more damage than ${val}% of max health",
 
 	"spell.core.castleMoat.name" : "Moat",
 	"spell.core.castleMoatTrigger.name" : "Moat",

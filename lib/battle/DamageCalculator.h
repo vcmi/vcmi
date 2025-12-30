@@ -78,6 +78,7 @@ class DLL_LINKAGE DamageCalculator
 	double getDefensePetrificationFactor() const;
 	double getDefenseMagicFactor() const;
 	double getDefenseMindFactor() const;
+	int64_t getDamageCap() const;
 
 	std::vector<double> getAttackFactors() const;
 	std::vector<double> getDefenseFactors() const;

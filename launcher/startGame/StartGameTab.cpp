@@ -17,6 +17,7 @@
 #include "../updatedialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
@@ -184,6 +185,14 @@ void StartGameTab::refreshMods()
 	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%n/%1 installed", "", chroniclesMods.size()).arg(chroniclesCount));
 	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
+
+#ifdef VCMI_ANDROID
+	bool canInstallHD = false; // TODO: HD import on android
+#else
+	bool canInstallHD = !Helper::getMainWindow()->getModView()->isInstalledHd();
+#endif
+	ui->buttonInstallHdEdition->setVisible(canInstallHD);
+	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
@@ -387,6 +396,32 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
 	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEditionHelp_clicked()
+{
+	QString message = tr(
+		"You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. "
+		"Choose your Heroes HD folder from Steam.\n\n"
+		"After installation you also have to set an upscale factor > 1 to see HD graphics."
+	);
+	MessageBoxCustom::information(this, ui->buttonInstallHdEdition->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEdition_clicked()
+{
+	HdExtractor extractor(this);
+	extractor.installHd();
+
+	QString modName = "hd-edition";
+	auto modView = Helper::getMainWindow()->getModView();
+	
+	modView->reload(modName);
+	if (modView->isModInstalled(modName))
+	{
+		modView->enableModByName(modName);
+		refreshState();
+	}
 }
 
 void StartGameTab::on_buttonPresetExport_clicked()

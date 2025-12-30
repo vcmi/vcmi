@@ -57,7 +57,7 @@ In header are parameters describing campaign properties
 - `"loadingBackground"` is for setting a different loading screen background
 - `"introVideo"` is for defining an optional intro video
 - `"outroVideo"` is for defining an optional outro video
-- `"videoRim"` is for the Rim around the optional video (default is INTRORIM)
+- `"videoRim"` is for the Rim around the optional video (default is INTRORIM, set it to `NONE` if you don't want a rim)
 
 ## Scenario description
 
@@ -98,7 +98,7 @@ Prolog and epilog properties are optional
 
 ```json
 {
-    "video": "NEUTRALA.smk", //video to show
+    "video": ["NEUTRALA.smk"], //video to show (if second video in array: this video will looped after playing the first)
     "music": "musicFile.ogg", //music to play, should be located in music directory
     "voice": "musicFile.wav", //voice to play, should be located in sounds directory
     "text": "some long text" //text to be shown

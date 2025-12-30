@@ -36,6 +36,7 @@ public:
 	void battleNewRoundFirst(const BattleID & battleID) override;
 	void actionFinished(const BattleID & battleID, const BattleAction &action) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override;
+	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override;
 	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
 	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override;

@@ -118,14 +118,15 @@ If parameters is empty, any creature will pass this limiter
 
 Parameters:
 
-- `minLevel` - minimal level that creature must have to pass limiter
-- `maxlevel` - maximal level that creature must have to pass limiter
+- `minLevel`: level starting from which creature will pass the limiter
+- `maxLevel`: level starting from which creature will no longer pass the limiter
 
 ```json
 "limiters": [
 	{
+		// accepts creatures of levels 2,3,4, but rejects creatures of level 1 or 5+
 		"type" : "CREATURE_LEVEL_LIMITER",
-		"minLevel" : 1,
+		"minLevel" : 2,
 		"maxlevel" : 5
 	}
 ],
@@ -148,18 +149,22 @@ Parameters:
 ],
 ```
 
-### CREATURE_TERRAIN_LIMITER
+### TERRAIN_LIMITER
+
+Also available as `CREATURE_TERRAIN_LIMITER`
 
 Parameters:
 
-- `terrain` - identifier of terrain on which this creature must be to pass this limiter. If not set, creature will pass this limiter if it is on native terrain
+- `terrain` - identifier of terrain on which this creature, hero or town must be to pass this limiter. If not set, creature will pass this limiter if it is on native terrain
+
+The native terrain of a town or a hero depends on their factions (e.g for a castle and a knight it is grass). The terrain type occupied by a town depends on its entrance tile (the tile with flags that is taken by visiting heros).
 
 Example:
 
 ```json
 "limiters" : [
 	{
-		"type" : "CREATURE_TERRAIN_LIMITER",
+		"type" : "TERRAIN_LIMITER",
 		"terrain" : "sand"
 	}
 ]
@@ -221,3 +226,7 @@ Example:
     }
 ]
 ```
+
+## Propagating Limiters
+
+When bonuses with limiters are propagated limiters are applied independently on each node. E.g. a bonus with "HAS_ANOTHER_BONUS_LIMITER" propagated to a hero from a stack will apply to the hero only if the hero has the required bonus, independently of the stack bonuses.

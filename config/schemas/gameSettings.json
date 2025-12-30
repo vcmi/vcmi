@@ -123,7 +123,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"blackMarketRestockPeriod" : { "type" : "number" }
+				"blackMarketRestockPeriod" : { "type" : "number" },
+				"universityGoldCost" : { "type" : "number" }
 			}
 		},
 		"mapObjects": {

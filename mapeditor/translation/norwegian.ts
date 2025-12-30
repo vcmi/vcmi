@@ -54,7 +54,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="135"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
         <source>VCMI Campaign Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI kampanjeredigerer</translation>
@@ -66,115 +66,163 @@
         <translation type="unfinished">Fil</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
         <source>Edit</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rediger</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
         <source>View</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vis</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
         <source>Toolbar</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Verktøylinje</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
         <source>Open</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <source>Open Campaignset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
         <source>Save</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
         <source>New</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ny</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
         <source>Save as...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre som...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
         <source>Ctrl+Shift+S</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
         <source>Campaign Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanjeegenskaper</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Scenarioegenskaper</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
         <source>Show full background</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vis full bakgrunn</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="100"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
         <source>Scenario editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Scenarioredigerer</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bekreftelse</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ulagrede endringer vil gå tapt, er du sikker?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="166"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
+        <source>Fewer Scenarios than regions</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Færre scenarioer enn regioner</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
+        <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Du har færre scenarioer enn regioner. Dette er bare tillatt hvis de manglende scenarioene finnes i de siste regionene, ikke i midten eller i begynnelsen.</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne kart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="168"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Alle støttede kampanjer (*.vcmp *.h3c);;VCMI-kampanjer(*.vcmp);;HoMM3-kampanjer(*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="183"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Open Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <source>Select Campaign set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Open Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <source>Select Campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>Save campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre kampanje</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="183"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-kampanjer (*.vcmp)</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <source>Mods are required</source>
+        <translation type="unfinished">Modifikasjoner kreves</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <source>Failed to open map</source>
+        <translation type="unfinished">Kunne ikke åpne kart</translation>
     </message>
 </context>
 <context>
@@ -308,61 +356,66 @@
         <translation type="unfinished">Videokantbilde</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
+        <source>Enable rim image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Introvideo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
+        <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Utrovideo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="51"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="57"/>
         <source>Custom</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Egendefinert</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Infix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Infix</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Etikettposisjon X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="149"/>
         <source>Label Pos Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Etikettposisjon Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Færre scenarier</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ny regionoppsett støtter færre scenarier enn før. Noen vil bli fjernet. Fortsette?</translation>
@@ -690,7 +743,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="405"/>
+        <location filename="../mainwindow.cpp" line="407"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI-kartredigeringsprogram</translation>
     </message>
@@ -1055,9 +1108,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1310"/>
-        <location filename="../mainwindow.cpp" line="1314"/>
-        <location filename="../mainwindow.cpp" line="1372"/>
+        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1316"/>
+        <location filename="../mainwindow.cpp" line="1374"/>
         <source>Update appearance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oppdater utseende</translation>
@@ -1287,241 +1340,241 @@
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="381"/>
+        <location filename="../mainwindow.cpp" line="383"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bekreftelse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="381"/>
+        <location filename="../mainwindow.cpp" line="383"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ulagrede endringer vil gå tapt, er du sikker?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="444"/>
+        <location filename="../mainwindow.cpp" line="446"/>
         <source>Surface</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Overflate</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="448"/>
         <source>Underground</source>
         <translation>Underjordisk</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
+        <location filename="../mainwindow.cpp" line="450"/>
         <source>Level - %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nivå – %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="472"/>
+        <location filename="../mainwindow.cpp" line="474"/>
         <source>Mods are required</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Modifikasjoner kreves</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="480"/>
-        <location filename="../mainwindow.cpp" line="486"/>
+        <location filename="../mainwindow.cpp" line="482"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>Failed to open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kunne ikke åpne kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="512"/>
+        <location filename="../mainwindow.cpp" line="514"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="514"/>
+        <location filename="../mainwindow.cpp" line="516"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Alle støttede kart (*.vmap *.h3m);;VCMI-kart(*.vmap);;HoMM3-kart(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="568"/>
+        <location filename="../mainwindow.cpp" line="570"/>
         <source>Recently Opened Files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nylig åpnete filer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="621"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>Map validation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kartvalidering</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="625"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kartet har kritiske problemer og vil sannsynligvis ikke være spillbart. Åpne Validator fra Kart-menyen for å se funnene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="627"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kartet har noen feil. Åpne Validator fra Kart-menyen for å se funnene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="652"/>
+        <location filename="../mainwindow.cpp" line="654"/>
         <source>Failed to save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kunne ikke lagre kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="665"/>
+        <location filename="../mainwindow.cpp" line="667"/>
         <source>Save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="665"/>
+        <location filename="../mainwindow.cpp" line="667"/>
         <source>VCMI maps (*.vmap)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-kart (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="873"/>
+        <location filename="../mainwindow.cpp" line="875"/>
         <source>Type</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Type</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="886"/>
+        <location filename="../mainwindow.cpp" line="888"/>
         <source>Towns</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Byer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="887"/>
+        <location filename="../mainwindow.cpp" line="889"/>
         <source>Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Objekter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="890"/>
         <source>Heroes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Helter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Artifacts</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="890"/>
+        <location filename="../mainwindow.cpp" line="892"/>
         <source>Resources</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ressurser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="893"/>
         <source>Banks</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Banker</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="894"/>
         <source>Dwellings</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Boliger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="893"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Grounds</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bakker</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Teleports</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Teleportere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="895"/>
+        <location filename="../mainwindow.cpp" line="897"/>
         <source>Mines</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Gruver</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Triggers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Utløsere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Monsters</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Monstre</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="898"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Quests</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oppdrag</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Wog Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Wog-objekter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="900"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Obstacles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hindringer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="903"/>
         <source>Other</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Annet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1040"/>
         <source>Mods loading problem</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Problem med lasting av modifikasjoner</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1040"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kritisk feil under lasting av modifikasjoner. Deaktiver ugyldige mods og start på nytt.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1044"/>
+        <location filename="../mainwindow.cpp" line="1046"/>
         <source>Undo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Angre klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1055"/>
+        <location filename="../mainwindow.cpp" line="1057"/>
         <source>Redo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Gjør om klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1066"/>
+        <location filename="../mainwindow.cpp" line="1068"/>
         <source>Passability clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fremkommelighet klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1079"/>
+        <location filename="../mainwindow.cpp" line="1081"/>
         <source>Grid clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rutenett klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1160"/>
+        <location filename="../mainwindow.cpp" line="1162"/>
         <source>Fill clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fyll klikket</translation>
@@ -1532,85 +1585,85 @@
         <translation type="obsolete">Vis overflate</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1310"/>
+        <location filename="../mainwindow.cpp" line="1312"/>
         <source>No objects selected</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ingen objekter valgt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1314"/>
+        <location filename="../mainwindow.cpp" line="1316"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Denne handlingen kan ikke angres. Vil du fortsette?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1372"/>
+        <location filename="../mainwindow.cpp" line="1374"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Det oppsto feil. %1 objekter ble ikke oppdatert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1412"/>
+        <location filename="../mainwindow.cpp" line="1414"/>
         <source>Save to image</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre som bilde</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1431"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Select maps to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Velg kart å konvertere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1435"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3-kart (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1437"/>
+        <location filename="../mainwindow.cpp" line="1439"/>
         <source>Choose directory to save converted maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Velg mappe for å lagre konverterte kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1451"/>
+        <location filename="../mainwindow.cpp" line="1453"/>
         <source>Operation completed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Operasjon fullført</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1451"/>
+        <location filename="../mainwindow.cpp" line="1453"/>
         <source>Successfully converted %1 maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vellykket konvertering av %1 kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1455"/>
+        <location filename="../mainwindow.cpp" line="1457"/>
         <source>Failed to convert the map. Abort operation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kunne ikke konvertere kartet. Avbryter operasjonen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1461"/>
+        <location filename="../mainwindow.cpp" line="1463"/>
         <source>Select campaign to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Velg kampanje å konvertere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1463"/>
+        <location filename="../mainwindow.cpp" line="1465"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3-kampanjer (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1467"/>
+        <location filename="../mainwindow.cpp" line="1469"/>
         <source>Select destination file</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Velg måldokument</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1469"/>
+        <location filename="../mainwindow.cpp" line="1471"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-kampanjer (*.vcmp)</translation>
@@ -2476,6 +2529,7 @@ Vil du gjøre det nå?</translation>
         <translation type="unfinished">Mengde</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="433"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -3321,7 +3375,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Scenarioegenskaper</translation>
@@ -3370,7 +3424,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="104"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="579"/>
         <source>Remove</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fjern</translation>
@@ -3407,255 +3461,262 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="156"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="233"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="250"/>
         <source>Enabled</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Aktivert</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="245"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="262"/>
         <source>Video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Video</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="262"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
+        <source>Video 2</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Video 2</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="296"/>
         <source>Music</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Musikk</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="219"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="313"/>
         <source>Voice</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Stemme</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="214"/>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="291"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="231"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="325"/>
         <source>Text</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tekst</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="227"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="244"/>
         <source>Epilogue</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Epilog</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="305"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="339"/>
         <source>Crossover</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Overgang</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="311"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="345"/>
         <source>Crossover heroes retain</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Overgangshelter beholder</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="317"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="351"/>
         <source>Experience</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Erfaring</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="324"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="358"/>
         <source>Primary skills</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Primære ferdigheter</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="331"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="365"/>
         <source>Secondary skills</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sekundære ferdigheter</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="338"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="372"/>
         <source>Spells</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Trylleformularer</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="345"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="379"/>
         <source>Artifacts</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="378"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
         <source>All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Alle</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="385"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="419"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ingen</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="446"/>
         <source>Crossover artifacts</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Overgangsgjenstander</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="441"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="475"/>
         <source>Starting</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Start</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="447"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="481"/>
         <source>Starting options are</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Startalternativer er</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="454"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="488"/>
         <source>Starting bonus options</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Startbonusvalg</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="461"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="495"/>
         <source>Hero crossover options</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Helteovergangsalternativer</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="468"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="502"/>
         <source>Starting hero options</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Startheltealternativer</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="486"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="520"/>
         <source>Bonus</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bonus</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="492"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Player position</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Spillerposisjon</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="502"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="536"/>
         <source>Starting bonus option</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Startbonusvalg</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="513"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="547"/>
         <source>Crossover/ Starting hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Overgang / Starthelt</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="531"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="565"/>
         <source>Add...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Legg til...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.ui" line="538"/>
+        <location filename="../campaigneditor/scenarioproperties.ui" line="572"/>
         <source>Edit...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rediger...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="115"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
         <source>Strongest</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sterkest</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="116"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
         <source>Generated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Generert</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="117"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Random</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tilfeldig</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="134"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
         <source>No map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Intet kart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="177"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
         <source>Player</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Spiller</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="383"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne kart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="383"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Alle støttede kart (*.vmap *.h3m);;VCMI-kart(*.vmap);;HoMM3-kart(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="390"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Error</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Feil</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="390"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
         <source>Could not open the file.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kunne ikke åpne filen.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="409"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>Save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre kart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="409"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>VCMI maps (*.vmap);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-kart (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="409"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3-kart (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
         <source>Source scenario</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kilde-scenario</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
         <source>Hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Helt</translation>
@@ -3695,7 +3756,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
         <location filename="../campaigneditor/startingbonus.ui" line="184"/>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="350"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="363"/>
         <source>Building</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bygning</translation>
@@ -3726,7 +3787,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
         <location filename="../campaigneditor/startingbonus.ui" line="364"/>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="374"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="387"/>
         <source>Secondary skill</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sekundær ferdighet</translation>
@@ -3734,7 +3795,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="378"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="391"/>
         <source>Resource</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ressurs</translation>
@@ -3824,61 +3885,73 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished">Tilfeldig</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="121"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
+        <source>Main town is of random faction</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hovedbyen er av en tilfeldig fraksjon</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
+        <source>Player does not have a main town!</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Spilleren har ingen hovedby!</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
         <source>Common (%1 and %2)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">vanlig (%1 og %2)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="126"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="137"/>
         <source>Rare (%1, %2, %3, %4)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">sjeldne (%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="306"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="319"/>
         <source>strongest hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">sterkeste helt</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="308"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="321"/>
         <source>generated hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">generert helt</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="310"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="323"/>
         <source>random hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">tilfeldig helt</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="341"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="354"/>
         <source>%1 spell for %2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 trylleformular for %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="346"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="359"/>
         <source>%1 %2 for %3</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 %2 for %3</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="355"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="368"/>
         <source>%1 artifact for %2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 gjenstand for %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="360"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="373"/>
         <source>%1 spell scroll for %2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 trylleformularrull for %2</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="365"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="378"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Primær ferdighet (Angrep: %1, Forsvar: %2, Trylle: %3, Kunnskap: %4) for %5</translation>
@@ -3888,7 +3961,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="588"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="598"/>
         <source>VCMI Template Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI Malredigerer</translation>
@@ -3921,7 +3994,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1313"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1325"/>
         <location filename="../templateeditor/templateeditor.cpp" line="226"/>
         <source>Add</source>
         <translation>Legg til</translation>
@@ -3978,7 +4051,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="324"/>
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1366"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1378"/>
         <source>Z</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Z</translation>
@@ -4010,13 +4083,13 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
         <location filename="../templateeditor/templateeditor.cpp" line="364"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="372"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
@@ -4087,7 +4160,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
@@ -4098,261 +4171,267 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
+        <source>Forced level</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tvunget nivå</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="741"/>
         <source>Zone link</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sonekobling</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="735"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1233"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1239"/>
+        <location filename="../templateeditor/templateeditor.ui" line="747"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1245"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1251"/>
         <source>Mines</source>
         <translation>Gruver</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="742"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1255"/>
+        <location filename="../templateeditor/templateeditor.ui" line="754"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1267"/>
         <source>Custom objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Egendefinerte objekter</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="749"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1127"/>
+        <location filename="../templateeditor/templateeditor.ui" line="761"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1139"/>
         <source>Towns</source>
         <translation>Byer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="756"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1097"/>
+        <location filename="../templateeditor/templateeditor.ui" line="768"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1109"/>
         <source>Terrain</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Terreng</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="773"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1217"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1223"/>
+        <location filename="../templateeditor/templateeditor.ui" line="785"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1229"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1235"/>
         <location filename="../templateeditor/templateeditor.cpp" line="339"/>
         <source>Treasure</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Skatt</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="836"/>
+        <location filename="../templateeditor/templateeditor.ui" line="848"/>
         <source>Town info</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Byinformasjon</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="842"/>
+        <location filename="../templateeditor/templateeditor.ui" line="854"/>
         <source>Town count</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Antall byer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="854"/>
-        <location filename="../templateeditor/templateeditor.ui" line="917"/>
-        <location filename="../templateeditor/templateeditor.ui" line="980"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1043"/>
+        <location filename="../templateeditor/templateeditor.ui" line="866"/>
+        <location filename="../templateeditor/templateeditor.ui" line="929"/>
+        <location filename="../templateeditor/templateeditor.ui" line="992"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1055"/>
         <source>Player</source>
         <translation>Spiller</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="880"/>
-        <location filename="../templateeditor/templateeditor.ui" line="943"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1006"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1069"/>
+        <location filename="../templateeditor/templateeditor.ui" line="892"/>
+        <location filename="../templateeditor/templateeditor.ui" line="955"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1018"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1081"/>
         <source>Neutral</source>
         <translation>Nøytral</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="905"/>
+        <location filename="../templateeditor/templateeditor.ui" line="917"/>
         <source>Castle count</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Antall slott</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="968"/>
+        <location filename="../templateeditor/templateeditor.ui" line="980"/>
         <source>Town density</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bytetthet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1031"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1043"/>
         <source>Castle density</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Slottetthet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1103"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1115"/>
         <source>Match terrain to town</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tilpass terreng til by</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1110"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1122"/>
         <source>Terrain types</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Terrengtyper</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1117"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1129"/>
         <source>Banned terrain types</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Forbudte terrengtyper</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1133"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1145"/>
         <source>Towns are same type</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Byer er av samme type</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1140"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1152"/>
         <source>Allowed towns</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tillatte byer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1147"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1159"/>
         <source>Banned towns</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Forbudte byer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1154"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1166"/>
         <source>Town hints</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bytips</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1164"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1176"/>
         <source>Monsters</source>
         <translation>Monstre</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1170"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1182"/>
         <source>Allowed monsters</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tillatte monstre</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1177"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1189"/>
         <source>Banned monsters</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Forbudte monstre</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1195"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1207"/>
         <source>Strength</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Styrke</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1249"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1261"/>
         <source>Objects</source>
         <translation>Objekter</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1287"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1299"/>
         <source>Connections</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Forbindelser</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1331"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1343"/>
         <source>Open</source>
         <translation>Åpne</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1339"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1351"/>
         <source>Save</source>
         <translation>Lagre</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1347"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1359"/>
         <source>New</source>
         <translation>Ny</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1355"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1367"/>
         <source>Save as...</source>
         <translation>Lagre som...</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1358"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1370"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1363"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1375"/>
         <source>Add zone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Legg til sone</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1374"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1386"/>
         <source>Remove zone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fjern sone</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1377"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1389"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
         <source>Del</source>
         <translation>Del</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1382"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1394"/>
         <source>Auto position</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Autoposisjon</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1385"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1397"/>
         <source>Ctrl+P</source>
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1390"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1402"/>
         <source>Zoom in</source>
         <translation>Zoom inn</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1393"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1405"/>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1398"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1410"/>
         <source>Zoom out</source>
         <translation>Zoom ut</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1401"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1413"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1406"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1418"/>
         <source>Zoom auto</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Automatisk zoom</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1409"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1421"/>
         <source>Ctrl+Shift+:</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1414"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1426"/>
         <source>Zoom reset</source>
         <translation>Nullstill zoom</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1417"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1429"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
@@ -4376,7 +4455,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="215"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Slett</translation>
@@ -4424,89 +4503,105 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished">Forseglet</translation>
     </message>
     <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <source>Automatic</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Automatisk</translation>
+    </message>
+    <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="407"/>
+        <source>Surface</source>
+        <translation>Overflate</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <source>Underground</source>
+        <translation>Underjordisk</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="415"/>
         <source>Random</source>
         <translation>Tilfeldig</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
         <source>Weak</source>
         <translation>Svak</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="373"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
         <source>Strong</source>
         <translation>Sterk</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Zone A</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sone A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Zone B</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sone B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Guard</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vakt</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Road</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vei</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="402"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
         <source>Guarded</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Voktet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="403"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="411"/>
         <source>Fictive</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fiktiv</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="404"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="412"/>
         <source>Repulsive</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Frastøtende</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="405"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="413"/>
         <source>Wide</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bred</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="406"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="414"/>
         <source>Force portal</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tving portal</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
         <source>Yes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ja</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
         <source>No</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nei</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="516"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="526"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
@@ -4516,73 +4611,73 @@ Sone B: %2
 Vakt: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="576"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
         <source>Confirmation</source>
         <translation>Bekreftelse</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="576"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Ulagrede endringer vil gå tapt, er du sikker?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="618"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="630"/>
         <source>Open template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Åpne mal</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="620"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="632"/>
         <source>VCMI templates(*.json)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-maler (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="633"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
         <source>Save template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Lagre mal</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="633"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
         <source>VCMI templates (*.json)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-maler (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="746"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="786"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
         <source>Enter Name</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Angi navn</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="746"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="786"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
         <source>Name:</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Navn:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="753"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
         <source>Already existing!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Finnes allerede!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="753"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
         <source>A template with this name is already existing.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">En mal med dette navnet finnes allerede.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="769"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
         <source>To few templates!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">For få maler!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="769"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
         <source>At least one template should remain after removing.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Minst én mal må bli igjen etter fjerning.</translation>
@@ -5603,37 +5698,37 @@ Vakt: %3</translation>
         <translation type="unfinished">Avbryt</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="284"/>
+        <location filename="../windownewmap.cpp" line="285"/>
         <source>No template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ingen mal</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="284"/>
+        <location filename="../windownewmap.cpp" line="285"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ingen mal for angitte parametere. Tilfeldig kart kan ikke genereres.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="306"/>
+        <location filename="../windownewmap.cpp" line="307"/>
         <source>RMG failure</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">RMG-feil</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="333"/>
+        <location filename="../windownewmap.cpp" line="334"/>
         <source>Multilevel support</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Støtte for flere nivåer</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="333"/>
+        <location filename="../windownewmap.cpp" line="334"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Støtte for flere nivåer er fortsatt svært eksperimentell. Forvent problemer.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="454"/>
+        <location filename="../windownewmap.cpp" line="455"/>
         <source>[default]</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">[standard]</translation>
@@ -5642,31 +5737,31 @@ Vakt: %3</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="106"/>
+        <location filename="../mainwindow.cpp" line="108"/>
         <source>Filepath of the map to open.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Filbane til kartet som skal åpnes.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="109"/>
+        <location filename="../mainwindow.cpp" line="111"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Pakk ut originale H3-arkiver til en egen mappe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="110"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fra et utpakket arkiv deler den opp TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 og Un44 til individuelle PNG-filer.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="111"/>
+        <location filename="../mainwindow.cpp" line="113"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fra et utpakket arkiv konverterer den enkeltbilder (funnet i Images-mappen) fra .pcx til .png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="112"/>
+        <location filename="../mainwindow.cpp" line="114"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Slett originalfiler for de som ble delt eller konvertert.</translation>

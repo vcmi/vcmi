@@ -63,6 +63,9 @@ public:
 	bool isReceptive(const battle::Unit * target) const override;
 	bool isSmart() const override;
 
+	/// Returns true if unit would resist the spell due to magic resistance
+	bool wouldResist(const battle::Unit * unit) const override;
+
 	/// Returns list of hexes that are affected by spell assuming cast at centralHex
 	BattleHexArray rangeInHexes(const BattleHex & centralHex) const override;
 
@@ -77,6 +80,7 @@ private:
 	std::shared_ptr<IReceptiveCheck> targetCondition;
 
 	battle::Units affectedUnits;
+	std::set<uint32_t> resistantUnitIds; // ids of units that would resist the spell (used in chain lightning computation)
 	effects::Effects::EffectsToApply effectsToApply;
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);

@@ -275,12 +275,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	auto all = m->battle()->battleGetAllObstacles(BattleSide::ALL_KNOWING);
-
-	int obstacleIdToGive = 1;
-	for(auto & one : all)
-		if(one->uniqueID >= obstacleIdToGive)
-			obstacleIdToGive = one->uniqueID + 1;
+	int obstacleIdToGive = m->battle()->nextObstacleId();
 
 	for(const Destination & destination : target)
 	{

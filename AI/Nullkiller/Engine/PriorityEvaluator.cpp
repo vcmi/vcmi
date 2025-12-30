@@ -341,7 +341,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	if(auto * m = dynamic_cast<const IMarket *>(target))
 	{
 		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
-			return 2000;
+			return ai->cb->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
 	}
 
 	switch(target->ID)
@@ -1061,7 +1061,10 @@ public:
 		auto hero = clusterGoal.hero;
 		auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(hero);
 
-		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects;
+		objects.reserve(cluster->objects.size());
+		for (const auto& obj : cluster->objects)
+			objects.emplace_back(obj.first, obj.second);
 
 		std::sort(objects.begin(), objects.end(), [](std::pair<ObjectInstanceID, ClusterObjectInfo> o1, std::pair<ObjectInstanceID, ClusterObjectInfo> o2) -> bool
 		{

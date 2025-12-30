@@ -85,6 +85,29 @@
 			"name": "simturnsPresetSelector",
 			"position": {"x": 56, "y": 555},
 			"dropDownPosition": {"x": 0, "y": -160}
+		},
+		{
+			"name": "buttonTurnOptions",
+			"type" : "button",
+			"position" : {
+				"x" : 260,
+				"y" : 535
+			},
+			"image" : "GSPBUT2",
+			"items" : [
+				{
+					"type" : "label",
+					"position" : {
+						"x" : 0,
+						"y" : 0
+					},
+					"text" : "vcmi.optionsTab.turnOptions.hover",
+					"font" : "small",
+					"color" : "white"
+				}
+			],
+			"help": "vcmi.optionsTab.turnOptions",
+			"callback" : "tabTurnOptions"
 		}
 	],
 

@@ -413,6 +413,14 @@ Heroes affected by this bonus will not lose all movement points when embarking o
 
 Heroes affected by this bonus won't lose army when moving through whirlpool
 
+### FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT
+
+When the hero engages neutral creatures, this bonus forces the number of stacks that the neutral army will be split into.
+
+- val: the neutral army will be split into (0 – enable weighted mode using addInfo)
+- addInfo – [W1, W2, W3, W4, W5, W6, W7]
+- W1–W7 – weights for generating 1–7 stacks when val = 0; missing entries are treated as 0.
+
 ## Creature bonuses
 
 ### STACK_HEALTH
@@ -647,6 +655,12 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeMelee: only melee damage will be reduced
   - damageTypeRanged: only ranged damage will be reduced
   - damageTypeAll: all damage will be reduced
+
+### DAMAGE_RECEIVED_CAP
+
+Limits maximal damage received by affected units based on max hp (HotA war machines)
+
+- val: maximal damage limit, percentage of max hp
 
 ### PERCENTAGE_DAMAGE_BOOST
 

@@ -16,6 +16,7 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 
 class CampaignState;
+class CMap;
 
 namespace Ui {
 class CampaignEditor;
@@ -31,10 +32,12 @@ public:
 
 	void redraw();
 
-	static void showCampaignEditor();
+	static void showCampaignEditor(QWidget *parent);
+	static std::unique_ptr<CMap> tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario);
 
 private slots:
 	void on_actionOpen_triggered();
+	void on_actionOpenSet_triggered();
 	void on_actionSave_as_triggered();
 	void on_actionNew_triggered();
 	void on_actionSave_triggered();
@@ -45,6 +48,7 @@ private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();
 	void changed();
+	bool validate();
 	void saveCampaign();
 
 	void closeEvent(QCloseEvent *event) override;

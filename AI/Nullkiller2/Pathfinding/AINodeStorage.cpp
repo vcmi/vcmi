@@ -511,8 +511,7 @@ public:
 
 	void execute(const tbb::blocked_range<size_t>& r)
 	{
-		std::random_device randomDevice;
-		std::mt19937 randomEngine(randomDevice());
+		std::minstd_rand randomEngine;
 
 		for(int i = r.begin(); i != r.end(); i++)
 		{

@@ -27,7 +27,7 @@ const int tileSize = 32;
 
 bool objectBlitOrderSorter(const ObjectRect & a, const ObjectRect & b)
 {
-	return MapHandler::compareObjectBlitOrder(a.obj, b.obj);
+	return CMap::compareObjectBlitOrder(a.obj, b.obj);
 }
 
 QImage flippedImage(const std::shared_ptr<QImage> & image, ui8 rotationFlags)
@@ -277,32 +277,6 @@ void MapHandler::initObjectRects()
 		stable_sort(tt.begin(), tt.end(), objectBlitOrderSorter);
 }
 
-bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
-{
-	if (!a)
-		return true;
-	if (!b)
-		return false;
-	if (a->appearance->printPriority != b->appearance->printPriority)
-		return a->appearance->printPriority > b->appearance->printPriority;
-
-	if(a->pos.y != b->pos.y)
-		return a->pos.y < b->pos.y;
-
-	if(b->ID == Obj::HERO && a->ID != Obj::HERO)
-		return true;
-	if(b->ID != Obj::HERO && a->ID == Obj::HERO)
-		return false;
-
-	if(!a->isVisitable() && b->isVisitable())
-		return true;
-	if(!b->isVisitable() && a->isVisitable())
-		return false;
-	if(a->pos.x < b->pos.x)
-		return true;
-	return false;
-}
-
 ObjectRect::ObjectRect(const CGObjectInstance * obj_, QRect rect_)
 	: obj(obj_)
 	, rect(rect_)
@@ -371,29 +345,30 @@ void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, 
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-	std::map<int3, std::set<const CGObjectInstance *>> objectMap;	//following the natural order of int3 we draw from north-west to south-east, in accordance with H3's perspective
+	auto blitOrder = [](const CGObjectInstance * a, const CGObjectInstance * b) { return CMap::compareObjectBlitOrder(a, b);};
+	std::set<const CGObjectInstance *, decltype(blitOrder)> objects;
 
 
 	int left = static_cast<int>(std::round(section.left()))/tileSize;
 	int right = static_cast<int>(std::round(section.right()))/tileSize;
 	int top = static_cast<int>(std::round(section.top()))/tileSize;
 	int bottom = static_cast<int>(std::round(section.bottom()))/tileSize;
-
 	for(int x = left; x < right; ++x)
 	{
 		for(int y = top; y < bottom; ++y)
 		{
 			for(auto & object : getObjects(x, y, z))
-				objectMap[object.obj->pos].insert(object.obj);
+			{
+				if (!objects.contains(object.obj))
+					objects.insert(object.obj);
+			}
 		}
 	}
 
-	for (auto const& objectsOnTile : objectMap)
+	for (auto const& object : objects)
 	{
-		auto tile = objectsOnTile.first;
-		auto objects = objectsOnTile.second;
-		for (const CGObjectInstance * object : objects)
-			drawObjectAt(painter, object, tile.x, tile.y, section.topLeft(), locked.count(object));
+		int3 pos = object->pos;
+		drawObjectAt(painter, object, pos.x, pos.y, section.topLeft(), locked.count(object));
 	}
 }
 

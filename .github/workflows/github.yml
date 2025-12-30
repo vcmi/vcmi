@@ -143,7 +143,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -157,7 +157,7 @@ jobs:
     # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
@@ -240,11 +240,24 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    # Frees 10+GB on linux runners by removing unused tools (.NET, Haskell compiler)
+    - name: Free up disk space
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        echo "Disk usage BEFORE cleanup:"
+        df -h
+        sudo rm -rf /opt/ghc /usr/local/.ghcup /usr/share/dotnet || :
+        echo "Disk usage AFTER cleanup:"
+        df -h
+
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
-    # TODO: x86_64
     - name: Bump Android x64 build ID
       if: ${{ matrix.platform == 'android-64' }}
       run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
+
+    - name: Bump Android x86_64 build ID
+      if: ${{ matrix.platform == 'android-64-intel' }}
+      run: perl -i -pe 's/versionCode (\d+)/$x=$1+2; "versionCode $x"/e' android/vcmi-app/build.gradle
 
     - name: Build Number
       run: |
@@ -312,7 +325,7 @@ jobs:
 
     - name: Upload Artifact
       id: upload_artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         compression-level: 9
@@ -322,7 +335,7 @@ jobs:
     - name: Upload AAB Artifact
       id: upload_aab
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
         compression-level: 9
@@ -332,7 +345,7 @@ jobs:
     - name: Upload debug symbols
       id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
         compression-level: 9
@@ -361,7 +374,7 @@ jobs:
         python3 CI/emit_partial.py
 
     - name: Upload partial JSON with build informations
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: partial-json-${{ matrix.platform }}
         path: .summary/${{ matrix.platform }}.json
@@ -392,7 +405,7 @@ jobs:
 
         - name: Upload source code archive
           id: upload_source
-          uses: actions/upload-artifact@v5
+          uses: actions/upload-artifact@v6
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             compression-level: 9
@@ -408,7 +421,7 @@ jobs:
             JSON
 
         - name: Upload partial JSON with source informations
-          uses: actions/upload-artifact@v5
+          uses: actions/upload-artifact@v6
           with:
             name: partial-json-source
             path: .summary/source.json
@@ -468,7 +481,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -480,7 +493,7 @@ jobs:
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
@@ -595,7 +608,7 @@ jobs:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
     - name: Download Artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
@@ -625,7 +638,7 @@ jobs:
 
     - name: Upload VCMI Installer Artifacts
       id: upload_installer
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
         compression-level: 9
@@ -653,7 +666,7 @@ jobs:
         JSON
 
     - name: Upload partial JSON with installer informations
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: partial-json-${{ matrix.platform }}-installer
         path: .summary/installer-${{ matrix.platform }}.json
@@ -681,7 +694,7 @@ jobs:
             python3 CI/validate_json.py
 
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v21
+          uses: DavidAnson/markdownlint-cli2-action@v22
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
@@ -700,7 +713,7 @@ jobs:
 
       - name: Download all partial JSON artifacts
         continue-on-error: true
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: partial-json-*
           merge-multiple: true

@@ -341,7 +341,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	if(auto * m = dynamic_cast<const IMarket *>(target))
 	{
 		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
-			return 2000;
+			return aiNk->cc->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
 	}
 
 	switch(target->ID)
@@ -1062,7 +1062,10 @@ public:
 		auto hero = clusterGoal.hero;
 		auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero);
 
-		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects;
+		objects.reserve(cluster->objects.size());
+		for (const auto& obj : cluster->objects)
+			objects.emplace_back(obj.first, obj.second);
 
 		std::sort(objects.begin(), objects.end(), [](std::pair<ObjectInstanceID, ClusterObjectInfo> o1, std::pair<ObjectInstanceID, ClusterObjectInfo> o2) -> bool
 		{
@@ -1512,37 +1515,37 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			{
 				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && !evaluationContext.isDefend && priorityTier != PriorityTier::FAR_HUNTER_GATHER)
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 1");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 1");
 					return 0;
 				}
 				if (evaluationContext.buildingCost.marketValue() > 0)
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 2");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 2");
 					return 0;
 				}
 				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio > dangerThreshold || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 3");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 3");
 					return 0;
 				}
 				if (evaluationContext.explorePriority == 3)
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 4");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 4");
 					return 0;
 				}
 				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > dangerThreshold))
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 5");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 5");
 					return 0;
 				}
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 6");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 6");
 					return 0;
 				}
 				if (vstd::isAlmostZero(evaluationContext.armyLossRatio) && evaluationContext.closestWayRatio < 1.0)
 				{
-					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 7");
+//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 7");
 					return 0;
 				}
 
@@ -1554,34 +1557,35 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score -= evaluationContext.goldCost / 2; // don't include the full cost of School of Magic or others because those locations are beneficial
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossRatio * 0.1;
 
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, armyGrowth %f, goldCost -%f, armyInvolvementMultiplied -%f, "
 				 "armyLossPersentage %f, movementCost %f, enemyHeroDangerRatio %f",
 					score, evaluationContext.strategicalValue, evaluationContext.goldReward, evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05,
 					evaluationContext.armyReward, evaluationContext.armyGrowth, evaluationContext.goldCost, evaluationContext.armyInvolvement * evaluationContext.armyLossRatio,
 					evaluationContext.armyLossRatio, evaluationContext.movementCost, evaluationContext.enemyHeroDangerRatio);
-
+#endif
 				if (score > 0)
 				{
 					// score = 1000;
 					if (evaluationContext.movementCost > 0)
 					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 8");
+//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 8");
 						score -= evaluationContext.movementCost / 20 * score; // we expect movement won't be over 20 turns
 					}
 					// TODO: Mircea: This doesn't make sense at it always seems to be 0. To test
 					if(evaluationContext.enemyHeroDangerRatio > 0)
 					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 9");
+//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 9");
 						score *= 1 - evaluationContext.enemyHeroDangerRatio;
 					}
 					if(evaluationContext.armyLossRatio > 0)
 					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
+//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
 						score *= 1 - evaluationContext.armyLossRatio;
 					}
 				}
 
-				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score final %f", score);
+//				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score final %f", score);
 				break;
 			}
 			case PriorityTier::LOW_PRIO_EXPLORE:
@@ -1643,7 +1647,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
-						for (GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
+						for (const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
 							if (i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;
