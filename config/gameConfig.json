@@ -799,6 +799,12 @@
 					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
+				},
+				"spellCastsPerTurn" :
+				{
+					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
+					"val" : 1,
+					"valueType" : "BASE_NUMBER"
 				}
 			},
 			"perHero":
@@ -819,12 +825,6 @@
 				{
 					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
 					"val" : 1000,
-					"valueType" : "BASE_NUMBER"
-				},
-				"spellCastsPerTurn" :
-				{
-					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
-					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}

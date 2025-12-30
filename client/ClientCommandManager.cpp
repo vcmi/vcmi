@@ -170,7 +170,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	{
 		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
-			Settings neutralAI = settings.write["server"]["neutralAI"];
+			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;
 			printCommandMessage("Setting changed, from now the battle ai will be " + aiName + "!\n");
 		}

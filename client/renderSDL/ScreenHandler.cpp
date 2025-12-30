@@ -16,12 +16,20 @@
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../CServerHandler.h"
+#include "../GameChatHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../renderSDL/SDLImage.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/texts/MetaString.h"
+
+#include <vstd/DateUtils.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -710,4 +718,18 @@ bool ScreenHandler::hasFocus()
 void ScreenHandler::setColorScheme(ColorScheme scheme)
 {
 	colorScheme = scheme;
+}
+
+void ScreenHandler::screenShot() const
+{
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
+	boost::filesystem::create_directories(outPath);
+	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
+	auto img = std::make_shared<SDLImageShared>(screen);
+	img->exportBitmap(filePath, nullptr);
+	MetaString txt;
+	txt.appendTextID("vcmi.client.screenShot");
+	txt.replaceRawString(filePath.string());
+	if(GAME->interface())
+		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 }

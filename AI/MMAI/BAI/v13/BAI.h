@@ -61,6 +61,7 @@ public:
 
 	// consecutive invalid actions counter
 	int errcounter = 0;
+	bool inFallback = false;
 
 	int getActionTotalMs;
 	int getActionTotalCalls;
@@ -75,6 +76,7 @@ public:
 	std::shared_ptr<BattleAction> buildBattleAction();
 	std::shared_ptr<BattleAction> maybeBuildAutoAction(const CStack * stack, const BattleID & bid) const;
 	bool maybeCastSpell(const CStack * stack, const BattleID & bid);
+	void _activeStack(const BattleID & bid, const CStack * stack);
 
 	std::optional<BattleAction> maybeFleeOrSurrender(const BattleID & bid);
 };

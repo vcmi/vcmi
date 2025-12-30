@@ -269,7 +269,7 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
+		if(defFile && defFile->hasFrame(locator.defFrame, locator.defGroup))
 		{
 			auto img = std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
 
@@ -324,6 +324,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 		if (!remappedLocator.image)
 		{
 			if(!settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1)
+				return nullptr;
+
+			if(!CResourceHandler::get("core")->existsResource(*locator.defFile)) // HD mod supports only core
 				return nullptr;
 
 			auto info = getAnimationSpriteDef(*locator.defFile, locator.defFrame, locator.defGroup);
