@@ -123,7 +123,9 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), configPath.u8string());
+	auto u8 = configPath.u8string();
+	std::string utf8Path(u8.begin(), u8.end());
+	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte *>(buffer.data()), buffer.size(), utf8Path);
 }
 
 
@@ -289,9 +291,6 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 bfs::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
 {
 	// iOS has flat libs directory structure
-	// a library can be either a framework or a plain dylib
-	if(const auto frameworkPath = libraryPath() / (baseLibName + ".framework") / baseLibName; bfs::exists(frameworkPath))
-		return frameworkPath;
 	return libraryPath() / libraryName(baseLibName);
 }
 
@@ -575,7 +574,7 @@ bfs::path VCMIDirsXDG::userConfigPath() const
 	const char * tempResult = getenv("XDG_CONFIG_HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / "vcmi";
-
+	
 	tempResult = getenv("HOME");
 	if (tempResult)
 		return bfs::path(tempResult) / ".config" / "vcmi";
