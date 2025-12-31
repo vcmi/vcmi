@@ -102,6 +102,16 @@ MapScene * MapController::scene(int level)
 	return _scenes[level].get();
 }
 
+std::set<MapScene *> MapController::getScenes()
+{
+	std::set<MapScene *>result;
+	if (!map())
+		return result;
+	for (int i=0; i<map()->levels(); i++)
+		result.insert(_scenes[i].get());
+	return result;
+}
+
 MinimapScene * MapController::miniScene(int level)
 {
 	return _miniscenes[level].get();
