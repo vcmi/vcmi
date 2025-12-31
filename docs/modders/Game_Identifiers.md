@@ -568,7 +568,6 @@ Deprecated, please use primarySkill instead
 - resource.gems
 - resource.gold
 - resource.mercury
-- resource.mithril
 - resource.ore
 - resource.sulfur
 - resource.wood

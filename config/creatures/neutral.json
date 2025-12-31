@@ -3,7 +3,7 @@
 	"goldGolem" :
 	{
 		"index": 116,
-		"level": 4,
+		"level": 5,
 		"faction": "neutral",
 		"abilities":
 		{
@@ -20,6 +20,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:232",
+			"mapAttackFromLeft": "AvWattak.def:0:233",
 			"animation": "CGGOLE.DEF"
 		},
 		"sound" :
@@ -34,7 +36,7 @@
 	"diamondGolem" :
 	{
 		"index": 117,
-		"level": 5,
+		"level": 6,
 		"faction": "neutral",
 		"abilities":
 		{
@@ -51,6 +53,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:234",
+			"mapAttackFromLeft": "AvWattak.def:0:235",
 			"animation": "CDGOLE.DEF"
 		},
 		"sound" :
@@ -75,6 +79,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -83,13 +92,28 @@
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
-			"fear" :
+			"fearful" :
 			{
-				"type" : "FEAR"
+				"type" : "FEARFUL",
+				"val" : 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "PLACEHOLDER",
+				"limiters" : [ 
+					"OPPOSITE_SIDE", 
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType" : "LIVING"
+					}
+				]
 			},
 			"fearless" :
 			{
-				"type" : "FEARLESS"
+				"type" : "FEARFUL",
+				"valueType" : "INDEPENDENT_MIN",
+				"description" : "PLACEHOLDER",
+				"val" : 0
+				
 			},
 			"spellImmunity" :
 			{
@@ -104,6 +128,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:264",
+			"mapAttackFromLeft": "AvWattak.def:0:265",
 			"animation": "CADRGN.DEF"
 		},
 		"sound" :
@@ -128,6 +154,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"crystals" :
 			{
 				"type" : "SPECIAL_CRYSTAL_GENERATION"
@@ -145,6 +176,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:266",
+			"mapAttackFromLeft": "AvWattak.def:0:267",
 			"animation": "CCDRGN.DEF"
 		},
 		"sound" :
@@ -168,6 +201,11 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{
@@ -252,6 +290,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:268",
+			"mapAttackFromLeft": "AvWattak.def:0:269",
 			"animation": "CFDRGN.DEF"
 		},
 		"sound" :
@@ -276,6 +316,11 @@
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{
@@ -305,6 +350,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:270",
+			"mapAttackFromLeft": "AvWattak.def:0:271",
 			"animation": "CRSDGN.DEF"
 		},
 		"sound" :
@@ -388,6 +435,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:272",
+			"mapAttackFromLeft": "AvWattak.def:0:273",
 			"animation": "Cench.DEF",
 			"missile" :
 			{
@@ -429,6 +478,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:274",
+			"mapAttackFromLeft": "AvWattak.def:0:275",
 			"animation": "CSHARP.DEF",
 			"missile" :
 			{
@@ -461,11 +512,14 @@
 			{
 				"type" : "LUCK",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "INDEPENDENT_MAX",
+				"description" : "PLACEHOLDER"
 			}
 		 },
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:276",
+			"mapAttackFromLeft": "AvWattak.def:0:277",
 			"animation": "CHALF.DEF",
 			"missile" :
 			{
@@ -489,6 +543,8 @@
 		"faction": "neutral",
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:278",
+			"mapAttackFromLeft": "AvWattak.def:0:279",
 			"animation": "CPEAS.DEF"
 		},
 		"sound" :
@@ -508,6 +564,8 @@
 		"doubleWide" : true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:280",
+			"mapAttackFromLeft": "AvWattak.def:0:281",
 			"animation": "CBOAR.DEF"
 		},
 		"sound" :
@@ -539,6 +597,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:282",
+			"mapAttackFromLeft": "AvWattak.def:0:283",
 			"animation": "CMUMMY.DEF"
 		},
 		"sound" :
@@ -562,11 +622,14 @@
 			{
 				"type" : "NO_TERRAIN_PENALTY",
 				"subtype" : "terrain.sand",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER"
 			}
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:284",
+			"mapAttackFromLeft": "AvWattak.def:0:285",
 			"animation": "CNOMAD.DEF"
 		},
 		"sound" :
@@ -591,7 +654,8 @@
 				"subtype" : "visionsMonsters",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER"
 			},
 			"visionsHeroes" :
 			{
@@ -599,7 +663,8 @@
 				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER"
 			},
 			"visionsTowns" :
 			{
@@ -607,11 +672,14 @@
 				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER"
 			}
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:286",
+			"mapAttackFromLeft": "AvWattak.def:0:287",
 			"animation": "CROGUE.DEF"
 		},
 		"sound" :
@@ -638,6 +706,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:288",
+			"mapAttackFromLeft": "AvWattak.def:0:289",
 			"animation": "CTROLL.DEF"
 		},
 		"sound" :

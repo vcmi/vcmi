@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+
+#include "army/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,31 +40,34 @@ public:
 	std::optional<CGDwellingRandomizationInfo> randomizationInfo; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	CGDwelling(IGameCallback *cb);
+	CGDwelling(IGameInfoCallback *cb, BonusNodeType nodeType);
+	CGDwelling(IGameInfoCallback *cb);
 	~CGDwelling() override;
 
 	const IOwnableObject * asOwnable() const final;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
+	AnimationPath getKingdomOverviewImage() const;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	FactionID randomizeFaction(vstd::RNG & rand);
+	FactionID randomizeFaction(IGameRandomizer & gameRandomizer);
 	int randomizeLevel(vstd::RNG & rand);
 
-	void pickRandomObject(vstd::RNG & rand) override;
-	void initObj(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void newTurn(vstd::RNG & rand) const override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	bool wasVisited (PlayerColor player) const override;
 
-	void updateGuards() const;
-	void heroAcceptsCreatures(const CGHeroInstance *h) const;
+	void updateGuards(IGameEventCallback & gameEvents) const;
+	void heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGHeroInstance *h) const;
 
 public:
 	template <typename Handler> void serialize(Handler &h)

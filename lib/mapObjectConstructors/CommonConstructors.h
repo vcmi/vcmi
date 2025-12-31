@@ -15,10 +15,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGResource.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -61,7 +59,23 @@ public:
 	int getAmountMultiplier() const;
 	int getBaseAmount(vstd::RNG & rng) const;
 
-	void randomizeObject(CGResource * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const override;
+};
+
+class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGMine>
+{
+	JsonNode config;
+	GameResID resourceType;
+	ui32 defaultQuantity;
+	AnimationPath kingdomOverviewImage;
+public:
+	void initTypeData(const JsonNode & input) override;
+
+	GameResID getResourceType() const;
+	ui32 getDefaultQuantity() const;
+	std::string getDescriptionTextID() const;
+	std::string getDescriptionTranslated() const;
+	AnimationPath getKingdomOverviewImage() const;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
@@ -76,7 +90,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
-	void randomizeObject(CGTownInstance * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const override;
 	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
@@ -99,7 +113,7 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGHeroInstance * object, IGameRandomizer & gameRandomizer) const override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -110,7 +124,7 @@ class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGB
 protected:
 	void initTypeData(const JsonNode & config) override;
 	
-	std::vector<Bonus> bonuses;
+	std::vector<std::shared_ptr<Bonus>> bonuses;
 	EPathfindingLayer layer;
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
@@ -124,27 +138,6 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
-};
-
-class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
-{
-	std::string descriptionTextID;
-	std::string speechTextID;
-	
-	std::set<EMarketMode> marketModes;
-	JsonNode predefinedOffer;
-	int marketEfficiency;
-
-	void initTypeData(const JsonNode & config) override;
-public:
-	CGMarket * createObject(IGameCallback * cb) const override;
-	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
-
-	const std::set<EMarketMode> & availableModes() const;
-	bool hasDescription() const;
-
-	std::string getSpeechTranslated() const;
-	int getMarketEfficiency() const;
 };
 
 VCMI_LIB_NAMESPACE_END

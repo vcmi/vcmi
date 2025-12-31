@@ -12,7 +12,7 @@
 				"val": 1
 			},
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "THIEVES_GUILD_ACCESS",
 				"val": 1
 			}
@@ -76,6 +76,20 @@
 	},
 	"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
 	"blacksmith":     { "id" : 16 },
+	"special1":       { "id" : 17 },
+	"ship" :          { "id" : 20, "upgrades" : "shipyard" },
+	"special2":       { "id" : 21 },
+	"special3":       { "id" : 22 },
+	"special4":       { "id" : 23 },
+	"grail" :         {
+		"id" : 26,
+		"mode" : "grail",
+		"produce": { "gold": 5000 },
+	},
+	
+	"extraTownHall":  { "id" : 27, "requires" : [ "townHall" ], "mode" : "auto" },
+	"extraCityHall":  { "id" : 28, "requires" : [ "cityHall" ], "mode" : "auto" },
+	"extraCapitol":   { "id" : 29, "requires" : [ "capitol" ], "mode" : "auto" },
 
 	// Previously hardcoded buildings that might be used by mods
 	// Section 1 - building with bonuses during sieges
@@ -130,7 +144,7 @@
 	"lighthouse" : {
 		"bonuses": [
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "MOVEMENT",
 				"subtype": "heroMovementSea",
 				"val": 500
@@ -257,10 +271,82 @@
 	"thievesGuild" : {
 		"bonuses": [
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "THIEVES_GUILD_ACCESS",
 				"val": 2
 			}
 		]
-	}
+	},
+	
+	// Section 5 - H3 creature-related buildings
+	"horde1" :     { "id" : 18 },
+	"horde1Upgr" : { "id" : 19, "mode" : "auto" },
+	"horde2" :     { "id" : 24 },
+	"horde2Upgr" : { "id" : 25, "mode" : "auto" },
+	
+	"dwellingLvl1": { "id" : 30 },
+	"dwellingLvl2": { "id" : 31 },
+	"dwellingLvl3": { "id" : 32 },
+	"dwellingLvl4": { "id" : 33 },
+	"dwellingLvl5": { "id" : 34 },
+	"dwellingLvl6": { "id" : 35 },
+	"dwellingLvl7": { "id" : 36 },
+
+	"dwellingUpLvl1": { "id" : 37 },
+	"dwellingUpLvl2": { "id" : 38 },
+	"dwellingUpLvl3": { "id" : 39 },
+	"dwellingUpLvl4": { "id" : 40 },
+	"dwellingUpLvl5": { "id" : 41 },
+	"dwellingUpLvl6": { "id" : 42 },
+	"dwellingUpLvl7": { "id" : 43 },
+
+	// Section 6 - VCMI extended creature-related buildings
+	"dwellingUp2Lvl1": { "id" : 44 },
+	"dwellingUp2Lvl2": { "id" : 45 },
+	"dwellingUp2Lvl3": { "id" : 46 },
+	"dwellingUp2Lvl4": { "id" : 47 },
+	"dwellingUp2Lvl5": { "id" : 48 },
+	"dwellingUp2Lvl6": { "id" : 49 },
+	"dwellingUp2Lvl7": { "id" : 50 },
+
+	"dwellingUp3Lvl1": { "id" : 51 },
+	"dwellingUp3Lvl2": { "id" : 52 },
+	"dwellingUp3Lvl3": { "id" : 53 },
+	"dwellingUp3Lvl4": { "id" : 54 },
+	"dwellingUp3Lvl5": { "id" : 55 },
+	"dwellingUp3Lvl6": { "id" : 56 },
+	"dwellingUp3Lvl7": { "id" : 57 },
+	
+	"dwellingUp4Lvl1": { "id" : 58 },
+	"dwellingUp4Lvl2": { "id" : 59 },
+	"dwellingUp4Lvl3": { "id" : 60 },
+	"dwellingUp4Lvl4": { "id" : 61 },
+	"dwellingUp4Lvl5": { "id" : 62 },
+	"dwellingUp4Lvl6": { "id" : 63 },
+	"dwellingUp4Lvl7": { "id" : 64 },
+	
+	"dwellingUp5Lvl1": { "id" : 65 },
+	"dwellingUp5Lvl2": { "id" : 66 },
+	"dwellingUp5Lvl3": { "id" : 67 },
+	"dwellingUp5Lvl4": { "id" : 68 },
+	"dwellingUp5Lvl5": { "id" : 69 },
+	"dwellingUp5Lvl6": { "id" : 70 },
+	"dwellingUp5Lvl7": { "id" : 71 },
+
+	"horde1Upgr2" : { "id" : 100, "mode" : "auto" },
+	"horde1Upgr3" : { "id" : 101, "mode" : "auto" },
+	"horde1Upgr4" : { "id" : 102, "mode" : "auto" },
+	"horde1Upgr5" : { "id" : 103, "mode" : "auto" },
+	"horde2Upgr2" : { "id" : 110, "mode" : "auto" },
+	"horde2Upgr3" : { "id" : 111, "mode" : "auto" },
+	"horde2Upgr4" : { "id" : 112, "mode" : "auto" },
+	"horde2Upgr5" : { "id" : 113, "mode" : "auto" },
+
+	"dwellingLvl8":    { "id" : 150 },
+	"dwellingUpLvl8":  { "id" : 151 },
+	"dwellingUp2Lvl8": { "id" : 152 },
+	"dwellingUp3Lvl8": { "id" : 153 },
+	"dwellingUp4Lvl8": { "id" : 154 },
+	"dwellingUp5Lvl8": { "id" : 155 }
+	
 }

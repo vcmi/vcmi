@@ -74,6 +74,11 @@ bool UnitEffect::eraseByImmunityFilter(const Mechanics * m, const battle::Unit *
 	return !isReceptive(m, s);
 }
 
+SpellEffectValue UnitEffect::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	return {}; // no-op by default
+}
+
 EffectTarget UnitEffect::filterTarget(const Mechanics * m, const EffectTarget & target) const
 {
 	EffectTarget res;
@@ -215,10 +220,23 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 		if(!unit)
 			break;
+
+		bool wouldResist = m->wouldResist(unit);
 		if(m->alwaysHitFirstTarget() && targetIndex == 0)
 			effectTarget.emplace_back(unit);
-		else if(isReceptive(m, unit) && isValidTarget(m, unit))
+		if(wouldResist && targetIndex == 0)
+		{
+			// if first target resists, chain ends here, resistance animation played
 			effectTarget.emplace_back(unit);
+			break;
+		}
+		else if(isReceptive(m, unit) && isValidTarget(m, unit) && !wouldResist)
+			effectTarget.emplace_back(unit);
+		else if(isReceptive(m, unit) && isValidTarget(m, unit) && wouldResist)
+		{
+			// target is skipped, no magic resistance animation (Heroes 3 logic)
+			targetIndex--;
+		}
 		else
 			effectTarget.emplace_back();
 

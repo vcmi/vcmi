@@ -12,6 +12,7 @@
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
@@ -32,8 +33,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
-
-#include "../../CCallback.h"
+#include "../mainmenu/CCampaignScreen.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
@@ -156,14 +156,23 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false), deleteMode(false)
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK)
+	, callOnSelect(nullptr)
+	, tabType(Type)
+	, selectionPos(0)
+	, sortModeAscending(true)
+	, inputNameRect{32, 539, 350, 20}
+	, curFolder("")
+	, currentMapSizeFilter(0)
+	, showRandom(false)
+	, deleteMode(false)
+	, enableUiEnhancements(settings["general"]["enableUiEnhancements"].Bool())
+	, campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 {
 	OBJECT_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
 	sortingBy = _format;
-
-	bool enableUiEnhancements = settings["general"]["enableUiEnhancements"].Bool();
 
 	if(tabType != ESelectionScreen::campaignList)
 	{
@@ -246,6 +255,44 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			if(tabType == ESelectionScreen::newGame)
 				buttonDeleteMode->setEnabled(false);
 		}
+
+		if(tabType == ESelectionScreen::campaignList)
+		{
+			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{
+				std::vector<std::pair<si64, std::pair<std::string, std::string>>> namesWithIndex;
+				for (auto const & set : campaignSets.Struct())
+				{
+					bool oneCampaignExists = false;
+					for (auto const & item : set.second["items"].Vector())
+						if(CResourceHandler::get()->existsResource(ResourcePath(item["file"].String(), EResType::CAMPAIGN)))
+							oneCampaignExists = true;
+
+					if(oneCampaignExists)
+						namesWithIndex.push_back({set.second["index"].isNull() ? std::numeric_limits<si64>::max() : set.second["index"].Integer(), { set.first, set.second["text"].isNull() ? set.first : LIBRARY->generaltexth->translate(set.second["text"].String()) }});
+				}
+
+				std::sort(namesWithIndex.begin(), namesWithIndex.end(), [](const std::pair<si64, std::pair<std::string, std::string>>& a, const std::pair<si64, std::pair<std::string, std::string>>& b)
+				{
+					if (a.first != b.first) return a.first < b.first;
+					return a.second.second < b.second.second;
+				});
+
+				std::vector<std::string> namesIdentifier;
+				for (const auto& pair : namesWithIndex)
+					namesIdentifier.push_back(pair.second.first);
+				std::vector<std::string> namesTranslated;
+				for (const auto& pair : namesWithIndex)
+					namesTranslated.push_back(pair.second.second);
+
+				auto window = std::make_shared<CObjectListWindow>(namesTranslated, nullptr, LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), [this, namesIdentifier](int index){
+					GAME->server().sendClientDisconnecting();
+					(static_cast<CLobbyScreen *>(parent))->close();
+					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, namesIdentifier[index]);
+				}, 0, std::vector<std::shared_ptr<IImage>>(), true, true);
+				ENGINE->windows().pushWindow(window);
+			}, EShortcut::LOBBY_CAMPAIGN_SETS);
+			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);
+		}
 	}
 
 	for(int i = 0; i < positionsToShow; i++)
@@ -279,6 +326,7 @@ void SelectionTab::toggleMode()
 				inputName->disable();
 				auto files = getFiles("Maps/", EResType::MAP);
 				files.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
+				files.erase(ResourcePath("Maps/BattleOnlyMode.vmap", EResType::MAP));
 				parseMaps(files);
 				break;
 			}
@@ -963,9 +1011,6 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	auto campaignSets = JsonUtils::assembleFromFiles("config/campaignSets.json");
-	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
-
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
@@ -979,22 +1024,13 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 			if(info->campaign)
 			{
 				// skip campaigns organized in sets
-				std::string foundInSet = "";
+				bool foundInSet = false;
 				for (auto const & set : campaignSets.Struct())
 					for (auto const & item : set.second["items"].Vector())
 						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = set.first;
+							foundInSet = true;
 
-				// set has to be used in main menu
-				bool setInMainmenu = false;
-				if(!foundInSet.empty())
-					for (auto const & item : mainmenu["window"]["items"].Vector())
-						if(item["name"].String() == "campaign")
-							for (auto const & button : item["buttons"].Vector())
-								if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
-									setInMainmenu = true;
-
-				if(!setInMainmenu)
+				if(!foundInSet || !enableUiEnhancements)
 					allItems.push_back(info);
 			}
 		}
@@ -1130,3 +1166,4 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	labelName->setText(info->name);
 	labelName->setColor(color);
 }
+

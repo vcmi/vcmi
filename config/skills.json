@@ -1,6 +1,7 @@
 {
 	"pathfinding" : {
 		"index" : 0,
+		"specialty" : [], // no generic specialty
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -27,6 +28,9 @@
 	},
 	"archery" : {
 		"index" : 1,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -54,6 +58,9 @@
 	},
 	"logistics" : {
 		"index" : 2,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -81,6 +88,9 @@
 	},
 	"scouting" : {
 		"index" : 3,
+		"specialty" : [ // NOTE: no such specialists in H3, hota uses different logic
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -107,6 +117,9 @@
 	},
 	"diplomacy" : {
 		"index" : 4,
+		"specialty" : [ // NOTE: no such specialists in H3
+			"surr"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -141,6 +154,9 @@
 	},
 	"navigation" : {
 		"index" : 5,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -169,6 +185,7 @@
 	},
 	"leadership" : {
 		"index" : 6,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -195,6 +212,7 @@
 	},
 	"wisdom" : {
 		"index" : 7,
+		"specialty" : [], // generic specialty not applicable
 		"obligatoryMajor" : true,
 		"base" : {
 			"effects" : {
@@ -222,6 +240,9 @@
 	},
 	"mysticism" : {
 		"index" : 8,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -248,6 +269,7 @@
 	},
 	"luck" : {
 		"index" : 9,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -274,6 +296,7 @@
 	},
 	"ballistics" : {
 		"index" : 10,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -307,6 +330,9 @@
 	},
 	"eagleEye" : {
 		"index" : 11,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -340,6 +366,9 @@
 	},
 	"necromancy" : {
 		"index" : 12,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -374,6 +403,9 @@
 	},
 	"estates" : {
 		"index" : 13,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -401,6 +433,7 @@
 	},
 	"fireMagic" : {
 		"index" : 14,
+		"specialty" : [], // generic specialty not applicable
 		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
@@ -429,6 +462,7 @@
 	},
 	"airMagic" : {
 		"index" : 15,
+		"specialty" : [], // generic specialty not applicable
 		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
@@ -457,6 +491,7 @@
 	},
 	"waterMagic" : {
 		"index" : 16,
+		"specialty" : [], // generic specialty not applicable
 		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
@@ -485,6 +520,7 @@
 	},
 	"earthMagic" : {
 		"index" : 17,
+		"specialty" : [], // generic specialty not applicable
 		"obligatoryMinor" : true,
 		"base" : {
 			"effects" : {
@@ -513,6 +549,7 @@
 	},
 	"scholar" : {
 		"index" : 18,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -539,6 +576,7 @@
 	},
 	"tactics" : {
 		"index" : 19,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -572,6 +610,7 @@
 	},
 	"artillery" : {
 		"index" : 20,
+		"specialty" : [], // generic specialty not applicable, H3 heroes specialize in ballista creature instead
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -625,6 +664,9 @@
 	},
 	"learning" : {
 		"index" : 21,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -651,6 +693,9 @@
 	},
 	"offence" : {
 		"index" : 22,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -678,6 +723,9 @@
 	},
 	"armorer" : {
 		"index" : 23,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -705,6 +753,9 @@
 	},
 	"intelligence" : {
 		"index" : 24,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -731,6 +782,9 @@
 	},
 	"sorcery" : {
 		"index" : 25,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -758,6 +812,9 @@
 	},
 	"resistance" : {
 		"index" : 26,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -784,6 +841,9 @@
 	},
 	"firstAid" : {
 		"index" : 27,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {

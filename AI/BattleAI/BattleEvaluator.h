@@ -8,7 +8,6 @@
  *
  */
 #pragma once
-#include "../../lib/AI_Base.h"
 #include "../../lib/battle/ReachabilityInfo.h"
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
@@ -17,6 +16,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CSpell;
+class CBattleCallback;
+class BattleAction;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -30,7 +31,7 @@ struct CachedAttack
 	bool waited = false;
 };
 
-class BattleEvaluator
+class DLL_EXPORT BattleEvaluator
 {
 	std::unique_ptr<PotentialTargets> targets;
 	std::shared_ptr<HypotheticBattle> hb;

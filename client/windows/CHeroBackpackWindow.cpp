@@ -21,8 +21,8 @@
 #include "render/Canvas.h"
 #include "CPlayerInterface.h"
 
-#include "../../CCallback.h"
-
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -41,7 +41,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		showArtifactAssembling(*arts, artPlace, cursorPosition);
+		showArtifactPopup(*arts, artPlace, cursorPosition);
 	};
 	addSet(arts);
 	arts->setHero(hero);

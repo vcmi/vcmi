@@ -11,7 +11,7 @@
 
 #include "CCampaignInfoScreen.h"
 
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
@@ -23,8 +23,8 @@
 CCampaignInfoScreen::CCampaignInfoScreen()
 {
 	OBJECT_CONSTRUCTION;
-	localSi = new StartInfo(*GAME->interface()->cb->getStartInfo());
-	localMi = new CMapInfo();
+	localSi = std::make_unique<StartInfo>(*GAME->interface()->cb->getStartInfo());
+	localMi = std::make_unique<CMapInfo>();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	screenType = ESelectionScreen::scenarioInfo;
@@ -32,17 +32,13 @@ CCampaignInfoScreen::CCampaignInfoScreen()
 	updateAfterStateChange();
 }
 
-CCampaignInfoScreen::~CCampaignInfoScreen()
-{
-	vstd::clear_pointer(localSi);
-	vstd::clear_pointer(localMi);
-}
+CCampaignInfoScreen::~CCampaignInfoScreen() = default;
 
 const CMapInfo * CCampaignInfoScreen::getMapInfo()
 {
-	return localMi;
+	return localMi.get();
 }
 const StartInfo * CCampaignInfoScreen::getStartInfo()
 {
-	return localSi;
+	return localSi.get();
 }

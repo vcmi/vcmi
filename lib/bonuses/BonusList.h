@@ -54,7 +54,7 @@ public:
 	// BonusList functions
 	void stackBonuses();
 	int totalValue(int baseValue = 0) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
+	void getBonuses(BonusList &out, const CSelector &selector) const;
 	void getAllBonuses(BonusList &out) const;
 
 	//special find functions
@@ -80,8 +80,6 @@ public:
 		std::copy(newList.begin(), newList.end(), bonuses.begin());
 	}
 
-	template <class InputIterator>
-	void insert(const int position, InputIterator first, InputIterator last);
 	void insert(TInternalContainer::iterator position, TInternalContainer::size_type n, const std::shared_ptr<Bonus> & x);
 
 	template <typename Handler>

@@ -11,15 +11,25 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "SDL_Extensions.h"
+
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../CServerHandler.h"
+#include "../GameChatHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../render/Canvas.h"
+#include "../renderSDL/SDLImage.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/texts/MetaString.h"
+
+#include <vstd/DateUtils.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -34,7 +44,6 @@
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
 
-static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
@@ -47,6 +56,8 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 
 	double maximalScalingWidth = 100.0 * availableResolution.x / minResolution.x;
 	double maximalScalingHeight = 100.0 * availableResolution.y / minResolution.y;
@@ -113,6 +124,8 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 
 	int scaling = getInterfaceScalingPercentage();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 	return logicalResolution;
 }
@@ -297,7 +310,6 @@ void ScreenHandler::updateWindowState()
 			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
 			return;
 		}
 	}
@@ -373,7 +385,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
 
-	if (systemMemoryMb < 2048)
+	if (systemMemoryMb <= 4096)
 		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
 
 	// Only using xbrz2 for autoselection.
@@ -436,7 +448,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
-	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	return SDL_CreateWindow(GameConstants::VCMI_VERSION.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
 SDL_Window * ScreenHandler::createWindow()
@@ -479,9 +491,24 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 }
 
-void ScreenHandler::onScreenResize()
+bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
+	if(getPreferredWindowMode() == EWindowMode::WINDOWED && keepWindowResolution)
+	{
+		auto res = getRenderResolution();
+
+		if(res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
+			return false;
+
+		Settings video = settings.write["video"];
+		video["resolution"]["width"].Integer() = res.x;
+		video["resolution"]["height"].Integer() = res.y;
+	}
+	else if(keepWindowResolution)
+		return false;
+
 	recreateWindowAndScreenBuffers();
+	return true;
 }
 
 void ScreenHandler::validateSettings()
@@ -624,7 +651,19 @@ Canvas ScreenHandler::getScreenCanvas() const
 
 void ScreenHandler::updateScreenTexture()
 {
-	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	if(colorScheme == ColorScheme::NONE)
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		return;
+	}
+
+	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
+	if(colorScheme == ColorScheme::GRAYSCALE)
+		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
+	else if(colorScheme == ColorScheme::H2_SCHEME)
+		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
+	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
+	SDL_FreeSurface(screenScheme);
 }
 
 void ScreenHandler::presentScreenTexture()
@@ -674,4 +713,23 @@ bool ScreenHandler::hasFocus()
 {
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
+}
+
+void ScreenHandler::setColorScheme(ColorScheme scheme)
+{
+	colorScheme = scheme;
+}
+
+void ScreenHandler::screenShot() const
+{
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
+	boost::filesystem::create_directories(outPath);
+	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
+	auto img = std::make_shared<SDLImageShared>(screen);
+	img->exportBitmap(filePath, nullptr);
+	MetaString txt;
+	txt.appendTextID("vcmi.client.screenShot");
+	txt.replaceRawString(filePath.string());
+	if(GAME->interface())
+		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 }

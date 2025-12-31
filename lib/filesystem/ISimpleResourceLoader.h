@@ -106,6 +106,10 @@ public:
 			return std::vector<const ISimpleResourceLoader *>(1, this);
 		return std::vector<const ISimpleResourceLoader *>();
 	}
+
+	virtual std::string getFullFileURI(const ResourcePath& resourceName) const = 0;
+		
+	virtual std::time_t getLastWriteTime(const ResourcePath& resourceName) const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

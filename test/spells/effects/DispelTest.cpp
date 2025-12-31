@@ -39,16 +39,19 @@ public:
 		EXPECT_CALL(mechanicsMock, spells()).Times(AnyNumber());
 
 		EXPECT_CALL(spellServiceMock, getById(Eq(positiveID))).WillRepeatedly(Return(&positiveSpell));
+		EXPECT_CALL(spellServiceMock, getByIndex(Eq(positiveID.getNum()))).WillRepeatedly(Return(&positiveSpell));
 		EXPECT_CALL(positiveSpell, getIndex()).WillRepeatedly(Return(positiveID.toEnum()));
 		EXPECT_CALL(positiveSpell, getPositiveness()).WillRepeatedly(Return(true));
 		EXPECT_CALL(positiveSpell, isAdventure()).WillRepeatedly(Return(false));
 
 		EXPECT_CALL(spellServiceMock, getById(Eq(negativeID))).WillRepeatedly(Return(&negativeSpell));
+		EXPECT_CALL(spellServiceMock, getByIndex(Eq(negativeID.getNum()))).WillRepeatedly(Return(&negativeSpell));
 		EXPECT_CALL(negativeSpell, getIndex()).WillRepeatedly(Return(negativeID.toEnum()));
 		EXPECT_CALL(negativeSpell, getPositiveness()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isAdventure()).WillRepeatedly(Return(false));
 
 		EXPECT_CALL(spellServiceMock, getById(Eq(neutralID))).WillRepeatedly(Return(&neutralSpell));
+		EXPECT_CALL(spellServiceMock, getByIndex(Eq(neutralID.getNum()))).WillRepeatedly(Return(&neutralSpell));
 		EXPECT_CALL(neutralSpell, getIndex()).WillRepeatedly(Return(neutralID.toEnum()));
 		EXPECT_CALL(neutralSpell, getPositiveness()).WillRepeatedly(Return(boost::logic::indeterminate));
 		EXPECT_CALL(neutralSpell, isAdventure()).WillRepeatedly(Return(false));
@@ -65,7 +68,7 @@ class DispelTest : public DispelFixture
 {
 };
 
-TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
+TEST_F(DispelTest, ApplicableToAliveUnitWithTimedEffect)
 {
 	{
 		JsonNode config;
@@ -91,7 +94,7 @@ TEST_F(DispelTest, DISABLED_ApplicableToAliveUnitWithTimedEffect)
 	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(DispelTest, DISABLED_IgnoresOwnEffects)
+TEST_F(DispelTest, IgnoresOwnEffects)
 {
 	{
 		JsonNode config;
@@ -162,7 +165,7 @@ public:
 	std::array<std::vector<Bonus>, 2> actualBonus;
 };
 
-TEST_F(DispelApplyTest, DISABLED_RemovesEffects)
+TEST_F(DispelApplyTest, RemovesEffects)
 {
 	{
 		JsonNode config;

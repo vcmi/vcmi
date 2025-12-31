@@ -11,6 +11,8 @@
 #include "portraitwidget.h"
 #include "ui_portraitwidget.h"
 #include "../Animation.h"
+
+#include "../lib/GameLibrary.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 
 PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
@@ -32,10 +34,14 @@ PortraitWidget::~PortraitWidget()
 
 void PortraitWidget::obtainData()
 {
-	portraitIndex = LIBRARY->heroh->getById(hero.getPortraitSource())->getIndex();
-	if(hero.customPortraitSource.isValid())
+	auto portraitSource = hero.getPortraitSource();
+	if(portraitSource.isValid())
 	{
-		ui->isDefault->setChecked(true);
+		portraitIndex = LIBRARY->heroh->getById(portraitSource)->getIndex();
+		if(hero.customPortraitSource.isValid())
+		{
+			ui->isDefault->setChecked(false);
+		}
 	}
 	
 	drawPortrait();

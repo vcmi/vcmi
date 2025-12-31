@@ -53,7 +53,7 @@ std::unique_ptr<CMap> MapServiceMock::loadMap() const
 	return res;
 }
 
-std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourcePath & name, IGameCallback * cb) const
+std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourcePath & name, IGameInfoCallback * cb) const
 {
 	return loadMap();
 }
@@ -65,7 +65,7 @@ std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourcePath & n
 	return initialLoader.loadMapHeader();
 }
 
-std::unique_ptr<CMap> MapServiceMock::loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding, IGameCallback * cb) const
+std::unique_ptr<CMap> MapServiceMock::loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const
 {
 	return loadMap();
 }

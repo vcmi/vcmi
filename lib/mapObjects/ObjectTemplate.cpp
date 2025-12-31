@@ -66,7 +66,7 @@ void ObjectTemplate::afterLoadFixup()
 	if(id == Obj::EVENT)
 	{
 		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
+		usedTiles[0][0] = VISITABLE | VISIBLE;
 		visitDir = 0xFF;
 	}
 }
@@ -220,19 +220,20 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	else
 		visitDir = 0x00;
 
-	if(withTerrain && !node["allowedTerrains"].isNull())
+	anyLandTerrain = true;
+	if(withTerrain)
 	{
-		for(const auto & entry : node["allowedTerrains"].Vector())
+		if (!node["allowedTerrains"].isNull())
 		{
-			LIBRARY->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
-				allowedTerrains.insert(TerrainId(identifier));
-			});
+			anyLandTerrain = false;
+
+			for(const auto & entry : node["allowedTerrains"].Vector())
+			{
+				LIBRARY->identifiers()->requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
+					allowedTerrains.insert(TerrainId(identifier));
+				});
+			}
 		}
-		anyLandTerrain = false;
-	}
-	else
-	{
-		anyLandTerrain = true;
 	}
 
 	auto charToTile = [&](const char & ch) -> ui8
@@ -498,6 +499,23 @@ void ObjectTemplate::calculateVisitableOffset()
 		}
 	}
 	visitableOffset = int3(0, 0, 0);
+}
+
+int3 ObjectTemplate::getCornerOffset() const
+{
+	assert(isVisitable());
+
+	int3 ret = visitableOffset;
+	for (const auto & tile : blockedOffsets)
+	{
+		ret = {
+			std::min(-tile.x, ret.x),
+			std::min(-tile.y, ret.y),
+			ret.z
+		};
+	}
+
+	return ret;
 }
 
 bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const

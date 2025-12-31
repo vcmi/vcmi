@@ -20,7 +20,7 @@ target_link_libraries(vcmiERM Boost::boost vcmi)
 vcmi_set_output_dir(vcmiERM "scripting")
 enable_pch(vcmiERM)
 
-if(APPLE_IOS)
+if(IOS)
 	install(TARGETS vcmiERM LIBRARY DESTINATION ${SCRIPTING_LIB_DIR})
 else()
 	install(TARGETS vcmiERM DESTINATION ${SCRIPTING_LIB_DIR})

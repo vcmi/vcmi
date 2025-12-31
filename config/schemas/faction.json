@@ -166,13 +166,63 @@
 					"format" : "imageFile"
 				},
 				"guildWindow" : {
-					"type" : "string",
-					"description" : "Image with small view on town from mage guild"
+					"anyOf" : [
+						{
+							"type" : "array",
+							"description" : "Image with small view on town from mage guild (each array element for different mage guild level; if one element only this will be always selected)",
+							"minItems" : 1,
+							"items" : { 
+								"type" : "string",
+								"format" : "imageFile"
+							}
+						},
+						{
+							"type" : "string",
+							"description" : "Image with small view on town from mage guild",
+							"format" : "imageFile"
+						}
+					]
 				},
 				"guildBackground" : {
-					"type" : "string",
-					"description" : "Image with background of mage guild",
-					"format" : "imageFile"
+					"anyOf" : [
+						{
+							"type" : "array",
+							"description" : "Image with background of mage guild (each array element for different mage guild level; if one element only this will be always selected)",
+							"minItems" : 1,
+							"items" : { 
+								"type" : "string",
+								"format" : "imageFile"
+							}
+						},
+						{
+							"type" : "string",
+							"description" : "Image with background of mage guild",
+							"format" : "imageFile"
+						}
+					]
+				},
+				"guildWindowPosition" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"properties" : {
+						"x" :     { "type" : "number", "description" : "X coordinate on screen" },
+						"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
+					}
+				},
+				"guildSpellPositions" : {
+					"type" : "array",
+					"description" : "Positions of spells in mage guild",
+					"items" : { 
+						"type" : "array",
+						"items" : {
+							"type" : "object",
+							"additionalProperties" : false,
+							"properties" : {
+								"x" :     { "type" : "number", "description" : "X coordinate on screen" },
+								"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
+							}
+						}
+					}
 				},
 				"hallBackground" : {
 					"type" : "string",
@@ -259,7 +309,7 @@
 						"properties" : {
 							"index" : { "type" : "number", "description" : "Order in which images will be opened" },
 							"x" :     { "type" : "number", "description" : "X coordinate on screen" },
-							"y" :     { "type" : "number", "description" : "X coordinate on screen" }
+							"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
 						}
 					}
 				},

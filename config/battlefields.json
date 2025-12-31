@@ -79,15 +79,15 @@
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
-				"description" : "core.arraytxt.123",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+				"description" : "@core.arraytxt.123",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "good" }]
 			},
 			{
 				"type" : "MORALE",
 				"val" : -1,
 				"valueType" : "BASE_NUMBER",
-				"description" : "core.arraytxt.124",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+				"description" : "@core.arraytxt.124",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "evil" }]
 			}
 		]
 	},
@@ -99,8 +99,8 @@
 				"type" : "LUCK",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER",
-				"description" : "core.arraytxt.83",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["neutral"] }]
+				"description" : "@core.arraytxt.83",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" }]
 			}
 		]
 	},
@@ -112,15 +112,15 @@
 				"type" : "MORALE",
 				"val" : -1,
 				"valueType" : "BASE_NUMBER",
-				"description" : "core.arraytxt.126",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+				"description" : "@core.arraytxt.126",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "good" }]
 			},
 			{
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
-				"description" : "core.arraytxt.125",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+				"description" : "@core.arraytxt.125",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "evil" }]
 			}
 		]
 	},
@@ -132,13 +132,13 @@
 				"type" : "NO_MORALE",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
-				"description" : "core.arraytxt.112"
+				"description" : "@core.arraytxt.112"
 			},
 			{
 				"type" : "NO_LUCK",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
-				"description" : "core.arraytxt.81"
+				"description" : "@core.arraytxt.81"
 			},
 			{
 				"type" : "BLOCK_MAGIC_ABOVE",

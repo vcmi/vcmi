@@ -41,10 +41,10 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -69,13 +69,14 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto tooltipWindow : ENGINE->windows().findWindows<CPlayerOptionTooltipBox>())
+		tooltipWindow->close();
+
 	for (auto heroOverview : ENGINE->windows().findWindows<CHeroOverview>())
 		heroOverview->close();
 
 	for (auto selectionWindow : ENGINE->windows().findWindows<SelectionWindow>())
-	{
 		selectionWindow->reopen();
-	}
 
 	OBJECT_CONSTRUCTION;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
@@ -161,8 +162,6 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 				return GEM;
 			case EGameResID::GOLD:
 				return GOLD;
-			case EGameResID::MITHRIL:
-				return MITHRIL;
 			}
 		}
 		}
@@ -378,7 +377,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[79]);
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = (*LIBRARY->townh)[factionIndex]->town;
+	const CTown * town = (*LIBRARY->townh)[factionIndex]->town.get();
 
 	for(auto & elem : town->creatures)
 	{
@@ -821,7 +820,8 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		INCOME = 1000,
 		GROWTH = 2000,
 	};
-	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
+	// TODO: configurable resources
+	auto columns = std::vector<int>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
 
 	int i = 0;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
@@ -846,7 +846,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				else if(isGrowth)
 					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.194")));
 				else
-					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource).getNum(), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
 			}
 
 			auto area = Rect(xPos, 60 + i * 30, j == 0 ? 60 : 50, 16);
@@ -1035,10 +1035,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	if(s->isControlledByAI() || GAME->server().isGuest())
 		labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, name, 95);
 	else
-	{
-		labelPlayerNameEdit = std::make_shared<CTextInput>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, false);
-		labelPlayerNameEdit->setText(name);
-	}
+		labelPlayerNameEdit = std::make_shared<CTextInputWithConfirm>(Rect(6, 3, 95, 15), EFonts::FONT_SMALL, ETextAlignment::CENTER, name, false, [this](){ updateName(); });
 
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 21, 45, 26), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->arraytxt[206 + whoCanPlay]);
 
@@ -1057,7 +1054,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		{
 			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
 			str.appendRawString(":\n");
-			for(auto & res : EGameResID::ALL_RESOURCES())
+			for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 				if(s->handicap.startBonus[res] != 0)
 				{
 					str.appendRawString("\n");
@@ -1114,28 +1111,6 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	bonus = std::make_shared<SelectedBox>(Point(271, 2), *s, BONUS);
 }
 
-bool OptionsTab::PlayerOptionsEntry::captureThisKey(EShortcut key)
-{
-	return labelPlayerNameEdit && labelPlayerNameEdit->hasFocus() && key == EShortcut::GLOBAL_ACCEPT;
-}
-
-void OptionsTab::PlayerOptionsEntry::keyPressed(EShortcut key)
-{
-	if(labelPlayerNameEdit && key == EShortcut::GLOBAL_ACCEPT)
-		updateName();
-}
-
-bool OptionsTab::PlayerOptionsEntry::receiveEvent(const Point & position, int eventType) const
-{
-	return eventType == AEventsReceiver::LCLICK; // capture all left clicks (not only within control)
-}
-
-void OptionsTab::PlayerOptionsEntry::clickReleased(const Point & cursorPosition)
-{
-	if(labelPlayerNameEdit && !labelPlayerNameEdit->pos.isInside(cursorPosition))
-		updateName();
-}
-
 void OptionsTab::PlayerOptionsEntry::updateName() {
 	if(labelPlayerNameEdit->getText() != name)
 	{
@@ -1146,8 +1121,6 @@ void OptionsTab::PlayerOptionsEntry::updateName() {
 			set->String() = labelPlayerNameEdit->getText();
 		}
 	}
-
-	labelPlayerNameEdit->removeFocus();
 	name = labelPlayerNameEdit->getText();
 }
 

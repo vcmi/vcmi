@@ -12,8 +12,11 @@
 #include "ui_victoryconditions.h"
 #include "../mapcontroller.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -405,12 +408,12 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			{
-				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
+				for(auto & resType : LIBRARY->resourceTypeHandler->getAllObjects())
 				{
 					MetaString str;
 					str.appendName(GameResID(resType));
 					auto resName = QString::fromStdString(str.toString());
-					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
+					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType.getNum()));
 				}
 			}
 
@@ -423,7 +426,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::HAVE_BUILDING
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			auto * ctown = LIBRARY->townh->randomTown;
+			auto * ctown = LIBRARY->townh->randomFaction->town.get();
 			for(int bId : ctown->getAllBuildings())
 				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
 
@@ -494,7 +497,11 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 void VictoryConditions::onObjectSelect()
 {
 	int vicConditions = ui->victoryComboBox->currentIndex() - 1;
-	for(int lvl : {0, 1})
+
+	std::vector<int>levels(controller->map()->levels());
+	std::iota (std::begin(levels), std::end(levels), 0);
+
+	for(int lvl : levels)
 	{
 		auto & l = controller->scene(lvl)->objectPickerView;
 		switch(vicConditions)
@@ -536,8 +543,11 @@ void VictoryConditions::onObjectSelect()
 void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 {
 	controller->settingsDialog->show();
+
+	std::vector<int>levels(controller->map()->levels());
+	std::iota (std::begin(levels), std::end(levels), 0);
 	
-	for(int lvl : {0, 1})
+	for(int lvl : levels)
 	{
 		auto & l = controller->scene(lvl)->objectPickerView;
 		l.clear();
@@ -559,7 +569,7 @@ void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 			continue;
 		
 		auto data = controller->map()->objects.at(w->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			w->setCurrentIndex(i);
 			break;

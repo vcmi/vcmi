@@ -23,6 +23,7 @@ public:
 	CLobbyScreen(ESelectionScreen type, bool hideScreen = false);
 	~CLobbyScreen();
 	void toggleTab(std::shared_ptr<CIntObject> tab) final;
+	void start(bool campaign);
 	void startCampaign();
 	void startScenario(bool allowOnlyAI = false);
 	void toggleMode(bool host);

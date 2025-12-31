@@ -92,7 +92,7 @@ namespace AIPathfinding
 
 	void SummonBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
-		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai);
+		Goals::AdventureSpellCast(hero, usedSpell).accept(ai);
 	}
 
 	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
@@ -139,10 +139,8 @@ namespace AIPathfinding
 
 	int32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const
 	{
-		SpellID summonBoat = SpellID::SUMMON_BOAT;
-
 		// FIXME: this should be hero->getSpellCost, however currently queries to bonus system are too slow
-		return summonBoat.toSpell()->getCost(0);
+		return usedSpell.toSpell()->getCost(0);
 	}
 }
 

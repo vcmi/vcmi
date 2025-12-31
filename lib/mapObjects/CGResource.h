@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "army/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,19 +26,20 @@ class DLL_LINKAGE CGResource : public CArmedInstance
 	static constexpr uint32_t RANDOM_AMOUNT = 0;
 	uint32_t amount = RANDOM_AMOUNT; //0 if random
 
-	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
 	int getAmountMultiplier() const;
-	void collectRes(const PlayerColor & player) const;
+	void collectRes(IGameEventCallback & gameEvents, const PlayerColor & player) const;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 public:
 	using CArmedInstance::CArmedInstance;
+	
+	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
 
 	GameResID resourceID() const;

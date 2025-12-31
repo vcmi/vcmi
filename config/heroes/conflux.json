@@ -13,8 +13,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "psychicElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "psychicElemental",
+						"includeUpgrades" : true
 					}
 				],
 				"type" : "PRIMARY_SKILL",
@@ -40,8 +41,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "earthElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "earthElemental",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -78,8 +80,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "fireElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "fireElemental",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -116,8 +119,9 @@
 				"attack" : {
 					"limiters" : [
 						{
-							"parameters" : [ "waterElemental", true ],
-							"type" : "CREATURE_TYPE_LIMITER"
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "waterElemental",
+							"includeUpgrades" : true
 						}
 					],
 					"subtype" : "primarySkill.attack",
@@ -141,8 +145,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "psychicElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "psychicElemental",
+						"includeUpgrades" : true
 					}
 				],
 				"type" : "PRIMARY_SKILL",
@@ -168,8 +173,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "earthElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "earthElemental",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -205,8 +211,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "fireElemental", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "fireElemental",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -244,8 +251,9 @@
 				"attack" : {
 					"limiters" : [
 						{
-							"parameters" : [ "waterElemental", true ],
-							"type" : "CREATURE_TYPE_LIMITER"
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "waterElemental",
+							"includeUpgrades" : true
 						}
 					],
 					"subtype" : "primarySkill.attack",

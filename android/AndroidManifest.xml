@@ -1,36 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="eu.vcmi.vcmi">
+	package="">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	
+	<!-- Touchscreen support -->
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+	<!-- Game controller support -->
+	<uses-feature android:name="android.hardware.bluetooth" android:required="false" />
+	<uses-feature android:name="android.hardware.gamepad" android:required="false" />
+	<uses-feature android:name="android.hardware.usb.host" android:required="false" />
+
+	<!-- External mouse input events -->
+	<uses-feature android:name="android.hardware.type.pc" android:required="false" />
 
 	<supports-screens
-        android:largeScreens="true"
-        android:xlargeScreens="true" />
-    <application
-        android:name="org.qtproject.qt5.android.bindings.QtApplication"
-        android:hardwareAccelerated="true"
-        android:hasFragileUserData="true"
-        android:allowBackup="false"
-        android:installLocation="auto"
-        android:icon="@mipmap/ic_launcher"
-        android:label="${applicationLabel}"
-        android:testOnly="false"
-        android:supportsRtl="true"
-        android:usesCleartextTraffic="false">
+		android:largeScreens="true"
+		android:xlargeScreens="true" />
+
+	<application
+		android:name="org.qtproject.qt5.android.bindings.QtApplication"
+		android:hardwareAccelerated="true"
+		android:hasFragileUserData="true"
+		android:allowBackup="false"
+		android:installLocation="auto"
+		android:icon="@mipmap/ic_launcher"
+		android:label="${applicationLabel}"
+		android:testOnly="false"
+		android:supportsRtl="true"
+		android:usesCleartextTraffic="false"
+		android:theme="@style/AppTheme"
+	>
 		<activity
 			android:name=".ActivityLauncher"
 			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
 			android:exported="true"
-            android:screenOrientation="sensorLandscape">
+			android:screenOrientation="sensorLandscape">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 
-			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts${applicationVariant}" /> 
+			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" /> 
 
 			<meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
 			<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
@@ -76,18 +90,27 @@
 			<!-- extract android style -->
 		</activity>
 
-        <activity
-            android:name=".VcmiSDLActivity"
-            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:screenOrientation="fullSensor" />
+		<activity
+			android:name=".VcmiSDLActivity"
+			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+			android:label="@string/app_name"
+			android:launchMode="singleTop"
+			android:screenOrientation="fullSensor" />
 
-        <service
-            android:name=".ServerService"
-            android:process="eu.vcmi.vcmi.srv"
-            android:description="@string/server_name"
-            android:exported="false"/>
-    </application>
+		<service
+			android:name=".ServerService"
+			android:process="eu.vcmi.vcmi.srv"
+			android:description="@string/server_name"
+			android:exported="false"/>
+
+		<!-- FileProvider for sharing files from app cache -->
+		<provider
+			android:name="androidx.core.content.FileProvider"
+			android:authorities="${applicationId}.fileprovider"
+			android:exported="false"
+			android:grantUriPermissions="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+		</provider>
+	</application>
 
 </manifest>

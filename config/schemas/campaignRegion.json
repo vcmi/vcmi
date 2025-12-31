@@ -1,0 +1,48 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI campaign region format",
+	"description" : "Format used to define campaign regions for h3c maps in VCMI",
+	"required" : [ "prefix", "colorSuffixLength", "desc" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"prefix" :
+		{
+			"type" : "string",
+			"description" : "Prefix for all images from this region"
+		},
+		"colorSuffixLength" :
+		{
+			"type" : "number",
+			"description" : "Number of symbols used to encode color, 1 or 2"
+		},
+		"background" : {
+			"type" : "string",
+			"description" : "Background image path"
+		},
+		"suffix" : {
+			"type" : "array",
+			"description" : "Enabled, Selected, Conquered"
+		},
+		"desc" :
+		{
+			"type" : "array",
+			"description" : "List of regions in this campaign",
+				"items" : {
+				"type" : "object",
+				"additionalProperties" : false,
+				"properties" : {
+					"infix" : {
+						"type" : "string"
+					},
+					"x" : {
+						"type" : "number"
+					},
+					"y" : {
+						"type" : "number"
+					}
+				}
+			}
+		}
+	}
+}

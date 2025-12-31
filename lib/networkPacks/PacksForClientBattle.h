@@ -11,8 +11,12 @@
 
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
-#include "../battle/BattleHexArray.h"
+#include "PacksForClient.h"
 #include "../battle/BattleAction.h"
+#include "../battle/BattleInfo.h"
+#include "../battle/BattleHexArray.h"
+#include "../battle/BattleUnitTurnReason.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
 
 class CClient;
@@ -26,10 +30,8 @@ class BattleInfo;
 
 struct DLL_LINKAGE BattleStart : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
-	BattleInfo * info = nullptr;
+	std::unique_ptr<BattleInfo> info;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -43,8 +45,6 @@ struct DLL_LINKAGE BattleStart : public CPackForClient
 
 struct DLL_LINKAGE BattleNextRound : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -58,11 +58,9 @@ struct DLL_LINKAGE BattleNextRound : public CPackForClient
 
 struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
-	ui32 stack = 0;
-	ui8 askPlayerInterface = true;
+	uint32_t stack = 0;
+	BattleUnitTurnReason reason;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -70,16 +68,16 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	{
 		h & battleID;
 		h & stack;
-		h & askPlayerInterface;
+		h & reason;
 		assert(battleID != BattleID::NONE);
 	}
 };
 
 struct DLL_LINKAGE BattleCancelled: public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -90,21 +88,16 @@ struct DLL_LINKAGE BattleCancelled: public CPackForClient
 
 struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	struct HeroBattleResults
 	{
-		HeroBattleResults()
-			: hero(nullptr), army(nullptr), exp(0) {}
-
-		CGHeroInstance * hero;
-		CArmedInstance * army;
-		TExpType exp;
+		ObjectInstanceID heroID;
+		ObjectInstanceID armyID;
+		TExpType exp = 0;
 
 		template <typename Handler> void serialize(Handler & h)
 		{
-			h & hero;
-			h & army;
+			h & heroID;
+			h & armyID;
 			h & exp;
 		}
 	};
@@ -112,6 +105,8 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	BattleID battleID = BattleID::NONE;
 	BattleSideArray<HeroBattleResults> heroResult;
 	BattleSide winnerSide;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -124,17 +119,14 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 
 struct DLL_LINKAGE BattleResult : public Query
 {
-	void applyFirstCl(CClient * cl);
-
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
-	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
+	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, 2 - draw
+	PlayerColor attacker; //used in case of a draw
 	BattleSideArray<std::map<CreatureID, si32>> casualties; //first => casualties of attackers - map crid => number
 	BattleSideArray<TExpType> exp{0,0}; //exp for attacker and defender
-	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	void visitTyped(ICPackVisitor & visitor) override;
-	void applyGs(CGameState *gs) override {}
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -144,7 +136,6 @@ struct DLL_LINKAGE BattleResult : public Query
 		h & winner;
 		h & casualties;
 		h & exp;
-		h & artifacts;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -153,9 +144,6 @@ struct DLL_LINKAGE BattleLogMessage : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
 	std::vector<MetaString> lines;
-
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -175,9 +163,6 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 	int distance = 0;
 	bool teleporting = false;
 	
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
@@ -193,9 +178,6 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 
 struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	BattleID battleID = BattleID::NONE;
 	std::vector<UnitChanges> changedStacks;
 
@@ -211,10 +193,6 @@ struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient
 
 struct BattleStackAttacked
 {
-	DLL_LINKAGE void applyGs(CGameState * gs);
-	DLL_LINKAGE void applyBattle(IBattleState * battleState);
-
-	BattleID battleID = BattleID::NONE;
 	ui32 stackAttacked = 0, attackerID = 0;
 	ui32 killedAmount = 0;
 	int64_t damageAmount = 0;
@@ -251,7 +229,6 @@ struct BattleStackAttacked
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & battleID;
 		h & stackAttacked;
 		h & attackerID;
 		h & newState;
@@ -259,7 +236,6 @@ struct BattleStackAttacked
 		h & killedAmount;
 		h & damageAmount;
 		h & spellID;
-		assert(battleID != BattleID::NONE);
 	}
 	bool operator<(const BattleStackAttacked & b) const
 	{
@@ -269,14 +245,13 @@ struct BattleStackAttacked
 
 struct DLL_LINKAGE BattleAttack : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
 	BattleUnitsChanged attackerChanges;
 
 	BattleID battleID = BattleID::NONE;
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking = 0;
 	ui32 flags = 0; //uses Eflags (below)
-	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128 };
+	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128, CUSTOM_ANIMATION = 256};
 
 	BattleHex tile;
 	SpellID spellID = SpellID::NONE; //for SPELL_LIKE
@@ -313,6 +288,10 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	{
 		return flags & LIFE_DRAIN;
 	}
+	bool playCustomAnimation() const
+	{
+		return flags & CUSTOM_ANIMATION;
+	}
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -336,8 +315,6 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 		: ba(std::move(act))
 	{
 	}
-	void applyFirstCl(CClient * cl);
-	void applyGs(CGameState * gs) override;
 
 	BattleID battleID = BattleID::NONE;
 	BattleAction ba;
@@ -355,7 +332,6 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 struct DLL_LINKAGE EndAction : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
-	void applyGs(CGameState *gs) override {}
 
 	BattleID battleID = BattleID::NONE;
 
@@ -367,8 +343,6 @@ struct DLL_LINKAGE EndAction : public CPackForClient
 
 struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
 	bool activeCast = true;
 	BattleSide side = BattleSide::NONE; //which hero did cast spell
@@ -402,9 +376,6 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 
 struct DLL_LINKAGE StacksInjured : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	BattleID battleID = BattleID::NONE;
 	std::vector<BattleStackAttacked> stacks;
 
@@ -421,24 +392,47 @@ struct DLL_LINKAGE StacksInjured : public CPackForClient
 struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
-	PlayerColor player1, player2;
+	PlayerColor victor;
+	PlayerColor loser;
+	ChangeSpells learnedSpells;
+	std::vector<BulkMoveArtifacts> movingArtifacts;
+	std::vector<GrowUpArtifact> growingArtifacts;
+	std::vector<DischargeArtifact> dischargingArtifacts;
+	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
-	void applyGs(CGameState *gs) override {}
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & player1;
-		h & player2;
+		h & victor;
+		h & loser;
+		h & learnedSpells;
+		h & movingArtifacts;
+		h & growingArtifacts;
+		h & dischargingArtifacts;
+		h & raisedStack;
+		assert(battleID != BattleID::NONE);
+	}
+};
+
+struct DLL_LINKAGE BattleEnded : public CPackForClient
+{
+	BattleID battleID = BattleID::NONE;
+	PlayerColor victor;
+	PlayerColor loser;
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & battleID;
+		h & victor;
+		h & loser;
 		assert(battleID != BattleID::NONE);
 	}
 };
 
 struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	BattleID battleID = BattleID::NONE;
 	std::vector<ObstacleChanges> changes;
 
@@ -468,12 +462,6 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient
 		}
 	};
 
-	CatapultAttack();
-	~CatapultAttack() override;
-
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	BattleID battleID = BattleID::NONE;
 	std::vector< AttackInfo > attackedParts;
 	int attacker = -1; //if -1, then a spell caused this
@@ -492,8 +480,6 @@ struct DLL_LINKAGE CatapultAttack : public CPackForClient
 struct DLL_LINKAGE BattleSetStackProperty : public CPackForClient
 {
 	enum BattleStackProperty { CASTS, ENCHANTER_COUNTER, UNBIND, CLONED, HAS_CLONE };
-
-	void applyGs(CGameState * gs) override;
 
 	BattleID battleID = BattleID::NONE;
 	int stackID = 0;
@@ -518,11 +504,9 @@ protected:
 ///activated at the beginning of turn
 struct DLL_LINKAGE BattleTriggerEffect : public CPackForClient
 {
-	void applyGs(CGameState * gs) override; //effect
-
 	BattleID battleID = BattleID::NONE;
 	int stackID = 0;
-	int effect = 0; //use corresponding Bonus type
+	BonusType effect = BonusType::NONE;
 	int val = 0;
 	int additionalInfo = 0;
 
@@ -542,8 +526,6 @@ protected:
 
 struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-
 	BattleID battleID = BattleID::NONE;
 	EGateState state = EGateState::NONE;
 	template <typename Handler> void serialize(Handler & h)

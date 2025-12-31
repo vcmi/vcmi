@@ -31,7 +31,9 @@ namespace BuildingSubID
 		PORTAL_OF_SUMMONING,
 		ESCAPE_TUNNEL,
 		TREASURY,
-		BANK
+		BANK,
+		AURORA_BOREALIS,
+		DEITY_OF_FIRE
 	};
 }
 
@@ -257,6 +259,20 @@ enum class EWeekType : int8_t
 	BONUS_GROWTH,
 	DEITYOFFIRE,
 	PLAGUE
+};
+
+enum class ColorScheme : int8_t
+{
+	NONE,
+	KEEP,
+	GRAYSCALE,
+	H2_SCHEME
+};
+
+enum class ChangeValueMode : int8_t
+{
+	RELATIVE,
+	ABSOLUTE
 };
 
 VCMI_LIB_NAMESPACE_END

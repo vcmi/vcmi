@@ -12,61 +12,33 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSaveFile::CSaveFile(const boost::filesystem::path &fname)
+CSaveFile::CSaveFile()
 	: serializer(this)
 {
-	openNextFile(fname);
+	saveData.reserve(128*1024);
+	static const char * SAVE_HEADER = "VCMI";
+
+	write(reinterpret_cast<const std::byte*>(SAVE_HEADER), 4); //write magic identifier
+	serializer & ESerializationVersion::CURRENT; //write format version
+	write(reinterpret_cast<const std::byte*>(SAVEGAME_MAGIC.c_str()), SAVEGAME_MAGIC.length());
 }
 
-//must be instantiated in .cpp file for access to complete types of all member fields
-CSaveFile::~CSaveFile() = default;
+void CSaveFile::write(const boost::filesystem::path & fileName)
+{
+	std::ofstream sfile(fileName.c_str(), std::ios::out | std::ios::binary);
+
+	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
+
+	if(!sfile)
+		throw std::runtime_error("Error: cannot open file '" + fileName.string() + "' for writing!");
+
+	sfile.write(reinterpret_cast<const char *>(saveData.data()), saveData.size());
+}
 
 int CSaveFile::write(const std::byte * data, unsigned size)
 {
-	sfile->write(reinterpret_cast<const char *>(data), size);
+	saveData.insert(saveData.end(), data, data + size);
 	return size;
-}
-
-void CSaveFile::openNextFile(const boost::filesystem::path &fname)
-{
-	fName = fname;
-	try
-	{
-		sfile = std::make_unique<std::fstream>(fname.c_str(), std::ios::out | std::ios::binary);
-		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
-
-		if(!(*sfile))
-			THROW_FORMAT("Error: cannot open to write %s!", fname);
-
-		sfile->write("VCMI",4); //write magic identifier
-		serializer & ESerializationVersion::CURRENT; //write format version
-	}
-	catch(...)
-	{
-		logGlobal->error("Failed to save to %s", fname.string());
-		clear();
-		throw;
-	}
-}
-
-void CSaveFile::reportState(vstd::CLoggerBase * out)
-{
-	out->debug("CSaveFile");
-	if(sfile.get() && *sfile)
-	{
-		out->debug("\tOpened %s \tPosition: %d", fName, sfile->tellp());
-	}
-}
-
-void CSaveFile::clear()
-{
-	fName.clear();
-	sfile = nullptr;
-}
-
-void CSaveFile::putMagicBytes(const std::string &text)
-{
-	write(reinterpret_cast<const std::byte*>(text.c_str()), text.length());
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -77,7 +77,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 
 	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
 
-	PathfinderOptions pathfinderOptions(cb.get());
+	PathfinderOptions pathfinderOptions(*cb);
 
 	pathfinderOptions.useTeleportTwoWay = true;
 	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();
@@ -415,7 +415,7 @@ void Nullkiller::makeTurn()
 			if(bestTask->priority > 0)
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
+				logAi->info("Pass %d priorityPass %d: Performing prio 0 task %s with prio: %d", i, j, bestTask->toString(), bestTask->priority);
 #endif
 				if(!executeTask(bestTask))
 					return;
@@ -461,7 +461,7 @@ void Nullkiller::makeTurn()
 			return a->priority > b->priority;
 		});
 
-		logAi->debug("Decision madel in %ld", timeElapsed(start));
+		logAi->debug("Decision made in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{
@@ -642,17 +642,17 @@ bool Nullkiller::handleTrading()
 {
 	bool haveTraded = false;
 	bool shouldTryToTrade = true;
-	int marketId = -1;
+	ObjectInstanceID marketId;
 	for (auto town : cb->getTownsInfo())
 	{
-		if (town->hasBuiltSomeTradeBuilding())
+		if (town->hasBuiltResourceMarketplace())
 		{
 			marketId = town->id;
 		}
 	}
-	if (marketId == -1)
+	if (!marketId.hasValue())
 		return false;
-	if (const CGObjectInstance* obj = cb->getObj(ObjectInstanceID(marketId), false))
+	if (const CGObjectInstance* obj = cb->getObj(marketId, false))
 	{
 		if (const auto* m = dynamic_cast<const IMarket*>(obj))
 		{

@@ -214,7 +214,6 @@ TEST_F(ResourceManagerTest, freeResources)
 	ASSERT_GE(res[EGameResID::CRYSTAL], 0);
 	ASSERT_GE(res[EGameResID::GEMS], 0);
 	ASSERT_GE(res[EGameResID::GOLD], 0);
-	ASSERT_GE(res[EGameResID::MITHRIL], 0);
 }
 
 TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)

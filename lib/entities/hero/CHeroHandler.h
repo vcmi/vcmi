@@ -25,14 +25,25 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
 	std::vector<TExpType> expPerLevel;
 
+	struct SpecialtyToGenerate
+	{
+		HeroTypeID hero;
+		SecondarySkill skill;
+		int stepSize;
+	};
+
+	/// Helper field to generate specialties for heroes after loading is complete
+	mutable std::vector<SpecialtyToGenerate> skillSpecialtiesToGenerate;
+
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
 
-	std::vector<std::function<void()>> callAfterLoadFinalization;
+	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const;
 
 public:
 	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount

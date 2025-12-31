@@ -83,7 +83,6 @@ int main(int argc, const char * argv[])
 	logConfigurator.configure();
 
 	LIBRARY->initializeLibrary();
-	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{
 		bool connectToLobby = opts.count("lobby");
@@ -100,7 +99,7 @@ int main(int argc, const char * argv[])
 	}
 
 	logConfigurator.deconfigure();
-	vstd::clear_pointer(LIBRARY);
 
+	delete LIBRARY;
 	return 0;
 }

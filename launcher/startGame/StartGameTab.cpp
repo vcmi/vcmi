@@ -17,6 +17,7 @@
 #include "../updatedialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
@@ -51,9 +52,11 @@ StartGameTab::StartGameTab(QWidget * parent)
 	ui->buttonGameEditor->hide();
 #endif
 
-	auto clipboard = QGuiApplication::clipboard();
-
-	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	if (settings["launcher"]["trackClipboardState"].Bool())
+	{
+		auto clipboard = QGuiApplication::clipboard();
+		connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	}
 }
 
 void StartGameTab::clipboardDataChanged()
@@ -96,7 +99,8 @@ void StartGameTab::refreshState()
 	refreshPresets();
 	refreshMods();
 
-	clipboardDataChanged();
+	if (settings["launcher"]["trackClipboardState"].Bool())
+		clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
@@ -181,6 +185,14 @@ void StartGameTab::refreshMods()
 	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%n/%1 installed", "", chroniclesMods.size()).arg(chroniclesCount));
 	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
+
+#ifdef VCMI_ANDROID
+	bool canInstallHD = false; // TODO: HD import on android
+#else
+	bool canInstallHD = !Helper::getMainWindow()->getModView()->isInstalledHd();
+#endif
+	ui->buttonInstallHdEdition->setVisible(canInstallHD);
+	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
@@ -386,6 +398,32 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
 }
 
+void StartGameTab::on_buttonInstallHdEditionHelp_clicked()
+{
+	QString message = tr(
+		"To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam."
+		"Select the Heroes HD folder from Steam.\n\n"
+		"After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics."
+	);
+	MessageBoxCustom::information(this, ui->buttonInstallHdEdition->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEdition_clicked()
+{
+	HdExtractor extractor(this);
+	extractor.installHd();
+
+	QString modName = "hd-edition";
+	auto modView = Helper::getMainWindow()->getModView();
+	
+	modView->reload(modName);
+	if (modView->isModInstalled(modName))
+	{
+		modView->enableModByName(modName);
+		refreshState();
+	}
+}
+
 void StartGameTab::on_buttonPresetExport_clicked()
 {
 	JsonNode presetJson = Helper::getMainWindow()->getModView()->exportCurrentPreset();
@@ -398,8 +436,21 @@ void StartGameTab::on_buttonPresetExport_clicked()
 void StartGameTab::on_buttonPresetImport_clicked()
 {
 	QString presetString = QGuiApplication::clipboard()->text();
+
+	if (!presetString.startsWith("{"))
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
+
 	QByteArray presetBytes(presetString.toUtf8());
 	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
+
+	if (presetJson["name"].String().empty() || presetJson["mods"].Vector().empty())
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
 
 	Helper::getMainWindow()->getModView()->importPreset(presetJson);
 	Helper::getMainWindow()->switchToModsTab();

@@ -61,6 +61,8 @@ public:
 	*/
 	int moraleValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
 	int luckValAndBonusList(std::shared_ptr<const BonusList> & bonusList) const;
+
+	bool unaffectedByMorale() const;
 };
 
 VCMI_LIB_NAMESPACE_END

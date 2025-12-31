@@ -118,25 +118,58 @@ function(vcmi_print_git_commit_hash)
 
 endfunction()
 
-#install imported target on windows
-function(install_vcpkg_imported_tgt tgt)
-	get_target_property(TGT_LIB_LOCATION ${tgt} LOCATION)
-	get_filename_component(TGT_LIB_FOLDER ${TGT_LIB_LOCATION} PATH)
-	get_filename_component(tgt_name ${TGT_LIB_LOCATION} NAME_WE)
-	get_filename_component(TGT_DLL ${TGT_LIB_FOLDER}/../bin/${tgt_name}.dll ABSOLUTE)
-	message("${tgt_name}: ${TGT_DLL}")
-	install(FILES ${TGT_DLL} DESTINATION ${BIN_DIR})
-endfunction(install_vcpkg_imported_tgt)
+# install(FILES) of shared libs but using symlink instead of copying
+function(vcmi_install_libs_symlink libs)
+	install(CODE "
+		foreach(lib ${libs})
+			cmake_path(GET lib FILENAME filename)
+			file(CREATE_LINK \${lib} \"\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}/\${filename}\"
+				COPY_ON_ERROR SYMBOLIC
+			)
+		endforeach()
+	")
+endfunction()
 
-# install dependencies from Conan, install_dir should contain \${CMAKE_INSTALL_PREFIX}
-function(vcmi_install_conan_deps install_dir)
+# install dependencies from Conan, CONAN_RUNTIME_LIBS_FILE is set in conanfile.py
+function(vcmi_install_conan_deps)
 	if(NOT USING_CONAN)
 		return()
 	endif()
-	install(CODE "
-		execute_process(COMMAND
-			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CONAN_INSTALL_FOLDER}\" --import-folder \"${install_dir}\"
-		)
-		file(REMOVE \"${install_dir}/conan_imports_manifest.txt\")
-	")
+
+	file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
+	if(ANDROID)
+		vcmi_install_libs_symlink("${runtimeLibs}")
+	else()
+		install(FILES ${runtimeLibs} DESTINATION ${LIB_DIR})
+	endif()
+endfunction()
+
+function(vcmi_deploy_qt deployQtToolName deployQtOptions)
+	# TODO: use qt_generate_deploy_app_script() with Qt 6
+	find_program(TOOL_DEPLOYQT NAMES ${deployQtToolName} PATHS "${qtBinDir}")
+	if(TOOL_DEPLOYQT)
+		install(CODE "
+			execute_process(
+				COMMAND \"${TOOL_DEPLOYQT}\" ${deployQtOptions} -verbose=2
+				COMMAND_ERROR_IS_FATAL ANY
+			)
+		")
+	else()
+		message(WARNING "${deployQtToolName} not found, running cpack would result in broken package")
+	endif()
+endfunction()
+
+# generate .bat for .exe with proper PATH
+function(vcmi_create_exe_shim tgt)
+	if(NOT CONAN_RUNENV_SCRIPT)
+		return()
+	endif()
+
+	set(exe "%~dp0$<TARGET_FILE_NAME:${tgt}>")
+	if(EXISTS "${CONAN_RUNENV_SCRIPT}.bat")
+		set(batContent "call \"${CONAN_RUNENV_SCRIPT}.bat\" & start \"\" \"${exe}\"")
+	else()
+		set(batContent "powershell -ExecutionPolicy Bypass -Command \"& '${CONAN_RUNENV_SCRIPT}.ps1' ; & '${exe}'\"")
+	endif()
+	file(GENERATE OUTPUT "$<TARGET_FILE_DIR:${tgt}>/$<TARGET_FILE_BASE_NAME:${tgt}>.bat" CONTENT "${batContent}")
 endfunction()

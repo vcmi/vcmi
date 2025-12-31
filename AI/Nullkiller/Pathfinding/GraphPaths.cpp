@@ -11,7 +11,7 @@
 #include "GraphPaths.h"
 #include "AIPathfinderConfig.h"
 #include "../../../lib/CRandomGenerator.h"
-#include "../../../CCallback.h"
+#include "../../../lib/mapObjects/CQuest.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
@@ -58,7 +58,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 	graph.copyFrom(*ai->baseGraph);
 	graph.connectHeroes(ai);
 
-	visualKey = std::to_string(ai->playerID) + ":" + targetHero->getNameTranslated();
+	visualKey = std::to_string(ai->playerID.getNum()) + ":" + targetHero->getNameTranslated();
 	pathNodes.clear();
 
 	GraphNodeComparer cmp(pathNodes);
@@ -82,11 +82,11 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 				|| node.obj->ID == Obj::BORDER_GATE)
 			{
 				auto questObj = dynamic_cast<const IQuestObject *>(node.obj);
-				auto questInfo = QuestInfo(questObj->quest, node.obj, pos.coord);
+				auto questInfo = QuestInfo(node.obj->id);
 
 				if(node.obj->ID == Obj::QUEST_GUARD
-					&& questObj->quest->mission == Rewardable::Limiter{}
-					&& questObj->quest->killTarget == ObjectInstanceID::NONE)
+					&& questObj->getQuest().mission == Rewardable::Limiter{}
+					&& questObj->getQuest().killTarget == ObjectInstanceID::NONE)
 				{
 					continue;
 				}

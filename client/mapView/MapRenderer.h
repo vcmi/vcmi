@@ -9,11 +9,11 @@
  */
 #pragma once
 
+#include "../../lib/int3.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class int3;
 class ObjectInstanceID;
 class CGObjectInstance;
 
@@ -73,14 +73,16 @@ public:
 class MapRendererObjects
 {
 	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
+	mutable std::map<ImagePath, std::shared_ptr<IImage>> images;
 
 	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
 	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay);
+	std::shared_ptr<IImage> getImage(const ImagePath & filename) const;
 
-	std::shared_ptr<IImage> getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
+	std::shared_ptr<IImage> getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
 	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image);
 	void renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj);
@@ -137,6 +139,10 @@ class MapRendererOverlay
 	std::shared_ptr<IImage> imageVisitable;
 	std::shared_ptr<IImage> imageBlocked;
 	std::shared_ptr<IImage> imageSpellRange;
+	std::shared_ptr<IImage> imageEvent;
+	std::shared_ptr<IImage> imageGrail;
+
+	int3 grailPos;
 public:
 	MapRendererOverlay();
 

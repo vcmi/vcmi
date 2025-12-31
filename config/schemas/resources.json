@@ -1,0 +1,44 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI resources format",
+	"description" : "Format used to define new resources in VCMI",
+	"required" : [ "name", "price" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"index" : {
+			"type" : "number",
+			"description" : "numeric id of h3 resource, prohibited for new resources"
+		},
+		"name" : {
+			"type" : "string",
+			"description" : "Localizable name of this resource"
+		},
+		"images" : {
+			"type" : "object",
+			"description" : "Resource icons of varying size",
+			"required" : [ "small", "medium", "large"],
+			"properties" : {
+				"small" : {
+					"type" : "string",
+					"description" : "20x18 resource icon",
+					"format" : "imageFile"
+				},
+				"medium" : {
+					"type" : "string",
+					"description" : "32x32 resource icon",
+					"format" : "imageFile"
+				},
+				"large" : {
+					"type" : "string",
+					"description" : "82x93 resource icon",
+					"format" : "imageFile"
+				}
+			}
+		},
+		"price" : {
+			"type" : "number",
+			"description" : "Price of resource in gold"
+		}
+	}
+}

@@ -13,6 +13,8 @@
 #include "../CPlayerInterface.h"
 
 #include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../CPlayerInterface.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
@@ -21,12 +23,12 @@
 #include "../adventureMap/CMinimap.h"
 #include "../render/Canvas.h"
 
-#include "../../CCallback.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -74,11 +76,7 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 	OBJECT_CONSTRUCTION;
 	icons.clear();
 
-	int3 tile;
-	if (q->obj)
-		tile = q->obj->visitablePos();
-	else
-		tile = q->tile;
+	int3 tile = q->getPosition(GAME->interface()->cb.get());
 
 	Point offset = tileToPixels(tile);
 
@@ -101,8 +99,8 @@ void CQuestMinimap::update()
 
 void CQuestMinimap::iconClicked()
 {
-	if(currentQuest->obj)
-		adventureInt->centerOnTile(currentQuest->obj->visitablePos());
+	if(currentQuest->obj.hasValue())
+		adventureInt->centerOnTile(currentQuest->getObject(GAME->interface()->cb.get())->visitablePos());
 	//moveAdvMapSelection();
 }
 
@@ -145,11 +143,14 @@ void CQuestLog::recreateLabelList()
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
+		auto questPtr = quests[i].getQuest(GAME->interface()->cb.get());
+		auto questObject = quests[i].getObject(GAME->interface()->cb.get());
+
 		// Quests without mision don't have text for them and can't be displayed
-		if (quests[i].quest->mission == Rewardable::Limiter{})
+		if (quests[i].getQuest(GAME->interface()->cb.get())->mission == Rewardable::Limiter{})
 			continue;
 
-		if (quests[i].quest->isCompleted)
+		if (questPtr->isCompleted)
 		{
 			completeMissing = false;
 			if (hideComplete)
@@ -157,10 +158,10 @@ void CQuestLog::recreateLabelList()
 		}
 
 		MetaString text;
-		quests[i].quest->getRolloverText (quests[i].obj->cb, text, false);
-		if (quests[i].obj)
+		questPtr->getRolloverText(GAME->interface()->cb.get(), text, false);
+		if (quests[i].obj.hasValue())
 		{
-			if (auto seersHut = dynamic_cast<const CGSeerHut *>(quests[i].obj))
+			if (auto seersHut = dynamic_cast<const CGSeerHut *>(questObject))
 			{
 				MetaString toSeer;
 				toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
@@ -168,7 +169,7 @@ void CQuestLog::recreateLabelList()
 				text.replaceRawString(toSeer.toString());
 			}
 			else
-				text.replaceRawString(quests[i].obj->getObjectName()); //get name of the object
+				text.replaceRawString(questObject->getObjectName()); //get name of the object
 		}
 		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
@@ -177,7 +178,7 @@ void CQuestLog::recreateLabelList()
 		labels.push_back(label);
 
 		// Select latest active quest
-		if(!quests[i].quest->isCompleted)
+		if(!questPtr->isCompleted)
 			selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());
@@ -233,7 +234,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 	MetaString text;
 	std::vector<Component> components;
-	currentQuest->quest->getVisitText(currentQuest->obj->cb, text, components, true);
+	currentQuest->getQuest(GAME->interface()->cb.get())->getVisitText(GAME->interface()->cb.get(), text, components, true);
 	if(description->slider)
 		description->slider->scrollToMin(); // scroll text to start position
 	description->setText(text.toString()); //TODO: use special log entry text

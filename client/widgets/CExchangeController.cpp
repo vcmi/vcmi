@@ -15,8 +15,7 @@
 
 #include "../widgets/CGarrisonInt.h"
 
-#include "../../CCallback.h"
-
+#include "../lib/callback/CCallback.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 
 CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2)
@@ -27,43 +26,51 @@ CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceI
 
 void CExchangeController::swapArmy()
 {
-	auto getStacks = [](const CArmedInstance * source) -> std::vector<std::pair<SlotID, CStackInstance*>>
+	const auto & leftSlots = left->Slots();
+	const auto & rightSlots = right->Slots();
+
+	auto leftIt = leftSlots.begin();
+	auto rightIt = rightSlots.begin();
+
+	// Swap slots that are full in both armies
+	// [A] [B] => [B] [A]
+	for (SlotID slotID(0); slotID < GameConstants::ARMY_SIZE; ++slotID)
 	{
-		auto slots = source->Slots();
-		return std::vector<std::pair<SlotID, CStackInstance*>>(slots.begin(), slots.end());
-	};
-
-	auto leftSlots = getStacks(left);
-	auto rightSlots = getStacks(right);
-
-	auto i = leftSlots.begin();
-	auto j = rightSlots.begin();
-
-	for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
-	{
-		GAME->interface()->cb->swapCreatures(left, right, i->first, j->first);
+		if (left->hasStackAtSlot(slotID) && right->hasStackAtSlot(slotID))
+			GAME->interface()->cb->swapCreatures(left, right, slotID, slotID);
 	}
 
-	if(i != leftSlots.end())
+	// Swap pairs of stacks in different slots and correct their positions
+	// [A] [ ]    [B] [ ]    [ ] [A]
+	//         =>         =>
+	// [ ] [B]    [ ] [A]    [B] [ ]
+	for (;;)
 	{
-		auto freeSlots = right->getFreeSlots();
-		auto slot = freeSlots.begin();
+		while (leftIt != leftSlots.end() && right->hasStackAtSlot(leftIt->first))
+			leftIt++;
 
-		for(; i != leftSlots.end() && slot != freeSlots.end(); i++, slot++)
-		{
-			GAME->interface()->cb->swapCreatures(left, right, i->first, *slot);
-		}
-	}
-	else if(j != rightSlots.end())
-	{
-		auto freeSlots = left->getFreeSlots();
-		auto slot = freeSlots.begin();
+		while (rightIt != rightSlots.end() && left->hasStackAtSlot(rightIt->first))
+			rightIt++;
 
-		for(; j != rightSlots.end() && slot != freeSlots.end(); j++, slot++)
-		{
-			GAME->interface()->cb->swapCreatures(left, right, *slot, j->first);
-		}
+		if (leftIt == leftSlots.end() || rightIt == rightSlots.end())
+			break;
+
+		GAME->interface()->cb->swapCreatures(left, right, leftIt->first, rightIt->first);
+
+		GAME->interface()->cb->swapCreatures(left, left, leftIt->first, rightIt->first);
+		GAME->interface()->cb->swapCreatures(right, right, rightIt->first, leftIt->first);
+
+		leftIt++;
+		rightIt++;
 	}
+
+	// Move remaining unpaired stacks (if armies size is different)
+	// [A] [ ] => [ ] [A]
+	for(; leftIt != leftSlots.end(); leftIt++)
+		GAME->interface()->cb->swapCreatures(left, right, leftIt->first, leftIt->first);
+
+	for(; rightIt != rightSlots.end(); rightIt++)
+		GAME->interface()->cb->swapCreatures(left, right, rightIt->first, rightIt->first);
 }
 
 void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldSlot)
@@ -73,8 +80,8 @@ void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldS
 
 	if(!heldSlot.has_value())
 	{
-		auto weakestSlot = vstd::minElementByFun(source->Slots(),
-			[](const std::pair<SlotID, CStackInstance*> & s) -> int
+		const auto & weakestSlot = vstd::minElementByFun(source->Slots(),
+			[](const auto & s) -> int
 			{
 				return s.second->getCreatureID().toCreature()->getAIValue();
 			});

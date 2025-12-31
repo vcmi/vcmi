@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "GameLibrary.h"
 
-#include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
 #include "CConfigHandler.h"
@@ -19,22 +18,25 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
+#include "entities/artifact/CArtHandler.h"
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "campaign/CampaignRegionsHandler.h"
+#include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
-#include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
@@ -71,6 +73,11 @@ const HeroClassService * GameLibrary::heroClasses() const
 const HeroTypeService * GameLibrary::heroTypes() const
 {
 	return heroh.get();
+}
+
+const ResourceTypeService * GameLibrary::resources() const
+{
+	return resourceTypeHandler.get();
 }
 
 #if SCRIPTING_ENABLED
@@ -158,6 +165,7 @@ void GameLibrary::initializeFilesystem(bool extractArchives)
 	loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
+	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
 	loadModFilesystem();
 }
 
@@ -168,6 +176,7 @@ void GameLibrary::initializeLibrary()
 
 	createHandler(generaltexth);
 	createHandler(bth);
+	createHandler(resourceTypeHandler);
 	createHandler(roadTypeHandler);
 	createHandler(riverTypeHandler);
 	createHandler(terrainTypeHandler);
@@ -177,11 +186,12 @@ void GameLibrary::initializeLibrary()
 	createHandler(creh);
 	createHandler(townh);
 	createHandler(biomeHandler);
-	createHandler(objh);
 	createHandler(objtypeh);
+	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(skillh);
 	createHandler(terviewh);
+	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 #if SCRIPTING_ENABLED
 	createHandler(scriptHandler);
@@ -191,6 +201,8 @@ void GameLibrary::initializeLibrary()
 
 	modh->load();
 	modh->afterLoad();
+
+	createHandler(mapFormat);
 }
 
 #if SCRIPTING_ENABLED

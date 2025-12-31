@@ -16,6 +16,8 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -24,6 +26,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
 
 
 // TODO: remove
@@ -130,7 +133,7 @@ bool BattleEvaluator::hasWorkingTowers() const
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
 {
 	//TODO: faerie dragon type spell should be selected by server
-	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
+	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack, true);
 
 	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
 	{
@@ -567,7 +570,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ourTurnSpan++;
 				}
 
-				state->nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId(), BattleUnitTurnReason::TURN_QUEUE);
 
 				PotentialTargets potentialTargets(unit, damageCache, state);
 
@@ -888,6 +891,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 	}
 
+
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
@@ -917,6 +921,17 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		}
 
 		totalGain += healthDiff;
+	}
+
+	// consider the case in which spell summons units
+	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
+		{
+			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
+		});
+
+	for(auto unit : newUnits)
+	{
+		totalGain += unit->getAvailableHealth();
 	}
 
 	ps.value = totalGain;

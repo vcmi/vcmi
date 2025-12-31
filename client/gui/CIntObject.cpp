@@ -121,6 +121,11 @@ void CIntObject::enable()
 	recActions = ALL_ACTIONS;
 }
 
+bool CIntObject::isDisabled() const
+{
+	return recActions == NO_ACTIONS;
+}
+
 void CIntObject::setEnabled(bool on)
 {
 	if (on)
@@ -296,6 +301,15 @@ const Rect & CIntObject::center(const Point & p, bool propagate)
 bool CIntObject::captureThisKey(EShortcut key)
 {
 	return false;
+}
+
+Point CIntObject::adjustNegativeCoordinate(int posx, int posy)
+{
+	if(posx < 0)
+		posx = pos.w + posx;
+	if(posy < 0)
+		posy = pos.h + posy;
+	return Point(posx, posy);
 }
 
 CKeyShortcut::CKeyShortcut()

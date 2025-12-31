@@ -15,6 +15,7 @@
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -38,6 +39,10 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 {
 	if (!mapping["supported"].Bool())
 		throw std::runtime_error("Unsupported map format!");
+
+	formatSettings.Struct(); // change type
+	if (!mapping["settings"].isNull())
+		JsonUtils::inherit(formatSettings, mapping["settings"]);
 
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
@@ -89,6 +94,17 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
+	for (auto entry : mapping["campaignVideo"].Struct())
+	{
+		if(mappingCampaignVideo[entry.second.Integer()].first.empty())
+			mappingCampaignVideo[entry.second.Integer()].first = VideoPath::builtinTODO(entry.first);
+		else
+			mappingCampaignVideo[entry.second.Integer()].second = VideoPath::builtinTODO(entry.first);
+	}
+
+	for (auto entry : mapping["campaignMusic"].Struct())
+		mappingCampaignMusic[entry.second.Integer()] = AudioPath::builtinTODO(entry.first);
+
 	loadMapping(mappingHeroPortrait, mapping["portraits"], "hero");
 	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
 	loadMapping(mappingFaction, mapping["factions"], "faction");
@@ -98,6 +114,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	loadMapping(mappingTerrain, mapping["terrains"], "terrain");
 	loadMapping(mappingArtifact, mapping["artifacts"], "artifact");
 	loadMapping(mappingSecondarySkill, mapping["skills"], "skill");
+	loadMapping(mappingCampaignRegions, mapping["campaignRegions"], "campaignRegion");
 }
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
@@ -211,6 +228,30 @@ SecondarySkill MapIdentifiersH3M::remap(SecondarySkill input) const
 	if (mappingSecondarySkill.count(input))
 		return mappingSecondarySkill.at(input);
 	return input;
+}
+
+CampaignRegionID MapIdentifiersH3M::remap(CampaignRegionID input) const
+{
+	if (!mappingCampaignRegions.count(input))
+		throw std::out_of_range("Campaign region with ID " + std::to_string(input.getNum()) + " is not defined");
+
+	return mappingCampaignRegions.at(input);
+}
+
+std::pair<VideoPath, VideoPath> MapIdentifiersH3M::remapCampaignVideo(int input) const
+{
+	if (!mappingCampaignVideo.count(input))
+		throw std::out_of_range("Campaign video with ID " + std::to_string(input) + " is not defined");
+
+	return mappingCampaignVideo.at(input);
+}
+
+AudioPath MapIdentifiersH3M::remapCampaignMusic(int input) const
+{
+	if (!mappingCampaignMusic.count(input))
+		throw std::out_of_range("Campaign music with ID " + std::to_string(input) + " is not defined");
+
+	return mappingCampaignMusic.at(input);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "PlayerLocalState.h"
 
-#include "../CCallback.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -89,6 +89,16 @@ void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 	if(!hasPath(h))
 		return;
 	setPath(h, getPath(h).endPos());
+}
+
+SpellID PlayerLocalState::getCurrentSpell() const
+{
+	return currentSpell;
+}
+
+void PlayerLocalState::setCurrentSpell(SpellID castedSpell)
+{
+	currentSpell = castedSpell;
 }
 
 const CGHeroInstance * PlayerLocalState::getCurrentHero() const
@@ -315,14 +325,14 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 	for (auto const * town : ownedTowns)
 	{
 		JsonNode record;
-		record["id"].Integer() = town->id;
+		record["id"].Integer() = town->id.getNum();
 		dest["towns"].Vector().push_back(record);
 	}
 
 	for (auto const * hero : wanderingHeroes)
 	{
 		JsonNode record;
-		record["id"].Integer() = hero->id;
+		record["id"].Integer() = hero->id.getNum();
 		if (vstd::contains(sleepingHeroes, hero))
 			record["sleeping"].Bool() = true;
 
@@ -340,7 +350,7 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 	dest["spellbook"]["tabAdvmap"].Integer() = spellbookSettings.spellbookLastTabAdvmap;
 
 	if (currentSelection)
-		dest["currentSelection"].Integer() = currentSelection->id;
+		dest["currentSelection"].Integer() = currentSelection->id.getNum();
 }
 
 void PlayerLocalState::deserialize(const JsonNode & source)
@@ -400,8 +410,8 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 	{
 		spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
 		spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
-		spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
-		spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+		spellbookSettings.spellbookLastTabBattle = SpellSchool(source["spellbook"]["tabBattle"].Integer());
+		spellbookSettings.spellbookLastTabAdvmap = SpellSchool(source["spellbook"]["tabAdvmap"].Integer());
 	}
 
 	// append any owned heroes / towns that were not present in loaded state

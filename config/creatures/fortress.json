@@ -7,6 +7,8 @@
 		"upgrades": ["gnollMarauder"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:196",
+			"mapAttackFromLeft": "AvWattak.def:0:197",
 			"animation": "CGNOLL.DEF"
 		},
 		"sound" :
@@ -25,6 +27,8 @@
 		"faction": "fortress",
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:198",
+			"mapAttackFromLeft": "AvWattak.def:0:199",
 			"animation": "CGNOLM.DEF"
 		},
 		"sound" :
@@ -54,6 +58,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:200",
+			"mapAttackFromLeft": "AvWattak.def:0:201",
 			"animation": "CPLIZA.DEF",
 			"missile" :
 			{
@@ -85,6 +91,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:202",
+			"mapAttackFromLeft": "AvWattak.def:0:203",
 			"animation": "CALIZA.DEF",
 			"missile" :
 			{
@@ -124,6 +132,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:208",
+			"mapAttackFromLeft": "AvWattak.def:0:209",
 			"animation": "CDRFLY.DEF"
 		},
 		"sound" :
@@ -161,6 +171,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:210",
+			"mapAttackFromLeft": "AvWattak.def:0:211",
 			"animation": "CDRFIR.DEF"
 		},
 		"sound" :
@@ -191,6 +203,8 @@
 		"upgrades": ["greaterBasilisk"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:212",
+			"mapAttackFromLeft": "AvWattak.def:0:213",
 			"animation": "CBASIL.DEF"
 		},
 		"sound" :
@@ -219,6 +233,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:214",
+			"mapAttackFromLeft": "AvWattak.def:0:215",
 			"animation": "CGBASI.DEF"
 		},
 		"sound" :
@@ -239,6 +255,8 @@
 		"doubleWide" : true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:204",
+			"mapAttackFromLeft": "AvWattak.def:0:205",
 			"animation": "CCGORG.DEF"
 		},
 		"sound" :
@@ -267,6 +285,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:206",
+			"mapAttackFromLeft": "AvWattak.def:0:207",
 			"animation": "CBGOG.DEF"
 		},
 		"sound" :
@@ -294,6 +314,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:216",
+			"mapAttackFromLeft": "AvWattak.def:0:217",
 			"animation": "CWYVER.DEF"
 		},
 		"sound" :
@@ -326,6 +348,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:218",
+			"mapAttackFromLeft": "AvWattak.def:0:219",
 			"animation": "CWYVMN.DEF"
 		},
 		"sound" :
@@ -349,6 +373,11 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -362,6 +391,8 @@
 		"upgrades": ["chaosHydra"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:220",
+			"mapAttackFromLeft": "AvWattak.def:0:221",
 			"animation": "CHYDRA.DEF"
 		},
 		"sound" :
@@ -385,6 +416,11 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -397,6 +433,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:222",
+			"mapAttackFromLeft": "AvWattak.def:0:223",
 			"animation": "CCHYDR.DEF"
 		},
 		"sound" :

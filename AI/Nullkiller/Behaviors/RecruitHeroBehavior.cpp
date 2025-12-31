@@ -68,7 +68,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
 		//Don't hire a hero where there already is one present
-		if (town->visitingHero && town->garrisonHero)
+		if (town->getVisitingHero() && town->getGarrisonHero())
 			continue;
 		float visitability = 0;
 		for (auto checkHero : ourHeroes)
@@ -98,7 +98,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 
 			for(auto hero : availableHeroes)
 			{
-				if ((town->visitingHero || town->garrisonHero) 
+				if ((town->getVisitingHero() || town->getGarrisonHero()) 
 					&& closestThreat < 1
 					&& hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
 					continue;

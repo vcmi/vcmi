@@ -11,6 +11,10 @@
 #include "iOS_utils.h"
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <MobileCoreServices/MobileCoreServices.h>
+#import <objc/message.h>
+#import <sys/utsname.h>
 
 namespace
 {
@@ -50,5 +54,36 @@ const char *bundleIdentifier() { return NSBundle.mainBundle.bundleIdentifier.UTF
 bool isOsVersionAtLeast(unsigned int osMajorVersion)
 {
 	return NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= osMajorVersion;
+}
+
+void keepScreenOn(bool isEnabled)
+{
+	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;
+}
+
+void shareFile(const std::string & filePath)
+{
+	NSString *nsPath = [NSString stringWithUTF8String:filePath.c_str()];
+	if (nsPath == nil)
+		return;
+
+	NSURL *url = [NSURL fileURLWithPath:nsPath];
+	if (!url) return;
+
+	NSArray *items = @[url];
+	UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
+
+	UIViewController *root = UIApplication.sharedApplication.keyWindow.rootViewController;
+	if (root.presentedViewController != nil)
+		[root.presentedViewController presentViewController:controller animated:YES completion:nil];
+	else
+		[root presentViewController:controller animated:YES completion:nil];
+}
+
+std::string iphoneHardwareId()
+{
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    return std::string(systemInfo.machine);
 }
 }

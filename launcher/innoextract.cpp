@@ -102,6 +102,14 @@ QString Innoextract::getHashError(QString exeFile, QString binFile, QString exeF
 		{ CHR,         "english", 447430456,          0, "93a42dd24453f36e7020afc61bca05b8461a3f04", ""                                         }, // setup_heroes_chronicles_chapter6_2.1.0.42.exe
 		{ CHR,         "english", 481583720,          0, "d74b042015f3c5b667821c5d721ac3d2fdbf43fc", ""                                         }, // setup_heroes_chronicles_chapter7_2.1.0.42.exe
 		{ CHR,         "english", 462976008,          0, "9039050e88b9dabcdb3ffa74b33e6aa86a20b7d9", ""                                         }, // setup_heroes_chronicles_chapter8_2.1.0.42.exe
+		{ CHR,         "english", 500308840,          0, "bc96759fcd4098a846dc83c76e9175c2cb047d66", ""                                         }, // setup_heroes_chronicles_chapter_1_-_warlords_of_the_wasteland_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 503877256,          0, "e64e09b4d4a558c4b435f45dd5a5025812d2418f", ""                                         }, // setup_heroes_chronicles_chapter_2_-_conquest_of_the_underworld_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 484422880,          0, "c2c5c596367def0835c6401bcd0b8949892c74b6", ""                                         }, // setup_heroes_chronicles_chapter_3_-_masters_of_the_elements_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 479835408,          0, "5df9e25a20a91fd51c6ae109e8a652bbe33fb85b", ""                                         }, // setup_heroes_chronicles_chapter_4_-_clash_of_the_dragons_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 460531888,          0, "d2af77493045543945bea7c1d2da35c4c8c2d8a4", ""                                         }, // setup_heroes_chronicles_chapter_5_-_the_world_tree_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 462570376,          0, "143f778c640bbe719f27a6551c6f9732766ec8d1", ""                                         }, // setup_heroes_chronicles_chapter_6_-_the_fiery_moon_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 497063264,          0, "0b2784a07417245b1f8caa3f5f128bc1e3c1a18c", ""                                         }, // setup_heroes_chronicles_chapter_7_-_revolt_of_the_beastmasters_1.0_gog_v2_(83337).exe
+		{ CHR,         "english", 477021344,          0, "bd7db8f8a31f06960f8997548b7ed5fd3bf7cab2", ""                                         }, // setup_heroes_chronicles_chapter_8_-_the_sword_of_frost_1.0_gog_v2_(83337).exe
 	};
 
 	auto doHash = [](QFile f){

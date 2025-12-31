@@ -1,44 +1,16 @@
 # We need to keep this code into separate directory so CMake will execute it after all other subdirectories install code
 # Otherwise we can't fix Mac bundle dependencies since binaries wouldn't be there when this code executed
-if(APPLE_MACOS)
+if(MACOS)
 	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
 	set(bundleContentsDir "${bundleDir}/Contents")
+	set(executablesDir "${bundleContentsDir}/MacOS")
 
-	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
-		if(USING_CONAN)
-			# simulate macdeployqt behavior, main Qt libs are copied by conan
-			execute_process(COMMAND
-				"${qmakePath}" -query QT_INSTALL_PLUGINS
-				OUTPUT_VARIABLE qtPluginsDir
-				OUTPUT_STRIP_TRAILING_WHITESPACE
-			)
-			install(DIRECTORY
-				${qtPluginsDir}/
-				DESTINATION ${APP_BUNDLE_DIR}/Contents/PlugIns
-			)
-			install(CODE "
-				file(WRITE ${bundleContentsDir}/Resources/qt.conf
-					\"[Paths]\nPlugins = PlugIns\"
-				)
-			")
-		else()
-			# note: cross-compiled Qt 5 builds macdeployqt for target platform instead of host
-			# deploy Qt dylibs with macdeployqt
-			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS "${qtBinDir}")
-			if(TOOL_MACDEPLOYQT)
-				install(CODE "
-					execute_process(COMMAND
-						\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
-					)
-				")
-			else()
-				message(WARNING "macdeployqt not found, running cpack would result in broken package")
-			endif()
-		endif()
+	set(macdeployqtParams "\"${bundleDir}\"")
+	if(ENABLE_EDITOR)
+		string(APPEND macdeployqtParams " \"-executable=${executablesDir}/vcmieditor\"")
 	endif()
-
-	# deploy other dylibs with conan
-	vcmi_install_conan_deps("${bundleContentsDir}")
+	# note: cross-compiled Qt 5 builds macdeployqt for target platform instead of host
+	vcmi_deploy_qt(macdeployqt "${macdeployqtParams}")
 
 	# perform ad-hoc codesigning
 	# Intel Macs don't need it
@@ -60,11 +32,11 @@ if(APPLE_MACOS)
 	set(codesignCommandWithEntitlements "${codesignCommand} --entitlements \"${CMAKE_SOURCE_DIR}/osx/entitlements.plist\"")
 	install(CODE "
 		execute_process(COMMAND
-			${codesignCommand} \"${bundleContentsDir}/MacOS/vcmibuilder\"
+			${codesignCommand} \"${executablesDir}/vcmibuilder\"
 		)
 		foreach(executable ${executablesToSign})
 			execute_process(COMMAND
-				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${bundleContentsDir}/MacOS/\${executable}\"
+				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${executablesDir}/\${executable}\"
 			)
 		endforeach()
 	")

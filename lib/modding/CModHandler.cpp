@@ -71,7 +71,7 @@ static std::string getModDirectory(const TModID & modName)
 	return "MODS/" + result;
 }
 
-static ISimpleResourceLoader * genModFilesystem(const std::string & modName, const JsonNode & conf)
+static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string & modName, const JsonNode & conf)
 {
 	static const JsonNode defaultFS = genDefaultFS();
 
@@ -87,20 +87,20 @@ void CModHandler::loadModFilesystems()
 
 	const auto & activeMods = modManager->getActiveMods();
 
-	std::map<TModID, ISimpleResourceLoader *> modFilesystems;
+	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
 
 	for(const TModID & modName : activeMods)
 		modFilesystems[modName] = genModFilesystem(modName, getModInfo(modName).getFilesystemConfig());
 
-	for(const TModID & modName : activeMods)
-		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
-			CResourceHandler::addFilesystem("data", modName, modFilesystems[modName]);
-
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);
+
+	for(const TModID & modName : activeMods)
+		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
+			CResourceHandler::addFilesystem("data", modName, std::move(modFilesystems[modName]));
 }
 
-void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, ISimpleResourceLoader *> & modFilesystems)
+void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems)
 {
 	for(const auto & [leftName, leftFilesystem] : modFilesystems)
 	{

@@ -85,6 +85,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  ifndef NOMINMAX
 #    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
 #  endif
+#  ifndef NOGDI
+#    define NOGDI
+#  endif
 #  ifndef _NO_W32_PSEUDO_MODIFIERS
 #    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
 #  endif
@@ -246,8 +249,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #else
 #  define DLL_LINKAGE DLL_IMPORT
 #endif
-
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
@@ -467,14 +468,6 @@ namespace vstd
 		}
 	};
 
-	//deleted pointer and sets it to nullptr
-	template <typename T>
-	void clear_pointer(T* &ptr)
-	{
-		delete ptr;
-		ptr = nullptr;
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -574,7 +567,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
-	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
@@ -589,7 +582,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
-	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
@@ -719,13 +712,16 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
-	/// Divides dividend by divisor and rounds result up
+	/// Divides dividend by divisor and rounds result away from zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndCeil(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor - 1) / divisor;
+		else
+			return (dividend - divisor + 1) / divisor;
 	}
 
 	/// Divides dividend by divisor and rounds result to nearest
@@ -734,10 +730,13 @@ namespace vstd
 	Integer1 divideAndRound(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor / 2 - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor / 2 - 1) / divisor;
+		else
+			return (dividend - divisor / 2 + 1) / divisor;
 	}
 
-	/// Divides dividend by divisor and rounds result down
+	/// Divides dividend by divisor and rounds result towards zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndFloor(const Integer1 & dividend, const Integer2 & divisor)

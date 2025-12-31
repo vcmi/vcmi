@@ -13,13 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct RouteInfo
-{
-	rmg::Area blocked;
-	int3 visitable;
-	int3 boarding;
-	rmg::Area water;
-};
+struct RouteInfo;
 
 class WaterProxy: public Modificator
 {

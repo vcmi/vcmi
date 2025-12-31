@@ -20,7 +20,6 @@ class CHeroClassHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
-class CObjectHandler;
 class CObjectClassesHandler;
 class ObstacleSetHandler;
 class CTownHandler;
@@ -31,6 +30,7 @@ class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
+class ResourceTypeHandler;
 class RoadTypeHandler;
 class RiverTypeHandler;
 class ObstacleHandler;
@@ -40,6 +40,9 @@ class IHandlerBase;
 class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
+class SpellSchoolHandler;
+class MapFormatSettings;
+class CampaignRegionsHandler;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -57,6 +60,7 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+	const ResourceTypeService * resources() const override;
 #if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
 #endif
@@ -78,14 +82,14 @@ public:
 	std::unique_ptr<CHeroClassHandler> heroclassesh;
 	std::unique_ptr<CCreatureHandler> creh;
 	std::unique_ptr<CSpellHandler> spellh;
+	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
 	std::unique_ptr<CSkillHandler> skillh;
-	// TODO: Remove ObjectHandler altogether?
-	std::unique_ptr<CObjectHandler> objh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;
 	std::unique_ptr<CGeneralTextHandler> generaltexth;
 	std::unique_ptr<CModHandler> modh;
 	std::unique_ptr<TerrainTypeHandler> terrainTypeHandler;
+	std::unique_ptr<ResourceTypeHandler> resourceTypeHandler;
 	std::unique_ptr<RoadTypeHandler> roadTypeHandler;
 	std::unique_ptr<RiverTypeHandler> riverTypeHandler;
 	std::unique_ptr<CIdentifierStorage> identifiersHandler;
@@ -95,6 +99,8 @@ public:
 	std::unique_ptr<ObstacleHandler> obstacleHandler;
 	std::unique_ptr<GameSettings> settingsHandler;
 	std::unique_ptr<ObstacleSetHandler> biomeHandler;
+	std::unique_ptr<MapFormatSettings> mapFormat;
+	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 
 #if SCRIPTING_ENABLED
 	std::unique_ptr<scripting::ScriptHandler> scriptHandler;

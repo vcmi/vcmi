@@ -122,6 +122,8 @@ void CListBox::updatePositions()
 		moveChildForeground(slider.get());
 	}
 	redraw();
+	if(onScroll)
+		onScroll();
 }
 
 void CListBox::reset()

@@ -31,7 +31,7 @@ public:
 		return out.getNode(coord, layer);
 	}
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+	void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) override;
 	virtual ~NodeStorage() = default;
 
 	std::vector<CGPathNode *> getInitialNodes() override;

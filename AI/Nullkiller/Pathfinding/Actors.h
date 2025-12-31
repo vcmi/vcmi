@@ -31,7 +31,7 @@ public:
 	bool needsLastStack() const override;
 	std::shared_ptr<SpecialAction> getActorAction() const;
 
-	HeroExchangeArmy(): CArmedInstance(nullptr, true), requireBuyArmy(false) {}
+	HeroExchangeArmy(): CArmedInstance(nullptr, BonusNodeType::UNKNOWN, true), requireBuyArmy(false) {}
 };
 
 struct ExchangeResult

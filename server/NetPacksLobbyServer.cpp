@@ -14,15 +14,15 @@
 #include "CGameHandler.h"
 
 #include "../lib/StartInfo.h"
-#include "../lib/CRandomGenerator.h"
+#include "../lib/GameLibrary.h"
 
+#include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/entities/faction/CFaction.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/mapping/CMapInfo.h"
-#include "../lib/mapping/CMapHeader.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/serializer/GameConnection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -39,6 +39,12 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	{
 		srv.updateAndPropagateLobbyState();
 	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	// only host can load quicksave
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -65,17 +71,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	srv.updateAndPropagateLobbyState();
-
-// FIXME: what is this??? We do NOT support reconnection into ongoing game - at the very least queries and battles are NOT serialized
-//	if(srv.getState() == EServerState::GAMEPLAY)
-//	{
-//		//immediately start game
-//		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-//		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
-//		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
-//		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
-//		srv.announcePack(std::move(startGameForReconnectedPlayer));
-//	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
@@ -121,6 +116,21 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 	result = true;
 }
 
+void ApplyOnServerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	srv.prepareToRestart();
+	// modify StartInfo to load the quicksave
+	srv.si->mode = EStartMode::LOAD_GAME;
+	srv.si->mapname = pack.saveFilePath;
+	result = true;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
 	if(srv.getState() != EServerState::LOBBY)
@@ -144,9 +154,8 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
 	auto scenarios = pack.ourCampaign->allScenarios();
-	for(std::set<CampaignScenarioID>::reverse_iterator itr = scenarios.rbegin(); itr != scenarios.rend(); itr++) // reverse -> on multiple scenario selection set lowest id at the end
+	for(auto scenarioID : boost::adaptors::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
 	{
-		auto scenarioID = *itr;
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
 			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
@@ -212,7 +221,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	{
 		srv.verifyStateBeforeStart(true);
 	}
-	catch(...)
+	catch(const std::exception &)
 	{
 		result = false;
 		return;
@@ -225,26 +234,14 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		return;
 	}
 	
-	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getInitialStartInfo());
-	pack.initializedGameState = srv.gh->gameState();
+	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->gameState().getInitialStartInfo());
+	pack.initializedGameState = srv.gh->gs;
 	result = true;
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId == -1) //do not restart game for single client only
-		srv.startGameImmediately();
-	else
-	{
-		for(const auto & connection : srv.activeConnections)
-		{
-			if(connection->connectionID == pack.clientId)
-			{
-				connection->enterGameplayConnectionMode(srv.gh->gameState());
-				srv.reconnectPlayer(pack.clientId);
-			}
-		}
-	}
+	srv.startGameImmediately();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
@@ -301,7 +298,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayer
 		srv.optionNextHero(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::BONUS_ID:
-		srv.optionSetBonus(pack.color, PlayerStartingBonus(pack.value));
+		srv.optionSetBonus(pack.color, static_cast<PlayerStartingBonus>(pack.value));
 		break;
 	case LobbyChangePlayerOption::BONUS:
 		srv.optionNextBonus(pack.color, pack.value);
@@ -382,7 +379,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
 			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
-			txt.appendRawString(" - " + std::to_string(std::rand()%2));
+			txt.appendRawString(" - " + std::to_string(CRandomGenerator::getDefault().nextInt(1)));
 			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:
@@ -409,10 +406,14 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	result = true;
 }
 
-
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
 	result = srv.isClientHost(connection->connectionID);
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)

@@ -43,6 +43,7 @@ public:
 	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(BattleSide side) const;
 
+	int32_t nextObstacleId() const; //returns next available obstacle ID
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstacles(std::optional<BattleSide> perspective = std::nullopt) const; //returns all obstacles on the battlefield
 
 	std::shared_ptr<const CObstacleInstance> battleGetObstacleByID(uint32_t ID) const;
@@ -78,7 +79,7 @@ public:
 	bool playerHasAccessToHeroInfo(const PlayerColor & player, const CGHeroInstance * h) const;
 	TownFortifications battleGetFortifications() const;
 	bool battleHasHero(BattleSide side) const;
-	uint32_t battleCastSpells(BattleSide side) const; //how many spells has given side cast
+	int32_t battleCastSpells(BattleSide side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(BattleSide side) const; //deprecated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(BattleSide side) const;
 	InfoAboutHero battleGetHeroInfo(BattleSide side) const;
@@ -92,6 +93,7 @@ public:
 	//helpers
 	///returns all stacks, alive or dead or undead or mechanical :)
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
+	battle::Units battleGetAllUnits(bool includeTurrets = false) const;
 
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattleSide side) const;

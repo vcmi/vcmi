@@ -39,6 +39,7 @@ FactionID PlayerInfo::defaultCastle() const
 	if(isFactionRandom)
 		return FactionID::RANDOM;
 
+	assert(!allowedFactions.empty());
 	if(!allowedFactions.empty())
 		return *allowedFactions.begin();
 
@@ -121,13 +122,14 @@ CMapHeader::CMapHeader()
 	: version(EMapFormat::VCMI)
 	, height(72)
 	, width(72)
-	, twoLevel(true)
+	, mapLevels(2)
 	, difficulty(EMapDifficulty::NORMAL)
 	, levelLimit(0)
 	, victoryIconIndex(0)
 	, defeatIconIndex(0)
 	, howManyTeams(0)
 	, areAnyPlayers(false)
+	, battleOnly(false)
 {
 	setupEvents();
 	allowedHeroes = LIBRARY->heroh->getDefaultAllowed();
@@ -138,7 +140,7 @@ CMapHeader::~CMapHeader() = default;
 
 ui8 CMapHeader::levels() const
 {
-	return (twoLevel ? 2 : 1);
+	return mapLevels;
 }
 
 void CMapHeader::registerMapStrings()

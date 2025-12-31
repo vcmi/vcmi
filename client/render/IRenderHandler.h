@@ -22,6 +22,7 @@ class IImage;
 class CAnimation;
 class CanvasImage;
 class SDLImageShared;
+class AssetGenerator;
 enum class EImageBlitMode : uint8_t;
 enum class CanvasScalingPolicy;
 enum EFonts : int8_t;
@@ -52,4 +53,8 @@ public:
 	virtual std::shared_ptr<const IFont> loadFont(EFonts font) = 0;
 
 	virtual void exportGeneratedAssets() = 0;
+
+	virtual std::shared_ptr<AssetGenerator> getAssetGenerator() = 0;
+
+	virtual void updateGeneratedAssets() = 0;
 };

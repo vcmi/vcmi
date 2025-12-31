@@ -11,10 +11,8 @@
 
 #include "gtest/gtest.h"
 
-#include "../lib/CGameInfoCallback.h"
+#include "../lib/callback/CPlayerSpecificInfoCallback.h"
 #include "../lib/ResourceSet.h"
-
-class CCallback;
 
 class CPSICallbackMock : public CPlayerSpecificInfoCallback
 {

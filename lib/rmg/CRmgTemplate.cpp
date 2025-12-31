@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
@@ -144,14 +145,18 @@ ZoneOptions::ZoneOptions():
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
 	maxTreasureValue(0),
-	owner(std::nullopt),
+	owner(PlayerColor(0)),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
 	monsterStrength(EMonsterStrength::ZONE_NORMAL),
 	townsLikeZone(NO_ZONE),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
-	treasureLikeZone(NO_ZONE)
+	treasureLikeZone(NO_ZONE),
+	customObjectsLikeZone(NO_ZONE),
+	visiblePosition(Point(0, 0)),
+	visibleSize(1.0),
+	forcedLevel(EZoneLevel::AUTOMATIC)
 {
 }
 
@@ -255,12 +260,12 @@ std::set<FactionID> ZoneOptions::getMonsterTypes() const
 	return vstd::difference(monsterTypes, bannedMonsters);
 }
 
-void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
+void ZoneOptions::setMinesInfo(const std::map<GameResID, ui16> & value)
 {
 	mines = value;
 }
 
-std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
+std::map<GameResID, ui16> ZoneOptions::getMinesInfo() const
 {
 	return mines;
 }
@@ -331,6 +336,36 @@ TRmgTemplateZoneId ZoneOptions::getTownsLikeZone() const
 	return townsLikeZone;
 }
 
+Point ZoneOptions::getVisiblePosition() const
+{
+	return visiblePosition;
+}
+
+void ZoneOptions::setVisiblePosition(Point value)
+{
+	visiblePosition = value;
+}
+
+float ZoneOptions::getVisibleSize() const
+{
+	return visibleSize;
+}
+
+void ZoneOptions::setVisibleSize(float value)
+{
+	visibleSize = value;
+}
+
+EZoneLevel ZoneOptions::getForcedLevel() const
+{
+	return forcedLevel;
+}
+
+void ZoneOptions::setForcedLevel(EZoneLevel value)
+{
+	forcedLevel = value;
+}
+
 void ZoneOptions::addConnection(const ZoneConnection & connection)
 {
 	connectedZoneIds.push_back(connection.getOtherZoneId(getId()));
@@ -340,6 +375,28 @@ void ZoneOptions::addConnection(const ZoneConnection & connection)
 std::vector<ZoneConnection> ZoneOptions::getConnections() const
 {
 	return connectionDetails;
+}
+
+std::vector<ZoneConnection>& ZoneOptions::getConnectionsRef()
+{
+	return connectionDetails;
+}
+
+void ZoneOptions::setRoadOption(int connectionId, rmg::ERoadOption roadOption)
+{
+	for(auto & connection : connectionDetails)
+	{
+		if(connection.getId() == connectionId)
+		{
+			connection.setRoadOption(roadOption);
+			logGlobal->info("Set road option for connection %d between zones %d and %d to %s", 
+				connectionId, connection.getZoneA(), connection.getZoneB(), 
+				roadOption == rmg::ERoadOption::ROAD_TRUE ? "true" : 
+				roadOption == rmg::ERoadOption::ROAD_FALSE ? "false" : "random");
+			return;
+		}
+	}
+	logGlobal->warn("Failed to find connection with ID %d in zone %d", connectionId, id);
 }
 
 std::vector<TRmgTemplateZoneId> ZoneOptions::getConnectedZoneIds() const
@@ -487,15 +544,29 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if((minesLikeZone == NO_ZONE) && (!handler.saving || !mines.empty()))
 	{
-		auto minesData = handler.enterStruct("mines");
-
-		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-		{
-			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mines[idx], 0);
-		}
+		handler.serializeIdMap<GameResID, ui16>("mines", mines);
 	}
 
 	handler.serializeStruct("customObjects", objectConfig);
+	handler.serializeInt("visiblePositionX", visiblePosition.x);
+	handler.serializeInt("visiblePositionY", visiblePosition.y);
+	handler.serializeFloat("visibleSize", visibleSize);
+
+	if(!handler.saving && visibleSize < 0.01)
+		visibleSize = 1.0;
+
+	{
+		static const std::vector<std::string> zoneLevels =
+		{
+			"automatic",
+			"surface",
+			"underground"
+		};
+
+		auto levelIndex = static_cast<int>(forcedLevel);
+		handler.serializeEnum("forcedLevel", levelIndex, static_cast<int>(EZoneLevel::AUTOMATIC), zoneLevels);
+		forcedLevel = static_cast<EZoneLevel>(levelIndex);
+	}
 }
 
 ZoneConnection::ZoneConnection():
@@ -504,7 +575,7 @@ ZoneConnection::ZoneConnection():
 	zoneB(-1),
 	guardStrength(0),
 	connectionType(rmg::EConnectionType::GUARDED),
-	hasRoad(rmg::ERoadOption::ROAD_TRUE)
+	hasRoad(rmg::ERoadOption::ROAD_RANDOM)
 {
 
 }
@@ -559,10 +630,20 @@ rmg::ERoadOption ZoneConnection::getRoadOption() const
 {
 	return hasRoad;
 }
+
+void ZoneConnection::setRoadOption(rmg::ERoadOption roadOption)
+{
+	hasRoad = roadOption;
+}
 	
 bool operator==(const ZoneConnection & l, const ZoneConnection & r)
 {
 	return l.id == r.id;
+}
+
+bool operator<(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.id < r.id;
 }
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
@@ -578,9 +659,9 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 
 	static const std::vector<std::string> roadOptions =
 	{
+		"random",
 		"true",
-		"false",
-		"random"
+		"false"
 	};
 
 	if (handler.saving)
@@ -805,6 +886,16 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	serializeSize(handler, maxSize, "maxSize");
 	serializePlayers(handler, players, "players");
 	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
+
+	handler.serializeIdArray("bannedSpells", bannedSpells);
+	handler.serializeIdArray("bannedArtifacts", bannedArtifacts);
+	handler.serializeIdArray("bannedSkills", bannedSkills);
+	handler.serializeIdArray("bannedHeroes", bannedHeroes);
+
+	handler.serializeIdArray("enabledSpells", enabledSpells);
+	handler.serializeIdArray("enabledArtifacts", enabledArtifacts);
+	handler.serializeIdArray("enabledSkills", enabledSkills);
+	handler.serializeIdArray("enabledHeroes", enabledHeroes);
 
 	*mapSettings = handler.getCurrent()["settings"];
 

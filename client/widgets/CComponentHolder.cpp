@@ -12,23 +12,21 @@
 
 #include "../GameEngine.h"
 #include "../GameInstance.h"
-#include "../gui/Shortcut.h"
 
 #include "CComponent.h"
 #include "Images.h"
 
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/IRenderHandler.h"
 #include "../CPlayerInterface.h"
 
-#include "../../CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CComponentHolder::CComponentHolder(const Rect & area, const Point & selectionOversize)
 	: SelectableSlot(area, selectionOversize)
@@ -55,6 +53,11 @@ void CComponentHolder::setShowPopupCallback(const ClickFunctor & callback)
 	showPopupCallback = callback;
 }
 
+void CComponentHolder::setClosePopupWindowCallback(const std::function<void()> & callback)
+{
+    closePopupWindowCallback = callback;
+}
+
 void CComponentHolder::setGestureCallback(const ClickFunctor & callback)
 {
 	gestureCallback = callback;
@@ -70,6 +73,12 @@ void CComponentHolder::showPopupWindow(const Point & cursorPosition)
 {
 	if(showPopupCallback)
 		showPopupCallback(*this, cursorPosition);
+}
+
+void CComponentHolder::closePopupWindow(bool alreadyClosed)
+{
+    if(closePopupWindowCallback)
+        closePopupWindowCallback();
 }
 
 void CComponentHolder::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -114,7 +123,7 @@ void CArtPlace::setArtifact(const ArtifactID & newArtId, const SpellID & newSpel
 	if(artId == ArtifactID::SPELL_SCROLL)
 	{
 		spellId = newSpellId;
-		assert(spellId.num > 0);
+		assert(spellId != SpellID::NONE);
 
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
@@ -200,21 +209,23 @@ void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 void CArtPlace::lockSlot(bool on)
 {
 	locked = on;
-	if(on)
+	if(artId == ArtifactID::NONE)
 	{
-		image->setFrame(ArtifactID::ART_LOCK);
 		hoverText = LIBRARY->generaltexth->allTexts[507];
 	}
-	else if(artId != ArtifactID::NONE)
+	else if(on)
 	{
-		image->setFrame(imageIndex);
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		image->setFrame(ArtifactID::ART_LOCK);
+		auto hoverText = MetaString::createFromTextID("vcmi.heroWindow.lockedartifact.hover");
 		hoverText.replaceName(artId);
 		this->hoverText = hoverText.toString();
 	}
 	else
 	{
-		hoverText = LIBRARY->generaltexth->allTexts[507];
+		image->setFrame(imageIndex);
+		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		hoverText.replaceName(artId);
+		this->hoverText = hoverText.toString();
 	}
 }
 
@@ -259,6 +270,17 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 		}
 		text += info.toString();
 	}
+}
+
+void CArtPlace::addChargedArtInfo(const uint16_t charges)
+{
+	MetaString info;
+	info.appendEOL();
+	info.appendEOL();
+	info.appendTextID("vcmi.artifact.charges");
+	info.appendRawString(" %d");
+	info.replaceNumber(charges);
+	text += info.toString();
 }
 
 CSecSkillPlace::CSecSkillPlace(const Point & position, const ImageSize & imageSize, const SecondarySkill & newSkillId, const uint8_t level)

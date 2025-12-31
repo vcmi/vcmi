@@ -105,7 +105,7 @@ EGateState BattleProxy::getGateState() const
 	return subject->battleGetGateState();
 }
 
-uint32_t BattleProxy::getCastSpells(BattleSide side) const
+int32_t BattleProxy::getCastSpells(BattleSide side) const
 {
 	return subject->battleCastSpells(side);
 }

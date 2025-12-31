@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,7 +45,7 @@ public:
 
 	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) = 0;
 
-	virtual void initialize(const PathfinderOptions & options, const CGameState * gs) = 0;
+	virtual void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

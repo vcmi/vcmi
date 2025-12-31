@@ -22,21 +22,11 @@ PotentialTargets::PotentialTargets(
 	auto avHexes = state->battleGetAvailableHexes(reachability, attackerInfo, false);
 
 	//FIXME: this should part of battleGetAvailableHexes
-	bool forceTarget = false;
-	const battle::Unit * forcedTarget = nullptr;
-	BattleHex forcedHex;
+	bool isBerserk = attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
+	ForcedAction forcedAction = {};
 
-	if(attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE))
-	{
-		forceTarget = true;
-		auto nearest = state->getNearestStack(attackerInfo);
-
-		if(nearest.first != nullptr)
-		{
-			forcedTarget = nearest.first;
-			forcedHex = nearest.second;
-		}
-	}
+	if(isBerserk)
+		forcedAction = state->getBerserkForcedAction(attackerInfo);
 
 	auto aliveUnits = state->battleGetUnitsIf([=](const battle::Unit * unit)
 	{
@@ -45,7 +35,7 @@ PotentialTargets::PotentialTargets(
 
 	for(auto defender : aliveUnits)
 	{
-		if(!forceTarget && !state->battleMatchOwner(attackerInfo, defender))
+		if(!isBerserk && !state->battleMatchOwner(attackerInfo, defender))
 			continue;
 
 		auto GenerateAttackInfo = [&](bool shooting, const BattleHex & hex) -> AttackPossibility
@@ -56,12 +46,19 @@ PotentialTargets::PotentialTargets(
 			return AttackPossibility::evaluate(bai, hex, damageCache, state);
 		};
 
-		if(forceTarget)
+		if(isBerserk)
 		{
-			if(forcedTarget && defender->unitId() == forcedTarget->unitId())
-				possibleAttacks.push_back(GenerateAttackInfo(false, forcedHex));
+			bool isActionAttack = forcedAction.type == EActionType::WALK_AND_ATTACK || forcedAction.type == EActionType::SHOOT;
+			if (isActionAttack && defender->unitId() == forcedAction.target->unitId())
+			{
+				bool rangeAttack = forcedAction.type == EActionType::SHOOT;
+				BattleHex hex = forcedAction.type == EActionType::WALK_AND_ATTACK ? forcedAction.position : BattleHex::INVALID;
+				possibleAttacks.push_back(GenerateAttackInfo(rangeAttack, hex));
+			}
 			else
+			{
 				unreachableEnemies.push_back(defender);
+			}
 		}
 		else if(state->battleCanShoot(attackerInfo, defender->getPosition()))
 		{

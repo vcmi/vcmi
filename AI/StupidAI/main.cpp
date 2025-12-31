@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/AI_Base.h"
 #include "StupidAI.h"
 
 #ifdef __GNUC__

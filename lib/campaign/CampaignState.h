@@ -9,14 +9,14 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
+#include "CampaignBonus.h"
+#include "CampaignRegions.h"
+#include "CampaignScenarioPrologEpilog.h"
+
 #include "../filesystem/ResourcePath.h"
+#include "../gameState/HighScore.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
-#include "CampaignConstants.h"
-#include "CampaignScenarioPrologEpilog.h"
-#include "../gameState/HighScore.h"
-#include "../Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,62 +28,17 @@ class CMap;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
-class IGameCallback;
-
-class DLL_LINKAGE CampaignRegions
-{
-	std::string campPrefix;
-	std::vector<std::string> campSuffix;
-	std::string campBackground;
-	int colorSuffixLength;
-
-	struct DLL_LINKAGE RegionDescription
-	{
-		std::string infix;
-		Point pos;
-		std::optional<Point> labelPos;
-
-		template <typename Handler> void serialize(Handler &h)
-		{
-			h & infix;
-			h & pos;
-			h & labelPos;
-		}
-
-		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
-		static JsonNode toJson(CampaignRegions::RegionDescription & rd);
-	};
-
-	std::vector<RegionDescription> regions;
-
-	ImagePath getNameFor(CampaignScenarioID which, int color, std::string type) const;
-
-public:
-	ImagePath getBackgroundName() const;
-	Point getPosition(CampaignScenarioID which) const;
-	std::optional<Point> getLabelPosition(CampaignScenarioID which) const;
-	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
-	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
-	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & campPrefix;
-		h & colorSuffixLength;
-		h & regions;
-		h & campSuffix;
-		h & campBackground;
-	}
-
-	static CampaignRegions fromJson(const JsonNode & node);
-	static JsonNode toJson(CampaignRegions cr);
-	static CampaignRegions getLegacy(int campId);
-};
+class IGameInfoCallback;
 
 class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
 	friend class Campaign;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -102,17 +57,17 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	VideoPath introVideo;
 	VideoPath outroVideo;
 
+	HeroTypeID yogWizardID;
+	HeroTypeID gemSorceressID;
+
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
-
-	void loadLegacyData(ui8 campId);
-	void loadLegacyData(CampaignRegions regions, int numOfScenario);
+	bool restrictGarrisonsAI = false;
 
 	TextContainerRegistrable textContainer;
-
 public:
 	bool playerSelectedDifficulty() const;
-	bool formatVCMI() const;
+	CampaignVersion getFormat() const;
 
 	std::string getDescriptionTranslated() const;
 	std::string getNameTranslated() const;
@@ -129,6 +84,10 @@ public:
 	VideoPath getIntroVideo() const;
 	VideoPath getOutroVideo() const;
 
+	HeroTypeID getYogWizardID() const;
+	HeroTypeID getGemSorceressID() const;
+	bool restrictedGarrisonsForAI() const;
+
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
 
@@ -144,6 +103,8 @@ public:
 		h & campaignVersion;
 		h & creationDateTime;
 		h & difficultyChosenByPlayer;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+			h & restrictGarrisonsAI;
 		h & filename;
 		h & modName;
 		h & music;
@@ -153,26 +114,11 @@ public:
 		h & videoRim;
 		h & introVideo;
 		h & outroVideo;
-	}
-};
-
-struct DLL_LINKAGE CampaignBonus
-{
-	CampaignBonusType type = CampaignBonusType::NONE;
-
-	//purpose depends on type
-	int32_t info1 = 0;
-	int32_t info2 = 0;
-	int32_t info3 = 0;
-
-	bool isBonusForHero() const;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & type;
-		h & info1;
-		h & info2;
-		h & info3;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+		{
+			h & yogWizardID;
+			h & gemSorceressID;
+		}
 	}
 };
 
@@ -211,7 +157,30 @@ struct DLL_LINKAGE CampaignTravel
 		h & artifactsKeptByHero;
 		h & startOptions;
 		h & playerColor;
-		h & bonusesToChoose;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+		{
+			h & bonusesToChoose;
+		}
+		else
+		{
+			struct OldBonus{
+				CampaignBonusType type = {};
+				int32_t info1 = 0;
+				int32_t info2 = 0;
+				int32_t info3 = 0;
+
+				void serialize(Handler &h)
+				{
+					h & type;
+					h & info1;
+					h & info2;
+					h & info3;
+				}
+			};
+
+			std::vector<OldBonus> oldBonuses;
+			h & oldBonuses;
+		}
 	}
 };
 
@@ -251,6 +220,11 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
 
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 
 public:
@@ -273,6 +247,12 @@ public:
 class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;
 	using GlobalPoolType = std::map<HeroTypeID, JsonNode>;
@@ -317,7 +297,7 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameCallback * cb);
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb);
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
 	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 
@@ -329,7 +309,7 @@ public:
 	std::set<HeroTypeID> getReservedHeroes() const;
 
 	/// Returns strongest hero from specified scenario, or null if none found
-	const CGHeroInstance * strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
+	std::shared_ptr<CGHeroInstance> strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
 
 	/// Returns heroes that can be instantiated as hero placeholders by power
 	const std::vector<JsonNode> & getHeroesByPower(CampaignScenarioID scenarioId) const;
@@ -339,7 +319,7 @@ public:
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
 	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
-	CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map) const;
+	std::shared_ptr<CGHeroInstance> crossoverDeserialize(const JsonNode & node, CMap * map) const;
 
 	std::string campaignSet;
 

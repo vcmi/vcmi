@@ -32,8 +32,8 @@ public:
 	class Instance
 	{
 	public:
-		Instance(const Object& parent, CGObjectInstance & object);
-		Instance(const Object& parent, CGObjectInstance & object, const int3 & position);
+		Instance(const Object& parent, std::shared_ptr<CGObjectInstance> object);
+		Instance(const Object& parent, std::shared_ptr<CGObjectInstance> object, const int3 & position);
 		
 		const Area & getBlockedArea() const;
 		
@@ -52,27 +52,28 @@ public:
 		void setPositionRaw(const int3 & position); //no cache invalidation
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
+		std::shared_ptr<CGObjectInstance> pointer() const;
 		
 		void finalize(RmgMap & map, vstd::RNG &); //cache invalidation
 		void clear();
 		
-		std::function<void(CGObjectInstance *)> onCleared;
+		std::function<void(CGObjectInstance &)> onCleared;
 	private:
 		mutable Area dBlockedAreaCache;
 		int3 dPosition;
 		mutable Area dAccessibleAreaCache;
-		CGObjectInstance & dObject;
+		std::shared_ptr<CGObjectInstance> dObject;
 		const Object & dParent;
 	};
 	
 	Object() = default;
 	Object(const Object & object);
-	Object(CGObjectInstance & object);
-	Object(CGObjectInstance & object, const int3 & position);
+	Object(std::shared_ptr<CGObjectInstance> object);
+	Object(std::shared_ptr<CGObjectInstance> object, const int3 & position);
 	
 	void addInstance(Instance & object);
-	Instance & addInstance(CGObjectInstance & object);
-	Instance & addInstance(CGObjectInstance & object, const int3 & position);
+	Instance & addInstance(std::shared_ptr<CGObjectInstance> object);
+	Instance & addInstance(std::shared_ptr<CGObjectInstance> object, const int3 & position);
 	
 	std::list<Instance*> & instances();
 	std::list<const Instance*> & instances() const;

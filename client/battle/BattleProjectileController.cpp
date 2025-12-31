@@ -161,7 +161,7 @@ const CCreature & BattleProjectileController::getShooter(const CStack * stack) c
 	if(creature->getId() == CreatureID::ARROW_TOWERS)
 		creature = owner.siegeController->getTurretCreature(stack->initialPosition);
 
-	if(creature->animation.missileFrameAngles.empty())
+	if(creature->animation.missileFrameAngles.empty() && creature->animation.projectileRay.empty())
 	{
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead...", creature->getNameSingularTranslated());
 		creature = CreatureID(CreatureID::ARCHER).toCreature();

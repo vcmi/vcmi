@@ -57,9 +57,11 @@ private:
 
 	IGameEngineUser *engineUser = nullptr;
 
+	int maxPerformanceOverlayTextWidth = 0;
+
 	void updateFrame();
 	void handleEvents(); //takes events from queue and calls interested objects
-	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
+	void drawPerformanceOverlay(); // draws box with additional infos (e.g. fps)
 
 public:
 	std::mutex interfaceMutex;
@@ -120,7 +122,7 @@ public:
 	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
-	void onScreenResize(bool resolutionChanged);
+	void onScreenResize(bool resolutionChanged, bool windowResized);
 
 	/// Simulate mouse movement to force refresh UI state that updates on mouse move
 	void fakeMouseMove();

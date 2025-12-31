@@ -18,17 +18,19 @@
 
 #include "JsonBonus.h"
 
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../IGameCallback.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../gameState/CGameState.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -49,6 +51,12 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	: std::runtime_error(message + " Input was: " + cleanupJson(input))
 {}
 
+JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
+	: GameCallbackHolder(cb)
+	, gameRandomizer(gameRandomizer)
+	, rng(gameRandomizer.getDefault())
+{
+}
 
 	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{
@@ -68,7 +76,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return variables.at(variableID);
 	}
 
-	si32 JsonRandom::loadValue(const JsonNode & value, vstd::RNG & rng, const Variables & variables, si32 defaultValue)
+	si32 JsonRandom::loadValue(const JsonNode & value, const Variables & variables, si32 defaultValue)
 	{
 		if(value.isNull())
 			return defaultValue;
@@ -82,14 +90,14 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			const auto & vector = value.Vector();
 
 			size_t index= rng.nextInt64(0, vector.size()-1);
-			return loadValue(vector[index], rng, variables, 0);
+			return loadValue(vector[index], variables, 0);
 		}
 		if(value.isStruct())
 		{
 			if (!value["amount"].isNull())
-				return loadValue(value["amount"], rng, variables, defaultValue);
-			si32 min = loadValue(value["min"], rng, variables, 0);
-			si32 max = loadValue(value["max"], rng, variables, 0);
+				return loadValue(value["amount"], variables, defaultValue);
+			si32 min = loadValue(value["min"], variables, 0);
+			si32 max = loadValue(value["max"], variables, 0);
 			return rng.nextInt64(min, max);
 		}
 		return defaultValue;
@@ -111,6 +119,12 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			return IdentifierType(LIBRARY->identifiers()->getIdentifier(IdentifierType::entityType(), value).value_or(-1));
 		else
 			return loadVariable(IdentifierType::entityType(), value.String(), variables, IdentifierType::NONE);
+	}
+
+	template<>
+	ArtifactPosition JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
+	{
+		return ArtifactPosition::decode(value.String());
 	}
 
 	template<>
@@ -147,7 +161,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	{
 		assert(value.isStruct());
 
-		std::set<CArtifact::EartClass> allowedClasses;
+		std::set<EArtifactClass> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
 		ui32 minValue = 0;
 		ui32 maxValue = std::numeric_limits<ui32>::max();
@@ -274,46 +288,38 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return valuesSet;
 	}
 
-	TResources JsonRandom::loadResources(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	TResources JsonRandom::loadResources(const JsonNode & value, const Variables & variables)
 	{
 		TResources ret;
 
 		if (value.isVector())
 		{
 			for (const auto & entry : value.Vector())
-				ret += loadResource(entry, rng, variables);
+				ret += loadResource(entry, variables);
 			return ret;
 		}
 
-		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
+		for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			ret[i] = loadValue(value[GameConstants::RESOURCE_NAMES[i]], rng, variables);
+			ret[i] = loadValue(value[i.toResource()->getJsonKey()], variables);
 		}
 		return ret;
 	}
 
-	TResources JsonRandom::loadResource(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	TResources JsonRandom::loadResource(const JsonNode & value, const Variables & variables)
 	{
-		std::set<GameResID> defaultResources{
-			GameResID::WOOD,
-			GameResID::MERCURY,
-			GameResID::ORE,
-			GameResID::SULFUR,
-			GameResID::CRYSTAL,
-			GameResID::GEMS,
-			GameResID::GOLD
-		};
+		auto defaultResources = LIBRARY->resourceTypeHandler->getAllObjects();
 
-		std::set<GameResID> potentialPicks = filterKeys(value, defaultResources, variables);
+		std::set<GameResID> potentialPicks = filterKeys(value, std::set<GameResID>(defaultResources.begin(), defaultResources.end()), variables);
 		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
-		si32 resourceAmount = loadValue(value, rng, variables, 0);
+		si32 resourceAmount = loadValue(value, variables, 0);
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
 		return ret;
 	}
 
-	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, const Variables & variables)
 	{
 		std::set<PrimarySkill> defaultSkills{
 			PrimarySkill::ATTACK,
@@ -325,7 +331,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<si32> ret(GameConstants::PRIMARY_SKILLS, 0);
 		std::set<PrimarySkill> defaultSkills{
@@ -340,7 +346,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			for(const auto & pair : value.Struct())
 			{
 				PrimarySkill id = decodeKey<PrimarySkill>(pair.second.getModScope(), pair.first, variables);
-				ret[id.getNum()] += loadValue(pair.second, rng, variables);
+				ret[id.getNum()] += loadValue(pair.second, variables);
 			}
 		}
 		if(value.isVector())
@@ -351,24 +357,24 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 				PrimarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 
 				defaultSkills.erase(skillID);
-				ret[skillID.getNum()] += loadValue(element, rng, variables);
+				ret[skillID.getNum()] += loadValue(element, variables);
 			}
 		}
 		return ret;
 	}
 
-	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, const Variables & variables)
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : LIBRARY->skillh->objects)
-			if (cb->isAllowed(skill->getId()))
+			if (cb->isAllowed(skill->getId()) && !skill->special)
 				defaultSkills.insert(skill->getId());
 
 		std::set<SecondarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & value, const Variables & variables)
 	{
 		std::map<SecondarySkill, si32> ret;
 		if(value.isStruct())
@@ -376,14 +382,14 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			for(const auto & pair : value.Struct())
 			{
 				SecondarySkill id = decodeKey<SecondarySkill>(pair.second.getModScope(), pair.first, variables);
-				ret[id] = loadValue(pair.second, rng, variables);
+				ret[id] = loadValue(pair.second, variables);
 			}
 		}
 		if(value.isVector())
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : LIBRARY->skillh->objects)
-				if (cb->isAllowed(skill->getId()))
+				if (cb->isAllowed(skill->getId()) && !skill->special)
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())
@@ -392,13 +398,13 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 				SecondarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 
 				defaultSkills.erase(skillID); //avoid dupicates
-				ret[skillID] = loadValue(element, rng, variables);
+				ret[skillID] = loadValue(element, variables);
 			}
 		}
 		return ret;
 	}
 
-	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	ArtifactID JsonRandom::loadArtifact(const JsonNode & value, const Variables & variables)
 	{
 		std::set<ArtifactID> allowedArts;
 		for(const auto & artifact : LIBRARY->arth->objects)
@@ -407,20 +413,35 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 
-		return cb->gameState()->pickRandomArtifact(rng, potentialPicks);
+		return gameRandomizer.rollArtifact(potentialPicks);
 	}
 
-	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<ArtifactID> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
-			ret.push_back(loadArtifact(entry, rng, variables));
+			ret.push_back(loadArtifact(entry, variables));
 		}
 		return ret;
 	}
 
-	SpellID JsonRandom::loadSpell(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<ArtifactPosition> JsonRandom::loadArtifactSlots(const JsonNode & value, const Variables & variables)
+	{
+		std::set<ArtifactPosition> allowedSlots;
+		for(ArtifactPosition pos(0); pos < ArtifactPosition::BACKPACK_START; ++pos)
+			allowedSlots.insert(pos);
+
+		std::vector<ArtifactPosition> ret;
+		for (const JsonNode & entry : value.Vector())
+		{
+			std::set<ArtifactPosition> potentialPicks = filterKeys(entry, allowedSlots, variables);
+			ret.push_back(*RandomGeneratorUtil::nextItem(potentialPicks, rng));
+		}
+		return ret;
+	}
+
+	SpellID JsonRandom::loadSpell(const JsonNode & value, const Variables & variables)
 	{
 		std::set<SpellID> defaultSpells;
 		for(const auto & spell : LIBRARY->spellh->objects)
@@ -437,17 +458,17 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 	}
 
-	std::vector<SpellID> JsonRandom::loadSpells(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<SpellID> JsonRandom::loadSpells(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<SpellID> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
-			ret.push_back(loadSpell(entry, rng, variables));
+			ret.push_back(loadSpell(entry, variables));
 		}
 		return ret;
 	}
 
-	std::vector<PlayerColor> JsonRandom::loadColors(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<PlayerColor> JsonRandom::loadColors(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<PlayerColor> ret;
 		std::set<PlayerColor> defaultPlayers;
@@ -463,7 +484,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return ret;
 	}
 
-	std::vector<HeroTypeID> JsonRandom::loadHeroes(const JsonNode & value, vstd::RNG & rng)
+	std::vector<HeroTypeID> JsonRandom::loadHeroes(const JsonNode & value)
 	{
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
@@ -473,7 +494,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return ret;
 	}
 
-	std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value, vstd::RNG & rng)
+	std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value)
 	{
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
@@ -483,7 +504,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return ret;
 	}
 
-	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, const Variables & variables)
 	{
 		CStackBasicDescriptor stack;
 
@@ -504,7 +525,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			throw JsonRandomizationException("Invalid creature picked!", value);
 
 		stack.setType(pickedCreature.toCreature());
-		stack.count = loadValue(value, rng, variables);
+		stack.setCount(loadValue(value, variables));
 		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
@@ -515,12 +536,12 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return stack;
 	}
 
-	std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	std::vector<CStackBasicDescriptor> JsonRandom::loadCreatures(const JsonNode & value, const Variables & variables)
 	{
 		std::vector<CStackBasicDescriptor> ret;
 		for (const JsonNode & node : value.Vector())
 		{
-			ret.push_back(loadCreature(node, rng, variables));
+			ret.push_back(loadCreature(node, variables));
 		}
 		return ret;
 	}
@@ -552,13 +573,13 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		return ret;
 	}
 
-	std::vector<Bonus> JsonRandom::loadBonuses(const JsonNode & value)
+	std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value)
 	{
-		std::vector<Bonus> ret;
+		std::vector<std::shared_ptr<Bonus>> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
 			if(auto bonus = JsonUtils::parseBonus(entry))
-				ret.push_back(*bonus);
+				ret.push_back(bonus);
 		}
 		return ret;
 	}

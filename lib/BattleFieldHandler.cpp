@@ -31,7 +31,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 
 		bonus->source = BonusSource::TERRAIN_OVERLAY;
 		bonus->sid = BonusSourceID(info->getId());
-		bonus->duration = BonusDuration::ONE_BATTLE;
+		bonus->duration = BonusDuration::PERMANENT;
 
 		info->bonuses.push_back(bonus);
 	}

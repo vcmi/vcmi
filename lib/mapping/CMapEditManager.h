@@ -83,11 +83,11 @@ public:
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
 	void drawRiver(RiverId riverType, vstd::RNG * gen);
 
-	void insertObject(CGObjectInstance * obj);
-	void insertObjects(std::set<CGObjectInstance *> & objects);
-	void moveObject(CGObjectInstance * obj, const int3 & pos);
-	void removeObject(CGObjectInstance * obj);
-	void removeObjects(std::set<CGObjectInstance *> & objects);
+	void insertObject(std::shared_ptr<CGObjectInstance> obj);
+	void insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects);
+	void moveObject(CGObjectInstance* obj, const int3 & pos);
+	void removeObject(CGObjectInstance* obj);
+	void removeObjects(std::set<CGObjectInstance*> & objects);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();

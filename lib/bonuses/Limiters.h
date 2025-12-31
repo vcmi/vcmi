@@ -7,18 +7,21 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
-#include "Bonus.h"
-
+#include "BonusCustomTypes.h"
+#include "BonusEnum.h"
 #include "../battle/BattleHexArray.h"
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct Bonus;
+class BonusList;
+class CBonusSystemNode;
 class CCreature;
-
-extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
+class JsonNode;
 
 struct BonusLimitationContext
 {
@@ -31,19 +34,27 @@ struct BonusLimitationContext
 class DLL_LINKAGE ILimiter : public Serializeable
 {
 public:
-	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};
+	enum class EDecision : uint8_t
+	{
+		ACCEPT,
+		DISCARD,
+		NOT_SURE, // result may still change based on not yet resolved bonuses
+		NOT_APPLICABLE // limiter is not applicable to current node and is never applicable
+	};
 
 	virtual ~ILimiter() = default;
 
-	virtual EDecision limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
+	virtual EDecision limit(const BonusLimitationContext &context) const;
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
-	virtual void acceptUpdater(IUpdater & visitor);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 	}
 };
+
+using TLimiterPtr = std::shared_ptr<const ILimiter>;
+extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
 
 class DLL_LINKAGE AggregateLimiter : public ILimiter
 {
@@ -54,7 +65,6 @@ public:
 	std::vector<TLimiterPtr> limiters;
 	void add(const TLimiterPtr & limiter);
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -106,7 +116,6 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -135,7 +144,6 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -150,17 +158,16 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
+class DLL_LINKAGE TerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
 	TerrainId terrainType;
-	CreatureTerrainLimiter();
-	CreatureTerrainLimiter(TerrainId terrain);
+	TerrainLimiter();
+	TerrainLimiter(TerrainId terrain);
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -180,7 +187,6 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -199,7 +205,6 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -217,7 +222,6 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -229,16 +233,18 @@ public:
 class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
 {
 public:
-	PlayerColor owner;
-	OppositeSideLimiter(PlayerColor Owner = PlayerColor::CANNOT_DETERMINE);
+	OppositeSideLimiter();
 
 	EDecision limit(const BonusLimitationContext &context) const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & owner;
+		if (!h.hasFeature(Handler::Version::OPPOSITE_SIDE_LIMITER_OWNER))
+		{
+			PlayerColor owner;
+			h & owner;
+		}
 	}
 };
 
@@ -251,7 +257,6 @@ public:
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
 	EDecision limit(const BonusLimitationContext &context) const override;
-	void acceptUpdater(IUpdater & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -269,12 +274,26 @@ public:
 	UnitOnHexLimiter(const BattleHexArray & applicableHexes = {});
 	EDecision limit(const BonusLimitationContext &context) const override;
 	JsonNode toJsonNode() const override;
-	void acceptUpdater(IUpdater& visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & applicableHexes;
+	}
+};
+
+class DLL_LINKAGE HasChargesLimiter : public ILimiter // works with bonuses that consume charges
+{
+public:
+	uint16_t chargeCost;
+
+	HasChargesLimiter(const uint16_t cost = 1);
+	EDecision limit(const BonusLimitationContext & context) const override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & chargeCost;
 	}
 };
 

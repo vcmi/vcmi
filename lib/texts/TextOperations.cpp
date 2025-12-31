@@ -405,4 +405,36 @@ std::optional<int> TextOperations::textSearchSimilarityScore(const std::string &
 	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
 }
 
+std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& path)
+{
+#ifdef VCMI_WINDOWS
+	return boost::locale::conv::utf_to_utf<char>(path.native());
+#else
+	return path.string();
+#endif
+}
+
+boost::filesystem::path TextOperations::Utf8TofilesystemPath(const std::string& path)
+{
+#ifdef VCMI_WINDOWS
+	return boost::filesystem::path(boost::locale::conv::utf_to_utf<wchar_t>(path));
+#else
+	return boost::filesystem::path(path);
+#endif
+}
+
+std::string TextOperations::convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+	boost::algorithm::erase_all(input, ".");
+
+	size_t slashPos = input.find_last_of('/');
+
+	if(slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
+}
+
 VCMI_LIB_NAMESPACE_END
