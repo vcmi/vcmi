@@ -25,6 +25,7 @@
 #include "../render/IScreenHandler.h"
 #include "../render/hdEdition/HdImageLoader.h"
 
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/ExceptionsCommon.h"
@@ -57,13 +58,16 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
-	auto it = animationFiles.find(actualPath);
-
-	if (it != animationFiles.end())
 	{
-		auto locked = it->second.lock();
-		if (locked)
-			return locked;
+		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		auto it = animationFiles.find(actualPath);
+
+		if (it != animationFiles.end())
+		{
+			auto locked = it->second.lock();
+			if (locked)
+				return locked;
+		}
 	}
 
 	if (!CResourceHandler::get()->existsResource(actualPath))
@@ -72,11 +76,16 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	auto result = std::make_shared<CDefFile>(actualPath);
 
 	auto entries = result->getEntries();
-	for(const auto& entry : entries)
-		for(size_t i = 0; i < entry.second; ++i)
-			animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};
+	
+	{
+		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		for(const auto& entry : entries)
+			for(size_t i = 0; i < entry.second; ++i)
+				animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};
 
-	animationFiles[actualPath] = result;
+		animationFiles[actualPath] = result;
+	}
+	
 	return result;
 }
 
@@ -582,6 +591,8 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 			detectOverlappingBuildings(this, factionBase);
 		});
 	}
+	
+	preloadAnimationsAsync();
 }
 
 std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
@@ -630,4 +641,33 @@ void RenderHandler::updateGeneratedAssets()
 {
 	for (const auto& [key, value] : assetGenerator->generateAllAnimations())
         animationLayouts[key] = value;
+}
+
+void RenderHandler::preloadAnimationsAsync()
+{
+	auto animationFiles = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & path) {
+		return path.getType() == EResType::ANIMATION;
+	});
+	
+	logGlobal->info("Starting async preload of %d animation files", animationFiles.size());
+	
+	const auto preloadTask = [this, animationFiles]()
+	{
+		for (const auto & path : animationFiles)
+		{
+			try
+			{
+				AnimationPath animPath = AnimationPath::fromResource(path);
+				getAnimationFile(animPath);
+			}
+			catch (const std::exception & e)
+			{
+				logGlobal->warn("Failed to preload animation %s: %s", path.getName(), e.what());
+			}
+		}
+		
+		logGlobal->info("Animation preload completed");
+	};
+	
+	ENGINE->async().run(preloadTask);
 }
