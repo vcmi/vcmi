@@ -713,21 +713,46 @@ begin
   Result := True;
 end;
 
+function TryReadUninstallExeFromHKLM(const SubKey: String; var UninstallerPath: String): Boolean;
+begin
+  Result := RegQueryStringValue(HKLM, SubKey, 'UninstallString', UninstallerPath);
+  if (not Result) or (Trim(UninstallerPath) = '') then
+  begin
+    UninstallerPath := '';
+    Result := False;
+  end;
+
+  UninstallerPath := RemoveQuotes(Trim(UninstallerPath));
+end;
+
+function GetLegacyUninstallerPath(var UninstallerPath: String): Boolean;
+begin
+  Result := TryReadUninstallExeFromHKLM('SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\VCMI', UninstallerPath) or TryReadUninstallExeFromHKLM('SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\VCMI', UninstallerPath);
+end;
+
 
 procedure RemoveLegacyInstaller();
 var
   AppFolder: String;
+  UninstallerPath: String;
   ResultCode: Integer;
 begin
   AppFolder := ExpandConstant('{app}');
+  UninstallerPath := '';
 
-  // Silently remove old NSIS installation
-  if FileExists(AppFolder + '\Uninstall.exe') then
+  // 1) Prefer uninstall path from registry (full path)
+  if not GetLegacyUninstallerPath(UninstallerPath) then
   begin
-    Exec(AppFolder + '\Uninstall.exe', '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    // 2) Fallback: uninstall.exe in current target dir
+    UninstallerPath := AppFolder + '\Uninstall.exe';
+  end;
 
-    // Attempt to remove leftovers from target folder to ensure clean install
-    if DirExists(AppFolder) then
+  if (UninstallerPath <> '') and FileExists(UninstallerPath) then
+  begin
+    Exec(UninstallerPath, '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    // Clean leftovers only if uninstall.exe is in current {app} folder
+    if DirExists(AppFolder) and (CompareText(ExtractFileDir(UninstallerPath), AppFolder) = 0) then
       DelTree(AppFolder, True, True, False);
   end;
 end;
@@ -981,3 +1006,4 @@ begin
       Abort;
   end;
 end;
+
