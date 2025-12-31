@@ -74,7 +74,7 @@ public:
 	PrimarySkill loadPrimary(const JsonNode & value, const Variables & variables);
 	std::vector<si32> loadPrimaries(const JsonNode & value, const Variables & variables);
 	SecondarySkill loadSecondary(const JsonNode & value, const Variables & variables);
-	std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, const Variables & variables);
+	std::map<SecondarySkill, si32> loadSecondaries(const JsonNode & value, const Variables & variables, bool loadBanned=false);
 
 	ArtifactID loadArtifact(const JsonNode & value, const Variables & variables);
 	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, const Variables & variables);

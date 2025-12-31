@@ -32,6 +32,7 @@ CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligator
 	obligatoryMajor(obligatoryMajor),
 	obligatoryMinor(obligatoryMinor),
 	special(false),
+	banInMapObjects(false),
 	onlyOnWaterMap(false)
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
@@ -220,6 +221,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 
 	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
 	skill->special = json["special"].Bool();
+	skill->banInMapObjects = json["banInMapObjects"].Bool();
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 

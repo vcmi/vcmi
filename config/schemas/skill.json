@@ -100,14 +100,18 @@
 		},
 		"expert" : {
 			"$ref" : "#/definitions/skillBonus"
-		}
-	},
-	"onlyOnWaterMap" : {
-		"type" : "boolean",
-		"description" : "It true, skill won't be available on a map without water"
-	},
-	"special" : {
-		"type" : "boolean",
-		"description" : "If true, skill is not available on maps at random"
+		},
+        "onlyOnWaterMap" : {
+            "type" : "boolean",
+            "description" : "It true, skill won't be available on a map without water"
+        },
+        "special" : {
+            "type" : "boolean",
+            "description" : "If true, skill is not available on maps at random"
+        },
+        "banInMapObjects" : {
+            "type" : "boolean",
+            "description" : "If true, skill is not available on map objects: such as Witch Hut, University and Scholars"
+        }
 	}
 }
