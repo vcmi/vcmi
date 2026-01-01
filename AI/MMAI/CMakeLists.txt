@@ -72,7 +72,7 @@ else()
   if(APPLE)
     set_target_properties(MMAI PROPERTIES INSTALL_RPATH "@loader_path")
   elseif(UNIX)
-    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${CMAKE_INSTALL_RPATH}/AI")
   endif()
 endif()
 
