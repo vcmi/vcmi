@@ -167,7 +167,7 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	currentBattle->tile = tile;
 	currentBattle->terrainType = terrain;
 	currentBattle->battlefieldType = battlefieldType;
-	currentBattle->round = -2;
+	currentBattle->round = 0;
 	currentBattle->activeStack = -1;
 	currentBattle->replayAllowed = false;
 	if (town)
@@ -576,6 +576,11 @@ uint8_t BattleInfo::getTacticDist() const
 BattleSide BattleInfo::getTacticsSide() const
 {
 	return tacticsSide;
+}
+
+int32_t BattleInfo::getRound() const
+{
+	return round;
 }
 
 const CGTownInstance * BattleInfo::getDefendedTown() const

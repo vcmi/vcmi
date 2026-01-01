@@ -97,7 +97,8 @@
 				"defensePointDamageFactorCap" : { "type" : "number" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
-				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
+				"noSpellHitAndRun" :            { "type" : "boolean" }
 			}
 		},
 		"creatures": {

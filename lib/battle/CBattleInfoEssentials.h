@@ -67,6 +67,7 @@ public:
 
 	si8 battleTacticDist() const override; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	BattleSide battleGetTacticsSide() const override; //returns which side is in tactics phase, undefined if none (?)
+	int32_t battleGetRound() const;
 
 	bool battleCanFlee(const PlayerColor & player) const;
 	bool battleCanSurrender(const PlayerColor & player) const;
