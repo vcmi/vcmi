@@ -57,6 +57,7 @@ enum class ESerializationVersion : int32_t
 	HOTA_MAP_FORMAT_EXTENSIONS, // support multiple Hota 1.7 map format features
 	SPELL_RESEARCH_IMPROVEMENTS, // support counting past spell rerolls
 
+	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	CURRENT = SPELL_RESEARCH_IMPROVEMENTS,
 };
 
