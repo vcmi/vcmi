@@ -703,6 +703,7 @@
 			// if enabled creatures may join player for free, disabling it removes free joining globally unless creature is set to join in map editor
 			"allowJoiningForFree" : true,
 			// percent of stack amount that joins player per each successful join (does not decrease cost when joining for gold), if 0 or lower creatures never join for free or gold
+			// NOTE: on HotA maps this setting has no effect on units placed in map editor, preset value from h3m will be used instead
 			"joiningPercentage" : 100
 		},
 		

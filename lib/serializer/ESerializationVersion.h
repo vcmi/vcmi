@@ -58,6 +58,7 @@ enum class ESerializationVersion : int32_t
 	SPELL_RESEARCH_IMPROVEMENTS, // support counting past spell rerolls
 	NAME_MAP_LAYERS, // name map layers
 
+	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	CURRENT = NAME_MAP_LAYERS,
 };
 
