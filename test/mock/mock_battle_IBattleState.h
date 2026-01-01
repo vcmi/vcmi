@@ -33,6 +33,7 @@ public:
 	MOCK_CONST_METHOD1(getEnchanterCounter, int32_t(BattleSide));
 	MOCK_CONST_METHOD0(getTacticDist, ui8());
 	MOCK_CONST_METHOD0(getTacticsSide, BattleSide());
+	MOCK_CONST_METHOD0(getRound, int32_t());
 	MOCK_CONST_METHOD0(getBonusBearer, const IBonusBearer *());
 	MOCK_CONST_METHOD0(nextUnitId, uint32_t());
 	MOCK_CONST_METHOD3(getActualDamage, int64_t(const DamageRange &, int32_t, vstd::RNG &));
