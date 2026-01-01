@@ -40,6 +40,7 @@ public:
 
 	virtual PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) = 0;
 	virtual SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) = 0;
+	virtual std::vector<SecondarySkill> rollSecondarySkills(const CGHeroInstance * hero) = 0;
 
 	virtual vstd::RNG & getDefault() = 0;
 };
