@@ -40,8 +40,9 @@ class BattleFlowProcessor : boost::noncopyable
 	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * stack);
+	bool handleForcedCpuControlledUnit(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCallback& battle, const CStack* actingStack);
 	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
@@ -56,6 +57,7 @@ class BattleFlowProcessor : boost::noncopyable
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
+	double calculateTowerAttackValue(const CBattleInfoCallback& battle, const CStack* attacker, const CStack* target) const;
 
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
 	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
