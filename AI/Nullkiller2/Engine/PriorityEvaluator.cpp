@@ -129,7 +129,7 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 
 	// probably well developed town will have city hall
 	if(fortLevel == CGTownInstance::CASTLE) return booster * 750;
-	
+
 	return booster * (town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? booster * 500 : 250);
 }
 
@@ -150,7 +150,7 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
-	
+
 	for(auto & creLevel : dwelling->creatures)
 	{
 		if(creLevel.first && creLevel.second.size())
@@ -583,6 +583,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 
 	auto skill = SecondarySkill(*rewardable->configuration.getVariable("secondarySkill", "gainedSkill"));
 
+	// TODO: Mircea: Move to constants
 	if(!hut->wasVisited(hero->tempOwner))
 		return role == HeroRole::SCOUT ? 2 : 0;
 
@@ -592,6 +593,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 
 	auto score = aiNk->heroManager->evaluateSecSkill(skill, hero);
 
+	// TODO: Mircea: Move to constants
 	return score >= 2 ? (role == HeroRole::MAIN ? 10 : 4) : score;
 }
 
@@ -776,13 +778,20 @@ public:
 		if(task->goalType != Goals::HERO_EXCHANGE)
 			return;
 
-		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		const auto & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		const auto receiverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);;
+		const auto giverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.exchangePath.targetHero);
+		// Safety check. Scouts should not receive army, already in place in GatherArmyBehavior::decompose
+		if (receiverHeroRole != MAIN)
+			return;
 
-		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
-
-		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength());
-		evaluationContext.conquestValue += 2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength();
-		evaluationContext.heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);
+		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
+		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength) / heroExchange.hero->getArmyStrength();
+		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
+		evaluationContext.armyGrowth = additionalArmyStrength;
+		evaluationContext.movementCost = heroExchange.exchangePath.movementCost();
+		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
+		evaluationContext.heroRole = giverHeroRole;
 		evaluationContext.isExchange = true;
 	}
 };
@@ -1271,8 +1280,7 @@ uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, cons
 	return upgradedPower - creaturesToUpgrade.power;
 }
 
-PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk)
-	:aiNk(aiNk)
+PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 {
 	initVisitTile();
 	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(aiNk));
@@ -1287,7 +1295,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
 }
 
-EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
+EvaluationContext PriorityEvaluator::buildEvaluationContext(const Goals::TSubgoal & goal) const
 {
 	Goals::TGoalVec parts;
 	EvaluationContext context(aiNk);
@@ -1422,49 +1430,47 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		{
 			case PriorityTier::INSTAKILL: //Take towns / kill heroes in immediate reach
 			{
-				if (evaluationContext.turn > 0 || evaluationContext.isExchange)
+				if(evaluationContext.turn > 0 || evaluationContext.isExchange)
 					return 0;
-				if (evaluationContext.movementCost >= 1)
+				if(evaluationContext.movementCost >= 1)
 					return 0;
-				if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+				if(evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
 					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cc->getTownsInfo().empty()))
+				if(vstd::isAlmostZero(score)
+				   || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange)
+					   && !aiNk->cc->getTownsInfo().empty()))
 					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
-				if (evaluationContext.movementCost > 0)
+				if(evaluationContext.movementCost > 0)
 					score /= evaluationContext.movementCost;
 				break;
 			}
 			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
 			{
 				//No point defending if we don't have defensive-structures
-				if (evaluationContext.defenseValue < 2)
+				if(evaluationContext.defenseValue < 2)
 					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
-				if (evaluationContext.closestWayRatio < 1.0)
+				if(evaluationContext.closestWayRatio < 1.0)
 					return 0;
-				if (evaluationContext.isEnemy && evaluationContext.turn > 0)
+				if(evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
-				if (evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
+				if(evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
 				{
 					const float OPTIMAL_PERCENTAGE = 0.75f; // We want army to be 75% of the threat
 					float optimalStrength = evaluationContext.threat * OPTIMAL_PERCENTAGE;
 
 					// Calculate how far the army is from optimal strength
 					float deviation = std::abs(evaluationContext.armyInvolvement - optimalStrength);
-
-					// Convert deviation to a percentage of the threat to normalize it
 					float deviationPercentage = deviation / evaluationContext.threat;
-
 					// Calculate score: 1.0 is perfect, decreasing as deviation increases
 					score = 1.0f / (1.0f + deviationPercentage);
 
-					// Apply turn penalty to still prefer earlier moves when scores are close
-					score = score / (evaluationContext.turn + 1);
+					score *= 1 - evaluationContext.movementCost / aiNk->settings->getMainHeroTurnDistanceLimit();
 				}
 				break;
 			}
@@ -1485,23 +1491,39 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score *= 1 - evaluationContext.movementCost / aiNk->settings->getMainHeroTurnDistanceLimit();
+				// Encourage fighting stronger opponents
+				score *= 1 + evaluationContext.armyLossRatio;
 				break;
 			}
 			case PriorityTier::HIGH_PRIO_EXPLORE:
 			{
 				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
 					return 0;
-				if (evaluationContext.explorePriority != 1)
+				if (evaluationContext.explorePriority != 1) // TODO: Mircea: Move to constant
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 				if (vstd::isAlmostZero(evaluationContext.armyLossRatio) && evaluationContext.closestWayRatio < 1.0)
 					return 0;
-				score = 1000;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score = 1000; // TODO: Mircea: Move to constant
+				score += evaluationContext.strategicalValue * 1000;
+				score *= 1 - evaluationContext.movementCost / aiNk->settings->getMainHeroTurnDistanceLimit();
+				score *= 1 - evaluationContext.armyLossRatio;
+
+				// Encourage battles only for MAIN to gather more XP in the same heroes, not in scouts
+				if(evaluationContext.armyLossRatio > 0 && evaluationContext.heroRole != MAIN)
+					score *= 0.2; // TODO: Mircea: Move to constant
+
+#if NK2AI_TRACE_LEVEL >= 2
+				logAi->trace(
+					"case PriorityTier::HIGH_PRIO_EXPLORE score %f, strategicalValue %f, movementCost %f, armyLossRatio %f",
+					score,
+					evaluationContext.strategicalValue,
+					evaluationContext.movementCost,
+					evaluationContext.armyLossRatio
+				);
+#endif
 				break;
 			}
 			case PriorityTier::HUNTER_GATHER: //Collect guarded stuff
@@ -1550,19 +1572,38 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 
 				score += evaluationContext.strategicalValue * 1000;
-				score += evaluationContext.goldReward;
-				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05;
-				score += evaluationContext.armyReward;
+
+				// Discourage MAIN to pick-up resources
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.goldReward / 2 : evaluationContext.goldReward;
+
+				// Discourage SCOUT to pick-up skills/artifacts
+				const auto skillRewardMultiplied = evaluationContext.skillReward * 1000;
+				// TODO: Mircea: Don't limit for repeatable locations that give skills to any, only for one timers like a scholar
+				score += evaluationContext.heroRole == MAIN ? skillRewardMultiplied : 0;
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : 0;
+
 				score += evaluationContext.armyGrowth;
 				score -= evaluationContext.goldCost / 2; // don't include the full cost of School of Magic or others because those locations are beneficial
-				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossRatio * 0.1;
+				const auto armyInvolvementMultiplied = evaluationContext.armyInvolvement * evaluationContext.armyLossRatio * 0.1;
+				score -= armyInvolvementMultiplied;
 
-#if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, armyGrowth %f, goldCost -%f, armyInvolvementMultiplied -%f, "
-				 "armyLossPersentage %f, movementCost %f, enemyHeroDangerRatio %f",
-					score, evaluationContext.strategicalValue, evaluationContext.goldReward, evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05,
-					evaluationContext.armyReward, evaluationContext.armyGrowth, evaluationContext.goldCost, evaluationContext.armyInvolvement * evaluationContext.armyLossRatio,
-					evaluationContext.armyLossRatio, evaluationContext.movementCost, evaluationContext.enemyHeroDangerRatio);
+#if NK2AI_TRACE_LEVEL >= 2
+				logAi->trace(
+					"case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, "
+					"armyGrowth %f, goldCost -%f, armyInvolvementMultiplied -%f, "
+					"armyLossPercentage %f, movementCost %f, enemyHeroDangerRatio %f",
+					score,
+					evaluationContext.strategicalValue,
+					evaluationContext.goldReward,
+					skillRewardMultiplied,
+					evaluationContext.armyReward,
+					evaluationContext.armyGrowth,
+					evaluationContext.goldCost,
+					armyInvolvementMultiplied,
+					evaluationContext.armyLossRatio,
+					evaluationContext.movementCost,
+					evaluationContext.enemyHeroDangerRatio
+				);
 #endif
 				if (score > 0)
 				{
@@ -1570,7 +1611,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					if (evaluationContext.movementCost > 0)
 					{
 //						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 8");
-						score -= evaluationContext.movementCost / 20 * score; // we expect movement won't be over 20 turns
+						score *= 1 - evaluationContext.movementCost / aiNk->settings->getMainHeroTurnDistanceLimit();
 					}
 					// TODO: Mircea: This doesn't make sense at it always seems to be 0. To test
 					if(evaluationContext.enemyHeroDangerRatio > 0)
@@ -1582,6 +1623,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					{
 //						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
 						score *= 1 - evaluationContext.armyLossRatio;
+						// Encourage battles only for MAIN to gather more XP in the same heroes, not in scouts
+						if(evaluationContext.heroRole != MAIN)
+							score *= 0.2;
 					}
 				}
 
@@ -1592,15 +1636,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			{
 				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
 					return 0;
-				if (evaluationContext.explorePriority != 3)
+				if (evaluationContext.explorePriority != 3) // TODO: Mircea: Move to constant
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 				if (evaluationContext.closestWayRatio < 1.0)
 					return 0;
-				score = 1000;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score = 1000; // TODO: Mircea: Move to constant
+				score -= evaluationContext.movementCost / aiNk->settings->getMainHeroTurnDistanceLimit() * score;
 				break;
 			}
 			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
@@ -1673,13 +1716,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, result %f",
+	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, turns scout: %f, explorePriority: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, result %f",
 		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossRatio,
 		(int)evaluationContext.turn,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
+		evaluationContext.explorePriority,
 		evaluationContext.armyInvolvement,
 		goldRewardVsMovement,
 		evaluationContext.goldCost,

@@ -147,7 +147,7 @@ private:
 	fl::OutputVariable * value;
 	std::vector<std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 
-	EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
+	EvaluationContext buildEvaluationContext(const Goals::TSubgoal & goal) const;
 };
 
 }
