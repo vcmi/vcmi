@@ -538,7 +538,7 @@ void AdventureMapShortcuts::search(bool next)
 			owner.centerOnObject(objInst);
 			searchLast = objInst->getObjectName();
 		};
-	auto openObjMap = [this, textCountList](int index)
+	auto openObjMap = [textCountList](int index)
 		{
 			auto selObj = textCountList[index].first;
 
