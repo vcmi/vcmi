@@ -177,24 +177,13 @@ void AINodeStorage::clear()
 	turnDistanceLimit[HeroRole::SCOUT] = PathfinderSettings::MaxTurnDistanceLimit;;
 }
 
-int AINodeStorage::getBucketIndex(const ChainActor* actor, EPathfindingLayer layer, const int3& pos) {
-	uint64_t hash = pos.x;
-	hash = hash * 31 + pos.y;
-	hash = hash * 31 + pos.z;
-	hash = hash * 31 + (reinterpret_cast<uint64_t>(actor) >> 4);
-	hash = hash * 31 + static_cast<int>(layer);
-
-	return hash % aiNk->settings->getPathfinderBucketsCount();
-}
-
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const int3 & pos, 
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	// Mircea: A bit more CPU to drop buckets but better memory usage to use all nodes, then we avoid unbalanced distribution
-	int bucketIndex = getBucketIndex(actor, layer, pos);
-	int bucketOffset = bucketIndex * aiNk->settings->getPathfinderBucketSize();
+	// Modified to 1 bucket because properly load balancing multiple buckets is not worth. Backwards compatible
+	const int total = aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount();
 	auto chains = nodes.get(pos);
 
 	if(blocked(pos, layer))
@@ -202,22 +191,19 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 		return std::nullopt;
 	}
 
-	for(auto i = aiNk->settings->getPathfinderBucketSize() - 1; i >= 0; i--)
+	for(auto i = 0; i < total; i++)
 	{
-		AIPathNode & node = chains[i + bucketOffset];
+		AIPathNode & node = chains[i];
 		if(node.version != AISharedStorage::version)
 		{
 			node.reset(layer, getAccessibility(pos, layer));
 			node.version = AISharedStorage::version;
 			node.actor = actor;
-
 			return &node;
 		}
 
 		if(node.actor == actor && node.layer == layer)
-		{
 			return &node;
-		}
 	}
 
 	aiNk->pathfinderTurnStorageMisses.fetch_add(1);
@@ -484,20 +470,6 @@ bool AINodeStorage::calculateHeroChainFinal()
 	return heroChain.size();
 }
 
-struct DelayedWork
-{
-	AIPathNode * carrier;
-	AIPathNode * other;
-
-	DelayedWork()
-	{
-	}
-	
-	DelayedWork(AIPathNode * carrier, AIPathNode * other) : carrier(carrier), other(other)
-	{
-	}
-};
-
 class HeroChainCalculationTask
 {
 private:
@@ -508,7 +480,6 @@ private:
 	int heroChainTurn;
 	std::vector<CGPathNode *> heroChain;
 	const std::vector<int3> & tiles;
-	std::vector<DelayedWork> delayedWork;
 
 public:
 	HeroChainCalculationTask(AINodeStorage & storage, const std::vector<int3> & tiles, const uint64_t chainMask, const int heroChainTurn)
@@ -518,7 +489,7 @@ public:
 		newChains.reserve(storage.getBucketCount() * storage.getBucketSize());
 	}
 
-	void execute(const tbb::blocked_range<size_t>& r)
+	void execute(const tbb::blocked_range<size_t> & r)
 	{
 		std::minstd_rand randomEngine;
 
@@ -551,21 +522,6 @@ public:
 						calculateHeroChain(node, existingChains, newChains);
 					}
 				}
-
-				for(auto delayed = delayedWork.begin(); delayed != delayedWork.end();)
-				{
-					const auto newActor = delayed->carrier->actor->tryExchangeNoLock(delayed->other->actor);
-					if(!newActor.lockAcquired) continue;
-
-					if(newActor.actor)
-					{
-						newChains.push_back(calculateExchange(newActor.actor, delayed->carrier, delayed->other));
-					}
-
-					++delayed;
-				}
-
-				delayedWork.clear();
 
 				cleanupInefectiveChains(newChains);
 				addHeroChain(newChains);
@@ -605,10 +561,10 @@ bool AINodeStorage::calculateHeroChain()
 	const std::vector<int3> tiles(committedTiles.begin(), committedTiles.end());
 	const int maxConcurrency = tbb::this_task_arena::max_concurrency();
 	std::vector<std::vector<CGPathNode *>> results(maxConcurrency);
-	logAi->trace("Calculating hero chain for %d items", tiles.size());
+	logAi->trace("AINodeStorage::calculateHeroChain for %d items with %d maxConcurrency", tiles.size(), maxConcurrency);
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, tiles.size()),
+		tbb::blocked_range<size_t>(0, tiles.size(), 10),
 		[&](const tbb::blocked_range<size_t> & r)
 		{
 			HeroChainCalculationTask task(*this, tiles, chainMask, heroChainTurn);
@@ -806,10 +762,33 @@ void HeroChainCalculationTask::calculateHeroChain(
 			}
 		}
 
-		auto newActor = carrier->actor->tryExchangeNoLock(other->actor);
-		
-		if(!newActor.lockAcquired) delayedWork.push_back(DelayedWork(carrier, other));
-		if(newActor.actor) result.push_back(calculateExchange(newActor.actor, carrier, other));
+		// Always acquire locks in consistent order to prevent deadlock
+		// Order by memory address to ensure consistent acquisition order
+		const ChainActor * firstActor = carrier->actor;
+		const ChainActor * secondActor = other->actor;
+		if(firstActor > secondActor)
+			std::swap(firstActor, secondActor);
+
+		// Retry with timeout to prevent livelock using exponential backoff
+		constexpr auto maxDelay = std::chrono::milliseconds(16);
+		auto currentDelay = std::chrono::milliseconds(1);
+		constexpr int maxRetries = 7;
+
+		for(int attempt = 0; attempt < maxRetries; ++attempt)
+		{
+			const auto exchangeResult = firstActor->tryExchangeNoLock(secondActor);
+			if(exchangeResult.lockAcquired)
+			{
+				if (exchangeResult.actor)
+					result.push_back(calculateExchange(exchangeResult.actor, carrier, other));
+				return;
+			}
+
+			std::this_thread::sleep_for(currentDelay);
+			currentDelay = std::min(currentDelay * 2, maxDelay);
+		}
+
+		logAi->warn("HeroChainCalculationTask::calculateHeroChain failed to lock actors");
 	}
 }
 
@@ -1464,18 +1443,37 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
+
+		fillChainInfo(&node, path, -1);
+		// Validate the path after filling
+		// if(!path.nodes.empty() && path.targetHero)
+		// {
+		// 	bool heroFound = false;
+		// 	for(const auto & pathNode : path.nodes)
+		// 	{
+		// 		if(pathNode.targetHero->id == path.targetHero->id)
+		// 		{
+		// 			heroFound = true;
+		// 			break;
+		// 		}
+		// 	}
+		//
+		// 	if(!heroFound)
+		// 		logAi->warn("AINodeStorage::calculateChainInfo - Path targetHero %s not found in path nodes", path.targetHero->getNameTranslated());
+		// }
+
 		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
-		for (auto pathNode : path.nodes)
+		for(const auto & pathNode : path.nodes)
 		{
-			path.targetObjectDanger = std::max(aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle), path.targetObjectDanger);
+			auto pathNodeDanger = aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle);
+			path.targetObjectDanger = std::max(pathNodeDanger, path.targetObjectDanger);
 		}
 
 		if(path.targetObjectDanger > 0)
 		{
 			if(node.theNodeBefore)
 			{
-				auto prevNode = getAINode(node.theNodeBefore);
-
+				const auto * prevNode = getAINode(node.theNodeBefore);
 				if(node.coord == prevNode->coord && node.actor->hero == prevNode->actor->hero)
 				{
 					paths.pop_back();
@@ -1494,11 +1492,11 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 
 		int fortLevel = 0;
 		auto visitableObjects = aiNk->cc->getVisitableObjs(pos);
-		for (auto obj : visitableObjects)
+		for (const auto * obj : visitableObjects)
 		{
 			if (objWithID<Obj::TOWN>(obj))
 			{
-				auto town = dynamic_cast<const CGTownInstance*>(obj);
+				const auto * town = dynamic_cast<const CGTownInstance*>(obj);
 				fortLevel = town->fortLevel();
 			}
 		}
@@ -1510,8 +1508,6 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 
 		path.chainMask = node.actor->chainMask;
 		path.exchangeCount = node.actor->actorExchangeCount;
-		
-		fillChainInfo(&node, path, -1);
 	}
 }
 
@@ -1546,7 +1542,6 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 		}
 
 		parentIndex = path.nodes.size();
-
 		path.nodes.push_back(pathNode);
 		node = getAINode(node->theNodeBefore);
 	}
@@ -1595,9 +1590,21 @@ const AIPathNodeInfo & AIPath::firstNode() const
 
 const AIPathNodeInfo & AIPath::targetNode() const
 {
-	auto & node = nodes.front();
+	if(nodes.empty())
+		throw std::runtime_error("AIPath::targetNode called on empty path");
 
-	return targetHero == node.targetHero ? node : nodes.at(1);
+	const auto & node = nodes.front();
+	if(targetHero == node.targetHero)
+		return node;
+
+	if(nodes.size() < 2)
+	{
+		logAi->error("AIPath::targetNode path reconstruction issue: targetHero %s doesn't match first node hero %s, path size: %d",
+			targetHero->getNameTranslated(), node.targetHero->getNameTranslated(), nodes.size());
+		throw std::runtime_error("AIPath::targetNode path reconstruction issue");
+	}
+
+	return nodes.at(1);
 }
 
 uint64_t AIPath::getPathDanger() const
@@ -1659,10 +1666,9 @@ uint64_t AIPath::getTotalArmyLoss() const
 std::string AIPath::toString() const
 {
 	std::stringstream str;
+	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)turn() << ": ";
 
-	str << targetHero->getNameTranslated() << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
-
-	for(auto node : nodes)
+	for(const auto & node : nodes)
 		str << node.targetHero->getNameTranslated() << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";
 
 	return str.str();

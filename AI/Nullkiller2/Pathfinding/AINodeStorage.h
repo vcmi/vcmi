@@ -261,7 +261,6 @@ public:
 
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
-	int getBucketIndex(const ChainActor * actor, EPathfindingLayer layer, const int3 & pos);
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
@@ -298,7 +297,6 @@ public:
 			return;
 
 		auto chains = nodes.get(pos);
-
 		for(AIPathNode & node : chains)
 		{
 			if(node.version != AISharedStorage::version || node.layer != layer)
@@ -315,7 +313,6 @@ public:
 			return false;
 
 		auto chains = nodes.get(pos);
-
 		for(AIPathNode & node : chains)
 		{
 			if(node.version != AISharedStorage::version || node.layer != layer)
