@@ -8,12 +8,13 @@
 *
 */
 
-#include "../StdInc.h"
-#include "../Engine/Nullkiller.h"
-#include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/IGameSettings.h"
+#include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
+#include "../Engine/Nullkiller.h"
+#include "../StdInc.h"
+#include "mapping/CMapHeader.h"
 
 namespace NK2AI
 {
@@ -119,14 +120,14 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cc->getMapSize().x / 50 + 1);
-	//vstd::amin(globalMainCount, 1 + (cb->getTownsInfo().size() / 3));
-	if(cc->getTownsInfo().size() < 4 && globalMainCount > 2)
-	{
-		globalMainCount = 2;
-	}
-	// TODO: Mircea: Make it dependent on myHeroes.size() or better?
-	logAi->trace("Max number of main heroes (globalMainCount) is %d", globalMainCount);
+	const int biggerMapFactor = cc->getDate(Date::DAY) > 21 ? cc->getMapSize().x / CMapHeader::MAP_SIZE_MIDDLE : 0;
+	// One per town + static bonus on bigger maps after some weeks
+	int globalMainCount = std::max(static_cast<int>(cc->getTownsInfo().size()) + biggerMapFactor, 1);
+	// If 1 town but big map, limit a bit to don't spread the army too much
+	globalMainCount = std::min(globalMainCount, static_cast<int>(cc->getTownsInfo().size() * 2));
+
+	// TODO: Mircea: Should spread them on map min 1 per town, avoiding all within the same town and the other towns just with dummy scouts
+	logAi->trace("HeroManager::update Max number of main heroes (globalMainCount) is %d", globalMainCount);
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
 	heroToRoleMap.clear();
@@ -137,6 +138,7 @@ void HeroManager::update()
 		HeroRole role;
 		if(hero->patrol.patrolling)
 		{
+			// Patrolling seems to be a special feature on some maps
 			role = MAIN;
 		}
 		else
@@ -145,7 +147,7 @@ void HeroManager::update()
 		}
 
 		heroToRoleMap[heroPtr] = role;
-		logAi->trace("Hero %s has role %s", heroPtr.nameOrDefault(), role == MAIN ? "main" : "scout");
+		logAi->trace("HeroManager::update Hero %s has role %s", heroPtr.nameOrDefault(), role == MAIN ? "main" : "scout");
 	}
 }
 
