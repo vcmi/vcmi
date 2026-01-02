@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Zu %szaubersprüchen blättern",
     "vcmi.spellBook.zero_level.hint" : "0. Stf",
 
-	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen. Aber Ihr könnt diesen Zauberspruch trotzdem verwerfen und die Zauberspruchforschung fortsetzen.",
+	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen.",
 	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
 	"vcmi.spellResearch.pay" : "Möchtet Ihr {%SPELL1} durch {%SPELL2} ersetzen? Oder diesen Zauberspruch verwerfen und die Zauberspruchforschung fortsetzen?",
 	"vcmi.spellResearch.research" : "Erforsche diesen Zauberspruch",

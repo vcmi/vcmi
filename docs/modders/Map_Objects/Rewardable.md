@@ -44,6 +44,10 @@ Rewardable object is defined similarly to other objects, with key difference bei
     // see Appear Chance definition section
     "appearChance" : {
     },
+    
+    // If specified, then when loading from h3m map object may load preconfigured set of reward instead of randomizing them via appearChance
+    // Only supported for some objects, such as Scholar (SoD), and several other added in hota map format
+    "mapDice" : 0,
 
     // Conditions to receive reward. Hero can only see this reward if he fulfills limiter
     "limiter" : {

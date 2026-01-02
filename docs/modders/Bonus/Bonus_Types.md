@@ -920,7 +920,7 @@ Affected unit will not use spellcast as default attack option
 
 ### SPELLCASTER
 
-Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
+Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting (counter is shared with other bonuses like ADJACENT_SPELLCASTER). Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
 
 - subtype: spell identifier
 - val: spell mastery level
@@ -939,6 +939,13 @@ Affected unit will cast specified spell before his turn (Enchanter)
 Affected unit can cast randomly selected beneficial spell on its turn (Master Genie)
 
 - val - spell mastery level
+
+### ADJACENT_SPELLCASTER
+
+Affected units can walk and cast spell at target unit (like HotA engineers). Empty hexes are not currently supported. Use CASTS bonus to specify how many times per combat creature can cast spell (counter is shared with other bonuses like SPELLCASTER). Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
+
+- subtype: spell identifier
+- val: spell mastery level
 
 ### CASTS
 

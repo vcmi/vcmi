@@ -18,6 +18,7 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "mapObjects/CGObjectInstance.h"
+#include "mapping/MapTilesStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -148,8 +149,8 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
-	//TODO: boost::array, bool if possible
-	boost::multi_array<ui8, 3> fogOfWarMap; //[z][x][y] true - visible, false - hidden
+	//TODO: bool if possible
+	MapTilesStorage<uint8_t> fogOfWarMap; //true - visible, false - hidden
 
 	std::set<ObjectInstanceID> scoutedObjects;
 

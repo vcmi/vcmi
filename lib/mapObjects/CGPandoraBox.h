@@ -11,6 +11,7 @@
 
 #include "CRewardableObject.h"
 #include "../ResourceSet.h"
+#include "../mapping/MapDifficulty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,6 +20,8 @@ struct InfoWindow;
 class DLL_LINKAGE CGPandoraBox : public CRewardableObject
 {
 public:
+	MapDifficultySet presentOnDifficulties;
+
 	using CRewardableObject::CRewardableObject;
 
 	MetaString message;
@@ -32,6 +35,8 @@ public:
 	{
 		h & static_cast<CRewardableObject&>(*this);
 		h & message;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+			h & presentOnDifficulties;
 	}
 protected:
 	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;

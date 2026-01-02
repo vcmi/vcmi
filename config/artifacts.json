@@ -1977,23 +1977,9 @@
 				"val" : 25,
 				"valueType" : "PERCENT_TO_BASE",
 				"limiters" : [
-					"noneOf",
-					"IS_UNDEAD",
-					{
+					{ 
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "NON_LIVING"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "MECHANICAL"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "GARGOYLE"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "SIEGE_WEAPON"
+						"bonusType" : "LIVING"
 					}
 				]
 			},
@@ -2002,19 +1988,9 @@
 				"val" : 50,
 				"valueType" : "BASE_NUMBER",
 				"limiters" : [
-					"noneOf",
-					"IS_UNDEAD",
-					{
+					{ 
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "NON_LIVING"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "MECHANICAL"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "GARGOYLE"
+						"bonusType" : "LIVING"
 					}
 				]
 			}

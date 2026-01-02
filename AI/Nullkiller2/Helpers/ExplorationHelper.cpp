@@ -8,16 +8,16 @@
 *
 */
 #include "StdInc.h"
-#include "../../../lib/CPlayerState.h"
+#include "ExplorationHelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Engine/Nullkiller.h"
+#include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../Goals/ExploreNeighbourTile.h"
-#include "../Goals/Invalid.h"
 #include "../Markers/ExplorationPoint.h"
-#include "ExplorationHelper.h"
+#include "../../../lib/CPlayerState.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "../Goals/ExploreNeighbourTile.h"
 
 namespace NK2AI
 {
@@ -25,7 +25,7 @@ namespace NK2AI
 using namespace Goals;
 
 ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * aiNk, bool useCPathfinderAccessibility)
-	: aiNk(aiNk), cc(aiNk->cc.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
+	:aiNk(aiNk), cc(aiNk->cc.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
 {
 	ts = cc->getPlayerTeam(aiNk->playerID);
 	sightRadius = hero->getSightRadius();
@@ -44,16 +44,16 @@ TSubgoal ExplorationHelper::makeComposition() const
 	return sptr(c);
 }
 
+
 bool ExplorationHelper::scanSector(int scanRadius)
 {
 	int3 tile = int3(0, 0, ourPos.z);
-	const auto & slice = ts->fogOfWarMap[ourPos.z];
 
 	for(tile.x = ourPos.x - scanRadius; tile.x <= ourPos.x + scanRadius; tile.x++)
 	{
 		for(tile.y = ourPos.y - scanRadius; tile.y <= ourPos.y + scanRadius; tile.y++)
 		{
-			if(cc->isInTheMap(tile) && slice[tile.x][tile.y])
+			if(cc->isInTheMap(tile) && ts->fogOfWarMap[tile])
 			{
 				scanTile(tile);
 			}
@@ -71,30 +71,24 @@ bool ExplorationHelper::scanMap()
 	std::vector<int3> edgeTiles;
 	edgeTiles.reserve(perimeter);
 
-	foreach_tile_pos(
-		*aiNk->cc,
-		[&](const int3 & pos)
+	foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
-			if(ts->fogOfWarMap[pos.z][pos.x][pos.y])
+			if(ts->fogOfWarMap[pos])
 			{
 				bool hasInvisibleNeighbor = false;
-				foreach_neighbour(
-					cc,
-					pos,
-					[&](CCallback * cbp, int3 neighbour)
+
+				foreach_neighbour(cc, pos, [&](CCallback * cbp, int3 neighbour)
 					{
-						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
+						if(!ts->fogOfWarMap[neighbour])
 						{
 							hasInvisibleNeighbor = true;
 						}
-					}
-				);
+					});
 
 				if(hasInvisibleNeighbor)
 					edgeTiles.push_back(pos);
 			}
-		}
-	);
+		});
 
 	logAi->debug("Exploration scan visible area perimeter for hero %s", hero->getNameTranslated());
 
@@ -111,7 +105,7 @@ bool ExplorationHelper::scanMap()
 	allowDeadEndCancellation = false;
 	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTranslated());
 
-	boost::multi_array<ui8, 3> potentialTiles = ts->fogOfWarMap;
+	auto potentialTiles = ts->fogOfWarMap;
 	std::vector<int3> tilesToExploreFrom = edgeTiles;
 
 	// WARNING: POTENTIAL BUG
@@ -124,18 +118,14 @@ bool ExplorationHelper::scanMap()
 
 		for(const int3 & tile : tilesToExploreFrom)
 		{
-			foreach_neighbour(
-				cc,
-				tile,
-				[&](CCallback * cbp, int3 neighbour)
+			foreach_neighbour(cc, tile, [&](CCallback * cbp, int3 neighbour)
+			{
+				if(potentialTiles[neighbour])
 				{
-					if(potentialTiles[neighbour.z][neighbour.x][neighbour.y])
-					{
-						newTilesToExploreFrom.push_back(neighbour);
-						potentialTiles[neighbour.z][neighbour.x][neighbour.y] = false;
-					}
+					newTilesToExploreFrom.push_back(neighbour);
+					potentialTiles[neighbour] = false;
 				}
-			);
+			});
 		}
 		for(const int3 & tile : newTilesToExploreFrom)
 		{
@@ -150,14 +140,15 @@ bool ExplorationHelper::scanMap()
 
 void ExplorationHelper::scanTile(const int3 & tile)
 {
-	if(tile == ourPos || !aiNk->cc->getTile(tile, false)
-	   || !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
+	if(tile == ourPos
+		|| !aiNk->cc->getTile(tile, false)
+		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
 		return;
 
 	int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
 	if(!tilesDiscovered)
 		return;
-
+	
 	auto paths = aiNk->pathfinder->getPathInfo(tile);
 	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, aiNk->cc->getTopObj(tile));
 
@@ -198,15 +189,18 @@ int ExplorationHelper::howManyTilesWillBeDiscovered(const int3 & pos) const
 	int ret = 0;
 	int3 npos = int3(0, 0, pos.z);
 
-	const auto & slice = ts->fogOfWarMap[pos.z];
+	const auto & fow = ts->fogOfWarMap;
 
 	for(npos.x = pos.x - sightRadius; npos.x <= pos.x + sightRadius; npos.x++)
 	{
 		for(npos.y = pos.y - sightRadius; npos.y <= pos.y + sightRadius; npos.y++)
 		{
-			if(cc->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < sightRadius && !slice[npos.x][npos.y])
+			if(cc->isInTheMap(npos)
+				&& pos.dist2d(npos) - 0.5 < sightRadius
+				&& !fow[npos])
 			{
-				if(allowDeadEndCancellation && !hasReachableNeighbor(npos))
+				if(allowDeadEndCancellation
+					&& !hasReachableNeighbor(npos))
 				{
 					continue;
 				}
@@ -226,8 +220,9 @@ bool ExplorationHelper::hasReachableNeighbor(const int3 & pos) const
 		int3 tile = pos + dir;
 		if(cc->isInTheMap(tile))
 		{
-			const auto isAccessible = useCPathfinderAccessibility ? aiNk->getPathsInfo(hero)->getPathInfo(tile)->reachable()
-																  : aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile);
+			auto isAccessible = useCPathfinderAccessibility
+				? aiNk->getPathsInfo(hero)->getPathInfo(tile)->reachable()
+				: aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile);
 
 			if(isAccessible)
 				return true;

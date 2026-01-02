@@ -152,6 +152,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::ADJACENT_SPELLCASTER:
 		case BonusType::NOT_ACTIVE:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)

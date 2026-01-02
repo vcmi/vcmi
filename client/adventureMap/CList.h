@@ -161,6 +161,7 @@ class CTownList	: public CList
 		std::shared_ptr<CIntObject> genSelection() override;
 		void update();
 		void select(bool on) override;
+		void forceSelect();
 		void open() override;
 		void showTooltip() override;
 		void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
@@ -180,5 +181,8 @@ public:
 
 	/// Update all towns
 	void updateWidget();
+
+	/// Refresh currently selected town if any selected
+	void refreshSelected();
 };
 

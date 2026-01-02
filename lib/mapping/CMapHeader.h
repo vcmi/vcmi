@@ -20,6 +20,8 @@
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
+#include "MapDifficulty.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
@@ -191,15 +193,6 @@ struct DLL_LINKAGE TriggeredEvent
 		h & onFulfill;
 		h & effect;
 	}
-};
-
-enum class EMapDifficulty : uint8_t
-{
-	EASY = 0,
-	NORMAL = 1,
-	HARD = 2,
-	EXPERT = 3,
-	IMPOSSIBLE = 4
 };
 
 /// The disposed hero struct describes which hero can be hired from which player.

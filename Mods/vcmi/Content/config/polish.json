@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Kliknij, by zobaczyć %s zaklęć",
 	"vcmi.spellBook.zero_level.hint" : "Poziom 0",
 
-	"vcmi.spellResearch.canNotAfford" : "Nie stać Cię na zastąpienie {%SPELL1} przez {%SPELL2}. Nadal możesz odrzucić to zaklęcie i kontynuować badania.",
+	"vcmi.spellResearch.canNotAfford" : "Nie stać Cię na zastąpienie {%SPELL1} przez {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Badania zostały już dzisiaj przeprowadzone. Wróć jutro.",
 	"vcmi.spellResearch.pay" : "Czy chcesz zastąpić {%SPELL1} zaklęciem {%SPELL2}? Czy odrzucić tą wymianę i kontynuować badania?",
 	"vcmi.spellResearch.research" : "Wymień zaklęcie",
@@ -1025,6 +1025,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dodatkowe Uderzenia}\n${val} dodatkowy atak",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Dodatkowy Odwet}\n${val} dodatkowy kontratak",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Czarujący w zwarciu}\nJednostka może rzucić ${subtype.spell} będąc na sąsiednim polu względem celu",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maksymalna siła}\nZawsze zadaje maksymalne obrażenia",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Obrotowy atak}\nAtakuje wszystkich sąsiadujących wrogów",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Brak kontrataku dystansowego}\nWróg nie może kontratakować poprzez strzelanie",

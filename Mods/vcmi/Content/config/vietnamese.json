@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Xem phép %s",
 	"vcmi.spellBook.zero_level.hint" : "0th lev",
 
-	"vcmi.spellResearch.canNotAfford" : "Bạn không đủ khả năng để thay thế {%SPELL1} với {%SPELL2}. Nhưng bạn có thể loại bỏ phép thuật này và nghiên cứu phép thuật khác.",
+	"vcmi.spellResearch.canNotAfford" : "Bạn không đủ khả năng để thay thế {%SPELL1} với {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Hôm nay bạn đã nghiên cứu phép thuật rồi. Hãy quay lại đây vào ngày mai.",
 	"vcmi.spellResearch.pay" : "Bạn có muốn thay thế phép {%SPELL1} bằng {%SPELL2} không? Hoặc loại bỏ phép thuật này và nghiên cứu phép thuật khác?",
 	"vcmi.spellResearch.research" : "Nghiên cứu phép thuật này",

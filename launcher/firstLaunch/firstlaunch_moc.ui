@@ -125,6 +125,9 @@
          <property name="text">
           <string>Select your language</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item row="1" column="0" rowspan="4">
@@ -247,6 +250,9 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
          <property name="text">
           <string>Locate Heroes III data files</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -267,7 +273,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
          <property name="spacing">
           <number>6</number>
          </property>
-         <item row="2" column="2">
+         <item row="4" column="2">
           <widget class="QPushButton" name="pushButtonDataCopy">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -280,7 +286,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
+         <item row="2" column="0" colspan="2">
           <widget class="QLabel" name="labelDataGogTitle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -307,7 +313,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</string>
+            <string>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -317,7 +323,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="2" column="2">
           <widget class="QPushButton" name="pushButtonGogInstall">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -389,7 +395,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
+         <item row="8" column="1" colspan="2">
           <widget class="QLineEdit" name="lineEditDataUser">
            <property name="enabled">
             <bool>true</bool>
@@ -405,7 +411,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="3">
+         <item row="5" column="0" colspan="3">
           <widget class="QLabel" name="labelDataCopyDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -424,7 +430,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="labelDataFiles">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -442,7 +448,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="2">
+         <item row="4" column="0" colspan="2">
           <widget class="QLabel" name="labelDataCopyTitle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -460,7 +466,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1" colspan="2">
+         <item row="9" column="1" colspan="2">
           <widget class="QLineEdit" name="lineEditDataSystem">
            <property name="enabled">
             <bool>true</bool>
@@ -476,7 +482,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0" colspan="3">
+         <item row="10" column="0" colspan="3">
           <widget class="QLabel" name="labelDataFound">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -492,7 +498,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="3">
+         <item row="3" column="0" colspan="3">
           <widget class="QLabel" name="labelDataGogDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -591,7 +597,10 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
           </font>
          </property>
          <property name="text">
-          <string>Install VCMI Mod Preset</string>
+          <string>Install recommended VCMI Mods</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -634,6 +643,12 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <bold>true</bold>
@@ -661,7 +676,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QLabel" name="labelPresetHotaDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -693,13 +708,19 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QToolButton" name="buttonPresetHota">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
            </property>
            <property name="font">
             <font>
@@ -725,7 +746,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="3" column="0">
           <widget class="QToolButton" name="buttonPresetExtras">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -733,13 +754,19 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Interface Improvements</string>
+            <string>VCMI Extras</string>
            </property>
            <property name="icon">
             <iconset>
@@ -760,7 +787,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="5" column="1">
           <widget class="QLabel" name="labelPresetWogDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -776,7 +803,55 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="labelPresetTowDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLabel" name="labelPresetFodDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="1">
+          <widget class="QLabel" name="labelPresetDemoDescr">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
           <widget class="QLabel" name="labelPresetExtrasDescr">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -792,13 +867,19 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="5" column="0">
           <widget class="QToolButton" name="buttonPresetWog">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
            </property>
            <property name="font">
             <font>
@@ -814,6 +895,123 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
              <normalon>:icons/mod-enabled.png</normalon>:/icons/mod-disabled.png</iconset>
            </property>
            <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QToolButton" name="buttonPresetTow">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Tides of War</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:/icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QToolButton" name="buttonPresetFod">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Fallen of the Depth</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:/icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+           <property name="autoRaise">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QToolButton" name="buttonPresetDemo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Demo support</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources.qrc">
+             <normaloff>:/icons/mod-disabled.png</normaloff>
+             <normalon>:icons/mod-enabled.png</normalon>:/icons/mod-disabled.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
             <bool>true</bool>
            </property>
            <property name="toolButtonStyle">

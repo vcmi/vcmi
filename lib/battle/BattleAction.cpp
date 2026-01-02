@@ -86,6 +86,18 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	return ba;
 }
 
+BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::WALK_AND_CAST;
+	ba.spell = spellID;
+	ba.side = stack->unitSide();
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(castFrom);
+	ba.aimToUnit(target);
+	return ba;
+}
+
 BattleAction BattleAction::makeMove(const battle::Unit * stack, const BattleHex & dest)
 {
 	BattleAction ba;
@@ -201,16 +213,18 @@ bool BattleAction::isUnitAction() const
 		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
 		EActionType::BAD_MORALE,
-		EActionType::STACK_HEAL
+		EActionType::STACK_HEAL,
+		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);
 }
 
 bool BattleAction::isSpellAction() const
 {
-	static const std::array<EActionType, 2> actions = {
+	static const std::array<EActionType, 3> actions = {
 		EActionType::HERO_SPELL,
-		EActionType::MONSTER_SPELL
+		EActionType::MONSTER_SPELL,
+		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);
 }

@@ -66,6 +66,7 @@
 #include "../serializer/CSaveFile.h"
 #include "../spells/CSpellHandler.h"
 #include "UpgradeInfo.h"
+#include "mapObjects/CGPandoraBox.h"
 
 #include <vstd/RNG.h>
 
@@ -669,8 +670,7 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto & fow = elem.second.fogOfWarMap;
-		fow.resize(boost::extents[layers][map->width][map->height]);
-		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
+		fow = MapTilesStorage<uint8_t>(int3(map->width, map->height, layers));
 
 		for(const auto & obj : map->getObjects())
 		{
@@ -681,7 +681,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
+				elem.second.fogOfWarMap[tile] = 1;
 			}
 		}
 	}
@@ -923,6 +923,10 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
 
+	for(auto & obj : map->getObjects<CGPandoraBox>())
+		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
+			map->eraseObject(obj->id);
+
 	for(auto & obj : map->getObjects())
 		obj->initObj(gameRandomizer);
 
@@ -1101,6 +1105,9 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 	if (!map->isInTheMap(pos))
 		return guards;
 
+	if (map->guardingCreaturePosition(pos) == int3(-1, -1, -1))
+		return guards;
+
 	const TerrainTile &posTile = map->getTile(pos);
 	if (posTile.visitable())
 	{
@@ -1153,7 +1160,7 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos];
 }
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
