@@ -1431,17 +1431,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 
 	if(features.levelHOTA5)
 	{
-		bool customGuards = reader->readBool();
-		CreatureID guardsUnit = reader->readCreature32();
-		int32_t guardsMin = reader->readInt32();
-		int32_t guardsMax = reader->readInt32();
-
-		if (customGuards)
+		bool hasCustomGuards = reader->readBool();
+		if (hasCustomGuards)
 		{
-			assert(guardsMin <= guardsMax);
-			assert(guardsUnit.hasValue());
-			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(LIBRARY)->getJsonKey());
+			object->abandonedMineGuards.creature = reader->readCreature32();
+			object->abandonedMineGuards.minAmount = reader->readInt32();
+			object->abandonedMineGuards.maxAmount = reader->readInt32();
 		}
+		else
+			reader->skipUnused(12);
 	}
 	return object;
 }
