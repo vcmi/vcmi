@@ -42,6 +42,13 @@
 			"items" : {
 				"type" : "number"
 			}
+		},
+		"limitToLayers" : {
+			"type" : "array",
+			"description" : "Optional, list of layers where this battlefield is used (e.g. [0] for overground only or [0, 1] for overground and underground)",
+			"items" : {
+				"type" : "number"
+			}
 		}
 	}
 }

@@ -25,6 +25,7 @@
 #include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
 #include "../bonuses/Limiters.h"
@@ -1060,10 +1061,21 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.getTerrain()->battleFields.empty())
+	std::vector<BattleField> battleFields;
+	for(auto & battleField : t.getTerrain()->battleFields)
+		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, tile.z))
+			battleFields.push_back(battleField);
+
+	if (battleFields.empty())
+	{
+		logGlobal->warn("No battlefield for terrain %s at layer %d found, try to fallback", t.getTerrain()->getJsonKey(), tile.z);
+		battleFields = t.getTerrain()->battleFields;
+	}
+
+	if (battleFields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
+	return BattleField(*RandomGeneratorUtil::nextItem(battleFields, randomGenerator));
 }
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

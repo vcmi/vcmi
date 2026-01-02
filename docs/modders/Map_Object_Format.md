@@ -111,7 +111,7 @@ These are internal types that are generally not available for modding and are ha
 		// How valuable this object is to AI
 		"aiValue" : 1000,
 		
-		// Battleground that will be used for combats in this object. Overrides terrain this object was placed on
+		// Battleground that will be used for combats in this object. Overrides terrain this object was placed on. If array is used battleground will choosen randomly
 		"battleground" : "cursed_ground",
 		
 		// Sounds assigned to this object

@@ -111,14 +111,27 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	blockVisit = input["blockVisit"].Bool();
 	removable = input["removable"].Bool();
 
-	battlefield = BattleField::NONE;
-
 	if(!input["battleground"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		if(input["battleground"].isVector())
 		{
-			battlefield = BattleField(identifier);
-		});
+			battlefields.resize(input["battleground"].Vector().size());
+			for(int i = 0; i < battlefields.size(); i++)
+			{
+				LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
+				{
+					battlefields.at(i) = BattleField(identifier);
+				});
+			}
+		}
+		else
+		{
+			battlefields.resize(1);
+			LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+			{
+				battlefields.at(0) = BattleField(identifier);
+			});
+		}
 	}
 
 	initTypeData(input);
@@ -197,9 +210,9 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 	return templates;
 }
 
-BattleField AObjectTypeHandler::getBattlefield() const
+std::vector<BattleField> AObjectTypeHandler::getBattlefields() const
 {
-	return battlefield;
+	return battlefields;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const

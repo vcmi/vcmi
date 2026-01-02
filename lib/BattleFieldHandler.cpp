@@ -37,6 +37,8 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	}
 
 	info->isSpecial = json["isSpecial"].Bool();
+	for(auto node : json["limitToLayers"].Vector())
+		info->limitToLayers.push_back(node.Integer());
 	for(auto node : json["impassableHexes"].Vector())
 		info->impassableHexes.insert(node.Integer());
 
