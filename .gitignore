@@ -5,6 +5,7 @@
 /mapeditor/.lupdate
 /launcher/vcmilauncher_automoc.cpp
 /conan-*
+/result
 
 build/
 .cache/*

@@ -182,7 +182,7 @@
 	"vcmi.lobby.customRmgSize.2" : "Warstw",
 
 	"vcmi.broadcast.failedLoadGame" : "Nie udało się wczytać gry",
-	"vcmi.broadcast.command" : "Wpisz '!help' aby zobaczyć listę dostępnych komend.",
+	"vcmi.broadcast.command" : "Napisz '!help' po listę dostępnych komend.",
 	"vcmi.broadcast.simturn.end" : "Tury symultaniczne zostały zakończone",
 	"vcmi.broadcast.simturn.endBetween" : "Tury symultaniczne pomiędzy graczami %s i %s dobiegły końca",
 	"vcmi.broadcast.serverProblem" : "Serwer napotkał problem",
