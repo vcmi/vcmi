@@ -546,14 +546,18 @@ public:
 				{
 					auto newActor = delayed->carrier->actor->tryExchangeNoLock(delayed->other->actor);
 
-					if(!newActor.lockAcquired) continue;
-					
+					if(!newActor.lockAcquired)
+					{
+						++delayed;
+						continue;
+					}
+
 					if(newActor.actor)
 					{
 						newChains.push_back(calculateExchange(newActor.actor, delayed->carrier, delayed->other));
 					}
-					
-					delayed++;
+
+					delayed = delayedWork.erase(delayed);
 				}
 
 				delayedWork.clear();
@@ -605,7 +609,11 @@ bool AINodeStorage::calculateHeroChain()
 		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
 		int ourThread = tbb::this_task_arena::current_thread_index();
 		task.execute(r);
-		task.flushResult(results.at(ourThread));
+		if (ourThread >= 0 && ourThread < static_cast<int>(results.size()))
+        	{
+            		task.flushResult(results.at(ourThread));
+        	}
+
 	});
 
 	// FIXME: potentially non-deterministic behavior due to parallel_for
