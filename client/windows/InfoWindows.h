@@ -172,3 +172,13 @@ class ObeliskPopup : public AdventureMapPopup
 public:
 	ObeliskPopup(const Point & position, const CGObelisk * obelisk);
 };
+
+class SearchPopup : public AdventureMapPopup
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
+	std::shared_ptr<CLabel> labelTitle;
+
+public:
+	SearchPopup(std::vector<const CGObjectInstance *> objs);
+};

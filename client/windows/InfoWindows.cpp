@@ -522,6 +522,29 @@ ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
 	fitToScreen(10);
 }
 
+SearchPopup::SearchPopup(std::vector<const CGObjectInstance *> objs)
+	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 220;
+
+	if(!objs.size())
+		return;
+
+	auto name = GAME->interface()->cb->getObjInstance(objs.at(0)->id)->getObjectName();
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, name);
+	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
+
+	for (const auto obj : objs)
+		minimap->addIcon(obj->visitablePos(), ImagePath::builtin("minimapIcons/generic"));
+	
+	center();
+	fitToScreen(10);
+}
+
 std::shared_ptr<WindowBase>
 CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
