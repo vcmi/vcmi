@@ -1171,8 +1171,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 
 	if(features.levelAB)
 	{
-		object->identifier = reader->readUInt32();
-		questIdentifierToId[object->identifier] = objectInstanceID;
+		int32_t identifier = reader->readUInt32();
+		questIdentifierToId[identifier] = objectInstanceID;
 	}
 
 	auto hlp = std::make_unique<CStackInstance>(map->cb);
@@ -1182,7 +1182,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	object->putStack(SlotID(0), std::move(hlp));
 
 	//TODO: 0-4 is h3 range. 5 is hota extension for exact aggression?
-	object->character = reader->readInt8Checked(0, 5);
+	object->initialCharacter = static_cast<CGCreature::Character>(reader->readInt8Checked(0, 5));
 
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
@@ -1200,24 +1200,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		//TODO: HotA
 
 		// -1 = default, 1-10 = possible values range
-		int32_t aggressionExact = reader->readInt32();
+		object->agression = reader->readInt32();
 		// if true, monsters will only join for money
 		object->joinOnlyForMoney = reader->readBool();
 		// 100 = default, percent of monsters that will join on successful aggression check
-		int32_t joinPercent = reader->readInt32();
+		object->joiningPercentage = reader->readInt32();
 		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
 		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(reader->readInt32());
 		// How many creature stacks will be present on battlefield, -1 = default
 		object->stacksCount = reader->readInt32();
-
-		if(aggressionExact != -1  || joinPercent != 100)
-			logGlobal->warn(
-				"Map '%s': Wandering monsters %s settings %d %d are not implemented!",
-				mapName,
-				mapPosition.toString(),
-				aggressionExact,
-				joinPercent
-			);
 	}
 
 	if (features.levelHOTA5)
@@ -1440,17 +1431,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 
 	if(features.levelHOTA5)
 	{
-		bool customGuards = reader->readBool();
-		CreatureID guardsUnit = reader->readCreature32();
-		int32_t guardsMin = reader->readInt32();
-		int32_t guardsMax = reader->readInt32();
-
-		if (customGuards)
+		bool hasCustomGuards = reader->readBool();
+		if (hasCustomGuards)
 		{
-			assert(guardsMin <= guardsMax);
-			assert(guardsUnit.hasValue());
-			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(LIBRARY)->getJsonKey());
+			object->abandonedMineGuards.creature = reader->readCreature32();
+			object->abandonedMineGuards.minAmount = reader->readInt32();
+			object->abandonedMineGuards.maxAmount = reader->readInt32();
 		}
+		else
+			reader->skipUnused(12);
 	}
 	return object;
 }

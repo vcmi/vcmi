@@ -141,9 +141,18 @@ protected:
 class DLL_LINKAGE CGMine : public CArmedInstance, public IOwnableObject
 {
 public:
+	struct InitialGuards
+	{
+		CreatureID creature	= CreatureID::TROGLODYTES;
+		int minAmount = 100;
+		int maxAmount = 199;
+	};
+
 	GameResID producedResource;
 	ui32 producedQuantity;
 	std::set<GameResID> abandonedMineResources;
+	InitialGuards abandonedMineGuards;
+
 	bool isAbandoned() const;
 	
 	std::shared_ptr<MineInstanceConstructor> getResourceHandler() const;
@@ -167,6 +176,8 @@ public:
 		h & producedResource;
 		h & producedQuantity;
 		h & abandonedMineResources;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+			h & abandonedMineGuards;
 	}
 	ui32 defaultResProduction() const;
 	ui32 getProducedQuantity() const;
