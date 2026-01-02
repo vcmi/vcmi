@@ -57,12 +57,10 @@ public:
 		return storage;
 	}
 
-	std::vector<AIPath> getPathInfo(const int3 & tile, bool includeGraph = false)
+	std::vector<AIPath> getPathInfo(const int3 & tile, const bool includeGraph = false) const
 	{
 		std::vector<AIPath> result;
-
 		calculatePathInfo(result, tile, includeGraph);
-
 		return result;
 	}
 };
