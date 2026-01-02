@@ -88,9 +88,10 @@ def arch_label(platform: str) -> str:
         "msvc-arm64": "ARM64",
         "mingw_x86": "x86",
         "mingw_x86_64": "x64",
-        "android-32": "ARMv7",
-        "android-64": "ARM64",
-        "android-64-intel": "x86_64",
+        "android-arm32": "ARM32",
+        "android-arm64": "ARM64",
+        "android-x86": "x86",
+        "android-x86_64": "x86_64",
     }
     return mapping.get(platform, platform)
 

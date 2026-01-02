@@ -11,13 +11,14 @@ The following platforms are supported and known to work, others might require ch
   - arm64 (Apple Silicon) - target 11.0 (Big Sur)
 - **iOS**: arm64 - target 12.0
 - **Windows** using MSVC compiler:
-  - x86_64 (x64) - target Windows 7
+  - x64 - target Windows 7
   - x86 - target Windows 7
   - arm64 - target Windows 11
 - **Android**:
   - arvm7 / armeabi-v7a (32-bit ARM) - target 4.4 (API level 19)
   - arm64 / aarch64-v8a (64-bit ARM) - target 5.0 (API level 21)
-  - x86_64 (64-bit Intel) - target 5.0 (API level 21)
+  - x86 (32-bit) - target 5.0 (API level 21)
+  - x86_64 (64-bit) - target 5.0 (API level 21)
 
 ## Getting started
 
@@ -38,7 +39,7 @@ The following platforms are supported and known to work, others might require ch
     - *macOS*: pick **dependencies-mac-intel.tgz** if you have Intel Mac, otherwise - **dependencies-mac-arm.tgz**
     - *iOS*: pick **dependencies-ios.tgz**
     - *Windows*: pick **dependencies-windows-x64.tgz** for Windows x64, **dependencies-windows-arm64.tgz** for Windows ARM64 or **dependencies-windows-x86.tgz** for Windows x86
-    - *Android*: pick **dependencies-android-arm64-v8a.tgz** for arm64 (ARM 64-bit), **dependencies-android-armeabi-v7a.tgz** for armv7 (ARM 32-bit) or **dependencies-android-x64.tgz** for x86_64 (Intel 64-bit)
+    - *Android*: pick **dependencies-android-arm64-v8a.tgz** for arm64 (ARM 64-bit), **dependencies-android-armeabi-v7a.tgz** for armv7 (ARM 32-bit) or **dependencies-android-x64.tgz** for x86_64 (64-bit) or **dependencies-android-x86.tgz** for x86 (32-bit)
 
 ### Platform-specific preparation
 

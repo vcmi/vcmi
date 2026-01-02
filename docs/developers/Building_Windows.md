@@ -39,9 +39,9 @@ We use Conan package manager to build/consume dependencies, find detailed usage 
 
 On the step where you need to replace **PROFILE**, choose:
 
-- `msvc-x64` to build for Intel 64-bit (x64 / x86_64)
+- `msvc-x86` to build for 32-bit (x86)
+- `msvc-x64` to build for 64-bit (x64 / x86_64)
 - `msvc-arm64` to build for ARM 64-bit (arm64)
-- `msvc-x86` to build for Intel 32-bit (x86)
 
 *Note*: we recommend using CMD (`cmd.exe`) for the next steps. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the `conan install` command.
 
