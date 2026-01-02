@@ -253,7 +253,7 @@ void Nullkiller::updateState()
 	const auto start = std::chrono::high_resolution_clock::now();
 	auto startMethod = start;
 	std::map<std::string, uint64_t> methodToElapsedMs = {};
-	logAi->info("PERFORMANCE: AI updateState started");
+	logAi->trace("PERFORMANCE: AI updateState started");
 
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
@@ -290,14 +290,9 @@ void Nullkiller::updateState()
 		cfg.allowBypassObjects = true;
 
 		if(scanDepth == ScanDepth::SMALL || isObjectGraphAllowed())
-		{
 			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
-		}
-
 		if(scanDepth != ScanDepth::ALL_FULL || isObjectGraphAllowed())
-		{
 			cfg.scoutTurnDistanceLimit = settings->getScoutHeroTurnDistanceLimit();
-		}
 
 		makingTurnInterruption.interruptionPoint();
 		startMethod = std::chrono::high_resolution_clock::now();
@@ -312,8 +307,8 @@ void Nullkiller::updateState()
 			startMethod = std::chrono::high_resolution_clock::now();
 			pathfinder->updateGraphs(
 				heroes,
-				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10,
-				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3);
+				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10, // TODO: Mircea: Move to constant
+				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3); // TODO: Mircea: Move to constant
 			methodToElapsedMs.emplace("pathfinder->updateGraphs", timeElapsed(startMethod));
 		}
 
@@ -332,13 +327,13 @@ void Nullkiller::updateState()
 	{
 		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
 
+#if NK2AI_TRACE_LEVEL >= 1
 		for(const auto & [name, elapsedMs] : methodToElapsedMs)
 		{
-#if NK2AI_TRACE_LEVEL >= 1
 			if(elapsedMs > 25)
 				logAi->warn("PERFORMANCE: AI updateState %s took %ld ms", name, elapsedMs);
-#endif
 		}
+#endif
 	}
 	else
 	{
@@ -394,7 +389,8 @@ void Nullkiller::makeTurn()
 
 	for(int i = 1; i <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
-		if (!updateStateAndExecutePriorityPass(tasks, i)) return;
+		if (!updateStateAndExecutePriorityPass(tasks, i))
+			return;
 
 		tasks.clear();
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
