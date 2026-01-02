@@ -325,19 +325,19 @@ void Nullkiller::updateState()
 
 	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 250)
 	{
-		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+		logAi->warn("PERFORMANCE: NK2 updateState took %ld ms", timeElapsedMs);
 
 #if NK2AI_TRACE_LEVEL >= 1
 		for(const auto & [name, elapsedMs] : methodToElapsedMs)
 		{
 			if(elapsedMs > 25)
-				logAi->warn("PERFORMANCE: AI updateState %s took %ld ms", name, elapsedMs);
+				logAi->warn("PERFORMANCE: NK2 updateState %s took %ld ms", name, elapsedMs);
 		}
 #endif
 	}
 	else
 	{
-		logAi->info("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+		logAi->info("PERFORMANCE: NK2 updateState took %ld ms", timeElapsedMs);
 	}
 }
 
@@ -374,14 +374,14 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 
 HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) const
 {
-	auto found = lockedHeroes.find(hero);
-
+	const auto found = lockedHeroes.find(hero);
 	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
 void Nullkiller::makeTurn()
 {
 	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
+	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
 	resetState();
 	Goals::TGoalVec tasks;
@@ -389,6 +389,12 @@ void Nullkiller::makeTurn()
 
 	for(int i = 1; i <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
+		if (pathfinderTurnStorageMisses.load() != 0)
+		{
+			logAi->warn("Nullkiller::makeTurn AINodeStorage had %d nodeAllocationFailures in previous pass", pathfinderTurnStorageMisses.load());
+			pathfinderTurnStorageMisses.store(0);
+		}
+
 		if (!updateStateAndExecutePriorityPass(tasks, i))
 			return;
 
@@ -397,7 +403,7 @@ void Nullkiller::makeTurn()
 		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
-		decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
+		// decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
 		if(!isOpenMap())
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);

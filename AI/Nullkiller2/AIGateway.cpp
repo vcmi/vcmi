@@ -766,12 +766,10 @@ void AIGateway::makeTurn()
 
 	try
 	{
-		nullkiller->pathfinderTurnStorageMisses.store(0);
+		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
-
-		// for debug purpose
-		if (nullkiller->pathfinderTurnStorageMisses.load() != 0)
-			logAi->warn("AINodeStorage had %d nodeAllocationFailures due to limited capacity", nullkiller->pathfinderTurnStorageMisses.load());
+		const auto timeElapsedMs = timeElapsed(start);
+		logAi->info("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
 
 		for (const auto *h : cc->getHeroesInfo())
 		{
