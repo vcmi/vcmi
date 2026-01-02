@@ -776,7 +776,7 @@ void AIGateway::makeTurn()
 		for (const auto *h : cc->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
-				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
+				logAi->warn("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
 	}
 	catch (const TerminationRequestedException &)
@@ -786,7 +786,7 @@ void AIGateway::makeTurn()
 	}
 	catch (const std::exception & e)
 	{
-		logAi->debug("Making turn thread has caught an exception: %s", e.what());
+		logAi->error("Making turn thread has caught an exception: %s", e.what());
 	}
 
 	try
