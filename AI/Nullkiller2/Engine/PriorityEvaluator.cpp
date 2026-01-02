@@ -780,7 +780,7 @@ public:
 			return;
 
 		const auto & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
-		const auto receiverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);;
+		const auto receiverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);
 		const auto giverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.exchangePath.targetHero);
 		// Safety check. Scouts should not receive army, already in place in GatherArmyBehavior::decompose
 		if (receiverHeroRole != MAIN)
