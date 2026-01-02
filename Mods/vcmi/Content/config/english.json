@@ -284,6 +284,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Write two random towns in the chat",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Screenshot saved to %s",
 	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod loading failure}\n\nCritical issues found when loading mods! Game may not work correctly or crash! Please update or disable following mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Network Error}\n\nConnection to game server has been lost!",
@@ -419,6 +420,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Global backspace",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Global cancel",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Global fullscreen",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Global screenshot",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Global move focus",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Global options",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Global return",
@@ -899,6 +901,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
+	"vcmi.campaignSet.wog" : "In The Wake of Gods",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount

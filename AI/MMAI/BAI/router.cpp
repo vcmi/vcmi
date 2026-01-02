@@ -55,11 +55,25 @@ namespace
 		repo->seed = json["seed"].Integer();
 		for(const std::string key : {"attacker", "defender"})
 		{
-			std::string value = "MMAI/models/" + json["models"][key].String();
-			logAi->debug("MMAI: Loading NN %s model from: %s", key, value);
+			std::string path = "MMAI/models/" + json["models"][key].String();
+
+			// Try loading dynamic models with priority
+			// (temporary code for a smooth migration path)
+			const auto pos = path.rfind(".onnx");
+			if(pos != std::string::npos)
+			{
+				std::string dynpath = path;
+				dynpath.insert(pos, "-dynamic"); // insert right before ".onnx"
+				const auto rpath = ResourcePath(dynpath, EResType::AI_MODEL);
+				const auto * rhandler = CResourceHandler::get();
+				if(rhandler->existsResource(rpath))
+					path = dynpath;
+			}
+
+			logAi->debug("MMAI: Loading NN %s model from: %s", key, path);
 			try
 			{
-				repo->models.try_emplace(key, std::make_unique<NNModel>(value, repo->temperature, repo->seed));
+				repo->models.try_emplace(key, std::make_unique<NNModel>(path, repo->temperature, repo->seed));
 			}
 			catch(std::exception & e)
 			{

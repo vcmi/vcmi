@@ -48,6 +48,7 @@ private slots:
 	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
 	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
+	void on_buttonSaveBeforeVisit_toggled(bool value);
 	void on_buttonShowIntro_toggled(bool value);
 	void on_buttonAllowPortrait_toggled(bool value);
 	void on_buttonAutoCheck_toggled(bool value);

@@ -12,6 +12,7 @@
 #include "CSerializer.h"
 #include "ESerializationVersion.h"
 #include "SerializerReflection.h"
+#include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -154,6 +155,17 @@ private:
 	void load(Version & data)
 	{
 		this->read(static_cast<void *>(&data), sizeof(data));
+	}
+
+	void load(BonusType & data)
+	{
+		int32_t read;
+		load(read);
+
+		if (!hasFeature(Version::RANDOMIZATION_REWORK))
+			read += 1;
+
+		data = static_cast<BonusType>(read);
 	}
 
 	template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>

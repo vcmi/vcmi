@@ -89,47 +89,56 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Xuất nhật ký</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lưu nhật ký</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lưu trữ ZIP (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lỗi</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Không thể tạo gói lưu trữ: %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gửi nhật ký</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gói lưu trữ sẽ được gửi qua ứng dụng khác. Hãy chia sẻ nhật ký của bạn, ví dụ qua Discord, cho các nhà phát triển.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Thành công</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nhật ký đã được lưu vào %1, vui lòng gửi cho các nhà phát triển</translation>
     </message>
 </context>
 <context>
@@ -302,12 +311,14 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Git-Repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kho Git</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>GitHub-Stars</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sao GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -1707,7 +1718,8 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">⭐</translation>
     </message>
 </context>
 <context>

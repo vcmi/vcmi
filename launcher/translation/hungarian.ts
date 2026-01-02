@@ -89,47 +89,56 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Naplók exportálása</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Naplók mentése</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">ZIP-archívumok (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hiba</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nem sikerült létrehozni az archívumot: %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Naplók küldése</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Az archívumot egy másik alkalmazás küldi el. Ossza meg a naplókat (pl. Discordon) a fejlesztőkkel.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Siker</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A naplók a következő helyre lettek mentve: %1, kérjük küldje el őket a fejlesztőknek</translation>
     </message>
 </context>
 <context>
@@ -302,12 +311,14 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Git-Repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Git-repozitórium</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>GitHub-Stars</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GitHub-csillagok</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -1688,7 +1699,8 @@ Bin (%n bájt):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">⭐</translation>
     </message>
 </context>
 <context>

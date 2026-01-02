@@ -1531,6 +1531,15 @@ void CGameState::restoreBonusSystemTree()
 
 	if (campaign)
 		campaign->setGamestate(this);
+
+	// WORKAROUND FOR 1.6 SAVES
+	static_assert(ESerializationVersion::RELEASE_160 == ESerializationVersion::MINIMAL, "Please remove this code after dropping 1.6 save compat");
+	if (globalEffects.valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN) == 0)
+	{
+		const auto newBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN, BonusSource::GLOBAL, 1, BonusSourceID());
+		newBonus->valType = BonusValueType::INDEPENDENT_MAX;
+		globalEffects.addNewBonus(newBonus);
+	}
 }
 
 void CGameState::buildGlobalTeamPlayerTree()

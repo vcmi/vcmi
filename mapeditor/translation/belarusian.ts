@@ -92,7 +92,8 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
         <source>Open Campaignset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Адкрыць набор кампаній</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
@@ -184,22 +185,26 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Open Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Адкрыць набор кампаній</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Select Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Выбраць набор кампаній</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Open Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Адкрыць кампанію</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Select Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Выбраць кампанію</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
@@ -216,13 +221,13 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Патрабуюцца моды</translation>
+        <translation>Патрабуюцца моды</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
         <source>Failed to open map</source>
-        <translation type="unfinished">Не атрымалася адкрыць мапу</translation>
+        <translation>Не атрымалася адкрыць мапу</translation>
     </message>
 </context>
 <context>
@@ -358,7 +363,8 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Уключыць выяву рамкі</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>

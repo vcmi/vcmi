@@ -177,6 +177,7 @@ Vec3D<int32_t> NNModel::readBucketSizes(const Ort::ModelMetadata & md) const
 	 *
 	 * Approx. sizes are S=p50 / M=p90 / L=p99 / XL=max / XXL=2*max
 	 * Exact values defined in the vcmi-gym project and are subject to change.
+	 * NOTE: bucketed inputs are deprecated and will soon be removed.
 	 *
 	 */
 
@@ -282,7 +283,21 @@ Vec3D<int32_t> NNModel::readActionTable(const Ort::ModelMetadata & md) const
 	return res;
 }
 
-std::vector<const char *> NNModel::readInputNames()
+bool NNModel::readIsDynamic(const Ort::ModelMetadata & md) const
+{
+	/*
+	 * is_dynamic
+	 *   dtype=int
+	 *   shape=scalar
+	 *
+	 * Might not be present on older models (return false in this case).
+	 */
+
+	Ort::AllocatedStringPtr v = md.LookupCustomMetadataMapAllocated("is_dynamic", allocator);
+	return v && std::string(v.get()) == "1";
+}
+
+std::vector<const char *> NNModel::readInputNames(int want)
 {
 	/*
 	 * Model inputs (4):
@@ -291,18 +306,21 @@ std::vector<const char *> NNModel::readInputNames()
 	 *        shape=[S] where S=Schema::V13::BATTLEFIELD_STATE_SIZE
 	 * 	 [1] edge index
 	 *        dtype=int32
-	 *        shape=[2, E*] where E* depends on the bucket (see readBucketSizes)
+	 *        shape=[2, E*] where E is the number of edges
 	 * 	 [2] edge attributes
 	 *        dtype=float
-	 *        shape=[E*, 1] where E* depends on the bucket
+	 *        shape=[E*, 1] where E
 	 * 	 [3] node neighbourhoods
 	 *        dtype=int
-	 *        shape=[165, K*] where K* depends on the bucket
+	 *        shape=[165, K*] where K is the max number of inbound edges per hex
+	 * 	 [4] size
+	 *        dtype=int
+	 *        shape=[7, 2]
 	 */
 	std::vector<const char *> res;
 	auto count = model->GetInputCount();
-	if(count != 4)
-		throwf("wrong input count: want: %d, have: %lld", 4, count);
+	if(count != want)
+		throwf("wrong input count: want: %d, have: %lld", want, count);
 
 	inputNamePtrs.reserve(count);
 	res.reserve(count);
@@ -403,12 +421,13 @@ NNModel::NNModel(const std::string & path, float _temperature, uint64_t seed)
 	auto md = model->GetModelMetadata();
 	version = readVersion(md);
 	side = readSide(md);
-	bucketSizes = readBucketSizes(md);
 	actionTable = readActionTable(md);
-	inputNames = readInputNames();
+	bucketSizes = readBucketSizes(md);
+	isDynamic = readIsDynamic(md);
+	inputNames = readInputNames(isDynamic ? 5 : 4);
 	outputNames = readOutputNames();
 
-	logAi->info("MMAI version " + std::to_string(version) + " initialized on side=" + std::to_string(EI(side)));
+	logAi->info("MMAI version %d initialized on side=%d (dynamic=%d)", version, EI(side), isDynamic);
 }
 
 Schema::ModelType NNModel::getType()
@@ -453,7 +472,7 @@ int NNModel::getAction(const MMAI::Schema::IState * s)
 		return MMAI::Schema::ACTION_RESET;
 	}
 
-	auto [inputs, size_idx] = prepareInputsV13(s, sup);
+	auto inputs = prepareInputsV13(s, sup);
 	auto outputs = model->Run(Ort::RunOptions(), inputNames.data(), inputs.data(), inputs.size(), outputNames.data(), outputNames.size());
 
 	if(outputs.size() != 10)
@@ -494,7 +513,7 @@ double NNModel::getValue(const MMAI::Schema::IState * s)
 	return 0;
 }
 
-std::pair<std::vector<Ort::Value>, int> NNModel::prepareInputsV13(const MMAI::Schema::IState * s, const MMAI::Schema::V13::ISupplementaryData * sup)
+std::vector<Ort::Value> NNModel::prepareInputsV13(const MMAI::Schema::IState * s, const MMAI::Schema::V13::ISupplementaryData * sup)
 {
 	auto containers = std::array<IndexContainer, LT_COUNT>{};
 
@@ -536,7 +555,7 @@ std::pair<std::vector<Ort::Value>, int> NNModel::prepareInputsV13(const MMAI::Sc
 	if(count != LT_COUNT)
 		throwf("unexpected links count: want: %d, have: %d", LT_COUNT, count);
 
-	auto bdata = bucketing::BucketBuilder(containers, bucketSizes).build_bucket_data();
+	auto bdata = bucketing::BucketBuilder(containers, bucketSizes).build_bucket_data(isDynamic);
 
 	const auto * state = s->getBattlefieldState();
 	auto estate = std::vector<float>(state->size());
@@ -574,7 +593,21 @@ std::pair<std::vector<Ort::Value>, int> NNModel::prepareInputsV13(const MMAI::Sc
 	tensors.push_back(toTensor("edgeAttrs_flat", bdata.edgeAttrs_flat, {sum_e, 1}));
 	tensors.push_back(toTensor("nbr_flat", neighbourhoods, {165, sum_k}));
 
-	return {std::move(tensors), bdata.size_index};
+	if(isDynamic)
+	{
+		auto size = std::vector<int64_t>{};
+		size.reserve(EI(LT_COUNT) * 2);
+		for(int i = 0; i < EI(LT_COUNT); ++i)
+		{
+			size.push_back(bdata.size.emax.at(i));
+			size.push_back(bdata.size.kmax.at(i));
+		}
+		tensors.push_back(toTensor("size", size, {EI(LT_COUNT), 2}));
+	}
+
+	logAi->debug("Model input shapes: state={%d} edgeIndex={2, %d} edgeAttrs={%d, 1} nbr={165, %d}", estate.size(), sum_e, sum_e, sum_k);
+
+	return tensors;
 }
 
 template<typename T>
