@@ -77,6 +77,13 @@
 				"unlockAll" : { "type" : "boolean" }
 			}
 		},
+		"cheats": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"buildWithoutGrail" : { "type" : "boolean" }
+			}
+		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
