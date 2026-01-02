@@ -120,7 +120,7 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	const int biggerMapFactor = cc->getDate(Date::DAY) > 21 ? cc->getMapSize().x / CMapHeader::MAP_SIZE_MIDDLE : 0;
+	const int biggerMapFactor = cc->getDate(Date::DAY) > 21 ? cc->getMapSize().x / CMapHeader::MAP_SIZE_LARGE : 0;
 	// One per town + static bonus on bigger maps after some weeks
 	int globalMainCount = std::max(static_cast<int>(cc->getTownsInfo().size()) + biggerMapFactor, 1);
 	// If 1 town but big map, limit a bit to don't spread the army too much
