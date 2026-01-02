@@ -75,7 +75,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
 		{
 			h & initialCharacter;
 		}
