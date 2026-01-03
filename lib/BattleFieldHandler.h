@@ -25,6 +25,7 @@ public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
+	std::vector<MapLayerId> limitToLayers;
 	ImagePath graphics;
 	std::string name;
 	std::string modScope;

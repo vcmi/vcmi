@@ -1155,5 +1155,9 @@
 	"spellSchool.core.air.name" : "Luft",
 	"spellSchool.core.earth.name" : "Erde",
 	"spellSchool.core.fire.name" : "Feuer",
-	"spellSchool.core.water.name" : "Wasser"
+	"spellSchool.core.water.name" : "Wasser",
+
+	"mapLayer.core.surface.name" : "Oberfläche",
+	"mapLayer.core.underground.name" : "Untergrund",
+	"mapLayer.core.unknown.name" : "Unbekannt"
 }

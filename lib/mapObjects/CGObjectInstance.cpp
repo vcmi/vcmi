@@ -20,6 +20,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
+#include "../CRandomGenerator.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMap.h"
@@ -395,7 +397,20 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 
 BattleField CGObjectInstance::getBattlefield() const
 {
-	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+	std::vector<BattleField> battleFields;
+	for(auto & battleField : LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields())
+		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, pos.z))
+			battleFields.push_back(battleField);
+
+	if (battleFields.empty() && !LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields().empty())
+	{
+		logGlobal->warn("No battlefield for object %d:%d at layer %d found, fallback", ID, subID, pos.z);
+		battleFields = LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields();
+	}
+	if (battleFields.empty())
+		return BattleField::NONE;
+
+	return *RandomGeneratorUtil::nextItem(battleFields, CRandomGenerator::getDefault());
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const

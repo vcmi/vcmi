@@ -22,6 +22,9 @@
 	
 	// List of battle hexes that will be always blocked on this battlefield (e.g. ship to ship battles)
 	"impassableHexes" : [ 10, 20, 50 ],
+
+	// Optional, list of allowed layer types for this battlefield (by default every layer type allowed)
+	"limitToLayers" : [ "surface", "underground" ],
 ```
 
 ### Impassable Hexes

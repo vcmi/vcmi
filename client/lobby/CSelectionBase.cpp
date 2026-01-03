@@ -255,7 +255,7 @@ void InfoCard::changeSelection()
 
 	const CMapHeader * header = mapInfo->mapHeader.get();
 
-	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height) + "x" + std::to_string(header->mapLevels));
+	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height) + "x" + std::to_string(header->levels()));
 	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);

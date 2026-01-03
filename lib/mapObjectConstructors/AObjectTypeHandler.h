@@ -40,7 +40,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	SObjectSounds sounds;
 
 	std::optional<si32> aiValue;
-	BattleField battlefield;
+	std::vector<BattleField> battlefields;
 
 	std::string modScope;
 	std::string typeName;
@@ -95,7 +95,7 @@ public:
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
 	virtual std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const;
 
-	BattleField getBattlefield() const;
+	std::vector<BattleField> getBattlefields() const;
 
 	const RandomMapInfo & getRMGInfo();
 

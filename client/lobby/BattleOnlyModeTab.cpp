@@ -195,7 +195,7 @@ void BattleOnlyModeTab::init()
 	map->creationDateTime = std::time(nullptr);
 	map->width = 10;
 	map->height = 10;
-	map->mapLevels = 1;
+	map->mapLayers = {MapLayerId::SURFACE};
 	map->battleOnly = true;
 	map->name = MetaString::createFromTextID("vcmi.lobby.battleOnlyMode");
 
