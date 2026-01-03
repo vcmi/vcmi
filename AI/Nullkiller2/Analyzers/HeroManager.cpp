@@ -8,12 +8,13 @@
 *
 */
 
+#include "../StdInc.h"
+
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../Engine/Nullkiller.h"
-#include "../StdInc.h"
 #include "mapping/CMapHeader.h"
 
 namespace NK2AI

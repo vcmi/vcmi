@@ -769,7 +769,10 @@ void AIGateway::makeTurn()
 		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
 		const auto timeElapsedMs = timeElapsed(start);
-		logAi->info("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
+		if(timeElapsedMs > 5000)
+			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
+		else
+			logAi->info("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
 
 		for (const auto *h : cc->getHeroesInfo())
 		{

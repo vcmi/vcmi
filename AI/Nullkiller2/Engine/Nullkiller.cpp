@@ -253,7 +253,7 @@ void Nullkiller::updateState()
 	const auto start = std::chrono::high_resolution_clock::now();
 	auto startMethod = start;
 	std::map<std::string, uint64_t> methodToElapsedMs = {};
-	logAi->trace("PERFORMANCE: AI updateState started");
+	logAi->trace("PERFORMANCE: NK2 AI updateState started");
 
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
