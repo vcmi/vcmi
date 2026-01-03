@@ -84,9 +84,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			continue;
 		}
 
-		// Seems to never reach with ALL_FULL, so adjusting to work with MAIN_FULL
-		const auto role = aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero);;
-		if(role == MAIN && aiNk->getScanDepth() == ScanDepth::MAIN_FULL)
+		if(aiNk->getScanDepth() == ScanDepth::ALL_FULL)
 		{
 			if(scanResult.scanMap())
 			{
