@@ -147,43 +147,10 @@ void CampaignEditor::changed()
 	setTitle();
 }
 
-bool hasNullGap(const std::map<CampaignScenarioID, CampaignScenario>& scenarios)
-{
-	bool seenNonNull = false;
-	bool foundNullAfterNonNull = false;
-
-	for(const auto & r : scenarios)
-	{
-		if(r.second.mapName.empty())
-		{
-			if (seenNonNull)
-				foundNullAfterNonNull = true; // gap detected
-		}
-		else
-		{
-			if(foundNullAfterNonNull)
-				return true; // non-empty after a gap
-			seenNonNull = true;
-		}
-	}
-
-	// Leading empty elements
-	if (!scenarios.empty() && scenarios.begin()->second.mapName.empty())
-		return true;
-
-	return false;
-}
-
 bool CampaignEditor::validate()
 {
 	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
 		logGlobal->trace("Not all regions have a map");
-	
-	if(hasNullGap(campaignState->scenarios))
-	{
-		QMessageBox::critical(this, tr("Fewer Scenarios than regions"), tr("You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning."), QMessageBox::Ok);
-		return false;
-	}
 
 	return true;
 }
@@ -231,7 +198,7 @@ void CampaignEditor::on_actionOpen_triggered()
 	}
 
 	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
-		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show als regions without scenario defined yet
+		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show as regions without scenario defined yet
 
 	redraw();
 }
