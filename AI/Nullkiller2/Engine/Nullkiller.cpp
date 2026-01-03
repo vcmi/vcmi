@@ -134,7 +134,7 @@ Goals::TTaskVec TaskPlan::getTasks() const
 	return result;
 }
 
-void TaskPlan::merge(const TSubgoal & task)
+void TaskPlan::mergeAndFilter(const TSubgoal & task)
 {
 	TGoalVec blockers;
 
@@ -156,9 +156,9 @@ void TaskPlan::merge(const TSubgoal & task)
 		}
 	}
 
-	vstd::erase_if(tasks, [&](const TaskPlanItem & task2)
+	vstd::erase_if(tasks, [&](const TaskPlanItem & item)
 		{
-			return vstd::contains(blockers, task2.task);
+			return vstd::contains(blockers, item.task);
 		});
 
 	tasks.emplace_back(task);
@@ -185,30 +185,35 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
+Goals::TTaskVec Nullkiller::buildPlanAndFilter(TGoalVec & tasks, int priorityTier) const
 {
 	TaskPlan taskPlan;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
-	{
-		auto evaluator = this->priorityEvaluators->acquire();
-
-		for(size_t i = r.begin(); i != r.end(); i++)
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, tasks.size()),
+		[this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
-			const auto & task = tasks[i];
-			if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
-				task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+			const auto evaluator = this->priorityEvaluators->acquire();
+			for(size_t i = r.begin(); i != r.end(); i++)
+			{
+				const auto & task = tasks[i];
+				if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
+					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+			}
 		}
-	});
+	);
 
-	boost::range::sort(tasks, [](const TSubgoal& g1, const TSubgoal& g2) -> bool
+	boost::range::sort(
+		tasks,
+		[](const TSubgoal & g1, const TSubgoal & g2) -> bool
 		{
 			return g2->asTask()->priority < g1->asTask()->priority;
-		});
+		}
+	);
 
 	for(const TSubgoal & task : tasks)
 	{
-		taskPlan.merge(task);
+		taskPlan.mergeAndFilter(task);
 	}
 
 	return taskPlan.getTasks();
@@ -387,7 +392,7 @@ void Nullkiller::makeTurn()
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
 
-	for(int i = 1; i <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
 		if (pathfinderTurnStorageMisses.load() != 0)
 		{
@@ -395,7 +400,7 @@ void Nullkiller::makeTurn()
 			pathfinderTurnStorageMisses.store(0);
 		}
 
-		if (!updateStateAndExecutePriorityPass(tasks, i))
+		if (!updateStateAndExecutePriorityPass(tasks, pass))
 			return;
 
 		tasks.clear();
@@ -413,9 +418,22 @@ void Nullkiller::makeTurn()
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 			prioOfTask = prio;
-			selectedTasks = buildPlan(tasks, prio);
+			selectedTasks = buildPlanAndFilter(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
+			{
+				// Activate for deep debugging, otherwise too noisy even for trace level 2
+// #if NK2AI_TRACE_LEVEL >= 2
+// 				for(auto t : tasks)
+// 				{
+// 					logAi->trace("task of prio %d: %s, prio: %f", prio, t->toString(), t->asTask()->priority);
+// 				}
+// 				for(auto t : selectedTasks)
+// 				{
+// 					logAi->trace("selected task of prio %d: %s, prio: %f", prio, t->toString(), t->priority);
+// 				}
+// #endif
 				break;
+			}
 		}
 
 		boost::range::sort(selectedTasks, [](const TTask& a, const TTask& b)
@@ -446,18 +464,19 @@ void Nullkiller::makeTurn()
 			if(heroRole != HeroRole::MAIN || selectedTask->getHeroExchangeCount() <= 1)
 				useHeroChain = false;
 
-			// TODO: better to check turn distance here instead of priority
-			if((heroRole != HeroRole::MAIN || selectedTask->priority < SMALL_SCAN_MIN_PRIORITY)
-				&& scanDepth == ScanDepth::MAIN_FULL)
-			{
-				useHeroChain = false;
-				scanDepth = ScanDepth::SMALL;
-
-				logAi->trace(
-					"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
-					taskDescription,
-					selectedTask->priority);
-			}
+			// TODO: Mircea: AI suffers from lack of capability, no point to activate SMALL, to test more before deleting the code entirely
+			// old-todo: better to check turn distance here instead of priority
+			// if((heroRole != HeroRole::MAIN || selectedTask->priority < SMALL_SCAN_MIN_PRIORITY)
+			// 	&& scanDepth == ScanDepth::MAIN_FULL)
+			// {
+			// 	useHeroChain = false;
+			// 	scanDepth = ScanDepth::SMALL;
+			//
+			// 	logAi->trace(
+			// 		"Goal %s has low priority %f so decreasing scan depth to gain performance.",
+			// 		taskDescription,
+			// 		selectedTask->priority);
+			// }
 
 			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
 			{
@@ -469,8 +488,8 @@ void Nullkiller::makeTurn()
 
 				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
 				{
-					logAi->trace(
-						"Goal %s has too low priority %f so increasing scan depth to full.",
+					logAi->info(
+						"Pass %d: Heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
 						taskDescription,
 						selectedTask->priority);
 
@@ -480,11 +499,11 @@ void Nullkiller::makeTurn()
 					break;
 				}
 
-				logAi->trace("Goal %s has too low priority. It is not worth doing it.", taskDescription);
+				logAi->trace("Pass %d: Goal %s has too low priority. It is not worth doing it.", pass, taskDescription);
 				continue;
 			}
 
-			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
+			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", pass, prioOfTask, selectedTask->toString(), selectedTask->priority);
 
 			if(HeroPtr heroPtr(selectedTask->getHero(), cc.get()); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
@@ -513,7 +532,7 @@ void Nullkiller::makeTurn()
 		for(const auto * heroInfo : cc->getHeroesInfo())
 			AIGateway::pickBestArtifacts(cc, heroInfo);
 
-		if(i == settings->getMaxPass())
+		if(pass == settings->getMaxPass())
 			logAi->warn("MaxPass reached. Terminating AI turn.");
 	}
 }
