@@ -120,13 +120,13 @@ void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 
 void CTerrainSelection::selectAll()
 {
-	for(int i = 0; i < getMap()->mapLevels; i++)
+	for(int i = 0; i < getMap()->levels(); i++)
 		selectRange(MapRect(int3(0, 0, i), getMap()->width, getMap()->height));
 }
 
 void CTerrainSelection::clearSelection()
 {
-	for(int i = 0; i < getMap()->mapLevels; i++)
+	for(int i = 0; i < getMap()->levels(); i++)
 		deselectRange(MapRect(int3(0, 0, i), getMap()->width, getMap()->height));
 }
 

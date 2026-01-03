@@ -591,7 +591,7 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, std::stri
 
 CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CComposedOperation(map)
 {
-	for (int i = 0; i < map->mapLevels; i++)
+	for (int i = 0; i < map->levels(); i++)
 	{
 		CTerrainSelection terrainSel(map);
 		terrainSel.selectRange(MapRect(int3(0, 0, i), map->width, map->height));

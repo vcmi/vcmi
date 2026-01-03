@@ -135,6 +135,10 @@
 	[
 		"config/campaignRegions.json"
 	],
+	"mapLayers":
+	[
+		"config/mapLayers.json"
+	],
 	
 	
 	"settings":

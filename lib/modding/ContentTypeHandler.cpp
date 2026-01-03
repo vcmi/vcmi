@@ -37,6 +37,7 @@
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../MapLayerHandler.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
@@ -265,6 +266,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
 	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
 	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
+	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
 }
 
 bool CContentHandler::preloadData(const ModDescription & mod, bool validate)

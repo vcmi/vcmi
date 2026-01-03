@@ -1,0 +1,17 @@
+{
+    "unknown":
+    {
+        "index": 0,
+        "text" : "Unknown"
+    },
+    "surface":
+    {
+        "index": 1,
+        "text" : "Surface"
+    },
+    "underground":
+    {
+        "index": 2,
+        "text" : "Underground"
+    }
+}
