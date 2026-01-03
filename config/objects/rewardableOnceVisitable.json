@@ -19,6 +19,20 @@
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
+				"variables" : {
+					"resource" : {
+						"gainedResource" : { // Note: this variable name is used by engine for H3M loading
+							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+						}
+					},
+					"number" : {
+						"gainedAmount" : { // Note: this variable name is used by engine for H3M loading
+							"min" : 1,
+							"max" : 5
+						}
+					},
+				},
+
 				"onVisitedMessage" : 65,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
@@ -27,9 +41,8 @@
 						"message" : 64,
 						"resources" : [
 							{
-								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
-								"min" : 1,
-								"max" : 5
+								"type" : "@gainedResource",
+								"amount" : "@gainedAmount",
 							}
 						]
 					}
@@ -107,23 +120,41 @@
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
+				"variables" : {
+					"resource" : {
+						"gainedResource" : { // Note: this variable name is used by engine for H3M loading
+							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+						}
+					},
+					"number" : {
+						"gainedAmount" : { // Note: this variable name is used by engine for H3M loading
+							"min" : 1,
+							"max" : 5
+						}
+					},
+				},
+
+
 				"onVisitedMessage" : 156,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 20 },
+						"mapDice" : -1,
 						"message" : 155,
 						"artifacts" : [ { "class" : "TREASURE" } ]
 					},
 					{
 						"appearChance" : { "min" : 20, "max" : 40 },
+						"mapDice" : -1,
 						"message" : 155,
 						"artifacts" : [ { "class" : "MINOR" } ]
 					},
 					{
 						"message" : 154,
 						"appearChance" : { "min" : 40, "max" : 90 },
+						"mapDice" : -1,
 						"resources" : [
 							{
 								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
@@ -134,8 +165,20 @@
 					},
 					{
 						"appearChance" : { "min" : 90, "max" : 100 },
+						"mapDice" : 1,
 						"message" : 156,
-					}
+					},
+					{
+						"mapDice" : 0,
+						"message" : 154,
+						"artifacts" : [ "@gainedArtifact" ],
+						"resources" : [
+							{
+								"type" : "@gainedResource",
+								"amount" : "@gainedAmount",
+							}
+						]
+					},
 				]
 			}
 		}

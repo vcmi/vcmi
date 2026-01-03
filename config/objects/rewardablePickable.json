@@ -21,12 +21,33 @@
 					"value"		: 2000,
 					"rarity"	: 500
 				},
+				"variables" : {
+					"resource" : {
+						"gainedResourceA" : { // Note: this variable name is used by engine for H3M loading
+							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
+						}
+						"gainedResourceB" : { // Note: this variable name is used by engine for H3M loading
+							"type" : "gold"
+						}
+					},
+					"number" : {
+						"gainedAmountA" : { // Note: this variable name is used by engine for H3M loading
+							"min" : 4,
+							"max" : 6
+						}
+						"gainedAmountB" : { // Note: this variable name is used by engine for H3M loading
+							"min" : 400,
+							"max" : 600
+						}
+					},
+				},
 				"compatibilityIdentifiers" : [ "object" ],
 				"visitMode" : "unlimited",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
 						"appearChance" : { "min" : 0, "max" : 33 },
+						"mapDice" : -1,
 						"message" : 23,
 						"removeObject" : true,
 						"resources" : [
@@ -42,6 +63,7 @@
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 66 },
+						"mapDice" : -1,
 						"message" : 23,
 						"removeObject" : true,
 						"resources" : [
@@ -57,6 +79,7 @@
 					},
 					{
 						"appearChance" : { "min" : 66, "max" : 100 },
+						"mapDice" : -1,
 						"message" : 23,
 						"removeObject" : true,
 						"resources" : [
@@ -67,6 +90,22 @@
 							{
 								"type" : "gold",
 								"amount" : 600
+							}
+						]
+					},
+					{
+						"appearChance" : { "min" : 66, "max" : 100 },
+						"mapDice" : 0,
+						"message" : 23,
+						"removeObject" : true,
+						"resources" : [
+							{
+								"type" : "@gainedResourceA",
+								"amount" : "@gainedAmountA"
+							},
+							{
+								"type" : "@gainedResourceB",
+								"amount" : "@gainedAmountB"
 							}
 						]
 					}

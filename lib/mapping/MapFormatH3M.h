@@ -218,7 +218,9 @@ private:
 	std::shared_ptr<CGObjectInstance> readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate, int artifactRewardIndex);
 	std::shared_ptr<CGObjectInstance> readRewardWithSpell(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readRewardWithGarbage(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithResourcesAndArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithAmount(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 

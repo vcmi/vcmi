@@ -28,6 +28,7 @@
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -1769,31 +1770,122 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readUniversity(const int3 & map
 	return readGeneric(mapPosition, objectTemplate);
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifactAndResources(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResourcesAndArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA5)
 	{
-		// TODO
-		// Sea Barrel / 0   -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
-		// Sea Barrel / 1   -> aID = -1, aA = 1, rA = 1, aB = garbage, rB = 0
-		// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
-		// Grave / 0        -> aID = artifact to give, aA = resource amount, rA = resource type, aB = 1, rB = garbage
-		// CAMPFIRE 12 / 0  -> aID = -1, aA = gold amount, rA = gold type, aB = resource amount, rB = resource type
-		// WAGON  105 / 0   -> aID = -1 or artifact, aA = resource amount, rA = resource type, aB = 1, rB = garbage?
-		// WAGON  105 / 1   -> empty / garbage?
-		// LEAN_TO / 39 / 0 -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
-
 		int32_t content = reader->readInt32();
-		int32_t artifact = reader->readInt32();
-		int32_t amountA = reader->readInt32();
-		int8_t resourceA = reader->readInt8();
-		int32_t amountB = reader->readInt32();
-		int8_t resourceB = reader->readInt8();
 
-		if (content != -1)
-			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d %d %d %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact, amountA, static_cast<int>(resourceA), amountB, static_cast<int>(resourceB));
+		switch(content)
+		{
+			case -1: // random
+				reader->skipUnused(14); // garbage data
+				break;
+			case 1: // empty
+				reader->skipUnused(14); // garbage data
+				if(rewardable)
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				break;
+			case 0: // custom
+			{
+				ArtifactID artifact = reader->readArtifact32();
+				int32_t amountA = reader->readInt32();
+				GameResID resourceA = reader->readGameResID();
+				reader->skipUnused(5); // no 2nd resource
+
+				if(rewardable)
+				{
+					JsonNode variable;
+					variable.setModScope(ModScope::scopeGame());
+					variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+					rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+
+					variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
+					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+				}
+			}
+		}
 	}
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	// TODO
+	// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
+
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		switch(content)
+		{
+			case -1: // random
+				reader->skipUnused(14); // garbage data
+				break;
+			case 0: // custom
+			{
+				reader->skipUnused(4); // no artifact
+				int32_t amountA = reader->readInt32();
+				reader->skipUnused(6); // no 1st resource ID, no 2nd resource
+
+				if(rewardable)
+				{
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+				}
+			}
+		}
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResources(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			reader->skipUnused(4); // no artifact
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			int32_t amountB = reader->readInt32();
+			GameResID resourceB = reader->readGameResID();
+
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResourceA", variable);
+
+				variable.String() = resourceB.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResourceB", variable);
+
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("number", "gainedAmountA", JsonNode(amountA));
+				rewardable->configuration.presetVariable("number", "gainedAmountB", JsonNode(amountB));
+			}
+		}
+		else
+			reader->skipUnused(14); // garbage data
+	}
+	return object;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
@@ -1924,15 +2016,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::CAMPFIRE:
+			return readRewardWithResources(mapPosition, objectTemplate);
+
 		case Obj::WAGON:
 		case Obj::LEAN_TO:
-			return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+			return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
 				return readQuestGuard(mapPosition);
 			if (subid == 1001) // HotA hacks - Grave
-				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+				return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_1:
@@ -1940,8 +2034,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			// 1 -> Sea Barrel
 			// 2 -> Jetsam
 			// 3 -> Vial of Mana
-			if (subid == 0 || subid == 1)
-				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+			if (subid == 0)
+				return readRewardWithAmount(mapPosition, objectTemplate);
+			if (subid == 1)
+				return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
 			else
 				return readRewardWithGarbage(mapPosition, objectTemplate);
 
@@ -2657,6 +2753,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 		if(features.levelHOTA7)
 		{
+			// TODO: hota
 			[[maybe_unused]] bool neutralAffected = reader->readBool();
 		}
 
