@@ -25,6 +25,7 @@
 #include "../windows/CSpellWindow.h"
 #include "../windows/CMarketWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../windows/InfoWindows.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
@@ -537,11 +538,27 @@ void AdventureMapShortcuts::search(bool next)
 			owner.centerOnObject(objInst);
 			searchLast = objInst->getObjectName();
 		};
+	auto openObjMap = [textCountList](int index)
+		{
+			auto selObj = textCountList[index].first;
+
+			// filter for matching objects
+			std::vector<const CGObjectInstance *> selVisitableObjInstances;
+			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+					selVisitableObjInstances.push_back(obj);
+			
+			ENGINE->windows().createAndPushWindow<SearchPopup>(selVisitableObjInstances);
+		};
 
 	if(next)
 		selectObjOnMap(lastSel);
 	else
-		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+	{
+		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		window->onPopup = [openObjMap](int index){ openObjMap(index); };
+		ENGINE->windows().pushWindow(window);
+	}
 }
 
 void AdventureMapShortcuts::nextObject()
