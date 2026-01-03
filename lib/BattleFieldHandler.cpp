@@ -11,7 +11,9 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
+#include "GameLibrary.h"
 #include "json/JsonBonus.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,8 +39,14 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	}
 
 	info->isSpecial = json["isSpecial"].Bool();
-	for(auto node : json["limitToLayers"].Vector())
-		info->limitToLayers.push_back(node.Integer());
+	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
+	for(int i = 0; i < info->limitToLayers.size(); i++)
+	{
+		LIBRARY->identifiers()->requestIdentifier(json["limitToLayers"].Vector()[i].getModScope(), json["limitToLayers"].Vector()[i], [i, info](int32_t index)
+		{
+			info->limitToLayers.at(i) = MapLayerId(index);
+		});
+	}
 	for(auto node : json["impassableHexes"].Vector())
 		info->impassableHexes.insert(node.Integer());
 
