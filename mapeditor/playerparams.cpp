@@ -194,9 +194,9 @@ void PlayerParams::on_townSelect_clicked()
 		return false;
 	};
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.highlight(pred);
 		l.update();
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
@@ -209,9 +209,9 @@ void PlayerParams::onTownPicked(const CGObjectInstance * obj)
 {
 	controller.settingsDialog->show();
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &PlayerParams::onTownPicked);
