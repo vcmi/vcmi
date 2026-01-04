@@ -133,7 +133,7 @@ si8 CMapGenOptions::getMaxPlayersCount(bool withTemplateLimit) const
 	}
 	else
 	{
-		totalPlayers = humans + cpus;
+		totalPlayers = std::max(humans + cpus, 2);
 	}
 
 	if (withTemplateLimit && mapTemplate)
@@ -719,7 +719,7 @@ std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 
 		if(humanOrCpuPlayerCount != CMapGenOptions::RANDOM_SIZE && compOnlyPlayerCount != CMapGenOptions::RANDOM_SIZE)
 		{
-			if (!tmpl->getPlayers().isInRange(humanOrCpuPlayerCount + compOnlyPlayerCount))
+			if (!tmpl->getPlayers().isInRange(std::max(humanOrCpuPlayerCount + compOnlyPlayerCount, 2)))
 				return true;
 
 		}

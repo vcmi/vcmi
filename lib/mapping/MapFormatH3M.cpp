@@ -150,7 +150,7 @@ void CMapLoaderH3M::readHeader()
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
 
-			if (allowedDifficultiesMask != 0)
+			if (allowedDifficultiesMask != 0 && allowedDifficultiesMask != 31) //TODO: recheck if 0 is possible
 				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, static_cast<int>(allowedDifficultiesMask));
 		}
 
@@ -1132,18 +1132,35 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 	{
 		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
 		int32_t movementAmount = reader->readInt32();
-
 		assert(movementMode >= 0 && movementMode <= 4);
-		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Event/Pandora %s option to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
+
+		auto & boxReward = object->configuration.info.back();
+
+		switch (movementMode)
+		{
+			case 0: // Give
+				boxReward.reward.movePoints = movementAmount;
+				break;
+			case 1: // Take
+				boxReward.reward.movePoints = -movementAmount;
+				break;
+			case 2: // Nullify
+				boxReward.reward.movePercentage = 0;
+				break;
+			case 3: // Set
+			case 4: // Replenish
+				// TODO: what's the difference?
+				boxReward.reward.movePercentage = 0;
+				boxReward.reward.movePoints = movementAmount;
+				break;
+		}
 	}
 
 	if(features.levelHOTA6)
 	{
 		int32_t allowedDifficultiesMask = reader->readInt32();
 		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 31)
-			logGlobal->warn("Map '%s': Event/Pandora %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
+		object->presentOnDifficulties = MapDifficultySet(allowedDifficultiesMask);
 	}
 }
 
@@ -1181,22 +1198,25 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	if(features.levelHOTA3)
 	{
 		//TODO: HotA
-		int32_t aggressionExact = reader->readInt32(); // -1 = default, 1-10 = possible values range
-		bool joinOnlyForMoney = reader->readBool(); // if true, monsters will only join for money
-		int32_t joinPercent = reader->readInt32(); // 100 = default, percent of monsters that will join on successful aggression check
-		int32_t upgradedStack = reader->readInt32(); // Presence of upgraded stack, -1 = random, 0 = never, 1 = always
-		int32_t stacksCount = reader->readInt32(); // TODO: check possible values. How many creature stacks will be present on battlefield, -1 = default
-		object->stacksCount = stacksCount;
 
-		if(aggressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1)
+		// -1 = default, 1-10 = possible values range
+		int32_t aggressionExact = reader->readInt32();
+		// if true, monsters will only join for money
+		object->joinOnlyForMoney = reader->readBool();
+		// 100 = default, percent of monsters that will join on successful aggression check
+		int32_t joinPercent = reader->readInt32();
+		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
+		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(reader->readInt32());
+		// How many creature stacks will be present on battlefield, -1 = default
+		object->stacksCount = reader->readInt32();
+
+		if(aggressionExact != -1  || joinPercent != 100)
 			logGlobal->warn(
-				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemented!",
+				"Map '%s': Wandering monsters %s settings %d %d are not implemented!",
 				mapName,
 				mapPosition.toString(),
 				aggressionExact,
-				int(joinOnlyForMoney),
-				joinPercent,
-				upgradedStack
+				joinPercent
 			);
 	}
 
@@ -1293,34 +1313,28 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readScholar(const int3 & positi
 			case ScholarBonusType::PRIM_SKILL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = NPrimarySkill::names[bonusID];
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 80;
 				rewardable->configuration.presetVariable("primarySkill", "gainedStat", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
 				break;
 			}
 			case ScholarBonusType::SECONDARY_SKILL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = LIBRARY->skills()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 50;
 				rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
 				break;
 			}
 			case ScholarBonusType::SPELL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = LIBRARY->spells()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 20;
 				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
 				break;
 			}
 			case ScholarBonusType::RANDOM:
@@ -1603,12 +1617,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLighthouse(const int3 & map
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA3)
 	{
-		//TODO: HotA
 		// index of guards preset. -1 = random, 0-4 = index of possible guards settings
 		int32_t guardsPresetIndex = reader->readInt32();
 
+		//TODO: HotA
 		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
 		int8_t upgradedStackPresence = reader->readInt8Checked(-1, 1);
 
@@ -1622,50 +1639,107 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPositi
 		std::vector<ArtifactID> artifacts;
 		int artNumber = reader->readUInt32();
 		for(int yy = 0; yy < artNumber; ++yy)
-		{
 			artifacts.push_back(reader->readArtifact32());
-		}
 
-		if(guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
+		if(rewardable)
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(guardsPresetIndex));
+
+		if(upgradedStackPresence != -1 || !artifacts.empty())
 			logGlobal->warn(
-				"Map '%s': creature bank at %s settings %d %d %d are not implemented!",
+				"Map '%s': creature bank at %s settings %d %d are not implemented!",
 				mapName,
 				mapPosition.toString(),
-				guardsPresetIndex,
 				int(upgradedStackPresence),
 				artifacts.size()
 			);
 	}
 
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithGarbage(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA5)
 	{
-		// TREASURE_CHEST       - rewards index, if 3 - then 2nd value is artifact
-		// CORPSE               - rewards index, if 1 - then 2nd value is artifact
-		// SHIPWRECK_SURVIVOR   - if content = 0 then 2nd value is granted artifact
-		// SEA_CHEST            - rewards index, if 2 - then 2nd value is artifact
-		// FLOTSAM              - rewards index (0-3) + -1
-		// TREE_OF_KNOWLEDGE    - rewards index (0-2) + -1
-		// PYRAMID              - if content = 0 then 2nd value is granted spell
-		// WARRIORS_TOMB        - if content = 0 then 2nd value is granted artifact
-		// HOTA_JETSAM          - rewards index (0-3) + -1
-		// HOTA_VIAL_OF_MANA    - rewards index (0-3) + -1
-
 		int32_t content = reader->readInt32();
-		ArtifactID artifact;
-		if (content != -1)
+
+		if(content != -1 && rewardable)
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+
+		reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithSpell(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
 		{
-			artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
-			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
+			if(rewardable)
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+
+			if(content == 0)
+			{
+				SpellID spell = reader->readSpell32();
+				if(rewardable && spell.hasValue())
+				{
+					JsonNode variable;
+					variable.String() = spell.toSpell()->getJsonKey();
+					variable.setModScope(ModScope::scopeGame());
+					rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+				}
+			}
+			else
+				reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 		}
 		else
 			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 	}
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate, int artifactRewardIndex)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			if(rewardable)
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+
+			if(content == artifactRewardIndex)
+			{
+				ArtifactID artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
+				if(rewardable && artifact.hasValue())
+				{
+					JsonNode variable;
+					variable.String() = artifact.toArtifact()->getJsonKey();
+					variable.setModScope(ModScope::scopeGame());
+					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+				}
+			}
+			else
+				reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+		}
+		else
+			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+	}
+	return object;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBlackMarket(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
@@ -1710,6 +1784,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifactAndResour
 {
 	if(features.levelHOTA5)
 	{
+		// TODO
 		// Sea Barrel / 0   -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
 		// Sea Barrel / 1   -> aID = -1, aA = 1, rA = 1, aB = garbage, rB = 0
 		// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
@@ -1839,15 +1914,25 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 		case Obj::SHIPWRECK:
 			return readBank(mapPosition, objectTemplate);
 
+		case Obj::PYRAMID:
+			return readRewardWithSpell(mapPosition, objectTemplate);
+
 		case Obj::TREASURE_CHEST:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 3);
+
 		case Obj::CORPSE:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 1);
+
+		case Obj::WARRIORS_TOMB:
 		case Obj::SHIPWRECK_SURVIVOR:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 0);
+
 		case Obj::SEA_CHEST:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 2);
+
 		case Obj::FLOTSAM:
 		case Obj::TREE_OF_KNOWLEDGE:
-		case Obj::PYRAMID:
-		case Obj::WARRIORS_TOMB:
-			return readRewardWithArtifact(mapPosition, objectTemplate);
+			return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::CAMPFIRE:
 		case Obj::WAGON:
@@ -1869,7 +1954,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			if (subid == 0 || subid == 1)
 				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
 			else
-				return readRewardWithArtifact(mapPosition, objectTemplate);
+				return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_2:
 			if (subid == 0) // Seafaring Academy
@@ -2653,10 +2738,9 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 
 	if (features.levelHOTA7)
 	{
-		int32_t allowedDifficultiesMask = reader->readInt32();
-		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 31)
-			logGlobal->warn("Map '%s': Map event: availability by difficulty (mode %d) is not implemented!", mapName, allowedDifficultiesMask);
+		int32_t affectedDifficulties = reader->readInt32();
+		assert(affectedDifficulties > 0 && affectedDifficulties < 32);
+		event.affectedDifficulties = MapDifficultySet(affectedDifficulties);
 	}
 }
 

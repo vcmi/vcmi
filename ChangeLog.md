@@ -1,5 +1,55 @@
 # VCMI Project Changelog
 
+## 1.7.0 -> 1.7.1
+
+### Stability
+
+* Fixed game state corruption on loading save made in 1.6 in 1.7 version
+* Fixed possible crash on mod install on some systems
+* Fixed rare crash when mod with not loaded dependency is incorrectly added to load list
+* Fixed crash on loading saves made with same set but different load order of mods
+* Fixed picked up artifacts turning into Spell Books on maps in .vmap format
+* Fixed possible crash on invalid OPENING_BATTLE_SPELL bonus
+* Fixed possible crash on invalid SUMMON_GUARDIANS bonus
+* Fixed crash on adding large number of spells to hero in battle-only mode
+* Fixed crash on rearranging troops in some cases in multiplayer
+* Fixed possible crash on AI shutdown
+* Avoid crash and display error message on failure to install mod after opening screenshot tab during mod download on some systems
+* Fixed desynchronization between client and server caused by temporary artifacts generated during AI turn
+* Fixed rare crash on having growing artifacts in inventory in the same time as having expired charging artifact
+
+### Mechanics
+
+* Fixed randomization of damage range when unit can kill whole unit stack at max damage
+
+### Interface
+
+* Added support for generating screenshots in-game. By default this action is bound to F3 hotkey
+* It is now possible to abort selection of a campaign set after pressing button to open list of campaign sets
+* Fixed HD assets incorrectly used for .def files of mods if file names inside .def clash with H3 filenames
+* Disabled black bars that were present on iOS on both sides of the screen to avoid areas with camera notch and rounded corners
+
+### AI
+
+* Removed map hack from Nullkiller2 AI
+* Adjusted Nullkiller2 AI settings to improve performance
+* Fixes an issue where fallback from MMAI to BattleAI was not correctly triggered.
+* Fixed handling of battles with over 20 units present by MMAI
+* Improved performance of MMAI by up to 50%
+
+### Launcher
+
+* Fixed reset of AI settings on opening Launcher. AI settings will be reset to default for all players
+* Added option to disable before visit saves
+* Fixed not visible star in mod list title on some systems
+
+### Map Editor
+
+* Fixed saving of customized map object parameters for RMG in template editor
+* Fixed bug that made it impossible to select gold as reward for Seer Hut
+* Fixed passability overlay not visible on 3rd and later layers
+* Fixed several cases of broken layout in map editor
+
 ## 1.6.8 -> 1.7.0
 
 ### Key Changes

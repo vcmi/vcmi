@@ -373,7 +373,7 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 	if (!gameState().getMap().isInTheMap(tile))
 		return int3(-1,-1,-1);
 
-	return gameState().getMap().guardingCreaturePositions[tile.z][tile.x][tile.y];
+	return gameState().getMap().guardingCreaturePositions[tile];
 }
 
 void CCallback::dig( const CGObjectInstance *hero )

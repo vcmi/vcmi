@@ -58,20 +58,32 @@
 				"onVisitedMessage" : 38,
 				"visitMode" : "once",
 				"selectMode" : "selectFirst",
+				
+				"variables" : {
+					"artifact" : {
+						"gainedArtifact" : { // Note: this variable name is used by engine for H3M loading
+							"class" : "TREASURE"
+						}
+					}
+				},
+				
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 10 },
 						"message" : 37,
-						"artifacts" : [ { "class" : "TREASURE" } ]
+						"mapDice" : 1,
+						"artifacts" : [ "@gainedArtifact" ]
 					},
 					{
 						"appearChance" : { "min" : 10, "max" : 20 },
 						"message" : 37,
+						"mapDice" : 2,
 						"artifacts" : [ { "class" : "MINOR" } ]
 					},
 					{
 						"appearChance" : { "min" : 20, "max" : 100 },
 						"message" : 38,
+						"mapDice" : 0
 					}
 				]
 			}
@@ -156,27 +168,38 @@
 						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					}
 				],
+				"variables" : {
+					"artifact" : {
+						"gainedArtifact" : { // Note: this variable name is used by engine for H3M loading
+							"class" : "TREASURE"
+						}
+					}
+				},
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 30 },
 						"message" : 162,
-						"artifacts" : [ { "class" : "TREASURE" } ],
+						"mapDice" : 0,
+						"artifacts" : [ "@gainedArtifact" ],
 						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 30, "max" : 80 },
+						"mapDice" : 1,
 						"message" : 162,
 						"artifacts" : [ { "class" : "MINOR" } ],
 						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 80, "max" : 95 },
+						"mapDice" : 2,
 						"message" : 162,
 						"artifacts" : [ { "class" : "MAJOR" } ],
 						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]
 					},
 					{
 						"appearChance" : { "min" : 95 },
+						"mapDice" : 3,
 						"message" : 162,
 						"artifacts" : [ { "class" : "RELIC" } ],
 						"bonuses" : [ { "type" : "MORALE", "val" : -3, "duration" : "ONE_BATTLE", "description" : 104 } ]

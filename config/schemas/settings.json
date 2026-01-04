@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks", "mods" ],
+	"required" : [ "general", "video", "adventure", "battle", "input", "server", "logging", "launcher", "lobby", "gameTweaks", "mods", "ai" ],
 	"definitions" : {
 		"logLevelEnum" : {
 			"type" : "string",
@@ -569,7 +569,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed", "playerAI", "alliedAI", "friendlyAI", "neutralAI", "enemyAI" ],
+			"required" : [ "localHostname", "localPort", "remoteHostname", "remotePort", "seed"],
 			"properties" : {
 				"localHostname" : {
 					"type" : "string",
@@ -590,28 +590,36 @@
 				"seed" : {
 					"type" : "number",
 					"default" : 0
-				},
-				"playerAI" : {
+				}
+			}
+		},
+		"ai" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"default" : {},
+			"required" : [ "adventureAlliedAI", "adventureEnemyAI", "combatEnemyAI", "combatAlliedAI", "combatNeutralAI" ],
+			"properties" : {
+				"adventureAlliedAI" : {
 					"type" : "string",
 					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
 					"default" : "Nullkiller2"
 				},
-				"alliedAI" : {
+				"adventureEnemyAI" : {
 					"type" : "string",
 					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
 					"default" : "Nullkiller2"
 				},
-				"friendlyAI" : {
+				"combatEnemyAI" : {
 					"type" : "string",
 					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
-				"neutralAI" : {
+				"combatAlliedAI" : {
 					"type" : "string",
 					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
-				"enemyAI" : {
+				"combatNeutralAI" : {
 					"type" : "string",
 					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"

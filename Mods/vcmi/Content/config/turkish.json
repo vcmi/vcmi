@@ -104,7 +104,7 @@
 	"vcmi.spellBook.tab.hover" : "%s Büyüler",
 	"vcmi.spellBook.tab.help" : "%s büyülerini görüntülemek için çevir",
 
-	"vcmi.spellResearch.canNotAfford" : "{%SPELL1} büyüsünü {%SPELL2} ile değiştirmeyi göze alamazsın. Ama yine de bu büyüyü atıp büyü araştırmasına devam edebilirsin.",
+	"vcmi.spellResearch.canNotAfford" : "{%SPELL1} büyüsünü {%SPELL2} ile değiştirmeyi göze alamazsın.",
 	"vcmi.spellResearch.comeAgain" : "Araştırma bugün zaten yapıldı. Yarın tekrar gelin.",
 	"vcmi.spellResearch.pay" : "{%SPELL1} büyüsünü {%SPELL2} ile değiştirmek ister misiniz? Yoksa bu büyüyü atıp büyü araştırmasına devam mı etmek istersiniz?",
 	"vcmi.spellResearch.research" : "Bu Büyüyü Araştır",

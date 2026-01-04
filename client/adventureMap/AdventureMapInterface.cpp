@@ -883,7 +883,11 @@ void AdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& obje
 
 void AdventureMapInterface::hotkeyNextTown()
 {
+	int selectedIndex = widget->getTownList()->getSelectedIndex();
 	widget->getTownList()->selectNext();
+
+	if(selectedIndex == widget->getTownList()->getSelectedIndex())
+		widget->getTownList()->refreshSelected();
 }
 
 void AdventureMapInterface::hotkeySwitchMapLevel()

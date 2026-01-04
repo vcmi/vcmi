@@ -48,6 +48,9 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.occursToday(gameHandler->gameState().day))
 			continue;
 
+		if (!event.affectsDifficulty(gameHandler->gameInfo().getStartInfo()->getDifficulty()))
+			continue;
+
 		if (!event.affectsPlayer(color, gameHandler->gameInfo().getPlayerState(color)->isHuman()))
 			continue;
 
@@ -80,6 +83,9 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 	for (auto const & event : town->events)
 	{
 		if (!event.occursToday(gameHandler->gameState().day))
+			continue;
+
+		if (!event.affectsDifficulty(gameHandler->gameInfo().getStartInfo()->getDifficulty()))
 			continue;
 
 		PlayerColor player = town->getOwner();
