@@ -1,5 +1,5 @@
 {
-	// maxRoamingHeroes: static number of heroes
+	// maxRoamingHeroes: static number of heroes.
 	// maxRoamingHeroesPerTown: adds over the static number for each owned town
 	// - the formula doesn't go over perPlayerOnMapCap in gameConfig.json. Bump that to 16 or more for higher difficulty
 	// - example: 3 + 2 * towns (owned towns = 3) = 8 (would have been 9, but 8 is the default perPlayerOnMapCap, so 8)
