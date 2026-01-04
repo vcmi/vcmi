@@ -637,7 +637,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="407"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>VCMI Map Editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -943,9 +943,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1312"/>
-        <location filename="../mainwindow.cpp" line="1316"/>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1313"/>
+        <location filename="../mainwindow.cpp" line="1317"/>
+        <location filename="../mainwindow.cpp" line="1375"/>
         <source>Update appearance</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1137,273 +1137,273 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="384"/>
         <source>Confirmation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="384"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="447"/>
         <source>Surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
+        <location filename="../mainwindow.cpp" line="449"/>
         <source>Underground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="450"/>
+        <location filename="../mainwindow.cpp" line="451"/>
         <source>Level - %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="474"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>Mods are required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="482"/>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="483"/>
+        <location filename="../mainwindow.cpp" line="489"/>
         <source>Failed to open map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="514"/>
+        <location filename="../mainwindow.cpp" line="515"/>
         <source>Open map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="516"/>
+        <location filename="../mainwindow.cpp" line="517"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="571"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="624"/>
         <source>Map validation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="626"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="627"/>
+        <location filename="../mainwindow.cpp" line="628"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="654"/>
+        <location filename="../mainwindow.cpp" line="655"/>
         <source>Failed to save map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>Save map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="875"/>
+        <location filename="../mainwindow.cpp" line="876"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="889"/>
         <source>Towns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="890"/>
         <source>Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="890"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Heroes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="892"/>
         <source>Artifacts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="893"/>
         <source>Resources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="893"/>
+        <location filename="../mainwindow.cpp" line="894"/>
         <source>Banks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Dwellings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="895"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Grounds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="897"/>
         <source>Teleports</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Mines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="898"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Triggers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Monsters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="900"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Quests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Wog Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="903"/>
         <source>Obstacles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="903"/>
+        <location filename="../mainwindow.cpp" line="904"/>
         <source>Other</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Mods loading problem</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1046"/>
+        <location filename="../mainwindow.cpp" line="1047"/>
         <source>Undo clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1058"/>
         <source>Redo clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1068"/>
+        <location filename="../mainwindow.cpp" line="1069"/>
         <source>Passability clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1082"/>
         <source>Grid clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1162"/>
+        <location filename="../mainwindow.cpp" line="1163"/>
         <source>Fill clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1313"/>
         <source>No objects selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1316"/>
+        <location filename="../mainwindow.cpp" line="1317"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1375"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1414"/>
+        <location filename="../mainwindow.cpp" line="1415"/>
         <source>Save to image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1434"/>
         <source>Select maps to convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1435"/>
+        <location filename="../mainwindow.cpp" line="1436"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1439"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
         <source>Operation completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1457"/>
+        <location filename="../mainwindow.cpp" line="1458"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1463"/>
+        <location filename="../mainwindow.cpp" line="1464"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1466"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1469"/>
+        <location filename="../mainwindow.cpp" line="1470"/>
         <source>Select destination file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1471"/>
+        <location filename="../mainwindow.cpp" line="1472"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1623,8 +1623,8 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="95"/>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="163"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Action</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1695,29 +1695,36 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="123"/>
-        <location filename="../templateeditor/objectselector.cpp" line="184"/>
-        <location filename="../templateeditor/objectselector.cpp" line="259"/>
+        <location filename="../templateeditor/objectselector.cpp" line="183"/>
+        <location filename="../templateeditor/objectselector.cpp" line="258"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="138"/>
+        <location filename="../templateeditor/objectselector.cpp" line="198"/>
+        <location filename="../templateeditor/objectselector.cpp" line="273"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="163"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Probability</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Max per zone</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4290,6 +4297,11 @@ Guard: %3</source>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="99"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TownSpellsWidget</name>
@@ -4427,6 +4439,11 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="50"/>
         <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/treasureselector.cpp" line="65"/>
+        <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4667,12 +4684,12 @@ Guard: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="200"/>
+        <location filename="../windownewmap.ui" line="215"/>
         <source>Height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="174"/>
+        <location filename="../windownewmap.ui" line="176"/>
         <source>Width</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4682,12 +4699,12 @@ Guard: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="328"/>
+        <location filename="../windownewmap.ui" line="357"/>
         <source>Random map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="340"/>
+        <location filename="../windownewmap.ui" line="369"/>
         <source>Players</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4722,127 +4739,127 @@ Guard: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="286"/>
+        <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="368"/>
-        <location filename="../windownewmap.ui" line="499"/>
-        <location filename="../windownewmap.ui" line="590"/>
-        <location filename="../windownewmap.ui" line="730"/>
+        <location filename="../windownewmap.ui" line="397"/>
+        <location filename="../windownewmap.ui" line="528"/>
+        <location filename="../windownewmap.ui" line="619"/>
+        <location filename="../windownewmap.ui" line="759"/>
         <source>Random</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="460"/>
+        <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="447"/>
+        <location filename="../windownewmap.ui" line="476"/>
         <source>Computer teams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="239"/>
+        <location filename="../windownewmap.ui" line="265"/>
         <source>Standard size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="264"/>
+        <location filename="../windownewmap.ui" line="290"/>
         <source>Custom size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="428"/>
+        <location filename="../windownewmap.ui" line="457"/>
         <source>Humans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="491"/>
+        <location filename="../windownewmap.ui" line="520"/>
         <source>Computers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="557"/>
+        <location filename="../windownewmap.ui" line="586"/>
         <source>Monster strength</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="618"/>
+        <location filename="../windownewmap.ui" line="647"/>
         <source>Weak</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="643"/>
-        <location filename="../windownewmap.ui" line="783"/>
+        <location filename="../windownewmap.ui" line="672"/>
+        <location filename="../windownewmap.ui" line="812"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="668"/>
+        <location filename="../windownewmap.ui" line="697"/>
         <source>Strong</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="697"/>
+        <location filename="../windownewmap.ui" line="726"/>
         <source>Water content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="758"/>
+        <location filename="../windownewmap.ui" line="787"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="808"/>
+        <location filename="../windownewmap.ui" line="837"/>
         <source>Islands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="837"/>
+        <location filename="../windownewmap.ui" line="866"/>
         <source>Roads</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="858"/>
+        <location filename="../windownewmap.ui" line="887"/>
         <source>Dirt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="871"/>
+        <location filename="../windownewmap.ui" line="900"/>
         <source>Gravel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="884"/>
+        <location filename="../windownewmap.ui" line="913"/>
         <source>Cobblestone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="917"/>
-        <location filename="../windownewmap.ui" line="944"/>
+        <location filename="../windownewmap.ui" line="946"/>
+        <location filename="../windownewmap.ui" line="973"/>
         <source>Template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="982"/>
+        <location filename="../windownewmap.ui" line="1011"/>
         <source>Custom seed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1013"/>
+        <location filename="../windownewmap.ui" line="1042"/>
         <source>Generate random map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1041"/>
+        <location filename="../windownewmap.ui" line="1070"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1060"/>
+        <location filename="../windownewmap.ui" line="1089"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>

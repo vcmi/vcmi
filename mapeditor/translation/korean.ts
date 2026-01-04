@@ -749,7 +749,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="407"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI 맵 편집기</translation>
     </message>
@@ -1114,9 +1114,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1312"/>
-        <location filename="../mainwindow.cpp" line="1316"/>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1313"/>
+        <location filename="../mainwindow.cpp" line="1317"/>
+        <location filename="../mainwindow.cpp" line="1375"/>
         <source>Update appearance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">외형 업데이트</translation>
@@ -1346,237 +1346,237 @@
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="384"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">확인</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="384"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">저장되지 않은 변경 사항이 손실됩니다. 계속하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="447"/>
         <source>Surface</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지상</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
+        <location filename="../mainwindow.cpp" line="449"/>
         <source>Underground</source>
         <translation>지하</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="450"/>
+        <location filename="../mainwindow.cpp" line="451"/>
         <source>Level - %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">레벨 - %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="474"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>Mods are required</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">필수 모드가 필요합니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="482"/>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="483"/>
+        <location filename="../mainwindow.cpp" line="489"/>
         <source>Failed to open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">맵 열기에 실패했습니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="514"/>
+        <location filename="../mainwindow.cpp" line="515"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">맵 열기</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="516"/>
+        <location filename="../mainwindow.cpp" line="517"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지원되는 모든 맵 (*.vmap *.h3m);;VCMI 맵(*.vmap);;HoMM3 맵(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="571"/>
         <source>Recently Opened Files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">최근에 연 파일</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="624"/>
         <source>Map validation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">맵 유효성 검사</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="626"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">맵에 치명적인 문제가 있어 플레이할 수 없</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="627"/>
+        <location filename="../mainwindow.cpp" line="628"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도에 오류가 있습니다. 지도 메뉴의 검증기를 열어 발견된 문제를 확인하세요</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="654"/>
+        <location filename="../mainwindow.cpp" line="655"/>
         <source>Failed to save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도를 저장하지 못했습니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>Save map</source>
         <translation>맵 저장</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>VCMI maps (*.vmap)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI 지도 (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="875"/>
+        <location filename="../mainwindow.cpp" line="876"/>
         <source>Type</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">유형</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="889"/>
         <source>Towns</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">타운</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="890"/>
         <source>Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">오브젝트</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="890"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Heroes</source>
         <translation>영웅</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="892"/>
         <source>Artifacts</source>
         <translation>아티팩트</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="893"/>
         <source>Resources</source>
         <translation>자원</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="893"/>
+        <location filename="../mainwindow.cpp" line="894"/>
         <source>Banks</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">은행</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Dwellings</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">주거지</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="895"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Grounds</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지면</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="897"/>
         <source>Teleports</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전송</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Mines</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">광산</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="898"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Triggers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">트리거</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Monsters</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">몬스터</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="900"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Quests</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">퀘스트</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Wog Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Wog 오브젝트</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="903"/>
         <source>Obstacles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">장애물</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="903"/>
+        <location filename="../mainwindow.cpp" line="904"/>
         <source>Other</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기타</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Mods loading problem</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드 로딩 문제</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드를 불러오는 중 치명적인 오류가 발생했습니다. 잘못된 모드를 비활성화하고 다시 시작하세요.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1046"/>
+        <location filename="../mainwindow.cpp" line="1047"/>
         <source>Undo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">되돌리기 클릭</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1058"/>
         <source>Redo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다시 실행 클릭</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1068"/>
+        <location filename="../mainwindow.cpp" line="1069"/>
         <source>Passability clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">통행 가능성 클릭</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1082"/>
         <source>Grid clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">그리드 클릭</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1162"/>
+        <location filename="../mainwindow.cpp" line="1163"/>
         <source>Fill clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">채우기 클릭</translation>
@@ -1587,85 +1587,85 @@
         <translation type="obsolete">지상 보기</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1313"/>
         <source>No objects selected</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">선택된 오브젝트 없음</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1316"/>
+        <location filename="../mainwindow.cpp" line="1317"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1375"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">오류가 발생했습니다. %1개의 오브젝트가 업데이트되지 않았습니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1414"/>
+        <location filename="../mainwindow.cpp" line="1415"/>
         <source>Save to image</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이미지로 저장</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1434"/>
         <source>Select maps to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">변환할 맵 선택</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1435"/>
+        <location filename="../mainwindow.cpp" line="1436"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3 맵(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1439"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Choose directory to save converted maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">변환된 맵을 저장할 디렉토리 선택</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
         <source>Operation completed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">작업 완료</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
         <source>Successfully converted %1 maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1개의 맵이 성공적으로 변환되었습니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1457"/>
+        <location filename="../mainwindow.cpp" line="1458"/>
         <source>Failed to convert the map. Abort operation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">맵 변환 실패. 작업을 중단합니다</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1463"/>
+        <location filename="../mainwindow.cpp" line="1464"/>
         <source>Select campaign to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">변환할 캠페인 선택</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1466"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3 캠페인 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1469"/>
+        <location filename="../mainwindow.cpp" line="1470"/>
         <source>Select destination file</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">대상 파일 선택</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1471"/>
+        <location filename="../mainwindow.cpp" line="1472"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI 캠페인 (*.vcmp)</translation>
@@ -1926,8 +1926,8 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="95"/>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="163"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Action</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">동작</translation>
@@ -2007,32 +2007,39 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="123"/>
-        <location filename="../templateeditor/objectselector.cpp" line="184"/>
-        <location filename="../templateeditor/objectselector.cpp" line="259"/>
+        <location filename="../templateeditor/objectselector.cpp" line="183"/>
+        <location filename="../templateeditor/objectselector.cpp" line="258"/>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">삭제</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="138"/>
+        <location filename="../templateeditor/objectselector.cpp" line="198"/>
+        <location filename="../templateeditor/objectselector.cpp" line="273"/>
+        <source>Add</source>
+        <translation type="unfinished">추가</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="163"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Object</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">오브젝트</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Value</source>
         <translation>값</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Probability</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">확률</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="223"/>
         <source>Max per zone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">존당 최대 수</translation>
@@ -5042,6 +5049,11 @@ Guard: %3</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">삭제</translation>
     </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="99"/>
+        <source>Add</source>
+        <translation type="unfinished">추가</translation>
+    </message>
 </context>
 <context>
     <name>TownSpellsWidget</name>
@@ -5204,6 +5216,11 @@ Guard: %3</source>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">삭제</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/treasureselector.cpp" line="65"/>
+        <source>Add</source>
+        <translation type="unfinished">추가</translation>
     </message>
 </context>
 <context>
@@ -5488,13 +5505,13 @@ Guard: %3</source>
         <translation type="unfinished">맵 크기</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="200"/>
+        <location filename="../windownewmap.ui" line="215"/>
         <source>Height</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">높이</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="174"/>
+        <location filename="../windownewmap.ui" line="176"/>
         <source>Width</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">너비</translation>
@@ -5506,13 +5523,13 @@ Guard: %3</source>
         <translation type="unfinished">XL (144x144)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="328"/>
+        <location filename="../windownewmap.ui" line="357"/>
         <source>Random map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">무작위 맵</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="340"/>
+        <location filename="../windownewmap.ui" line="369"/>
         <source>Players</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">플레이어</translation>
@@ -5554,40 +5571,40 @@ Guard: %3</source>
         <translation type="unfinished">G (252x252)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="286"/>
+        <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">레벨</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="368"/>
-        <location filename="../windownewmap.ui" line="499"/>
-        <location filename="../windownewmap.ui" line="590"/>
-        <location filename="../windownewmap.ui" line="730"/>
+        <location filename="../windownewmap.ui" line="397"/>
+        <location filename="../windownewmap.ui" line="528"/>
+        <location filename="../windownewmap.ui" line="619"/>
+        <location filename="../windownewmap.ui" line="759"/>
         <source>Random</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">무작위</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="460"/>
+        <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">인간 팀</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="447"/>
+        <location filename="../windownewmap.ui" line="476"/>
         <source>Computer teams</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">컴퓨터 팀</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="239"/>
+        <location filename="../windownewmap.ui" line="265"/>
         <source>Standard size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">표준 크기</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="264"/>
+        <location filename="../windownewmap.ui" line="290"/>
         <source>Custom size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">사용자 지정 크기</translation>
@@ -5598,111 +5615,111 @@ Guard: %3</source>
         <translation type="obsolete">지하</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="428"/>
+        <location filename="../windownewmap.ui" line="457"/>
         <source>Humans</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">인간</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="491"/>
+        <location filename="../windownewmap.ui" line="520"/>
         <source>Computers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">컴퓨터</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="557"/>
+        <location filename="../windownewmap.ui" line="586"/>
         <source>Monster strength</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">몬스터 강도</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="618"/>
+        <location filename="../windownewmap.ui" line="647"/>
         <source>Weak</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">약함</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="643"/>
-        <location filename="../windownewmap.ui" line="783"/>
+        <location filename="../windownewmap.ui" line="672"/>
+        <location filename="../windownewmap.ui" line="812"/>
         <source>Normal</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">보통</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="668"/>
+        <location filename="../windownewmap.ui" line="697"/>
         <source>Strong</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">강함</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="697"/>
+        <location filename="../windownewmap.ui" line="726"/>
         <source>Water content</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">수분 함량</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="758"/>
+        <location filename="../windownewmap.ui" line="787"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">없음</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="808"/>
+        <location filename="../windownewmap.ui" line="837"/>
         <source>Islands</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">섬</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="837"/>
+        <location filename="../windownewmap.ui" line="866"/>
         <source>Roads</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">도로</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="858"/>
+        <location filename="../windownewmap.ui" line="887"/>
         <source>Dirt</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">흙</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="871"/>
+        <location filename="../windownewmap.ui" line="900"/>
         <source>Gravel</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자갈</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="884"/>
+        <location filename="../windownewmap.ui" line="913"/>
         <source>Cobblestone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자갈돌</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="917"/>
-        <location filename="../windownewmap.ui" line="944"/>
+        <location filename="../windownewmap.ui" line="946"/>
+        <location filename="../windownewmap.ui" line="973"/>
         <source>Template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">템플릿</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="982"/>
+        <location filename="../windownewmap.ui" line="1011"/>
         <source>Custom seed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">사용자 지정 시드</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1013"/>
+        <location filename="../windownewmap.ui" line="1042"/>
         <source>Generate random map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">무작위 맵 생성</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1041"/>
+        <location filename="../windownewmap.ui" line="1070"/>
         <source>OK</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">확인</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1060"/>
+        <location filename="../windownewmap.ui" line="1089"/>
         <source>Cancel</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">취소</translation>
