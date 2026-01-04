@@ -61,5 +61,4 @@ private:
 
 	void reloadMapRelatedUi();
 	void reloadEnableState();
-	QString getRegionChar(int no);
 };
