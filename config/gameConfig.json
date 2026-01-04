@@ -852,6 +852,12 @@
 		{
 			// Unlock all campaigns
 			"unlockAll" : false
+		},
+
+		"cheats" :
+		{
+			// build town cheat without grail
+			"buildWithoutGrail" : false
 		}
 	}
 }

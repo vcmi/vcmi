@@ -33,6 +33,7 @@
 		"god" :               [                            "vcmigod",         "nwctheone"                                                            ],
 		"giveScrolls" :       [                            "vcmiscrolls"                                                                             ],
 		"skill" :             [                            "vcmiskill"                                                                               ],
-		"teleport" :          [                            "vcmiteleport"                                                                            ]
+		"teleport" :          [                            "vcmiteleport"                                                                            ],
+		"grail" :             [                            "vcmigrail",       "nwcarchitect"                                                         ]
     }
 }
