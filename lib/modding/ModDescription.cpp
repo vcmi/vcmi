@@ -200,6 +200,7 @@ bool ModDescription::affectsGameplay() const
 		"heroes",
 		"objects",
 		"obstacles",
+		"mapLayers",
 		"rivers",
 		"roads",
 		"settings",

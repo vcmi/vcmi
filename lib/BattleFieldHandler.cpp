@@ -42,9 +42,9 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
 	for(int i = 0; i < info->limitToLayers.size(); i++)
 	{
-		LIBRARY->identifiers()->requestIdentifier(json["limitToLayers"].Vector()[i].getModScope(), json["limitToLayers"].Vector()[i], [i, info](int32_t index)
+		LIBRARY->identifiers()->requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
 		{
-			info->limitToLayers.at(i) = MapLayerId(index);
+			info->limitToLayers.at(i) = MapLayerId(idx);
 		});
 	}
 	for(auto node : json["impassableHexes"].Vector())

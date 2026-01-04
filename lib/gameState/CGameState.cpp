@@ -1061,14 +1061,15 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
+	auto currentLayer = map->mapLayers.at(tile.z);
 	std::vector<BattleField> battleFields;
 	for(auto & battleField : t.getTerrain()->battleFields)
-		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, tile.z))
+		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, currentLayer))
 			battleFields.push_back(battleField);
 
 	if (battleFields.empty())
 	{
-		logGlobal->warn("No battlefield for terrain %s at layer %d found, try to fallback", t.getTerrain()->getJsonKey(), tile.z);
+		logGlobal->warn("No battlefield for terrain %s for layer %s found, try to fallback", t.getTerrain()->getJsonKey(), MapLayerId::encode(currentLayer));
 		battleFields = t.getTerrain()->battleFields;
 	}
 
