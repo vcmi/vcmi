@@ -56,36 +56,6 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, const
 		paths.size());
 #endif
 
-	// Validate initial paths
-	// for(const auto & path : paths)
-	// {
-	// 	if(path.nodes.empty())
-	// 	{
-	// 		logAi->warn("ClusterBehavior::decomposeCluster - Empty path found for cluster %s", cluster->blocker->getObjectName());
-	// 		continue;
-	// 	}
-	//
-	// 	// Validate that targetHero exists in the path
-	// 	bool heroFound = false;
-	// 	for(const auto & node : path.nodes)
-	// 	{
-	// 		if(node.targetHero && node.targetHero == path.targetHero)
-	// 		{
-	// 			heroFound = true;
-	// 			break;
-	// 		}
-	// 	}
-	//
-	// 	if(!heroFound)
-	// 	{
-	// 		logAi->warn(
-	// 			"ClusterBehavior::decomposeCluster - Path targetHero %s not found in path nodes for cluster %s",
-	// 			path.targetHero ? path.targetHero->getNameTranslated() : "null",
-	// 			cluster->blocker->getObjectName()
-	// 		);
-	// 	}
-	// }
-
 	for(auto path = paths.begin(); path != paths.end();)
 	{
 #if NK2AI_TRACE_LEVEL >= 2
