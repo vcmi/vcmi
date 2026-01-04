@@ -458,7 +458,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
-	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA || (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && next->canShoot()))
+	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA || (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && battle.battleCanShoot(next)))
 		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
 		BattleAction attack;
@@ -581,7 +581,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(actingStack);
 	const CreatureID stackCreatureId = actingStack->unitType()->getId();
 
-	if (!actingStack->hasBonusOfType(BonusType::CPU_CONTROLLED) || actingStack->isShooter())
+	if (!actingStack->hasBonusOfType(BonusType::CPU_CONTROLLED) || battle.battleCanShoot(actingStack))
 		return false;
 
 	if (curOwner && gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
@@ -609,7 +609,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 			return reachabilityCache.distances[lhs.toInt()] < reachabilityCache.distances[rhs.toInt()];
 		})[0];
 
-		bool isReachable = reachabilityCache.isReachable(closestTargetAdjacentHex);
+		bool isReachable = battle.battleGetAvailableHexes(reachabilityCache, actingStack, true).contains(closestTargetAdjacentHex);
 
 		TargetInfo currentTarget =
 		{

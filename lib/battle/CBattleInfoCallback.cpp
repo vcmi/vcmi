@@ -1365,7 +1365,14 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 
 	BattleHexArray path = getPath(unit.getPosition(), targetHex, &unit).first; //TODO: does not find path through moat
 	if(!path.empty())
-		return path[path.size() - unit.getMovementRange()];
+	{
+		int pathHexIndex = path.size() - unit.getMovementRange();
+		if(pathHexIndex < 0)
+		{
+			return targetHex;
+		}
+		return path[pathHexIndex];
+	}
 
 	// FALLBACK: If path is empty (target blocked by obstacles/units),
 	// find the reachable hex that is geometrically closest to the target.
