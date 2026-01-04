@@ -87,8 +87,11 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 void MapRendererContextState::removeObject(const CGObjectInstance * object)
 {
-	for(int z = 0; z < GAME->interface()->cb->getMapSize().z; z++)
-		for(int x = 0; x < GAME->interface()->cb->getMapSize().x; x++)
-			for(int y = 0; y < GAME->interface()->cb->getMapSize().y; y++)
-				vstd::erase(objects[z][x][y], object->id);
+	for(int fx = 0; fx < object->getWidth(); ++fx)
+		for(int fy = 0; fy < object->getHeight(); ++fy)
+		{
+			int3 currTile(object->anchorPos().x - fx, object->anchorPos().y - fy, object->anchorPos().z);
+			if(GAME->interface()->cb->isInTheMap(currTile))
+				vstd::erase(objects[currTile.z][currTile.x][currTile.y], object->id);
+		}
 }
