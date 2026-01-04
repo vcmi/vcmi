@@ -98,7 +98,7 @@
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
 				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
-				"noSpellHitAndRun" :            { "type" : "boolean" }
+				"noSpellHitAndRunRounds" :      { "type" : "number" }
 			}
 		},
 		"creatures": {

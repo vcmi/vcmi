@@ -311,9 +311,9 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING) && battleHasHero(otherSide(side)))
 		return false;
 
-	//with hit & run disabled - cannot flee after casting spell in 1st turn as attacker
-	if(LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN)
-		&& side == BattleSide::ATTACKER && getBattle()->getRound() == 1 && battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1)
+	//cannot flee after casting spell in X first turns as attacker
+	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
+		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1)
 		return false;
 
 	//we are besieged defender

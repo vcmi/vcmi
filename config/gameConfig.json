@@ -610,8 +610,8 @@
 			"oneHexTriggersObstacles": false,
 			// Allow area shooters with SPELL_LIKE_ATTACK bonus such as liches or magogs to target empty hexes
 			"areaShotCanTargetEmptyHex" : false,
-			// Disallow fleeing/surrendering in first turn as attacker after casting spell - part of established H3 PvP standard rules
-			"noSpellHitAndRun" : false,
+			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
+			"noSpellHitAndRunRounds" : 0,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
