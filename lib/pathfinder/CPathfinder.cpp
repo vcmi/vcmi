@@ -120,7 +120,6 @@ void CPathfinder::calculatePaths()
 
 		source.setNode(gameInfo, initialNode);
 		auto * hlp = config->getOrCreatePathfinderHelper(source, gameInfo);
-
 		if(hlp->isHeroPatrolLocked())
 			continue;
 
@@ -142,7 +141,6 @@ void CPathfinder::calculatePaths()
 		float cost = source.node->getCost();
 
 		auto * hlp = config->getOrCreatePathfinderHelper(source, gameInfo);
-
 		hlp->updateTurnInfo(turn);
 		if(movement == 0)
 		{

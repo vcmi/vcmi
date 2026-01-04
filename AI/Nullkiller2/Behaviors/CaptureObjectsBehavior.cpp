@@ -54,9 +54,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 	bool force)
 {
 	Goals::TGoalVec tasks;
-
 	tasks.reserve(paths.size());
-
 	std::unordered_map<HeroRole, const AIPath *> closestWaysByRole;
 	std::vector<ExecuteHeroChain *> waysToVisitObj;
 

@@ -185,9 +185,9 @@ namespace AIPathfinding
 					destinationNode->actor->resourceActor);
 				if (!questNode)
 				{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
-					logAi->trace(
-						"AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+					logAi->warn(
+						"P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
 						destination.coord.toString(),
 						static_cast<int32_t>(destination.node->layer)
 					);
@@ -298,9 +298,9 @@ namespace AIPathfinding
 
 		if(!battleNodeOptional)
 		{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
-			logAi->trace(
-				"AIMovementAfterDestinationRule::bypassBattle Failed to allocate node at %s[%d]. "
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+			logAi->warn(
+				"P:Step2C AIMovementAfterDestinationRule::bypassBattle Failed to allocate node at %s[%d]. "
 				"Can not allocate battle node while moving %s -> %s",
 				destination.coord.toString(),
 				static_cast<int32_t>(destination.node->layer),

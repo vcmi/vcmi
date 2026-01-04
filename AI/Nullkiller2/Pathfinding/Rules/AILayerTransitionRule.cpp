@@ -223,9 +223,9 @@ namespace AIPathfinding
 				const auto castNodeOptional = nodeStorage->getOrCreateNode(node->coord, node->layer, specialAction->getActor(node->actor));
 				if(!castNodeOptional)
 				{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
-					logAi->trace(
-						"AILayerTransitionRule::tryUseSpecialAction Failed to allocate node at %s[%d]. "
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+					logAi->warn(
+						"P:Step2A AILayerTransitionRule::tryUseSpecialAction Failed to allocate node at %s[%d]. "
 						"Can not allocate special transition node while moving %s -> %s",
 						node->coord.toString(),
 						static_cast<int32_t>(node->layer),

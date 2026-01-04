@@ -76,7 +76,6 @@ bool ExplorationHelper::scanMap()
 			if(ts->fogOfWarMap[pos])
 			{
 				bool hasInvisibleNeighbor = false;
-
 				foreach_neighbour(cc, pos, [&](CCallback * cbp, int3 neighbour)
 					{
 						if(!ts->fogOfWarMap[neighbour])

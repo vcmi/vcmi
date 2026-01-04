@@ -68,19 +68,17 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 		}
 	}
 
-	auto heroes = aiNk->cc->getHeroesInfo();
-
+	const auto heroes = aiNk->cc->getHeroesInfo();
 	for(const CGHeroInstance * hero : heroes)
 	{
 		ExplorationHelper scanResult(hero, aiNk);
-
 		if(scanResult.scanSector(1))
 		{
 			tasks.push_back(scanResult.makeComposition());
 			continue;
 		}
 
-		if(scanResult.scanSector(15))
+		if(scanResult.scanSector(30))
 		{
 			tasks.push_back(scanResult.makeComposition());
 			continue;
