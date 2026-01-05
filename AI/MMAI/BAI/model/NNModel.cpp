@@ -412,9 +412,22 @@ NNModel::NNModel(const std::string & path, float _temperature, uint64_t seed)
 
 	rng = std::mt19937(seed);
 
+	/*
+	 * IMPORTANT:
+	 * There seems to be an UB in the model unless either (or both):
+	 *  a) DisableMemPattern
+	 *  b) GraphOptimizationLevel::ORT_DISABLE_ALL
+	 *
+	 * Mem pattern does not impact performance => disable.
+	 * Graph optimization causes < 30% speedup => not worth the risk, disable.
+	 *
+	 */
 	auto opts = Ort::SessionOptions();
-	opts.SetIntraOpNumThreads(4);
-	opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
+	opts.DisableMemPattern();
+	opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
+	opts.SetExecutionMode(ORT_SEQUENTIAL); // ORT_SEQUENTIAL = no inter-op parallelism
+	opts.SetIntraOpNumThreads(1); // Inter-op threads matter in ORT_PARALLEL
+	opts.SetIntraOpNumThreads(4); // Parallelism inside kernels/operators
 
 	model = loadModel(path, opts);
 
