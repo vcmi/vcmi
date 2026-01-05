@@ -22,8 +22,6 @@
 #include "BAI/v13/render.h"
 #include "common.h"
 
-#include <algorithm>
-
 #include "schema/v13/constants.h"
 #include "schema/v13/types.h"
 

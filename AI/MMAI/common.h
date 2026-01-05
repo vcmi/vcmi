@@ -11,6 +11,7 @@
 #pragma once
 
 #include "StdInc.h"
+#include "CThreadHelper.h"
 
 namespace MMAI
 {
@@ -29,5 +30,47 @@ static const bool MMAI_VERBOSE = []()
 	const char * envvar = std::getenv("MMAI_VERBOSE");
 	return envvar != nullptr && std::strcmp(envvar, "1") == 0;
 }();
+
+/*
+ * RAII for temporarily setting a new name for the current thread.
+ * The thread name appears in messages logged through VCMI's logger.
+ *
+ * Example:
+ *     {                     // (before) Thread name: "foo"
+ *       LogTag _("bar")     // (RAII)   Thread name: "bar"
+ *     }                     // (after)  Thread name: "foo"
+ */
+struct LogTag
+{
+	const std::string oldname;
+
+	explicit LogTag(const std::string & n) : oldname(getThreadName())
+	{
+		setThreadName(n);
+	};
+
+	~LogTag()
+	{
+		setThreadName(oldname);
+	}
+
+	LogTag(const LogTag &) = delete;
+	LogTag & operator=(const LogTag &) = delete;
+	LogTag(LogTag &&) = delete;
+	LogTag & operator=(LogTag &&) = delete;
+};
+
+/*
+ * Similar to LogTag, but *appends* the given string instead.
+ * Example:
+ *     {                           // (before) Thread name: "foo"
+ *       NestedLogTag _("bar")     // (RAII)   Thread name: "foo.bar"
+ *     }                           // (after)  Thread name: "foo"
+ */
+struct NestedLogTag
+{
+	const LogTag logtag;
+	explicit NestedLogTag(const std::string & n) : logtag(getThreadName() + "." + n) {};
+};
 
 }

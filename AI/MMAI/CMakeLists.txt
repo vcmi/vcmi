@@ -1,22 +1,18 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(MMAI_FILES
-  BAI/base.cpp
-  BAI/base.h
+  BAI/logger.h
+  BAI/factory.h
+  BAI/factory.cpp
   BAI/router.cpp
   BAI/router.h
-  BAI/model/ScriptedModel.h
-  BAI/model/ScriptedModel.cpp
-  BAI/model/NNModel.h
-  BAI/model/NNModel.cpp
-  BAI/model/util/bucketing.cpp
-  BAI/model/util/bucketing.h
-  BAI/model/util/common.h
-  BAI/model/util/sampling.cpp
-  BAI/model/util/sampling.h
+  BAI/fallback/scripted_model.h
+  BAI/fallback/scripted_model.cpp
 
   BAI/v13/BAI.cpp
   BAI/v13/BAI.h
+  BAI/v13/nn_model.h
+  BAI/v13/nn_model.cpp
   BAI/v13/action.cpp
   BAI/v13/action.h
   BAI/v13/attack_log.h
@@ -70,45 +66,37 @@ else()
   if(APPLE)
     set_target_properties(MMAI PROPERTIES INSTALL_RPATH "@loader_path")
   elseif(UNIX)
-    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${CMAKE_INSTALL_RPATH}/AI")
+    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "$ORIGIN")
   endif()
 endif()
 
 target_link_libraries(MMAI PRIVATE vcmi)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  # First try CMake config (works on Fedora, Debian, Ubuntu, Arch)
-  find_package(onnxruntime CONFIG QUIET)
-  if(onnxruntime_FOUND)
-    message(STATUS "Found onnxruntime via CMake config")
-    target_link_libraries(MMAI PRIVATE onnxruntime::onnxruntime)
+  set(ONNXRUNTIME_ROOT "/opt/onnxruntime" CACHE PATH "Path to onnxruntime containing lib/onnxruntime.so and include/onnxruntime_cxx_api.h")
+
+  message(STATUS "Looking for a system onnxruntime")
+  find_path(ONNXRUNTIME_INCLUDE_DIR
+    NAMES onnxruntime_cxx_api.h
+    PATH_SUFFIXES
+        onnxruntime
+        include
+        include/onnxruntime
+)
+
+  find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime libonnxruntime)
+
+  if(ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
+    message(STATUS "Using system onnxruntime:")
+    message(STATUS "  include: ${ONNXRUNTIME_INCLUDE_DIR}")
+    message(STATUS "  library: ${ONNXRUNTIME_LIBRARY}")
+
+    target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_INCLUDE_DIR}")
+    target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_LIBRARY}")
   else()
-    # Fallback to manual search for custom installs
-    message(STATUS "onnxruntime CMake config not found, trying system installation")
-    set(ONNXRUNTIME_ROOT "/opt/onnxruntime" CACHE PATH "Path to onnxruntime containing lib/onnxruntime.so and include/onnxruntime_cxx_api.h")
-    message(STATUS "Looking for onnxruntime via find_path/find_library (hint: ${ONNXRUNTIME_ROOT})")
-    find_path(ONNXRUNTIME_INCLUDE_DIR
-      NAMES onnxruntime_cxx_api.h
-      HINTS "${ONNXRUNTIME_ROOT}/include"
-      PATH_SUFFIXES
-          onnxruntime
-          include
-          include/onnxruntime
-    )
-
-    find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime libonnxruntime
-      HINTS "${ONNXRUNTIME_ROOT}/lib"
-    )
-
-    if(ONNXRUNTIME_INCLUDE_DIR AND ONNXRUNTIME_LIBRARY)
-      message(STATUS "Using onnxruntime:")
-      message(STATUS "  include: ${ONNXRUNTIME_INCLUDE_DIR}")
-      message(STATUS "  library: ${ONNXRUNTIME_LIBRARY}")
-      target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_INCLUDE_DIR}")
-      target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_LIBRARY}")
-    else()
-      message(FATAL_ERROR "onnxruntime not found. Install onnxruntime-devel or set ONNXRUNTIME_ROOT to a custom installation path, or disable MMAI with -DENABLE_MMAI=OFF")
-    endif()
+    message(STATUS "System onnxruntime not found, falling back to ${ONNXRUNTIME_ROOT}")
+    target_include_directories(MMAI PRIVATE "${ONNXRUNTIME_ROOT}/include")
+    target_link_libraries(MMAI PRIVATE "${ONNXRUNTIME_ROOT}/lib/libonnxruntime.so")
   endif()
 else()
   find_package(onnxruntime CONFIG REQUIRED)

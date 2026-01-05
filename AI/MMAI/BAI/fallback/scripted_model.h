@@ -1,5 +1,5 @@
 /*
- * ScriptedModel.h, part of VCMI engine
+ * scripted_model.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

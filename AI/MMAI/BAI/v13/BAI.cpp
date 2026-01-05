@@ -9,11 +9,13 @@
  */
 
 #include "StdInc.h"
+#include "AI/BattleAI/BattleEvaluator.h"
 #include "battle/BattleAction.h"
 #include "battle/BattleStateInfoForRetreat.h"
 #include "battle/CBattleInfoEssentials.h"
+#include "callback/CBattleCallback.h"
+#include "spells/CSpellHandler.h"
 
-#include "BAI/base.h"
 #include "BAI/v13/BAI.h"
 #include "BAI/v13/action.h"
 #include "BAI/v13/hexaction.h"
@@ -23,31 +25,36 @@
 #include "common.h"
 #include "schema/v13/types.h"
 
-#include "AI/BattleAI/BattleEvaluator.h"
-#include <algorithm>
-#include <optional>
-
 namespace MMAI::BAI::V13
 {
 
 using ErrorCode = Schema::V13::ErrorCode;
 using PA = Schema::V13::PlayerAttribute;
 
+BAI::BAI(Schema::IModel * model, int version, const std::shared_ptr<Environment> & env, const std::shared_ptr<CBattleCallback> & cb, bool enableSpellsUsage)
+	: model(model), version(version), logger(cb->getPlayerID()->toString()), env(env), cb(cb), enableSpellsUsage(enableSpellsUsage)
+{
+	const char * envvar = std::getenv("MMAI_VERBOSE");
+	verbose = envvar != nullptr && strcmp(envvar, "1") == 0;
+}
+
 Schema::Action BAI::getNonRenderAction()
 {
-	// info("getNonRenderAciton called with result type: " + std::to_string(result->type));
+	NestedLogTag _("NN");
+
+	// logger.info("getNonRenderAciton called with result type: " + std::to_string(result->type));
 	const auto * s = state.get();
 	auto action = model->getAction(s);
-	debug("Got action: " + std::to_string(action));
 	while(action == Schema::ACTION_RENDER_ANSI)
 	{
+		logger.debug("Got a RENDER action");
 		if(state->supdata->ansiRender.empty())
 		{
 			state->supdata->ansiRender = renderANSI();
 			state->supdata->type = Schema::V13::ISupplementaryData::Type::ANSI_RENDER;
 		}
 
-		// info("getNonRenderAciton (loop) called with result type: " + std::to_string(res.type));
+		// logger.info("getNonRenderAciton (loop) called with result type: " + std::to_string(res.type));
 		action = model->getAction(state.get());
 	}
 	state->supdata->ansiRender.clear();
@@ -57,7 +64,7 @@ Schema::Action BAI::getNonRenderAction()
 
 std::unique_ptr<State> BAI::initState(const CPlayerBattleCallback * b)
 {
-	return std::make_unique<State>(version, colorname, b);
+	return std::make_unique<State>(version, cb->getPlayerID()->toString(), b);
 }
 
 void BAI::battleStart(
@@ -71,7 +78,6 @@ void BAI::battleStart(
 	bool replayAllowed
 )
 {
-	Base::battleStart(bid, army1, army2, tile, hero1, hero2, side, replayAllowed);
 	battle = cb->getBattle(bid);
 	state = initState(battle.get());
 	getActionTotalMs = 0;
@@ -83,10 +89,9 @@ void BAI::battleStart(
 //      since the terminal result is needed only during training.
 void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
 {
-	Base::battleEnd(bid, br, queryID);
 	state->onBattleEnd(br);
 
-	debug("MMAI %s this battle.", (br->winner == battle->battleGetMySide() ? "won" : "lost"));
+	logger.debug("MMAI %s this battle.", (br->winner == battle->battleGetMySide() ? "won" : "lost"));
 
 	// Check if battle ended normally or was forced via a RETREAT action
 	if(state->action == nullptr)
@@ -94,54 +99,51 @@ void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QueryID query
 		// no previous action means battle ended without giving us a turn (OK)
 		// Happens if the enemy immediately retreats (we won)
 		// or if the enemy one-shots us (we lost)
-		info("Battle ended without giving us a turn: nothing to do");
+		logger.info("Battle ended without giving us a turn: nothing to do");
 	}
 	else if(state->action->action == Schema::ACTION_RETREAT)
 	{
 		if(resetting)
 		{
 			// this is an intended restart (i.e. converted ACTION_RESTART)
-			info("Battle ended due to ACTION_RESET: nothing to do");
+			logger.info("Battle ended due to ACTION_RESET: nothing to do");
 		}
 		else
 		{
 			// this is real retreat
-			info("Battle ended due to ACTION_RETREAT: reporting terminal state, expecting ACTION_RESET");
+			logger.info("Battle ended due to ACTION_RETREAT: reporting terminal state, expecting ACTION_RESET");
 			auto a = getNonRenderAction();
 			ASSERT(a == Schema::ACTION_RESET, "expected ACTION_RESET, got: " + std::to_string(EI(a)));
 		}
 	}
 	else
 	{
-		debug("Battle ended normally: reporting terminal state, expecting ACTION_RESET");
+		logger.debug("Battle ended normally: reporting terminal state, expecting ACTION_RESET");
 		auto a = getNonRenderAction();
 		ASSERT(a == Schema::ACTION_RESET, "expected ACTION_RESET, got: " + std::to_string(EI(a)));
 	}
 
 	if(getActionTotalCalls > 0)
-		info("MMAI stats after battle end: %d predictions, %d ms per prediction", getActionTotalCalls, getActionTotalMs / getActionTotalCalls);
+		logger.info("MMAI stats after battle end: %d predictions, %d ms per prediction", getActionTotalCalls, getActionTotalMs / getActionTotalCalls);
 	else
-		info("MMAI stats after battle end: 0 predictions");
+		logger.info("MMAI stats after battle end: 0 predictions");
 
 	// BAI is destroyed after this call
-	debug("Leaving battleEnd, embracing death");
+	logger.debug("Leaving battleEnd, embracing death");
 }
 
 void BAI::battleStacksAttacked(const BattleID & bid, const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
-	Base::battleStacksAttacked(bid, bsa, ranged);
 	state->onBattleStacksAttacked(bsa);
 }
 
 void BAI::battleTriggerEffect(const BattleID & bid, const BattleTriggerEffect & bte)
 {
-	Base::battleTriggerEffect(bid, bte);
 	state->onBattleTriggerEffect(bte);
 }
 
 void BAI::yourTacticPhase(const BattleID & bid, int distance)
 {
-	Base::yourTacticPhase(bid, distance);
 	cb->battleMakeTacticAction(bid, BattleAction::makeEndOFTacticPhase(battle->battleGetTacticsSide()));
 }
 
@@ -164,7 +166,7 @@ bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 	if(battle->battleGetMySide() == BattleSide::RIGHT_SIDE)
 		vratio = 1 / vratio;
 
-	logAi->debug("Attempting a BattleAI spellcast");
+	logger.debug("Attempting a BattleAI spellcast");
 	auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), vratio, 2);
 	return evaluator.attemptCastingSpell(astack);
 }
@@ -253,7 +255,7 @@ std::optional<BattleAction> BAI::maybeFleeOrSurrender(const BattleID & bid)
 	bs.canSurrender = battle->battleCanSurrender(*cb->getPlayerID());
 	if(!bs.canFlee && !bs.canSurrender)
 	{
-		logAi->debug("Can't flee or surrender.");
+		logger.debug("Can't flee or surrender.");
 		return std::nullopt;
 	}
 
@@ -277,21 +279,19 @@ std::optional<BattleAction> BAI::maybeFleeOrSurrender(const BattleID & bid)
 		}
 	}
 
-	logAi->info("Making surrender/retreat decision...");
+	logger.info("Will ask for surrender/retreat decision...");
 	return cb->makeSurrenderRetreatDecision(bid, bs);
 }
 
 void BAI::activeStack(const BattleID & bid, const CStack * astack)
 {
-	Base::activeStack(bid, astack);
-
 	try
 	{
 		_activeStack(bid, astack);
 	}
 	catch(const std::exception & e)
 	{
-		error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
+		logger.error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
 		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
 		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 		return;
@@ -304,7 +304,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 	if(ba)
 	{
-		info("Making automatic action with %s", astack->getDescription());
+		logger.info("Making automatic action with %s", astack->getDescription());
 		cb->battleMakeUnitAction(bid, *ba);
 		return;
 	}
@@ -313,7 +313,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	// (print warning once, make only fallback actions from there on)
 	if(!inFallback && getActionTotalCalls >= 100)
 	{
-		warn("Reached 100 predictions, will fall back to BattleAI until this combat ends");
+		logger.warn("Reached 100 predictions, will fall back to BattleAI until this combat ends");
 		inFallback = true;
 	}
 
@@ -331,7 +331,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 	if(state->battlefield->astack == nullptr)
 	{
-		error(
+		logger.error(
 			"The current stack is not part of the state. "
 			"This should NOT happen. "
 			"Falling back to a wait/defend action."
@@ -344,12 +344,12 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	auto concede = maybeFleeOrSurrender(bid);
 	if(concede)
 	{
-		info("Making retreat/surrender action.");
+		logger.info("Making retreat/surrender action.");
 		cb->battleMakeUnitAction(bid, *concede);
 		return;
 	}
 
-	logAi->debug("Not conceding.");
+	logger.debug("Not conceding.");
 
 	while(true)
 	{
@@ -364,19 +364,18 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 		if(a == Schema::ACTION_RESET)
 		{
 			// XXX: retreat is always allowed for ML, limited by action mask only
-			debug("Received ACTION_RESET, converting to ACTION_RETREAT in order to reset battle");
+			logger.debug("Received ACTION_RESET, converting to ACTION_RETREAT in order to reset battle");
 			a = Schema::ACTION_RETREAT;
 			resetting = true;
 		}
 
-		state->action = std::make_unique<Action>(a, state->battlefield.get(), colorname);
-		debug("(%lld ms) Got action: %d: %s ", dt, a, state->action->name());
+		state->action = std::make_unique<Action>(a, state->battlefield.get(), cb->getPlayerID()->toString());
 
 		ba = buildBattleAction();
 
 		if(ba)
 		{
-			debug("Action is VALID: " + state->action->name());
+			logger.debug("Action is VALID: %d: %s ", a, state->action->name());
 			errcounter = 0;
 			cb->battleMakeUnitAction(bid, *ba);
 			break;
@@ -384,10 +383,11 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 		else
 		{
 			++errcounter;
-			error("Action is INVALID: " + state->action->name());
+			logger.error("Action is INVALID: %d: %s ", a, state->action->name());
+
 			if(errcounter > 10)
 			{
-				warn("Got 10 consecutive errors, will fall back to BattleAI until this combat ends");
+				logger.warn("Got 10 consecutive errors, will fall back to BattleAI until this combat ends");
 				auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
 				cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 				inFallback = true;
@@ -420,8 +420,8 @@ std::shared_ptr<BattleAction> BAI::buildBattleAction()
 				{
 					ASSERT(!state->actmask.at(EI(GlobalAction::WAIT)), "mask allowed wait when stack has already waited");
 					state->supdata->errcode = ErrorCode::ALREADY_WAITED;
-					error("Action error: %s (%d): ALREADY_WAITED", action->name(), EI(action->action));
-					return res;
+					logger.error("Action error: %s (%d): ALREADY_WAITED", action->name(), EI(action->action));
+					return nullptr;
 				}
 				res = std::make_shared<BattleAction>(BattleAction::makeWait(acstack));
 				break;
@@ -542,7 +542,7 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 					"accessibility is OBSTACLE, but hex state mask has PASSABLE set: " + statemask.to_string() + debugInfo(action, acstack, nullptr)
 				);
 				state->supdata->errcode = ErrorCode::HEX_BLOCKED;
-				error("Action error: %s (%d): HEX_BLOCKED", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): HEX_BLOCKED", action->name(), EI(action->action));
 				break;
 			}
 			else if(a == EAccessibility::ALIVE_STACK)
@@ -566,7 +566,14 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 
 				// means we try to move onto another stack
 				state->supdata->errcode = ErrorCode::HEX_BLOCKED;
-				error("Action error: %s (%d): HEX_BLOCKED", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): HEX_BLOCKED", action->name(), EI(action->action));
+				break;
+			}
+			else if(rinfo.distances[action->hex->bhex.toInt()] <= acstack->getMovementRange())
+			{
+				// means we try to move onto another stack
+				state->supdata->errcode = ErrorCode::HEX_UNREACHABLE;
+				logger.error("Action error: %s (%d): HEX_UNREACHABLE", action->name(), EI(action->action));
 				break;
 			}
 
@@ -585,7 +592,7 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 				if(!acstack->doubleWide())
 				{
 					state->supdata->errcode = ErrorCode::INVALID_DIR;
-					error("Action error: %s (%d): INVALID_DIR", action->name(), EI(action->action));
+					logger.error("Action error: %s (%d): INVALID_DIR", action->name(), EI(action->action));
 					break;
 				}
 
@@ -596,7 +603,7 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 			if(!nbh.isAvailable())
 			{
 				state->supdata->errcode = ErrorCode::HEX_MELEE_NA;
-				error("Action error: %s (%d): HEX_MELEE_NA", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): HEX_MELEE_NA", action->name(), EI(action->action));
 				break;
 			}
 
@@ -605,14 +612,14 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 			if(!estack)
 			{
 				state->supdata->errcode = ErrorCode::STACK_NA;
-				error("Action error: %s (%d): STACK_NA", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): STACK_NA", action->name(), EI(action->action));
 				break;
 			}
 
 			if(estack->unitSide() == acstack->unitSide())
 			{
 				state->supdata->errcode = ErrorCode::FRIENDLY_FIRE;
-				error("Action error: %s (%d): FRIENDLY_FIRE", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): FRIENDLY_FIRE", action->name(), EI(action->action));
 				break;
 			}
 		}
@@ -621,20 +628,20 @@ void BAI::handleUnexpectedAction(const CStack * acstack, std::unique_ptr<Hex> & 
 			if(!stack)
 			{
 				state->supdata->errcode = ErrorCode::STACK_NA;
-				error("Action error: %s (%d): STACK_NA", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): STACK_NA", action->name(), EI(action->action));
 				break;
 			}
 			else if(stack->cstack->unitSide() == acstack->unitSide())
 			{
 				state->supdata->errcode = ErrorCode::FRIENDLY_FIRE;
-				error("Action error: %s (%d): FRIENDLY_FIRE", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): FRIENDLY_FIRE", action->name(), EI(action->action));
 				break;
 			}
 			else
 			{
 				ASSERT(!battle->battleCanShoot(acstack, bhex), "mask prevented SHOOT at a shootable bhex " + action->hex->name());
 				state->supdata->errcode = ErrorCode::CANNOT_SHOOT;
-				error("Action error: %s (%d): CANNOT_SHOOT", action->name(), EI(action->action));
+				logger.error("Action error: %s (%d): CANNOT_SHOOT", action->name(), EI(action->action));
 				break;
 			}
 			break;
@@ -729,13 +736,12 @@ std::string BAI::renderANSI() const
 
 void BAI::actionStarted(const BattleID & bid, const BattleAction & action)
 {
-	Base::actionStarted(bid, action);
 	state->onActionStarted(action);
 };
 
 void BAI::actionFinished(const BattleID & bid, const BattleAction & action)
 {
-	Base::actionFinished(bid, action);
 	state->onActionFinished(action);
 };
+
 }

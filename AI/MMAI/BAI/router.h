@@ -12,8 +12,7 @@
 
 #include "battle/AutocombatPreferences.h"
 #include "battle/CPlayerBattleCallback.h"
-
-#include "BAI/base.h"
+#include "callback/CBattleGameInterface.h"
 
 namespace MMAI::BAI
 {
@@ -72,12 +71,6 @@ private:
 	AutocombatPreferences autocombatPreferences;
 	std::string addrstr = "?";
 	std::string colorname = "?";
-
-	void error(const std::string & text) const;
-	void warn(const std::string & text) const;
-	void info(const std::string & text) const;
-	void debug(const std::string & text) const;
-	void trace(const std::string & text) const;
-	void log(ELogLevel::ELogLevel level, const std::string & text) const;
+	std::string logtag = "?";
 };
 }
