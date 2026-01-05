@@ -83,7 +83,7 @@ struct DLL_EXPORT EvaluationContext
 	bool isArmyUpgrade;
 	bool isHero;
 	bool isEnemy;
-	int explorePriority;
+	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // powerRatio = heroPower / totalPower. The ratio of a hero's army strength to the total power of all creatures available to the AI
 
 	EvaluationContext(const Nullkiller * aiNk);
