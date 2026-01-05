@@ -71,8 +71,15 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 		const auto & s = node.String();
 		if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
 		if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
-		if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
-		if (s == "SUB") info->passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
+		if (s == "SURFACE") info->allowedLayers.push_back(MapLayerId::SURFACE);
+		if (s == "SUB") info->allowedLayers.push_back(MapLayerId::UNDERGROUND);
+	}
+	for(const auto& node : json["allowedLayers"].Vector())
+	{
+		LIBRARY->identifiers()->requestIdentifier("mapLayer", node, [info](int32_t identifier)
+		{
+			info->allowedLayers.push_back(MapLayerId(identifier));
+		});
 	}
 
 	info->river = River::NO_RIVER;

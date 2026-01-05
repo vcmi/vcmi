@@ -26,6 +26,15 @@
 				"type" : "string"
 			}
 		},
+		"allowedLayers" :
+		{
+			"type" : "array",
+			"description" : "Allowed layers of this terrain",
+			"items" :
+			{
+				"type" : "string"
+			}
+		},
 		"moveCost" :
 		{
 			"type" : "number",
