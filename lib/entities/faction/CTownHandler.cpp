@@ -513,7 +513,24 @@ Point JsonToPoint(const JsonNode & node)
 
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 {
-	town.clientInfo.siegePrefix = source["imagePrefix"].String();
+	if(source["imagePrefix"].isString())
+		town.clientInfo.siegePrefix = {
+			{ MapLayerId::SURFACE, source["imagePrefix"].String() },
+			{ MapLayerId::UNDERGROUND, source["imagePrefix"].String() },
+			{ MapLayerId::UNKNOWN, source["imagePrefix"].String() }
+		};
+	else
+	{
+		auto layers = source["imagePrefix"].Struct();
+		for(auto & layer : layers)
+		{
+			auto text = layer.second.String();
+			LIBRARY->identifiers()->requestIdentifier(layer.second.getModScope(), "mapLayer", layer.first, [&town, text](int32_t idx)
+			{
+				town.clientInfo.siegePrefix[MapLayerId(idx)] = text;
+			});
+		}
+	}
 	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
 	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
 
