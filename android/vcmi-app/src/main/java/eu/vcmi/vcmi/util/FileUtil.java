@@ -9,6 +9,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.DocumentsContract;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
