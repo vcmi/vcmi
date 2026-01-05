@@ -447,6 +447,8 @@ void MainWindow::initializeMap(bool isNew)
 			box->addItems({ tr("Level %1: %2").arg(i + 1).arg(QString::fromStdString(controller.map()->mapLayers.at(i).toEntity(LIBRARY)->getNameTranslated())) });
 		}
 	}
+	ui->actionLevel->setEnabled(true);
+	ui->actionMapLayer->setEnabled(true);
 	
 	//set minimal players count
 	if(isNew)

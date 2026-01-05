@@ -1090,6 +1090,9 @@
    </property>
   </action>
   <action name="actionLevel">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>View underground</string>
    </property>
@@ -1244,6 +1247,9 @@
    </property>
   </action>
   <action name="actionMapLayer">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Select map layer type</string>
    </property>
