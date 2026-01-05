@@ -796,7 +796,7 @@ public:
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
 		const float additionalArmyRatio = 2.0f * additionalArmyStrength / heroExchange.hero->getArmyStrength();
 		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
-		// evaluationContext.armyGrowth = additionalArmyStrength;
+		// evaluationContext.armyGrowth = additionalArmyStrength; // bring back and remove 2 from above
 		evaluationContext.movementCost = heroExchange.exchangePath.movementCost();
 		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
 		evaluationContext.heroRole = giverHeroRole;
@@ -1334,6 +1334,46 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(const Goals::TSubgoa
 	return context;
 }
 
+float PriorityEvaluator::evaluateMovement(float score, const float movementCost)
+{
+	if(movementCost > 0)
+	{
+		if(movementCost < 1)
+			// Reduce bonus if it's too close, otherwise the score is amplified too much
+			score += sqrt(score / movementCost);
+		else
+			// Penalize distance
+			score /= movementCost;
+	}
+	return score;
+}
+
+float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLossRatio, const HeroRole heroRole)
+{
+	if(armyLossRatio > 0)
+	{
+		score -= score * armyLossRatio;
+
+		// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
+		if(heroRole != MAIN)
+			score /= 5;
+	}
+	return score;
+}
+
+float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyInvolvement, const float armyLossRatio)
+{
+	// Encourage stronger heroes
+	return score + skillReward * armyInvolvement * (1 - armyLossRatio) * 0.05;
+}
+
+float PriorityEvaluator::evaluateConquestValue(float score, const float conquestValue, const float armyInvolvement)
+{
+	if(conquestValue > 0)
+		score = armyInvolvement * conquestValue;
+	return score;
+}
+
 float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 {
 	auto evaluationContext = buildEvaluationContext(task);
@@ -1397,10 +1437,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			return 0;
 		}
 
-		const float penaltyScoutBattles = 5;
-		const float penaltyMainResources = 1000;
-		const float penaltyScoutArmyReward = 10;
-
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
 		const float maxWillingToLose = amIWithoutCastle ? 1
 									 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0
@@ -1457,22 +1493,13 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 
-				if(evaluationContext.conquestValue > 0)
-					score = evaluationContext.armyInvolvement * evaluationContext.conquestValue; // conquestValue is the most important factor for INSTAKILL
-				if(evaluationContext.armyLossRatio > 0)
-				{
-					score -= score * evaluationContext.armyLossRatio;
-
-					// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
-					if(evaluationContext.heroRole != MAIN)
-						score /= penaltyScoutBattles;
-				}
-
+				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
 				if(vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio && !amIWithoutCastle))
 					return 0;
 
-				if(evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
 			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
@@ -1496,8 +1523,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score = 1.0f / (1.0f + deviationPercentage);
 
 					score *= evaluationContext.closestWayRatio;
-					if(evaluationContext.movementCost > 0)
-						score /= evaluationContext.movementCost;
+					score = evaluateMovement(score, evaluationContext.movementCost);
 				}
 				break;
 			}
@@ -1514,26 +1540,17 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
-				if (evaluationContext.conquestValue > 0)
-					score = evaluationContext.armyInvolvement * evaluationContext.conquestValue; // conquestValue is determining the priority
+				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
 				// TODO: Mircea: Looks strange, revisit
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !amIWithoutCastle))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 
-				if(evaluationContext.armyLossRatio > 0)
-				{
-					score -= score * evaluationContext.armyLossRatio;
-
-					// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
-					if(evaluationContext.heroRole != MAIN)
-						score /= penaltyScoutBattles;
-				}
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
 
 				score *= evaluationContext.closestWayRatio;
-				if(evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
 			case PriorityTier::HIGH_PRIO_EXPLORE:
@@ -1546,21 +1563,12 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 
-				score = 1000; // TODO: Mircea: Move to constant
-				score += evaluationContext.strategicalValue * 1000;
-
-				if(evaluationContext.armyLossRatio > 0)
-				{
-					score -= score * evaluationContext.armyLossRatio;
-
-					// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
-					if(evaluationContext.heroRole != MAIN)
-						score /= penaltyScoutBattles;
-				}
+				score = 1000;
+				score += evaluationContext.strategicalValue * 1000; // TODO: Mircea: Move to constant
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
 
 				score *= evaluationContext.closestWayRatio;
-				if(evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 
 #if NK2AI_TRACE_LEVEL >= 2
 				logAi->trace(
@@ -1602,48 +1610,33 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score += 100; // Default value for regular exploration when no specific priorities apply
 
 				score += evaluationContext.strategicalValue * 1000;
+				if(evaluationContext.conquestValue > 0)
+					// Will be outside the if, just temporary for debugging
+					score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
 
 				// Discourage MAIN to waste time picking resources
-				score += evaluationContext.heroRole == MAIN ? evaluationContext.goldReward / penaltyMainResources : evaluationContext.goldReward;
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.goldReward / 1000 : evaluationContext.goldReward;
 
-				// Discourage SCOUT to pick-up skills/artifacts
-				const auto skillRewardMultiplied = evaluationContext.skillReward * 2000;
-				// TODO: Mircea: Don't limit for repeatable locations that give skills to any visitor, only for one timers like a scholar
-				score += evaluationContext.heroRole == MAIN ? skillRewardMultiplied : 0;
-				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / penaltyScoutArmyReward;
-
-				score += evaluationContext.armyGrowth;
-				score -= evaluationContext.goldCost / 2; // don't include the full cost of School of Magic or others because those locations are beneficial
-
-				if(evaluationContext.armyLossRatio > 0)
+				if(evaluationContext.skillReward > 0)
 				{
-					score -= score * evaluationContext.armyLossRatio;
-
-					// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
-					if(evaluationContext.heroRole != MAIN)
-						score /= penaltyScoutBattles;
+					if(evaluationContext.heroRole == MAIN)
+						score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
+					else
+						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar
+						score = 1;
 				}
 
-				score *= evaluationContext.closestWayRatio;
-				if(evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10;
 
-#if NK2AI_TRACE_LEVEL >= 2
-				logAi->trace(
-					"case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, "
-					"armyGrowth %f, goldCost -%f, armyLossRatio %f, movementCost %f, enemyHeroDangerRatio %f",
-					score,
-					evaluationContext.strategicalValue,
-					evaluationContext.goldReward,
-					skillRewardMultiplied,
-					evaluationContext.armyReward,
-					evaluationContext.armyGrowth,
-					evaluationContext.goldCost,
-					evaluationContext.armyLossRatio,
-					evaluationContext.movementCost,
-					evaluationContext.enemyHeroDangerRatio
-				);
-#endif
+				score += evaluationContext.armyGrowth;
+				if(evaluationContext.goldCost > 0)
+					// Will be outside the if, just temporary for debugging
+					score -= evaluationContext.goldCost / 10; // don't include the full cost of School of Magic or others because those locations are beneficial
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
+
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
+
 				break;
 			}
 			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
@@ -1657,16 +1650,18 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			}
 			case PriorityTier::BUILDINGS: //For buildings and buying army
 			{
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				// TODO: Mircea: What's the point of this check for ::BUILDINGS? Shouldn't we just check if it's a building activity and that's it?
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 				//If we already have locked resources, we don't look at other buildings
-				if (aiNk->getLockedResources().marketValue() > 0)
+				if(aiNk->getLockedResources().marketValue() > 0)
 					return 0;
 
+				// TODO: Mircea: See if evaluateConquestValue can be reused here as well, to test
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
-				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05;
+				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
 
@@ -1682,9 +1677,12 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 								return 0;
 						}
 					}
+
 					score += 1000;
 					auto resourcesAvailable = evaluationContext.evaluator.aiNk->getFreeResources();
 					auto income = aiNk->buildAnalyzer->getDailyIncome();
+
+					// TODO: Mircea: Might want to use isGoldPressureOverMax or canAfford inside hunter gather if it's not already applied before
 					if(aiNk->buildAnalyzer->isGoldPressureOverMax())
 						score /= evaluationContext.buildingCost.marketValue();
 					if(!resourcesAvailable.canAfford(evaluationContext.buildingCost))
@@ -1693,11 +1691,13 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
+
 						for(const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
 							if(i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;
 						}
+
 						if(turnsTo == INT_MAX)
 							return 0;
 						if(!haveEverythingButGold)
