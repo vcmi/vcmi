@@ -162,13 +162,6 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 				continue;
 
 			score += creature->getAIValue() * creLevel.first;
-
-			// Increase priority towards the end of the week if units are lost afterwards
-			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
-			{
-				const auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
-				score *= dayOfWeek;
-			}
 		}
 	}
 
@@ -188,8 +181,14 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 		if(creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-
 			score += creature->getAIValue() * creature->getGrowth();
+
+			// Increase priority towards the end of the week if units are lost afterwards
+			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
+			{
+				const auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+				score *= dayOfWeek;
+			}
 		}
 	}
 
@@ -235,10 +234,8 @@ uint64_t RewardEvaluator::getArmyReward(
 	bool checkGold) const
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
-
 	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID);
-
-	if(!target)
+	if(!target) // TODO: Mircea: Shouldn't it be relations instead of target in the if? See getArmyGrowth below
 		return 0;
 
 	switch(target->ID)
@@ -268,7 +265,6 @@ uint64_t RewardEvaluator::getArmyReward(
 	}
 
 	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-
 	if(rewardable)
 	{
 		auto totalValue = 0;
@@ -276,7 +272,6 @@ uint64_t RewardEvaluator::getArmyReward(
 		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
 		{
 			auto & info = rewardable->configuration.info[index];
-
 			auto rewardValue = 0;
 
 			for(auto artID : info.reward.grantedArtifacts)
@@ -309,7 +304,6 @@ uint64_t RewardEvaluator::getArmyGrowth(
 		return 0;
 
 	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, hero->tempOwner);
-
 	if(relations != PlayerRelations::ENEMIES)
 		return 0;
 
@@ -1340,7 +1334,7 @@ float PriorityEvaluator::evaluateMovement(float score, const float movementCost)
 	{
 		if(movementCost < 1)
 			// Reduce bonus if it's too close, otherwise the score is amplified too much
-			score += sqrt(score / movementCost);
+			score /= sqrt(movementCost);
 		else
 			// Penalize distance
 			score /= movementCost;
@@ -1541,7 +1535,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
 				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
-				// TODO: Mircea: Looks strange, revisit
+				// TODO: Mircea: Last part of the if looks strange, to revisit
 				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !amIWithoutCastle))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
@@ -1591,6 +1585,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			// task.get()->hero->getFreeSlots(7) == 7
 			// getDuplicatingSlots(task.get()->hero) == false
 			{
+				if(evaluationContext.conquestValue > 0)
+					return 0;
 				if(evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio && !evaluationContext.isDefend && priorityTier != FAR_HUNTER_GATHER)
 					return 0;
 				if(evaluationContext.buildingCost.marketValue() > 0)
@@ -1610,25 +1606,38 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score += 100; // Default value for regular exploration when no specific priorities apply
 
 				score += evaluationContext.strategicalValue * 1000;
-				if(evaluationContext.conquestValue > 0)
-					// Will be outside the if, just temporary for debugging
-					score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
 
-				// Discourage MAIN to waste time picking resources
-				score += evaluationContext.heroRole == MAIN ? evaluationContext.goldReward / 1000 : evaluationContext.goldReward;
+				if(evaluationContext.goldReward > 0)
+				{
+					score += evaluationContext.goldReward;
+
+					if(evaluationContext.heroRole == MAIN)
+					{
+						if(evaluationContext.armyLossRatio > 0 || evaluationContext.danger > 0)
+							// Encourage MAIN to fight for crypts and similar
+							score *= 3;
+						else
+							// Discourage MAIN to waste time picking resources if they don't require a fight
+							score *= 0.5;
+					}
+				}
 
 				if(evaluationContext.skillReward > 0)
 				{
 					if(evaluationContext.heroRole == MAIN)
 						score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
 					else
-						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar
-						score = 1;
+						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
+						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
+						// MAINs grow and fight, SCOUTs do the groundwork.
+						score /= 1000;
 				}
 
 				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10;
-
+				// workshop (free lvl 1 units for Tower) and similar dwellings receive both armyReward and armyGrowth in evaluationContext
+				// For that reason only getDwellingArmyGrowth gets amplified towards day 7 if units are lost after
 				score += evaluationContext.armyGrowth;
+
 				if(evaluationContext.goldCost > 0)
 					// Will be outside the if, just temporary for debugging
 					score -= evaluationContext.goldCost / 10; // don't include the full cost of School of Magic or others because those locations are beneficial
