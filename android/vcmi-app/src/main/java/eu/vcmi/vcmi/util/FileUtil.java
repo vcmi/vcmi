@@ -384,4 +384,26 @@ public static String createFileInTree(String treeUriStr, String name, String mim
 	}
 }
 
+@Keep
+public static boolean copyFilePathToUri(String sourcePath, String destUriStr, Context ctx)
+{
+    Uri destUri = Uri.parse(destUriStr);
+
+    try (InputStream in = new FileInputStream(new File(sourcePath));
+         OutputStream out = ctx.getContentResolver().openOutputStream(destUri, "wt")) // "wt" = truncate
+    {
+        if (out == null)
+            return false;
+
+        copyStream(in, out);
+        out.flush();
+        return true;
+    }
+    catch (Exception e)
+    {
+        Log.e("FileUtil", "copyFilePathToUri failed: " + sourcePath + " -> " + destUriStr, e);
+        return false;
+    }
+}
+	
 }
