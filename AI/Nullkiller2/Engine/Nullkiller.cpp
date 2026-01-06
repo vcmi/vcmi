@@ -391,6 +391,13 @@ void Nullkiller::makeTurn()
 	resetState();
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
+	const auto combinedPriorities = {
+		static_cast<int>(PriorityEvaluator::PriorityTier::INSTAKILL),
+		static_cast<int>(PriorityEvaluator::PriorityTier::INSTADEFEND),
+		static_cast<int>(PriorityEvaluator::PriorityTier::KILL), // FAR_KILL is together, no need to do it twice
+		static_cast<int>(PriorityEvaluator::PriorityTier::HIGH_PRIO_EXPLORE), // LOW_PRIO_EXPLORE, HUNTER_GATHER and FAR_HUNTER_GATHER are together
+		static_cast<int>(PriorityEvaluator::PriorityTier::DEFEND)
+	};
 
 	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
@@ -408,28 +415,28 @@ void Nullkiller::makeTurn()
 		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
-		// decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
 		if(!isOpenMap())
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-		int prioOfTask = 0;
-		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		int combinedPrioOfTask = 0;
+		for(const auto combinedPriority : combinedPriorities)
 		{
-			prioOfTask = prio;
-			selectedTasks = buildPlanAndFilter(tasks, prio);
+			combinedPrioOfTask = combinedPriority;
+			selectedTasks = buildPlanAndFilter(tasks, combinedPriority);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 			{
 				// Activate for deep debugging, otherwise too noisy even for trace level 2
 // #if NK2AI_TRACE_LEVEL >= 2
 // 				for(auto t : tasks)
 // 				{
-// 					logAi->trace("task of prio %d: %s, prio: %f", prio, t->toString(), t->asTask()->priority);
+// 					logAi->info("task of combinedPriority %d: %s, prio: %f", combinedPriority, t->toString(), t->asTask()->priority);
 // 				}
 // 				for(auto t : selectedTasks)
 // 				{
-// 					logAi->trace("selected task of prio %d: %s, prio: %f", prio, t->toString(), t->priority);
+// 					logAi->info("selected task of combinedPriority %d: %s, prio: %f", combinedPriority, t->toString(), t->priority);
 // 				}
 // #endif
 				break;
@@ -503,7 +510,7 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", pass, prioOfTask, selectedTask->toString(), selectedTask->priority);
+			logAi->info("Pass %d: Performing task (combinedPrioOfTask %d) %s with prio: %d", pass, combinedPrioOfTask, selectedTask->toString(), selectedTask->priority);
 
 			if(HeroPtr heroPtr(selectedTask->getHero(), cc.get()); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{

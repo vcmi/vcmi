@@ -100,6 +100,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		}
 
 		HeroExchange heroExchange(receiverHero, path);
+		// TODO: Mircea: Artifacts (inventory things) aren't considered in this calculation, though they are properly changed in an army exchange, to revisit
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(aiNk);
 		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength) / receiverHero->getArmyStrength();
 

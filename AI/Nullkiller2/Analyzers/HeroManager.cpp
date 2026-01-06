@@ -100,7 +100,9 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 {
 	// TODO: Mircea: Shouldn't we count bonuses from artifacts when generating the fighting strength? That could make a huge difference
-	return evaluateSpeciality(hero) + mainSkillsEvaluator.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK) + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER) + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
+	return evaluateSpeciality(hero) + mainSkillsEvaluator.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK)
+		 + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER)
+		 + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
 }
 
 void HeroManager::update()
