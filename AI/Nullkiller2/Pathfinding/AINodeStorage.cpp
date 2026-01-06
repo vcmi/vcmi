@@ -1445,23 +1445,6 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.armyLoss = node.armyLoss;
 
 		fillChainInfo(&node, path, -1);
-		// Validate the path after filling
-		// if(!path.nodes.empty() && path.targetHero)
-		// {
-		// 	bool heroFound = false;
-		// 	for(const auto & pathNode : path.nodes)
-		// 	{
-		// 		if(pathNode.targetHero->id == path.targetHero->id)
-		// 		{
-		// 			heroFound = true;
-		// 			break;
-		// 		}
-		// 	}
-		//
-		// 	if(!heroFound)
-		// 		logAi->warn("AINodeStorage::calculateChainInfo - Path targetHero %s not found in path nodes", path.targetHero->getNameTranslated());
-		// }
-
 		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
 		for(const auto & pathNode : path.nodes)
 		{
