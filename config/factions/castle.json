@@ -219,7 +219,7 @@
 					],
 					"upgrades" : "tavern"
 				},
-				"grail":          { },
+				"grail":          { "bonuses": [ { "type": "MORALE", "val": 2, "propagator": "PLAYER" } ] },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
