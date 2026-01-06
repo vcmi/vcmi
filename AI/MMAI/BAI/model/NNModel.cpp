@@ -426,7 +426,7 @@ NNModel::NNModel(const std::string & path, float _temperature, uint64_t seed)
 	opts.DisableMemPattern();
 	opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
 	opts.SetExecutionMode(ORT_SEQUENTIAL); // ORT_SEQUENTIAL = no inter-op parallelism
-	opts.SetIntraOpNumThreads(1); // Inter-op threads matter in ORT_PARALLEL
+	opts.SetInterOpNumThreads(1); // Inter-op threads matter in ORT_PARALLEL
 	opts.SetIntraOpNumThreads(4); // Parallelism inside kernels/operators
 
 	model = loadModel(path, opts);
