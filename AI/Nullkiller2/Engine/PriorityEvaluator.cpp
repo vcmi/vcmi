@@ -1619,6 +1619,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					}
 					else
 						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
+						// TODO: Mircea: Ease the restriction after 1 month or a bit more, because MAINs had enough time to grow, avoiding a SPAM of role shifts for each upgrade a SCOUT gets
 						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
 						// MAINs grow and fight, SCOUTs do the groundwork.
 						score = std::max(1.0f, score / 1000.0f);
