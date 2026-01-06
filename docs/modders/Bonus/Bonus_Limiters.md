@@ -30,6 +30,10 @@ Bonus is active if affected unit is on native terrain
 
 Bonus is active only on units
 
+### UNIT_DEFENDING
+
+Bonus is active only while unit is defending
+
 ### OPPOSITE_SIDE
 
 Bonus is active only for opposite side for a battle-wide bonus. Requires `BONUS_OWNER_UPDATER` to be present on bonus
