@@ -96,10 +96,13 @@ public:
 	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
+	void onAdded(PlayerColor color) override;
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	HeroLevelUp hlu;
 	const CGHeroInstance * hero;
+	bool prompted = false;
 };
 
 class CCommanderLevelUpDialogQuery : public CDialogQuery
@@ -108,8 +111,11 @@ public:
 	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
+	void onAdded(PlayerColor color) override;
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	CommanderLevelUp clu;
 	const CGHeroInstance * hero;
+	bool prompted = false;
 };

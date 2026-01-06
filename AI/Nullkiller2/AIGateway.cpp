@@ -525,6 +525,7 @@ void AIGateway::yourTurn(QueryID queryID)
 	asyncTasks->run([this]()
 	{
 		ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
+		status.waitTillFree();
 		makeTurn();
 	});
 }
