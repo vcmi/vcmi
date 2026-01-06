@@ -342,7 +342,7 @@ jobs:
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
-    - name: Upload debug symbols
+    - name: Upload MSVC debug symbols
       id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v6
@@ -351,6 +351,23 @@ jobs:
         compression-level: 9
         path: |
             ${{github.workspace}}/**/*.pdb
+
+    - name: Create iOS AppStore debug symbols
+      if: ${{ matrix.platform == 'ios' }}
+      run: |
+        IOS_APPSTORE_SYMBOLS_DIR='${{ github.workspace }}/Symbols'
+        mkdir "$IOS_APPSTORE_SYMBOLS_DIR"
+        dsyms=$(find '${{ github.workspace }}/out/build/${{ matrix.preset }}' -name '*.dSYM')
+        xcrun symbols -arch all -symbolsPackageDir "$IOS_APPSTORE_SYMBOLS_DIR" $dsyms
+        echo IOS_APPSTORE_SYMBOLS_DIR="$IOS_APPSTORE_SYMBOLS_DIR" >> $GITHUB_ENV
+    - name: Upload iOS AppStore debug symbols
+      if: ${{ matrix.platform == 'ios' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols
+        compression-level: 9
+        path: |
+            ${{ env.IOS_APPSTORE_SYMBOLS_DIR }}
 
     - name: Upload build to download.vcmi.eu
       if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
