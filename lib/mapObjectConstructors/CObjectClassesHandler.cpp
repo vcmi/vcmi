@@ -564,6 +564,9 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 	//FIXME: Monoliths  in this vector can be already not useful for every terrain
 	const size_t portalCount = portalVec.size();
 
+	if (portalCount == 0)
+		return;
+
 	//Invalid portals will be skipped and portalVec size stays unchanged
 	for (size_t i = portalCount; portalVec.size() < 100; ++i)
 	{
@@ -584,11 +587,11 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->battlefield = portal->battlefield; //getter is not initialized at this point
 		newPortal->modScope = portal->modScope; //private
 		newPortal->typeName = portal->getTypeName(); 
-		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
+		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size() + 1);
 		newPortal->type = portal->getIndex();
 
 		// Inconsintent original indexing: monolith1 has index 0
-		newPortal->subtype = portalVec.size() - 1; //indexes must be unique, they are returned as a set
+		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
 		newPortal->blockVisit = portal->blockVisit;
 		newPortal->removable = portal->removable;
 
