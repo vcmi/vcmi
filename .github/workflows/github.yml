@@ -45,7 +45,7 @@ jobs:
             os: macos-14
             pack: 1
             upload: 1
-            pack_type: Release
+            pack_type: RelWithDebInfo
             extension: ipa
             before_install: macos.sh
             preset: ios-release-conan-ccache
