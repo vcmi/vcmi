@@ -191,6 +191,29 @@ Parameters:
 ]
 ```
 
+### UNIT_ADJACENT
+
+Can only be used for units in combat. Bonus is active if another unit is adjacent to unit with this bonus.
+
+If multiple same units are adjacent to holder of the bonus, effect does NOT stacks.
+
+Notes:
+- Using battle-wide propagator allows creating aura-like effect, giving bonus to all units adjacent to holder of battle-wide bonus. Filtering to create aura limited to allies or enemies can be done same name as usual battle-wide bonuses
+- If multiple different creatures (e.g. base and upgrade) have same aura effect, consider using stacking bonus property to avoid duplicated effect
+
+Parameters:
+
+- `creature` - Unit that must be adjacent to unit affected by bonus for this bonus to have an effect
+
+```json
+"limiters" : [
+    {
+	    "type" : "UNIT_ADJACENT",
+		"creature" : "unicorn"
+	}
+]
+```
+
 ### UNIT_ON_HEXES
 
 Parameters:

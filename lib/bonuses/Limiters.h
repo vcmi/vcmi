@@ -282,6 +282,22 @@ public:
 	}
 };
 
+class DLL_LINKAGE UnitAdjacentLimiter : public ILimiter //works only on selected hexes
+{
+public:
+	CreatureID targetUnit;
+
+	UnitAdjacentLimiter() = default;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & targetUnit;
+	}
+};
+
 class DLL_LINKAGE HasChargesLimiter : public ILimiter // works with bonuses that consume charges
 {
 public:

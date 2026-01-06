@@ -244,6 +244,35 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 	return root;
 }
 
+ILimiter::EDecision UnitAdjacentLimiter::limit(const BonusLimitationContext &context) const
+{
+	const auto * stack = retrieveStackBattle(&context.node);
+	if(!stack)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	if (!stack->getPosition().isValid())
+		return ILimiter::EDecision::DISCARD;
+
+	auto battle = stack->getBattle();
+	const auto & adjacentUnits = battle->battleAdjacentUnits(stack);
+
+	for (const auto & unit : adjacentUnits)
+		if (unit->creatureId() == targetUnit)
+			return ILimiter::EDecision::ACCEPT;
+
+	return ILimiter::EDecision::DISCARD;
+}
+
+JsonNode UnitAdjacentLimiter::toJsonNode() const
+{
+	JsonNode root;
+
+	root["type"].String() = "UNIT_ADJACENT";
+	root["creature"].String() = targetUnit.toEntity(LIBRARY)->getJsonKey();
+
+	return root;
+}
+
 TerrainLimiter::TerrainLimiter()
 	: terrainType(ETerrainId::NATIVE_TERRAIN)
 {
