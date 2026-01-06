@@ -137,6 +137,8 @@ void CZonePlacer::placeOnGrid(const TZoneMap & zones, vstd::RNG* rand)
 		}
 	}
 
+	std::map<TRmgTemplateZoneId, int3> placedPositions;
+
 	// Process zones in ID order
 	for (const auto & pair : zones)
 	{
@@ -151,142 +153,241 @@ void CZonePlacer::placeOnGrid(const TZoneMap & zones, vstd::RNG* rand)
 		auto &grid = *grids[level];
 		size_t gridSize = gridSizes[level];
 
-		if (!levelHasZones[level])
+		// Find placed neighbors (anchors)
+		std::vector<std::shared_ptr<Zone>> anchors;
+		for (const auto& conn : zone->getConnections())
 		{
-			// FIRST ZONE LOGIC
-			levelHasZones[level] = true;
-
-			size_t x = 0;
-			size_t y = 0;
-
-			auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
+			auto otherId = conn.getOtherZoneId(zone->getId());
+			if (placedPositions.count(otherId))
 			{
-				switch (rand->nextInt(0, 3) % 4)
-				{
-				case 0:
-					x = 0;
-					y = gridSize / 2;
-					break;
-				case 1:
-					x = gridSize - 1;
-					y = gridSize / 2;
-					break;
-				case 2:
-					x = gridSize / 2;
-					y = 0;
-					break;
-				case 3:
-					x = gridSize / 2;
-					y = gridSize - 1;
-					break;
-				}
-			};
-
-			switch (zone->getType())
-			{
-				case ETemplateZoneType::PLAYER_START:
-				case ETemplateZoneType::CPU_START:
-					if (zone->getConnectedZoneIds().size() > 2)
-					{
-						getRandomEdge(x, y);
-					}
-					else
-					{
-						//Random corner
-						if (rand->nextInt(0, 1) == 1)
-						{
-							x = 0;
-						}
-						else
-						{
-							x = gridSize - 1;
-						}
-						if (rand->nextInt(0, 1) == 1)
-						{
-							y = 0;
-						}
-						else
-						{
-							y = gridSize - 1;
-						}
-					}
-					break;
-				case ETemplateZoneType::TREASURE:
-					if (gridSize & 1) //odd
-					{
-						x = y = (gridSize / 2);
-					}
-					else
-					{
-						//One of 4 squares in the middle
-						x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-						y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-					}
-					break;
-				case ETemplateZoneType::JUNCTION:
-					getRandomEdge(x, y);
-					break;
+				anchors.push_back(zones.at(otherId));
 			}
-			grid[x][y] = zone;
+		}
+
+		int3 bestPos(-1, -1, level);
+		bool foundPos = false;
+
+		if (anchors.empty())
+		{
+			if (!levelHasZones[level])
+			{
+				// FIRST ZONE ON LEVEL (Random Corner/Edge)
+				size_t x = 0;
+				size_t y = 0;
+
+				auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
+				{
+					switch (rand->nextInt(0, 3) % 4)
+					{
+					case 0:
+						x = 0;
+						y = gridSize / 2;
+						break;
+					case 1:
+						x = gridSize - 1;
+						y = gridSize / 2;
+						break;
+					case 2:
+						x = gridSize / 2;
+						y = 0;
+						break;
+					case 3:
+						x = gridSize / 2;
+						y = gridSize - 1;
+						break;
+					}
+				};
+
+				switch (zone->getType())
+				{
+					case ETemplateZoneType::PLAYER_START:
+					case ETemplateZoneType::CPU_START:
+						if (zone->getConnectedZoneIds().size() > 2)
+						{
+							getRandomEdge(x, y);
+						}
+						else
+						{
+							//Random corner
+							if (rand->nextInt(0, 1) == 1)
+							{
+								x = 0;
+							}
+							else
+							{
+								x = gridSize - 1;
+							}
+							if (rand->nextInt(0, 1) == 1)
+							{
+								y = 0;
+							}
+							else
+							{
+								y = gridSize - 1;
+							}
+						}
+						break;
+					case ETemplateZoneType::TREASURE:
+						if (gridSize & 1) //odd
+						{
+							x = y = (gridSize / 2);
+						}
+						else
+						{
+							//One of 4 squares in the middle
+							x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+							y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+						}
+						break;
+					case ETemplateZoneType::JUNCTION:
+						getRandomEdge(x, y);
+						break;
+				}
+				bestPos = int3(x, y, level);
+				foundPos = true;
+			}
+			else
+			{
+				// SUBSEQUENT INDEPENDENT ZONE (Most Distant)
+				float maxDistance = -1000.0;
+
+				//Iterate over free positions
+				for (size_t freeX = 0; freeX < gridSize; ++freeX)
+				{
+					for (size_t freeY = 0; freeY < gridSize; ++freeY)
+					{
+						if (!grid[freeX][freeY])
+						{
+							int3 potentialPos(freeX, freeY, 0);
+							float distance = 0;
+
+							// Sum distance to all existing zones on this level
+							for (size_t existingX = 0; existingX < gridSize; ++existingX)
+							{
+								for (size_t existingY = 0; existingY < gridSize; ++existingY)
+								{
+									auto existingZone = grid[existingX][existingY];
+									if (existingZone)
+									{
+										// Ignore graph distance since we are not connected
+										float localDistance = potentialPos.dist2d(int3(existingX, existingY, 0));
+										localDistance *= scaleForceBetweenZones(zone, existingZone);
+										distance += localDistance;
+									}
+								}
+							}
+
+							if (distance > maxDistance)
+							{
+								maxDistance = distance;
+								bestPos = int3(freeX, freeY, level);
+								foundPos = true;
+							}
+						}
+					}
+				}
+			}
 		}
 		else
 		{
-			// SUBSEQUENT ZONE LOGIC
-			float maxDistance = -1000.0;
-			int3 mostDistantPlace;
+			// ANCHOR LOGIC
+			std::map<std::pair<int, int>, int> candidateScores;
 
-			//Iterate over free positions
-			for (size_t freeX = 0; freeX < gridSize; ++freeX)
+			for (const auto& anchor : anchors)
 			{
-				for (size_t freeY = 0; freeY < gridSize; ++freeY)
+				int3 anchorPos = placedPositions[anchor->getId()];
+				
+				if (anchorPos.z == level)
 				{
-					if (!grid[freeX][freeY])
+					// Adjacent candidates
+					int dx[] = { -1, 1, 0, 0 };
+					int dy[] = { 0, 0, -1, 1 };
+
+					for (int i = 0; i < 4; ++i)
 					{
-						//There is free space left here
-						int3 potentialPos(freeX, freeY, 0);
-						
-						//Compute distance to every existing zone
-
-						float distance = 0;
-						for (size_t existingX = 0; existingX < gridSize; ++existingX)
+						int nx = anchorPos.x + dx[i];
+						int ny = anchorPos.y + dy[i];
+						if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize)
 						{
-							for (size_t existingY = 0; existingY < gridSize; ++existingY)
-							{
-								auto existingZone = grid[existingX][existingY];
-								if (existingZone)
-								{
-									//There is already zone here
-									float localDistance = 0.0f;
-
-									auto graphDistance = distancesBetweenZones[zone->getId()][existingZone->getId()];
-									if (graphDistance > 1)
-									{
-										//No direct connection
-										localDistance = potentialPos.dist2d(int3(existingX, existingY, 0)) * graphDistance;
-									}
-									else
-									{
-										//Has direct connection - place as close as possible
-										localDistance = -potentialPos.dist2d(int3(existingX, existingY, 0));
-									}
-
-									localDistance *= scaleForceBetweenZones(zone, existingZone);
-
-									distance += localDistance;
-								}
-							}
+							candidateScores[{nx, ny}]++;
 						}
-						if (distance > maxDistance)
-						{
-							maxDistance = distance;
-							mostDistantPlace = potentialPos;
-						}
+					}
+				}
+				else
+				{
+					// Overlap candidate
+					float scale = (float)gridSize / gridSizes[anchorPos.z];
+					int nx = std::round(anchorPos.x * scale);
+					int ny = std::round(anchorPos.y * scale);
+					
+					nx = std::clamp(nx, 0, (int)gridSize - 1);
+					ny = std::clamp(ny, 0, (int)gridSize - 1);
+					
+					candidateScores[{nx, ny}]++;
+				}
+			}
+
+			// Find best valid candidate
+			int maxScore = -1;
+			for (const auto& [pos, score] : candidateScores)
+			{
+				if (!grid[pos.first][pos.second]) // Check if free
+				{
+					if (score > maxScore)
+					{
+						maxScore = score;
+						bestPos = int3(pos.first, pos.second, level);
+						foundPos = true;
 					}
 				}
 			}
 
-			//Place in a free slot
-			grid[mostDistantPlace.x][mostDistantPlace.y] = zone;
+			// Fallback: Closest to Center of Mass of anchors
+			if (!foundPos)
+			{
+				float centerOfMassX = 0;
+				float centerOfMassY = 0;
+				for (const auto& anchor : anchors)
+				{
+					int3 anchorPos = placedPositions[anchor->getId()];
+					float scale = (float)gridSize / gridSizes[anchorPos.z];
+					centerOfMassX += anchorPos.x * scale;
+					centerOfMassY += anchorPos.y * scale;
+				}
+				centerOfMassX /= static_cast<float>(anchors.size());
+				centerOfMassY /= static_cast<float>(anchors.size());
+
+				float minDist = 1e10;
+				for (size_t x = 0; x < gridSize; ++x)
+				{
+					for (size_t y = 0; y < gridSize; ++y)
+					{
+						if (!grid[x][y])
+						{
+							float dx = (float)x - centerOfMassX;
+							float dy = (float)y - centerOfMassY;
+							float dist = dx * dx + dy * dy;
+							if (dist < minDist)
+							{
+								minDist = dist;
+								bestPos = int3(x, y, level);
+								foundPos = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (foundPos)
+		{
+			grid[bestPos.x][bestPos.y] = zone;
+			placedPositions[zone->getId()] = bestPos;
+			levelHasZones[level] = true;
+		}
+		else
+		{
+			logGlobal->warn("Could not find place for zone %d on level %d grid size %d", zone->getId(), level, gridSize);
 		}
 	}
 
