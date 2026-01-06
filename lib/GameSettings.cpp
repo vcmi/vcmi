@@ -63,6 +63,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::COMBAT_LUCK_BIAS,                                 "combat",    "luckBias"                             },
 		{EGameSettings::COMBAT_LAYOUTS,                                   "combat",    "layouts"                              },
 		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,                "combat",    "oneHexTriggersObstacles"              },
+		{EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS,               "combat",    "noSpellHitAndRunRounds"               },
 		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,             "creatures", "allowAllForDoubleMonth"               },
 		{EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE,                 "creatures", "allowJoiningForFree"                  },
 		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,             "creatures", "allowRandomSpecialWeeks"              },

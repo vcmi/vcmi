@@ -44,6 +44,7 @@ public:
 
 	ui8 getTacticDist() const override;
 	BattleSide getTacticsSide() const override;
+	int32_t getRound() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;
