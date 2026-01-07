@@ -653,6 +653,10 @@ std::shared_ptr<CGObjectInstance> CMap::eraseObject(ObjectInstanceID oldObjectID
 	return oldObject;
 }
 
+bool CMap::isHeroOnMap(const ObjectInstanceID &heroId) const {
+	return vstd::contains(heroesOnMap, heroId);
+}
+
 void CMap::heroAddedToMap(const CGHeroInstance * hero)
 {
 	assert(!vstd::contains(heroesOnMap, hero->id));

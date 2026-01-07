@@ -161,6 +161,7 @@ public:
 	/// Returns pointer to old object, which can be manipulated or dropped
 	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject);
 
+	bool isHeroOnMap(const ObjectInstanceID &heroId) const;
 	void heroAddedToMap(const CGHeroInstance * hero);
 	void heroRemovedFromMap(const CGHeroInstance * hero);
 	void townAddedToMap(const CGTownInstance * town);
