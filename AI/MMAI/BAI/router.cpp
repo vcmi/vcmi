@@ -55,7 +55,7 @@ namespace
 		repo->temperature = static_cast<float>(json["temperature"].Float());
 
 		repo->seed = json["seed"].Integer();
-		if (repo->seed == 0)
+		if(repo->seed == 0)
 			repo->seed = CRandomGenerator::getDefault().nextInt();
 
 		for(const std::string key : {"attacker", "defender"})
@@ -68,7 +68,8 @@ namespace
 			const auto pos = path.rfind(".onnx");
 			if(pos != std::string::npos)
 			{
-				for (const std::string s : {"stochastic", "dynamic"}) {
+				for(const std::string s : {"stochastic", "dynamic"})
+				{
 					std::string altpath = path;
 					altpath.insert(pos, "-" + s); // insert right before ".onnx"
 					const auto rpath = ResourcePath(altpath, EResType::AI_MODEL);
