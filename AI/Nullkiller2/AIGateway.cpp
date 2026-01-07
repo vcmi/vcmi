@@ -245,32 +245,41 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	auto firstHero = cc->getHero(hero1);
 	auto secondHero = cc->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
+	status.addQuery(
+		query,
+		boost::str(
+			boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner
+			% secondHero->getNameTranslated() % secondHero->tempOwner
+		)
+	);
 
-	executeActionAsync("heroExchangeStarted", [this, firstHero, secondHero, query]()
-	{
-		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
+	executeActionAsync(
+		"heroExchangeStarted",
+		[this, firstHero, secondHero, query]()
 		{
-			this->pickBestCreatures(h1, h2);
-			pickBestArtifacts(cc, h1, h2);
-		};
+			auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
+			{
+				this->pickBestCreatures(h1, h2);
+				pickBestArtifacts(cc, h1, h2);
+			};
 
-		//Do not attempt army or artifacts exchange if we visited ally player
-		//Visits can still be useful if hero have skills like Scholar
-		if(firstHero->tempOwner != secondHero->tempOwner)
-		{
-			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
-		}
-		else
-		{
-			if(nullkiller->isActive(firstHero))
-				transferFrom2to1(secondHero, firstHero);
+			//Do not attempt army or artifacts exchange if we visited ally player
+			//Visits can still be useful if hero have skills like Scholar
+			if(firstHero->tempOwner != secondHero->tempOwner)
+			{
+				logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
+			}
 			else
-				transferFrom2to1(firstHero, secondHero);
-		}
+			{
+				if(nullkiller->isActive(firstHero))
+					transferFrom2to1(secondHero, firstHero);
+				else
+					transferFrom2to1(firstHero, secondHero);
+			}
 
-		answerQuery(query, 0);
-	});
+			answerQuery(query, 0);
+		}
+	);
 }
 
 void AIGateway::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
@@ -1656,7 +1665,7 @@ void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const C
 	auto equipBest = [cc](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
-		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID> > swappedSet;
+		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID>> swappedSet;
 		do
 		{
 			changeMade = false;
@@ -1731,25 +1740,30 @@ void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const C
 						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
 						{
 							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->getArt());
-							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+							logAi->trace(
+								"Comparing artifacts of %s: %s vs %s. Score: %d vs %d",
+								target->getHeroTypeName(),
+								artifact->getType()->getJsonKey(),
+								otherSlot->getArt()->getType()->getJsonKey(),
+								artifactScore,
+								otherArtifactScore
+							);
 
 							//if that artifact is better than what we have, pick it
 							//combined artifacts are not always allowed to move
 							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
 							{
 								std::pair swapPair = std::minmax<ArtifactInstanceID>({artifact->getId(), otherSlot->artifactID});
-								if (swappedSet.find(swapPair) != swappedSet.end())
+								if(swappedSet.find(swapPair) != swappedSet.end())
 								{
 									logAi->warn(
 										"Artifacts % s < -> % s have already swapped before, ignored.",
 										artifact->getType()->getJsonKey(),
-										otherSlot->getArt()->getType()->getJsonKey());
+										otherSlot->getArt()->getType()->getJsonKey()
+									);
 									continue;
 								}
-								logAi->trace(
-									"Exchange artifacts %s <-> %s",
-									artifact->getType()->getJsonKey(),
-									otherSlot->getArt()->getType()->getJsonKey());
+								logAi->trace("Exchange artifacts %s <-> %s", artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey());
 
 								if(!otherSlot->getArt()->canBePutAt(artHolder, location.slot, true))
 								{
@@ -1774,8 +1788,7 @@ void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const C
 				if(changeMade)
 					break; //start evaluating artifacts from scratch
 			}
-		}
-		while(changeMade);
+		} while(changeMade);
 	};
 
 	equipBest(h, other, true);
