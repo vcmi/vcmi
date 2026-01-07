@@ -1335,7 +1335,7 @@ float PriorityEvaluator::evaluateMovement(float score, const float movementCost)
 			score /= std::pow(movementCost, 0.6f);
 		else
 			// Penalize distance, including when 1.0
-			score = std::max(1.0f, score / (0.75f + movementCost));
+			score /= 0.75 + std::pow(movementCost, 1.3f);
 	}
 	return score;
 }
@@ -1462,7 +1462,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		switch (priorityTier)
 		{
-			case PriorityTier::INSTAKILL: //Take towns / kill heroes in immediate reach
+			case INSTAKILL: //Take towns / kill heroes in immediate reach
 			{
 				if(evaluationContext.turn > 0 || evaluationContext.isExchange || evaluationContext.isDefend)
 					return 0;
@@ -1483,7 +1483,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
+			case INSTADEFEND: //Defend immediately threatened towns
 			{
 				if(!evaluationContext.isDefend)
 					return 0;
@@ -1494,6 +1494,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.threatTurns <= evaluationContext.turn)
 				{
+					// TODO: Mircea: Too many heroes are rushing for INSTADEFEND.
+					// We need some kind of smart selection of who to go, not everyone qualified
+					// Probably apply normal fight calculation as in others + filter out unnecessary ones in makeTurn buildPlan
+
 					const float OPTIMAL_PERCENTAGE = 0.75f; // We want army to be 75% of the threat
 					float optimalStrength = evaluationContext.threat * OPTIMAL_PERCENTAGE;
 
@@ -1508,7 +1512,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				}
 				break;
 			}
-			case PriorityTier::KILL: //Take towns / kill heroes that are further away
+			case KILL: //Take towns / kill heroes that are further away
 			{
 				if(evaluationContext.isDefend)
 					return 0;
@@ -1534,8 +1538,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::EXPLORE_AND_GATHER:
-			case PriorityTier::ESCAPE:
+			case EXPLORE_AND_GATHER:
+			case ESCAPE:
 			// TODO: Mircea: Should not go to something that gives army if no slots available in the hero, but probably not in the evaluator, but in the finder
 			// task.get()->hero->getSlotFor(creature, 7) == false (not sure I get to know which creature is there in Orc Tower building)
 			// /// so I can't know for sure if it fits my stacks or not, but at least we can avoid going there with all 7 stacks occupied by other units
@@ -1645,16 +1649,18 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 				break;
 			}
-			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
+			case DEFEND: //Defend whatever if nothing else is to do
 			{
 				if (evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio)
 					return 0;
 				if (evaluationContext.isDefend || evaluationContext.isArmyUpgrade)
 					score = evaluationContext.armyInvolvement;
-				score /= evaluationContext.turn + 1;
+
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::BUILDINGS: //For buildings and buying army
+			case BUILDINGS: //For buildings and buying army
 			{
 				// TODO: Mircea: What's the point of this check for ::BUILDINGS? Isn't the priority itself just for buildings? To test
 				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
