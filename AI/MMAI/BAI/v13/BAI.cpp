@@ -374,7 +374,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 		ba = buildBattleAction();
 
-		if(ba)
+		if(ba && (a != Schema::ACTION_RETREAT || resetting))
 		{
 			debug("Action is VALID: " + state->action->name());
 			errcounter = 0;
