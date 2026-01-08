@@ -197,9 +197,9 @@ class JsonNode;
 	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
 	BONUS_NAME(DAMAGE_RECEIVED_CAP) /* limits the damage dealt to affected unit */ \
 	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/\
-	BONUS_NAME(ADJACENT_SPELLCASTER) /* subtype - spell id */
+	BONUS_NAME(ADJACENT_SPELLCASTER) /* subtype - spell id */\
+	BONUS_NAME(UNIT_DEFENDING) /* tag applied to units which are currently waiting in battle */\
 	/* end of list */
-
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\
