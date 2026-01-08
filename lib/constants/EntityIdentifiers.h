@@ -685,9 +685,9 @@ public:
 	static std::string entityType();
 
 	static const MapLayerId NONE;
-	static const MapLayerId UNKNOWN;
 	static const MapLayerId SURFACE;
 	static const MapLayerId UNDERGROUND;
+	static const MapLayerId UNKNOWN;
 
 	const MapLayerType * toEntity(const Services * service) const;
 };

@@ -1062,21 +1062,12 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
 	auto currentLayer = map->mapLayers.at(tile.z);
-	std::vector<BattleField> battleFields;
-	for(auto & battleField : t.getTerrain()->battleFields)
-		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, currentLayer))
-			battleFields.push_back(battleField);
+	const auto & terrainBattlefields = t.getTerrain()->battleFields;
 
-	if (battleFields.empty())
-	{
-		logGlobal->warn("No battlefield for terrain %s for layer %s found, try to fallback", t.getTerrain()->getJsonKey(), MapLayerId::encode(currentLayer));
-		battleFields = t.getTerrain()->battleFields;
-	}
-
-	if (battleFields.empty())
+	if (terrainBattlefields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(battleFields, randomGenerator));
+	return BattleFieldHandler::selectRandomBattlefield(terrainBattlefields, currentLayer, randomGenerator);
 }
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

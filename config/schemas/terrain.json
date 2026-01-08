@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI terrain format",
 	"description" : "Format used to define new terrains in VCMI",
-	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
+	"required" : [ "text", "moveCost", "minimapUnblocked", "minimapBlocked", "music", "tiles", "type", "allowedLayers", "horseSound", "horseSoundPenalty", "shortIdentifier", "battleFields" ],
 	"additionalProperties" : false,
 	"properties" : {
 		"text" :
@@ -19,10 +19,10 @@
 		"type" :
 		{
 			"type" : "array",
-			"description" : "Type of this terrain. Can be land, water, subterranean or rock",
+			"description" : "Type of this terrain. Can be land, water none of them",
 			"items" :
 			{
-				"enum" : ["WATER", "SUB", "ROCK", "SURFACE"],
+				"enum" : ["WATER", "ROCK"],
 				"type" : "string"
 			}
 		},

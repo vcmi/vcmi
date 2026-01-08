@@ -398,20 +398,12 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 BattleField CGObjectInstance::getBattlefield() const
 {
 	auto currentLayer = cb->gameState().getMap().mapLayers.at(pos.z);
-	std::vector<BattleField> battleFields;
-	for(auto & battleField : LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields())
-		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, currentLayer))
-			battleFields.push_back(battleField);
+	const auto & objectBattlefields = LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields();
 
-	if (battleFields.empty() && !LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields().empty())
-	{
-		logGlobal->warn("No battlefield for object %d:%d for layer %s found, fallback", ID, subID, MapLayerId::encode(currentLayer));
-		battleFields = LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields();
-	}
-	if (battleFields.empty())
+	if (objectBattlefields.empty())
 		return BattleField::NONE;
 
-	return *RandomGeneratorUtil::nextItem(battleFields, CRandomGenerator::getDefault());
+	return BattleFieldHandler::selectRandomBattlefield(objectBattlefields, currentLayer, CRandomGenerator::getDefault());
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const

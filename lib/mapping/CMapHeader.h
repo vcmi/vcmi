@@ -239,7 +239,7 @@ public:
 
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
-	std::vector<MapLayerId> mapLayers; /// The default value is 2.
+	std::vector<MapLayerId> mapLayers;
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;

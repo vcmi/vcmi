@@ -120,10 +120,10 @@ const RoadId RoadId::DIRT_ROAD(1);
 const RoadId RoadId::GRAVEL_ROAD(2);
 const RoadId RoadId::COBBLESTONE_ROAD(3);
 
-const MapLayerId MapLayerId::NONE(0);
-const MapLayerId MapLayerId::UNKNOWN(0);
-const MapLayerId MapLayerId::SURFACE(1);
-const MapLayerId MapLayerId::UNDERGROUND(2);
+const MapLayerId MapLayerId::NONE(-1);
+const MapLayerId MapLayerId::SURFACE(0);
+const MapLayerId MapLayerId::UNDERGROUND(1);
+const MapLayerId MapLayerId::UNKNOWN(2);
 
 namespace GameConstants
 {
