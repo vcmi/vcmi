@@ -282,7 +282,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE UnitAdjacentLimiter : public ILimiter //works only on selected hexes
+class DLL_LINKAGE UnitAdjacentLimiter : public ILimiter // applis if unit is adjacent to another unit
 {
 public:
 	CreatureID targetUnit;
