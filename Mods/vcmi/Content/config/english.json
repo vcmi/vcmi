@@ -1143,7 +1143,7 @@
 	"spell.core.summonDemons.name" : "Summon Demons",
 	"spell.core.towerMoat.name" : "Land Mine",
 
-	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked it takes 50% damage, and become unfrozen",
+	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked, it takes half damage (both melee and ranged attacks) and retaliates at full strength.",
 	"spell.core.poison.description.none" : "{Poison}\n\nWhen poisoned, the target stack's maximum health is decreased by 10% for every combat round for three rounds. After three rounds, the creature is no longer poisoned, but the maximum health remains decreased",
 	"spell.core.bind.description.none" : "{Bind}\n\nTargeted unit is bound to the ground, unable to move until the stack that entangled them moves or perishes.",
 	"spell.core.disease.description.none" : "{Disease}\n\nThe living target becomes ill, thus having their attack and defense values reduced by two for a period of three rounds",
