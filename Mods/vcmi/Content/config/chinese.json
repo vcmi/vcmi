@@ -142,6 +142,7 @@
 	"vcmi.lobby.deleteFolder" : "你确定要删除下列文件夹？",
 	"vcmi.lobby.deleteMode" : "切换删除模式并返回",
 	"vcmi.lobby.battleOnlyMode" : "纯战斗模式",
+	"vcmi.lobby.battleOnlyMode.help" : "进行一场简单的战斗（无冒险地图）",
 	"vcmi.lobby.battleOnlyModeSubTitle" : "选择英雄，部队，技能，宝物和战场背景开始一局没有冒险地图的战斗模式",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "战场",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "选择战场",
@@ -283,6 +284,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "在聊天中随机输入两个城镇",
 	"vcmi.lobby.pvp.versus" : "对战",
 
+	"vcmi.client.screenShot" : "保存屏幕截图到%s",
 	"vcmi.client.errors.invalidMap" : "{非法地图或战役}\n\n启动游戏失败，选择的地图或者战役，无效或被污染。原因:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{加载mod失败}\n\n加载mod发生致命错误！游戏可能无法正常进行，也可能崩溃。请升级或禁用下列mod：\n\n",
 	"vcmi.server.errors.disconnected" : "{网络错误}\n\n与游戏服务器的连接已断开！",
@@ -418,6 +420,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "全局 - 回退",
 	"vcmi.keyBindings.keyBinding.globalCancel": "全局 - 取消",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "全局 - 全屏",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "全局 - 屏幕截图",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "全局 - 移动焦点",
 	"vcmi.keyBindings.keyBinding.globalOptions": "全局 - 选项",
 	"vcmi.keyBindings.keyBinding.globalReturn": "全局 - 返回",
@@ -844,6 +847,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "设定...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "同盟关系",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "道路类型",
+	"vcmi.randomMapTab.template.minimalSize" : "最小尺寸：%dx%d，层数：%d",
+	"vcmi.randomMapTab.template.maximalSize" : "最大尺寸：%dx%d，层数：%d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "回合选项",
 	"vcmi.optionsTab.turnOptions.help" : "选择回合计时器并同步回合选项",
@@ -896,6 +901,7 @@
 
 	"vcmi.campaignSet.chronicles" : "英雄无敌历代记",
 	"vcmi.campaignSet.hota" : "深渊号角",
+	"vcmi.campaignSet.wog" : "神之苏醒",
 
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -1024,6 +1030,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description": "{双击}\n生物可以攻击两次",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{额外反击}\n每回合额外获得${val}次反击机会",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{毗邻施法}\n生物可在与目标相邻时施放${subtype.spell}",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{最大伤害}\n单位始终造成最大伤害",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{环击}\n攻击所有相邻敌人",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "{远程无反击}\n敌人无法对射击进行反击",
@@ -1086,7 +1093,7 @@
 	"core.bonus.REVENGE.description": "{复仇}\n根据攻击者在战斗中失去的生命值造成额外伤害",
 	"core.bonus.SHOOTER.description": "{远程攻击}\n生物可以射击",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description": "{范围远程攻击}\n该生物的远程攻击将同时命中小范围内所有目标",
-	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{骷髅转换场n}\n骷髅转换场可以将单位转化为${subtype.creature}",
+	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{骷髅转换场}\n骷髅转换场可以将单位转化为${subtype.creature}",
 	"core.bonus.SOUL_STEAL.description": "{灵魂窃取}\n每杀死一个敌人将获得${val}数量的生物",
 	"core.bonus.SPELL_AFTER_ATTACK.description": "{攻击后施法}\n攻击后${val}%几率施放${subtype.spell}魔法",
 	"core.bonus.SPELL_BEFORE_ATTACK.description": "{攻击前施法}\n攻击前${val}%几率施放${subtype.spell}魔法",
@@ -1112,6 +1119,7 @@
 	"core.bonus.UNDEAD.description": "{不死生物}\n该生物属于不死生物",
 	"core.bonus.UNLIMITED_RETALIATIONS.description": "{无限反击}\n每回合可以无限反击敌人",
 	"core.bonus.WIDE_BREATH.description": "{弧形焰息}\n大范围喷吐攻击(目标左右以及后方共6格)",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{承伤上限(${val}%)}\n单次攻击对该生物造成的伤害不会高于其最大生命值的${val}%",
 
 	"spell.core.castleMoat.name" : "护城河",
 	"spell.core.castleMoatTrigger.name" : "护城河",
