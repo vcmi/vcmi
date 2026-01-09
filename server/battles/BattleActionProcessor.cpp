@@ -173,7 +173,6 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
 	defence.push_back(std::make_shared<Bonus>(bonus2));
-	defence.push_back(std::make_shared<Bonus>(tagBonus));
 
 	int difference = defence.totalValue() - oldDefenceValue;
 	std::vector<Bonus> buffer;
@@ -188,6 +187,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	}
 
 	buffer.push_back(bonus2);
+	buffer.push_back(tagBonus);
 
 	sse.toUpdate.emplace_back(ba.stackNumber, buffer);
 	gameHandler->sendAndApply(sse);
