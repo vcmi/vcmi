@@ -34,6 +34,8 @@ CampaignEditor::CampaignEditor():
 {
 	ui->setupUi(this);
 	
+	setAcceptDrops(true);
+	
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
@@ -47,6 +49,21 @@ CampaignEditor::CampaignEditor():
 
 	campaignScene.reset(new CampaignScene());
 	ui->campaignView->setScene(campaignScene.get());
+	
+	// Connect the fileDropped signal from campaignView to handle file drops
+	connect(ui->campaignView, &CampaignView::fileDropped, this, [this](const QString & filename) {
+		if(!getAnswerAboutUnsavedChanges())
+			return;
+		
+		try
+		{
+			loadCampaignFile(filename);
+		}
+		catch(const std::exception & e)
+		{
+			QMessageBox::critical(this, tr("Failed to open campaign"), tr(e.what()));
+		}
+	});
 
 	redraw();
 
@@ -173,17 +190,32 @@ void CampaignEditor::showCampaignEditor(QWidget *parent)
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void CampaignEditor::on_actionOpen_triggered()
+void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile)
 {
-	if(!getAnswerAboutUnsavedChanges())
-		return;
-	
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open map"),
-		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
-		tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)"));
-	if(filenameSelect.isEmpty())
-		return;
-	
+	auto * dialog = new CampaignEditor();
+
+	dialog->move(parent->geometry().center() - dialog->rect().center());
+
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+	try
+	{
+		dialog->loadCampaignFile(campaignFile);
+		if(!dialog->campaignState)
+		{
+			dialog->close();
+			return;
+		}
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(dialog, QObject::tr("Failed to open campaign"), QObject::tr(e.what()));
+		dialog->close();
+	}
+}
+
+void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
+{
 	campaignState = Helper::openCampaignInternal(filenameSelect);
 	selectedScenario = *campaignState->allScenarios().begin();
 
@@ -201,6 +233,20 @@ void CampaignEditor::on_actionOpen_triggered()
 		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show as regions without scenario defined yet
 
 	redraw();
+}
+
+void CampaignEditor::on_actionOpen_triggered()
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+	
+	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open map"),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)"));
+	if(filenameSelect.isEmpty())
+		return;
+	
+	loadCampaignFile(filenameSelect);
 }
 
 void CampaignEditor::on_actionOpenSet_triggered()
@@ -324,6 +370,35 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 		QWidget::closeEvent(event);
 	else
 		event->ignore();
+}
+
+void CampaignEditor::dragEnterEvent(QDragEnterEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void CampaignEditor::dropEvent(QDropEvent *event)
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	for(const QUrl& url : event->mimeData()->urls())
+	{
+		QString path = url.toLocalFile();
+		if(path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+		{
+			try
+			{
+				loadCampaignFile(path);
+			}
+			catch(const std::exception & e)
+			{
+				QMessageBox::critical(this, tr("Failed to open campaign"), tr(e.what()));
+			}
+			break;
+		}
+	}
 }
 
 std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario)
