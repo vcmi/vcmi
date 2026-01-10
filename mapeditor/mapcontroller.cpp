@@ -237,7 +237,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	
 	repairMap();
 	
-	for(int i = 0; i < _map->mapLevels; i++)
+	for(int i = 0; i < _map->levels(); i++)
 	{
 		_scenes[i].reset(new MapScene(i));
 		_miniscenes[i].reset(new MinimapScene(i));
@@ -272,7 +272,7 @@ void MapController::initObstaclePainters(CMap * map)
 
 void MapController::initializeMap()
 {
-	for(int i = 0; i < _map->mapLevels; i++)
+	for(int i = 0; i < _map->levels(); i++)
 	{
 		_scenes[i]->createMap();
 		_miniscenes[i]->createMap();
@@ -281,7 +281,7 @@ void MapController::initializeMap()
 
 void MapController::sceneForceUpdate()
 {
-	for(int i = 0; i < _map->mapLevels; i++)
+	for(int i = 0; i < _map->levels(); i++)
 	{
 		_scenes[i]->updateMap();
 		_miniscenes[i]->updateMap();

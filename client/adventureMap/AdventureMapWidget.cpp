@@ -459,7 +459,7 @@ void AdventureMapWidget::updateActiveStateChildren(CIntObject * widget)
 	{
 		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
 
-		int mapLevels = GAME->interface()->cb->getMapHeader()->mapLevels;
+		int mapLevels = GAME->interface()->cb->getMapHeader()->levels();
 
 		if (container)
 		{

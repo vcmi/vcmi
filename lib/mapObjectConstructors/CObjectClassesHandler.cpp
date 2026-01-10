@@ -584,7 +584,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->templates = portal->getTemplates();
 		newPortal->sounds = portal->getSounds();
 		newPortal->aiValue = portal->getAiValue();
-		newPortal->battlefield = portal->battlefield; //getter is not initialized at this point
+		newPortal->battlefields = portal->battlefields; //getter is not initialized at this point
 		newPortal->modScope = portal->modScope; //private
 		newPortal->typeName = portal->getTypeName(); 
 		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size() + 1);

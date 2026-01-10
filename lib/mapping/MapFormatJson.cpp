@@ -853,14 +853,51 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//loading mods
 	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
+	auto getLevel = [](const std::string& name) -> int {
+		if (name == "surface")
+			return 0;
+		else if (name == "underground")
+			return 1;
+		else if (name.rfind("level-", 0) == 0) {
+			int n = std::stoi(name.substr(6));
+			return n - 1;
+		}
+		else {
+			throw std::invalid_argument("Unknown level name");
+		}
+	};
+
 	{
+		bool hasLevelParam;
 		auto levels = handler.enterStruct("mapLevels");
 		{
 			auto surface = handler.enterStruct("surface");
 			handler.serializeInt("height", mapHeader->height);
 			handler.serializeInt("width", mapHeader->width);
+			hasLevelParam = !handler.getCurrent()["layer"].isNull();
 		}
-		mapHeader->mapLevels = levels->getCurrent().Struct().size();
+		mapHeader->mapLayers.clear();
+		if(hasLevelParam)
+		{
+			mapHeader->mapLayers.resize(levels->getCurrent().Struct().size());
+			for(auto & elem : levels->getCurrent().Struct())
+			{
+				int level = getLevel(elem.first);
+				handler.serializeId("layer", mapHeader->mapLayers.at(level));
+			}
+		}
+		else
+		{
+			for(int i = 0; i < levels->getCurrent().Struct().size(); i++)
+			{
+				if(i == 0)
+					mapHeader->mapLayers.push_back(MapLayerId::SURFACE);
+				else if(i == 1)
+					mapHeader->mapLayers.push_back(MapLayerId::UNDERGROUND);
+				else
+					mapHeader->mapLayers.push_back(MapLayerId::UNKNOWN);
+			}
+		}
 	}
 
 	serializeHeader(handler);
@@ -1000,7 +1037,7 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode & src, const int index)
 
 void CMapLoaderJson::readTerrain()
 {
-	for(int i = 0; i < map->mapLevels; i++)
+	for(int i = 0; i < map->levels(); i++)
 	{
 		const JsonNode node = getFromArchive(getTerrainFilename(i));
 		readTerrainLevel(node, i);
@@ -1225,12 +1262,13 @@ void CMapSaverJson::writeHeader()
 	};
 
 	JsonNode & levels = header["mapLevels"];
-	for(int i = 0; i < map->mapLevels; i++)
+	for(int i = 0; i < map->levels(); i++)
 	{
 		auto name = getName(i);
 		levels[name]["height"].Float() = mapHeader->height;
 		levels[name]["width"].Float() = mapHeader->width;
 		levels[name]["index"].Float() = i;
+		levels[name]["layer"].String() = MapLayerId::encode(mapHeader->mapLayers.at(i));
 	}
 
 	serializeHeader(handler);
@@ -1291,7 +1329,7 @@ void CMapSaverJson::writeTerrain()
 {
 	logGlobal->trace("Saving terrain");
 
-	for(int i = 0; i < map->mapLevels; i++)
+	for(int i = 0; i < map->levels(); i++)
 	{
 		JsonNode node = writeTerrainLevel(i);
 		addToArchive(node, getTerrainFilename(i));

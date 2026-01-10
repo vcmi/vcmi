@@ -185,7 +185,7 @@ void CMapLoaderH3M::readHeader()
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
-	mapHeader->mapLevels = reader->readBool() ? 2 : 1;
+	mapHeader->mapLayers = reader->readBool() ? std::vector<MapLayerId>({MapLayerId::SURFACE, MapLayerId::UNDERGROUND}) : std::vector<MapLayerId>({MapLayerId::SURFACE});
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->author.appendRawString("");

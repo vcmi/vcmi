@@ -37,6 +37,7 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
+#include "../lib/MapLayerHandler.h"
 
 #include "../vcmiqt/launcherdirs.h"
 
@@ -287,7 +288,7 @@ MainWindow::MainWindow(QWidget* parent) :
 		// Add the combo box
 		QComboBox* combo = new QComboBox;
 		combo->setFixedHeight(ui->menuView->fontMetrics().height() + 6);
-		combo->setMinimumWidth(120);
+		combo->setMinimumWidth(160);
 		connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int index) {
 			for(auto & box : levelComboBoxes)
 				if (box->currentIndex() != index && combo != box)
@@ -441,16 +442,13 @@ void MainWindow::initializeMap(bool isNew)
 	for(auto & box : levelComboBoxes)
 	{
 		box->clear();
-		for(int i = 0; i < controller.map()->mapLevels; i++)
+		for(int i = 0; i < controller.map()->levels(); i++)
 		{
-			if(i == 0)
-				box->addItems({ tr("Surface") });
-			else if(i == 1)
-				box->addItems({ tr("Underground") });
-			else
-				box->addItems({ tr("Level - %1").arg(i + 1) });
+			box->addItems({ tr("Level %1: %2").arg(i + 1).arg(QString::fromStdString(controller.map()->mapLayers.at(i).toEntity(LIBRARY)->getNameTranslated())) });
 		}
 	}
+	ui->actionLevel->setEnabled(true);
+	ui->actionMapLayer->setEnabled(true);
 	
 	//set minimal players count
 	if(isNew)
@@ -1071,7 +1069,7 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 	if(controller.map())
 	{
-		for(int level = 0; level < controller.map()->mapLevels; ++level)
+		for(int level = 0; level < controller.map()->levels(); ++level)
 			controller.scene(level)->passabilityView.show(checked);
 	}
 }
@@ -1084,7 +1082,7 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 
 	if(controller.map())
 	{
-		for(int level = 0; level < controller.map()->mapLevels; ++level)
+		for(int level = 0; level < controller.map()->levels(); ++level)
 			controller.scene(level)->gridView.show(checked);
 	}
 }
@@ -1379,6 +1377,51 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 void MainWindow::on_actionRecreate_obstacles_triggered()
 {
 
+}
+
+
+void MainWindow::on_actionMapLayer_triggered()
+{
+	auto & currentType = controller.map()->mapLayers[mapLevel];
+	int currentPos = 0;
+
+	QList<QPair<QString, MapLayerId>> layers;
+	for(auto & layer : LIBRARY->mapLayerHandler->objects)
+	{
+		if(currentType == layer->getId())
+			currentPos = layers.size();
+		layers.append(qMakePair(QString::fromStdString(layer->getNameTranslated()), layer->getId()));
+	}
+	QStringList layerNames;
+	for (const auto &p : layers)
+		layerNames << p.first;
+
+    bool ok = false;
+    QString selected = QInputDialog::getItem(
+        nullptr,
+        tr("Select map layer type"),
+        tr("Type:"),
+        layerNames,
+        currentPos,
+        false,
+        &ok
+    );
+
+	if(ok)
+	{    
+		for (const auto & p : layers)
+		{
+			if (p.first == selected)
+			{
+				currentType = p.second;
+				
+				for(auto &box : levelComboBoxes)
+					box->setItemText(mapLevel, tr("Level %1: %2")
+										.arg(mapLevel + 1)
+										.arg(QString::fromStdString(currentType.toEntity(LIBRARY)->getNameTranslated())));
+			}
+		}
+	}
 }
 
 
