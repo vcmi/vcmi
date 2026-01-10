@@ -1415,10 +1415,23 @@ void MainWindow::on_actionExport_triggered()
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
 	if(!fileName.isNull())
 	{
-		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
+		auto * sc = static_cast<MapScene*>(ui->mapView->scene());
+		if(!sc)
+			return;
+		
+		QRectF sceneRect = sc->sceneRect();
+		
+		// Temporarily set viewport to full map for export
+		for (auto * layer : sc->getDynamicLayers())
+			layer->setViewport(sceneRect);
+		
+		QImage image(sceneRect.size().toSize(), QImage::Format_RGB888);
 		QPainter painter(&image);
-		ui->mapView->scene()->render(&painter);
+		sc->render(&painter, QRectF(), sceneRect);
 		image.save(fileName);
+		
+		// Restore viewport to visible area
+		ui->mapView->setViewports();
 	}
 }
 
