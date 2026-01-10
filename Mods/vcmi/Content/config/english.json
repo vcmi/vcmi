@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "ranged",
 	"vcmi.adventureMap.search.hover"            : "Search map object",
 	"vcmi.adventureMap.search.help"             : "Select object to search on map.",
+	"vcmi.adventureMap.layer.hover"             : "Switch Layer  -  %s (%d) to %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Switch Layer}\n\nSwitches the adventure map between map layers\n\nSwitch %s (%d) to %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",

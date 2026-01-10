@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "Fernkampf",
 	"vcmi.adventureMap.search.hover"            : "Suche Kartenobjekt",
 	"vcmi.adventureMap.search.help"             : "Wähle Objekt das gesucht werden soll.",
+	"vcmi.adventureMap.layer.hover"             : "Wechsele Ebene  -  %s (%d) zu %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Wechsele Ebene }\n\nWechselt die Abenteuerkarte zwischen den Ebenen\n\nWechsele %s (%d) zu %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Seid Ihr sicher, dass Ihr das Spiel neu starten wollt?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Kein Marktplatz verfügbar!",
