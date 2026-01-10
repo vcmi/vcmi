@@ -267,6 +267,12 @@ void BattleInterface::newRound()
 
 void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, SpellID spell)
 {
+	std::vector<BattleHex> tiles = {tile};
+	giveCommand(action, tiles, spell);
+}
+
+void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHex> & tiles,  SpellID spell)
+{
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
 	{
@@ -283,7 +289,9 @@ void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, Sp
 	BattleAction ba;
 	ba.side = side;
 	ba.actionType = action;
-	ba.aimToHex(tile);
+
+	for(auto & tile : tiles)
+		ba.aimToHex(tile);
 	ba.spell = spell;
 
 	sendCommand(ba, actor);
