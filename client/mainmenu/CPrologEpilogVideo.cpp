@@ -47,8 +47,9 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 		if((!spe.prologVideo.second.empty() && videoFinishedCounter < 2)) // play looped video at least once
 			return;
 
+		if(!videoFinished)
+			elapsedTimeMilliseconds = 0;
 		videoFinished = true;
-		elapsedTimeMilliseconds = 0;
 	});
 
 	ENGINE->music().setVolume(ENGINE->music().getVolume() / 2); // background volume is too loud by default
