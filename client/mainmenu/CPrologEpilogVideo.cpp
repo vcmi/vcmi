@@ -42,6 +42,15 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
 
+	videoPlayer->setPlaybackFinishedCallback([this]() {
+		videoFinishedCounter++;
+		if((!spe.prologVideo.second.empty() && videoFinishedCounter < 2)) // play looped video at least once
+			return;
+
+		videoFinished = true;
+		elapsedTimeMilliseconds = 0;
+	});
+
 	ENGINE->music().setVolume(ENGINE->music().getVolume() / 2); // background volume is too loud by default
 	ENGINE->music().playMusic(spe.prologMusic, true, true);
 	voiceDurationMilliseconds = ENGINE->sound().getSoundDurationMilliseconds(spe.prologVoice);
@@ -75,7 +84,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
-	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped && videoFinished) // pause after completed scrolling (longer for intros missing voice)
 		clickPressed(ENGINE->getCursorPosition());
 }
 
