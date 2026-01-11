@@ -1603,11 +1603,11 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	items.reserve(_items.size());
 
-	for(int id : _items)
+	for(size_t i = 0; i < _items.size(); i++)
 	{
-		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName();
 		trimTextIfTooWide(objectName, false);
-		items.emplace_back(id, objectName);
+		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
 
