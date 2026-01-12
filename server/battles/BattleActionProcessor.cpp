@@ -32,6 +32,237 @@
 
 #include <vstd/RNG.h>
 
+namespace
+{
+	// ====== JSON-configurable SIDs (markers as RUNE_EFFECT, need to define in BonusEnum.h) ======
+	static const std::string kRuneCreatureSID = "skill.rune.creature"; // creature has Rune system
+	static const std::string kRuneHeroSID     = "skill.rune.hero";     // hero grants Rune system
+	static const std::string kRuneVisitSID    = "skill.rune.visit";    // map visit reward (initial +1, once)
+	static const std::string kRuneNoVisitSID  = "skill.rune.noVisit";  // creature ignores visit reward (Runemaster)
+
+	// ====== One unified stack counter + derived bonuses ======
+	static const std::string kRuneTotalSID            = "skill.rune.total";          // marker sid for "current stacks"
+	static const std::string kRuneTotalStackingBase   = "skill.rune.total";          // stacking key base
+	static constexpr int kRuneMaxStacks = 9;
+	struct RuneConfig
+	{
+		int onAttack = 1;  // shoot/attack
+		int onDefend = 3;  // defend
+		int onHit    = 2;  // being attacked
+		int maxStacks = 9; // cap
+	};
+
+	inline RuneConfig readRuneConfigFromMarker(const std::shared_ptr<const Bonus> & b)
+	{
+		RuneConfig cfg;
+		if(!b) return cfg;
+
+		// additionalInfo is usually vector<int>. CAddInfo::NONE means "not set".
+		if(b->additionalInfo.size() > 0 && b->additionalInfo[0] != CAddInfo::NONE) cfg.onAttack = b->additionalInfo[0];
+		if(b->additionalInfo.size() > 1 && b->additionalInfo[1] != CAddInfo::NONE) cfg.onDefend = b->additionalInfo[1];
+		if(b->additionalInfo.size() > 2 && b->additionalInfo[2] != CAddInfo::NONE) cfg.onHit    = b->additionalInfo[2];
+		if(b->additionalInfo.size() > 3 && b->additionalInfo[3] != CAddInfo::NONE) cfg.maxStacks = b->additionalInfo[3];
+
+		// safety clamp
+		vstd::amax(cfg.maxStacks, 1);
+		return cfg;
+	}
+
+	inline std::shared_ptr<const Bonus> findRuneMarker(const CBonusSystemNode * node, const std::string & sidStr)
+	{
+		if(!node) return nullptr;
+		auto markers = node->getBonuses(Selector::type()(BonusType::RUNE_EFFECT));
+		for(const auto & b : *markers)
+		{
+			if(b && b->sid.toString() == sidStr)
+				return b;
+		}
+		return nullptr;
+	}
+
+	inline RuneConfig getCreatureRuneConfig(const CStack * stack)
+	{
+		return readRuneConfigFromMarker(findRuneMarker(stack, kRuneCreatureSID));
+	}
+
+	inline RuneConfig getHeroRuneConfig(const CGHeroInstance * hero)
+	{
+		return readRuneConfigFromMarker(findRuneMarker(hero, kRuneHeroSID));
+	}
+
+	inline int calcRuneAttack(int stacks)  { return 2 * ((stacks + 2) / 3); } // 1-3=>2, 4-6=>4, 7-9=>6
+	inline int calcRuneDefense(int stacks) { return 2 * ((stacks + 1) / 3); } // 0-1=>0, 2-4=>2, 5-7=>4, 8-9=>6
+	inline int calcRuneSpeed(int stacks)   { return (stacks / 3); }           // 0-2=>0, 3-5=>1, 6-8=>2, 9=>3
+
+	inline bool hasMarkerSID(const CBonusSystemNode * node, const std::string & sidStr)
+	{
+		if(!node) return false;
+		auto markers = node->getBonuses(Selector::type()(BonusType::RUNE_EFFECT));
+		for(const auto & b : *markers)
+		{
+			if(b && b->sid.toString() == sidStr)
+				return true;
+		}
+		return false;
+	}
+
+	inline bool stackHasRuneSystem(const CStack * stack, const CGHeroInstance * hero)
+	{
+		// Rune system is enabled if:
+		// - creature has its own rune marker OR
+		// - hero grants rune skill OR
+		// - hero has visit marker (because it provides initial stacks)
+		if(stack && hasMarkerSID(stack, kRuneCreatureSID))
+			return true;
+		if(hero && hasMarkerSID(hero, kRuneHeroSID))
+			return true;
+		if(hero && hasMarkerSID(hero, kRuneVisitSID))
+			return true;
+		return false;
+	}
+
+	inline bool stackIgnoresVisit(const CStack * stack)
+	{
+		return stack && hasMarkerSID(stack, kRuneNoVisitSID);
+	}
+
+	// read current total stacks from hidden marker (RUNE_EFFECT + stacking key)
+	inline int getRuneTotalStacks(const CStack * stack)
+	{
+		if(!stack) return 0;
+
+		const std::string markerKey = kRuneTotalStackingBase + ".stacks";
+		auto markers = stack->getBonuses(Selector::type()(BonusType::RUNE_EFFECT));
+		for(const auto & b : *markers)
+		{
+			if(b && b->sid.toString() == kRuneTotalSID && b->stacking == markerKey)
+				return b->val;
+		}
+		return 0;
+	}
+	// a function to determine if a "marker" exists
+	inline bool hasRuneTotalMarker(const CStack * stack)
+	{
+		if(!stack) return false;
+
+		const std::string markerKey = kRuneTotalStackingBase + ".stacks";
+		auto markers = stack->getBonuses(Selector::type()(BonusType::RUNE_EFFECT));
+		for(const auto & b : *markers)
+		{
+			if(b && b->sid.toString() == kRuneTotalSID && b->stacking == markerKey)
+				return true;
+		}
+		return false;
+	}
+
+
+	// write marker + derived bonuses (atk/def/spd) based on TOTAL stacks
+	inline void buildRuneTotalBonusBuffer(std::vector<Bonus> & out, int totalStacks)
+	{
+		// hidden marker
+		Bonus marker(BonusDuration::ONE_BATTLE, BonusType::RUNE_EFFECT, BonusSource::OTHER, totalStacks, BonusSourceID(kRuneTotalSID));
+		marker.hidden = true;
+		marker.stacking = kRuneTotalStackingBase + ".stacks";
+		out.push_back(marker);
+
+		const int atk = calcRuneAttack(totalStacks);
+		const int def = calcRuneDefense(totalStacks);
+		const int spd = calcRuneSpeed(totalStacks);
+
+		if(atk != 0)
+		{
+			Bonus b(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::OTHER, atk, BonusSourceID(kRuneTotalSID),
+			        BonusSubtypeID(PrimarySkill::ATTACK), BonusValueType::ADDITIVE_VALUE);
+			b.stacking = kRuneTotalStackingBase + ".atk";
+			out.push_back(b);
+		}
+
+		if(def != 0)
+		{
+			Bonus b(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::OTHER, def, BonusSourceID(kRuneTotalSID),
+			        BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+			b.stacking = kRuneTotalStackingBase + ".def";
+			out.push_back(b);
+		}
+
+		if(spd != 0)
+		{
+			Bonus b(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::OTHER, spd, BonusSourceID(kRuneTotalSID),
+			        BonusSubtypeID(), BonusValueType::ADDITIVE_VALUE);
+			b.stacking = kRuneTotalStackingBase + ".spd";
+			out.push_back(b);
+		}
+	}
+
+	// Ensure visit initial stacks applied ONCE:
+	// - if hero has kRuneVisitSID => initial +1
+	// - but if stack has kRuneNoVisitSID => skip
+	// - do not re-apply if total marker already exists (treated as "already initialized")
+	inline void ensureRuneVisitInitialApplied(
+		CGameHandler * gameHandler,
+		const CBattleInfoCallback & battle,
+		const CStack * stack,
+		const CGHeroInstance * hero
+	)
+	{
+		if(!stack || !hero) return;
+		if(!hasMarkerSID(hero, kRuneVisitSID)) return;
+		if(stackIgnoresVisit(stack)) return;
+
+		// If marker exists, we consider battle init done (visit should not stack)
+		if(hasRuneTotalMarker(stack))
+			return;
+
+		// initial = 1 (cap handled below)
+		const int newTotal = std::min(kRuneMaxStacks, 1);
+
+		SetStackEffect sse;
+		sse.battleID = battle.getBattle()->getBattleID();
+
+		std::vector<Bonus> buffer;
+		buildRuneTotalBonusBuffer(buffer, newTotal);
+
+		sse.toUpdate.emplace_back(stack->unitId(), buffer);
+		gameHandler->sendAndApply(sse);
+	}
+
+	// Unified add stacks (DEFEND +3 / ATTACK +1 / BEING HIT +2), capped at 9
+	inline void applyRuneAddStacks(
+		CGameHandler * gameHandler,
+		const CBattleInfoCallback & battle,
+		const CStack * stack,
+		const CGHeroInstance * hero,
+		int addStacks
+	)
+	{
+		if(!stack || addStacks <= 0)
+			return;
+
+		// only stacks that are under rune system (creature marker or hero marker or visit marker)
+		if(!stackHasRuneSystem(stack, hero))
+			return;
+
+		// apply visit initial once (if any)
+		ensureRuneVisitInitialApplied(gameHandler, battle, stack, hero);
+
+		const int current = getRuneTotalStacks(stack);
+		const int cap = kRuneMaxStacks;
+		const int next = std::min(cap, current + addStacks);
+		if(next == current)
+			return;
+
+		SetStackEffect sse;
+		sse.battleID = battle.getBattle()->getBattleID();
+
+		std::vector<Bonus> buffer;
+		buildRuneTotalBonusBuffer(buffer, next);
+
+		sse.toUpdate.emplace_back(stack->unitId(), buffer);
+		gameHandler->sendAndApply(sse);
+	}
+}
+
+
 BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -158,6 +389,29 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	if (!canStackAct(battle, stack))
 		return false;
+	
+	// === Rune stacks trigger: DEFEND (configurable) ===
+	{
+		const auto * hero = battle.battleGetFightingHero(stack->unitSide());
+
+		int stacksToAdd = 0;
+
+		if (auto creatureMarker = findRuneMarker(stack, kRuneCreatureSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(creatureMarker);
+			stacksToAdd = cfg.onDefend;
+		}
+		else if (auto heroMarker = findRuneMarker(hero, kRuneHeroSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(heroMarker);
+			stacksToAdd = cfg.onDefend;
+		}
+
+		applyRuneAddStacks(gameHandler, battle, stack, hero, stacksToAdd);
+	}
+
+
+
 
 	//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
 	SetStackEffect sse;
@@ -320,6 +574,28 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
 	}
+	
+	// === Rune stacks trigger: ATTACK (configurable) ===
+	{
+		const auto * hero = battle.battleGetFightingHero(stack->unitSide());
+
+		int stacksToAdd = 0;
+
+		if (auto creatureMarker = findRuneMarker(stack, kRuneCreatureSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(creatureMarker);
+			stacksToAdd = cfg.onAttack;
+		}
+		else if (auto heroMarker = findRuneMarker(hero, kRuneHeroSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(heroMarker);
+			stacksToAdd = cfg.onAttack;
+		}
+
+		applyRuneAddStacks(gameHandler, battle, stack, hero, stacksToAdd);
+	}
+
+
 
 	//return
 	if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
@@ -412,6 +688,27 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 			makeAttack(battle, stack, destinationStack, 0, destination, false, true, false);
 		}
 	}
+	
+	// === Rune stacks trigger: SHOOT/ATTACK (+1) ===
+	{
+		const auto * hero = battle.battleGetFightingHero(stack->unitSide());
+
+		int stacksToAdd = 0;
+
+		if (auto creatureMarker = findRuneMarker(stack, kRuneCreatureSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(creatureMarker);
+			stacksToAdd = cfg.onAttack;
+		}
+		else if (auto heroMarker = findRuneMarker(hero, kRuneHeroSID))
+		{
+			const RuneConfig cfg = readRuneConfigFromMarker(heroMarker);
+			stacksToAdd = cfg.onAttack;
+		}
+
+		applyRuneAddStacks(gameHandler, battle, stack, hero, stacksToAdd);
+	}
+
 
 	return true;
 }
@@ -1536,6 +1833,22 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 			}
 		}
 	}
+	
+	// Damage only stacks if damage is actually taken (or at least an attack settlement occurs); here, damageAmount > 0 is used as the trigger condition
+	// === Rune stacks trigger: BEING ATTACKED (configurable) ===
+	if(bsa.damageAmount > 0)
+	{
+		const auto * hero = battle.battleGetFightingHero(def->unitSide());
+
+		RuneConfig cfg;
+		if(auto creatureMarker = findRuneMarker(def, kRuneCreatureSID))
+			cfg = readRuneConfigFromMarker(creatureMarker);
+		else if(auto heroMarker = findRuneMarker(hero, kRuneHeroSID))
+			cfg = readRuneConfigFromMarker(heroMarker);
+
+		applyRuneAddStacks(gameHandler, battle, battle.battleGetStackByID(def->unitId()), hero, cfg.onHit);
+	}
+
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
