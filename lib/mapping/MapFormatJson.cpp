@@ -883,6 +883,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 			for(auto & elem : levels->getCurrent().Struct())
 			{
 				int level = getLevel(elem.first);
+				auto levelStruct = handler.enterStruct(elem.first);
 				handler.serializeId("layer", mapHeader->mapLayers.at(level));
 			}
 		}
