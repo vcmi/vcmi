@@ -86,6 +86,7 @@ void CMapLoaderH3M::init()
 
 	readHeader();
 	readMapOptions();
+	readHotaScripts();
 	readAllowedArtifacts();
 	readAllowedSpellsAbilities();
 	readRumors();
@@ -146,7 +147,8 @@ void CMapLoaderH3M::readHeader()
 			int32_t townTypesCount = reader->readUInt32();
 			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
 
-			assert(features.factionsCount == townTypesCount);
+			// wrong assumption and this is not related to factions?
+			// assert(features.factionsCount == townTypesCount);
 
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
@@ -168,6 +170,13 @@ void CMapLoaderH3M::readHeader()
 			bool forceMatchingVersion = reader->readBool();
 			if (forceMatchingVersion)
 				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", mapName);
+		}
+
+		if(features.levelHOTA9)
+		{
+			int unknown = reader->readInt32();
+			if(unknown != 0)
+				logGlobal->warn("Map '%s': Unknown value in header was set to %d!", mapName, unknown);
 		}
 	}
 	else
@@ -749,6 +758,619 @@ void CMapLoaderH3M::readMapOptions()
 	map->overrideGameSettings(identifierMapper.getFormatSettings());
 }
 
+void CMapLoaderH3M::readHotaScripts()
+{
+	if(!features.levelHOTA9)
+		return;
+
+	bool eventsSystemActive = reader->readBool();
+	if(!eventsSystemActive)
+		return;
+
+	const auto & loadEventList = [this](const std::string & eventType) -> void
+	{
+		int eventsCount = reader->readInt32();
+		for(int i = 0; i < eventsCount; ++i)
+		{
+			int eventID = reader->readInt32();
+			readHotaScriptActions();
+			std::string eventName = reader->readBaseString();
+			logGlobal->warn("Map %s: Event %s (%d), type %d is not implemented!", mapName, eventName, eventID, eventType);
+		}
+	};
+
+	const auto & loadEventMap = [this]() -> void
+	{
+		int mappingSize = reader->readInt32();
+		for(int i = 0; i < mappingSize; ++i)
+			reader->readInt32(); // UID of event
+	};
+
+	loadEventList("hero event");
+	loadEventList("player event");
+	loadEventList("town event");
+	loadEventList("quest event");
+
+	int nextVariableID = reader->readInt32();
+	int nextHeroEventID = reader->readInt32();
+	int nextPlayerEventID = reader->readInt32();
+	int nextTownEventID = reader->readInt32();
+	int nextQuestEventID = reader->readInt32();
+	logGlobal->trace("Map %s: Next event ID's: %d, %d, %d, %d, %d", mapName, nextVariableID, nextHeroEventID, nextPlayerEventID, nextTownEventID, nextQuestEventID);
+
+	int variablesCount = reader->readInt32();
+	for(int i = 0; i < variablesCount; ++i)
+	{
+		int32_t uniqueID = reader->readInt32(); // 1... - unique index?
+		std::string variableID = reader->readBaseString();
+		bool unkPropA = reader->readBool(); // save in campaign?
+		bool unkPropB = reader->readBool(); // import from prev map?
+		int32_t initialValue = reader->readInt32();
+		logGlobal->warn("Map %s: Variable %s (%d), initial value %d, flags %d/%d is not implemented", mapName, variableID, uniqueID, initialValue, unkPropA, unkPropB);
+	}
+
+	loadEventMap(); // hero event
+	loadEventMap(); // player event
+	loadEventMap(); // town event
+	loadEventMap(); // quest event
+	loadEventMap(); // variable
+}
+
+void CMapLoaderH3M::readHotaScriptActions()
+{
+	enum class HotaScriptActions : int32_t
+	{
+		// NOOP = 0? Unused?
+		CONDITIONAL_CHAIN = 1,
+		SET_VARIABLE_CONDITIONAL = 2,
+		MODIFY_VARIABLE = 3,
+		RESOURCES = 4,
+		REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST = 5, // shared ID ???
+		SHOW_REWARDS_MESSAGE = 6,
+		QUEST_ACTION = 7,
+		CREATURES = 8,
+		ARTIFACT = 9,
+		CONSTRUCT_BUILDING = 10,
+		SET_QUEST_HINT = 11,
+		SHOW_QUESTION = 12,
+		CONDITIONAL = 13,
+		CREATURES_TO_HIRE = 14,
+		SPELL = 15,
+		EXPERIENCE = 16,
+		SPELL_POINTS = 17,
+		MOVEMENT_POINTS = 18,
+		PRIMARY_SKILL = 19,
+		SECONDARY_SKILL = 20,
+		LUCK = 21,
+		MORALE = 22,
+		START_COMBAT = 23,
+		EXECUTE_EVENT = 24,
+		WAR_MACHINE = 25,
+		SPELLBOOK = 26,
+		DISABLE_EVENT = 27,
+		LOOP_FOR = 28,
+		SHOW_MESSAGE = 29
+	};
+
+	int unk2 = reader->readInt32(); // event type?
+	int unk3 = reader->readInt8();
+	assert(unk2 == 0);
+	assert(unk3 == 0);
+
+	int actionsCount = reader->readInt32();
+	for(int j = 0; j < actionsCount; ++j)
+	{
+		HotaScriptActions actionType = static_cast<HotaScriptActions>(reader->readInt32());
+
+		switch(actionType)
+		{
+			case HotaScriptActions::SHOW_MESSAGE:
+			{
+				std::string textID = readBasicString();
+				int numberOfImages = reader->readInt32();
+				// TODO: parse image data
+				logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: message %s, %d images", mapName, textID, numberOfImages);
+				break;
+			}
+			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
+			{
+				std::string textID = readBasicString();
+				readHotaScriptActions();
+				logGlobal->warn("Map %s: HotA Script action - SHOW_REWARDS_MESSAGE: message %s", mapName, textID);
+				break;
+			}
+			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
+			{
+				logGlobal->warn("Map %s: HotA Script action - REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST", mapName);
+				break; // no-op
+			}
+			case HotaScriptActions::QUEST_ACTION:
+			{
+				readHotaScriptCondition();
+				std::string proposalTextID = readBasicString();
+				std::string progressionTextID = readBasicString();
+				std::string completionTextID = readBasicString();
+				std::string hintTextID = readBasicString();
+				readHotaScriptActions();
+				bool unk5 = reader->readBool(); // ???
+				assert(unk5 == 0);
+				logGlobal->warn("Map %s: HotA Script action - QUEST_ACTION: '%s' / '%s' / '%s' / '%s'", mapName, proposalTextID, progressionTextID, completionTextID, hintTextID);
+				break;
+			}
+			case HotaScriptActions::CONDITIONAL:
+			{
+				readHotaScriptCondition();
+				readHotaScriptActions();
+				readHotaScriptActions();
+				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL", mapName);
+				break;
+			}
+
+			case HotaScriptActions::LOOP_FOR:
+			{
+				readHotaScriptActions(); // loop body
+				readHotaScriptExpression(); // initial value
+				readHotaScriptExpression(); // final value
+				int variableID = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - LOOP_FOR: variable ID %d", mapName, variableID);
+				break;
+			}
+
+			case HotaScriptActions::SET_QUEST_HINT:
+			{
+				std::string messageTextID = readBasicString();
+				int imagesCount = reader->readInt32();
+				// TODO: parse image data
+				bool showInLog = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: '%s', %d images, show in log: %d", mapName, messageTextID, imagesCount, showInLog);
+				break;
+			}
+
+			case HotaScriptActions::SHOW_QUESTION:
+			{
+				bool unknown = reader->readBool(); // image show type?
+				std::string messageTextID = readBasicString();
+				readHotaScriptActions();
+				readHotaScriptActions();
+				bool unknown2 = reader->readInt32(); // image show type?
+				assert(unknown == 0);
+				assert(unknown2 == 0);
+				logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: '%s', unknown: %d/%d", mapName, messageTextID, unknown, unknown2);
+				break;
+			}
+			case HotaScriptActions::ARTIFACT:
+			{
+				bool takeArtifact = reader->readBool();
+				ArtifactID artifact = reader->readArtifact32();
+				SpellID scrollSpellID = reader->readSpell32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - ARTIFACT: art %d, spell %d, take: %d, show message: %d", mapName, artifact.getNum(), scrollSpellID.getNum(), takeArtifact, showMessage);
+				break;
+			}
+			case HotaScriptActions::WAR_MACHINE:
+			{
+				bool takeMachine = reader->readBool();
+				ArtifactID machine = reader->readArtifact32();
+				reader->skipUnused(4); // garbage?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - WAR_MACHINE: art %d, take: %d, show message: %d", mapName, machine.getNum(), takeMachine, showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELL:
+			{
+				SpellID spellID = reader->readSpell32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELL: spell %d, show message: %d", mapName, spellID.getNum(), showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELLBOOK:
+			{
+				bool takeSpellbook = reader->readBool();
+				reader->skipUnused(8); // garbage?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELLBOOK: take: %d, show message: %d", mapName, takeSpellbook, showMessage);
+				break;
+			}
+			case HotaScriptActions::CREATURES:
+			{
+				bool takeCreatures = reader->readBool();
+				CreatureID creature = reader->readCreature32();
+				readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - CREATURES: creature %d, take creatures: %d, show message: %d", mapName, creature.getNum(), takeCreatures, showMessage);
+				break;
+			}
+			case HotaScriptActions::START_COMBAT:
+			{
+				for(int i = 0; i < 7; ++i)
+				{
+					readHotaScriptExpression();
+					CreatureID creature = reader->readCreature32();
+				}
+				logGlobal->warn("Map %s: HotA Script action - START_COMBAT", mapName);
+				break;
+			}
+			case HotaScriptActions::SECONDARY_SKILL:
+			{
+				int masteryLevel = reader->readInt32(); // 1..3
+				SecondarySkill skill = reader->readSkill32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SECONDARY_SKILL", mapName);
+				break;
+			}
+			case HotaScriptActions::MORALE:
+			{
+				int amount = reader->readInt32(); // -3..3
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - MORALE amount: %d, show message: %d", mapName, amount, showMessage);
+				break;
+			}
+			case HotaScriptActions::LUCK:
+			{
+				int amount = reader->readInt32(); // -3..3
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - LUCK amount: %d, show message: %d", mapName, amount, showMessage);
+				break;
+			}
+			case HotaScriptActions::EXPERIENCE:
+			{
+				readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - EXPERIENCE show message: %d", mapName, showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELL_POINTS:
+			{
+				readHotaScriptExpression();
+				int mode = reader->readInt32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELL_POINTS mode: %d, show message: %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::CREATURES_TO_HIRE:
+			{
+				int dwelling = reader->readInt32(); // 0-based
+				readHotaScriptExpression(); // amount
+				int unknown = reader->readInt32(); // factory 8th dwelling?
+				bool showMessage = reader->readBool();
+				assert(unknown == -1);
+				logGlobal->warn("Map %s: HotA Script action - CREATURES_TO_HIRE dwelling: %d, unknown: %d, show message: %d", mapName, dwelling, unknown, showMessage);
+				break;
+			}
+			case HotaScriptActions::CONSTRUCT_BUILDING:
+			{
+				int buidingID = reader->readBuilding32(std::nullopt);
+				int unknownA = reader->readInt16(); // faction ID?
+				int unknownB = reader->readInt16(); // faction building ID?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - CONSTRUCT_BUILDING, building %d, unknown %d / %d, show message %d", mapName, buildingID.getNum(), unknownA, unknownB, showMessage);
+				break;
+			}
+			case HotaScriptActions::EXECUTE_EVENT:
+			{
+				int eventType = reader->readInt32();
+				int eventID = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - EXECUTE_EVENT event type %d, event ID %d", mapName, eventType, eventID);
+				break;
+			}
+			case HotaScriptActions::MOVEMENT_POINTS:
+			{
+				readHotaScriptExpression();
+				int mode = reader->readInt32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - MOVEMENT_POINTS mode %d, show message %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::RESOURCES:
+			{
+				int mode = reader->readInt8();
+				for(int i = 0; i < 7; ++i)
+					readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - RESOURCES mode %d, show message %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::PRIMARY_SKILL:
+			{
+				readHotaScriptExpression();
+				PrimarySkill skillToGive(reader->readInt32());
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - PRIMARY_SKILL skill %d, show message %d", mapName, skillToGive.getNum(), showMessage);
+				break;
+			}
+			case HotaScriptActions::MODIFY_VARIABLE:
+			{
+				int variableID = reader->readInt32();
+				int mode = reader->readInt8();
+				readHotaScriptExpression(); // new value
+				logGlobal->warn("Map %s: HotA Script action - MODIFY_VARIABLE variable ID %d, mode %d", mapName, variableID, mode);
+				break;
+			}
+			case HotaScriptActions::SET_VARIABLE_CONDITIONAL:
+			{
+				int variableID = reader->readInt32();
+				readHotaScriptCondition();
+				readHotaScriptExpression();
+				readHotaScriptExpression();
+				logGlobal->warn("Map %s: HotA Script action - SET_VARIABLE_CONDITIONAL variable ID %d", mapName, variableID);
+				break;
+			}
+			case HotaScriptActions::CONDITIONAL_CHAIN:
+			{
+				for(;;)
+				{
+					readHotaScriptCondition();
+					readHotaScriptActions();
+
+					int unknown = reader->readBool();
+					int unknown2 = reader->readInt32();
+					assert(unknown == 0);
+					assert(unknown2 == 0);
+					logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN block, unknown %d/%d", mapName, unknown, unknown2);
+					if(unknown2 == 0)
+						break;
+				}
+				int unknown3 = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN end, unknown %d", mapName, unknown3);
+				break;
+			}
+			default:
+				throw std::runtime_error("Unknown event action code:" + std::to_string(static_cast<int>(actionType)));
+		}
+	}
+}
+
+void CMapLoaderH3M::readHotaScriptCondition()
+{
+	bool unknown = reader->readBool();
+	readHotaScriptConditionInternal();
+}
+
+void CMapLoaderH3M::readHotaScriptConditionInternal()
+{
+	enum class HotaScriptCondition : int32_t
+	{
+		CONSTANT = 0,
+		ALL_OF = 1, // and
+		ANY_OF = 2, // or
+		LESSER = 3,
+		GREATER = 4,
+		EQUAL = 5,
+		NOT = 6,
+		HAS_ARTIFACT = 7,
+		GREATER_OR_EQUAL = 8,
+		LESSER_OR_EQUAL = 9,
+		NOT_EQUAL = 10,
+		CURRENT_PLAYER = 11,
+		HERO_OWNER = 12,
+		// ??? = 13 unused or missing?
+		PLAYER_DEFEATED_MONSTER = 14,
+		PLAYER_DEFEATED_HERO = 15,
+		HERO_SECONDARY_SKILL = 16,
+		PLAYER_DEFEATED = 17,
+		PLAYER_OWNS_TOWN = 18,
+		PLAYER_IS_HUMAN = 19,
+		PLAYER_STARTING_FACTION = 20,
+		TOWN_IS_NEUTRAL = 21
+	};
+
+	HotaScriptCondition conditionCode = static_cast<HotaScriptCondition>(reader->readInt32());
+	switch(conditionCode)
+	{
+		case HotaScriptCondition::CONSTANT:
+		{
+			bool value = reader->readBool();
+			break;
+		}
+		case HotaScriptCondition::ANY_OF:
+		case HotaScriptCondition::ALL_OF:
+		{
+			int argumentsCount = reader->readInt32();
+			for(int i = 0; i < argumentsCount; ++i)
+				readHotaScriptConditionInternal();
+			break;
+		}
+		case HotaScriptCondition::LESSER_OR_EQUAL:
+		case HotaScriptCondition::NOT_EQUAL:
+		case HotaScriptCondition::GREATER_OR_EQUAL:
+		case HotaScriptCondition::LESSER:
+		case HotaScriptCondition::EQUAL:
+		case HotaScriptCondition::GREATER:
+		{
+			readHotaScriptExpression();
+			readHotaScriptExpression();
+			break;
+		}
+		case HotaScriptCondition::NOT:
+		{
+			readHotaScriptCondition();
+			break;
+		}
+		case HotaScriptCondition::HAS_ARTIFACT:
+		{
+			ArtifactID artifact = reader->readArtifact32();
+			SpellID scrollSpellID = reader->readSpell32();
+			logGlobal->warn("Loaded Has Artifact condition (%d, %d)", artifact.getNum(), scrollSpellID.getNum());
+			break;
+		}
+		case HotaScriptCondition::CURRENT_PLAYER:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32();
+			break;
+		}
+		case HotaScriptCondition::HERO_OWNER:
+		{
+			HeroTypeID expectedHero = reader->readHero32();
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -2 = current hero, -1 = current player
+			break;
+		}
+		case HotaScriptCondition::HERO_SECONDARY_SKILL:
+		{
+			SecondarySkill expectedSkill = reader->readSkill32();
+			int32_t expectedMastery = reader->readInt32();
+			break;
+		}
+		case HotaScriptCondition::TOWN_IS_NEUTRAL:
+		{
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32();
+			break;
+		}
+		case HotaScriptCondition::PLAYER_IS_HUMAN:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			break;
+		}
+		case HotaScriptCondition::PLAYER_STARTING_FACTION:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			FactionID expectedFaction = reader->readFaction32();
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier? Garbage???
+			break;
+		}
+		case HotaScriptCondition::PLAYER_OWNS_TOWN:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
+			break;
+		}
+		default:
+			logGlobal->warn("Unknown event condition code %d", static_cast<int>(conditionCode));
+	}
+}
+
+void CMapLoaderH3M::readHotaScriptExpression()
+{
+	enum class HotaScriptExpression : int32_t
+	{
+		INTEGER_VALUE = 0,
+		VARIABLE_VALUE = 1,
+		NEGATE = 2,
+		ADD = 3,
+		SUBSTRACT = 4,
+		RESOURCE = 5,
+		MULTIPLY = 6,
+		DIVIDE = 7,
+		REMAINDER = 8,
+		CREATURE_COUNT_IN_ARMY = 9,
+		CURRENT_DIFFICULTY = 10,
+		COMPARE_DIFFICULTY = 11,
+		CURRENT_DATE = 12,
+		HERO_EXPERIENCE = 13,
+		HERO_LEVEL = 14,
+		HERO_PRIMARY_SKILL = 15,
+		RANDOM_NUMBER = 16,
+		HERO_OWNED_ARTIFACTS = 17,
+	};
+
+	bool isExpression = reader->readBool();
+
+	if(!isExpression)
+	{
+		int rawValue = reader->readInt32();
+		return;
+	}
+
+	int unknown = reader->readBool();
+	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
+	switch(expressionCode)
+	{
+		case HotaScriptExpression::INTEGER_VALUE:
+		{
+			int value = reader->readInt32();
+			break;
+		}
+		case HotaScriptExpression::VARIABLE_VALUE:
+		{
+			int variableIndex = reader->readInt32();
+			break;
+		}
+		case HotaScriptExpression::RANDOM_NUMBER:
+		{
+			readHotaScriptExpression();
+			readHotaScriptExpression();
+			break;
+		}
+		case HotaScriptExpression::ADD:
+		case HotaScriptExpression::SUBSTRACT:
+		case HotaScriptExpression::MULTIPLY:
+		case HotaScriptExpression::DIVIDE:
+		case HotaScriptExpression::REMAINDER:
+		{
+			int unknown2 = reader->readInt32();
+			readHotaScriptExpression();
+			int unknown1 = reader->readInt32();
+			readHotaScriptExpression();
+			break;
+		}
+		case HotaScriptExpression::NEGATE:
+		{
+			int unknown2 = reader->readInt32();
+			readHotaScriptExpression();
+			break;
+		}
+		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
+		{
+			CreatureID creature = reader->readCreature32();
+			break;
+		}
+		case HotaScriptExpression::CURRENT_DIFFICULTY:
+		{
+			break;
+		}
+		case HotaScriptExpression::COMPARE_DIFFICULTY:
+		{
+			int difficultyToCompare = reader->readInt32();
+			break;
+		}
+		case HotaScriptExpression::HERO_PRIMARY_SKILL:
+		{
+			PrimarySkill skill(reader->readInt32());
+			break;
+		}
+		case HotaScriptExpression::CURRENT_DATE:
+		{
+			break;
+		}
+		case HotaScriptExpression::HERO_EXPERIENCE:
+		{
+			break;
+		}
+		case HotaScriptExpression::HERO_LEVEL:
+		{
+			break;
+		}
+		case HotaScriptExpression::HERO_OWNED_ARTIFACTS:
+		{
+			ArtifactID artifact = reader->readArtifact32();
+			SpellID scrollSpell = reader->readSpell32();
+			break;
+		}
+		case HotaScriptExpression::RESOURCE:
+		{
+			PlayerColor player = reader->readPlayer(); // has special value for current player
+			GameResID resource(reader->readInt32());
+			break;
+		}
+		default:
+			logGlobal->warn("Unknown event expression code %d", static_cast<int>(expressionCode));
+	}
+}
+
 void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = LIBRARY->arth->getDefaultAllowed();
@@ -1162,6 +1784,17 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		int32_t allowedDifficultiesMask = reader->readInt32();
 		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
 		object->presentOnDifficulties = MapDifficultySet(allowedDifficultiesMask);
+	}
+
+	if (features.levelHOTA9)
+	{
+		bool usesEventSystem = reader->readBool();
+		if(usesEventSystem)
+		{
+			int32_t eventID = reader->readInt32();
+			bool syncronizeObjects = reader->readBool();
+			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for event/pandora at %s is not implemented!", mapName, eventID, syncronizeObjects, mapPosition.toString());
+		}
 	}
 }
 
@@ -2827,6 +3460,17 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 		int32_t affectedDifficulties = reader->readInt32();
 		assert(affectedDifficulties > 0 && affectedDifficulties < 32);
 		event.affectedDifficulties = MapDifficultySet(affectedDifficulties);
+	}
+
+	if(features.levelHOTA9)
+	{
+		bool usesEventSystem = reader->readBool();
+		if(usesEventSystem)
+		{
+			int32_t eventID = reader->readInt32();
+			bool syncronizeObjects = reader->readBool();
+			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for timed/town event is not implemented!", mapName, eventID, syncronizeObjects);
+		}
 	}
 }
 

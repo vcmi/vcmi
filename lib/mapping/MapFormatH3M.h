@@ -127,6 +127,15 @@ private:
 	void readMapOptions();
 
 	/**
+	 * Reads HotA events system.
+	 */
+	void readHotaScripts();
+	void readHotaScriptActions();
+	void readHotaScriptCondition();
+	void readHotaScriptConditionInternal();
+	void readHotaScriptExpression();
+
+	/**
 	 * Reads the list of allowed heroes.
 	 */
 	void readAllowedHeroes();
