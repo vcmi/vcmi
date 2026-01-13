@@ -183,6 +183,12 @@ These are fields that are present only in local mod.json file
 	[
 		"config/obstacles.json"
 	],
+	
+	// List of configuration files for map layers
+	"mapLayers" :
+	[
+		"config/mapLayers.json"
+	],
 
 	// List of RMG templates defined in this mod
 	"templates" :

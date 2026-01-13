@@ -89,56 +89,47 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">导出日志</translation>
+        <translation>导出日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">保存日志</translation>
+        <translation>保存日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">ZIP 压缩包 (*.zip)</translation>
+        <translation>ZIP 压缩包 (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">创建压缩包失败：%1</translation>
+        <translation>创建压缩包失败：%1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">发送日志</translation>
+        <translation>发送日志</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">压缩包将通过其他应用发送。请将日志（例如通过 Discord）分享给开发者。</translation>
+        <translation>压缩包将通过其他应用发送。请将日志（例如通过 Discord）分享给开发者。</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">成功</translation>
+        <translation>成功</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">日志已保存到 %1，请将其发送给开发者</translation>
+        <translation>日志已保存到 %1，请将其发送给开发者</translation>
     </message>
 </context>
 <context>
@@ -312,14 +303,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
         <source>Git-Repository</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Git 仓库</translation>
+        <translation>Git源</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
         <source>GitHub-Stars</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">GitHub 星标</translation>
+        <translation>GitHub星标</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -458,8 +447,8 @@ Install successfully downloaded?</source>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>已成功导入 %1 张地图。</numerusform>
         </translation>
     </message>
     <message>
@@ -928,38 +917,32 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">StupidAI（已弃用）</translation>
+        <translation>StupidAI（已弃用）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">BattleAI（默认，推荐）</translation>
+        <translation>BattleAI（默认，推荐）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">MMAI（实验性）</translation>
+        <translation>MMAI（实验性）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller（已被 Nullkiller2 取代）</translation>
+        <translation>Nullkiller（已被 Nullkiller2 取代）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller2（默认，推荐）</translation>
+        <translation>Nullkiller2（默认，推荐）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">EmptyAI - 未找到有效的 AI 库！</translation>
+        <translation>EmptyAI - 未找到有效的 AI 库！</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -1366,32 +1349,27 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">选择包含 HD Edition 的目录（Steam 文件夹）</translation>
+        <translation>选择包含高清版的目录（Steam 文件夹）</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">无效文件夹</translation>
+        <translation>无效文件夹</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">所选文件夹不包含 HOMM3 2.0.exe！请选择 HD Edition 的安装文件夹。</translation>
+        <translation>所选文件夹不包含 HOMM3 2.0.exe！请选择高清版的安装文件夹。</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">解压错误</translation>
+        <translation>提取错误</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">请删除该模组并重试！无法将文件 %1 复制到 %2</translation>
+        <translation>请删除该模组并重试！无法将文件 %1 复制到 %2</translation>
     </message>
 </context>
 <context>
@@ -1677,8 +1655,7 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">⭐</translation>
+        <translation>⭐</translation>
     </message>
 </context>
 <context>
@@ -2000,8 +1977,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">安装 HD Edition（Steam）</translation>
+        <translation>安装高清版（Steam）</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2165,10 +2141,9 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">你可以从官方 Heroes III HD Edition（Steam）安装资源，以提升 VCMI 的图形质量。从 Steam 中选择你的 Heroes HD 文件夹。
+        <translation>你可以从官方英雄无敌3高清版（Steam）安装资源，以提升 VCMI 的图形质量。从 Steam 中选择你的 Heroes HD 文件夹。
 
-安装后你还需要将缩放系数设置为 &gt; 1 才能看到 HD 图形。</translation>
+安装后你还需要将缩放系数设置为 &gt; 1 才能显示高清版图像。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>

@@ -65,7 +65,7 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "destructionKillAmount", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealPermanent", 0);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "soulStealBattle", 1);
-	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementFlying", -1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "movementTeleporting", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel1", 1);
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "spellLevel2", 2);

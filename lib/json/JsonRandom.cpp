@@ -489,7 +489,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(LIBRARY->heroTypes()->getByIndex(LIBRARY->identifiers()->getIdentifier("hero", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroTypes()->getByIndex(LIBRARY->identifiers()->getIdentifier("hero", entry).value())->getId());
 		}
 		return ret;
 	}
@@ -499,7 +499,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(LIBRARY->heroClasses()->getByIndex(LIBRARY->identifiers()->getIdentifier("heroClass", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroClasses()->getByIndex(LIBRARY->identifiers()->getIdentifier("heroClass", entry).value())->getId());
 		}
 		return ret;
 	}

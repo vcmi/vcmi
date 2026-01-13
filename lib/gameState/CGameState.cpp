@@ -25,6 +25,7 @@
 #include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
 #include "../bonuses/Limiters.h"
@@ -1060,10 +1061,13 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.getTerrain()->battleFields.empty())
+	auto currentLayer = map->mapLayers.at(tile.z);
+	const auto & terrainBattlefields = t.getTerrain()->battleFields;
+
+	if (terrainBattlefields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
+	return BattleFieldHandler::selectRandomBattlefield(terrainBattlefields, currentLayer, randomGenerator);
 }
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const

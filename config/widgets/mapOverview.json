@@ -7,7 +7,7 @@
 			"name": "background",
 			"type": "texture",
 			"image": "DIBOXBCK",
-			"rect": {"w": 428, "h": 429}
+			"rect": {"w": 428, "h": 459}
 		},
 		{
 			"type": "boxWithBackground",
@@ -57,7 +57,7 @@
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 29, "y": 79, "w": 171, "h": 171}
+			"rect": {"x": 29, "y": 94, "w": 171, "h": 171}
 		},
 		{
 			"type": "label",
@@ -65,16 +65,17 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "vcmi.lobby.noPreview",
-			"position": {"x": 114, "y": 164}
+			"position": {"x": 114, "y": 179}
 		},
 		{
+			"name": "minimap1",
 			"type": "drawMinimap",
 			"id": 0,
-			"rect": {"x": 30, "y": 80, "w": 169, "h": 169}
+			"rect": {"x": 30, "y": 95, "w": 169, "h": 169}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 228, "y": 79, "w": 171, "h": 171}
+			"rect": {"x": 228, "y": 94, "w": 171, "h": 171}
 		},
 		{
 			"type": "label",
@@ -83,16 +84,29 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "vcmi.lobby.noUnderground",
-			"position": {"x": 313, "y": 164}
+			"position": {"x": 313, "y": 179}
 		},
 		{
+			"name": "minimap2",
 			"type": "drawMinimap",
 			"id": 1,
-			"rect": {"x": 229, "y": 80, "w": 169, "h": 169}
+			"rect": {"x": 229, "y": 95, "w": 169, "h": 169}
+		},
+		{
+			"name": "mapLayerSlider",
+			"type": "slider",
+			"orientation": "horizontal",
+			"position": {"x": 29, "y": 267},
+			"size": 370,
+			"callback": "mapLayerSliderChanged",
+			"selected": 0,
+			"style": "brown",
+			"panningStep": 171,
+			"itemsVisible": 2
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 254, "w": 418, "h": 20}
+			"rect": {"x": 5, "y": 284, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -100,11 +114,11 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.lobby.creationDate",
-			"position": {"x": 214, "y": 264}
+			"position": {"x": 214, "y": 294}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 279, "w": 418, "h": 20}
+			"rect": {"x": 5, "y": 309, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -113,11 +127,11 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 214, "y": 289}
+			"position": {"x": 214, "y": 319}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 304, "w": 418, "h": 20}
+			"rect": {"x": 5, "y": 334, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -125,11 +139,11 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.lobby.author",
-			"position": {"x": 214, "y": 314}
+			"position": {"x": 214, "y": 344}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 329, "w": 418, "h": 20}
+			"rect": {"x": 5, "y": 359, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -138,11 +152,11 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"position": {"x": 214, "y": 339}
+			"position": {"x": 214, "y": 369}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 354, "w": 418, "h": 20}
+			"rect": {"x": 5, "y": 384, "w": 418, "h": 20}
 		},
 		{
 			"type": "label",
@@ -150,11 +164,11 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.lobby.filepath",
-			"position": {"x": 214, "y": 364}
+			"position": {"x": 214, "y": 394}
 		},
 		{
 			"type": "boxWithBackground",
-			"rect": {"x": 5, "y": 379, "w": 418, "h": 45}
+			"rect": {"x": 5, "y": 409, "w": 418, "h": 45}
 		},
 		{
 			"type": "textBox",
@@ -163,12 +177,13 @@
 			"alignment": "center",
 			"color": "white",
 			"text": "",
-			"rect": {"x": 10, "y": 384, "w": 408, "h": 35}
+			"rect": {"x": 10, "y": 414, "w": 408, "h": 35}
 		}
 	],
 
 	"variables":
 	{
-		"mapPreviewForSaves": true
+		"mapPreviewForSaves": true,
+		"minimapRenderSize": 169
 	}
 }

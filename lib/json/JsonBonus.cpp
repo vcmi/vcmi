@@ -344,7 +344,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -681,6 +681,19 @@ static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & li
 	return hexLimiter;
 }
 
+static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode & limiter)
+{
+	const JsonNode & creatureNode = limiter["creature"];
+
+	auto unitLimiter = std::make_shared<UnitAdjacentLimiter>();
+	LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
+	{
+		unitLimiter->targetUnit = creatureID;
+	});
+
+	return unitLimiter;
+}
+
 static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter)
 {
 	const JsonNode & parameters = limiter["parameters"];
@@ -705,6 +718,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 		{"TERRAIN_LIMITER",            parseTerrainLimiter          },
 		{"CREATURE_TERRAIN_LIMITER",   parseTerrainLimiter          },
 		{"UNIT_ON_HEXES",              parseUnitOnHexLimiter        },
+		{"UNIT_ADJACENT",              parseUnitAdjacentLimiter	    },
 		{"HAS_CHARGES_LIMITER",        parseHasChargesLimiter       },
 	};
 

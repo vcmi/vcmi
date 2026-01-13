@@ -161,6 +161,7 @@ public:
 	/// Returns pointer to old object, which can be manipulated or dropped
 	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject);
 
+	bool isHeroOnMap(const ObjectInstanceID &heroId) const;
 	void heroAddedToMap(const CGHeroInstance * hero);
 	void heroRemovedFromMap(const CGHeroInstance * hero);
 	void townAddedToMap(const CGTownInstance * town);
@@ -382,7 +383,7 @@ inline bool CMap::isInTheMap(const int3 & pos) const
 	return
 		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
 		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-		static_cast<uint32_t>(pos.z) <= mapLevels - 1;
+		static_cast<uint32_t>(pos.z) <= levels() - 1;
 }
 
 inline TerrainTile & CMap::getTile(const int3 & tile)

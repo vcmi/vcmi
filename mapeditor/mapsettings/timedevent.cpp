@@ -120,9 +120,9 @@ void TimedEvent::on_TimedEvent_finished(int result)
 
 void TimedEvent::on_addObjectToDelete_clicked()
 {
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.highlight<const CGObjectInstance>();
 		l.update();
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
@@ -141,9 +141,9 @@ void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
 	show();
 	controller.settingsDialog->show();
 
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);

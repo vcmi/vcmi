@@ -34,7 +34,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	
 	setWindowModality(Qt::ApplicationModal);
 
-	ui->lineEditRegionName->setText(getRegionChar(scenario.getNum()));
+	ui->lineEditRegionName->setText(QString::fromStdString(campaignState->getRegions().regions.at(scenario).infix));
 	ui->plainTextEditRightClickText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).regionText.toString()));
 	
 	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
@@ -55,10 +55,10 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 		++index;
 	}
 
-	for(int i = 0; i < scenario.getNum(); ++i)
+	for(int i = 0; i < campaignState->scenarios.size(); ++i)
 	{
 		auto tmpScenario = CampaignScenarioID(i);
-		auto * item = new QListWidgetItem(getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName));
+		auto * item = new QListWidgetItem(QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(campaignState->scenarios.at(scenario).preconditionRegions.count(tmpScenario) ? Qt::Checked : Qt::Unchecked);
@@ -213,7 +213,7 @@ void ScenarioProperties::reloadMapRelatedUi()
 				for(int j = 0; j < scenario.getNum(); ++j)
 				{
 					auto tmpScenario = CampaignScenarioID(j);
-					auto text = getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+					auto text = QString::fromStdString(campaignState->getRegions().regions.at(j).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
 					comboBoxOption->addItem(text, j);
 				}
 			}
@@ -488,7 +488,7 @@ void ScenarioProperties::on_pushButtonStartingAdd_clicked()
 			for(int i = 0; i < scenario.getNum(); ++i)
 			{
 				auto tmpScenario = CampaignScenarioID(i);
-				auto text = getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+				auto text = QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
 				comboBoxOption->addItem(text, i);
 			}
 		}
@@ -548,9 +548,4 @@ void ScenarioProperties::on_pushButtonStartingRemove_clicked()
 			delete ui->listWidgetStartingBonusOption->takeItem(ui->listWidgetStartingBonusOption->row(item));
 	}
 	reloadEnableState();
-}
-
-QString ScenarioProperties::getRegionChar(int no)
-{
-	return QString(static_cast<char>('A' + no));
 }

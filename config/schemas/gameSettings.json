@@ -77,6 +77,13 @@
 				"unlockAll" : { "type" : "boolean" }
 			}
 		},
+		"cheats": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"buildWithoutGrail" : { "type" : "boolean" }
+			}
+		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -97,7 +104,8 @@
 				"defensePointDamageFactorCap" : { "type" : "number" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
-				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
+				"noSpellHitAndRunRounds" :      { "type" : "number" }
 			}
 		},
 		"creatures": {

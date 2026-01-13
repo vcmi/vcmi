@@ -13,7 +13,7 @@
 						"type" : "string"
 					},
 					"then" : {
-						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
 						"description" : "parameterless limiter or boolean operator at start of array"
 					}
 				},
@@ -138,6 +138,22 @@
 							"type" : { "type" : "string", "const" : "UNIT_ON_HEXES" },
 							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
 							"hexes" : { "type" : "array", "items" : { "type" : "number" } }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ADJACENT" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ADJACENT" },
+							"creature" : { "type" : "string" }
 						}
 					}
 				},

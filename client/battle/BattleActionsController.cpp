@@ -931,14 +931,21 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			{
 				if (action.spell() == SpellID::SACRIFICE)
 				{
-					heroSpellToCast->aimToHex(targetHex);
+					if(heroSpellToCast)
+						heroSpellToCast->aimToHex(targetHex);
+					else
+						monsterSpellTargets.push_back(targetHex);
 					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
 					selectedStack = targetStack;
 					return;
 				}
 				if (action.spell() == SpellID::TELEPORT)
 				{
-					heroSpellToCast->aimToUnit(targetStack);
+					if(heroSpellToCast)
+						heroSpellToCast->aimToUnit(targetStack);
+					else
+						monsterSpellTargets.push_back(targetHex);
+
 					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
 					selectedStack = targetStack;
 					return;
@@ -949,11 +956,15 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			{
 				if (action.spell().hasValue())
 				{
-					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex, action.spell());
+					monsterSpellTargets.push_back(targetHex);
+					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets, action.spell());
+					monsterSpellTargets.clear();
 				}
 				else //unknown random spell
 				{
-					owner.giveCommand(EActionType::MONSTER_SPELL, targetHex);
+					monsterSpellTargets.push_back(targetHex);
+					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets);
+					monsterSpellTargets.clear();
 				}
 			}
 			else

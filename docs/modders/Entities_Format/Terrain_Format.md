@@ -9,14 +9,17 @@
 	"shortIdentifier" : "mt",
 	
 	// Human-readable name of the terrain
-	"text" : "My Road",
+	"text" : "My Terrain",
 	
 	// Type(s) of this terrain.
 	// WATER - this terrain is water-like terrains that requires boat for movement
 	// ROCK - this terrain is unpassable "rock" terrain that is used for inaccessible parts of underground layer
-	// SUB - this terrain can be placed in underground map layer by RMG
-	// SURFACE - this terrain can be placed in surface map layer by RMG
+	// SUB - this terrain can be placed in underground map layer by RMG (legacy, use allowedLayers)
+	// SURFACE - this terrain can be placed in surface map layer by RMG (legacy, use allowedLayers)
 	"type" : [ "WATER", "SUB", "ROCK", "SURFACE" ],
+
+	// define allowed layers of this terrain; use map layers from [MapLayer Format](./MapLayer_Format.md)
+	"allowedLayers" : [ "surface", "underground" ],
 	
 	// Name of file with road graphics
 	"tiles" : "myRoad.def",

@@ -213,7 +213,16 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
-	map->mapLevels = options.getLevels();
+	map->mapLayers.clear();
+	for(int i = 0; i < options.getLevels(); i++)
+	{
+		if(i == 0)
+			map->mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			map->mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			map->mapLayers.push_back(MapLayerId::UNKNOWN);
+	}
 	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
