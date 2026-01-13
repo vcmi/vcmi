@@ -1631,7 +1631,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPositi
 		for(int yy = 0; yy < artNumber; ++yy)
 			artifacts.push_back(reader->readArtifact32());
 
-		if(rewardable)
+		if(rewardable && guardsPresetIndex != -1)
 			rewardable->configuration.presetVariable("dice", "map", JsonNode(guardsPresetIndex));
 
 		if(upgradedStackPresence != -1 || !artifacts.empty())
