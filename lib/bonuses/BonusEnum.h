@@ -199,6 +199,7 @@ class JsonNode;
 	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/\
 	BONUS_NAME(ADJACENT_SPELLCASTER) /* subtype - spell id */\
 	BONUS_NAME(UNIT_DEFENDING) /* tag applied to units which are currently waiting in battle */\
+	BONUS_NAME(MARKETPLACE_ACCESS)
 	/* end of list */
 
 #define BONUS_SOURCE_LIST \

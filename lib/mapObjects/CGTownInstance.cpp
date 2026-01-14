@@ -658,10 +658,7 @@ int CGTownInstance::getMarketEfficiency() const
 	const PlayerState *p = cb->getPlayerState(tempOwner);
 	assert(p);
 
-	int marketCount = 0;
-	for(const CGTownInstance *t : p->getTowns())
-		if(t->hasBuiltResourceMarketplace())
-			marketCount++;
+	int marketCount = p->valOfBonuses(BonusType::MARKETPLACE_ACCESS);
 
 	return marketCount;
 }

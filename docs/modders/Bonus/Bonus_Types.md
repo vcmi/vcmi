@@ -1191,3 +1191,9 @@ The unit affected by this bonus cannot be target of attacks or spells
 ### UNIT_DEFENDING
 
 Bonus that is automatically granted to unit whenever unit uses defend action in battle. Has no gameplay effects, however mods can use presence of this bonus to provide abilities that are active while unit is defending using limiter
+
+### MARKETPLACE_ACCESS
+
+Increases amount of counted marketplaces (in town or in adventure map tavern). You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
+
+- val: additional number of 'marketplaces' to reduce costs
