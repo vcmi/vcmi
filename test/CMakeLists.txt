@@ -141,6 +141,17 @@ if(ENABLE_ERM)
 	)
 endif()
 
+if(ENABLE_BATTLE_AI)
+	file(GLOB_RECURSE BATTLE_AI_TEST_SRCS "../AI/BattleAI/*.cpp")
+	list(FILTER BATTLE_AI_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
+
+	list(APPEND test_SRCS
+		${BATTLE_AI_TEST_SRCS}
+		battleAI/SpellTargetsEvaluatorTest.cpp
+	)
+
+endif()
+
 if(ENABLE_NULLKILLER2_AI)
 	# When not static, linking the library below is not enough, we need the .cpp files as well
 	file(GLOB_RECURSE NULLKILLER2_TEST_SRCS "../AI/Nullkiller2/*.cpp")
