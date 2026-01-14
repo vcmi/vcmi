@@ -195,6 +195,8 @@ void BattleActionsController::endCastingSpell()
 		owner.windowObject->blockUI(false);
 	}
 
+	monsterSpellTargets.clear();
+
 	if(owner.stacksController->getActiveStack())
 	{
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
