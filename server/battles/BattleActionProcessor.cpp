@@ -815,7 +815,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 		{
 			for (int i = static_cast<int>(unitPath.size())-1; i >= 0; i--)
 			{
-				auto needOpenGates = [&](const BattleHex & hex) -> bool
+				auto needOpenGates = [hasWideMoat, i, unitPath = unitPath](const BattleHex & hex) -> bool
 				{
 					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;

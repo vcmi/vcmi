@@ -856,6 +856,7 @@ void CMapLoaderH3M::readHotaScriptActions()
 	int unk3 = reader->readInt8();
 	assert(unk2 == 1);
 	assert(unk3 == 0);
+	logGlobal->warn("Map %s: HotA Script action - unkown values %d/%d", unk2, unk3);
 
 	int actionsCount = reader->readInt32();
 	for(int j = 0; j < actionsCount; ++j)
@@ -899,7 +900,7 @@ void CMapLoaderH3M::readHotaScriptActions()
 				readHotaScriptActions();
 				bool unk5 = reader->readBool(); // ???
 				assert(unk5 == 1);
-				logGlobal->warn("Map %s: HotA Script action - QUEST_ACTION: '%s' / '%s' / '%s' / '%s'", mapName, proposalTextID, progressionTextID, completionTextID, hintTextID);
+				logGlobal->warn("Map %s: HotA Script action - QUEST_ACTION: '%s' / '%s' / '%s' / '%s', unknown: %d", mapName, proposalTextID, progressionTextID, completionTextID, hintTextID, unk5);
 				break;
 			}
 			case HotaScriptActions::CONDITIONAL:
@@ -1130,6 +1131,7 @@ void CMapLoaderH3M::readHotaScriptCondition()
 {
 	bool unknown = reader->readBool();
 	assert(unknown == true);
+	logGlobal->warn("Map %s: HotA Script condition - unknown value %d", unknown);
 	readHotaScriptConditionInternal();
 }
 
@@ -1314,6 +1316,9 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 
 	int unknown = reader->readBool();
 	assert(unknown==true);
+	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", unknown);
+
+
 	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
 	switch(expressionCode)
 	{
@@ -1408,7 +1413,7 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 		case HotaScriptExpression::RESOURCE:
 		{
 			PlayerColor player = reader->readPlayer(); // has special value for current player
-			GameResID resource(reader->readInt32());
+			GameResID resource = reader->readGameResID32();
 			logGlobal->warn("Map %s: HotA Script expression - RESOURCE, %d player, %d resource", mapName, player.getNum(), resource.getNum());
 			break;
 		}

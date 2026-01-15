@@ -169,6 +169,8 @@
 						"message" : 156,
 					},
 					{
+						// special reward only used on loading hota map, never present othervice
+						"appearChance" : { "min" : 0, "max" : 0 },
 						"mapDice" : 0,
 						"message" : 154,
 						"artifacts" : [ "@gainedArtifact" ],

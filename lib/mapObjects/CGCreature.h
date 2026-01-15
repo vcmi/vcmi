@@ -38,8 +38,8 @@ public:
 		ALWAYS = 1
 	};
 
-	Character initialCharacter = Character::COMPLIANT; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
-	int8_t agression = 0;
+	Character initialCharacter = Character::COMPLIANT;
+	int8_t agression = 0; // h3 range: -4 -> compliant, 10 -> savage, set on init
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
@@ -95,9 +95,12 @@ public:
 		h & formation;
 		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
 			h & stacksCount;
+
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+			h & joiningPercentage;
+
 		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
 		{
-			h & joiningPercentage;
 			h & upgradedStackPresence;
 			h & joinOnlyForMoney;
 		}

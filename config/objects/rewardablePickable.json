@@ -24,8 +24,8 @@
 				"variables" : {
 					"resource" : {
 						"gainedResourceA" : { // Note: this variable name is used by engine for H3M loading
-							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
-						}
+							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ]
+						},
 						"gainedResourceB" : { // Note: this variable name is used by engine for H3M loading
 							"type" : "gold"
 						}
@@ -34,7 +34,7 @@
 						"gainedAmountA" : { // Note: this variable name is used by engine for H3M loading
 							"min" : 4,
 							"max" : 6
-						}
+						},
 						"gainedAmountB" : { // Note: this variable name is used by engine for H3M loading
 							"min" : 400,
 							"max" : 600
@@ -94,7 +94,8 @@
 						]
 					},
 					{
-						"appearChance" : { "min" : 66, "max" : 100 },
+						// special reward only used on loading hota map, never present othervice
+						"appearChance" : { "min" : 0, "max" : 0 },
 						"mapDice" : 0,
 						"message" : 23,
 						"removeObject" : true,
