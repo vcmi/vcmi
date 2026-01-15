@@ -195,7 +195,12 @@ void BattleActionsController::endCastingSpell()
 		owner.windowObject->blockUI(false);
 	}
 
-	monsterSpellTargets.clear();
+	if(monsterCaster)
+	{
+		monsterSpellTargets.clear();
+		monsterCaster = nullptr;
+		owner.stacksController->activateStack();
+	}
 
 	if(owner.stacksController->getActiveStack())
 	{
@@ -889,9 +894,16 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					if(heroSpellToCast)
+					{
 						heroSpellToCast->aimToHex(targetHex);
+					}
 					else
+					{
 						monsterSpellTargets.push_back(targetHex);
+						monsterCaster = owner.stacksController->getActiveStack();
+						owner.windowObject->blockUI(true);
+						owner.stacksController->deactivateStack();
+					}
 					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
 					selectedStack = targetStack;
 					return;
@@ -899,9 +911,16 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					if(heroSpellToCast)
+					{
 						heroSpellToCast->aimToUnit(targetStack);
+					}
 					else
+					{
 						monsterSpellTargets.push_back(targetHex);
+						monsterCaster = owner.stacksController->getActiveStack();
+						owner.windowObject->blockUI(true);
+						owner.stacksController->deactivateStack();
+					}
 
 					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
 					selectedStack = targetStack;
@@ -911,18 +930,20 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 
 			if (!heroSpellcastingModeActive())
 			{
+				if(monsterCaster)
+					owner.stacksController->activateStack();
+
 				if (action.spell().hasValue())
 				{
 					monsterSpellTargets.push_back(targetHex);
 					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets, action.spell());
-					monsterSpellTargets.clear();
 				}
 				else //unknown random spell
 				{
 					monsterSpellTargets.push_back(targetHex);
 					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets);
-					monsterSpellTargets.clear();
 				}
+				endCastingSpell();
 			}
 			else
 			{
@@ -949,11 +970,12 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 
 PossiblePlayerBattleAction BattleActionsController::selectAction(const BattleHex & targetHex)
 {
-	assert(owner.stacksController->getActiveStack() != nullptr);
+	auto currentStack = monsterCaster ? monsterCaster : owner.stacksController->getActiveStack();
+	assert(currentStack != nullptr);
 	assert(!possibleActions.empty());
 	assert(targetHex.isValid());
 
-	if (owner.stacksController->getActiveStack() == nullptr)
+	if(currentStack == nullptr)
 		return PossiblePlayerBattleAction::INVALID;
 
 	if (possibleActions.empty())
@@ -961,7 +983,7 @@ PossiblePlayerBattleAction BattleActionsController::selectAction(const BattleHex
 
 	const CStack * targetStack = getStackForHex(targetHex);
 
-	reorderPossibleActionsPriority(owner.stacksController->getActiveStack(), targetStack);
+	reorderPossibleActionsPriority(currentStack, targetStack);
 
 	for (PossiblePlayerBattleAction action : possibleActions)
 	{
@@ -980,7 +1002,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 		return;
 	}
 
-	if (owner.stacksController->getActiveStack() == nullptr)
+	if (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
 		return;
 
 	if (hoveredHex == BattleHex::INVALID)
@@ -1029,7 +1051,7 @@ void BattleActionsController::onHoverEnded()
 
 void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex)
 {
-	if (owner.stacksController->getActiveStack() == nullptr)
+	if (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
 		return;
 
 	auto action = selectAction(clickedHex);
@@ -1071,6 +1093,8 @@ const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
 {
 	if (heroSpellToCast)
 		return owner.currentHero();
+	else if(monsterCaster)
+		return monsterCaster;
 	else
 		return owner.stacksController->getActiveStack();
 }

@@ -37,6 +37,8 @@ class BattleActionsController
 
 	std::vector<BattleHex> monsterSpellTargets;
 
+	const CStack * monsterCaster = nullptr;
+
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
 
