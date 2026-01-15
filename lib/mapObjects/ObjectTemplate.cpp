@@ -528,6 +528,14 @@ bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 	return vstd::contains(allowedTerrains, terrainID);
 }
 
+int ObjectTemplate::getTotalAllowedTerrains() const
+{
+	if (anyLandTerrain)
+		return LIBRARY->terrainTypeHandler->size();
+	else
+		return allowedTerrains.size();
+}
+
 CompoundMapObjectID ObjectTemplate::getCompoundID() const
 {
 	return CompoundMapObjectID(id, subid);
