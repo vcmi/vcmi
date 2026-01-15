@@ -784,13 +784,14 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 
 		for(const TModID & dependency : mod.getDependencies())
 		{
-			if(!vstd::contains(resolvedModIDs, dependency))
-			{
-				if (vstd::contains(notResolvedModIDs, dependency))
-					return ModResolveStatus::WAITING;
-				else
-					return ModResolveStatus::BROKEN;
-			}
+			if (vstd::contains(sortedValidMods, dependency))
+				continue;
+
+			if (vstd::contains(notResolvedModIDs, dependency))
+				return ModResolveStatus::WAITING;
+
+			// either not in load list, or dependency is also broken
+			return ModResolveStatus::BROKEN;
 		}
 
 		for(const TModID & softDependency : mod.getSoftDependencies())

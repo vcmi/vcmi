@@ -27,6 +27,12 @@ public:
 		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
 	};
 
+	enum class UpgradedStackPresence : int8_t {
+		RANDOM = -1,
+		NEVER = 0,
+		ALWAYS = 1
+	};
+
 	ui32 identifier = -1; //unique code for this monster (used in missions)
 	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	MetaString message; //message printed for attacking hero
@@ -36,6 +42,8 @@ public:
 	bool notGrowingTeam = false; //if true, number of units won't grow
 	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
 	int64_t stacksCount = -1; // the split stack count specified in a HotA 1.7 map (0 - one more, -1 - default, -2 one less, -3 average)
+	UpgradedStackPresence upgradedStackPresence = UpgradedStackPresence::RANDOM;
+	bool joinOnlyForMoney = false;
 
 	bool refusedJoining = false;
 
@@ -73,6 +81,11 @@ public:
 		h & formation;
 		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
 			h & stacksCount;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+		{
+			h & upgradedStackPresence;
+			h & joinOnlyForMoney;
+		}
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;

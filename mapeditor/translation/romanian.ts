@@ -79,7 +79,8 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
         <source>Open Campaignset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Deschide setul de campanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
@@ -159,22 +160,26 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Open Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Deschide setul de campanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
         <source>Select Campaign set</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selectează setul de campanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Open Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Deschide campania</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
         <source>Select Campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selectează campania</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
@@ -189,13 +194,13 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Sunt necesare moduri</translation>
+        <translation>Sunt necesare moduri</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
         <source>Failed to open map</source>
-        <translation type="unfinished">Nu s-a putut deschide harta</translation>
+        <translation>Nu s-a putut deschide harta</translation>
     </message>
 </context>
 <context>
@@ -310,7 +315,8 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Activează imaginea ramei</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>

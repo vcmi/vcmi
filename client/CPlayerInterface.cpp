@@ -1799,8 +1799,8 @@ void CPlayerInterface::quickSaveGame()
 {
 	// notify player about saving
 	MetaString txt;
-	txt.appendTextID("vcmi.adventureMap.savingQuickSave");	
-	txt.replaceTextID(QUICKSAVE_PATH);
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
+	txt.replaceRawString(QUICKSAVE_PATH);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 	GAME->interface()->cb->save(QUICKSAVE_PATH);
 	hasQuickSave = true;
@@ -1871,7 +1871,7 @@ bool CPlayerInterface::capturedAllEvents()
 
 void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
 {
-	autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
 	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();

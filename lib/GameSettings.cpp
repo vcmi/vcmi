@@ -46,6 +46,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::BONUSES_GLOBAL,                                   "bonuses",   "global"                               },
 		{EGameSettings::BONUSES_PER_HERO,                                 "bonuses",   "perHero"                              },
 		{EGameSettings::CAMPAIGN_UNLOCK_ALL,                              "campaign",  "unlockAll"                            },
+		{EGameSettings::CHEATS_BUILD_WITHOUT_GRAIL,                       "cheats",    "buildWithoutGrail"                    },
 		{EGameSettings::COMBAT_ABILITY_BIAS,                              "combat",    "abilityBias"                          },
 		{EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX,            "combat",    "areaShotCanTargetEmptyHex"            },
 		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,                "combat",    "attackPointDamageFactor"              },
@@ -62,6 +63,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::COMBAT_LUCK_BIAS,                                 "combat",    "luckBias"                             },
 		{EGameSettings::COMBAT_LAYOUTS,                                   "combat",    "layouts"                              },
 		{EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES,                "combat",    "oneHexTriggersObstacles"              },
+		{EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS,               "combat",    "noSpellHitAndRunRounds"               },
 		{EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH,             "creatures", "allowAllForDoubleMonth"               },
 		{EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE,                 "creatures", "allowJoiningForFree"                  },
 		{EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS,             "creatures", "allowRandomSpecialWeeks"              },
@@ -127,7 +129,8 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::TOWNS_SPELL_RESEARCH,                             "towns",     "spellResearch"                        },
 		{EGameSettings::TOWNS_SPELL_RESEARCH_COST,                        "towns",     "spellResearchCost"                    },
 		{EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY,                     "towns",     "spellResearchPerDay"                  },
-		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH,  "towns",     "spellResearchCostExponentPerResearch" },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH, "towns",     "spellResearchCostMultiplierPerResearch" },
+		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL,    "towns",     "spellResearchCostMultiplierPerReroll" },
 		{EGameSettings::INTERFACE_PLAYER_COLORED_BACKGROUND,              "interface", "playerColoredBackground"              },
 	};
 

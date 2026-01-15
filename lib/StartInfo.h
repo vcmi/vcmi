@@ -15,6 +15,7 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "mapping/MapDifficulty.h"
 #include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
 #include "serializer/PlayerConnectionID.h"
@@ -156,6 +157,8 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 
 	/// Controls check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
 	bool restrictedGarrisonsForAI() const;
+
+	EMapDifficulty getDifficulty() const;
 
 	template <typename Handler>
 	void serialize(Handler &h)

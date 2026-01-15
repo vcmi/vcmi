@@ -193,11 +193,19 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
-		QT_TRANSLATE_NOOP("ModFields", "⭐"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // star icon
 	};
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section]);
+	if(orientation == Qt::Horizontal)
+	{
+		if(role == Qt::DecorationRole)
+		{
+			if(section == ModFields::STARS)
+				return QIcon(":/icons/star.png");
+		}
+		else if(role == Qt::DisplayRole)
+			return QCoreApplication::translate("ModFields", header[section]);
+	}
 	return QVariant();
 }
 

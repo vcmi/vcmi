@@ -49,7 +49,7 @@ g) The process may take a few seconds. Please be patient.
 e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
 - Set **Reserved Screen Area** to **0%**.
-- Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 273% for an 11" iPad Air).
+- Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" iPad Air).
 - Set **Upscaling filter** to **xBRZ x2** if not selected by default. This will enable the VCMI HD upscaling that is similar in effect to HOMM3 HD mod. Higher xBRZ selections may tank your iOS device perfomance without providing a tangible benefit.
 
 These settings will eliminate black bars and enable a full-screen VCMI experience. Enjoy!

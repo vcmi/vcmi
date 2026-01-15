@@ -31,12 +31,12 @@ class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallba
 {
 	BattleSideArray<SideInBattle> sides; //sides[0] - attacker, sides[1] - defender
 	std::unique_ptr<BattleLayout> layout;
+	si32 round;
 
 	void postDeserialize();
 public:
 	BattleID battleID = BattleID(0);
 
-	si32 round;
 	si32 activeStack;
 	ObjectInstanceID townID; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
@@ -103,6 +103,7 @@ public:
 
 	ui8 getTacticDist() const override;
 	BattleSide getTacticsSide() const override;
+	int32_t getRound() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;

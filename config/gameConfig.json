@@ -135,6 +135,10 @@
 	[
 		"config/campaignRegions.json"
 	],
+	"mapLayers":
+	[
+		"config/mapLayers.json"
+	],
 	
 	
 	"settings":
@@ -552,16 +556,18 @@
 			"spellResearch": false,
 			// Cost for an spell research (array index is spell tier)
 			"spellResearchCost": [
-				{ "gold": 1000, "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
-				{ "gold": 1000, "wood" : 4, "mercury": 4, "ore": 4, "sulfur": 4, "crystal": 4, "gems": 4 },
-				{ "gold": 1000, "wood" : 6, "mercury": 6, "ore": 6, "sulfur": 6, "crystal": 6, "gems": 6 },
-				{ "gold": 1000, "wood" : 8, "mercury": 8, "ore": 8, "sulfur": 8, "crystal": 8, "gems": 8 },
-				{ "gold": 1000, "wood" : 10, "mercury": 10, "ore": 10, "sulfur": 10, "crystal": 10, "gems": 10 }
+				{ "gold": 1000, "mercury": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
+				{ "gold": 1000, "mercury": 3, "sulfur": 3, "crystal": 3, "gems": 3 },
+				{ "gold": 1000, "mercury": 4, "sulfur": 4, "crystal": 4, "gems": 4 },
+				{ "gold": 1000, "mercury": 5, "sulfur": 5, "crystal": 5, "gems": 5 },
+				{ "gold": 1000, "mercury": 6, "sulfur": 6, "crystal": 6, "gems": 6 }
 			],
 			// How much researchs/skips per day are possible? (array index is spell tier)
 			"spellResearchPerDay": [ 2, 2, 2, 2, 1 ],
-			// Exponent for increasing cost for each research (factor 1 disables this; array index is spell tier)
-			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ],
+			// Multiplier for increasing/decreasing cost for each accept/reroll on 2nd/3rd etc. slot after accepting spell on the previous slot (factor 1 disables this; array index is spell tier)
+			"spellResearchCostMultiplierPerResearch": [ 1, 1, 1, 1, 1 ],
+			// Multiplier for increasing/decreasing cost of research actions after each reroll - resets on accepting spell (factor 1 disables this; array index is spell tier)
+			"spellResearchCostMultiplierPerReroll": [ 1, 1, 1, 1, 1 ],
 			
 			// Base scouting range for town without any range modifiers
 			"baseScoutingRange" : 5
@@ -608,6 +614,8 @@
 			"oneHexTriggersObstacles": false,
 			// Allow area shooters with SPELL_LIKE_ATTACK bonus such as liches or magogs to target empty hexes
 			"areaShotCanTargetEmptyHex" : false,
+			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
+			"noSpellHitAndRunRounds" : 0,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
@@ -799,6 +807,12 @@
 					"type" : "MAX_LEARNABLE_SPELL_LEVEL", //Hero can always learn level 1 and 2 spells
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
+				},
+				"spellCastsPerTurn" :
+				{
+					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
+					"val" : 1,
+					"valueType" : "BASE_NUMBER"
 				}
 			},
 			"perHero":
@@ -819,12 +833,6 @@
 				{
 					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
 					"val" : 1000,
-					"valueType" : "BASE_NUMBER"
-				},
-				"spellCastsPerTurn" :
-				{
-					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
-					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}
@@ -850,6 +858,12 @@
 		{
 			// Unlock all campaigns
 			"unlockAll" : false
+		},
+
+		"cheats" :
+		{
+			// build town cheat without grail
+			"buildWithoutGrail" : false
 		}
 	}
 }

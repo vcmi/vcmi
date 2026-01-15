@@ -369,6 +369,9 @@ void TurnOrderProcessor::onGameStarted()
 	{
 		auto towns = gameHandler->gameState().getMap().getObjects<CGTownInstance>();
 		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
+		for (auto hero : heroes)
+			if (auto cmd = hero->getCommander())
+				const_cast<CCommanderInstance*>(cmd)->setAlive(false); // TODO: support commanders in battle mode setup
 		if(!towns.size() && heroes.size() == 2)
 			gameHandler->startBattle(heroes.at(0), heroes.at(1));
 		else

@@ -166,6 +166,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
 	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus tagBonus(BonusDuration::STACK_GETS_TURN, BonusType::UNIT_DEFENDING, BonusSource::OTHER, 0, BonusSourceID());
 
 	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
@@ -186,6 +187,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	}
 
 	buffer.push_back(bonus2);
+	buffer.push_back(tagBonus);
 
 	sse.toUpdate.emplace_back(ba.stackNumber, buffer);
 	gameHandler->sendAndApply(sse);
@@ -532,6 +534,61 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	return true;
 }
 
+bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+{
+	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
+	battle::Target target = ba.getTarget(&battle);
+	SpellID spellID = ba.spell;
+
+	if (!canStackAct(battle, stack))
+		return false;
+
+	if(target.size() < 2)
+	{
+		gameHandler->complain("Two destinations required for walk and spellcast action.");
+		return false;
+	}
+
+	BattleHex movementDestinationTile = target.at(0).hexValue;
+	BattleHex targetUnitTile = target.at(1).hexValue;
+	const CStack * destinationStack = battle.battleGetStackByPos(targetUnitTile, true);
+
+	if(!destinationStack)
+	{
+		gameHandler->complain("Invalid target for walk and spellcast");
+		return false;
+	}
+
+	auto bonus = stack->getBonus(Selector::typeSubtype(BonusType::ADJACENT_SPELLCASTER, BonusSubtypeID(spellID)));
+	if (!bonus)
+	{
+		gameHandler->complain("Creature cannot walk and spellcast.");
+		return false;
+	}
+
+	const auto movementResult = moveStack(battle, ba.stackNumber, movementDestinationTile);
+
+	if (movementResult.invalidRequest)
+	{
+		gameHandler->complain("Stack failed walk and spellcast - unable to reach target!");
+		return false;
+	}
+
+	if(movementResult.obstacleHit)
+	{
+		return true;
+	}
+
+	const CSpell * spell = spellID.toSpell();
+	spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
+	battle::Target spellTarget;
+	spellTarget.emplace_back(destinationStack);
+	parameters.setSpellLevel(std::max(0, bonus->val));
+	parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
+
+	return true;
+}
+
 bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, const CStack * stack)
 {
 	if (!stack)
@@ -587,6 +644,8 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doDefendAction(battle, ba);
 		case EActionType::WALK_AND_ATTACK:
 			return doAttackAction(battle, ba);
+		case EActionType::WALK_AND_CAST:
+			return doWalkAndSpellcastAction(battle, ba);
 		case EActionType::SHOOT:
 			return doShootAction(battle, ba);
 		case EActionType::CATAPULT:

@@ -149,6 +149,11 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
 	auto accessibility = battle.getAccessibility();
 	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
+	if (!creatureData.hasValue())
+	{
+		logGlobal->error("Unable to summon guardians - bonus SUMMON_GUARDIANS has invalid creature ID!");
+		return;
+	}
 	BattleHexArray targetHexes;
 	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
@@ -203,7 +208,13 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 		{
 			spells::BonusCaster caster(h, b);
 
-			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
+			SpellID spellID = b->subtype.as<SpellID>();
+			if (!spellID.hasValue())
+			{
+				logGlobal->error("unable to cast spell - OPENING_BATTLE_SPELL has invalid spell set!");
+				continue;
+			}
+			const CSpell * spell = spellID.toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
 			int32_t spellLevel = b->additionalInfo != CAddInfo::NONE ? b->additionalInfo[0] : 3;

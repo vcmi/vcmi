@@ -498,12 +498,9 @@ void VictoryConditions::onObjectSelect()
 {
 	int vicConditions = ui->victoryComboBox->currentIndex() - 1;
 
-	std::vector<int>levels(controller->map()->levels());
-	std::iota (std::begin(levels), std::end(levels), 0);
-
-	for(int lvl : levels)
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		switch(vicConditions)
 		{
 			case 3: { //EventCondition::HAVE_BUILDING
@@ -543,13 +540,10 @@ void VictoryConditions::onObjectSelect()
 void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 {
 	controller->settingsDialog->show();
-
-	std::vector<int>levels(controller->map()->levels());
-	std::iota (std::begin(levels), std::end(levels), 0);
 	
-	for(int lvl : levels)
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &VictoryConditions::onObjectPicked);

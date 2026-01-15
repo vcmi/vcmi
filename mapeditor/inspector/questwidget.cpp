@@ -41,7 +41,7 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
@@ -342,9 +342,9 @@ void QuestWidget::on_lKillTargetSelect_clicked()
 		return false;
 	};
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.highlight(pred);
 		l.update();
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &QuestWidget::onTargetPicked);
@@ -357,9 +357,9 @@ void QuestWidget::onTargetPicked(const CGObjectInstance * obj)
 {
 	show();
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &QuestWidget::onTargetPicked);

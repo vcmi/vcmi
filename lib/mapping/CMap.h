@@ -13,6 +13,7 @@
 #include "CMapEvent.h"
 #include "CMapHeader.h"
 #include "TerrainTile.h"
+#include "MapTilesStorage.h"
 
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
@@ -76,6 +77,8 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 	/// Precomputed indices of all heroes on map. Does not includes heroes in prisons
 	std::vector<ObjectInstanceID> heroesOnMap;
 
+	void deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > &);
+
 public:
 	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	/// TODO: make private
@@ -96,6 +99,7 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const;
 
 	void calculateGuardingGreaturePositions();
+	void calculateGuardingGreaturePositions(int3 topleft, int3 bottomright);
 
 	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
 
@@ -157,6 +161,7 @@ public:
 	/// Returns pointer to old object, which can be manipulated or dropped
 	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject);
 
+	bool isHeroOnMap(const ObjectInstanceID &heroId) const;
 	void heroAddedToMap(const CGHeroInstance * hero);
 	void heroRemovedFromMap(const CGHeroInstance * hero);
 	void townAddedToMap(const CGTownInstance * town);
@@ -260,9 +265,8 @@ public:
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
-
 	std::unique_ptr<CMapEditManager> editManager;
-	boost::multi_array<int3, 3> guardingCreaturePositions;
+	MapTilesStorage<int3> guardingCreaturePositions;
 
 	std::map<std::string, std::shared_ptr<CGObjectInstance> > instanceNames;
 
@@ -283,8 +287,8 @@ public:
 
 private:
 
-	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	boost::multi_array<TerrainTile, 3> terrain;
+	/// a 3-dimensional array of terrain tiles
+	MapTilesStorage<TerrainTile> terrain;
 
 	si32 uidCounter; 
 
@@ -308,7 +312,15 @@ public:
 			std::vector< std::shared_ptr<CQuest> > quests;
 			h & quests;
 		}
-		h & heroesPool;
+
+		if (h.saving)
+			h & heroesPool;
+		else
+		{
+			std::vector<std::shared_ptr<CGHeroInstance> > poolFromSave;
+			h & poolFromSave;
+			deserializeHeroPool(poolFromSave);
+		}
 
 		//TODO: viccondetails
 		h & terrain;
@@ -371,19 +383,19 @@ inline bool CMap::isInTheMap(const int3 & pos) const
 	return
 		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
 		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-		static_cast<uint32_t>(pos.z) <= mapLevels - 1;
+		static_cast<uint32_t>(pos.z) <= levels() - 1;
 }
 
 inline TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 inline const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 VCMI_LIB_NAMESPACE_END

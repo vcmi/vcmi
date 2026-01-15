@@ -68,6 +68,11 @@ bool CMapEvent::occursToday(int currentDay) const
 	return (currentDay - firstOccurrence - 1) % nextOccurrence == 0;
 }
 
+bool CMapEvent::affectsDifficulty(EMapDifficulty difficulty) const
+{
+	return affectedDifficulties.contains(difficulty);
+}
+
 bool CMapEvent::affectsPlayer(PlayerColor color, bool isHuman) const
 {
 	if (players.count(color) == 0)
@@ -201,7 +206,7 @@ void CMap::hideObject(CGObjectInstance * obj)
 			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
 				curt.visitableObjects -= obj->id;
 				curt.blockingObjects -= obj->id;
 			}
@@ -220,7 +225,7 @@ void CMap::showObject(CGObjectInstance * obj)
 			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
 				if(obj->visitableAt(int3(xVal, yVal, zVal)))
 				{
 					assert(!vstd::contains(curt.visitableObjects, obj->id));
@@ -237,15 +242,33 @@ void CMap::showObject(CGObjectInstance * obj)
 	}
 }
 
+
 void CMap::calculateGuardingGreaturePositions()
 {
-	for(int z = 0; z < levels(); z++)
+	calculateGuardingGreaturePositions(int3(0,0,0), int3(width, height, levels()));
+}
+
+void CMap::calculateGuardingGreaturePositions(int3 topleft, int3 bottomright)
+{
+	int3 topleftReal = {
+		std::max(0, topleft.x),
+		std::max(0, topleft.y),
+		std::max(0, topleft.z)
+	};
+
+	int3 bottomrightReal = {
+		std::min(width,    bottomright.x + 1),
+		std::min(height,   bottomright.y + 1),
+		std::min<int>(levels(), bottomright.z + 1)
+	};
+
+	for(int z = topleftReal.z; z < bottomrightReal.z; z++)
 	{
-		for(int x = 0; x < width; x++)
+		for(int x = topleftReal.x; x < bottomrightReal.x; x++)
 		{
-			for(int y = 0; y < height; y++)
+			for(int y = topleftReal.y; y < bottomrightReal.y; y++)
 			{
-				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
+				guardingCreaturePositions[int3(x,y,z)] = guardingCreaturePosition(int3(x, y, z));
 			}
 		}
 	}
@@ -582,13 +605,13 @@ std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 		if (hero.getNum() >= obj->id)
 			hero = ObjectInstanceID(hero.getNum()-1);
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	for(auto & tile : terrain)
 	{
-		for (auto & objectID : tile->blockingObjects)
+		for (auto & objectID : tile.blockingObjects)
 			if (objectID.getNum() >= obj->id)
 				objectID = ObjectInstanceID(objectID.getNum()-1);
 
-		for (auto & objectID : tile->visitableObjects)
+		for (auto & objectID : tile.visitableObjects)
 			if (objectID.getNum() >= obj->id)
 				objectID = ObjectInstanceID(objectID.getNum()-1);
 	}
@@ -630,6 +653,10 @@ std::shared_ptr<CGObjectInstance> CMap::eraseObject(ObjectInstanceID oldObjectID
 	return oldObject;
 }
 
+bool CMap::isHeroOnMap(const ObjectInstanceID &heroId) const {
+	return vstd::contains(heroesOnMap, heroId);
+}
+
 void CMap::heroAddedToMap(const CGHeroInstance * hero)
 {
 	assert(!vstd::contains(heroesOnMap, hero->id));
@@ -664,9 +691,9 @@ bool CMap::calculateWaterContent()
 	size_t totalTiles = height * width * levels();
 	size_t waterTiles = 0;
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile) 
+	for(auto & tile : terrain)
 	{
-		if (tile->isWater())
+		if (tile.isWater())
 		{
 			waterTiles++;
 		}
@@ -745,8 +772,8 @@ void CMap::unbanHero(const HeroTypeID & id)
 
 void CMap::initTerrain()
 {
-	terrain.resize(boost::extents[levels()][width][height]);
-	guardingCreaturePositions.resize(boost::extents[levels()][width][height]);
+	terrain = MapTilesStorage<TerrainTile>(int3(width, height, levels()));
+	guardingCreaturePositions = MapTilesStorage<int3>(int3(width, height, levels()));
 }
 
 CMapEditManager * CMap::getEditManager()
@@ -794,12 +821,12 @@ void CMap::reindexObjects()
 	for (auto & hero : heroesOnMap)
 		hero = oldIndex.at(hero.getNum())->id;
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	for(auto & tile : terrain)
 	{
-		for (auto & objectID : tile->blockingObjects)
+		for (auto & objectID : tile.blockingObjects)
 			objectID = oldIndex.at(objectID.getNum())->id;
 
-		for (auto & objectID : tile->visitableObjects)
+		for (auto & objectID : tile.visitableObjects)
 			objectID = oldIndex.at(objectID.getNum())->id;
 	}
 }
@@ -928,8 +955,13 @@ std::vector<HeroTypeID> CMap::getHeroesInPool() const
 {
 	std::vector<HeroTypeID> result;
 	for (const auto & hero : heroesPool)
-		if (hero)
-			result.push_back(hero->getHeroTypeID());
+	{
+		if (!hero)
+			continue;
+
+		result.push_back(hero->getHeroTypeID());
+		assert(heroesPool.at(hero->getHeroTypeID().getNum()) == hero);
+	}
 
 	return result;
 }
@@ -1052,6 +1084,14 @@ bool CMap::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInst
 
 	// or, if all other tests fail to determine priority - simply based on H3M order
 	return a->id < b->id;
+}
+
+void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > & poolFromSave)
+{
+	heroesPool.resize(poolFromSave.size());
+	for (const auto & hero : poolFromSave)
+		if (hero)
+			heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
 }
 
 

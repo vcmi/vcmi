@@ -161,10 +161,10 @@ void CModListView::reload(const QString & modToSelect)
 
 	if (!modToSelect.isEmpty())
 	{
-		QModelIndexList matches = filterModel->match(filterModel->index(0, 0), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
+		QModelIndexList matches = modModel->match(modModel->index(0, 0, QModelIndex()), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
 
 		if (!matches.isEmpty())
-			ui->allModsView->setCurrentIndex(matches.first());
+			ui->allModsView->setCurrentIndex(filterModel->mapFromSource(matches.first()));
 	}
 }
 
@@ -915,6 +915,8 @@ void CModListView::installFiles(QStringList files)
 
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 		{
+			try {
+			// TODO: there is some weird crash on Android where this constructor fails to open file
 			ZipArchive archive(qstringToPath(realFilename));
 			auto fileList = archive.listFiles();
 
@@ -940,6 +942,12 @@ void CModListView::installFiles(QStringList files)
 				maps.push_back(filename);
 			else
 				mods.push_back(filename);
+			}
+			catch (const std::runtime_error & e)
+			{
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename).arg(QString::fromStdString(e.what())));
+			}
+
 		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);

@@ -298,6 +298,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<RequestStatistic>(256);
 	s.template registerType<ResponseStatistic>(257);
 	s.template registerType<LobbyQuickLoadGame>(258);
+	s.template registerType<UnitAdjacentLimiter>(259);
 }
 
 VCMI_LIB_NAMESPACE_END

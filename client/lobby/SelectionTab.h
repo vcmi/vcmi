@@ -141,19 +141,3 @@ private:
 
 	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };
-
-class CampaignSetSelector : public CWindowObject
-{
-	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
-	std::vector<std::shared_ptr<CToggleButton>> buttons;
-	std::shared_ptr<CSlider> slider;
-
-	const int LINES = 10;
-
-	std::vector<std::string> texts;
-	std::function<void(int selectedIndex)> cb;
-
-	void update(int to);
-public:
-	CampaignSetSelector(const std::vector<std::string> & texts, const std::function<void(int selectedIndex)> & cb);
-};

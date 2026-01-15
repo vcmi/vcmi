@@ -60,13 +60,14 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :                 { "type" : "number" },
-				"startingDwellingChances" :              { "type" : "array" },
-				"spellResearch" :                        { "type" : "boolean" },
-				"spellResearchCost" :                    { "type" : "array" },
-				"spellResearchPerDay" :                  { "type" : "array" },
-				"spellResearchCostExponentPerResearch" : { "type" : "array" },
-				"baseScoutingRange" :                    { "type" : "number" }
+				"buildingsPerTurnCap"  :                   { "type" : "number" },
+				"startingDwellingChances" :                { "type" : "array" },
+				"spellResearch" :                          { "type" : "boolean" },
+				"spellResearchCost" :                      { "type" : "array" },
+				"spellResearchPerDay" :                    { "type" : "array" },
+				"spellResearchCostMultiplierPerResearch" : { "type" : "array" },
+				"spellResearchCostMultiplierPerReroll" :   { "type" : "array" },
+				"baseScoutingRange" :                      { "type" : "number" }
 			}
 		},
 		"campaign": {
@@ -74,6 +75,13 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"unlockAll" : { "type" : "boolean" }
+			}
+		},
+		"cheats": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"buildWithoutGrail" : { "type" : "boolean" }
 			}
 		},
 		"combat": {
@@ -96,7 +104,8 @@
 				"defensePointDamageFactorCap" : { "type" : "number" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
-				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
+				"noSpellHitAndRunRounds" :      { "type" : "number" }
 			}
 		},
 		"creatures": {

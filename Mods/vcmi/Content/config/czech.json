@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Otočit pro zobrazení %s kouzel",
 	"vcmi.spellBook.zero_level.hint" : "Žádná úroveň",
 
-	"vcmi.spellResearch.canNotAfford" : "Nemáš dostatek prostředků na výměnu kouzla {%SPELL1} za {%SPELL2}. Můžeš ho však odstranit a pokračovat ve výzkumu.",
+	"vcmi.spellResearch.canNotAfford" : "Nemáš dostatek prostředků na výměnu kouzla {%SPELL1} za {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Výzkum už byl dnes proveden. Vrať se zítra.",
 	"vcmi.spellResearch.pay" : "Chceš nahradit {%SPELL1} za {%SPELL2}? Nebo zrušit toto kouzlo a pokračovat ve výzkumu dalších kouzel?",
 	"vcmi.spellResearch.research" : "Prozkoumat toto kouzlo",
@@ -899,6 +899,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Kroniky hrdinů",
 	"vcmi.campaignSet.hota" : "Roh propasti",
+	"vcmi.campaignSet.wog" : "Ve stopách bohů",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount

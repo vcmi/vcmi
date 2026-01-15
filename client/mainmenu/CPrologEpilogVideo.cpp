@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CPrologEpilogVideo.h"
+#include "CMainMenu.h"
 
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -28,7 +29,9 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
+
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(bgConfig.isString() ?ImagePath::fromJson(bgConfig) : ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
 	if (!spe.prologVideo.second.empty())
 		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, spe.prologVideo.second, true);

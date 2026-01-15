@@ -107,7 +107,7 @@
 	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
 	"vcmi.spellBook.zero_level.hint" : "0th lev",
 
-	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
+	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
 	"vcmi.spellResearch.pay" : "Would you like to replace {%SPELL1} with {%SPELL2}? Or discard this spell and continue spell research?",
 	"vcmi.spellResearch.research" : "Research this Spell",
@@ -284,6 +284,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Write two random towns in the chat",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Screenshot saved to %s",
 	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod loading failure}\n\nCritical issues found when loading mods! Game may not work correctly or crash! Please update or disable following mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Network Error}\n\nConnection to game server has been lost!",
@@ -419,6 +420,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Global backspace",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Global cancel",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Global fullscreen",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Global screenshot",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Global move focus",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Global options",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Global return",
@@ -899,6 +901,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
+	"vcmi.campaignSet.wog" : "In The Wake of Gods",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -1027,6 +1030,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional ${val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Adjacent Spellcaster}\nUnit can cast ${subtype.spell} while standing next to target",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximum Damage}\nThis unit always deals the maximum possible damage",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attack all around}\nAttacks all adjacent enemies in addition to the primary target",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{No ranged retaliation}\nThe enemy cannot retaliate when shot by this unit",
@@ -1139,7 +1143,7 @@
 	"spell.core.summonDemons.name" : "Summon Demons",
 	"spell.core.towerMoat.name" : "Land Mine",
 
-	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked it takes 50% damage, and become unfrozen",
+	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked, it takes half damage (both melee and ranged attacks) and retaliates at full strength.",
 	"spell.core.poison.description.none" : "{Poison}\n\nWhen poisoned, the target stack's maximum health is decreased by 10% for every combat round for three rounds. After three rounds, the creature is no longer poisoned, but the maximum health remains decreased",
 	"spell.core.bind.description.none" : "{Bind}\n\nTargeted unit is bound to the ground, unable to move until the stack that entangled them moves or perishes.",
 	"spell.core.disease.description.none" : "{Disease}\n\nThe living target becomes ill, thus having their attack and defense values reduced by two for a period of three rounds",
@@ -1153,5 +1157,9 @@
 	"spellSchool.core.air.name" : "Air",
 	"spellSchool.core.earth.name" : "Earth",
 	"spellSchool.core.fire.name" : "Fire",
-	"spellSchool.core.water.name" : "Water"
+	"spellSchool.core.water.name" : "Water",
+
+	"mapLayer.core.surface.name" : "Surface",
+	"mapLayer.core.underground.name" : "Underground",
+	"mapLayer.core.unknown.name" : "Unknown"
 }

@@ -323,6 +323,10 @@
 			"description" : "List of configuration files for obstacles",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"mapLayers" : {
+			"description" : "List of configuration files for map layers",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"templates" : {
 			"description" : "List of configuration files for RMG templates",
 			"$ref" : "#/definitions/fileListOrObject"

@@ -289,8 +289,11 @@ Stack::Stack(
 
 	auto valueOne = GetValue(cstack->unitType());
 
+	// Force a higher value clones (we want extra focus on them)
 	// Force a lower value for summons (we don't care about them, they are not permanent)
-	if(cstack->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
+	if(cstack->isClone())
+		valueOne *= 5;
+	else if(cstack->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
 		valueOne *= 0.2;
 
 	auto permille = [](int v1, int v2)

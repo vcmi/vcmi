@@ -163,7 +163,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelupSkillCandidates(*randomizer);
+	hlu.skills = randomizer->rollSecondarySkills(hero);
 
 	if (hlu.skills.size() == 0)
 	{
@@ -1001,7 +1001,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	};
 
-	if (gameInfo().getPlayerState(h->getOwner())->human && (guardian || objectToVisit) && movementMode == EMovementMode::STANDARD)
+	if (settings["general"]["saveBeforeVisit"].Bool() &&
+		gameInfo().getPlayerState(h->getOwner())->human &&
+	   (guardian || objectToVisit) &&
+	   movementMode == EMovementMode::STANDARD)
 		save("Saves/BeforeVisitSave");
 
 	if (!transit && embarking)
@@ -1621,16 +1624,17 @@ void CGameHandler::save(const std::string & filename)
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
+		CSaveFile save;
 		gameState().saveGame(save);
 		logGlobal->info("Saving server state");
 		save.save(*this);
-		logGlobal->info("Game has been successfully saved!");
+		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
 	}
 	catch(std::exception &e)
 	{
 		logGlobal->error("Failed to save game: %s", e.what());
 	}
+	logGlobal->info("Game has been successfully saved!");
 }
 
 void CGameHandler::load(const StartInfo &info)
@@ -2312,34 +2316,33 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 	if(researchLimitExceeded && complain("Already researched today!"))
 		return false;
 
-	if(!accepted)
-	{
-		auto it = spells.begin() + t->spellsAtLevel(level, false);
-		std::rotate(it, it + 1, spells.end()); // move to end
-		setResearchedSpells(t, level, spells, accepted);
-		return true;
-	}
-
 	ResourceSet costBase;
 	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-	auto costExponent = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
+	double pastResearchesCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
+	double pastRerollsCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
+	double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, t->spellResearchAcceptedCounter);
+	double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, t->spellResearchPendingRerollsCounters[level]);
+	ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 	if(!gameInfo().getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
 
 	giveResources(t->getOwner(), -cost);
 
-	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	if(accepted)
+		std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+
 	auto it = spells.begin() + t->spellsAtLevel(level, false);
 	std::rotate(it, it + 1, spells.end()); // move to end
-
 	setResearchedSpells(t, level, spells, accepted);
 
-	if(t->getVisitingHero())
-		giveSpells(t, t->getVisitingHero());
-	if(t->getGarrisonHero())
-		giveSpells(t, t->getGarrisonHero());
+	if(accepted)
+	{
+		if(t->getVisitingHero())
+			giveSpells(t, t->getVisitingHero());
+		if(t->getGarrisonHero())
+			giveSpells(t, t->getGarrisonHero());
+	}
 
 	return true;
 }

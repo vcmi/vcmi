@@ -321,6 +321,7 @@ set(lib_MAIN_SRCS
 	ResourceSet.cpp
 	RiverHandler.cpp
 	RoadHandler.cpp
+	MapLayerHandler.cpp
 	ScriptHandler.cpp
 	TerrainHandler.cpp
 	TurnTimerInfo.cpp
@@ -612,6 +613,7 @@ set(lib_MAIN_HEADERS
 	mapping/CMapInfo.h
 	mapping/CMapOperation.h
 	mapping/CMapService.h
+	mapping/MapDifficulty.h
 	mapping/MapEditUtils.h
 	mapping/MapIdentifiersH3M.h
 	mapping/MapFeaturesH3M.h
@@ -619,6 +621,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapFormat.h
 	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
+	mapping/MapTilesStorage.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
 	mapping/TerrainTile.h
@@ -805,6 +808,7 @@ set(lib_MAIN_HEADERS
 	ResourceSet.h
 	RiverHandler.h
 	RoadHandler.h
+	MapLayerHandler.h
 	ScriptHandler.h
 	ScopeGuard.h
 	StartInfo.h
