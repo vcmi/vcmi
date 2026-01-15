@@ -328,7 +328,7 @@ PlayerColor MapReaderH3M::readPlayer32()
 BuildingID MapReaderH3M::readBuilding32(std::optional<FactionID> faction)
 {
 	uint32_t value = readUInt32();
-	return remapper.remapBuilding(faction, h3mEntry);
+	return remapper.remapBuilding(faction, value);
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)

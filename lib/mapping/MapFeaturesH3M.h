@@ -69,9 +69,13 @@ public:
 	bool levelSOD = false;
 	bool levelCHR = false;
 	bool levelWOG = false;
-	bool levelHOTA0 = false;
-	bool levelHOTA1 = false;
-	bool levelHOTA2 = false;
+	// older, unsupported hota maps:
+	// 1.0 -> uses SoD format
+	// 1.1 -> uses SoD or WoG format
+	// 1.2 -> uses custom 0x1e / 30 format
+	bool levelHOTA0 = false; // 1.3.0
+	bool levelHOTA1 = false; // 1.5.0
+	bool levelHOTA2 = false; // 1.6.0
 	bool levelHOTA3 = false; // 1.6.0
 	// level 4 - not released publicly?
 	bool levelHOTA5 = false; // 1.7.0

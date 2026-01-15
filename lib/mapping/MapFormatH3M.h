@@ -134,6 +134,7 @@ private:
 	void readHotaScriptCondition();
 	void readHotaScriptConditionInternal();
 	void readHotaScriptExpression();
+	void readHotaScriptExpressionInternal();
 
 	/**
 	 * Reads the list of allowed heroes.
