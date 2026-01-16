@@ -51,6 +51,7 @@ public:
 
 	void saveMap();
 	bool openMap(const QString &);
+	void openCampaign(const QString &);
 	
 	//MapView * mapView();
 
