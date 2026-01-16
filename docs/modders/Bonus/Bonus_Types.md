@@ -501,6 +501,10 @@ Affected units can not receive good or bad luck
 
 Affected units can not receive good or bad morale
 
+### CPU_CONTROLLED
+
+Player cannot control the affected unit by default. Note: uses custom behavior logic that is not coming from battle AI.
+
 ## Combat abilities
 
 ### FLYING
