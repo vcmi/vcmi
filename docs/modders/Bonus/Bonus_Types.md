@@ -1194,6 +1194,6 @@ Bonus that is automatically granted to unit whenever unit uses defend action in 
 
 ### MARKETPLACE_ACCESS
 
-Increases amount of counted marketplaces (in town or in adventure map tavern). You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
+Increases amount of counted marketplaces when trading in town. You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
 
 - val: additional number of 'marketplaces' to reduce costs
