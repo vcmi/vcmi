@@ -121,6 +121,11 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"variables" : {
+					"artifact" : {
+						"gainedArtifact" : { // Note: this variable name is used by engine for H3M loading
+							"class" : "TREASURE"
+						}
+					},
 					"resource" : {
 						"gainedResource" : { // Note: this variable name is used by engine for H3M loading
 							"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
@@ -141,9 +146,9 @@
 				"rewards" : [
 					{
 						"appearChance" : { "max" : 20 },
-						"mapDice" : -1,
+						"mapDice" : 0,
 						"message" : 155,
-						"artifacts" : [ { "class" : "TREASURE" } ]
+						"artifacts" : [ "@gainedArtifact" ]
 					},
 					{
 						"appearChance" : { "min" : 20, "max" : 40 },
@@ -154,26 +159,7 @@
 					{
 						"message" : 154,
 						"appearChance" : { "min" : 40, "max" : 90 },
-						"mapDice" : -1,
-						"resources" : [
-							{
-								"anyOf" : [ "wood", "ore", "mercury", "gems", "sulfur", "crystal" ],
-								"min" : 2,
-								"max" : 5
-							},
-						]
-					},
-					{
-						"appearChance" : { "min" : 90, "max" : 100 },
 						"mapDice" : 1,
-						"message" : 156,
-					},
-					{
-						// special reward only used on loading hota map, never present othervice
-						"appearChance" : { "min" : 0, "max" : 0 },
-						"mapDice" : 0,
-						"message" : 154,
-						"artifacts" : [ "@gainedArtifact" ],
 						"resources" : [
 							{
 								"type" : "@gainedResource",
@@ -181,6 +167,11 @@
 							}
 						]
 					},
+					{
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"mapDice" : 2,
+						"message" : 156,
+					}
 				]
 			}
 		}

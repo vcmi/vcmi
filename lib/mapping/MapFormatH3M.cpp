@@ -856,7 +856,7 @@ void CMapLoaderH3M::readHotaScriptActions()
 	int unk3 = reader->readInt8();
 	assert(unk2 == 1);
 	assert(unk3 == 0);
-	logGlobal->warn("Map %s: HotA Script action - unkown values %d/%d", unk2, unk3);
+	logGlobal->warn("Map %s: HotA Script action - unkown values %d/%d", mapName, unk2, unk3);
 
 	int actionsCount = reader->readInt32();
 	for(int j = 0; j < actionsCount; ++j)
@@ -868,8 +868,14 @@ void CMapLoaderH3M::readHotaScriptActions()
 			case HotaScriptActions::SHOW_MESSAGE:
 			{
 				std::string textID = readBasicString();
-				int numberOfImages = reader->readInt32();
-				// TODO: parse image data
+				int32_t numberOfImages = reader->readInt32();
+				for (int i = 0; i < numberOfImages;++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: type %d/%d", mapName, imageType, imageSubtype);
+				}
 				logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: message %s, %d images", mapName, textID, numberOfImages);
 				break;
 			}
@@ -925,23 +931,52 @@ void CMapLoaderH3M::readHotaScriptActions()
 			case HotaScriptActions::SET_QUEST_HINT:
 			{
 				std::string messageTextID = readBasicString();
-				int imagesCount = reader->readInt32();
-				// TODO: parse image data
+				int32_t numberOfImages = reader->readInt32();
+				for (int i = 0; i < numberOfImages;++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: type %d/%d", mapName, imageType, imageSubtype);
+				}
 				bool showInLog = reader->readBool();
-				logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: '%s', %d images, show in log: %d", mapName, messageTextID, imagesCount, showInLog);
+				logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: '%s', %d images, show in log: %d", mapName, messageTextID, numberOfImages, showInLog);
 				break;
 			}
 
 			case HotaScriptActions::SHOW_QUESTION:
 			{
-				bool unknown = reader->readBool(); // image show type?
+				// 0 = no images
+				// 1 = no exit
+				// 2 = can exit?
+				// 3 = specify images
+				int imageShowType = reader->readInt8();
 				std::string messageTextID = readBasicString();
 				readHotaScriptActions();
 				readHotaScriptActions();
-				bool unknown2 = reader->readInt32(); // image show type?
-				assert(unknown == 0);
-				assert(unknown2 == 0);
-				logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: '%s', unknown: %d/%d", mapName, messageTextID, unknown, unknown2);
+
+				if (imageShowType == 2)
+					readHotaScriptActions();
+
+				int numberOfImages = 2;
+				if (imageShowType == 0 || imageShowType == 3)
+					numberOfImages = reader->readInt32();
+
+				for (int i = 0; i < numberOfImages; ++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: type %d/%d", mapName, imageType, imageSubtype);
+				}
+
+				if (imageShowType == 1 || imageShowType == 2)
+				{
+					bool showOrBetweenImages = reader->readBool();
+					int32_t unknown = reader->readInt32();
+					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: show OR: %d, unknown: %d", mapName, showOrBetweenImages, unknown);
+				}
+				logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: '%s', mode: %d, images: %d", mapName, messageTextID, imageShowType, numberOfImages);
 				break;
 			}
 			case HotaScriptActions::ARTIFACT:
@@ -1111,8 +1146,8 @@ void CMapLoaderH3M::readHotaScriptActions()
 
 					int unknown = reader->readBool();
 					int unknown2 = reader->readInt32();
-					assert(unknown == 0);
-					assert(unknown2 == 0);
+					assert(unknown == 1);
+					assert(unknown2 == 1 || unknown2 == 0);
 					logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN block, unknown %d/%d", mapName, unknown, unknown2);
 					if(unknown2 == 0)
 						break;
@@ -1131,7 +1166,7 @@ void CMapLoaderH3M::readHotaScriptCondition()
 {
 	bool unknown = reader->readBool();
 	assert(unknown == true);
-	logGlobal->warn("Map %s: HotA Script condition - unknown value %d", unknown);
+	logGlobal->warn("Map %s: HotA Script condition - unknown value %d", mapName, unknown);
 	readHotaScriptConditionInternal();
 }
 
@@ -1316,7 +1351,7 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 
 	int unknown = reader->readBool();
 	assert(unknown==true);
-	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", unknown);
+	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, unknown);
 
 
 	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
@@ -1347,13 +1382,9 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 		case HotaScriptExpression::DIVIDE:
 		case HotaScriptExpression::REMAINDER:
 		{
-			int unknown2 = reader->readInt32();
-			readHotaScriptExpression();
-			int unknown1 = reader->readInt32();
-			readHotaScriptExpression();
-			assert(unknown1 == 1);
-			assert(unknown2 == 1);
-			logGlobal->warn("Map %s: HotA Script expression - (arithmetic), unknown %d/%d", mapName, unknown1, unknown2);
+			readHotaScriptExpressionInternal();
+			readHotaScriptExpressionInternal();
+			logGlobal->warn("Map %s: HotA Script expression - (arithmetic)", mapName);
 			break;
 		}
 		case HotaScriptExpression::NEGATE:
@@ -2348,7 +2379,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithGarbage(const int
 	return object;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithSpell(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
@@ -2484,11 +2515,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResourcesAndArtif
 				{
 					JsonNode variable;
 					variable.setModScope(ModScope::scopeGame());
-					variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-					rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-
 					variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
 					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+
+					variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+					rewardable->configuration.presetVariable("resource", "gainedResource", variable);
 
 					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
 					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
@@ -2498,6 +2529,60 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResourcesAndArtif
 	}
 	return object;
 }
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWagon(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		switch(content)
+		{
+			case -1: // random
+				reader->skipUnused(14); // garbage data
+				break;
+			case 1: // empty
+				reader->skipUnused(14); // garbage data
+				if(rewardable)
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
+				break;
+			case 0: // custom
+			{
+				ArtifactID artifact = reader->readArtifact32();
+				int32_t amountA = reader->readInt32();
+				GameResID resourceA = reader->readGameResID();
+				reader->skipUnused(5); // no 2nd resource
+
+				if(rewardable)
+				{
+					if (artifact.hasValue())
+					{
+						JsonNode variable;
+						variable.setModScope(ModScope::scopeGame());
+						variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
+						rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+						rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
+					}
+					else
+					{
+						JsonNode variable;
+						variable.setModScope(ModScope::scopeGame());
+						variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+						rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+						rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
+						rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+
+					}
+				}
+			}
+		}
+	}
+	return object;
+}
+
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
@@ -2529,6 +2614,75 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3
 				}
 			}
 		}
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaTrapperLodge(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA9)
+	{
+		// -1 = random
+		// 0 = gold
+		// 1 = creatures
+		int32_t content = reader->readInt32();
+		int32_t goldAmount = reader->readInt32();
+		int32_t creatureAmount = reader->readInt32();
+		CreatureID creatureType = reader->readCreature32();
+
+		if(content != -1)
+		{
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = creatureType.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("creature", "gainedCreature", variable);
+
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("number", "gainedCreatureAmount", JsonNode(creatureAmount));
+				rewardable->configuration.presetVariable("number", "gainedGoldAmount", JsonNode(goldAmount));
+			}
+		}
+	}
+	return object;
+}
+
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			reader->skipUnused(4); // no artifact
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			reader->skipUnused(5); // no 2nd resource
+
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+			}
+		}
+		else
+			reader->skipUnused(14); // garbage data
 	}
 	return object;
 }
@@ -2680,7 +2834,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readBank(mapPosition, objectTemplate);
 
 		case Obj::PYRAMID:
-			return readRewardWithSpell(mapPosition, objectTemplate);
+			return readPyramid(mapPosition, objectTemplate);
 
 		case Obj::TREASURE_CHEST:
 			return readRewardWithArtifact(mapPosition, objectTemplate, 3);
@@ -2702,9 +2856,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 		case Obj::CAMPFIRE:
 			return readRewardWithResources(mapPosition, objectTemplate);
 
-		case Obj::WAGON:
 		case Obj::LEAN_TO:
-			return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
+			return readLeanTo(mapPosition, objectTemplate);
+
+		case Obj::WAGON:
+			return readWagon(mapPosition, objectTemplate);
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
@@ -2721,13 +2877,19 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			if (subid == 0)
 				return readRewardWithAmount(mapPosition, objectTemplate);
 			if (subid == 1)
-				return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
+				return readLeanTo(mapPosition, objectTemplate);
 			else
 				return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_2:
 			if (subid == 0) // Seafaring Academy
 				return readUniversity(mapPosition, objectTemplate);
+			else
+				return readGeneric(mapPosition, objectTemplate);
+
+		case Obj::HOTA_CUSTOM_OBJECT_3:
+			if (subid == 12) // Trapper Lodge?
+				return readHotaTrapperLodge(mapPosition, objectTemplate);
 			else
 				return readGeneric(mapPosition, objectTemplate);
 
@@ -3280,7 +3442,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::HOTA_MULTI:
 		{
 			uint32_t missionSubID = reader->readUInt32();
-			assert(missionSubID < 3);
+			assert(missionSubID < 4);
 
 			if(missionSubID == 0)
 			{
@@ -3303,6 +3465,14 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				int32_t difficultyMask = reader->readUInt32();
 				assert(difficultyMask > 0 && difficultyMask < 32);
 				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
+				break;
+			}
+			if(missionSubID == 3)
+			{
+				missionId = EQuestMission::HOTA_SCRIPTED;
+				int32_t scriptID = reader->readUInt32();
+				bool unknown = reader->readBool();
+				logGlobal->warn("Map '%s': Seer Hut at %s: Scripted quest (%d/%d) is not implemented!", mapName, position.toString(), scriptID, unknown);
 				break;
 			}
 			break;

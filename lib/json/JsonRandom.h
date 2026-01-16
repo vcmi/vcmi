@@ -71,6 +71,7 @@ public:
 
 	TResources loadResources(const JsonNode & value, const Variables & variables);
 	TResources loadResource(const JsonNode & value, const Variables & variables);
+	GameResID loadResourceType(const JsonNode & value, const Variables & variables);
 	PrimarySkill loadPrimary(const JsonNode & value, const Variables & variables);
 	std::vector<si32> loadPrimaries(const JsonNode & value, const Variables & variables);
 	SecondarySkill loadSecondary(const JsonNode & value, const Variables & variables);

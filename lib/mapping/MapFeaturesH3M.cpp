@@ -178,6 +178,7 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 		result.creaturesCount = 200; // + 14 Bulwark
 		result.heroesCount = 215; // + 17 Bulwark
 		result.heroesPortraitsCount = 245; // + 17 Bulwark
+		result.skillsCount = 30; // + Runes
 		result.heroesBytes = 27;
 	}
 
