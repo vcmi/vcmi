@@ -270,6 +270,10 @@ Grants affected hero additional mana for the duration of combat. Bonus may give 
 
 - val: amount of additional mana
 
+### SPELL_CAST_COUNTER
+
+Internal bonus, do not use
+
 ## Hero specialties
 
 ### SPECIAL_SPELL_LEV
