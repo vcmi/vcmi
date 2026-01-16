@@ -553,6 +553,11 @@
 	{
 		"blockDescriptionPropagation": true
 	},
+	
+	"MARKETPLACE_ACCESS":
+	{
+		"blockDescriptionPropagation": true
+	},
 
 	"UNDEAD":
 	{
