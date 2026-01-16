@@ -141,7 +141,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	case 0x06054b50:
 	case 0x04034b50:
 	case 0x02014b50:
-		return std::unique_ptr<IMapLoader>(new CMapLoaderJson(stream.get()));
+		return std::unique_ptr<IMapLoader>(new CMapLoaderJson(stream.get(), mapName));
 		break;
 	default:
 		// Check which map format is used

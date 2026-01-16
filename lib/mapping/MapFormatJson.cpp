@@ -13,6 +13,7 @@
 
 #include "../filesystem/CInputStream.h"
 #include "../filesystem/COutputStream.h"
+#include "../filesystem/Filesystem.h"
 #include "../json/JsonWriter.h"
 #include "CMap.h"
 #include "MapFormat.h"
@@ -36,7 +37,10 @@
 #include "../constants/StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
+#include "../json/JsonUtils.h"
 #include "../texts/Languages.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -254,7 +258,7 @@ std::string getTerrainFilename(int i)
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
 	mapObjectResolver(std::make_unique<MapObjectResolver>(this)),
-	map(nullptr), mapHeader(nullptr)
+	map(nullptr), mapHeader(nullptr), mapName("")
 {
 
 }
@@ -289,6 +293,20 @@ RoadId CMapFormatJson::getRoadByCode(const std::string & code)
 	return RoadId::NO_ROAD;
 }
 
+std::string CMapFormatJson::removeMapNamePrefix(const std::string & fullIdentifier)
+{
+	// Remove "map.<mapname>." prefix from translation keys
+	// Example: "map.testmap.header.name" -> "header.name"
+	size_t mapPrefixPos = fullIdentifier.find("map.");
+	if(mapPrefixPos == 0)
+	{
+		size_t secondDotPos = fullIdentifier.find('.', 4); // 4 = strlen("map.")
+		if(secondDotPos != std::string::npos)
+			return fullIdentifier.substr(secondDotPos + 1);
+	}
+	return fullIdentifier;
+}
+
 void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const
 {
 	std::set<FactionID> temp;
@@ -306,10 +324,53 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 		value = temp;
 }
 
+void CMapFormatJson::fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix) const
+{
+	if(!node.isStruct())
+		return;
+	
+	// Check if stringsTextID exists without creating it
+	auto & nodeStruct = node.Struct();
+	auto it = nodeStruct.find("stringsTextID");
+	
+	// Process stringsTextID array if present (MetaString structure)
+	if(it != nodeStruct.end() && it->second.isVector())
+	{
+		for(auto & textID : it->second.Vector())
+		{
+			if(textID.isString() && !textID.String().empty() 
+				&& textID.String().find("map.") != 0 
+				&& textID.String().find("core.") != 0
+				&& textID.String().find("vcmi.") != 0)
+			{
+				textID.String() = mapPrefix + textID.String();
+			}
+		}
+	}
+	
+	// Recursively search for more stringsTextID arrays in child Struct nodes only
+	for(auto & child : nodeStruct)
+	{
+		if(child.second.isStruct())
+			fixStringsTextIDInJson(child.second, mapPrefix);
+	}
+}
+
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 {
+	if(!handler.saving)
+	{
+		// When loading: Fix TextIDs in JSON to include map name prefix before deserialization
+		std::string actualMapName = TextOperations::convertMapName(mapName);
+		std::string mapPrefix = "map." + actualMapName + ".";
+		
+		JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+		fixStringsTextIDInJson(headerData, mapPrefix);
+	}
+	
 	handler.serializeStruct("name", mapHeader->name);
 	handler.serializeStruct("description", mapHeader->description);
+	
 	handler.serializeStruct("author", mapHeader->author);
 	handler.serializeStruct("authorContact", mapHeader->authorContact);
 	handler.serializeStruct("mapVersion", mapHeader->mapVersion);
@@ -769,11 +830,12 @@ void CMapPatcher::readPatchData()
 }
 
 ///CMapLoaderJson
-CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
+CMapLoaderJson::CMapLoaderJson(CInputStream * stream, const std::string & mapName)
 	: buffer(stream)
 	, ioApi(new CProxyROIOApi(buffer))
 	, loader("", "_", ioApi)
 {
+	this->mapName = mapName;
 }
 
 std::unique_ptr<CMap> CMapLoaderJson::loadMap(IGameInfoCallback * cb)
@@ -883,6 +945,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 			for(auto & elem : levels->getCurrent().Struct())
 			{
 				int level = getLevel(elem.first);
+				auto levelStruct = handler.enterStruct(elem.first);
 				handler.serializeId("layer", mapHeader->mapLayers.at(level));
 			}
 		}
@@ -900,6 +963,9 @@ void CMapLoaderJson::readHeader(const bool complete)
 		}
 	}
 
+	// Load translations BEFORE deserializing header so that header.name etc. can be translated
+	readTranslations();
+
 	serializeHeader(handler);
 
 	readTriggeredEvents(handler);
@@ -912,7 +978,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 	if(complete)
 		readOptions(handler);
 	
-	readTranslations();
 }
 
 void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile)
@@ -1191,13 +1256,56 @@ void CMapLoaderJson::readObjects()
 
 void CMapLoaderJson::readTranslations()
 {
-	std::list<Languages::Options> languages{Languages::getLanguageList().begin(), Languages::getLanguageList().end()};
+	// Load translations from ZIP archive - keys in JSON are WITHOUT map name (e.g. "header.name")
+	JsonNode translationsFromFile;
 	for(auto & language : Languages::getLanguageList())
 	{
 		if(isExistArchive(language.identifier + ".json"))
-			mapHeader->translations.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
+			translationsFromFile.Struct()[language.identifier] = getFromArchive(language.identifier + ".json");
 	}
-	mapHeader->registerMapStrings();
+	
+	// Register translations with map name prefix
+	if(!translationsFromFile.Struct().empty())
+	{
+		std::string actualMapName = TextOperations::convertMapName(mapName);
+		
+		std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
+		std::string baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+		
+		// Determine base language from translations with most strings
+		int maxStrings = 0;
+		for(auto & translation : translationsFromFile.Struct())
+		{
+			if(translation.second.isStruct() && translation.second.Struct().size() > maxStrings)
+			{
+				maxStrings = translation.second.Struct().size();
+				baseLanguage = translation.first;
+			}
+		}
+		
+		// Load base language translations
+		if(translationsFromFile.Struct().count(baseLanguage))
+		{
+			for(auto & str : translationsFromFile[baseLanguage].Struct())
+			{
+				// Keys in JSON don't have map name (e.g. "header.name"), add map name when registering: map.<mapName>.<identifier>
+				TextIdentifier fullIdentifier("map", actualMapName, str.first);
+				mapRegisterLocalizedString("map", *mapHeader, fullIdentifier, str.second.String(), baseLanguage);
+			}
+		}
+
+		// Load preferred language (if different)
+		if(preferredLanguage != baseLanguage && translationsFromFile.Struct().count(preferredLanguage))
+		{
+			JsonNode translationOverrides;
+			for(auto & str : translationsFromFile[preferredLanguage].Struct())
+			{
+				TextIdentifier fullIdentifier("map", actualMapName, str.first);
+				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();
+			}
+			mapHeader->texts.loadTranslationOverrides("map", preferredLanguage, translationOverrides);
+		}
+	}
 }
 
 
@@ -1392,7 +1500,18 @@ void CMapSaverJson::writeTranslations()
 			continue;
 		}
 		logGlobal->trace("Saving translations, language: %s", language);
-		addToArchive(s.second, language + ".json");
+		
+		// Remove map name prefix from keys when saving to JSON
+		// Keys are stored as "map.<mapName>.<identifier>" but should be saved as just "<identifier>"
+		JsonNode translationsToSave;
+		
+		for(auto & translation : s.second.Struct())
+		{
+			std::string key = removeMapNamePrefix(translation.first);
+			translationsToSave[key] = translation.second;
+		}
+		
+		addToArchive(translationsToSave, language + ".json");
 	}
 }
 

@@ -1034,6 +1034,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Profesja magii}\nZmniejsza o ${val} koszt zaklęć bohatera",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Tłumienie magii}\nZwiększa o ${val} koszt wrogich zaklęć",
 	"core.bonus.CHARGE_IMMUNITY.description" : "{Odporność: Szarża}\nNie otrzymuje dodatkowych obrażeń z wrogiej szarży",
+	"core.bonus.CPU_CONTROLLED.description" : "{Sterowany automatycznie}\nTa jednostka domyślnie nie może być kontrolowana ręcznie przez gracza.",
 	"core.bonus.DEATH_STARE.description" : "{Spojrzenie Śmierci}\n${val}% szans na zabicie 1 stworzenia",
 	"core.bonus.DEFENSIVE_STANCE.description" : "{Defensywny Bonus}\n+${val} obrony podczas defensywy",
 	"core.bonus.DESTRUCTION.description" : "{Destrukcja}\n${val}% szans na zabicie dodatkowych jednostek po ataku",

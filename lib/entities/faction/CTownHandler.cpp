@@ -796,15 +796,10 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	// But allows it to be defined with explicit value of "none" if town should not have native terrain
 	// This is better than allowing such terrain-less towns silently, leading to issues with RMG
 	faction->nativeTerrain = ETerrainId::NONE;
-	if ( !source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
+	if (!source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
 	{
 		LIBRARY->identifiers()->requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
-
-			auto const & terrain = LIBRARY->terrainTypeHandler->getById(faction->nativeTerrain);
-
-			if (!terrain->isSurface() && !terrain->isUnderground())
-				logMod->warn("Faction %s has terrain %s as native, but terrain is not suitable for either surface or subterranean layers!", faction->getJsonKey(), terrain->getJsonKey());
 		});
 	}
 

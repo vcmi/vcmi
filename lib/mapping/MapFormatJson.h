@@ -43,6 +43,9 @@ public:
 	static const std::string OBJECTS_FILE_NAME;
 	static const std::string TERRAIN_FILE_NAMES[2];
 
+	/// Removes "map.<mapName>." prefix from translation keys
+	static std::string removeMapNamePrefix(const std::string & fullIdentifier);
+
 	int fileVersionMajor;
 	int fileVersionMinor;
 protected:
@@ -57,12 +60,16 @@ protected:
 	 * (when loading map and mapHeader point to the same object)
 	 */
 	CMapHeader * mapHeader;
+	
+	std::string mapName; ///< name of the map file (for translations, same as H3M)
 
 	CMapFormatJson();
 
 	static TerrainId getTerrainByCode(const std::string & code);
 	static RiverId getRiverByCode(const std::string & code);
 	static RoadId getRoadByCode(const std::string & code);
+
+	void fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix) const;
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 
@@ -159,8 +166,9 @@ public:
 	 * Constructor.
 	 *
 	 * @param stream a stream containing the map data
+	 * @param mapName name of the map file (for external translations)
 	 */
-	CMapLoaderJson(CInputStream * stream);
+	CMapLoaderJson(CInputStream * stream, const std::string & mapName = "");
 
 	/**
 	 * Loads the VCMI/Json map file.

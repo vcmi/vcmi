@@ -181,6 +181,12 @@ void MainWindow::dropEvent(QDropEvent* event)
 			openMap(path);
 			break;
 		}
+		else if (path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+		{
+			hide();
+			openCampaign(path);
+			break;
+		}
 	}
 }
 
@@ -494,6 +500,11 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	updateRecentMenu(filenameSelect);
 
 	return true;
+}
+
+void MainWindow::openCampaign(const QString & filenameSelect)
+{
+	CampaignEditor::showCampaignEditor(this, filenameSelect);
 }
 
 void MainWindow::updateRecentMenu(const QString & filenameSelect) {

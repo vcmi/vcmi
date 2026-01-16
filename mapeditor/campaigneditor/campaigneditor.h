@@ -33,6 +33,7 @@ public:
 	void redraw();
 
 	static void showCampaignEditor(QWidget *parent);
+	static void showCampaignEditor(QWidget *parent, const QString &campaignFile);
 	static std::unique_ptr<CMap> tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario);
 
 private slots:
@@ -50,8 +51,11 @@ private:
 	void changed();
 	bool validate();
 	void saveCampaign();
+	void loadCampaignFile(const QString & filenameSelect);
 
 	void closeEvent(QCloseEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent *event) override;
+	void dropEvent(QDropEvent *event) override;
 
 	Ui::CampaignEditor *ui;
 
