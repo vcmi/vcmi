@@ -115,7 +115,10 @@ void TurnTimerHandler::update(int waitTimeMs)
 			movementPoints += hero->movementPointsRemaining();
 			movementPointsLimit += hero->movementPointsLimit(true);
 		}
-		timers[player].remainingMovementPointsPercent = movementPoints / static_cast<float>(movementPointsLimit);
+		if(movementPointsLimit)
+			timers[player].remainingMovementPointsPercent = movementPoints / static_cast<float>(movementPointsLimit);
+		else
+			timers[player].remainingMovementPointsPercent = 0.0f;
 	}
 
 	// create copy for iterations - battle might end during onBattleLoop call
