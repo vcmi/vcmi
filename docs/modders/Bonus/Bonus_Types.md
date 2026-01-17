@@ -1201,3 +1201,10 @@ Bonus that is automatically granted to unit whenever unit uses defend action in 
 Increases amount of counted marketplaces when trading in town. You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
 
 - val: additional number of 'marketplaces' to reduce costs
+
+### DEITYOFFIRE
+
+Enforce the "week of" to a special creature. If this bonus is existing multiple times, it's randomly selected from all bonus sources.
+
+- val: how many additional creatures should generated
+- subtype - id of creature

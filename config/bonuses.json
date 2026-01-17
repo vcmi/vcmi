@@ -558,6 +558,11 @@
 	{
 		"blockDescriptionPropagation": true
 	},
+	
+	"DEITYOFFIRE":
+	{
+		"blockDescriptionPropagation": true
+	},
 
 	"UNDEAD":
 	{
