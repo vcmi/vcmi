@@ -56,6 +56,14 @@ void TurnTimerHandler::setEndTurnAllowed(PlayerColor player, bool enabled)
 	endTurnAllowed[player] = enabled;
 }
 
+void TurnTimerHandler::onEndTurn(PlayerColor player)
+{
+	assert(player.isValidPlayer());
+	auto & timer = timers[player];
+	timer.isTurnEnded = true;
+	sendTimerUpdate(player);
+}
+
 void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
 {
 	TurnTimeUpdate ttu;
@@ -73,6 +81,8 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 		{
 			endTurnAllowed[player] = true;
 			auto & timer = timers[player];
+			timer.isTurnStart = true;
+			timer.isTurnEnded = false;
 			if(si->turnTimerInfo.accumulatingTurnTimer)
 				timer.baseTimer += timer.turnTimer;
 			timer.turnTimer = si->turnTimerInfo.turnTimer;
@@ -140,6 +150,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 		return;
 	
 	auto & timer = timers[player];
+	timer.isTurnStart = false;
 	const auto * state = gameHandler.gameInfo().getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{

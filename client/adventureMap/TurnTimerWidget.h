@@ -33,6 +33,7 @@ class VerticalPercentBar : public CIntObject
 	ColorRGBA borderColor;
 public:
 	void setPercent(float newPercent);
+	void setFillColor(ColorRGBA fillColor);
 	VerticalPercentBar(const Point & position, const Point & size, ColorRGBA barColor, ColorRGBA barColorBackground, ColorRGBA borderColor);
 };
 

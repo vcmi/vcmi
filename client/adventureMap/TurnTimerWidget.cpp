@@ -42,7 +42,7 @@ VerticalPercentBar::VerticalPercentBar(const Point & position, const Point & siz
 	pos.h = size.y;
 
 	back = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), barColorBackground, borderColor, 1);
-	fill = std::make_shared<TransparentFilledRectangle>(Rect(1, 1, pos.w - 2, pos.h - 2), barColor, barColorBackground, 0);
+	setFillColor(barColor);
 }
 
 void VerticalPercentBar::setPercent(float newPercent)
@@ -50,6 +50,14 @@ void VerticalPercentBar::setPercent(float newPercent)
 	percent = std::clamp(newPercent, 0.0f, 1.0f);
 	fill->pos.h = static_cast<int>((pos.h - 2) * percent);
 	fill->moveTo(Point(pos.x + 1, pos.y + pos.h - fill->pos.h - 1));
+	redraw();
+}
+
+void VerticalPercentBar::setFillColor(ColorRGBA fillColor)
+{
+	OBJECT_CONSTRUCTION;
+	
+	fill = std::make_shared<TransparentFilledRectangle>(Rect(1, 1, pos.w - 2, pos.h - 2), fillColor, borderColor, 0);
 	redraw();
 }
 
@@ -191,7 +199,19 @@ void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & 
 		else
 			mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
 		playerBarsMovement[player]->setPercent(timer.remainingMovementPointsPercent);
-		playerBarsBattle[player]->setPercent(timer.isBattle ? 1.0f : 0.0f);
+
+		ColorRGBA barColor = Colors::TRANSPARENCY;
+		if (timer.isBattle)
+			barColor = Colors::RED;
+		else if (timer.isTurnStart)
+			barColor = Colors::WHITE;
+		else if (timer.isTurnEnded)
+			barColor = Colors::GREEN;
+		else if (!timer.isActive)
+			barColor = Colors::YELLOW;
+
+		playerBarsBattle[player]->setFillColor(barColor);
+		playerBarsBattle[player]->setPercent(barColor != Colors::TRANSPARENCY ? 1.0f : 0.0f);
 	}
 }
 
