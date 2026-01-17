@@ -26,7 +26,7 @@ namespace battle
 namespace spells
 {
 
-class BattleSpellMechanics : public BaseMechanics
+class DLL_LINKAGE BattleSpellMechanics : public BaseMechanics
 {
 public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);
@@ -53,11 +53,6 @@ public:
 
 	/// Returns list of target types that can be targeted by spell
 	std::vector<AimType> getTargetTypes() const override final;
-
-	/// Returns vector of all possible destinations for specified aim type
-	/// index - ???
-	/// current - ???
-	std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast) const override final;
 
 	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;

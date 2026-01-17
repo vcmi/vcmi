@@ -14,6 +14,7 @@
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
 #include "tbb/parallel_for.h"
+#include "SpellTargetsEvaluator.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
@@ -21,6 +22,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/BattleSpellMechanics.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -143,7 +145,7 @@ std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CS
 		{
 			std::vector<PossibleSpellcast> possibleCasts;
 			spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
-			for(auto & target : temp.findPotentialTargets())
+			for(auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 			{
 				PossibleSpellcast ps;
 				ps.dest = target;
@@ -510,15 +512,13 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	LOGFL("I know how %d of them works.", possibleSpells.size());
 
-	//Get possible spell-target pairs
+	//Get viable spell-target pairs
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
 		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, spells::Mode::HERO, spell);
 
-		const bool FAST = true;
-
-		for(auto & target : temp.findPotentialTargets(FAST))
+		for(auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 		{
 			PossibleSpellcast ps;
 			ps.dest = target;
