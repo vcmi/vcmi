@@ -4343,9 +4343,8 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	auto cre = std::dynamic_pointer_cast<CGCreature>(createdObject);
 	assert(cre);
 	cre->notGrowingTeam = cre->neverFlees = false;
-	cre->character = 2;
+	cre->initialCharacter = CGCreature::Character::AGGRESSIVE;
 	cre->gainedArtifact = ArtifactID::NONE;
-	cre->identifier = -1;
 	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
 	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameInfo(), creature, unitSize));
 

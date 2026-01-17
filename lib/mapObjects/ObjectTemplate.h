@@ -116,10 +116,7 @@ public:
 		return anyLandTerrain;
 	};
 
-	const std::set<TerrainId>& getAllowedTerrains() const
-	{
-		return allowedTerrains;
-	}
+	int getTotalAllowedTerrains() const;
 
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(TerrainId terrain) const;

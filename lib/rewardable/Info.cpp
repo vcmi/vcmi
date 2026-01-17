@@ -257,6 +257,9 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, IG
 			if (category.first == "spell")
 				value = randomizer.loadSpell(input, object.variables.values).getNum();
 
+			if (category.first == "resource")
+				value = randomizer.loadResourceType(input, object.variables.values).getNum();
+
 			if (category.first == "primarySkill")
 				value = randomizer.loadPrimary(input, object.variables.values).getNum();
 

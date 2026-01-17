@@ -510,6 +510,10 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 			}
 		}
 	}
+
+	for(auto & obj : map->getObjects<CGPandoraBox>())
+		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
+			map->eraseObject(obj->id);
 }
 
 void CGameState::initOwnedObjects()
@@ -923,10 +927,6 @@ void CGameState::initTowns(vstd::RNG & randomGenerator)
 void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 {
 	logGlobal->debug("\tObject initialization");
-
-	for(auto & obj : map->getObjects<CGPandoraBox>())
-		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
-			map->eraseObject(obj->id);
 
 	for(auto & obj : map->getObjects())
 		obj->initObj(gameRandomizer);
