@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: VCMI Lobby API
+  description: REST API for VCMI Lobby Server statistics and information
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: API v1
+paths:
+  /stats:
+    get:
+      summary: Get lobby statistics
+      description: Returns comprehensive statistics about the VCMI lobby including online players, registered players, games, and lobbies
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  onlinePlayers:
+                    type: array
+                    items:
+                      type: string
+                    description: List of currently online player display names
+                  onlinePlayersCount:
+                    type: object
+                    properties:
+                      current:
+                        type: integer
+                        description: Currently online players
+                      lastHour:
+                        type: integer
+                        description: Active in last hour
+                      lastDay:
+                        type: integer
+                        description: Active in last 24 hours
+                      lastWeek:
+                        type: integer
+                        description: Active in last week
+                      lastMonth:
+                        type: integer
+                        description: Active in last month
+                      lastYear:
+                        type: integer
+                        description: Active in last year
+                  registeredPlayersCount:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: Total registered players
+                      lastDay:
+                        type: integer
+                        description: Registered in last 24 hours
+                      lastWeek:
+                        type: integer
+                        description: Registered in last week
+                      lastMonth:
+                        type: integer
+                        description: Registered in last month
+                      lastYear:
+                        type: integer
+                        description: Registered in last year
+                  gameCount:
+                    type: object
+                    properties:
+                      current:
+                        type: integer
+                        description: Currently running games
+                      total:
+                        type: integer
+                        description: Total completed games
+                      lastDay:
+                        type: integer
+                        description: Games in last 24 hours
+                      lastWeek:
+                        type: integer
+                        description: Games in last week
+                      lastMonth:
+                        type: integer
+                        description: Games in last month
+                      lastYear:
+                        type: integer
+                        description: Games in last year
+                  lobbyCount:
+                    type: object
+                    properties:
+                      current:
+                        type: integer
+                        description: Currently open lobbies
+                      public:
+                        type: integer
+                        description: Public lobbies
+                      private:
+                        type: integer
+                        description: Private lobbies
+                  lobbyStartTime:
+                    type: string
+                    format: date-time
+                    description: Server start timestamp
+                  server:
+                    type: string
+                    description: Server name
+                  lobbyVersion:
+                    type: string
+                    description: VCMI version
+                  apiVersion:
+                    type: string
+                    description: API version

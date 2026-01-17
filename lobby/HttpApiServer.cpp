@@ -11,6 +11,7 @@
 #include "HttpApiServer.h"
 #include "LobbyServer.h"
 #include "LobbyDatabase.h"
+#include "EmbeddedWebAssets.h"
 
 #include "../lib/json/JsonNode.h"
 #include "../lib/logging/CLogger.h"
@@ -81,11 +82,11 @@ void HttpApiServer::run()
 
 void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast::tcp_stream & stream)
 {
-	auto const createResponse = [&req](http::status status, const std::string & body)
+	auto const createResponse = [&req](http::status status, const std::string & body, const std::string & contentType = "application/json")
 	{
 		http::response<http::string_body> res{status, req.version()};
 		res.set(http::field::server, "VCMI-Lobby-API");
-		res.set(http::field::content_type, "application/json");
+		res.set(http::field::content_type, contentType);
 		res.keep_alive(req.keep_alive());
 		res.body() = body;
 		res.prepare_payload();
@@ -99,6 +100,18 @@ void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast
 			JsonNode stats = getStats();
 			std::string json = stats.toCompactString();
 			auto res = createResponse(http::status::ok, json);
+			http::write(stream, res);
+		}
+		else if (req.target() == "/api/docs" || req.target() == "/")
+		{
+			std::string html = getSwaggerUI();
+			auto res = createResponse(http::status::ok, html, "text/html");
+			http::write(stream, res);
+		}
+		else if (req.target() == "/api/openapi.yaml")
+		{
+			std::string spec = getSwaggerSpec();
+			auto res = createResponse(http::status::ok, spec, "text/yaml");
 			http::write(stream, res);
 		}
 		else
@@ -157,9 +170,19 @@ JsonNode HttpApiServer::getStats()
         {"private", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PRIVATE]))}
     };
     stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
-	stats["lobbyStartTime"].String() = std::format("{:%Y-%m-%dT%H:%M:%S}", startTime);
+	stats["lobbyStartTime"].String() = std::format("{:%Y-%m-%dT%H:%M:%S%z}", startTime);
 	stats["server"].String() = "VCMI Lobby";
 	stats["lobbyVersion"].String() = GameConstants::VCMI_VERSION;
 	stats["apiVersion"].String() = "1.0";
 	return stats;
+}
+
+std::string HttpApiServer::getSwaggerUI()
+{
+	return EmbeddedFiles::SWAGGER_CONTENT;
+}
+
+std::string HttpApiServer::getSwaggerSpec()
+{
+	return EmbeddedFiles::OPENAPI_CONTENT;
 }

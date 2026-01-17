@@ -35,6 +35,8 @@ private:
 	                   boost::beast::tcp_stream & stream);
 
 	JsonNode getStats();
+	std::string getSwaggerUI();
+	std::string getSwaggerSpec();
 
 	LobbyServer & lobbyServer;
 	unsigned short port;
