@@ -304,6 +304,35 @@ void LobbyDatabase::prepareStatements()
 		WHERE accountID = ?
 	)");
 
+	getAccountCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+	)");
+
+	getActiveAccountsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+		WHERE lastLoginTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getRegisteredAccountsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+		WHERE creationTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getClosedGameRoomsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM gameRooms
+		WHERE status = 5 AND creationTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getClosedGameRoomsCountAllStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM gameRooms
+		WHERE status = 5
+	)");;
+
 	isAccountCookieValidStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
 		FROM accountCookies
@@ -477,6 +506,72 @@ std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 	if(getAccountDisplayNameStatement->execute())
 		getAccountDisplayNameStatement->getColumns(result);
 	getAccountDisplayNameStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getAccountCount()
+{
+	int result;
+
+	if(getAccountCountStatement->execute())
+		getAccountCountStatement->getColumns(result);
+	getAccountCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getActiveAccountsCount(int hours)
+{
+	int result = 0;
+
+	getActiveAccountsCountStatement->reset();
+	getActiveAccountsCountStatement->setBinds(hours);
+	
+	if(getActiveAccountsCountStatement->execute())
+		getActiveAccountsCountStatement->getColumns(result);
+	
+	getActiveAccountsCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getRegisteredAccountsCount(int hours)
+{
+	int result = 0;
+
+	getRegisteredAccountsCountStatement->reset();
+	getRegisteredAccountsCountStatement->setBinds(hours);
+	
+	if(getRegisteredAccountsCountStatement->execute())
+		getRegisteredAccountsCountStatement->getColumns(result);
+	
+	getRegisteredAccountsCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getClosedGameRoomsCount(int hours)
+{
+	int result = 0;
+
+	if(hours == -1)
+	{
+		getClosedGameRoomsCountAllStatement->reset();
+		if(getClosedGameRoomsCountAllStatement->execute())
+			getClosedGameRoomsCountAllStatement->getColumns(result);
+		getClosedGameRoomsCountAllStatement->reset();
+	}
+	else
+	{
+		getClosedGameRoomsCountStatement->reset();
+		getClosedGameRoomsCountStatement->setBinds(hours);
+		
+		if(getClosedGameRoomsCountStatement->execute())
+			getClosedGameRoomsCountStatement->getColumns(result);
+		
+		getClosedGameRoomsCountStatement->reset();
+	}
 
 	return result;
 }
