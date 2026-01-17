@@ -37,6 +37,7 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		timers[player].unitTimer = 0;
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
+		timers[player].remainingMovementPointsPercent = 0.0f;
 		lastUpdate[player] = std::numeric_limits<int>::max();
 		endTurnAllowed[player] = true;
 	}
@@ -93,8 +94,19 @@ void TurnTimerHandler::update(int waitTimeMs)
 		return;
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
 		if(gameHandler.gameState().isPlayerMakingTurn(player))
 			onPlayerMakingTurn(player, waitTimeMs);
+		
+		int movementPoints = 0;
+		int movementPointsLimit = 0;
+		for(auto & hero : gameHandler.gameState().getHeroes(player))
+		{
+			movementPoints += hero->movementPointsRemaining();
+			movementPointsLimit += hero->movementPointsLimit(true);
+		}
+		timers[player].remainingMovementPointsPercent = movementPoints / static_cast<float>(movementPointsLimit);
+	}
 
 	// create copy for iterations - battle might end during onBattleLoop call
 	std::vector<BattleID> ongoingBattles;
