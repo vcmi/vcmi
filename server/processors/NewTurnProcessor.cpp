@@ -516,14 +516,13 @@ RumorState NewTurnProcessor::pickNewRumor()
 std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMonth)
 {
 	std::vector<std::tuple<CreatureID, int>> creaturesWithDeityOfFireBonus;
-	for(auto & player : gameHandler->gameState().players)
-	{
-		for(const auto & bonus : *player.second.getBonusesOfType(BonusType::DEITYOFFIRE))
-			creaturesWithDeityOfFireBonus.push_back({bonus->subtype.as<CreatureID>(), bonus->val});
-	}
-	RandomGeneratorUtil::randomShuffle(creaturesWithDeityOfFireBonus, gameHandler->getRandomGenerator()); // shuffle if there are custom DEITYOFFIRE with other creatures
+	for(const auto & bonus : *gameHandler->gameState().globalEffects.getBonusesOfType(BonusType::DEITYOFFIRE))
+		creaturesWithDeityOfFireBonus.push_back({bonus->subtype.as<CreatureID>(), bonus->val});
 	if(!creaturesWithDeityOfFireBonus.empty())
-		return { EWeekType::DEITYOFFIRE, std::get<0>(creaturesWithDeityOfFireBonus.front()), std::get<1>(creaturesWithDeityOfFireBonus.front())};
+	{
+		auto item = *RandomGeneratorUtil::nextItem(creaturesWithDeityOfFireBonus, gameHandler->getRandomGenerator());
+		return { EWeekType::DEITYOFFIRE, std::get<0>(item), std::get<1>(item)};
+	}
 
 	if(!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		return { EWeekType::NORMAL, CreatureID::NONE, 0};
