@@ -2,6 +2,7 @@ set(lobby_SRCS
 		StdInc.cpp
 
 		EntryPoint.cpp
+		HttpApiServer.cpp
 		LobbyDatabase.cpp
 		LobbyServer.cpp
 		SQLiteConnection.cpp
@@ -10,6 +11,7 @@ set(lobby_SRCS
 set(lobby_HEADERS
 		StdInc.h
 
+		HttpApiServer.h
 		LobbyDatabase.h
 		LobbyDefines.h
 		LobbyServer.h

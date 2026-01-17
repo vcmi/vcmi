@@ -850,3 +850,8 @@ void LobbyServer::run()
 {
 	networkHandler->run();
 }
+
+LobbyDatabase * LobbyServer::getDatabase() const
+{
+	return database.get();
+}
