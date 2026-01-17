@@ -531,7 +531,7 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 	int monthType = gameHandler->getRandomGenerator().nextInt(99);
 	if (newMonth) //new month
 	{
-		if (monthType < 40) //double growth
+		if (monthType < gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_MONTH_DOUBLE_GROWTH_PROBABILITY)) //double growth
 		{
 			if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
@@ -550,14 +550,15 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 			}
 		}
 
-		if (monthType < 50)
+		if (monthType < gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_MONTH_DOUBLE_GROWTH_PROBABILITY) +
+						 gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_MONTH_PLAGUE_PROBABILITY)) //plague
 			return { EWeekType::PLAGUE, CreatureID::NONE, 0};
 
 		return { EWeekType::NORMAL, CreatureID::NONE, 0};
 	}
 	else //it's a week, but not full month
 	{
-		if (monthType < 25)
+		if (monthType < gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_WEEK_SPECIAL_PROBABILITY))
 		{
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
@@ -565,7 +566,7 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 				newMonster.second = gameHandler->randomizer->rollCreature();
 			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
-			return { EWeekType::BONUS_GROWTH, newMonster.second, 5};
+			return { EWeekType::BONUS_GROWTH, newMonster.second, gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_ADDITIONAL_WEEKLY_GROWTH_SPECIAL_WEEK)};
 		}
 		return { EWeekType::NORMAL, CreatureID::NONE, 0};
 	}

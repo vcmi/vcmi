@@ -693,6 +693,14 @@
 			"weeklyGrowthPercent" : 10,
 			// creatures on map will not grow if their quantity is greater than this value
 			"weeklyGrowthCap" : 4000,
+			// additional growth applied during special growth weeks
+			"additionalWeeklyGrowthSpecialWeek" : 5,
+			// probability (in percent) for double growth month
+			"monthDoubleGrowthProbability" : 40,
+			// probability (in percent) for plague month
+			"monthPlagueProbability" : 10,
+			// probability (in percent) for special week
+			"weekSpecialProbability" : 25,
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
 			"dailyStackExperience" : 100,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
