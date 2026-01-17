@@ -1,5 +1,5 @@
 /*
- * ScriptedModel.cpp, part of VCMI engine
+ * scripted_model.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,8 +10,8 @@
 
 #include "StdInc.h"
 
-#include "ScriptedModel.h"
 #include "schema/base.h"
+#include "scripted_model.h"
 
 namespace MMAI::BAI
 {

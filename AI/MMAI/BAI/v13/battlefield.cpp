@@ -16,9 +16,6 @@
 #include "BAI/v13/battlefield.h"
 #include "BAI/v13/hex.h"
 #include "common.h"
-#include <algorithm>
-#include <memory>
-#include <ranges>
 
 namespace MMAI::BAI::V13
 {

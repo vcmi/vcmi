@@ -20,9 +20,6 @@
 #include "common.h"
 #include "schema/v13/constants.h"
 
-#include <algorithm>
-#include <memory>
-
 namespace MMAI::BAI::V13
 {
 namespace S13 = Schema::V13;
