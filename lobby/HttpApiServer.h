@@ -31,6 +31,7 @@ public:
 
 private:
 	void run();
+	void handleSession(boost::beast::tcp_stream stream);
 	void handleRequest(boost::beast::http::request<boost::beast::http::string_body> && req, boost::beast::tcp_stream & stream);
 
 	JsonNode getStats();

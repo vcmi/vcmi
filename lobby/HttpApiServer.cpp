@@ -71,19 +71,29 @@ void HttpApiServer::run()
 			tcp::socket socket{ioc};
 			acceptor.accept(socket);
 
-			beast::tcp_stream stream(std::move(socket));
-			beast::flat_buffer buffer;
-
-			http::request<http::string_body> req;
-			http::read(stream, buffer, req);
-
-			handleRequest(std::move(req), stream);
+			// Handle each connection asynchronously
+			std::thread([this, sock = std::move(socket)]() mutable {
+				try {
+					beast::tcp_stream stream(std::move(sock));
+					handleSession(std::move(stream));
+				} catch (const std::exception & e) {
+					logGlobal->error("HTTP session error: %s", e.what());
+				}
+			}).detach();
 		}
 	}
 	catch (const std::exception & e)
 	{
 		logGlobal->error("HTTP API Server error: %s", e.what());
 	}
+}
+
+void HttpApiServer::handleSession(beast::tcp_stream stream)
+{
+	beast::flat_buffer buffer;
+	http::request<http::string_body> req;
+	http::read(stream, buffer, req);
+	handleRequest(std::move(req), stream);
 }
 
 void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast::tcp_stream & stream)
@@ -276,7 +286,6 @@ JsonNode HttpApiServer::getChats(const std::string & channelName)
 	for (const auto & msg : messages)
 	{
 		JsonNode message;
-		message["accountID"].String() = msg.accountID;
 		message["displayName"].String() = msg.displayName;
 		message["messageText"].String() = msg.messageText;
 		message["ageSeconds"].Integer() = msg.age.count();
