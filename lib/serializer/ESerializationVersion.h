@@ -57,8 +57,10 @@ enum class ESerializationVersion : int32_t
 	HOTA_MAP_FORMAT_EXTENSIONS, // support multiple Hota 1.7 map format features
 	SPELL_RESEARCH_IMPROVEMENTS, // support counting past spell rerolls
 	NAME_MAP_LAYERS, // name map layers
+	HOTA_MAP_FORMAT_EXTENSIONS_2, // more Hota 1.7 map format features
 
-	CURRENT = NAME_MAP_LAYERS,
+	RELEASE_170 = HOTA_MAP_STACK_COUNT,
+	CURRENT = HOTA_MAP_FORMAT_EXTENSIONS_2,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

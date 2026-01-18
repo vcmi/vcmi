@@ -144,7 +144,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 
 	if (LIBRARY->objtypeh->knownObjects().count(objectTemplate.id) == 0)
 	{
-		logGlobal->warn("Unknown object found: %d | %d", objectTemplate.id, objectTemplate.subid);
+		logGlobal->warn("Unknown object found: %d | %d (%s)", objectTemplate.id, objectTemplate.subid, objectTemplate.animationFile.getName());
 
 		objectTemplate.id = Obj::NOTHING;
 		objectTemplate.subid = {};

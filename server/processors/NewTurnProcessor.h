@@ -33,10 +33,10 @@ class NewTurnProcessor : boost::noncopyable
 	std::vector<SetMovePoints> updateHeroesMovementPoints();
 
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
-	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay);
+	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay, int additionalGrowth);
 	RumorState pickNewRumor();
-	InfoWindow createInfoWindow(EWeekType weekType, CreatureID creatureWeek, bool newMonth);
-	std::tuple<EWeekType, CreatureID> pickWeekType(bool newMonth);
+	InfoWindow createInfoWindow(EWeekType weekType, CreatureID creatureWeek, bool newMonth, int additionalGrowth);
+	std::tuple<EWeekType, CreatureID, int> pickWeekType(bool newMonth);
 
 	NewTurn generateNewTurnPack();
 	void handleTimeEvents(PlayerColor player);

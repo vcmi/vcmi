@@ -178,9 +178,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	else if (hlu.skills.size() > 1)
 	{
 		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
-		hlu.queryID = levelUpQuery->queryID;
 		queries->addQuery(levelUpQuery);
-		sendAndApply(hlu);
 		//level up will be called on query reply
 	}
 }
@@ -322,9 +320,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	else if (skillAmount > 1) //apply and ask for secondary skill
 	{
 		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
-		clu.queryID = commanderLevelUp->queryID;
 		queries->addQuery(commanderLevelUp);
-		sendAndApply(clu);
 	}
 }
 
@@ -4347,9 +4343,8 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	auto cre = std::dynamic_pointer_cast<CGCreature>(createdObject);
 	assert(cre);
 	cre->notGrowingTeam = cre->neverFlees = false;
-	cre->character = 2;
+	cre->initialCharacter = CGCreature::Character::AGGRESSIVE;
 	cre->gainedArtifact = ArtifactID::NONE;
-	cre->identifier = -1;
 	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
 	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameInfo(), creature, unitSize));
 

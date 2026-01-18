@@ -197,8 +197,12 @@ class JsonNode;
 	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
 	BONUS_NAME(DAMAGE_RECEIVED_CAP) /* limits the damage dealt to affected unit */ \
 	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/\
-	BONUS_NAME(ADJACENT_SPELLCASTER) /* subtype - spell id */\
+	BONUS_NAME(ADJACENT_SPELLCASTER) /*Allows spellcasting units from adjacent tile, val - spell school level, subtype - spell id */\
 	BONUS_NAME(UNIT_DEFENDING) /* tag applied to units which are currently waiting in battle */\
+	BONUS_NAME(MARKETPLACE_ACCESS) \
+	BONUS_NAME(CPU_CONTROLLED) /* Makes unit CPU controller by default, like ballista. Currently, target picking uses custom server logic rather than using battle AI */ \
+	BONUS_NAME(DEITYOFFIRE) /* Controls special week */ \
+
 	/* end of list */
 
 #define BONUS_SOURCE_LIST \

@@ -88,6 +88,11 @@
 		"blockDescriptionPropagation": true
 	},
 
+	"CPU_CONTROLLED":
+	{
+
+	},
+
 	"CREATURE_GROWTH":
 	{
 		"blockDescriptionPropagation": true
@@ -545,6 +550,16 @@
 	},
 	
 	"THIEVES_GUILD_ACCESS":
+	{
+		"blockDescriptionPropagation": true
+	},
+	
+	"MARKETPLACE_ACCESS":
+	{
+		"blockDescriptionPropagation": true
+	},
+	
+	"DEITYOFFIRE":
 	{
 		"blockDescriptionPropagation": true
 	},

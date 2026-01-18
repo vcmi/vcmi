@@ -501,6 +501,10 @@ Affected units can not receive good or bad luck
 
 Affected units can not receive good or bad morale
 
+### CPU_CONTROLLED
+
+Player cannot control the affected unit by default. Note: uses custom behavior logic that is not coming from battle AI.
+
 ## Combat abilities
 
 ### FLYING
@@ -1191,3 +1195,16 @@ The unit affected by this bonus cannot be target of attacks or spells
 ### UNIT_DEFENDING
 
 Bonus that is automatically granted to unit whenever unit uses defend action in battle. Has no gameplay effects, however mods can use presence of this bonus to provide abilities that are active while unit is defending using limiter
+
+### MARKETPLACE_ACCESS
+
+Increases amount of counted marketplaces when trading in town. You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
+
+- val: additional number of 'marketplaces' to reduce costs
+
+### DEITYOFFIRE
+
+Enforce the "week of" to a special creature. If this bonus is existing multiple times, it's randomly selected from all bonus sources.
+
+- val: how many additional creatures should generated
+- subtype - id of creature

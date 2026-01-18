@@ -308,15 +308,21 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 
 	TResources JsonRandom::loadResource(const JsonNode & value, const Variables & variables)
 	{
-		auto defaultResources = LIBRARY->resourceTypeHandler->getAllObjects();
-
-		std::set<GameResID> potentialPicks = filterKeys(value, std::set<GameResID>(defaultResources.begin(), defaultResources.end()), variables);
-		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+		GameResID resourceID = loadResourceType(value, variables);
 		si32 resourceAmount = loadValue(value, variables, 0);
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
 		return ret;
+	}
+
+	GameResID JsonRandom::loadResourceType(const JsonNode & value, const Variables & variables)
+	{
+		auto defaultResources = LIBRARY->resourceTypeHandler->getAllObjects();
+
+		std::set<GameResID> potentialPicks = filterKeys(value, std::set<GameResID>(defaultResources.begin(), defaultResources.end()), variables);
+		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+		return resourceID;
 	}
 
 	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, const Variables & variables)

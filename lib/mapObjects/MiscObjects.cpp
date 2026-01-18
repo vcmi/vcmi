@@ -98,7 +98,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
+		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187); //TODO: alternative text for custom guards
 		gameEvents.showBlockingDialog(this, &ynd);
 		return;
 	}
@@ -111,9 +111,9 @@ void CGMine::initObj(IGameRandomizer & gameRandomizer)
 	if(isAbandoned())
 	{
 		//set guardians
-		int howManyTroglodytes = gameRandomizer.getDefault().nextInt(100, 199);
-		auto troglodytes = std::make_unique<CStackInstance>(cb, CreatureID::TROGLODYTES, howManyTroglodytes);
-		putStack(SlotID(0), std::move(troglodytes));
+		int howManyGuards = gameRandomizer.getDefault().nextInt(abandonedMineGuards.minAmount, abandonedMineGuards.maxAmount);
+		auto guards = std::make_unique<CStackInstance>(cb, abandonedMineGuards.creature, howManyGuards);
+		putStack(SlotID(0), std::move(guards));
 
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())
@@ -238,7 +238,7 @@ void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstanc
 	{
 		if(isAbandoned())
 		{
-			hero->showInfoDialog(gameEvents, 85);
+			hero->showInfoDialog(gameEvents, 85); //TODO: alternative text for custom guards
 		}
 		flagMine(gameEvents, hero->tempOwner);
 	}
