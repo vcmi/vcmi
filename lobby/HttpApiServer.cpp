@@ -125,6 +125,49 @@ void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast
 			auto res = createResponse(http::status::ok, json);
 			http::write(stream, res);
 		}
+		else if (req.target().starts_with("/api/v1/rooms"))
+		{
+			// Parse query parameters
+			int hours = -1;
+			int limit = 50;
+			auto target = std::string(req.target());
+			auto queryPos = target.find('?');
+			if (queryPos != std::string::npos)
+			{
+				auto query = target.substr(queryPos + 1);
+				auto hoursPos = query.find("hours=");
+				if (hoursPos != std::string::npos)
+				{
+					auto valueStart = hoursPos + 6; // length of "hours="
+					auto valueEnd = query.find('&', valueStart);
+					std::string hoursStr = query.substr(valueStart, valueEnd == std::string::npos ? std::string::npos : valueEnd - valueStart);
+					try {
+						hours = std::stoi(hoursStr);
+					} catch(...) {
+						hours = -1;
+					}
+				}
+				auto limitPos = query.find("limit=");
+				if (limitPos != std::string::npos)
+				{
+					auto valueStart = limitPos + 6; // length of "limit="
+					auto valueEnd = query.find('&', valueStart);
+					std::string limitStr = query.substr(valueStart, valueEnd == std::string::npos ? std::string::npos : valueEnd - valueStart);
+					try {
+						limit = std::stoi(limitStr);
+						if (limit > 250) limit = 250;
+						if (limit < 1) limit = 50;
+					} catch(...) {
+						limit = 50;
+					}
+				}
+			}
+			
+			JsonNode rooms = getRooms(hours, limit);
+			std::string json = rooms.toCompactString();
+			auto res = createResponse(http::status::ok, json);
+			http::write(stream, res);
+		}
 		else if (req.target() == "/api/docs" || req.target() == "/")
 		{
 			std::string html = EmbeddedFiles::SWAGGER_CONTENT;
@@ -221,4 +264,38 @@ JsonNode HttpApiServer::getChats(const std::string & channelName)
 	chats["count"].Integer() = chats["messages"].Vector().size();
 	
 	return chats;
+}
+
+JsonNode HttpApiServer::getRooms(int hours, int limit)
+{
+	JsonNode result;
+	result["rooms"].Vector() = JsonVector();
+	result["hours"].Integer() = hours;
+	result["limit"].Integer() = limit;
+	
+	auto rooms = lobbyServer.getDatabase()->getRooms(hours, limit);
+	
+	for (const auto & room : rooms)
+	{
+		JsonNode roomNode;
+		roomNode["description"].String() = room.description;
+		roomNode["status"].Integer() = static_cast<int>(room.roomState);
+		roomNode["playerLimit"].Integer() = room.playerLimit;
+		roomNode["version"].String() = room.version;
+		roomNode["secondsElapsed"].Integer() = room.age.count();
+		
+		// Parse mods JSON string
+		try {
+			JsonNode modsNode(reinterpret_cast<const std::byte*>(room.modsJson.data()), room.modsJson.size(), "");
+			roomNode["mods"] = modsNode;
+		} catch(...) {
+			roomNode["mods"].Struct() = JsonMap{};
+		}
+		
+		result["rooms"].Vector().push_back(roomNode);
+	}
+	
+	result["count"].Integer() = result["rooms"].Vector().size();
+	
+	return result;
 }

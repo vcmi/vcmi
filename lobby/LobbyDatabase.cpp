@@ -272,6 +272,15 @@ void LobbyDatabase::prepareStatements()
 		ORDER BY secondsElapsed ASC
 	)");
 
+	getRoomsStatement = database->prepare(R"(
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, version, mods, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime) AS secondsElapsed
+		FROM gameRooms gr
+		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
+		WHERE (? = -1 OR strftime('%s',CURRENT_TIMESTAMP) - strftime('%s',gr.creationTime) < ? * 3600)
+		ORDER BY gr.creationTime DESC
+		LIMIT ?
+	)");
+
 	getGameRoomInvitesStatement = database->prepare(R"(
 		SELECT a.accountID, a.displayName
 		FROM gameRoomInvites gri
@@ -737,6 +746,45 @@ std::vector<LobbyAccount> LobbyDatabase::getActiveAccounts()
 		result.push_back(entry);
 	}
 	getActiveAccountsStatement->reset();
+	return result;
+}
+
+std::vector<LobbyGameRoom> LobbyDatabase::getRooms(int hours, int limit)
+{
+	std::vector<LobbyGameRoom> result;
+
+	getRoomsStatement->reset();
+	getRoomsStatement->setBinds(hours, hours, limit);
+
+	while(getRoomsStatement->execute())
+	{
+		LobbyGameRoom entry;
+		std::string hostAccountDisplayName;
+		int64_t secondsElapsed;
+		getRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.version, entry.modsJson, secondsElapsed);
+		entry.age = std::chrono::seconds(secondsElapsed);
+		
+		LobbyAccount hostAccount;
+		hostAccount.accountID = entry.hostAccountID;
+		hostAccount.displayName = hostAccountDisplayName;
+		entry.participants.push_back(hostAccount);
+		
+		result.push_back(entry);
+	}
+	getRoomsStatement->reset();
+
+	for (auto & room : result)
+	{
+		getGameRoomPlayersStatement->setBinds(room.roomID);
+		while(getGameRoomPlayersStatement->execute())
+		{
+			LobbyAccount account;
+			getGameRoomPlayersStatement->getColumns(account.accountID, account.displayName);
+			room.participants.push_back(account);
+		}
+		getGameRoomPlayersStatement->reset();
+	}
+	
 	return result;
 }
 

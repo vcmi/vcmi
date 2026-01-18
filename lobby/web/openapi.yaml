@@ -146,3 +146,65 @@ paths:
                         ageSeconds:
                           type: integer
                           description: Message age in seconds
+  /rooms:
+    get:
+      summary: Get game rooms
+      description: Returns recent game rooms with optional time filter
+      parameters:
+        - in: query
+          name: hours
+          schema:
+            type: integer
+            default: -1
+          required: false
+          description: Filter rooms created in last N hours (-1 for all rooms, default is -1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 250
+          required: false
+          description: Maximum number of rooms to return (default 50, max 250)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hours:
+                    type: integer
+                    description: Hours filter applied
+                  limit:
+                    type: integer
+                    description: Limit applied
+                  count:
+                    type: integer
+                    description: Number of rooms returned
+                  rooms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        description:
+                          type: string
+                          description: Room description
+                        status:
+                          type: integer
+                          description: Room status (0=preparing, 1=public, 2=private, 3=busy, 4=closed, 5=abandoned)
+                        playerLimit:
+                          type: integer
+                          description: Maximum number of players
+                        version:
+                          type: string
+                          description: Game version
+                        secondsElapsed:
+                          type: integer
+                          description: Seconds since room creation
+                        mods:
+                          type: object
+                          description: JSON object containing mod configuration
+

@@ -36,6 +36,7 @@ private:
 
 	JsonNode getStats();
 	JsonNode getChats(const std::string & channelName);
+	JsonNode getRooms(int hours, int limit);
 
 	LobbyServer & lobbyServer;
 	unsigned short port;

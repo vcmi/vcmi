@@ -52,6 +52,7 @@ class LobbyDatabase
 	SQLiteStatementPtr getRegisteredAccountsCountStatement;
 	SQLiteStatementPtr getClosedGameRoomsCountStatement;
 	SQLiteStatementPtr getClosedGameRoomsCountAllStatement;
+	SQLiteStatementPtr getRoomsStatement;
 	SQLiteStatementPtr getGameRoomPlayersStatement;
 	SQLiteStatementPtr getGameRoomInvitesStatement;
 	SQLiteStatementPtr countRoomUsedSlotsStatement;
@@ -94,6 +95,7 @@ public:
 	std::vector<LobbyGameRoom> getAccountGameHistory(const std::string & accountID);
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
+	std::vector<LobbyGameRoom> getRooms(int hours, int limit);
 	std::vector<LobbyChatMessage> getRecentMessageHistory(const std::string & channelType, const std::string & channelName);
 	std::vector<LobbyChatMessage> getFullMessageHistory(const std::string & channelType, const std::string & channelName);
 
