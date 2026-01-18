@@ -118,6 +118,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 
 void ApplyOnServerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
+	*srv.si = *srv.gh->gs->getStartInfo();
 	srv.prepareToRestart();
 	// modify StartInfo to load the quicksave
 	srv.si->mode = EStartMode::LOAD_GAME;
@@ -194,6 +195,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyRestartGame(LobbyRestartG
 
 void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
+	*srv.si = *srv.gh->gs->getInitialStartInfo();
 	srv.prepareToRestart();
 
 	result = true;

@@ -209,7 +209,6 @@ void CVCMIServer::prepareToRestart()
 		return;
 	}
 
-	* si = * gh->gs->getInitialStartInfo();
 	setState(EServerState::LOBBY);
 	if (si->campState)
 	{
