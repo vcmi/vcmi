@@ -203,6 +203,7 @@ Possible variable types:
 - number: can be used in any place that expects a number
 - artifact
 - spell
+- resource
 - primarySkill
 - secondarySkill
 
