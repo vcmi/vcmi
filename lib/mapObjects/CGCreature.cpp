@@ -271,23 +271,23 @@ void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
 void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
-	switch(character)
+	switch(initialCharacter)
 	{
-	case 0:
-		character = -4;
-		break;
-	case 1:
-		character = gameRandomizer.getDefault().nextInt(1, 7);
-		break;
-	case 2:
-		character = gameRandomizer.getDefault().nextInt(1, 10);
-		break;
-	case 3:
-		character = gameRandomizer.getDefault().nextInt(4, 10);
-		break;
-	case 4:
-		character = 10;
-		break;
+		case Character::COMPLIANT:
+			agression = -4;
+			break;
+		case Character::FRIENDLY:
+			agression = gameRandomizer.getDefault().nextInt(1, 7);
+			break;
+		case Character::AGGRESSIVE:
+			agression = gameRandomizer.getDefault().nextInt(1, 10);
+			break;
+		case Character::HOSTILE:
+			agression = gameRandomizer.getDefault().nextInt(4, 10);
+			break;
+		case Character::SAVAGE:
+			agression = 10;
+			break;
 	}
 
 	stacks[SlotID(0)]->setType(getCreature());
@@ -382,15 +382,15 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
-	if(charisma < character)
+	if(charisma < agression)
 		return FIGHT;
 
 	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character && !joinOnlyForMoney)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || initialCharacter == Character::COMPLIANT) && diplomacy + sympathy + 1 >= agression && !joinOnlyForMoney)
 			return JOIN_FOR_FREE;
 
-		if(diplomacy * 2 + sympathy + 1 >= character)
+		if(diplomacy * 2 + sympathy + 1 >= agression)
 		{
 			int32_t recruitCost = getCreature()->getRecruitCost(EGameResID::GOLD);
 			int32_t stackCount = getStackCount(SlotID(0));
@@ -400,7 +400,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//we are still here - creatures have not joined hero, flee or fight
 
-	if (charisma > character && !neverFlees)
+	if (charisma > agression && !neverFlees)
 		return FLEE;
 	else
 		return FIGHT;
@@ -722,12 +722,12 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 static const std::vector<std::string> CHARACTER_JSON  =
 {
-	"compliant", "friendly", "aggressive", "hostile", "savage"
+	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
 };
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeEnum("character", character, CHARACTER_JSON);
+	handler.serializeEnum("character", initialCharacter, CHARACTER_JSON);
 
 	if(handler.saving)
 	{

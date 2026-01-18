@@ -17,6 +17,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
+#include "../server/processors/TurnOrderProcessor.h"
 
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)
@@ -217,6 +218,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const Her
 	CDialogQuery(owner), hero(Hero)
 {
 	hlu = Hlu;
+	hlu.queryID = queryID;
 	addPlayer(hero->tempOwner);
 }
 
@@ -225,6 +227,42 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.value());
 	gh->levelUpHero(hero, hlu.skills[*answer]);
+}
+
+void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(prompted || answer)
+	{
+		if(answer)
+			owner->popIfTop(*this);
+		return;
+	}
+
+	for(auto color : players)
+	{
+		if(owner->topQuery(color).get() == this)
+		{
+			prompted = true;
+			gh->sendAndApply(hlu);
+			break;
+		}
+	}
+}
+
+void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
+{
+	if(prompted || answer)
+		return;
+
+	if(owner->topQuery(color).get() != this)
+		return;
+
+	// Only prompt immediately during active turn processing (when map interface is ready)
+	if(!gh->turnOrder->isPlayerMakingTurn(color))
+		return;
+
+	prompted = true;
+	gh->sendAndApply(hlu);
 }
 
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
@@ -236,6 +274,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner,
 	CDialogQuery(owner), hero(Hero)
 {
 	clu = Clu;
+	clu.queryID = queryID;
 	addPlayer(hero->tempOwner);
 }
 
@@ -244,6 +283,42 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
 	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
+}
+
+void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(prompted || answer)
+	{
+		if(answer)
+			owner->popIfTop(*this);
+		return;
+	}
+
+	for(auto color : players)
+	{
+		if(owner->topQuery(color).get() == this)
+		{
+			prompted = true;
+			gh->sendAndApply(clu);
+			break;
+		}
+	}
+}
+
+void CCommanderLevelUpDialogQuery::onAdded(PlayerColor color)
+{
+	if(prompted || answer)
+		return;
+
+	if(owner->topQuery(color).get() != this)
+		return;
+
+	// Only prompt immediately during active turn processing (when map interface is ready)
+	if(!gh->turnOrder->isPlayerMakingTurn(color))
+		return;
+
+	prompted = true;
+	gh->sendAndApply(clu);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const

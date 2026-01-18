@@ -244,7 +244,6 @@ Following Heroes III buildings can be used as unique buildings for a town. Their
 - `escapeTunnel`
 - `treasury`
 - `auroraBorealis`
-- `deityOfFire`
 
 #### Buildings from other Heroes III mods
 

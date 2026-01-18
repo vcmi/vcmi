@@ -201,6 +201,7 @@ class JsonNode;
 	BONUS_NAME(UNIT_DEFENDING) /* tag applied to units which are currently waiting in battle */\
 	BONUS_NAME(MARKETPLACE_ACCESS) \
 	BONUS_NAME(CPU_CONTROLLED) /* Makes unit CPU controller by default, like ballista. Currently, target picking uses custom server logic rather than using battle AI */ \
+	BONUS_NAME(DEITYOFFIRE) /* Controls special week */ \
 
 	/* end of list */
 
