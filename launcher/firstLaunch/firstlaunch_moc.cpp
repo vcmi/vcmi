@@ -702,7 +702,14 @@ void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 		overlay->deleteLater();
 	};
 
+#ifdef VCMI_IOS
+	// iOS needs to make synchronous call for the SelectDirectory object to be still alive
+	// as it calls stopAccessingSecurityScopedResource on the user selected directory URL upon destruction
+	qApp->processEvents();
+	work();
+#else
 	QTimer::singleShot(0, this, work);
+#endif
 }
 
 // Tab Mod Preset
