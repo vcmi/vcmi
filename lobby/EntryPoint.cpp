@@ -49,7 +49,7 @@ int main(int argc, const char * argv[])
 	}
 
 	// Start HTTP API Server
-	HttpApiServer httpServer(server, HTTP_API_PORT);
+	HttpApiServer httpServer(databasePath, HTTP_API_PORT);
 	try
 	{
 		httpServer.start();

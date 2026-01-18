@@ -101,6 +101,4 @@ public:
 
 	void start(uint16_t port);
 	void run();
-
-	LobbyDatabase * getDatabase() const;
 };

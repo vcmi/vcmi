@@ -22,8 +22,8 @@ namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
 
-HttpApiServer::HttpApiServer(LobbyServer & lobbyServer, unsigned short port)
-	: lobbyServer(lobbyServer)
+HttpApiServer::HttpApiServer(const boost::filesystem::path & databasePath, unsigned short port)
+	: database(std::make_unique<LobbyDatabase>(databasePath, false))
 	, port(port)
 	, running(false)
 {
@@ -244,40 +244,40 @@ JsonNode HttpApiServer::getStats()
 {
 	JsonNode stats;
 	stats["onlinePlayers"].Vector() = JsonVector();
-	for (const auto & player : lobbyServer.getDatabase()->getActiveAccounts())
+	for (const auto & player : database->getActiveAccounts())
 		stats["onlinePlayers"].Vector().push_back(JsonNode(player.displayName));
 	stats["onlinePlayersCount"].Struct() = JsonMap{
 		{"current", JsonNode(static_cast<int64_t>(stats["onlinePlayers"].Vector().size()))},
-		{"lastHour", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(1))},
-		{"lastDay", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(24))},
-		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(168))},
-		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(720))},
-		{"lastYear", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(8760))}
+		{"lastHour", JsonNode(database->getActiveAccountsCount(1))},
+		{"lastDay", JsonNode(database->getActiveAccountsCount(24))},
+		{"lastWeek", JsonNode(database->getActiveAccountsCount(168))},
+		{"lastMonth", JsonNode(database->getActiveAccountsCount(720))},
+		{"lastYear", JsonNode(database->getActiveAccountsCount(8760))}
 	};
 	stats["registeredPlayersCount"].Struct() = JsonMap{
-		{"total", JsonNode(lobbyServer.getDatabase()->getAccountCount())},
-		{"lastDay", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(24))},
-		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(168))},
-		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(720))},
-		{"lastYear", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(8760))}
+		{"total", JsonNode(database->getAccountCount())},
+		{"lastDay", JsonNode(database->getRegisteredAccountsCount(24))},
+		{"lastWeek", JsonNode(database->getRegisteredAccountsCount(168))},
+		{"lastMonth", JsonNode(database->getRegisteredAccountsCount(720))},
+		{"lastYear", JsonNode(database->getRegisteredAccountsCount(8760))}
 	};
 	std::map<LobbyRoomState, int> lobbysCount;
-	for (const auto & room : lobbyServer.getDatabase()->getActiveGameRooms())
+	for (const auto & room : database->getActiveGameRooms())
 		lobbysCount[room.roomState]++;
 	stats["gameCount"].Struct() = JsonMap{
 		{"current", JsonNode(lobbysCount[LobbyRoomState::BUSY])},
-		{"total", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount())},
-		{"lastDay", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(24))},
-		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(168))},
-		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(720))},
-		{"lastYear", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(8760))}
+		{"total", JsonNode(database->getClosedGameRoomsCount())},
+		{"lastDay", JsonNode(database->getClosedGameRoomsCount(24))},
+		{"lastWeek", JsonNode(database->getClosedGameRoomsCount(168))},
+		{"lastMonth", JsonNode(database->getClosedGameRoomsCount(720))},
+		{"lastYear", JsonNode(database->getClosedGameRoomsCount(8760))}
 	};
 	stats["lobbyCount"].Struct() = JsonMap{
 		{"current", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC] + lobbysCount[LobbyRoomState::PRIVATE]))},
 		{"public", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC]))},
 		{"private", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PRIVATE]))}
 	};
-	stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
+	stats["registeredPlayersCount"].Integer() = database->getAccountCount();
 
 	stats["lobbyStartTime"].String() = formatTimestamp(startTime);
 	
@@ -293,7 +293,7 @@ JsonNode HttpApiServer::getChats(const std::string & channelName)
 	chats["messages"].Vector() = JsonVector();
 	chats["channelName"].String() = channelName;
 	
-	auto messages = lobbyServer.getDatabase()->getRecentMessageHistory("global", channelName);
+	auto messages = database->getRecentMessageHistory("global", channelName);
 	
 	for (const auto & msg : messages)
 	{
@@ -320,7 +320,7 @@ JsonNode HttpApiServer::getRooms(int hours, int limit)
 	result["hours"].Integer() = hours;
 	result["limit"].Integer() = limit;
 	
-	auto rooms = lobbyServer.getDatabase()->getRooms(hours, limit);
+	auto rooms = database->getRooms(hours, limit);
 	
 	for (const auto & room : rooms)
 	{

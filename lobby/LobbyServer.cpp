@@ -835,7 +835,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 LobbyServer::~LobbyServer() = default;
 
 LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
-	: database(std::make_unique<LobbyDatabase>(databasePath))
+	: database(std::make_unique<LobbyDatabase>(databasePath, true))
 	, networkHandler(INetworkHandler::createHandler())
 	, networkServer(networkHandler->createServerTCP(*this))
 {
@@ -849,9 +849,4 @@ void LobbyServer::start(uint16_t port)
 void LobbyServer::run()
 {
 	networkHandler->run();
-}
-
-LobbyDatabase * LobbyServer::getDatabase() const
-{
-	return database.get();
 }

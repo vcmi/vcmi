@@ -18,12 +18,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
-class LobbyServer;
+class LobbyDatabase;
 
 class HttpApiServer
 {
 public:
-	HttpApiServer(LobbyServer & lobbyServer, unsigned short port);
+	HttpApiServer(const boost::filesystem::path & databasePath, unsigned short port);
 	~HttpApiServer();
 
 	void start();
@@ -39,7 +39,8 @@ private:
 	JsonNode getChats(const std::string & channelName);
 	JsonNode getRooms(int hours, int limit);
 
-	LobbyServer & lobbyServer;
+	std::unique_ptr<LobbyDatabase> database;
+
 	unsigned short port;
 	boost::asio::io_context ioc;
 	std::unique_ptr<std::thread> thread;

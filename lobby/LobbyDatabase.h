@@ -71,7 +71,7 @@ class LobbyDatabase
 	void clearOldData();
 
 public:
-	explicit LobbyDatabase(const boost::filesystem::path & databasePath);
+	explicit LobbyDatabase(const boost::filesystem::path & databasePath, bool write);
 	~LobbyDatabase();
 
 	void setAccountOnline(const std::string & accountID, bool isOnline);

@@ -377,12 +377,15 @@ void LobbyDatabase::prepareStatements()
 
 LobbyDatabase::~LobbyDatabase() = default;
 
-LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
+LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath, bool write)
 {
-	database = SQLiteInstance::open(databasePath, true);
-	createTables();
-	upgradeDatabase();
-	clearOldData();
+	database = SQLiteInstance::open(databasePath, write);
+	if(write)
+	{
+		createTables();
+		upgradeDatabase();
+		clearOldData();
+	}
 	prepareStatements();
 }
 
