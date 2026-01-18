@@ -31,8 +31,7 @@ public:
 
 private:
 	void run();
-	void handleRequest(boost::beast::http::request<boost::beast::http::string_body> && req,
-	                   boost::beast::tcp_stream & stream);
+	void handleRequest(boost::beast::http::request<boost::beast::http::string_body> && req, boost::beast::tcp_stream & stream);
 
 	JsonNode getStats();
 	JsonNode getChats(const std::string & channelName);
@@ -43,5 +42,5 @@ private:
 	boost::asio::io_context ioc;
 	std::unique_ptr<std::thread> thread;
 	bool running;
-    std::chrono::system_clock::time_point startTime;
+	std::chrono::system_clock::time_point startTime;
 };

@@ -39,7 +39,7 @@ void HttpApiServer::start()
 	running = true;
 	thread = std::make_unique<std::thread>([this]() { run(); });
 	logGlobal->info("HTTP API Server started on port %d", port);
-    startTime = std::chrono::system_clock::now();
+	startTime = std::chrono::system_clock::now();
 }
 
 void HttpApiServer::stop()
@@ -58,7 +58,13 @@ void HttpApiServer::run()
 {
 	try
 	{
-		tcp::acceptor acceptor{ioc, {tcp::v4(), port}};
+		tcp::acceptor acceptor{ioc};
+		tcp::endpoint ep{tcp::v6(), port};
+		acceptor.open(ep.protocol());
+		acceptor.set_option(tcp::acceptor::reuse_address(true));
+		acceptor.set_option(boost::asio::ip::v6_only(false));
+		acceptor.bind(ep);
+		acceptor.listen();
 
 		while (running)
 		{
@@ -82,6 +88,22 @@ void HttpApiServer::run()
 
 void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast::tcp_stream & stream)
 {
+	// Log the request
+	std::string clientIP = "unknown";
+	try {
+		auto endpoint = stream.socket().remote_endpoint();
+		clientIP = endpoint.address().to_string();
+	} catch(...) {}
+	
+	std::string userAgent = std::string(req[http::field::user_agent]);
+	if (userAgent.empty()) userAgent = "unknown";
+	
+	logGlobal->info("HTTP API Request: %s %s from %s (User-Agent: %s)", 
+		req.method_string().data(), 
+		req.target().data(), 
+		clientIP.c_str(), 
+		userAgent.c_str());
+
 	auto const createResponse = [&req](http::status status, const std::string & body, const std::string & contentType = "application/json")
 	{
 		http::response<http::string_body> res{status, req.version()};
@@ -202,40 +224,40 @@ JsonNode HttpApiServer::getStats()
 {
 	JsonNode stats;
 	stats["onlinePlayers"].Vector() = JsonVector();
-    for (const auto & player : lobbyServer.getDatabase()->getActiveAccounts())
-        stats["onlinePlayers"].Vector().push_back(JsonNode(player.displayName));
-    stats["onlinePlayersCount"].Struct() = JsonMap{
-        {"current", JsonNode(static_cast<int64_t>(stats["onlinePlayers"].Vector().size()))},
-        {"lastHour", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(1))},
-        {"lastDay", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(24))},
-        {"lastWeek", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(168))},
-        {"lastMonth", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(720))},
-        {"lastYear", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(8760))}
-    };
-    stats["registeredPlayersCount"].Struct() = JsonMap{
-        {"total", JsonNode(lobbyServer.getDatabase()->getAccountCount())},
-        {"lastDay", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(24))},
-        {"lastWeek", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(168))},
-        {"lastMonth", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(720))},
-        {"lastYear", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(8760))}
-    };
-    std::map<LobbyRoomState, int> lobbysCount;
-    for (const auto & room : lobbyServer.getDatabase()->getActiveGameRooms())
-        lobbysCount[room.roomState]++;
-    stats["gameCount"].Struct() = JsonMap{
-        {"current", JsonNode(lobbysCount[LobbyRoomState::BUSY])},
-        {"total", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount())},
-        {"lastDay", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(24))},
-        {"lastWeek", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(168))},
-        {"lastMonth", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(720))},
-        {"lastYear", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(8760))}
-    };
-    stats["lobbyCount"].Struct() = JsonMap{
-        {"current", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC] + lobbysCount[LobbyRoomState::PRIVATE]))},
-        {"public", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC]))},
-        {"private", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PRIVATE]))}
-    };
-    stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
+	for (const auto & player : lobbyServer.getDatabase()->getActiveAccounts())
+		stats["onlinePlayers"].Vector().push_back(JsonNode(player.displayName));
+	stats["onlinePlayersCount"].Struct() = JsonMap{
+		{"current", JsonNode(static_cast<int64_t>(stats["onlinePlayers"].Vector().size()))},
+		{"lastHour", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(1))},
+		{"lastDay", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(24))},
+		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(168))},
+		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(720))},
+		{"lastYear", JsonNode(lobbyServer.getDatabase()->getActiveAccountsCount(8760))}
+	};
+	stats["registeredPlayersCount"].Struct() = JsonMap{
+		{"total", JsonNode(lobbyServer.getDatabase()->getAccountCount())},
+		{"lastDay", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(24))},
+		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(168))},
+		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(720))},
+		{"lastYear", JsonNode(lobbyServer.getDatabase()->getRegisteredAccountsCount(8760))}
+	};
+	std::map<LobbyRoomState, int> lobbysCount;
+	for (const auto & room : lobbyServer.getDatabase()->getActiveGameRooms())
+		lobbysCount[room.roomState]++;
+	stats["gameCount"].Struct() = JsonMap{
+		{"current", JsonNode(lobbysCount[LobbyRoomState::BUSY])},
+		{"total", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount())},
+		{"lastDay", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(24))},
+		{"lastWeek", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(168))},
+		{"lastMonth", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(720))},
+		{"lastYear", JsonNode(lobbyServer.getDatabase()->getClosedGameRoomsCount(8760))}
+	};
+	stats["lobbyCount"].Struct() = JsonMap{
+		{"current", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC] + lobbysCount[LobbyRoomState::PRIVATE]))},
+		{"public", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PUBLIC]))},
+		{"private", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PRIVATE]))}
+	};
+	stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
 	stats["lobbyStartTime"].String() = std::format("{:%Y-%m-%dT%H:%M:%S%z}", startTime);
 	stats["server"].String() = "VCMI Lobby";
 	stats["lobbyVersion"].String() = GameConstants::VCMI_VERSION;
