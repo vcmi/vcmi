@@ -111,8 +111,9 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 		int currentLevel = hero->getSecSkillLevel(entry.first);
 		int newLevel = currentLevel + entry.second;
 		int newLevelClamped = std::clamp<int>(newLevel, MasteryLevel::NONE, MasteryLevel::EXPERT);
+		bool canLearn = hero->getSecSkillLevel(entry.first) != 0 || hero->canLearnSkill();
 
-		if(currentLevel != newLevelClamped)
+		if(currentLevel != newLevelClamped && canLearn)
 			gameEvents.changeSecSkill(hero, entry.first, newLevelClamped, ChangeValueMode::ABSOLUTE);
 	}
 
