@@ -102,15 +102,38 @@ void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast
 			auto res = createResponse(http::status::ok, json);
 			http::write(stream, res);
 		}
+		else if (req.target().starts_with("/api/v1/chats"))
+		{
+			// Parse query parameters
+			std::string channelName = "english";
+			auto target = std::string(req.target());
+			auto queryPos = target.find('?');
+			if (queryPos != std::string::npos)
+			{
+				auto query = target.substr(queryPos + 1);
+				auto channelPos = query.find("channelName=");
+				if (channelPos != std::string::npos)
+				{
+					auto valueStart = channelPos + 12; // length of "channelName="
+					auto valueEnd = query.find('&', valueStart);
+					channelName = query.substr(valueStart, valueEnd == std::string::npos ? std::string::npos : valueEnd - valueStart);
+				}
+			}
+			
+			JsonNode chats = getChats(channelName);
+			std::string json = chats.toCompactString();
+			auto res = createResponse(http::status::ok, json);
+			http::write(stream, res);
+		}
 		else if (req.target() == "/api/docs" || req.target() == "/")
 		{
-			std::string html = getSwaggerUI();
+			std::string html = EmbeddedFiles::SWAGGER_CONTENT;
 			auto res = createResponse(http::status::ok, html, "text/html");
 			http::write(stream, res);
 		}
 		else if (req.target() == "/api/openapi.yaml")
 		{
-			std::string spec = getSwaggerSpec();
+			std::string spec = EmbeddedFiles::OPENAPI_CONTENT;
 			auto res = createResponse(http::status::ok, spec, "text/yaml");
 			http::write(stream, res);
 		}
@@ -177,12 +200,25 @@ JsonNode HttpApiServer::getStats()
 	return stats;
 }
 
-std::string HttpApiServer::getSwaggerUI()
+JsonNode HttpApiServer::getChats(const std::string & channelName)
 {
-	return EmbeddedFiles::SWAGGER_CONTENT;
-}
-
-std::string HttpApiServer::getSwaggerSpec()
-{
-	return EmbeddedFiles::OPENAPI_CONTENT;
+	JsonNode chats;
+	chats["messages"].Vector() = JsonVector();
+	chats["channelName"].String() = channelName;
+	
+	auto messages = lobbyServer.getDatabase()->getRecentMessageHistory("global", channelName);
+	
+	for (const auto & msg : messages)
+	{
+		JsonNode message;
+		message["accountID"].String() = msg.accountID;
+		message["displayName"].String() = msg.displayName;
+		message["messageText"].String() = msg.messageText;
+		message["ageSeconds"].Integer() = msg.age.count();
+		chats["messages"].Vector().push_back(message);
+	}
+	
+	chats["count"].Integer() = chats["messages"].Vector().size();
+	
+	return chats;
 }

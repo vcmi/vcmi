@@ -109,3 +109,40 @@ paths:
                   apiVersion:
                     type: string
                     description: API version
+  /chats:
+    get:
+      summary: Get public chat messages
+      description: Returns recent messages from a public chat channel
+      parameters:
+        - in: query
+          name: channelName
+          schema:
+            type: string
+            default: english
+          required: false
+          description: Name of the chat channel (default is 'english')
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  channelName:
+                    type: string
+                    description: Name of the requested chat channel
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        displayName:
+                          type: string
+                          description: Display name of the message sender
+                        messageText:
+                          type: string
+                          description: The message content
+                        ageSeconds:
+                          type: integer
+                          description: Message age in seconds
