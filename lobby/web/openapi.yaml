@@ -146,6 +146,10 @@ paths:
                         ageSeconds:
                           type: integer
                           description: Message age in seconds
+                        timestamp:
+                          type: string
+                          format: date-time
+                          description: Message creation timestamp
   /rooms:
     get:
       summary: Get game rooms
@@ -204,6 +208,10 @@ paths:
                         secondsElapsed:
                           type: integer
                           description: Seconds since room creation
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: Room creation timestamp
                         mods:
                           type: object
                           description: JSON object containing mod configuration

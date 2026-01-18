@@ -33,6 +33,7 @@ private:
 	void run();
 	void handleSession(boost::beast::tcp_stream stream);
 	void handleRequest(boost::beast::http::request<boost::beast::http::string_body> && req, boost::beast::tcp_stream & stream);
+	std::string formatTimestamp(std::chrono::system_clock::time_point timePoint);
 
 	JsonNode getStats();
 	JsonNode getChats(const std::string & channelName);

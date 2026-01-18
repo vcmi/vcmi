@@ -230,6 +230,16 @@ void HttpApiServer::handleRequest(http::request<http::string_body> && req, beast
 	}
 }
 
+std::string HttpApiServer::formatTimestamp(std::chrono::system_clock::time_point timePoint)
+{
+	auto tt = std::chrono::system_clock::to_time_t(timePoint);
+	std::tm tm{};
+	localtime_r(&tt, &tm);
+	std::ostringstream oss;
+	oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S%z");
+	return oss.str();
+}
+
 JsonNode HttpApiServer::getStats()
 {
 	JsonNode stats;
@@ -269,12 +279,7 @@ JsonNode HttpApiServer::getStats()
 	};
 	stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
 
-	auto tt = std::chrono::system_clock::to_time_t(startTime);
-	std::tm tm{};
-	localtime_r(&tt, &tm);
-	std::ostringstream oss;
-	oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S%z");
-	stats["lobbyStartTime"].String() = oss.str();
+	stats["lobbyStartTime"].String() = formatTimestamp(startTime);
 	
 	stats["server"].String() = "VCMI Lobby";
 	stats["lobbyVersion"].String() = GameConstants::VCMI_VERSION;
@@ -296,6 +301,10 @@ JsonNode HttpApiServer::getChats(const std::string & channelName)
 		message["displayName"].String() = msg.displayName;
 		message["messageText"].String() = msg.messageText;
 		message["ageSeconds"].Integer() = msg.age.count();
+		
+		auto messageTime = std::chrono::system_clock::now() - msg.age;
+		message["timestamp"].String() = formatTimestamp(messageTime);
+		
 		chats["messages"].Vector().push_back(message);
 	}
 	
@@ -321,6 +330,9 @@ JsonNode HttpApiServer::getRooms(int hours, int limit)
 		roomNode["playerLimit"].Integer() = room.playerLimit;
 		roomNode["version"].String() = room.version;
 		roomNode["secondsElapsed"].Integer() = room.age.count();
+		
+		auto creationTime = std::chrono::system_clock::now() - room.age;
+		roomNode["createdAt"].String() = formatTimestamp(creationTime);
 		
 		// Parse mods JSON string
 		try {
