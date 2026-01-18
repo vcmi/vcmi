@@ -521,7 +521,7 @@ std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 
 int LobbyDatabase::getAccountCount()
 {
-	int result;
+	int result = 0;
 
 	if(getAccountCountStatement->execute())
 		getAccountCountStatement->getColumns(result);
