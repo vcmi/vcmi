@@ -268,7 +268,14 @@ JsonNode HttpApiServer::getStats()
 		{"private", JsonNode(static_cast<int64_t>(lobbysCount[LobbyRoomState::PRIVATE]))}
 	};
 	stats["registeredPlayersCount"].Integer() = lobbyServer.getDatabase()->getAccountCount();
-	stats["lobbyStartTime"].String() = std::format("{:%Y-%m-%dT%H:%M:%S%z}", startTime);
+
+	auto tt = std::chrono::system_clock::to_time_t(startTime);
+	std::tm tm{};
+	localtime_r(&tt, &tm);
+	std::ostringstream oss;
+	oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S%z");
+	stats["lobbyStartTime"].String() = oss.str();
+	
 	stats["server"].String() = "VCMI Lobby";
 	stats["lobbyVersion"].String() = GameConstants::VCMI_VERSION;
 	stats["apiVersion"].String() = "1.0";
