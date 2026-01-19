@@ -547,11 +547,11 @@ if(ENABLE_LUA)
 		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
 		find_package(Lua REQUIRED)
 		if(Lua_FOUND)
-			add_library(luajit::luajit UNKNOWN IMPORTED)
+			add_library(luajit::luajit INTERFACE IMPORTED)
 			set_target_properties(luajit::luajit PROPERTIES
-				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
-			set_target_properties(luajit::luajit PROPERTIES
-				IMPORTED_LOCATION "${LUA_LIBRARIES}")
+				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}"
+				INTERFACE_LINK_LIBRARIES "${LUA_LIBRARIES}"
+			)
 		endif()
 	endif()
 endif()

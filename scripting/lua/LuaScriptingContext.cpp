@@ -26,6 +26,12 @@
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/modding/ModScope.h"
 
+// Compatibility for standard Lua 5.1 with lua-bitop (non-LuaJIT builds)
+#ifndef LUAJIT_VERSION
+constexpr const char* LUA_BITLIBNAME = "bit";
+extern "C" int luaopen_bit(lua_State *L);
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting
