@@ -1088,7 +1088,7 @@ bool CMap::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInst
 
 void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > & poolFromSave)
 {
-	heroesPool.resize(poolFromSave.size());
+	heroesPool.resize(LIBRARY->heroh->size());
 	for (const auto & hero : poolFromSave)
 		if (hero)
 			heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
