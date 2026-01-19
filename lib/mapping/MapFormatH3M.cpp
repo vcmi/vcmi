@@ -2485,38 +2485,28 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaGrave(const int3 & mapP
 	{
 		int32_t content = reader->readInt32();
 
-		switch(content)
+		if (content != -1)
 		{
-			case -1: // random
-				reader->skipUnused(14); // garbage data
-				break;
-			case 1: // empty
-				reader->skipUnused(14); // garbage data
-				if(rewardable)
-					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
-				break;
-			case 0: // custom
+			ArtifactID artifact = reader->readArtifact32();
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			reader->skipUnused(5); // no 2nd resource
+
+			if(rewardable)
 			{
-				ArtifactID artifact = reader->readArtifact32();
-				int32_t amountA = reader->readInt32();
-				GameResID resourceA = reader->readGameResID();
-				reader->skipUnused(5); // no 2nd resource
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+				variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
 
-				if(rewardable)
-				{
-					JsonNode variable;
-					variable.setModScope(ModScope::scopeGame());
-					variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
-					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
 
-					variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-					rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-
-					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
-					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-				}
+				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
 			}
 		}
+		else
+			reader->skipUnused(14); // garbage data
 	}
 	return object;
 }

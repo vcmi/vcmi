@@ -202,6 +202,7 @@ Possible variable types:
 
 - number: can be used in any place that expects a number
 - artifact
+- creature
 - spell
 - resource
 - primarySkill
@@ -875,8 +876,7 @@ Ancient Lamp (HotA):
 
 Grave (HotA)
 
-- map dice 0: grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
-- map dice 1: Nothing
+- grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
 
 Jetsam (HotA)
 

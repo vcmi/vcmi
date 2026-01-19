@@ -510,10 +510,8 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		return ret;
 	}
 
-	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, const Variables & variables)
+	CreatureID JsonRandom::loadCreatureType(const JsonNode & value, const Variables & variables)
 	{
-		CStackBasicDescriptor stack;
-
 		std::set<CreatureID> defaultCreatures;
 		for(const auto & creature : LIBRARY->creh->objects)
 			if (!creature->special)
@@ -530,6 +528,14 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		if (!pickedCreature.hasValue())
 			throw JsonRandomizationException("Invalid creature picked!", value);
 
+		return pickedCreature;
+	}
+
+	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, const Variables & variables)
+	{
+		CStackBasicDescriptor stack;
+
+		CreatureID pickedCreature = loadCreatureType(value, variables);
 		stack.setType(pickedCreature.toCreature());
 		stack.setCount(loadValue(value, variables));
 		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
