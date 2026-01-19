@@ -230,11 +230,13 @@
 				"onEmpty" : [
 					{
 						"message" : 150,
-						"appearChance" : { "min" : 34, "max" : 67 }
+						"appearChance" : { "min" : 34, "max" : 67 },
+						"mapDice" : 2
 					},
 					{
 						"message" : 152,
-						"appearChance" : { "min" : 67 }
+						"appearChance" : { "min" : 67 },
+						"mapDice" : 2
 					}
 				],
 				"onVisitedMessage" : 147,

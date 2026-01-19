@@ -336,39 +336,39 @@
 				
 				"rewards" : [
 					{
-						"appearChance" : { "max" : 33 },
+						"appearChance" : { "max" : 32 },
 						"mapDice" : 0,
-						"resources" : { "gold" : 2000 },
+						"resources" : { "gold" : 1000 },
 						"removeObject" : true,
 					},
 					{
-						"appearChance" : { "max" : 33 },
+						"appearChance" : { "max" : 32 },
 						"mapDice" : 0,
-						"heroExperience" : 1500,
+						"heroExperience" : 500,
 						"removeObject" : true,
 					},
 					{
-						"appearChance" : { "min" : 33, "max" : 65 },
+						"appearChance" : { "min" : 32, "max" : 64 },
 						"mapDice" : 1,
 						"resources" : { "gold" : 1500 },
 						"removeObject" : true,
 					},
 					{
-						"appearChance" : { "min" : 33, "max" : 65 },
+						"appearChance" : { "min" : 32, "max" : 64 },
 						"mapDice" : 1,
 						"heroExperience" : 1000,
 						"removeObject" : true,
 					},
 					{
-						"appearChance" : { "min" : 65, "max" : 95 },
+						"appearChance" : { "min" : 64, "max" : 95 },
 						"mapDice" : 2,
-						"resources" : { "gold" : 1000 },
+						"resources" : { "gold" : 2000 },
 						"removeObject" : true,
 					},
 					{
-						"appearChance" : { "min" : 65, "max" : 95 },
+						"appearChance" : { "min" : 64, "max" : 95 },
 						"mapDice" : 2,
-						"heroExperience" : 500,
+						"heroExperience" : 1500,
 						"removeObject" : true,
 					},
 					{

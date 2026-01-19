@@ -2387,25 +2387,16 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readPyramid(const int3 & mapPos
 	if(features.levelHOTA5)
 	{
 		int32_t content = reader->readInt32();
-
-		if(content != -1)
+		if(content == 0)
 		{
-			if(rewardable)
-				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
-
-			if(content == 0)
+			SpellID spell = reader->readSpell32();
+			if(rewardable && spell.hasValue())
 			{
-				SpellID spell = reader->readSpell32();
-				if(rewardable && spell.hasValue())
-				{
-					JsonNode variable;
-					variable.String() = spell.toSpell()->getJsonKey();
-					variable.setModScope(ModScope::scopeGame());
-					rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
-				}
+				JsonNode variable;
+				variable.String() = spell.toSpell()->getJsonKey();
+				variable.setModScope(ModScope::scopeGame());
+				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
 			}
-			else
-				reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 		}
 		else
 			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
@@ -2485,7 +2476,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readUniversity(const int3 & map
 	return readGeneric(mapPosition, objectTemplate);
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResourcesAndArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaGrave(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
@@ -2608,10 +2599,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3
 				reader->skipUnused(6); // no 1st resource ID, no 2nd resource
 
 				if(rewardable)
-				{
-					rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
 					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-				}
 			}
 		}
 	}
@@ -2676,8 +2664,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosi
 
 				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
 				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-
-				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
 				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
 			}
 		}
@@ -2687,7 +2673,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosi
 	return object;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithResources(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readCampfire(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
@@ -2854,7 +2840,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::CAMPFIRE:
-			return readRewardWithResources(mapPosition, objectTemplate);
+			return readCampfire(mapPosition, objectTemplate);
 
 		case Obj::LEAN_TO:
 			return readLeanTo(mapPosition, objectTemplate);
@@ -2866,7 +2852,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			if (subid == 1000) // HotA hacks - Quest Gate
 				return readQuestGuard(mapPosition);
 			if (subid == 1001) // HotA hacks - Grave
-				return readRewardWithResourcesAndArtifact(mapPosition, objectTemplate);
+				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_1:
