@@ -84,6 +84,7 @@ public:
 	SpellID loadSpell(const JsonNode & value, const Variables & variables);
 	std::vector<SpellID> loadSpells(const JsonNode & value, const Variables & variables);
 
+	CreatureID loadCreatureType(const JsonNode & value, const Variables & variables);
 	CStackBasicDescriptor loadCreature(const JsonNode & value, const Variables & variables);
 	std::vector<CStackBasicDescriptor> loadCreatures(const JsonNode & value, const Variables & variables);
 	std::vector<RandomStackInfo> evaluateCreatures(const JsonNode & value, const Variables & variables);

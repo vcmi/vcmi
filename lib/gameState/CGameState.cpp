@@ -1424,6 +1424,12 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 			tgi.playerColors.push_back(elem.second.color);
 	}
 
+	if (tgi.playerColors.empty())
+	{
+		logGlobal->error("CGameState::obtainPlayersStats: all players are inactive, unable to obtain stats!");
+		return;
+	}
+
 	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns

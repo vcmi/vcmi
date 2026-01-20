@@ -744,6 +744,12 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	if (battle.battleGetTacticDist() > 0 && unitMovementRange > 0)
 		unitMovementRange = GameConstants::BFIELD_SIZE;
 
+	if (pathDistance > unitMovementRange)
+	{
+		gameHandler->complain("Given destination is not reachable!");
+		return { 0, false, true };
+	}
+
 	bool hasWideMoat = vstd::contains_if(battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
 		return obst->obstacleType == CObstacleInstance::MOAT;

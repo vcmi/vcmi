@@ -254,6 +254,9 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, IG
 			if (category.first == "artifact")
 				value = randomizer.loadArtifact(input, object.variables.values).getNum();
 
+			if (category.first == "creature")
+				value = randomizer.loadCreatureType(input, object.variables.values).getNum();
+
 			if (category.first == "spell")
 				value = randomizer.loadSpell(input, object.variables.values).getNum();
 

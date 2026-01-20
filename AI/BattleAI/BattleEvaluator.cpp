@@ -304,6 +304,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 	if(score <= EvaluationResult::INEFFECTIVE_SCORE
 		&& !stack->hasBonusOfType(BonusType::FLYING)
+		&& stack->getMovementRange(0) != 0
 		&& stack->unitSide() == BattleSide::ATTACKER
 	   && cb->getBattle(battleID)->battleGetFortifications().hasMoat)
 	{

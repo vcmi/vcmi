@@ -3659,6 +3659,16 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 			checkVictoryLossConditions(playerColors);
+
+			bool hasAlivePlayers = false;
+			for (auto pc : playerColors)
+				if (gameInfo().getPlayerState(pc)->status == EPlayerStatus::INGAME)
+					hasAlivePlayers = true;
+
+			// everyone lost (e.g. time runs out)
+			if (!hasAlivePlayers)
+				gameServer().setState(EServerState::SHUTDOWN);
+
 			// give turn to next player(s)
 			// FIXME: this may cause multiple calls to resumeTurnOrder if multiple players lose in chain reaction
 			if(gameServer().getState() != EServerState::SHUTDOWN)

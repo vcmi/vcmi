@@ -892,6 +892,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 {
 	//do not use map field here, use only mapHeader
 	JsonNode header = getFromArchive(HEADER_FILE_NAME);
+	header.setModScope(ModScope::scopeGame());
 
 	fileVersionMajor = static_cast<int>(header["versionMajor"].Integer());
 
