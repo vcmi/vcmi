@@ -551,7 +551,7 @@ bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback &
 
 	BattleHex movementDestinationTile = target.at(0).hexValue;
 	BattleHex targetUnitTile = target.at(1).hexValue;
-	const CStack * destinationStack = battle.battleGetStackByPos(targetUnitTile, true);
+	const CStack * destinationStack = battle.battleGetStackByPos(targetUnitTile, false);
 
 	if(!destinationStack)
 	{
