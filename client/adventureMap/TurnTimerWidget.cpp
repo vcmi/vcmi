@@ -45,10 +45,10 @@ VerticalPercentBar::VerticalPercentBar(const Point & position, const Point & siz
 	setFillColor(barColor);
 }
 
-void VerticalPercentBar::setPercent(float newPercent)
+void VerticalPercentBar::setPercent(int newPercent)
 {
-	percent = std::clamp(newPercent, 0.0f, 1.0f);
-	fill->pos.h = static_cast<int>((pos.h - 2) * percent);
+	percent = std::clamp(newPercent, 0, 100);
+	fill->pos.h = ((pos.h - 2) * percent) / 100;
 	fill->moveTo(Point(pos.x + 1, pos.y + pos.h - fill->pos.h - 1));
 	redraw();
 }

@@ -24,7 +24,7 @@ struct DLL_LINKAGE TurnTimerInfo
 	
 	bool isActive = false; //is being counting down
 	bool isBattle = false; //indicator for current timer mode
-	float remainingMovementPointsPercent = 0.0f; //displayed as bar
+	int remainingMovementPointsPercent = 0; //displayed as bar
 	bool isTurnStart = false; //game is waiting for the player starting his turn
 	bool isTurnEnded = false; //player has ended his turn
 	

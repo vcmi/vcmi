@@ -37,7 +37,7 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		timers[player].unitTimer = 0;
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
-		timers[player].remainingMovementPointsPercent = 0.0f;
+		timers[player].remainingMovementPointsPercent = 0;
 		lastUpdate[player] = std::numeric_limits<int>::max();
 		endTurnAllowed[player] = true;
 	}
@@ -113,12 +113,13 @@ void TurnTimerHandler::update(int waitTimeMs)
 		for(auto & hero : gameHandler.gameState().getHeroes(player))
 		{
 			movementPoints += hero->movementPointsRemaining();
-			movementPointsLimit += hero->movementPointsLimit(true);
+			movementPointsLimit += hero->movementPointsLimit(!hero->inBoat());
 		}
 		if(movementPointsLimit)
-			timers[player].remainingMovementPointsPercent = movementPoints / static_cast<float>(movementPointsLimit);
+			// limit to 100 - ignore overflow conditions: if hero unequips boots of speed or visits rally flag he will end up with movement points over 100%
+			timers[player].remainingMovementPointsPercent = std::min(100, (movementPoints * 100) / movementPointsLimit);
 		else
-			timers[player].remainingMovementPointsPercent = 0.0f;
+			timers[player].remainingMovementPointsPercent = 0;
 	}
 
 	// create copy for iterations - battle might end during onBattleLoop call

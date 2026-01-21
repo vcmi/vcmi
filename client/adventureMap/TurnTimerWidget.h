@@ -27,12 +27,12 @@ class VerticalPercentBar : public CIntObject
 {
 	std::shared_ptr<TransparentFilledRectangle> back;
 	std::shared_ptr<TransparentFilledRectangle> fill;
-	float percent;
+	int percent;
 	ColorRGBA barColor;
 	ColorRGBA barColorBackground;
 	ColorRGBA borderColor;
 public:
-	void setPercent(float newPercent);
+	void setPercent(int newPercent);
 	void setFillColor(ColorRGBA fillColor);
 	VerticalPercentBar(const Point & position, const Point & size, ColorRGBA barColor, ColorRGBA barColorBackground, ColorRGBA borderColor);
 };
