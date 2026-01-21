@@ -393,8 +393,7 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 			target.emplace_back(hoveredHex);
 
 			spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
-			spells::detail::ProblemImpl problem;
-			canCastAdjacentSpell = spell->battleMechanics(&event)->canBeCastAt(target, problem);
+			canCastAdjacentSpell = spell->battleMechanics(&event)->canBeCastAt(target);
 		}
 	}
 
