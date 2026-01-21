@@ -37,6 +37,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/Problem.h"
 
 namespace HexMasks
 {
@@ -374,22 +375,30 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	if(!stack)
 		return {};
 
-	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 
-	if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast() && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
+	bool canReach = owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex);
+	bool canAttack = canReach && (owner.getBattle()->battleCanAttackUnit(stack, hoveredStack));
+	bool adjacentSpellCaster = stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast();
+	bool canCastAdjacentSpell = false;
+	if (canReach && adjacentSpellCaster && hoveredStack)
 	{
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
-		if(fromHex.isValid())
+		spells::Mode mode = owner.actionsController->getCurrentCastMode();
+		auto * spell = owner.actionsController->getCurrentSpell(hoveredHex);
+		auto * caster = owner.actionsController->getCurrentSpellcaster();
+		if(caster && spell)
 		{
-			if(stack->doubleWide())
-				return {fromHex, stack->occupiedHex(fromHex)};
+			spells::Target target;
+			target.emplace_back(hoveredStack);
+			target.emplace_back(hoveredHex);
 
-			return {fromHex};
+			spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
+			spells::detail::ProblemImpl problem;
+			canCastAdjacentSpell = spell->battleMechanics(&event)->canBeCastAt(target, problem);
 		}
 	}
 
-	if((owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) || (stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast()))
-		&& owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
+	if(canAttack || canCastAdjacentSpell)
 	{
 		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
 		assert(fromHex.isValid());
