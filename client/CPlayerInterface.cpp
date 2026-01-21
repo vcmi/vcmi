@@ -522,6 +522,9 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -533,6 +536,9 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }

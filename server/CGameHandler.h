@@ -85,6 +85,7 @@ public:
 	//queries stuff
 	QueryID QID;
 
+	std::set<PlayerColor> uiReadyForDialogs;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
@@ -243,6 +244,7 @@ public:
 
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
+	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
 
