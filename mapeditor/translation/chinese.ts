@@ -4706,7 +4706,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="108"/>
         <source>XL (144x144)</source>
-        <translation>特大(144x144)</translation>
+        <translation>特大 (144x144)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="328"/>
@@ -4736,17 +4736,17 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="113"/>
         <source>H  (180x180)</source>
-        <translation>特大  (180x180)</translation>
+        <translation>巨大 (180x180)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="118"/>
         <source>XH (216x216)</source>
-        <translation>巨大 (216x216)</translation>
+        <translation>超巨 (216x216)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="123"/>
         <source>G  (252x252)</source>
-        <translation>超巨  (252x252)</translation>
+        <translation>极巨 (252x252)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="286"/>
