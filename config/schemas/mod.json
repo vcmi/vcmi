@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
-	"required" : [ "name", "description", "modType", "version", "author", "contact" ],
+	"required" : [ "name", "modType", "version", "author" ],
 	"definitions" : {
 		"fileListOrObject" : {
 			"oneOf" : [
@@ -19,7 +19,7 @@
 		"localizable" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"required" : [ "name", "description" ],
+			"required" : [ "name" ],
 			"properties" : {
 				"name" : {
 					"type" : "string",
@@ -62,6 +62,10 @@
 		"description" : {
 			"type" : "string",
 			"description" : "More lengthy description of mod. No hard limit"
+		},
+		"descriptionURL" : {
+			"type" : "string",
+			"description" : "URL to location of external description of mod. No hard limit"
 		},
 		"modType" : {
 			"type" : "string",
