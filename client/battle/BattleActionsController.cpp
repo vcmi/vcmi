@@ -257,9 +257,7 @@ void BattleActionsController::enterCreatureCastingMode()
 		spells::BattleCast cast(owner.getBattle().get(), caster, spells::Mode::CREATURE_ACTIVE, spell);
 
 		auto m = spell->battleMechanics(&cast);
-		spells::detail::ProblemImpl ignored;
-
-		const bool isCastingPossible = m->canBeCastAt(target, ignored);
+		const bool isCastingPossible = m->canBeCastAt(target);
 
 		if (isCastingPossible)
 		{

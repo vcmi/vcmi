@@ -2072,9 +2072,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		spells::BattleCast cast(this, caster, spells::Mode::CREATURE_ACTIVE, spellPtr);
 
 		auto m = spellPtr->battleMechanics(&cast);
-		spells::detail::ProblemImpl problem;
-
-		if (!m->canBeCastAt(target, problem))
+		if (!m->canBeCastAt(target))
 			continue;
 
 		switch (spellID.toEnum())

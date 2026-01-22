@@ -1226,9 +1226,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 
 			auto m = spell->battleMechanics(&parameters);
 
-			spells::detail::ProblemImpl ignored;
-
-			if(!m->canBeCastAt(target, ignored))
+			if(!m->canBeCastAt(target))
 				continue;
 
 			//check if spell should be cast (probability handling)
