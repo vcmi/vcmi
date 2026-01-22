@@ -936,19 +936,15 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		{
 			if (action.get() == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE )
 			{
+				monsterCaster = owner.stacksController->getActiveStack();
+				owner.windowObject->blockUI(true);
+				owner.stacksController->deactivateStack();
 				if (action.spell() == SpellID::SACRIFICE)
 				{
 					if(heroSpellToCast)
-					{
 						heroSpellToCast->aimToHex(targetHex);
-					}
 					else
-					{
 						monsterSpellTargets.push_back(targetHex);
-						monsterCaster = owner.stacksController->getActiveStack();
-						owner.windowObject->blockUI(true);
-						owner.stacksController->deactivateStack();
-					}
 					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
 					selectedStack = targetStack;
 					return;
@@ -956,16 +952,9 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 				if (action.spell() == SpellID::TELEPORT)
 				{
 					if(heroSpellToCast)
-					{
 						heroSpellToCast->aimToUnit(targetStack);
-					}
 					else
-					{
 						monsterSpellTargets.push_back(targetHex);
-						monsterCaster = owner.stacksController->getActiveStack();
-						owner.windowObject->blockUI(true);
-						owner.stacksController->deactivateStack();
-					}
 
 					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
 					selectedStack = targetStack;
