@@ -866,7 +866,11 @@ void CStackWindow::initBonusesList()
 	auto bonusToString = [bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
 	{
 		if(!bonus->description.empty())
-			return bonus->description.toString();
+		{
+			std::string description = bonus->description.toString();
+			bonus->instantiateMetaVariables(description, bonusSource);
+			return description;
+		}
 		else
 			return LIBRARY->getBth()->bonusToString(bonus, bonusSource);
 	};
@@ -874,9 +878,8 @@ void CStackWindow::initBonusesList()
 	BonusList receivedBonuses = *bonusSource->getBonuses(CSelector(Bonus::Permanent));
 	BonusList abilities = info->creature->getExportedBonusList();
 
-	// remove all bonuses that are not propagated away
-	// such bonuses should be present in received bonuses, and if not - this means that they are behind inactive limiter, such as inactive stack experience bonuses
-	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr;});
+	// if unit has ability that is propagated away (and needs to be displayed) use DESCRIPTION bonus
+	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr || b->propagationUpdater != nullptr ;});
 
 	const auto & bonusSortingPredicate = [bonusToString](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
