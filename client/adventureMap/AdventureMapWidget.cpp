@@ -63,7 +63,7 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
 
-	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
+	const JsonNode config(JsonPath::builtin(pos.w < pos.h && settings["video"]["allowPortrait"].Bool() ? "config/widgets/adventureMapPortrait.json" : "config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
 		playerColoredImages.push_back(ImagePath::fromJson(entry));
