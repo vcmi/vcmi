@@ -1039,6 +1039,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{施法消耗减少 (${val})}\n英雄施法消耗魔法值减少${val}点",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{施法阻碍 (${val})}\n敌方施法消耗的魔法值增加${val}点",
 	"core.bonus.CHARGE_IMMUNITY.description": "{免疫冲锋}\n对冲锋特技的额外伤害免疫",
+	"core.bonus.CPU_CONTROLLED.description" : "{自动控制}\n此单位在默认状态下无法被玩家手动控制",
 	"core.bonus.DEATH_STARE.description": "{死亡凝视 (${val}%)}\n${val}%几率直接杀死一单位生物",
 	"core.bonus.DEFENSIVE_STANCE.description": "{防御奖励}\n当选择防御时+${val}防御力",
 	"core.bonus.DESTRUCTION.description": "{毁灭}\n${val}%几率在攻击后追加消灭数量",
@@ -1157,5 +1158,9 @@
 	"spellSchool.core.air.name" : "气系",
 	"spellSchool.core.earth.name" : "土系",
 	"spellSchool.core.fire.name" : "火系",
-	"spellSchool.core.water.name" : "水系"
+	"spellSchool.core.water.name" : "水系",
+
+	"mapLayer.core.surface.name" : "地上",
+	"mapLayer.core.underground.name" : "地下",
+	"mapLayer.core.unknown.name" : "未知层级"
 }
