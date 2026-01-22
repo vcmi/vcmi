@@ -35,7 +35,11 @@ class BattleActionsController
 	/// spell for which player's hero is choosing destination
 	std::shared_ptr<BattleAction> heroSpellToCast;
 
+	// targets of multi-target spells cast by monsters
 	std::vector<BattleHex> monsterSpellTargets;
+
+	// the monster that casts the spell 
+	const CStack * monsterCaster = nullptr;
 
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
