@@ -629,6 +629,7 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
+	turnTimerHandler->onEndTurn(which);
 	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
