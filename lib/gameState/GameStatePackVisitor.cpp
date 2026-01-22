@@ -31,6 +31,8 @@
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
 
+#include "../../lib/spells/CSpellHandler.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
@@ -1328,13 +1330,25 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				st->waiting = true;
 				st->waitedThisTurn = true;
 				break;
+			case EActionType::MONSTER_SPELL:
+			{
+				auto * spell = pack.ba.spell.toSpell();
+				if (spell && spell->canCastWithoutSkip()) {}	//state does not change
+				else
+				{
+					st->waiting = false;
+					st->defendingAnim = false;
+					st->movedThisRound = true;
+				}
+				st->castSpellThisTurn = true;
+				break;
+			}
 			case EActionType::HERO_SPELL: //no change in current stack state
 				break;
 			default: //any active stack action - attack, catapult, heal, spell...
 				st->waiting = false;
 				st->defendingAnim = false;
 				st->movedThisRound = true;
-				st->castSpellThisTurn = pack.ba.actionType == EActionType::MONSTER_SPELL;
 				break;
 		}
 	}

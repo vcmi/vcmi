@@ -931,6 +931,7 @@ void CUnitState::afterGetsTurn(BattleUnitTurnReason reason)
 	{
 		hadMorale = true;
 		castSpellThisTurn = false;
+		movedThisRound = false;
 	}
 }
 
