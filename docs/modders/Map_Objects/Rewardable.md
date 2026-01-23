@@ -896,4 +896,3 @@ Sea Barrel (HotA):
 
 - map dice 0: grants `gainedAmount` of resources of type `gainedResource`
 - map dice 1: Nothing
-

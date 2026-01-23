@@ -186,4 +186,3 @@ representing one specific animation. VCMI uses groups as follows:
 
 - [50] Teleportation start: Animation that plays on original unit position when unit teleports. If not present, movement start will play instead
 - [51] Teleportation end: Animation that plays on destination position when unit teleports. If not present, movement end will play instead
-
