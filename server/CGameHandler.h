@@ -164,7 +164,7 @@ public:
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town) override; //use hero=nullptr for no hero
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL, const EPathfindingLayer & layer = EPathfindingLayer::AUTO) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
 	void setMovePoints(ObjectInstanceID hid, int val) override;

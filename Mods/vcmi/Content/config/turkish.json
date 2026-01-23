@@ -320,6 +320,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Joystick Butonları",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Macera büyüsü yap",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Macera kazı kase",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Macera gemiden inmek",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Macera sonu turu",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Macera dünyasından çık",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Macera ilk kahraman",

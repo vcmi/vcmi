@@ -57,6 +57,7 @@
 		"adventureZoomReset":       "Backspace",
 		"adventureSearch":          "Ctrl+F",
 		"adventureSearchContinue":  "Alt+F",
+		"adventureDisembark":       "Shift+D",
 		"battleAutocombat":         "A",
 		"battleAutocombatEnd":      "Q",
 		"battleCastSpell":          "C",

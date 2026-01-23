@@ -322,6 +322,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Joystick-Tasten",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Abenteuer Zauber wirken",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Abenteuer Gral ausgraben",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Abenteuer aussteigen",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Abenteuer Zug beenden",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Abenteuer Weltansicht verlassen",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Abenteuer erster Held",

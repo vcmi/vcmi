@@ -79,7 +79,7 @@ void IObjectInterface::garrisonDialogClosed(IGameEventCallback & gameEvents, con
 void IObjectInterface::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
-int3 IBoatGenerator::bestLocation() const
+int3 IBoatGenerator::bestLocation(const EPathfindingLayer & layer) const
 {
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
@@ -92,7 +92,7 @@ int3 IBoatGenerator::bestLocation() const
 		if(!tile)
 			continue; // tile not visible / outside the map
 
-		if(!tile->isWater())
+		if((layer == EPathfindingLayer::SAIL || layer == EPathfindingLayer::AUTO) && !tile->isWater())
 			continue;
 
 		if (tile->blocked())
