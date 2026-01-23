@@ -34,6 +34,7 @@
 #include "herospellwidget.h"
 #include "portraitwidget.h"
 #include "PickObjectDelegate.h"
+#include "playerselectionwidget.h"
 #include "../mapcontroller.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
@@ -463,6 +464,7 @@ void Inspector::updateProperties(CGEvent * o)
 	addProperty(QObject::tr("Human trigger"), o->humanActivate, false);
 	addProperty(QObject::tr("Cpu trigger"), o->computerActivate, false);
 	//ui8 availableFor; //players whom this event is available for
+	addProperty(QObject::tr("Available for"), o->availableFor, new PlayerSelectionDelegate(o->availableFor), false);
 }
 
 void Inspector::updateProperties(CGSeerHut * o)
@@ -612,6 +614,23 @@ void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & v
 	
 	if(key == QObject::tr("Cpu trigger"))
 		o->computerActivate = value.toBool();
+
+	if(key == QObject::tr("Available for"))
+	{
+		o->availableFor.clear();
+		const QStringList parts = value.toString().split(",", Qt::SkipEmptyParts);
+		for (const  QString &s : parts)
+		{
+			auto colorStr = s.toStdString();
+			auto decoded = PlayerColor::decode(colorStr);
+
+			const auto &allPlayers = PlayerColor::ALL_PLAYERS();
+			if(std::find(allPlayers.begin(), allPlayers.end(), decoded) != allPlayers.end())
+				o->availableFor.insert(allPlayers[decoded]);
+			else
+				logGlobal->warn("Invalid player color string for allowedPlayers: %s", colorStr);
+		}
+	}
 }
 
 void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVariant & value)
@@ -926,6 +945,23 @@ QTableWidgetItem * Inspector::addProperty(const std::optional<CGDwellingRandomiz
 
 	auto * item = new QTableWidgetItem(text);
 	item->setFlags(Qt::NoItemFlags);
+	return item;
+}
+
+QTableWidgetItem * Inspector::addProperty(const std::set<PlayerColor> & value)
+{
+	QString tooltip = QObject::tr("Available for:\n");
+	QStringList colors;
+	if(value.size() > 0)
+		for (const PlayerColor &color : value)
+			colors << QString::fromStdString(PlayerColor::encode(color));
+
+	QString text = colors.join(",");
+	tooltip += colors.join("\n");
+
+	auto * item = new QTableWidgetItem(text);
+	item->setFlags(Qt::NoItemFlags);
+	item->setToolTip(tooltip);
 	return item;
 }
 

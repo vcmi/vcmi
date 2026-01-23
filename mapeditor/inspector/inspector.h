@@ -106,6 +106,7 @@ protected:
 	QTableWidgetItem * addProperty(CGCreature::Character value);
 	QTableWidgetItem * addProperty(const std::optional<CGDwellingRandomizationInfo> & value);
 	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
+	QTableWidgetItem * addProperty(const std::set<PlayerColor> & value);
 	
 //===============END OF DECLARATION=======================================
 	
