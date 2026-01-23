@@ -197,10 +197,10 @@ void BattleActionsController::endCastingSpell()
 
 	if(monsterCaster)
 	{
-		monsterSpellTargets.clear();
 		monsterCaster = nullptr;
 		owner.stacksController->activateStack();
 	}
+	monsterSpellTargets.clear();
 
 	if(owner.stacksController->getActiveStack())
 	{
