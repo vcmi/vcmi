@@ -101,6 +101,12 @@ namespace BitmapHandler
 		
 		auto fullpath = CResourceHandler::get()->getResourceName(ResourcePath(path + fname, EResType::IMAGE));
 		auto readFile = CResourceHandler::get()->load(ResourcePath(path + fname, EResType::IMAGE))->readAll();
+
+		if(!fullpath)
+		{
+			logGlobal->error("Failed to open %s via QImage", fname);
+			return QImage();
+		}
 		
 		if(isPCX(readFile.first.get()))
 		{//H3-style PCX
