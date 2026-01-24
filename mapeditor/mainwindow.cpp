@@ -1514,7 +1514,7 @@ void MainWindow::on_actionh3m_converter_triggered()
 		{
 			CMapService mapService;
 			auto map = Helper::openMapInternal(m, controller.getCallback());
-			controller.setCallback(std::make_unique<EditorCallback>(map.get()));
+			controller.getCallback()->setMap(map.get());
 			controller.repairMap(map.get());
 			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
 		}

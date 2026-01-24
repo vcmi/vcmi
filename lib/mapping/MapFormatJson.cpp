@@ -1457,6 +1457,8 @@ void CMapSaverJson::writeObjects()
 	{
 		JsonNode & objNode = data.Vector()[i];
 		CGObjectInstance * obj = map->getObject(ObjectInstanceID(i));
+		if(!obj)
+			continue;
 		JsonSerializer handler(mapObjectResolver.get(), objNode);
 		obj->serializeJson(handler);
 
