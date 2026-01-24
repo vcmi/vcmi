@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class BattleFieldInfo : public EntityT<BattleField>
+class DLL_LINKAGE BattleFieldInfo : public EntityT<BattleField>
 {
 public:
 	BattleField battlefield;
