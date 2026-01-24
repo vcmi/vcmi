@@ -166,6 +166,12 @@ void CampaignEditor::changed()
 
 bool CampaignEditor::validate()
 {
+	if(campaignState->mapPieces.empty())
+	{
+		QMessageBox::critical(this, tr("Validation failed"), tr("Campaign has no maps defined."));
+		return false;
+	}
+
 	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
 		logGlobal->trace("Not all regions have a map");
 
