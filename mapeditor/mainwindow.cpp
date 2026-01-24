@@ -504,7 +504,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 
 void MainWindow::openCampaign(const QString & filenameSelect)
 {
-	CampaignEditor::showCampaignEditor(this, filenameSelect);
+	CampaignEditor::showCampaignEditor(this, filenameSelect, controller.getCallback());
 }
 
 void MainWindow::updateRecentMenu(const QString & filenameSelect) {
@@ -696,7 +696,7 @@ void MainWindow::on_actionCampaignEditor_triggered()
 		return;
 
 	hide();
-	CampaignEditor::showCampaignEditor(this);
+	CampaignEditor::showCampaignEditor(this, controller.getCallback());
 }
 
 void MainWindow::on_actionTemplateEditor_triggered()
