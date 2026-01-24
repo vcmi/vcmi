@@ -72,7 +72,7 @@ public:
 	virtual void setFormation(const CGHeroInstance * hero, EArmyFormation mode)=0;
 	virtual void setTownName(const CGTownInstance * town, std::string & name)=0;
 
-	virtual void save(const std::string &fname) = 0;
+	virtual void save(const std::string &fname, bool notifySuccess) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void gamePause(bool pause) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;

@@ -29,7 +29,7 @@
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
-	gh.save(pack.fname);
+	gh.save(pack.fname, pack.notifySuccess ? pack.player : PlayerColor::CANNOT_DETERMINE);
 	logGlobal->info("Game has been saved as %s", pack.fname);
 	result = true;
 }
