@@ -38,6 +38,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/callback/GameRandomizer.h"
 
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/entities/artifact/ArtifactUtils.h"
 #include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/artifact/CArtifactFittingSet.h"
@@ -3271,6 +3272,20 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, Pla
 	giveResource(r2, r1, val);
 
 	return true;
+}
+
+void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColor playerReceiver, const ResourceSet & resources)
+{
+	InfoWindow iw;
+	iw.player = playerReceiver;
+	iw.text = MetaString::createFromTextID("core.genrltxt.358");
+	iw.text.replaceName(player);
+	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	{
+		if(it->resVal > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+	}
+	sendAndApply(iw);
 }
 
 bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
