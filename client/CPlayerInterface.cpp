@@ -169,6 +169,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
+	adventureInt->onCurrentPlayerChanged(playerID);
 }
 
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
