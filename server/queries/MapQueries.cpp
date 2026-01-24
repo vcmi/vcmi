@@ -121,6 +121,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto formation = dynamic_cast<const SetFormation*>(pack))
 		return !vstd::contains(ourIds, formation->hid);
 
+	if(auto tactics = dynamic_cast<const SetTactics*>(pack))
+		return !vstd::contains(ourIds, tactics->hid);
+
 	return CDialogQuery::blocksPack(pack);
 }
 

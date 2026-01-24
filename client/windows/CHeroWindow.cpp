@@ -202,6 +202,7 @@ void CHeroWindow::updateArtifacts()
 
 	tacticsButton = std::make_shared<CToggleButton>(Point(539, 483), AnimationPath::builtin("hsbtns8.def"), std::make_pair(heroscrn[26], heroscrn[31]), 0, EShortcut::HERO_TOGGLE_TACTICS);
 	tacticsButton->addHoverText(EButtonState::HIGHLIGHTED, LIBRARY->generaltexth->heroscrn[25]);
+	tacticsButton->setSelectedSilent(curHero->tacticFormationEnabled);
 
 	dismissButton->addHoverText(EButtonState::NORMAL, boost::str(boost::format(LIBRARY->generaltexth->heroscrn[16]) % curHero->getNameTranslated() % curHero->getClassNameTranslated()));
 	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->getClassNameTranslated());
@@ -311,7 +312,7 @@ void CHeroWindow::updateArtifacts()
 	else
 	{
 		tacticsButton->block(false);
-		tacticsButton->addCallback([&](bool on){curHero->tacticFormationEnabled = on;});
+		tacticsButton->addCallback([&](bool on){ GAME->interface()->cb->setTactics(curHero, on); });
 	}
 
 	formations->resetCallback();

@@ -82,7 +82,7 @@ public:
 	//          8 4
 	//          765
 	ui8 moveDir;
-	mutable ui8 tacticFormationEnabled;
+	bool tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -353,6 +353,8 @@ public:
 		h & spells;
 		h & patrol;
 		h & moveDir;
+		if (h.hasFeature(Handler::Version::DISABLE_TACTICS))
+			h & tacticFormationEnabled;
 		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
 		{
 			ui8 magicSchoolCounter = 0;

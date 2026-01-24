@@ -58,6 +58,7 @@ public:
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
+	virtual void visitChangeTactics(ChangeTactics & pack) {}
 	virtual void visitChangeTownName(ChangeTownName & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
@@ -146,6 +147,7 @@ public:
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) {}
 	virtual void visitSetFormation(SetFormation & pack) {}
+	virtual void visitSetTactics(SetTactics & pack) {}
 	virtual void visitSetTownName(SetTownName & pack) {}
 	virtual void visitHireHero(HireHero & pack) {}
 	virtual void visitBuildBoat(BuildBoat & pack) {}

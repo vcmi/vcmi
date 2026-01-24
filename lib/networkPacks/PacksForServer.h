@@ -609,6 +609,28 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE SetTactics : public CPackForServer
+{
+	SetTactics() = default;
+	;
+	SetTactics(const ObjectInstanceID & HID, bool Enabled)
+		: hid(HID)
+		, enabled(Enabled)
+	{
+	}
+	ObjectInstanceID hid;
+	bool enabled = false;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & hid;
+		h & enabled;
+	}
+};
+
 struct DLL_LINKAGE SetTownName : public CPackForServer
 {
 	SetTownName() = default;
