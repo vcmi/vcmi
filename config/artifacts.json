@@ -1344,8 +1344,12 @@
 			"noDispel" : {
 				"subtype" : "dispel",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
+			},
+			"noDispelHelpful" : {
+				"subtype" : "dispelHelpful",
+				"type" : "SPELL_IMMUNITY",
+				"addInfo" : 1
 			}
 		},
 		"index" : 92,
