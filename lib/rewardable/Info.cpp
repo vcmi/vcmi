@@ -141,6 +141,8 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 
 	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], variables);
 	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], variables);
+	limiter.movePercentage = randomizer.loadValue(source["movePercentage"], variables);
+	limiter.movePoints = randomizer.loadValue(source["movePoints"], variables);
 
 	limiter.resources = randomizer.loadResources(source["resources"], variables);
 
@@ -179,6 +181,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGame
 
 	reward.movePoints = randomizer.loadValue(source["movePoints"], variables);
 	reward.movePercentage = randomizer.loadValue(source["movePercentage"], variables, -1);
+	reward.moveOverflowFactor = source["moveOverflowFactor"].isNull() ? 100 : randomizer.loadValue(source["moveOverflowFactor"], variables);
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);

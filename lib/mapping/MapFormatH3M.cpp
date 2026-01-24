@@ -1845,6 +1845,7 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		{
 			case 0: // Give
 				boxReward.reward.movePoints = movementAmount;
+				boxReward.reward.moveOverflowFactor = 100;
 				break;
 			case 1: // Take
 				boxReward.reward.movePoints = -movementAmount;
@@ -1853,10 +1854,13 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 				boxReward.reward.movePercentage = 0;
 				break;
 			case 3: // Set
-			case 4: // Replenish
-				// TODO: what's the difference?
 				boxReward.reward.movePercentage = 0;
 				boxReward.reward.movePoints = movementAmount;
+				boxReward.reward.moveOverflowFactor = 100;
+				break;
+			case 4: // Replenish
+				boxReward.reward.movePoints = movementAmount;
+				boxReward.reward.moveOverflowFactor = 0;
 				break;
 		}
 	}

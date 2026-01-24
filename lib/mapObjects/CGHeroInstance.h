@@ -201,6 +201,7 @@ public:
 
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
+	int movementPointsLimit() const;
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
