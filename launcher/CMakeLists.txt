@@ -249,6 +249,10 @@ if(ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
+if(ENABLE_DISCORD)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_DISCORD)
+endif()
+
 if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils

@@ -15,13 +15,18 @@
 #include <discord-rpc.hpp>
 #endif
 
+#include "../lib/CConfigHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/campaign/CampaignState.h"
 
-Discord::Discord()
+Discord::Discord() :
+	enabled(settings["general"]["enableDiscordRichPresence"].Bool())
 {
 #ifdef ENABLE_DISCORD
+	if(!enabled)
+		return;
+
 	constexpr auto APPLICATION_ID = "1416538363254669455";
 
 	discord::RPCManager::get().initialize();
@@ -45,6 +50,9 @@ Discord::Discord()
 Discord::~Discord()
 {
 #ifdef ENABLE_DISCORD
+	if(!enabled)
+		return;
+
 	clearStatus();
 	discord::RPCManager::get().shutdown();
 #endif
@@ -53,6 +61,9 @@ Discord::~Discord()
 void Discord::setStatus(std::string state, std::string details, std::tuple<int, int> partySize)
 {
 #ifdef ENABLE_DISCORD
+	if(!enabled)
+		return;
+
 	discord::RPCManager::get().getPresence()
 		.setState(state)
 		.setActivityType(discord::ActivityType::Game)
@@ -71,6 +82,9 @@ void Discord::setStatus(std::string state, std::string details, std::tuple<int, 
 void Discord::clearStatus()
 {
 #ifdef ENABLE_DISCORD
+	if(!enabled)
+		return;
+
 	discord::RPCManager::get().clearPresence();
 #endif
 }
@@ -78,6 +92,9 @@ void Discord::clearStatus()
 void Discord::setPlayingStatus(std::shared_ptr<StartInfo> si, const CMap * map, int humanInterfacesCount)
 {
 #ifdef ENABLE_DISCORD
+	if(!enabled)
+		return;
+		
 	bool isCampaign = si->campState != nullptr;
 	bool isMulti = humanInterfacesCount > 1;
 	int humanPlayersCount = 0;

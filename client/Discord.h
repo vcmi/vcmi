@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_END
 class Discord
 {
     time_t startTime = time(nullptr);
+    bool enabled;
 public:
     Discord();
     ~Discord();
