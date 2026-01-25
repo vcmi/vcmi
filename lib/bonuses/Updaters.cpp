@@ -46,7 +46,7 @@ std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shar
 		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		int steps = stepSize ? level / stepSize : level;
 		//rounding follows format for HMM3 creature specialty bonus
-		int newVal = (valPer20 * steps + 19) / 20;
+		int newVal = vstd::divideAndCeil(valPer20 * steps, 20);
 		//return copy of bonus with updated val
 		auto newBonus = std::make_shared<Bonus>(*b);
 		newBonus->val = newVal;

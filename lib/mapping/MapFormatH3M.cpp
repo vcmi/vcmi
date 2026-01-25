@@ -2653,6 +2653,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosi
 				variable.setModScope(ModScope::scopeGame());
 
 				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
 				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
 				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
 			}

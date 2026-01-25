@@ -85,12 +85,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonN
 				logMod->warn("Redundant namespace definition for %s", objectName);
 
 			logMod->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
-			JsonNode & remoteConf = modData[remoteName].patches[objectName];
-
-			if (!remoteConf.isNull() && settings["mods"]["validation"].String() != "off")
-				JsonUtils::detectConflicts(conflictList, remoteConf, entry.second, objectName);
-
-			JsonUtils::merge(remoteConf, entry.second);
+			modData[remoteName].patches[objectName].push_back(entry.second);
 		}
 	}
 	return result;
@@ -108,8 +103,16 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	};
 
 	// apply patches
-	if (!modInfo.patches.isNull())
-		JsonUtils::merge(modInfo.modData, modInfo.patches);
+	for (auto & [objectName, objectPatches] : modInfo.patches)
+	{
+		for (auto & objectPatch : objectPatches)
+		{
+			if (settings["mods"]["validation"].String() != "off")
+				JsonUtils::detectConflicts(conflictList, modInfo.modData, objectPatch, objectName);
+
+			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
+		}
+	}
 
 	for(auto & entry : modInfo.modData.Struct())
 	{
@@ -176,8 +179,9 @@ void ContentTypeHandler::afterLoadFinalization()
 		{
 			if (data.second.modData.isNull())
 			{
-				for (const auto & node : data.second.patches.Struct())
-					logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
+				for (auto & [objectName, objectPatches] : data.second.patches)
+					for (auto & node : objectPatches)
+						logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.getModScope(), objectName, data.first);
 			}
 
 			for(auto & otherMod : modData)

@@ -867,7 +867,7 @@ Campfire:
 
 Trapper Lodge (HotA):
 
-- map dice 0: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 0: grants `gainedGoldAmount` of gold
 - map dice 1: grants `gainedCreatureAmount` of creatures of type `gainedCreature`
 
 Ancient Lamp (HotA):
@@ -891,3 +891,8 @@ Vial of Mana (HotA)
 - map dice 1: 40 spell points
 - map dice 2: 50 spell points
 - map dice 3: 60 spell points
+
+Sea Barrel (HotA):
+
+- map dice 0: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 1: Nothing

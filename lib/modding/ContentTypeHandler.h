@@ -27,7 +27,8 @@ public:
 		/// mod data from this mod and for this mod
 		JsonNode modData;
 		/// mod data for this mod from other mods (patches)
-		JsonNode patches;
+		/// patches[object name] -> list of patches from different mods
+		std::map<std::string, std::vector<JsonNode>> patches;
 	};
 	/// handler to which all data will be loaded
 	IHandlerBase * handler;
