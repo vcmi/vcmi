@@ -69,7 +69,7 @@ protected:
 	static RiverId getRiverByCode(const std::string & code);
 	static RoadId getRoadByCode(const std::string & code);
 
-	void fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix) const;
+	void fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix, bool remove) const;
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 

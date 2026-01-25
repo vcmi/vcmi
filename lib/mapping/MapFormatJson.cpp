@@ -324,35 +324,41 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 		value = temp;
 }
 
-void CMapFormatJson::fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix) const
+void CMapFormatJson::fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix, bool remove) const
 {
 	if(!node.isStruct())
 		return;
-	
-	// Check if stringsTextID exists without creating it
+
 	auto & nodeStruct = node.Struct();
 	auto it = nodeStruct.find("stringsTextID");
-	
+
 	// Process stringsTextID array if present (MetaString structure)
 	if(it != nodeStruct.end() && it->second.isVector())
 	{
 		for(auto & textID : it->second.Vector())
 		{
-			if(textID.isString() && !textID.String().empty() 
-				&& textID.String().find("map.") != 0 
-				&& textID.String().find("core.") != 0
-				&& textID.String().find("vcmi.") != 0)
+			if(textID.isString() && !textID.String().empty())
 			{
-				textID.String() = mapPrefix + textID.String();
+				if(remove)
+				{
+					if(textID.String().find("map.") == 0)
+						textID.String() = removeMapNamePrefix(textID.String());
+				}
+				else if(textID.String().find("map.") != 0 
+						&& textID.String().find("core.") != 0
+						&& textID.String().find("vcmi.") != 0)
+				{
+					textID.String() = mapPrefix + textID.String();
+				}
 			}
 		}
 	}
-	
+
 	// Recursively search for more stringsTextID arrays in child Struct nodes only
 	for(auto & child : nodeStruct)
 	{
 		if(child.second.isStruct())
-			fixStringsTextIDInJson(child.second, mapPrefix);
+			fixStringsTextIDInJson(child.second, mapPrefix, remove);
 	}
 }
 
@@ -365,11 +371,19 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 		std::string mapPrefix = "map." + actualMapName + ".";
 		
 		JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
-		fixStringsTextIDInJson(headerData, mapPrefix);
+		fixStringsTextIDInJson(headerData, mapPrefix, false);
+
+		handler.serializeStruct("name", mapHeader->name);
+		handler.serializeStruct("description", mapHeader->description);
 	}
-	
-	handler.serializeStruct("name", mapHeader->name);
-	handler.serializeStruct("description", mapHeader->description);
+	else
+	{
+		handler.serializeStruct("name", mapHeader->name);
+		handler.serializeStruct("description", mapHeader->description);
+
+		JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+		fixStringsTextIDInJson(headerData, "", true);
+	}
 	
 	handler.serializeStruct("author", mapHeader->author);
 	handler.serializeStruct("authorContact", mapHeader->authorContact);
