@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CVCMIServer.h"
+#include "ServerDiscoveryListener.h"
 
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
@@ -81,9 +82,15 @@ CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
 	logNetwork->trace("CVCMIServer created! UUID: %s", uuid);
 
 	networkHandler = INetworkHandler::createHandler();
+
+	if(state == EServerState::LOBBY)
+		startDiscoveryListener();
 }
 
-CVCMIServer::~CVCMIServer() = default;
+CVCMIServer::~CVCMIServer()
+{
+	stopDiscoveryListener();
+}
 
 uint16_t CVCMIServer::prepare(bool connectToLobby, bool listenForConnections) {
 	if(connectToLobby) {
@@ -146,10 +153,27 @@ void CVCMIServer::setState(EServerState value)
 
 	// do not attempt to restart dying server
 	assert(state != EServerState::SHUTDOWN || state == value);
+
+	if(state != EServerState::LOBBY && value == EServerState::LOBBY && discoveryListener)
+		startDiscoveryListener();
+	if(state == EServerState::LOBBY && value != EServerState::LOBBY && discoveryListener)
+		stopDiscoveryListener();
+
 	state = value;
 
 	if (state == EServerState::SHUTDOWN)
 		networkHandler->stop();
+}
+void CVCMIServer::startDiscoveryListener()
+{
+	discoveryListener = std::make_unique<ServerDiscoveryListener>(*this);
+	discoveryListener->start();
+}
+
+void CVCMIServer::stopDiscoveryListener()
+{
+	if(discoveryListener)
+		discoveryListener.reset();
 }
 
 EServerState CVCMIServer::getState() const

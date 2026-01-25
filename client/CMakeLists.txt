@@ -72,6 +72,7 @@ set(vcmiclientcommon_SRCS
 	mainmenu/CreditsScreen.cpp
 	mainmenu/CHighScoreScreen.cpp
 	mainmenu/CStatisticScreen.cpp
+	network/ServerDiscovery.cpp
 
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
@@ -410,6 +411,7 @@ set(vcmiclientcommon_HEADERS
 	windows/CSpellWindow.h
 	windows/CTutorialWindow.h
 	windows/CWindowObject.h
+	network/ServerDiscovery.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h
 	windows/InfoWindows.h

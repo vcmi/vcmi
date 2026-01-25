@@ -34,6 +34,7 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
+class ServerDiscoveryListener;
 class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
 {
 	std::chrono::steady_clock::time_point gameplayStartTime;
@@ -55,9 +56,14 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	uint16_t port;
 	bool runByClient;
 
+	std::unique_ptr<ServerDiscoveryListener> discoveryListener;
 
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
+	uint16_t getPort() const
+	{
+		return port;
+	}
 
 	// IGameServer impl
 	void setState(EServerState value) override;
@@ -137,4 +143,6 @@ public:
 	PlayerConnectionID getIdOfFirstUnallocatedPlayer() const;
 
 	void multiplayerWelcomeMessage();
+	void startDiscoveryListener();
+	void stopDiscoveryListener();
 };

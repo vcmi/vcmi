@@ -121,6 +121,7 @@
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Verbindung fehlgeschlagen",
 	"vcmi.mainMenu.serverClosing" : "Trenne...",
+	"vcmi.mainMenu.serverFound" : "Server %s:%d gefunden, verbinden?",
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
 

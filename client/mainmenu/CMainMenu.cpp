@@ -10,9 +10,10 @@
 #include "StdInc.h"
 #include "CMainMenu.h"
 
+#include "../network/ServerDiscovery.h"
 #include "CCampaignScreen.h"
-#include "CreditsScreen.h"
 #include "CHighScoreScreen.h"
+#include "CreditsScreen.h"
 
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
@@ -637,6 +638,26 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputPort->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
 		inputPort->setFilterNumber(0, 65535);
 		inputAddress->giveFocus();
+		ServerDiscovery::discoverAsync(
+			[this](const DiscoveredServer & server)
+			{
+				auto msg = MetaString::createFromTextID("vcmi.mainMenu.serverFound");
+				msg.replaceRawString(server.address);
+				msg.replaceNumber(server.port);
+				CInfoWindow::showYesNoDialog(
+					msg.toString(),
+					std::vector<std::shared_ptr<CComponent>>(),
+					[this, server]()
+					{
+						inputAddress->setText(server.address);
+						inputPort->setText(std::to_string(server.port));
+						connectToServer();
+					},
+					0,
+					PlayerColor(1)
+				);
+			}
+		);
 	}
 	inputAddress->setText(host ? GAME->server().getLocalHostname() : GAME->server().getRemoteHostname());
 	inputPort->setText(std::to_string(host ? GAME->server().getLocalPort() : GAME->server().getRemotePort()));
@@ -659,6 +680,7 @@ void CSimpleJoinScreen::leaveScreen()
 {
 	textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverClosing"));
 	GAME->server().setState(EClientState::CONNECTION_CANCELLED);
+	close();
 }
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
