@@ -323,7 +323,7 @@
 				},
 				"allowPortrait" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : false
 				},
 				"asyncUpscaling" : {
 					"type" : "boolean",
