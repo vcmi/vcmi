@@ -855,7 +855,8 @@ void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 	assert(!art->getParentNodes().empty());
 	auto hero = gs.getHero(pack.al.artHolder);
 	assert(hero);
-	assert(art && art->canBePutAt(hero, pack.al.slot));
+	assert(art);
+	assert(art->canBePutAt(hero, pack.al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, pack.al.slot));
 	gs.getMap().putArtifactInstance(*hero, art->getId(), pack.al.slot);
 }
