@@ -98,7 +98,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
+		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187); //TODO: alternative text for custom guards
 		gameEvents.showBlockingDialog(this, &ynd);
 		return;
 	}
@@ -111,9 +111,9 @@ void CGMine::initObj(IGameRandomizer & gameRandomizer)
 	if(isAbandoned())
 	{
 		//set guardians
-		int howManyTroglodytes = gameRandomizer.getDefault().nextInt(100, 199);
-		auto troglodytes = std::make_unique<CStackInstance>(cb, CreatureID::TROGLODYTES, howManyTroglodytes);
-		putStack(SlotID(0), std::move(troglodytes));
+		int howManyGuards = gameRandomizer.getDefault().nextInt(abandonedMineGuards.minAmount, abandonedMineGuards.maxAmount);
+		auto guards = std::make_unique<CStackInstance>(cb, abandonedMineGuards.creature, howManyGuards);
+		putStack(SlotID(0), std::move(guards));
 
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())
@@ -238,7 +238,7 @@ void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstanc
 	{
 		if(isAbandoned())
 		{
-			hero->showInfoDialog(gameEvents, 85);
+			hero->showInfoDialog(gameEvents, 85); //TODO: alternative text for custom guards
 		}
 		flagMine(gameEvents, hero->tempOwner);
 	}
@@ -485,15 +485,12 @@ void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 
 void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean gates into pairs
 {
-	//split on underground and surface gates
-	std::vector<std::vector<CGSubterraneanGate *>> gatesSplit(cb->gameState().getMap().mapLevels); //surface and underground gates
-	for(auto gate : cb->gameState().getMap().getObjects<CGSubterraneanGate>())
-	{
-		gatesSplit[gate->visitablePos().z].push_back(gate);
-	}
+	// for > 2 layers it's still choosing the nearest in x/y axis independent from level
+	// collect all gates
+	auto allGates = cb->gameState().getMap().getObjects<CGSubterraneanGate>();
 
-	//sort by position
-	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
+	// sort by position for deterministic behavior
+	std::sort(allGates.begin(), allGates.end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
 		return a->visitablePos() < b->visitablePos();
 	});
@@ -507,21 +504,36 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 		}
 	};
 
-	for(size_t i = 0; i < gatesSplit[0].size(); i++)
+	for(size_t i = 0; i < allGates.size(); i++)
 	{
-		CGSubterraneanGate * objCurrent = gatesSplit[0][i];
+		CGSubterraneanGate * objCurrent = allGates[i];
 
-		//find nearest underground exit
+		if(objCurrent->channel != TeleportChannelID())
+			continue;
+
+		// find nearest gate on any other layer
 		std::pair<int, si32> best(-1, std::numeric_limits<si32>::max()); //pair<pos_in_vector, distance^2>
-		for(int j = 0; j < gatesSplit[1].size(); j++)
+		for(size_t j = 0; j < allGates.size(); j++)
 		{
-			CGSubterraneanGate *checked = gatesSplit[1][j];
+			if(i == j)
+				continue;
+
+			CGSubterraneanGate * checked = allGates[j];
+
 			if(checked->channel != TeleportChannelID())
 				continue;
+
+			// Prefer pairing surface → underground
+			if(objCurrent->visitablePos().z > checked->visitablePos().z)
+				continue;
+
+			if(checked->visitablePos().z == objCurrent->visitablePos().z)
+				continue;
+
 			si32 hlp = checked->visitablePos().dist2dSQ(objCurrent->visitablePos());
 			if(hlp < best.second)
 			{
-				best.first = j;
+				best.first = static_cast<int>(j);
 				best.second = hlp;
 			}
 		}
@@ -529,15 +541,14 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 		assignToChannel(objCurrent);
 		if(best.first >= 0) //found pair
 		{
-			gatesSplit[1][best.first]->channel = objCurrent->channel;
-			addToChannel(cb->gameState().getMap().teleportChannels, gatesSplit[1][best.first]);
+			allGates[best.first]->channel = objCurrent->channel;
+			addToChannel(cb->gameState().getMap().teleportChannels, allGates[best.first]);
 		}
 	}
 
-	// we should assign empty channels to underground gates if they don't have matching overground gates
-	if(gatesSplit.size() > 1)
-		for(auto & i : gatesSplit[1])
-			assignToChannel(i);
+	// assign empty channels to any remaining unpaired gates
+	for(auto & i : allGates)
+		assignToChannel(i);
 }
 
 void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -624,8 +635,9 @@ ArtifactID CGArtifact::getArtifactType() const
 {
 	if(ID == Obj::SPELL_SCROLL)
 		return ArtifactID::SPELL_SCROLL;
-	else
-		return getObjTypeIndex().getNum();
+
+	assert(ID == Obj::ARTIFACT);
+	return getObjTypeIndex().getNum();
 }
 
 void CGArtifact::pickRandomObject(IGameRandomizer & gameRandomizer)
@@ -665,6 +677,7 @@ void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
 
 void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 {
+	assert(ID == Obj::ARTIFACT || ID == Obj::SPELL_SCROLL);
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
@@ -682,7 +695,11 @@ void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 
 std::string CGArtifact::getObjectName() const
 {
-	return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+	if(ID == Obj::SPELL_SCROLL || ID == Obj::ARTIFACT)
+		return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+
+	// random artifact
+	return CGObjectInstance::getObjectName();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const

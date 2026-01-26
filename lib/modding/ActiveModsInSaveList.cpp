@@ -40,6 +40,9 @@ void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificati
 
 	for (auto const & compared : comparison)
 	{
+		if (compared.first.find('.') != std::string::npos)
+			continue; // ignore changes in submods since they change a lot between mod updates
+
 		if (compared.second == ModVerificationStatus::NOT_INSTALLED)
 			missingMods.push_back(modList.at(compared.first).name);
 

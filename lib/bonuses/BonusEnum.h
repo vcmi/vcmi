@@ -196,8 +196,14 @@ class JsonNode;
 	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
 	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
 	BONUS_NAME(DAMAGE_RECEIVED_CAP) /* limits the damage dealt to affected unit */ \
-	/* end of list */
+	BONUS_NAME(FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT) /* Forces the number of neutral stacks in hero–neutral encounters.*/\
+	BONUS_NAME(ADJACENT_SPELLCASTER) /*Allows spellcasting units from adjacent tile, val - spell school level, subtype - spell id */\
+	BONUS_NAME(UNIT_DEFENDING) /* tag applied to units which are currently waiting in battle */\
+	BONUS_NAME(MARKETPLACE_ACCESS) \
+	BONUS_NAME(CPU_CONTROLLED) /* Makes unit CPU controller by default, like ballista. Currently, target picking uses custom server logic rather than using battle AI */ \
+	BONUS_NAME(DEITYOFFIRE) /* Controls special week */ \
 
+	/* end of list */
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\
@@ -237,6 +243,9 @@ enum class BonusType : uint16_t
 #undef BONUS_NAME
     BUILTIN_BONUSES_COUNT
 };
+
+static_assert(static_cast<int>(BonusType::SPELL_DAMAGE_REDUCTION) == 50 && static_cast<int>(BonusType::SPECIAL_UPGRADE) == 100 && static_cast<int>(BonusType::BONUS_DAMAGE_PERCENTAGE) == 150, "DO NOT ADD OR REMOVE BONUSES FROM THE MIDDLE OF THE LIST. THIS WILL BREAK SAVES");
+
 namespace BonusDuration  //when bonus is automatically removed
 {
 	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.

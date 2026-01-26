@@ -148,6 +148,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & val;
 		h & sid;
 		h & description;
+
 		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
 			h & customIconPath;
 		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))

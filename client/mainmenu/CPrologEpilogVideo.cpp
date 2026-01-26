@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CPrologEpilogVideo.h"
+#include "CMainMenu.h"
 
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -28,7 +29,9 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
+
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(bgConfig.isString() ?ImagePath::fromJson(bgConfig) : ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
 	if (!spe.prologVideo.second.empty())
 		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, spe.prologVideo.second, true);
@@ -38,6 +41,16 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	//some videos are 800x600 in size while some are 800x400
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
+
+	videoPlayer->setPlaybackFinishedCallback([this]() {
+		videoFinishedCounter++;
+		if((!spe.prologVideo.second.empty() && videoFinishedCounter < 2)) // play looped video at least once
+			return;
+
+		if(!videoFinished)
+			elapsedTimeMilliseconds = 0;
+		videoFinished = true;
+	});
 
 	ENGINE->music().setVolume(ENGINE->music().getVolume() / 2); // background volume is too loud by default
 	ENGINE->music().playMusic(spe.prologMusic, true, true);
@@ -72,7 +85,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
-	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped && videoFinished) // pause after completed scrolling (longer for intros missing voice)
 		clickPressed(ENGINE->getCursorPosition());
 }
 

@@ -56,8 +56,8 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->rResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
-	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	ui->rResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
@@ -459,7 +459,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	for(auto i : vinfo.reward.grantedArtifacts)
 		ui->rArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : vinfo.reward.spells)
-		ui->rArtifacts->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->rSpells->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : vinfo.reward.secondary)
 	{
 		int index = LIBRARY->skills()->getById(i.first)->getIndex();

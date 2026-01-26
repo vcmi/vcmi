@@ -26,6 +26,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/Slider.h"
 #include "../windows/CMessage.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -362,53 +363,68 @@ MinimapWithIcons::MinimapWithIcons(const Point & position)
 	OBJECT_CONSTRUCTION;
 	pos += position;
 
-	Rect areaSurface(11, 41, 144, 144);
-	Rect areaUnderground(167, 41, 144, 144);
+	recreate();
+}
 
-	Rect borderSurface(10, 40, 147, 147);
-	Rect borderUnderground(166, 40, 147, 147);
+void MinimapWithIcons::recreate()
+{
+	OBJECT_CONSTRUCTION;
 
-	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1; // TODO: multilevel support
+	Rect area1(11, 41, 144, 144);
+	Rect area2(167, 41, 144, 144);
+
+	Rect border1(10, 40, 147, 147);
+	Rect border2(166, 40, 147, 147);
+
+	int levels = GAME->interface()->cb->getMapSize().z;
+	int currentLevel = slider ? slider->getValue() : 0;
+	bool singleLevelMap = levels == 1;
+
+	if(levels > 2)
+	{
+		slider = std::make_shared<CSlider>(Point(10, 192), 303, [this](int value){ recreate(); setRedrawParent(true); redraw(); }, 2, levels, currentLevel, Orientation::HORIZONTAL);
+		slider->setPanningStep(147);
+	}
 
 	if (singleLevelMap)
 	{
-		areaSurface.x += 78;
-		borderSurface.x += 78;
+		area1.x += 78;
+		border1.x += 78;
 	}
 
-	backgroundSurface = std::make_shared<TransparentFilledRectangle>(borderSurface, Colors::TRANSPARENCY, Colors::YELLOW);
-	surface = std::make_shared<CMinimapInstance>(areaSurface.topLeft(), areaSurface.dimensions(), 0);
+	background1 = std::make_shared<TransparentFilledRectangle>(border1, Colors::TRANSPARENCY, Colors::YELLOW);
+	map1 = std::make_shared<CMinimapInstance>(area1.topLeft(), area1.dimensions(), currentLevel);
 
 	if (!singleLevelMap)
 	{
-		backgroundUnderground = std::make_shared<TransparentFilledRectangle>(borderUnderground, Colors::TRANSPARENCY, Colors::YELLOW);
-		undergroud = std::make_shared<CMinimapInstance>(areaUnderground.topLeft(), areaUnderground.dimensions(), 1);
+		background2 = std::make_shared<TransparentFilledRectangle>(border2, Colors::TRANSPARENCY, Colors::YELLOW);
+		map2 = std::make_shared<CMinimapInstance>(area2.topLeft(), area2.dimensions(), currentLevel + 1);
+	}
+
+	iconsOverlay.clear();
+	for(auto & icon : icons)
+	{
+		int positionX = 144 * icon.first.x / GAME->interface()->cb->getMapSize().x;
+		int positionY = 144 * icon.first.y / GAME->interface()->cb->getMapSize().y;
+
+		Point iconPosition(positionX, positionY);
+
+		iconPosition -= Point(8,8); // compensate for 16x16 icon half-size
+
+		if (icon.first.z == currentLevel)
+			iconPosition += area1.topLeft();
+		else if (icon.first.z == currentLevel + 1)
+			iconPosition += area2.topLeft();
+		else
+			continue;
+
+		iconsOverlay.push_back(std::make_shared<CPicture>(icon.second, iconPosition));
 	}
 }
 
 void MinimapWithIcons::addIcon(const int3 & coordinates, const ImagePath & image )
 {
-	OBJECT_CONSTRUCTION;
-
-	Rect areaSurface(11, 41, 144, 144);
-	Rect areaUnderground(167, 41, 144, 144);
-	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1; // TODO: multilevel support
-	if (singleLevelMap)
-		areaSurface.x += 78;
-
-	int positionX = 144 * coordinates.x / GAME->interface()->cb->getMapSize().x;
-	int positionY = 144 * coordinates.y / GAME->interface()->cb->getMapSize().y;
-
-	Point iconPosition(positionX, positionY);
-
-	iconPosition -= Point(8,8); // compensate for 16x16 icon half-size
-
-	if (coordinates.z == 0)
-		iconPosition += areaSurface.topLeft();
-	else
-		iconPosition += areaUnderground.topLeft();
-
-	iconsOverlay.push_back(std::make_shared<CPicture>(image, iconPosition));
+	icons.push_back({coordinates, image});
 }
 
 TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * teleporter)
@@ -416,7 +432,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;
-	pos.h = 200;
+	pos.h = 200 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, teleporter->getPopupText(GAME->interface()->playerID));
@@ -448,6 +464,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 
 		minimap->addIcon(position, image);
 	}
+	minimap->recreate();
 	center(position);
 	fitToScreen(10);
 }
@@ -457,7 +474,7 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;
-	pos.h = 220;
+	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keymasterOrGuard->getObjectName());
@@ -487,6 +504,7 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 				break;
 		}
 	}
+	minimap->recreate();
 	center(position);
 	fitToScreen(10);
 }
@@ -496,7 +514,7 @@ ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 322;
-	pos.h = 220;
+	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, obelisk->getObjectName());
@@ -518,7 +536,32 @@ ObeliskPopup::ObeliskPopup(const Point & position, const CGObelisk * obelisk)
 		else
 			minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/obelisk"));
 	}
+	minimap->recreate();
 	center(position);
+	fitToScreen(10);
+}
+
+SearchPopup::SearchPopup(std::vector<const CGObjectInstance *> objs)
+	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 322;
+	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
+
+	if(!objs.size())
+		return;
+
+	auto name = GAME->interface()->cb->getObjInstance(objs.at(0)->id)->getObjectName();
+
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, name);
+	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
+
+	for (const auto obj : objs)
+		minimap->addIcon(obj->visitablePos(), ImagePath::builtin("minimapIcons/generic"));
+	
+	minimap->recreate();
+	center();
 	fitToScreen(10);
 }
 

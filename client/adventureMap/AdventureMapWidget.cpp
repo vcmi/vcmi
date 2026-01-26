@@ -37,6 +37,7 @@
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/MapLayerHandler.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: shortcuts(shortcuts)
@@ -63,13 +64,15 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
 
-	const JsonNode config(JsonPath::builtin("config/widgets/adventureMap.json"));
+	const JsonNode config(JsonPath::builtin(pos.w < pos.h && settings["video"]["allowPortrait"].Bool() ? "config/widgets/adventureMapPortrait.json" : "config/widgets/adventureMap.json"));
 
 	for(const auto & entry : config["options"]["imagesPlayerColored"].Vector())
 		playerColoredImages.push_back(ImagePath::fromJson(entry));
 
 	build(config);
 	addUsedEvents(KEYBOARD);
+
+	updateMapLayerButtonsHelp();
 }
 
 void AdventureMapWidget::onMapViewMoved(const Rect & visibleArea, int newMapLevel)
@@ -459,7 +462,7 @@ void AdventureMapWidget::updateActiveStateChildren(CIntObject * widget)
 	{
 		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
 
-		int mapLevels = GAME->interface()->cb->getMapHeader()->mapLevels;
+		int mapLevels = GAME->interface()->cb->getMapHeader()->levels();
 
 		if (container)
 		{
@@ -504,4 +507,39 @@ void AdventureMapWidget::updateActiveState()
 
 	for (auto entry: shortcuts->getShortcuts())
 		setShortcutBlocked(entry.shortcut, !entry.isEnabled);
+
+	updateMapLayerButtonsHelp();
+}
+
+void AdventureMapWidget::updateMapLayerButtonsHelp()
+{
+	if(!settings["general"]["enableUiEnhancements"].Bool())
+		return;
+
+	int mapLevelNext = (mapLevel + 1) % GAME->interface()->cb->getMapHeader()->levels();
+	auto currentLevel = GAME->interface()->cb->getMapHeader()->mapLayers.at(mapLevel);
+	auto nextLevel = GAME->interface()->cb->getMapHeader()->mapLayers.at(mapLevelNext);
+
+	for (auto & widgetname : { "buttonUnderground", "buttonSurface", "buttonLayerOther" })
+	{
+		if (auto w = widget<CButton>(widgetname))
+		{
+			auto replaceText = [&](auto & text){
+				text.replaceTextID(currentLevel.toEntity(LIBRARY)->getNameTextID());
+				text.replaceNumber(mapLevel);
+				text.replaceTextID(nextLevel.toEntity(LIBRARY)->getNameTextID());
+				text.replaceNumber(mapLevelNext);
+			};
+			auto hoverText = MetaString::createFromTextID("vcmi.adventureMap.layer.hover");
+			replaceText(hoverText);
+			auto helpText = MetaString::createFromTextID("vcmi.adventureMap.layer.help");
+			replaceText(helpText);
+			w->setHelp({hoverText.toString(), helpText.toString()});
+			
+			// Refresh hover state using current cursor position so statusbar updates immediately
+			Point cursor = ENGINE->getCursorPosition();
+			bool inside = w->pos.isInside(cursor);
+			w->hover(inside);
+		}
+	}
 }

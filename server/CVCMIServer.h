@@ -36,14 +36,15 @@ class GlobalLobbyProcessor;
 
 class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
 {
-	std::unique_ptr<GlobalLobbyProcessor> lobbyProcessor;
-
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
 
 	std::unique_ptr<INetworkHandler> networkHandler;
 	/// Network server instance that receives and processes incoming connections on active socket
 	std::unique_ptr<INetworkServer> networkServer;
+
+	/// Handles connection with global lobby. Must be constructed and destroyed after network handler
+	std::unique_ptr<GlobalLobbyProcessor> lobbyProcessor;
 
 	EServerState state = EServerState::LOBBY;
 

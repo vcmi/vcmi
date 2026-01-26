@@ -401,9 +401,9 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 void StartGameTab::on_buttonInstallHdEditionHelp_clicked()
 {
 	QString message = tr(
-		"You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. "
-		"Choose your Heroes HD folder from Steam.\n\n"
-		"After installation you also have to set an upscale factor > 1 to see HD graphics."
+		"To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam."
+		"Select the Heroes HD folder from Steam.\n\n"
+		"After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics."
 	);
 	MessageBoxCustom::information(this, ui->buttonInstallHdEdition->text(), message);
 }

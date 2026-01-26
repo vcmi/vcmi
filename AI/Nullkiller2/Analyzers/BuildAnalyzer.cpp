@@ -20,27 +20,30 @@ namespace NK2AI
 
 TResources BuildAnalyzer::getMissingResourcesNow(const float armyGoldRatio) const
 {
-	auto armyGold = goldOnly(armyCost);
-	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
-	auto result = requiredResources + goldRemove(armyCost) + armyGold - aiNk->getFreeResources();
+	TResources result = armyCost;
+	result[GameResID::GOLD] *= armyGoldRatio;
+	result += requiredResources;
+	result -= aiNk->getFreeResources();
 	result.positive();
 	return result;
 }
 
 TResources BuildAnalyzer::getMissingResourcesInTotal(const float armyGoldRatio) const
 {
-	auto armyGold = goldOnly(armyCost);
-	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
-	auto result = totalDevelopmentCost + goldRemove(armyCost) + armyGold - aiNk->getFreeResources();
+	TResources result = armyCost;
+	result[GameResID::GOLD] *= armyGoldRatio;
+	result += totalDevelopmentCost;
+	result -= aiNk->getFreeResources();
 	result.positive();
 	return result;
 }
 
 TResources BuildAnalyzer::getFreeResourcesAfterMissingTotal(const float armyGoldRatio) const
 {
-	auto armyGold = goldOnly(armyCost);
-	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
-	auto result = aiNk->getFreeResources() - totalDevelopmentCost - goldRemove(armyCost) - armyGold;
+	TResources result = -armyCost;
+	result[GameResID::GOLD] *= armyGoldRatio;
+	result -= totalDevelopmentCost;
+	result += aiNk->getFreeResources();
 	result.positive();
 	return result;
 }

@@ -18,6 +18,11 @@
 
 ShortcutHandler::ShortcutHandler()
 {
+	reloadShortcuts();
+}
+
+void ShortcutHandler::reloadShortcuts()
+{
 	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
@@ -116,6 +121,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
 		{"globalFullscreen",         EShortcut::GLOBAL_FULLSCREEN         },
+		{"globalScreenshot",         EShortcut::GLOBAL_SCREENSHOT         },
 		{"globalOptions",            EShortcut::GLOBAL_OPTIONS            },
 		{"globalBackspace",          EShortcut::GLOBAL_BACKSPACE          },
 		{"globalMoveFocus",          EShortcut::GLOBAL_MOVE_FOCUS         },

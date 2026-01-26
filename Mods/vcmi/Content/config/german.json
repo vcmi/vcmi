@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "Fernkampf",
 	"vcmi.adventureMap.search.hover"            : "Suche Kartenobjekt",
 	"vcmi.adventureMap.search.help"             : "Wähle Objekt das gesucht werden soll.",
+	"vcmi.adventureMap.layer.hover"             : "Wechsele Ebene  -  %s (%d) zu %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Wechsele Ebene }\n\nWechselt die Abenteuerkarte zwischen den Ebenen\n\nWechsele %s (%d) zu %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Seid Ihr sicher, dass Ihr das Spiel neu starten wollt?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "Kein Marktplatz verfügbar!",
@@ -107,7 +109,7 @@
 	"vcmi.spellBook.tab.help" : "Zu %szaubersprüchen blättern",
     "vcmi.spellBook.zero_level.hint" : "0. Stf",
 
-	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen. Aber Ihr könnt diesen Zauberspruch trotzdem verwerfen und die Zauberspruchforschung fortsetzen.",
+	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen.",
 	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
 	"vcmi.spellResearch.pay" : "Möchtet Ihr {%SPELL1} durch {%SPELL2} ersetzen? Oder diesen Zauberspruch verwerfen und die Zauberspruchforschung fortsetzen?",
 	"vcmi.spellResearch.research" : "Erforsche diesen Zauberspruch",
@@ -284,6 +286,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Schreibe zwei beliebige Städte in den Chat",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Screenshot hier gespeichert: %s",
 	"vcmi.client.errors.invalidMap" : "{Ungültige Karte oder Kampagne}\n\nDas Spiel konnte nicht gestartet werden! Die ausgewählte Karte oder Kampagne ist möglicherweise ungültig oder beschädigt. Grund:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod Ladefehler}\n\nKritische Probleme beim Laden von Mods gefunden! Das Spiel könnte nicht korrekt funktionieren oder abstürzen! Bitte aktualisiere oder deaktiviere folgende Mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
@@ -419,6 +422,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Global Rückschritt",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Global abbrechen",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Global Vollbild",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Global Screenshot",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Global Fokus verschieben",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Global Optionen",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Global zurück",
@@ -675,7 +679,7 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help" : "Geschwindigkeit des Kartenbildlaufs auf sofort einstellen",
 	"vcmi.adventureOptions.hideBackground.hover" : "Hintergrund ausblenden",
 	"vcmi.adventureOptions.hideBackground.help" : "{Hintergrund ausblenden}\n\nDie Abenteuerkarte im Hintergrund ausblenden und stattdessen eine Textur anzeigen.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Helden auf Minimap anz.",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Helden (Minimap) anz.",
 	"vcmi.adventureOptions.minimapShowHeroes.help" : "{Helden auf der Minimap anzeigen}\n\nZusätzliches Symbol für alle Helden auf der Minimap anzeigen, damit sie auf großen Karten besser zu sehen sind",
 
 	"vcmi.battleOptions.queueSizeLabel.hover" : "Reihenfolge der Kreaturen anzeigen",
@@ -817,11 +821,11 @@
 	"vcmi.heroWindow.openCommander.help"  : "Zeige Informationen über Kommandanten dieses Helden",
 	"vcmi.heroWindow.openBackpack.hover" : "Artefakt-Rucksack-Fenster öffnen",
 	"vcmi.heroWindow.openBackpack.help"  : "Öffnet ein Fenster, das die Verwaltung des Artefakt-Rucksacks erleichtert",
-	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Nach Kosten sortieren",
+	"vcmi.heroWindow.sortBackpackByCost.hover"  : "Kosten sortieren",
 	"vcmi.heroWindow.sortBackpackByCost.help"  : "{Nach Kosten sortieren}\n\nArtefakte im Rucksack nach Kosten sortieren.",
-	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Nach Slot sortieren",
+	"vcmi.heroWindow.sortBackpackBySlot.hover"  : "Slot sortieren",
 	"vcmi.heroWindow.sortBackpackBySlot.help"  : "{Nach Slot sortieren}\n\nArtefakte im Rucksack nach Ausrüstungsslot sortieren.",
-	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Nach Klasse sortieren",
+	"vcmi.heroWindow.sortBackpackByClass.hover"  : "Klasse sortieren",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Nach Klasse sortieren}\n\nArtefakte im Rucksack nach Artefaktklasse sortieren. Schatz, Klein, Groß, Relikt",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Ihr verfügt über alle Komponenten, die für die Fusion der %s benötigt werden. Möchtet Ihr die Verschmelzung durchführen? {Alle Komponenten werden bei der Fusion verbraucht.}",
 	"vcmi.heroWindow.lockedartifact.hover" : "Belegt durch %s",
@@ -845,6 +849,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Einrichtung...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team-Zuordnungen",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Straßentypen",
+	"vcmi.randomMapTab.template.minimalSize" : "Minimale Größe: %dx%d, Ebenen: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Maximale Größe: %dx%d, Ebenen: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Spielzug-Optionen",
 	"vcmi.optionsTab.turnOptions.help" : "Optionen zu Spielzug-Timer und simultanen Zügen",
@@ -1151,5 +1157,9 @@
 	"spellSchool.core.air.name" : "Luft",
 	"spellSchool.core.earth.name" : "Erde",
 	"spellSchool.core.fire.name" : "Feuer",
-	"spellSchool.core.water.name" : "Wasser"
+	"spellSchool.core.water.name" : "Wasser",
+
+	"mapLayer.core.surface.name" : "Oberfläche",
+	"mapLayer.core.underground.name" : "Untergrund",
+	"mapLayer.core.unknown.name" : "Unbekannt"
 }

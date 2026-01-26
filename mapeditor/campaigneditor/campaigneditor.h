@@ -16,6 +16,8 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 
 class CampaignState;
+class CMap;
+class EditorCallback;
 
 namespace Ui {
 class CampaignEditor;
@@ -26,12 +28,14 @@ class CampaignEditor : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CampaignEditor();
+	explicit CampaignEditor(EditorCallback * cb);
 	~CampaignEditor();
 
 	void redraw();
 
-	static void showCampaignEditor(QWidget *parent);
+	static void showCampaignEditor(QWidget *parent, EditorCallback * cb);
+	static void showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb);
+	static std::unique_ptr<CMap> tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario, EditorCallback * cb);
 
 private slots:
 	void on_actionOpen_triggered();
@@ -48,8 +52,11 @@ private:
 	void changed();
 	bool validate();
 	void saveCampaign();
+	void loadCampaignFile(const QString & filenameSelect);
 
 	void closeEvent(QCloseEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent *event) override;
+	void dropEvent(QDropEvent *event) override;
 
 	Ui::CampaignEditor *ui;
 
@@ -59,4 +66,5 @@ private:
 	bool unsaved = false;
 	CampaignScenarioID selectedScenario;
 	std::shared_ptr<CampaignState> campaignState;
+	EditorCallback * cb;
 };

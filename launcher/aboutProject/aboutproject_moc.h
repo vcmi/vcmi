@@ -47,6 +47,8 @@ private slots:
 
 	void on_pushButtonBugreport_clicked();
 
+	void on_pushButtonExportLogs_clicked();
+
 	void on_openConfigDir_clicked();
 
 private:

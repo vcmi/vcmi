@@ -29,6 +29,38 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
 
+VerticalPercentBar::VerticalPercentBar(const Point & position, const Point & size, ColorRGBA barColor, ColorRGBA barColorBackground, ColorRGBA borderColor)
+	: percent(1.0f)
+	, barColor(barColor)
+	, barColorBackground(barColorBackground)
+	, borderColor(borderColor)
+{
+	OBJECT_CONSTRUCTION;
+
+	pos += position;
+	pos.w = size.x;
+	pos.h = size.y;
+
+	back = std::make_shared<TransparentFilledRectangle>(Rect(0, 0, pos.w, pos.h), barColorBackground, borderColor, 1);
+	setFillColor(barColor);
+}
+
+void VerticalPercentBar::setPercent(int newPercent)
+{
+	percent = std::clamp(newPercent, 0, 100);
+	fill->pos.h = ((pos.h - 2) * percent) / 100;
+	fill->moveTo(Point(pos.x + 1, pos.y + pos.h - fill->pos.h - 1));
+	redraw();
+}
+
+void VerticalPercentBar::setFillColor(ColorRGBA fillColor)
+{
+	OBJECT_CONSTRUCTION;
+	
+	fill = std::make_shared<TransparentFilledRectangle>(Rect(1, 1, pos.w - 2, pos.h - 2), fillColor, borderColor, 0);
+	redraw();
+}
+
 TurnTimerWidget::TurnTimerWidget(const Point & position)
 	: TurnTimerWidget(position, PlayerColor::NEUTRAL)
 {}
@@ -76,9 +108,9 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	else
 	{
 		if (!timers.accumulatingTurnTimer && timers.baseTimer != 0)
-			pos.w = 130;
+			pos.w = 142;
 		else
-			pos.w = 70;
+			pos.w = 82;
 		
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
@@ -90,6 +122,9 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 
 			pos.h += bigFontHeight - 4;
 			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 2, FONT_BIG, ETextAlignment::BOTTOMCENTER, graphics->playerColors[player.getNum()], "");
+			constexpr int barWidth = 6;
+			playerBarsMovement[player] = std::make_shared<VerticalPercentBar>(Point(0, pos.h - bigFontHeight + 2), Point(barWidth, bigFontHeight - 6), Colors::GREEN, ColorRGBA(50, 50, 50), Colors::BRIGHT_YELLOW);
+			playerBarsBattle[player] = std::make_shared<VerticalPercentBar>(Point(pos.w - barWidth, pos.h - bigFontHeight + 2), Point(barWidth, bigFontHeight - 6), Colors::RED, ColorRGBA(50, 50, 50), Colors::BRIGHT_YELLOW);
 
 			updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
 		}
@@ -163,6 +198,20 @@ void TurnTimerWidget::updateTextLabel(PlayerColor player, const TurnTimerInfo & 
 			mainLabel->setText(msToString(timer.baseTimer) + "+" + msToString(timer.turnTimer));
 		else
 			mainLabel->setText(msToString(timer.baseTimer + timer.turnTimer));
+		playerBarsMovement[player]->setPercent(timer.remainingMovementPointsPercent);
+
+		ColorRGBA barColor = Colors::TRANSPARENCY;
+		if (timer.isBattle)
+			barColor = Colors::RED;
+		else if (timer.isTurnStart)
+			barColor = Colors::WHITE;
+		else if (timer.isTurnEnded)
+			barColor = Colors::GREEN;
+		else if (!timer.isActive)
+			barColor = Colors::YELLOW;
+
+		playerBarsBattle[player]->setFillColor(barColor);
+		playerBarsBattle[player]->setPercent(barColor != Colors::TRANSPARENCY ? 1.0f : 0.0f);
 	}
 }
 

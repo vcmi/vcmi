@@ -196,6 +196,8 @@ void CMinimap::showAll(Canvas & to)
 
 		if (settings["adventure"]["minimapShowHeroes"].Bool())
 		{
+			const auto & visibleHeroes = getVisibleHeroes();
+
 			for (const auto objectID : visibleHeroes)
 			{
 				const auto * object = GAME->interface()->cb->getObj(objectID);
@@ -227,7 +229,6 @@ void CMinimap::update()
 
 	OBJECT_CONSTRUCTION;
 	minimap = std::make_shared<CMinimapInstance>(Point(0,0), pos.dimensions(), level);
-	updateVisibleHeroes();
 	redraw();
 }
 
@@ -265,9 +266,9 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
-void CMinimap::updateVisibleHeroes()
+std::vector<ObjectInstanceID> CMinimap::getVisibleHeroes()
 {
-	visibleHeroes.clear();
+	std::vector<ObjectInstanceID> visibleHeroes;
 
 	for (const auto & player : PlayerColor::ALL_PLAYERS())
 	{
@@ -277,6 +278,8 @@ void CMinimap::updateVisibleHeroes()
 		for (const auto & hero : GAME->interface()->cb->getHeroes(player))
 			visibleHeroes.push_back(hero->id);
 	}
+
+	return visibleHeroes;
 }
 
 void CMinimap::updateTiles(const FowTilesType & positions)
@@ -287,6 +290,5 @@ void CMinimap::updateTiles(const FowTilesType & positions)
 			minimap->refreshTile(tile);
 	}
 
-	updateVisibleHeroes();
 	redraw();
 }

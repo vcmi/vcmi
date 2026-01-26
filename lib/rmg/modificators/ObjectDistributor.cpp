@@ -45,6 +45,11 @@ void ObjectDistributor::init()
 
 void ObjectDistributor::distributeLimitedObjects()
 {
+	// objects with these IDs need special placement / construction logic
+	std::set<MapObjectID> excludedIDs = {
+		Obj::CREATURE_GENERATOR1,
+		Obj::CREATURE_GENERATOR4,
+	};
 	auto zones = map.getZones();
 
 	for (auto primaryID : LIBRARY->objtypeh->knownObjects())
@@ -59,6 +64,12 @@ void ObjectDistributor::distributeLimitedObjects()
 				//Skip objects which don't have global per-map limit here 
 				if (rmgInfo.mapLimit)
 				{
+					if(excludedIDs.find(primaryID) != excludedIDs.end())
+					{
+						logGlobal->error("ObjectDistributor: Object %s does not support per-map limit", handler->getJsonKey());
+						continue;
+					}
+
 					//Count all zones where this object can be placed
 					std::vector<std::shared_ptr<Zone>> matchingZones;
 

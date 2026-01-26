@@ -31,7 +31,11 @@ ResourceSet::ResourceSet(const ResourceSet& rhs)
 
 void ResourceSet::resizeContainer()
 {
-	container.resize(std::max(static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size()), GameConstants::RESOURCE_QUANTITY));
+	container.resize(std::max({
+		static_cast<int>(container.size()),
+		static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size()),
+		GameConstants::RESOURCE_QUANTITY
+	}));
 }
 
 void ResourceSet::resolveFromJson(const JsonNode & node)
@@ -39,6 +43,7 @@ void ResourceSet::resolveFromJson(const JsonNode & node)
 	for(auto & n : node.Struct())
 		LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
 		{
+			container.resize(std::max(static_cast<int>(container.size()), identifier + 1)); // creature cost will access before resize
 			(*this)[identifier] = static_cast<int>(n.second.Float());
 		});
 }

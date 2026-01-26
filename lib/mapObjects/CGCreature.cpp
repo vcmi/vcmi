@@ -271,23 +271,23 @@ void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
 void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
-	switch(character)
+	switch(initialCharacter)
 	{
-	case 0:
-		character = -4;
-		break;
-	case 1:
-		character = gameRandomizer.getDefault().nextInt(1, 7);
-		break;
-	case 2:
-		character = gameRandomizer.getDefault().nextInt(1, 10);
-		break;
-	case 3:
-		character = gameRandomizer.getDefault().nextInt(4, 10);
-		break;
-	case 4:
-		character = 10;
-		break;
+		case Character::COMPLIANT:
+			agression = -4;
+			break;
+		case Character::FRIENDLY:
+			agression = gameRandomizer.getDefault().nextInt(1, 7);
+			break;
+		case Character::AGGRESSIVE:
+			agression = gameRandomizer.getDefault().nextInt(1, 10);
+			break;
+		case Character::HOSTILE:
+			agression = gameRandomizer.getDefault().nextInt(4, 10);
+			break;
+		case Character::SAVAGE:
+			agression = 10;
+			break;
 	}
 
 	stacks[SlotID(0)]->setType(getCreature());
@@ -382,15 +382,15 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
-	if(charisma < character)
+	if(charisma < agression)
 		return FIGHT;
 
 	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || initialCharacter == Character::COMPLIANT) && diplomacy + sympathy + 1 >= agression && !joinOnlyForMoney)
 			return JOIN_FOR_FREE;
 
-		if(diplomacy * 2 + sympathy + 1 >= character)
+		if(diplomacy * 2 + sympathy + 1 >= agression)
 		{
 			int32_t recruitCost = getCreature()->getRecruitCost(EGameResID::GOLD);
 			int32_t stackCount = getStackCount(SlotID(0));
@@ -400,7 +400,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//we are still here - creatures have not joined hero, flee or fight
 
-	if (charisma > character && !neverFlees)
+	if (charisma > agression && !neverFlees)
 		return FLEE;
 	else
 		return FIGHT;
@@ -573,16 +573,74 @@ bool CGCreature::containsUpgradedStack() const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=830557#focus
 
-	float a = 2992.911117f;
-	float b = 14174.264968f;
-	float c = 5325.181015f;
-	float d = 32788.727920f;
+	static constexpr float a = 2992.911117f;
+	static constexpr float b = 14174.264968f;
+	static constexpr float c = 5325.181015f;
+	static constexpr float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
-	return ((val % 32768) % 100) < 50;
+	switch (upgradedStackPresence)
+	{
+		case UpgradedStackPresence::ALWAYS:
+			return true;
+		case UpgradedStackPresence::NEVER:
+			return false;
+		default:
+		{
+			int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
+			return ((val % 32768) % 100) < 50;
+		}
+	}
 }
 
-int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
+int CGCreature::getNumberOfStacks(const CGHeroInstance * hero) const
+{
+	if(stacksCount > 0)
+		return stacksCount;
+
+	int split = 0;
+	if (hero->hasBonusOfType(BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT))
+		split = getNumberOfStacksFromBonus(hero);
+
+	if(split == 0)
+	 split = getDefaultNumberOfStacks(hero);
+
+	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total
+	vstd::amin(split, 7);   
+	vstd::amax(split, 1);
+	return split;
+}
+
+int CGCreature::getNumberOfStacksFromBonus(const CGHeroInstance * hero) const
+{
+	auto bonus = hero->getBonus(Selector::type()(BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT));
+	if(bonus->val > 0)
+		return bonus->val;
+
+	auto addInfo = bonus->additionalInfo;
+	if(addInfo.empty())
+		return 0;
+	const size_t maxEntries = std::min<size_t>(addInfo.size(), 7);
+	int total = 0;
+	for(size_t i = 0; i < maxEntries; i++)
+		total += std::max<int>(0, addInfo[i]);
+
+	if(total <= 0)
+		return 0;
+
+	ui32 R2 = hashByPosition();
+	int R4 = R2 % total + 1;
+
+	int acc = 0;
+	for(size_t i = 0; i < maxEntries; i++)
+	{
+		acc += std::max<int>(0, addInfo[i]);
+		if(R4 <= acc)
+			return static_cast<int>(i + 1);
+	}
+	return 0;
+}
+
+int CGCreature::getDefaultNumberOfStacks(const CGHeroInstance *hero) const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=1266094#focus
 
@@ -602,6 +660,25 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	else
 		split = 2;
 
+	ui32 R2 = hashByPosition();
+
+	int R4 = R2 % 100 + 1;
+
+	if(stacksCount == -3)
+		;
+	else if (stacksCount == -2 || R4 <= 20)
+		split -= 1;
+	else if(stacksCount == 0 || R4 >= 80)
+		split += 1;
+
+	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total
+	vstd::amin(split, 7); //can't have more than 7 stacks
+
+	return split;
+}
+
+ui32 CGCreature::hashByPosition() const
+{
 	ui32 a = 1550811371u;
 	ui32 b = 3359066809u;
 	ui32 c = 1943276003u;
@@ -610,17 +687,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	ui32 R1 = a * static_cast<ui32>(visitablePos().x) + b * static_cast<ui32>(visitablePos().y) + c * static_cast<ui32>(visitablePos().z) + d;
 	ui32 R2 = (R1 >> 16) & 0x7fff;
 
-	int R4 = R2 % 100 + 1;
-
-	if (R4 <= 20)
-		split -= 1;
-	else if (R4 >= 80)
-		split += 1;
-
-	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total
-	vstd::amin(split, 7); //can't have more than 7 stacks
-
-	return split;
+	return R2;
 }
 
 void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -655,12 +722,12 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 static const std::vector<std::string> CHARACTER_JSON  =
 {
-	"compliant", "friendly", "aggressive", "hostile", "savage"
+	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
 };
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeEnum("character", character, CHARACTER_JSON);
+	handler.serializeEnum("character", initialCharacter, CHARACTER_JSON);
 
 	if(handler.saving)
 	{

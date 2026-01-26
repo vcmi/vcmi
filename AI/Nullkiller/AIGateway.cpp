@@ -1672,8 +1672,8 @@ void AIGateway::requestSent(const CPackForServer * pack, int requestID)
 
 std::string AIGateway::getBattleAIName() const
 {
-	if(settings["server"]["enemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
-		return settings["server"]["enemyAI"].String();
+	if(settings["ai"]["combatEnemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
+		return settings["ai"]["combatEnemyAI"].String();
 	else
 		return "BattleAI";
 }

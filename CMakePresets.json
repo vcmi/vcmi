@@ -481,7 +481,7 @@
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
-            "configuration": "Release",
+            "configuration": "RelWithDebInfo",
             "targets": ["vcmiclient"],
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"

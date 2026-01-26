@@ -1136,16 +1136,6 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	auto selectCallback = [this, askID](int selection)
-	{
-		cb->sendQueryReply(selection, askID);
-	};
-
-	auto cancelCallback = [this, askID]()
-	{
-		cb->sendQueryReply(std::nullopt, askID);
-	};
-
 	const std::string localTitle = title.toString();
 	const std::string localDescription = description.toString();
 
@@ -1173,6 +1163,16 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 			images.push_back(image);
 		}
 	}
+
+	auto selectCallback = [this, askID, objectGuiOrdered](int selection)
+	{
+		cb->sendQueryReply(objectGuiOrdered[selection], askID);
+	};
+
+	auto cancelCallback = [this, askID]()
+	{
+		cb->sendQueryReply(std::nullopt, askID);
+	};
 
 	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
@@ -1799,8 +1799,8 @@ void CPlayerInterface::quickSaveGame()
 {
 	// notify player about saving
 	MetaString txt;
-	txt.appendTextID("vcmi.adventureMap.savingQuickSave");	
-	txt.replaceTextID(QUICKSAVE_PATH);
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
+	txt.replaceRawString(QUICKSAVE_PATH);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 	GAME->interface()->cb->save(QUICKSAVE_PATH);
 	hasQuickSave = true;
@@ -1871,7 +1871,7 @@ bool CPlayerInterface::capturedAllEvents()
 
 void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
 {
-	autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
+	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
 	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();

@@ -38,6 +38,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/callback/GameRandomizer.h"
 
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/entities/artifact/ArtifactUtils.h"
 #include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/artifact/CArtifactFittingSet.h"
@@ -163,7 +164,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelupSkillCandidates(*randomizer);
+	hlu.skills = randomizer->rollSecondarySkills(hero);
 
 	if (hlu.skills.size() == 0)
 	{
@@ -178,9 +179,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	else if (hlu.skills.size() > 1)
 	{
 		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
-		hlu.queryID = levelUpQuery->queryID;
 		queries->addQuery(levelUpQuery);
-		sendAndApply(hlu);
 		//level up will be called on query reply
 	}
 }
@@ -322,9 +321,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	else if (skillAmount > 1) //apply and ask for secondary skill
 	{
 		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
-		clu.queryID = commanderLevelUp->queryID;
 		queries->addQuery(commanderLevelUp);
-		sendAndApply(clu);
 	}
 }
 
@@ -633,6 +630,7 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
+	turnTimerHandler->onEndTurn(which);
 	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
@@ -1001,7 +999,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	};
 
-	if (gameInfo().getPlayerState(h->getOwner())->human && (guardian || objectToVisit) && movementMode == EMovementMode::STANDARD)
+	if (settings["general"]["saveBeforeVisit"].Bool() &&
+		gameInfo().getPlayerState(h->getOwner())->human &&
+	   (guardian || objectToVisit) &&
+	   movementMode == EMovementMode::STANDARD)
 		save("Saves/BeforeVisitSave");
 
 	if (!transit && embarking)
@@ -1153,6 +1154,9 @@ void CGameHandler::giveResource(PlayerColor player, GameResID which, int val)
 
 void CGameHandler::giveResources(PlayerColor player, const ResourceSet & resources)
 {
+	if (resources.empty())
+		return;
+
 	SetResources sr;
 	sr.mode = ChangeValueMode::RELATIVE;
 	sr.player = player;
@@ -1618,16 +1622,17 @@ void CGameHandler::save(const std::string & filename)
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
+		CSaveFile save;
 		gameState().saveGame(save);
 		logGlobal->info("Saving server state");
 		save.save(*this);
-		logGlobal->info("Game has been successfully saved!");
+		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
 	}
 	catch(std::exception &e)
 	{
 		logGlobal->error("Failed to save game: %s", e.what());
 	}
+	logGlobal->info("Game has been successfully saved!");
 }
 
 void CGameHandler::load(const StartInfo &info)
@@ -2309,34 +2314,33 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 	if(researchLimitExceeded && complain("Already researched today!"))
 		return false;
 
-	if(!accepted)
-	{
-		auto it = spells.begin() + t->spellsAtLevel(level, false);
-		std::rotate(it, it + 1, spells.end()); // move to end
-		setResearchedSpells(t, level, spells, accepted);
-		return true;
-	}
-
 	ResourceSet costBase;
 	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-	auto costExponent = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
+	double pastResearchesCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
+	double pastRerollsCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
+	double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, t->spellResearchAcceptedCounter);
+	double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, t->spellResearchPendingRerollsCounters[level]);
+	ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 	if(!gameInfo().getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
 
 	giveResources(t->getOwner(), -cost);
 
-	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	if(accepted)
+		std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+
 	auto it = spells.begin() + t->spellsAtLevel(level, false);
 	std::rotate(it, it + 1, spells.end()); // move to end
-
 	setResearchedSpells(t, level, spells, accepted);
 
-	if(t->getVisitingHero())
-		giveSpells(t, t->getVisitingHero());
-	if(t->getGarrisonHero())
-		giveSpells(t, t->getGarrisonHero());
+	if(accepted)
+	{
+		if(t->getVisitingHero())
+			giveSpells(t, t->getVisitingHero());
+		if(t->getGarrisonHero())
+			giveSpells(t, t->getGarrisonHero());
+	}
 
 	return true;
 }
@@ -3155,10 +3159,12 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))
 		COMPLAIN_RET("That skill is unavailable!");
 
-	if (gameInfo().getResource(h->tempOwner, EGameResID::GOLD) < GameConstants::SKILL_GOLD_COST)//TODO: remove hardcoded resource\summ?
+	int goldCost = gameInfo().getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
+
+	if (gameInfo().getResource(h->tempOwner, EGameResID::GOLD) < goldCost)
 		COMPLAIN_RET("You can't afford to buy this skill");
 
-	giveResource(h->tempOwner, EGameResID::GOLD, -GameConstants::SKILL_GOLD_COST);
+	giveResource(h->tempOwner, EGameResID::GOLD, -goldCost);
 
 	changeSecSkill(h, skill, 1, ChangeValueMode::ABSOLUTE);
 	return true;
@@ -3266,6 +3272,20 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, Pla
 	giveResource(r2, r1, val);
 
 	return true;
+}
+
+void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColor playerReceiver, const ResourceSet & resources)
+{
+	InfoWindow iw;
+	iw.player = playerReceiver;
+	iw.text = MetaString::createFromTextID("core.genrltxt.358");
+	iw.text.replaceName(player);
+	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	{
+		if(it->resVal > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+	}
+	sendAndApply(iw);
 }
 
 bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
@@ -3655,6 +3675,16 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 			checkVictoryLossConditions(playerColors);
+
+			bool hasAlivePlayers = false;
+			for (auto pc : playerColors)
+				if (gameInfo().getPlayerState(pc)->status == EPlayerStatus::INGAME)
+					hasAlivePlayers = true;
+
+			// everyone lost (e.g. time runs out)
+			if (!hasAlivePlayers)
+				gameServer().setState(EServerState::SHUTDOWN);
+
 			// give turn to next player(s)
 			// FIXME: this may cause multiple calls to resumeTurnOrder if multiple players lose in chain reaction
 			if(gameServer().getState() != EServerState::SHUTDOWN)
@@ -4339,9 +4369,8 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	auto cre = std::dynamic_pointer_cast<CGCreature>(createdObject);
 	assert(cre);
 	cre->notGrowingTeam = cre->neverFlees = false;
-	cre->character = 2;
+	cre->initialCharacter = CGCreature::Character::AGGRESSIVE;
 	cre->gainedArtifact = ArtifactID::NONE;
-	cre->identifier = -1;
 	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
 	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameInfo(), creature, unitSize));
 

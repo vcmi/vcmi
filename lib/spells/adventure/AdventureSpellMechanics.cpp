@@ -161,7 +161,6 @@ void AdventureSpellMechanics::giveBonuses(SpellCastEnvironment * env, const Adve
 		GiveBonus gb;
 		gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
 		gb.bonus = *b;
-		gb.bonus.duration = parameters.caster->getEnchantPower(owner);
 		env->apply(gb);
 	}
 

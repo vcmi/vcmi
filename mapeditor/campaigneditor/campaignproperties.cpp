@@ -38,7 +38,9 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
 	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
 	ui->lineEditLoadingBackground->setText(QString::fromStdString(campaignState->loadingBackground.getName()));
+	ui->checkBoxVideoRim->setChecked(campaignState->videoRim != ImagePath::builtin("NONE"));
 	ui->lineEditVideoRim->setText(QString::fromStdString(campaignState->videoRim.getName()));
+	ui->lineEditVideoRim->setEnabled(ui->checkBoxVideoRim->isChecked());
 	ui->lineEditIntroVideo->setText(QString::fromStdString(campaignState->introVideo.getName()));
 	ui->lineEditOutroVideo->setText(QString::fromStdString(campaignState->outroVideo.getName()));
 	
@@ -124,6 +126,12 @@ void CampaignProperties::on_pushButtonRegionRemove_clicked()
 	int rows = ui->tableWidgetRegions->rowCount() - 1;
 	ui->tableWidgetRegions->removeRow(rows);
 	ui->tableWidgetRegions->setRowCount(rows);
+}
+
+void CampaignProperties::on_checkBoxVideoRim_toggled(bool checked)
+{
+	ui->lineEditVideoRim->setEnabled(checked);
+	ui->lineEditVideoRim->setText(checked ? "" : "NONE");
 }
 
 void CampaignProperties::loadRegion()

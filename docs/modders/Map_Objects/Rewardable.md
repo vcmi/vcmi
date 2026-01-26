@@ -44,6 +44,10 @@ Rewardable object is defined similarly to other objects, with key difference bei
     // see Appear Chance definition section
     "appearChance" : {
     },
+    
+    // If specified, then when loading from h3m map object may load preconfigured set of reward instead of randomizing them via appearChance
+    // Only supported for some objects, such as Scholar (SoD), and several other added in hota map format
+    "mapDice" : 0,
 
     // Conditions to receive reward. Hero can only see this reward if he fulfills limiter
     "limiter" : {
@@ -198,7 +202,9 @@ Possible variable types:
 
 - number: can be used in any place that expects a number
 - artifact
+- creature
 - spell
+- resource
 - primarySkill
 - secondarySkill
 
@@ -389,12 +395,12 @@ Keep in mind, that all randomization is performed on map load and on object rese
 "primary": [
     {
         // Specific primary skill
-        "type" : "defence",
+		"type" : "defence",
         "amount" : 1
     },
     {
         // Primary skill will be selected randomly from the list
-        "anyOf" : ["attack", "defence],
+		"anyOf" : ["attack", "defence"],
         "min" : 1,
         "max" : 3
     },
@@ -783,3 +789,110 @@ List of supported slots names:
 ```json
 "heroClasses" : [ "battlemage" ]
 ```
+
+## Variables for objects preconfigured on h3m map
+
+Some of map objects can be configured on map, with more objects available for configuration in HotA map format. Access to this configuration from rewardable object config is done via variables. If object is customized, following variables will be present in object config.
+
+All creature banks:
+
+- active preset of bank is stored in map dice (0 = weakest preset, 3 = strongest preset)
+
+Scholar:
+
+- map dice 0: Scholar grants spell from `gainedSpell` variable
+- map dice 1: Scholar grants secondary skill from `gainedSkill` variable
+- map dice 2: Scholar grants primary skill from `gainedStat` variable
+
+Witch Hut:
+
+- Grants secondary skill from `gainedSkill` variable
+
+Flotsam:
+
+- map dice 0: Nothing
+- map dice 1: 5 wood
+- map dice 2: 5 wood, 200 gold
+- map dice 3: 10 wood, 500 gold
+
+Tree of Knowledge:
+
+- map dice 0: Free levelup
+- map dice 1: Levelup for 2000 gold
+- map dice 2: Levelup for 10 gems
+
+Pyramid:
+
+- Grants spell from `gainedSpell` variable
+
+Treasure Chest:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: 1500 Gold or 1000 Experience
+- map dice 2: 2000 Gold or 1500 Experience
+- map dice 3: Artifact from `gainedArtifact` variable
+
+Sea Chest:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: 1500 Gold or 1000 Experience
+- map dice 2: Artifact from `gainedArtifact` variable
+
+Corpse:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: Artifact from `gainedArtifact` variable
+
+Warrior Tomb:
+
+- map dice 0: Artifact from `gainedArtifact` variable
+
+Shipwrech Survivor:
+
+- map dice 0: Artifact from `gainedArtifact` variable
+
+Wagon:
+
+- map dice 0: grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
+- map dice 1: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 2: Nothing
+
+Lean To:
+
+- grants `gainedAmount` of resources of type `gainedResource`
+
+Campfire:
+
+- grants `gainedAmountA` of resources of type `gainedResourceA` and `gainedAmountB` of resources of type `gainedResourceB`
+
+Trapper Lodge (HotA):
+
+- map dice 0: grants `gainedGoldAmount` of gold
+- map dice 1: grants `gainedCreatureAmount` of creatures of type `gainedCreature`
+
+Ancient Lamp (HotA):
+
+- amount of available creatures is stored in `gainedAmount` variable
+
+Grave (HotA)
+
+- grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
+
+Jetsam (HotA)
+
+- map dice 0: Nothing
+- map dice 1: 5 ore
+- map dice 2: 5 ore, 200 gold
+- map dice 3: 10 ore, 500 gold
+
+Vial of Mana (HotA)
+
+- map dice 0: 30 spell points
+- map dice 1: 40 spell points
+- map dice 2: 50 spell points
+- map dice 3: 60 spell points
+
+Sea Barrel (HotA):
+
+- map dice 0: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 1: Nothing

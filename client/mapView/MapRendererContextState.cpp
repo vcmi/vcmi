@@ -25,7 +25,7 @@
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
-	return GAME->map().compareObjectBlitOrder(GAME->map().getMap()->getObject(left), GAME->map().getMap()->getObject(right));
+	return CMap::compareObjectBlitOrder(GAME->map().getMap()->getObject(left), GAME->map().getMap()->getObject(right));
 }
 
 MapRendererContextState::MapRendererContextState()
@@ -77,9 +77,8 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 			if(GAME->interface()->cb->isInTheMap(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
-
-				container.push_back(object->id);
-				boost::range::sort(container, compareObjectBlitOrder);
+				auto position = std::upper_bound(container.begin(), container.end(), object->id, compareObjectBlitOrder);
+				container.insert(position, object->id);
 			}
 		}
 	}

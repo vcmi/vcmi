@@ -16,8 +16,7 @@
 
 namespace
 {
-UIInterfaceOrientationMask swizzled_supportedInterfaceOrientationsForWindow
-	(id __unused self, SEL __unused _cmd, UIApplication * __unused application, UIWindow * __unused _Nullable window)
+UIInterfaceOrientationMask swizzled_supportedInterfaceOrientations(id __unused self, SEL __unused _cmd)
 {
 	if(UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)
 		return UIInterfaceOrientationMaskAll;
@@ -29,12 +28,17 @@ namespace launcher
 {
 void prepareIos()
 {
-	auto sel = @selector(application:supportedInterfaceOrientationsForWindow:);
-	auto methodDesc = protocol_getMethodDescription(@protocol(UIApplicationDelegate), sel, NO, YES);
-	auto appDelegateClass = object_getClass(UIApplication.sharedApplication.delegate);
-	[[maybe_unused]] auto existingImp = class_replaceMethod(
-		appDelegateClass, sel, (IMP)swizzled_supportedInterfaceOrientationsForWindow, methodDesc.types);
-	// also check implementation in qtbase - src/plugins/platforms/ios/qiosapplicationdelegate.mm
-	NSCAssert(existingImp == nullptr, @"original app delegate has this method, don't ignore it");
+	id __block observer = [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
+		[NSNotificationCenter.defaultCenter removeObserver:observer];
+
+		UIViewController * rootVc = [notification.object rootViewController];
+		auto sel = @selector(supportedInterfaceOrientations);
+		auto rootVcClass = object_getClass(rootVc);
+		auto methodDesc = method_getDescription(class_getInstanceMethod(rootVcClass, sel));
+		class_replaceMethod(rootVcClass, sel, (IMP)swizzled_supportedInterfaceOrientations, methodDesc->types);
+
+		if(@available(iOS 16.0, *))
+			[rootVc setNeedsUpdateOfSupportedInterfaceOrientations];
+	}];
 }
 }

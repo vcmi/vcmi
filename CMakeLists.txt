@@ -5,10 +5,6 @@ cmake_minimum_required(VERSION 3.16.0)
 
 project(VCMI)
 # TODO
-# Vckpg:
-# - Improve install code once there is better way to deploy DLLs and Qt plugins
-#
-# Other:
 # - Cleanup remove_directory copy_directory if performance will be a problem.
 # We can use some macro over copy_if_different since it's only work for single file.
 # - Find a way to move add_custom_command for assets deploy out of "lib/CMakeLists.txt"

@@ -23,6 +23,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
 VCMI_LIB_NAMESPACE_END
 
+class VerticalPercentBar : public CIntObject
+{
+	std::shared_ptr<TransparentFilledRectangle> back;
+	std::shared_ptr<TransparentFilledRectangle> fill;
+	int percent;
+	ColorRGBA barColor;
+	ColorRGBA barColorBackground;
+	ColorRGBA borderColor;
+public:
+	void setPercent(int newPercent);
+	void setFillColor(ColorRGBA fillColor);
+	VerticalPercentBar(const Point & position, const Point & size, ColorRGBA barColor, ColorRGBA barColorBackground, ColorRGBA borderColor);
+};
+
 class TurnTimerWidget : public CIntObject
 {
 	int lastSoundCheckSeconds;
@@ -33,6 +47,8 @@ class TurnTimerWidget : public CIntObject
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsMain;
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsBattle;
 	std::map<PlayerColor, std::shared_ptr<CLabel>> playerLabelsUnit;
+	std::map<PlayerColor, std::shared_ptr<VerticalPercentBar>> playerBarsMovement;
+	std::map<PlayerColor, std::shared_ptr<VerticalPercentBar>> playerBarsBattle;
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<TransparentFilledRectangle> backgroundBorder;
 

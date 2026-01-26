@@ -122,6 +122,9 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 	static const std::set<EResType> initialTypes(initArray, initArray + std::size(initArray));
 	std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
 
+	if(!boost::filesystem::exists(baseDirectory))
+		return fileList;
+
 	if(!boost::filesystem::is_directory(baseDirectory))
 		return fileList;
 

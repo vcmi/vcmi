@@ -72,6 +72,13 @@ class InputHandler
 	std::unique_ptr<InputSourceText> textHandler;
 	std::unique_ptr<InputSourceGameController> gameControllerHandler;
 
+	// Cached power state updated asynchronously via TBB
+	std::atomic<int> cachedPowerStateMode;
+	std::atomic<int> cachedPowerStateSeconds;
+	std::atomic<int> cachedPowerStatePercent;
+	uint32_t powerStateFrameCounter;
+	void updatePowerState();
+
 public:
 	InputHandler();
 	~InputHandler();

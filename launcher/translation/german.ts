@@ -86,6 +86,51 @@
         <source>Report a bug</source>
         <translation>Melde einen Fehler</translation>
     </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
+        <source>Export logs</source>
+        <translation>Exportiere Log</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Save logs</source>
+        <translation>Speichere Log</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
+        <source>Zip archives (*.zip)</source>
+        <translation>Zip-Archive (*.zip)</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
+        <source>Failed to create archive: %1</source>
+        <translation>Erstellen des Archivs fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>Send logs</source>
+        <translation>Log senden</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
+        <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
+        <translation>Das Archiv wird über eine andere Anwendung gesendet. Teile die Protokolle z. B. über Discord mit den Entwicklern.</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Success</source>
+        <translation>Erfolg</translation>
+    </message>
+    <message>
+        <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
+        <source>Logs saved to %1, please send them to the developers</source>
+        <translation>Log-Dateien gespeichert unter %1, bitte an die Entwickler senden</translation>
+    </message>
 </context>
 <context>
     <name>CModListView</name>
@@ -126,7 +171,7 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
@@ -142,31 +187,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="526"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Uninstall</source>
         <translation>Deinstallieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="516"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Enable</source>
         <translation>Aktivieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="511"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Disable</source>
         <translation>Deaktivieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="531"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Update</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="521"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Install</source>
         <translation>Installieren</translation>
     </message>
@@ -186,151 +231,161 @@
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translation>Mod-Name</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="321"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
         <source>Installed version</source>
         <translation>Installierte Version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Latest version</source>
         <translation>Letzte Version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
         <source>Size</source>
         <translation>Größe</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Download size</source>
         <translation>Downloadgröße</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
         <source>Authors</source>
         <translation>Autoren</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="341"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>License</source>
         <translation>Lizenz</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Contact</source>
         <translation>Kontakt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Compatibility</source>
         <translation>Kompatibilität</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Required VCMI version</source>
         <translation>Benötigte VCMI Version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Supported VCMI version</source>
         <translation>Unterstützte VCMI Version</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>please upgrade mod</source>
         <translation>bitte Mod upgraden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="190"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="933"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
         <source>mods repository index</source>
         <translation>Mod Verzeichnis Index</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <source>Git-Repository</source>
+        <translation>Git-Repository</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <source>GitHub-Stars</source>
+        <translation>GitHub-Sterne</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>or newer</source>
         <translation>oder neuer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>Supported VCMI versions</source>
         <translation>Unterstützte VCMI Versionen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
         <source>Languages</source>
         <translation>Sprachen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
         <source>Required mods</source>
         <translation>Benötigte Mods</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Conflicting mods</source>
         <translation>Mods mit Konflikt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translation>Diese Mod kann nicht aktiviert werden, da sie in eine andere Sprache übersetzt wird.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translation>Diese Mod kann nicht aktiviert werden, da die folgenden Abhängigkeiten nicht vorhanden sind</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translation>Diese Mod kann nicht installiert werden, da die folgenden Abhängigkeiten nicht vorhanden sind</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translation>Dies ist eine Submod und kann nicht separat von der Hauptmod installiert oder deinstalliert werden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Notes</source>
         <translation>Anmerkungen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
         <source>Context menu</source>
         <translation>Kontextmenü</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="536"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Open directory</source>
         <translation>Ordner öffnen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open repository</source>
         <translation>Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="794"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Downloade %1. %p% (%v MB von %m MB) abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
         <source>Download failed</source>
         <translation>Download fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="821"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -343,7 +398,7 @@ Es sind Fehler aufgetreten:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="822"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -352,42 +407,42 @@ Install successfully downloaded?</source>
 Installation erfolgreich heruntergeladen?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="981"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Installation der Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1064"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
         <source>Installing mod %1</source>
         <translation>Installation von Mod %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
         <source>Map exists</source>
         <translation>Karte vorhanden</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Karte &apos;%1&apos; existiert bereits. Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
         <source>Yes to All</source>
         <translation>Ja für alle</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
         <source>No to All</source>
         <translation>Nein für alle</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>Import complete</source>
         <translation>Import abgeschlossen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n Karte erfolgreich importiert.</numerusform>
@@ -400,41 +455,41 @@ Installation erfolgreich heruntergeladen?</translation>
         <translation type="obsolete">%1 Karte(n) erfolgreich importiert.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Die folgenden Karten konnten nicht importiert werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1261"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
         <source>Operation failed</source>
         <translation>Operation fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1262"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
         <source>Encountered errors:
 </source>
         <translation>Aufgetretene Fehler:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>screenshots</source>
         <translation>Screenshots</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1304"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
         <source>Screenshot %1</source>
         <translation>Screenshot %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="313"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
         <source>Mod is incompatible</source>
         <translation>Mod ist inkompatibel</translation>
     </message>
@@ -987,7 +1042,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="140"/>
+        <location filename="../modManager/modstate.cpp" line="145"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1590,14 +1645,19 @@ Bin (%n Bytes):
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="195"/>
         <source>Type</source>
         <translation>Typ</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
+        <source>⭐</source>
+        <translation>⭐</translation>
     </message>
 </context>
 <context>

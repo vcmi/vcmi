@@ -55,7 +55,7 @@ void PackRollbackGeneratorVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 	const auto * artifact = srcArmy->getStack(pack.srcSlot).getSlot(ArtifactPosition::CREATURE_SLOT);
 
 	if (srcArmy->getStack(pack.srcSlot).getTotalExperience() != 0 ||
-	   dstArmy->getStack(pack.srcSlot).getTotalExperience() != 0 ||
+	   (dstArmy->hasStackAtSlot(pack.dstSlot) && dstArmy->getStack(pack.dstSlot).getTotalExperience() != 0) ||
 	   (artifact && artifact->artifactID.hasValue()))
 	{
 		// TODO: rollback creature artifacts & stack experience

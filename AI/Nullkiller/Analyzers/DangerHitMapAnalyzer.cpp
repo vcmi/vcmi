@@ -216,7 +216,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			
 			townHero->id = town->id;
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
-			townHero->initHero(randomizer, static_cast<HeroTypeID>(0));
+			townHero->initHero(randomizer, static_cast<HeroTypeID>(0), true);
 			townHero->pos = townHero->convertFromVisitablePos(visitablePos);
 			townHero->initObj(randomizer);
 			

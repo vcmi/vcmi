@@ -260,6 +260,9 @@ void CursorHandler::updateAnimatedCursor()
 
 void CursorHandler::render()
 {
+	if(!showing)
+		return;
+
 	cursor->render();
 }
 

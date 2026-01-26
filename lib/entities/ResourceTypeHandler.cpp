@@ -69,15 +69,16 @@ const std::vector<std::string> & ResourceTypeHandler::getTypeNames() const
 	return types;
 }
 
-std::vector<GameResID> ResourceTypeHandler::getAllObjects() const
+void ResourceTypeHandler::afterLoadFinalization()
 {
-	std::vector<GameResID> result;
-
 	for (const auto & resource : objects)
 		if(resource)
-			result.push_back(resource->getId());
+			allObjects.push_back(resource->getId());
+}
 
-	return result;
+const std::vector<GameResID> & ResourceTypeHandler::getAllObjects() const
+{
+	return allObjects;
 }
 
 VCMI_LIB_NAMESPACE_END

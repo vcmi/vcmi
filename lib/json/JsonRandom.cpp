@@ -308,15 +308,21 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 
 	TResources JsonRandom::loadResource(const JsonNode & value, const Variables & variables)
 	{
-		auto defaultResources = LIBRARY->resourceTypeHandler->getAllObjects();
-
-		std::set<GameResID> potentialPicks = filterKeys(value, std::set<GameResID>(defaultResources.begin(), defaultResources.end()), variables);
-		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+		GameResID resourceID = loadResourceType(value, variables);
 		si32 resourceAmount = loadValue(value, variables, 0);
 
 		TResources ret;
 		ret[resourceID] = resourceAmount;
 		return ret;
+	}
+
+	GameResID JsonRandom::loadResourceType(const JsonNode & value, const Variables & variables)
+	{
+		auto defaultResources = LIBRARY->resourceTypeHandler->getAllObjects();
+
+		std::set<GameResID> potentialPicks = filterKeys(value, std::set<GameResID>(defaultResources.begin(), defaultResources.end()), variables);
+		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
+		return resourceID;
 	}
 
 	PrimarySkill JsonRandom::loadPrimary(const JsonNode & value, const Variables & variables)
@@ -367,7 +373,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 	{
 		std::set<SecondarySkill> defaultSkills;
 		for(const auto & skill : LIBRARY->skillh->objects)
-			if (cb->isAllowed(skill->getId()))
+			if (cb->isAllowed(skill->getId()) && !skill->special)
 				defaultSkills.insert(skill->getId());
 
 		std::set<SecondarySkill> potentialPicks = filterKeys(value, defaultSkills, variables);
@@ -389,7 +395,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		{
 			std::set<SecondarySkill> defaultSkills;
 			for(const auto & skill : LIBRARY->skillh->objects)
-				if (cb->isAllowed(skill->getId()))
+				if (cb->isAllowed(skill->getId()) && !skill->special)
 					defaultSkills.insert(skill->getId());
 
 			for(const auto & element : value.Vector())
@@ -489,7 +495,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		std::vector<HeroTypeID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(LIBRARY->heroTypes()->getByIndex(LIBRARY->identifiers()->getIdentifier("hero", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroTypes()->getByIndex(LIBRARY->identifiers()->getIdentifier("hero", entry).value())->getId());
 		}
 		return ret;
 	}
@@ -499,15 +505,13 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		std::vector<HeroClassID> ret;
 		for(auto & entry : value.Vector())
 		{
-			ret.push_back(LIBRARY->heroClasses()->getByIndex(LIBRARY->identifiers()->getIdentifier("heroClass", entry.String()).value())->getId());
+			ret.push_back(LIBRARY->heroClasses()->getByIndex(LIBRARY->identifiers()->getIdentifier("heroClass", entry).value())->getId());
 		}
 		return ret;
 	}
 
-	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, const Variables & variables)
+	CreatureID JsonRandom::loadCreatureType(const JsonNode & value, const Variables & variables)
 	{
-		CStackBasicDescriptor stack;
-
 		std::set<CreatureID> defaultCreatures;
 		for(const auto & creature : LIBRARY->creh->objects)
 			if (!creature->special)
@@ -524,6 +528,14 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		if (!pickedCreature.hasValue())
 			throw JsonRandomizationException("Invalid creature picked!", value);
 
+		return pickedCreature;
+	}
+
+	CStackBasicDescriptor JsonRandom::loadCreature(const JsonNode & value, const Variables & variables)
+	{
+		CStackBasicDescriptor stack;
+
+		CreatureID pickedCreature = loadCreatureType(value, variables);
 		stack.setType(pickedCreature.toCreature());
 		stack.setCount(loadValue(value, variables));
 		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())

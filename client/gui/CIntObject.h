@@ -125,6 +125,8 @@ public:
 	void addChild(CIntObject *child, bool adjustPosition = false);
 	void removeChild(CIntObject *child, bool adjustPosition = false);
 
+protected:
+	Point adjustNegativeCoordinate(int x, int y);
 };
 
 /// Class for binding keys to left mouse button clicks

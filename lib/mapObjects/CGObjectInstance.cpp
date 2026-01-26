@@ -20,6 +20,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
+#include "../CRandomGenerator.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMap.h"
@@ -393,6 +395,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 
 		handler.serializeString("type", ourTypeName);
 		handler.serializeString("subtype", ourSubtypeName);
+		handler.serializeString("instanceName", instanceName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);
@@ -420,7 +423,13 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 
 BattleField CGObjectInstance::getBattlefield() const
 {
-	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+	auto currentLayer = cb->gameState().getMap().mapLayers.at(pos.z);
+	const auto & objectBattlefields = LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields();
+
+	if (objectBattlefields.empty())
+		return BattleField::NONE;
+
+	return BattleFieldHandler::selectRandomBattlefield(objectBattlefields, currentLayer, CRandomGenerator::getDefault());
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const

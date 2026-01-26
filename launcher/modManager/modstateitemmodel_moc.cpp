@@ -78,6 +78,9 @@ QVariant ModStateItemModel::getValue(const ModState & mod, int field) const
 		case ModFields::TYPE:
 			return modTypeName(mod.getType());
 
+		case ModFields::STARS:
+			return mod.getGithubStars() == -1 ? QVariant("") : mod.getGithubStars();
+
 		default:
 			return QVariant();
 	}
@@ -190,10 +193,19 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // star icon
 	};
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section]);
+	if(orientation == Qt::Horizontal)
+	{
+		if(role == Qt::DecorationRole)
+		{
+			if(section == ModFields::STARS)
+				return QIcon(":/icons/star.png");
+		}
+		else if(role == Qt::DisplayRole)
+			return QCoreApplication::translate("ModFields", header[section]);
+	}
 	return QVariant();
 }
 
@@ -322,6 +334,32 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
 {
+	if(source_left.column() == ModFields::STARS)
+	{
+		// Compare STARS numerically (descending)
+		QVariant lData = sourceModel()->data(source_left);
+		QVariant rData = sourceModel()->data(source_right);
+
+		bool lIsInt = false;
+		bool rIsInt = false;
+
+		int lValue = lData.toInt(&lIsInt);
+		int rValue = rData.toInt(&rIsInt);
+
+		if (!lIsInt)
+			lValue = -1;
+			
+		if (!rIsInt)
+			rValue = -1;
+		
+		return lValue > rValue;
+
+		// Compare NAME (ascending)
+		const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
+		const QString rightName = sourceModel()->data(source_right.siblingAtColumn(ModFields::NAME)).toString();
+		if (leftName != rightName)
+			return leftName < rightName;
+	}
 	if(source_left.column() != ModFields::STATUS_ENABLED)
 		return QSortFilterProxyModel::lessThan(source_left, source_right);
 

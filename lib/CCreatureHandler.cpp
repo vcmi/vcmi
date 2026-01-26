@@ -179,7 +179,7 @@ int32_t CCreature::getRecruitCost(GameResID resIndex) const
 		return 0;
 }
 
-TResources CCreature::getFullRecruitCost() const
+const TResources & CCreature::getFullRecruitCost() const
 {
 	return cost;
 }

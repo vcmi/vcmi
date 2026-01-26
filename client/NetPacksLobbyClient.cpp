@@ -217,7 +217,10 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getIntroVideo(), 1))
 		{
 			ENGINE->music().stopMusic();
-			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim(), false, 1, [bonusSel](bool skipped){
+			auto rim = handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim();
+			if(handler.si->campState->getVideoRim() == ImagePath::builtin("NONE"))
+				rim = ImagePath();
+			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), rim, false, 1, [bonusSel](bool skipped){
 				if(!GAME->server().si->campState->getMusic().empty())
 					ENGINE->music().playMusic(GAME->server().si->campState->getMusic(), true, false);
 				ENGINE->windows().pushWindow(bonusSel);

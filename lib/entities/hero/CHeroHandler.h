@@ -25,6 +25,16 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
 	std::vector<TExpType> expPerLevel;
 
+	struct SpecialtyToGenerate
+	{
+		HeroTypeID hero;
+		SecondarySkill skill;
+		int stepSize;
+	};
+
+	/// Helper field to generate specialties for heroes after loading is complete
+	mutable std::vector<SpecialtyToGenerate> skillSpecialtiesToGenerate;
+
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
@@ -45,6 +55,7 @@ public:
 	void beforeValidate(JsonNode & object) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void afterLoadFinalization() override;
 
 	CHeroHandler();
 	~CHeroHandler();

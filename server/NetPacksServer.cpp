@@ -306,9 +306,18 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
+	{
+		ResourceSet resources;
 		for(int i = 0; i < pack.r1.size(); ++i)
+		{
 			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
+			resources[pack.r1[i].as<GameResID>()] = pack.val[i];
+		}
+		
+		if(pack.r1.size())
+			gh.informPlayerAboutSentResources(pack.player, pack.r2[0].as<PlayerColor>(), resources);
 		break;
+	}
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());

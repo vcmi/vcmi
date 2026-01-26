@@ -24,6 +24,8 @@ class MapProxy
 public:
 	MapProxy(RmgMap & map);
 
+	CArtifactInstance * createScroll(const SpellID & spellId);
+
 	void insertObject(std::shared_ptr<CGObjectInstance> obj);
 	void insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects);
 	void removeObject(CGObjectInstance* obj);

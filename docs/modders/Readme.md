@@ -33,7 +33,6 @@ Minimalistic version of this file:
 ```json
 {
     "name" : "My test mod",
-    "description" : "My test mod that add a lot of useless stuff into the game",
     "version" : "1.00",
 	"modType" : "Graphical",	
 	"contact" : "http://www.contact.example.com"
@@ -41,6 +40,38 @@ Minimalistic version of this file:
 ```
 
 See [Mod file Format](Mod_File_Format.md) for its full description.
+
+## Creating mod description
+
+For convenience, mod descriptions are located in separate file named `description.md`. This file uses Markdown formatting and allows modder to add mod description of arbitrary length as well as to provide translations.
+
+If mod provides description in both `mod.json` and in `description.md`, Markdown version will take priority and will be used instead of version in `mod.json` for languages that are present in `description.md`
+
+Please do NOT include mod name as title of `description.md`. Mod name will be added automatically on top of your mod description in Launcher
+
+Majority of markdown format is allowed in description.md. Exceptions are:
+
+- top-level headings are reserved for translations and must use form `#(one space)(language ID)`, for example `# english`. Language ID is lower-case name of language in English.
+- embedded images are currently not supported.
+
+Note that due to technical details, if you have added `description.md` for mod that previously did not have one, it will only show up in Launcher for players without your mod on next automatic daily update, and not immediately.
+
+Expected format of `description.md` is:
+
+```md
+# english
+
+(description in English)
+
+# polish
+
+(description in Polish)
+
+# czech
+
+(description in Czech)
+
+```
 
 ## Creation of new objects
 

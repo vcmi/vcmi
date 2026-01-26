@@ -462,8 +462,11 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
-		ColorPutter<4>::PutColor(p, r,g,b,a);
+		if (x >= 0 && y >= 0 && x < sur->w && y < sur->h)
+		{
+			uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
+			ColorPutter<4>::PutColor(p, r,g,b,a);
+		}
 	}
 }
 
@@ -480,8 +483,11 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
-		ColorPutter<4>::PutColor(p, r,g,b,a);
+		if (x >= 0 && y >= 0 && x < sur->w && y < sur->h)
+		{
+			uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
+			ColorPutter<4>::PutColor(p, r,g,b,a);
+		}
 	}
 }
 

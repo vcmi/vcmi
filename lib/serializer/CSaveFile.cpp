@@ -12,23 +12,32 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSaveFile::CSaveFile(const boost::filesystem::path &fname)
+CSaveFile::CSaveFile()
 	: serializer(this)
-	, sfile(fname.c_str(), std::ios::out | std::ios::binary)
 {
+	saveData.reserve(128*1024);
+	static const char * SAVE_HEADER = "VCMI";
+
+	write(reinterpret_cast<const std::byte*>(SAVE_HEADER), 4); //write magic identifier
+	serializer & ESerializationVersion::CURRENT; //write format version
+	write(reinterpret_cast<const std::byte*>(SAVEGAME_MAGIC.c_str()), SAVEGAME_MAGIC.length());
+}
+
+void CSaveFile::write(const boost::filesystem::path & fileName)
+{
+	std::ofstream sfile(fileName.c_str(), std::ios::out | std::ios::binary);
+
 	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 	if(!sfile)
-		throw std::runtime_error("Error: cannot open file '" + fname.string() + "' for writing!");
+		throw std::runtime_error("Error: cannot open file '" + fileName.string() + "' for writing!");
 
-	sfile.write("VCMI", 4); //write magic identifier
-	serializer & ESerializationVersion::CURRENT; //write format version
-	sfile.write(SAVEGAME_MAGIC.c_str(), SAVEGAME_MAGIC.length());
+	sfile.write(reinterpret_cast<const char *>(saveData.data()), saveData.size());
 }
 
 int CSaveFile::write(const std::byte * data, unsigned size)
 {
-	sfile.write(reinterpret_cast<const char *>(data), size);
+	saveData.insert(saveData.end(), data, data + size);
 	return size;
 }
 

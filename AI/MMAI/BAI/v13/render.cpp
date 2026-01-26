@@ -98,7 +98,7 @@ namespace
 
 	std::array<const CStack *, 7> getAllStacksForSide(const Context & ctx, bool side)
 	{
-		return side ? ctx.l_CStacks : ctx.r_CStacks;
+		return side ? ctx.r_CStacks : ctx.l_CStacks;
 	}
 
 	// Return (attr == N/A), but after performing some checks

@@ -39,6 +39,7 @@
 				"rewards" : [
 					{
 						"appearChance" : { "min" : 0, "max" : 33 },
+						"mapDice" : 0,
 						"message" : 115,
 						"limiter" : {
 							"canLearnSpells" : [
@@ -52,6 +53,7 @@
 					},
 					{
 						"appearChance" : { "min" : 33, "max" : 66 },
+						"mapDice" : 1,
 						"message" : 115,
 						"limiter" : {
 							// Hero does not have this skill at expert

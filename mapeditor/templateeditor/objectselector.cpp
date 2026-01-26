@@ -135,7 +135,7 @@ void ObjectSelector::fillBannedObjectCategories()
 	for (int row = 0; row < obj.bannedObjectCategories.size(); ++row)
 		addRow(obj.bannedObjectCategories[row], row);
 
-	auto addButton = new QPushButton("Add");
+	auto addButton = new QPushButton(tr("Add"));
 	ui->tableWidgetBannedObjectCategories->setCellWidget(ui->tableWidgetBannedObjectCategories->rowCount() - 1, 1, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetBannedObjectCategories->insertRow(ui->tableWidgetBannedObjectCategories->rowCount() - 1);
@@ -152,8 +152,7 @@ void ObjectSelector::getBannedObjectCategories()
 	for (int row = 0; row < ui->tableWidgetBannedObjectCategories->rowCount() - 1; ++row)
 	{
 		auto val = static_cast<ObjectConfig::EObjectCategory>(static_cast<QComboBox *>(ui->tableWidgetBannedObjectCategories->cellWidget(row, 0))->currentData().toInt());
-		if(vstd::contains(obj.bannedObjectCategories, val))
-			obj.bannedObjectCategories.push_back(val);
+		obj.bannedObjectCategories.push_back(val);
 	}
 }
 
@@ -196,7 +195,7 @@ void ObjectSelector::fillBannedObjects()
 	for (int row = 0; row < obj.bannedObjects.size(); ++row)
 		addRow(obj.bannedObjects[row], row);
 
-	auto addButton = new QPushButton("Add");
+	auto addButton = new QPushButton(tr("Add"));
 	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 1, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetBannedObjects->insertRow(ui->tableWidgetBannedObjects->rowCount() - 1);
@@ -271,7 +270,7 @@ void ObjectSelector::fillCustomObjects()
 	for (int row = 0; row < obj.customObjects.size(); ++row)
 		addRow(obj.customObjects[row].getCompoundID(), obj.customObjects[row].value, obj.customObjects[row].probability, obj.customObjects[row].maxPerZone, row);
 
-	auto addButton = new QPushButton("Add");
+	auto addButton = new QPushButton(tr("Add"));
 	ui->tableWidgetObjects->setCellWidget(ui->tableWidgetObjects->rowCount() - 1, 4, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetObjects->insertRow(ui->tableWidgetObjects->rowCount() - 1);

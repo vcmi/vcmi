@@ -347,10 +347,10 @@ void CGHeroInstance::initObj(IGameRandomizer & gameRandomizer)
 		updateAppearance();
 }
 
-void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID)
+void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID, bool isFake)
 {
 	subID = SUBID.getNum();
-	initHero(gameRandomizer);
+	initHero(gameRandomizer, isFake);
 }
 
 TObjectTypeHandler CGHeroInstance::getObjectHandler() const
@@ -370,7 +370,7 @@ void CGHeroInstance::updateAppearance()
 		appearance = app;
 }
 
-void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer)
+void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 {
 	assert(validTypes(true));
 	
@@ -395,7 +395,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer)
 	if(!vstd::contains(spells, SpellID::SPELLBOOK_PRESET))
 	{
 		// hero starts with default spellbook presence status
-		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook)
+		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook	&& !isFake)
 		{
 			auto artifact = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
@@ -404,7 +404,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer)
 	else
 		spells -= SpellID::SPELLBOOK_PRESET;
 
-	if(!getArt(ArtifactPosition::MACH4))
+	if(!getArt(ArtifactPosition::MACH4) && !isFake)
 	{
 		auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
@@ -1383,44 +1383,6 @@ ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const
-{
-	std::set<SecondarySkill> basicAndAdv;
-	std::set<SecondarySkill> none;
-	std::vector<SecondarySkill>	skills;
-
-	if (canLearnSkill())
-	{
-		for(int i = 0; i < LIBRARY->skillh->size(); i++)
-			if (canLearnSkill(SecondarySkill(i)))
-				none.insert(SecondarySkill(i));
-	}
-
-	for(const auto & elem : secSkills)
-	{
-		if(elem.second < MasteryLevel::EXPERT)
-			basicAndAdv.insert(elem.first);
-		none.erase(elem.first);
-	}
-	
-	int maxUpgradedSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT);
-	while (skills.size() < maxUpgradedSkills && !basicAndAdv.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
-	}
-
-	int maxTotalSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT);
-	while (skills.size() < maxTotalSkills && !none.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
-	}
-
-	return skills;
-}
-
-
 void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode)
 {
 	auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
@@ -1474,7 +1436,7 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 	while(gainsLevel())
 	{
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
-		const auto proposedSecondarySkills = getLevelupSkillCandidates(gameRandomizer);
+		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())

@@ -341,7 +341,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	if(auto * m = dynamic_cast<const IMarket *>(target))
 	{
 		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
-			return 2000;
+			return ai->cb->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
 	}
 
 	switch(target->ID)

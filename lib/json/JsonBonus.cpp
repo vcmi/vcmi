@@ -124,6 +124,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
 		case BonusType::SKELETON_TRANSFORMER_TARGET:
+		case BonusType::DEITYOFFIRE:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{
@@ -152,6 +153,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::ADJACENT_SPELLCASTER:
 		case BonusType::NOT_ACTIVE:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
@@ -279,6 +281,10 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 				var.push_back(converted);
 			}
 			break;
+		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
+			for(const auto & sequence : value.Vector())
+				var.push_back(sequence.Integer());
+			break;
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
@@ -339,7 +345,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -676,6 +682,19 @@ static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & li
 	return hexLimiter;
 }
 
+static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode & limiter)
+{
+	const JsonNode & creatureNode = limiter["creature"];
+
+	auto unitLimiter = std::make_shared<UnitAdjacentLimiter>();
+	LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
+	{
+		unitLimiter->targetUnit = creatureID;
+	});
+
+	return unitLimiter;
+}
+
 static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter)
 {
 	const JsonNode & parameters = limiter["parameters"];
@@ -700,6 +719,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 		{"TERRAIN_LIMITER",            parseTerrainLimiter          },
 		{"CREATURE_TERRAIN_LIMITER",   parseTerrainLimiter          },
 		{"UNIT_ON_HEXES",              parseUnitOnHexLimiter        },
+		{"UNIT_ADJACENT",              parseUnitAdjacentLimiter	    },
 		{"HAS_CHARGES_LIMITER",        parseHasChargesLimiter       },
 	};
 

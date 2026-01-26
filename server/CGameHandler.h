@@ -216,6 +216,7 @@ public:
 	bool tradeResources(const IMarket *market, ui32 amountToSell, PlayerColor player, GameResID toSell, GameResID toBuy);
 	bool sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count);
 	bool sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2);
+	void informPlayerAboutSentResources(PlayerColor player, PlayerColor playerReceiver, const ResourceSet & resources);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, GameResID resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot);
 	bool assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);

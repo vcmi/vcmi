@@ -27,6 +27,8 @@
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
+	,motionAccumulatedX(.0f)
+	,motionAccumulatedY(.0f)
 {
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 }
@@ -34,7 +36,11 @@ InputSourceMouse::InputSourceMouse()
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
 	Point newPosition = Point(motion.x, motion.y) / ENGINE->screenHandler().getScalingFactor();
-	Point distance = Point(-motion.xrel, -motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedX += static_cast<float>(-motion.xrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedY += static_cast<float>(-motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	Point distance = Point(motionAccumulatedX, motionAccumulatedY);
+	motionAccumulatedX -= distance.x;
+	motionAccumulatedY -= distance.y;
 
 	mouseButtonsMask = motion.state;
 

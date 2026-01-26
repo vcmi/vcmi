@@ -25,6 +25,7 @@
 #include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
 #include "../bonuses/Limiters.h"
@@ -66,6 +67,7 @@
 #include "../serializer/CSaveFile.h"
 #include "../spells/CSpellHandler.h"
 #include "UpgradeInfo.h"
+#include "mapObjects/CGPandoraBox.h"
 
 #include <vstd/RNG.h>
 
@@ -545,6 +547,10 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 			}
 		}
 	}
+
+	for(auto & obj : map->getObjects<CGPandoraBox>())
+		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
+			map->eraseObject(obj->id);
 }
 
 void CGameState::initOwnedObjects()
@@ -715,8 +721,7 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto & fow = elem.second.fogOfWarMap;
-		fow.resize(boost::extents[layers][map->width][map->height]);
-		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
+		fow = MapTilesStorage<uint8_t>(int3(map->width, map->height, layers));
 
 		for(const auto & obj : map->getObjects())
 		{
@@ -727,7 +732,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
+				elem.second.fogOfWarMap[tile] = 1;
 			}
 		}
 	}
@@ -1087,10 +1092,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 		return topObject->getBattlefield();
 	}
 
-	for(auto & obj : map->getObjects())
+	for(auto & obj : map->getObjects<CGTerrainPatch>())
 	{
-		//look only for objects covering given tile
-		if( !obj->coveringAt(tile))
+		//look only for magical terrain-like objects covering given tile
+		if(!obj->coveringAt(tile))
 			continue;
 
 		auto customBattlefield = obj->getBattlefield();
@@ -1102,13 +1107,14 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.getTerrain()->battleFields.empty())
+	auto currentLayer = map->mapLayers.at(tile.z);
+	const auto & terrainBattlefields = t.getTerrain()->battleFields;
+
+	if (terrainBattlefields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
+	return BattleFieldHandler::selectRandomBattlefield(terrainBattlefields, currentLayer, randomGenerator);
 }
-
-
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
@@ -1147,6 +1153,9 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 	std::vector<const CGObjectInstance*> guards;
 	const int3 originalPos = pos;
 	if (!map->isInTheMap(pos))
+		return guards;
+
+	if (map->guardingCreaturePosition(pos) == int3(-1, -1, -1))
 		return guards;
 
 	const TerrainTile &posTile = map->getTile(pos);
@@ -1201,7 +1210,7 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos];
 }
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
@@ -1538,6 +1547,12 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 			tgi.playerColors.push_back(elem.second.color);
 	}
 
+	if (tgi.playerColors.empty())
+	{
+		logGlobal->error("CGameState::obtainPlayersStats: all players are inactive, unable to obtain stats!");
+		return;
+	}
+
 	if(level >= 0) //num of towns & num of heroes
 	{
 		//num of towns
@@ -1656,6 +1671,15 @@ void CGameState::restoreBonusSystemTree()
 
 	if (campaign)
 		campaign->setGamestate(this);
+
+	// WORKAROUND FOR 1.6 SAVES
+	static_assert(ESerializationVersion::RELEASE_160 == ESerializationVersion::MINIMAL, "Please remove this code after dropping 1.6 save compat");
+	if (globalEffects.valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN) == 0)
+	{
+		const auto newBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN, BonusSource::GLOBAL, 1, BonusSourceID());
+		newBonus->valType = BonusValueType::INDEPENDENT_MAX;
+		globalEffects.addNewBonus(newBonus);
+	}
 }
 
 void CGameState::buildGlobalTeamPlayerTree()

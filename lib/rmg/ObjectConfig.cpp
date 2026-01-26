@@ -61,113 +61,214 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		{ "seerHut", EObjectCategory::SEER_HUT}
 	};
 
-	const JsonNode & config = handler.getCurrent();
-	const JsonNode & configBannedCategories = config["bannedCategories"];
-	const JsonNode & configBannedObjects = config["bannedObjects"];
-	const JsonNode & configCommonObjects = config["commonObjects"];
-
-	for(const auto & node : configBannedCategories.Vector())
+	// Serialize banned categories
+	if (handler.saving)
 	{
-		auto it = OBJECT_CATEGORY_STRINGS.find(node.String());
-		if(it != OBJECT_CATEGORY_STRINGS.end())
-			bannedObjectCategories.push_back(it->second);
-	}
-
-	if(configBannedObjects.isVector())
-	{
-		// MOD COMPATIBILITY - 1.6 format
-
-		for(const auto & node : configBannedObjects.Vector())
+		auto categoriesArray = handler.enterArray("bannedCategories");
+		categoriesArray.syncSize(bannedObjectCategories, JsonNode::JsonType::DATA_STRING);
+		
+		for(size_t i = 0; i < bannedObjectCategories.size(); ++i)
 		{
-			LIBRARY->objtypeh->resolveObjectCompoundId(node.String(),
-				[this](CompoundMapObjectID objid)
+			for(const auto & [key, value] : OBJECT_CATEGORY_STRINGS)
+			{
+				if(value == bannedObjectCategories[i])
 				{
-					addBannedObject(objid);
+					std::string categoryName = key;
+					categoriesArray.serializeString(i, categoryName);
+					break;
 				}
-			);
+			}
 		}
 	}
 	else
 	{
-		for(const auto & node : configBannedObjects.Struct())
-		{
-			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
-			{
-				if (node.second.isBool())
-				{
-					if (node.second.Bool())
-						addBannedObject(CompoundMapObjectID(primaryID, -1));
-				}
-				else
-				{
-					for (const auto & subNode : node.second.Struct())
-					{
-						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+		const JsonNode & config = handler.getCurrent();
+		const JsonNode & configBannedCategories = config["bannedCategories"];
 
-						LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
-						{
-							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
-						});
-					}
-				}
-			});
+		for(const auto & node : configBannedCategories.Vector())
+		{
+			auto it = OBJECT_CATEGORY_STRINGS.find(node.String());
+			if(it != OBJECT_CATEGORY_STRINGS.end())
+				bannedObjectCategories.push_back(it->second);
 		}
 	}
 
-	for (const auto & objectConfig : configCommonObjects.Vector())
+	// Serialize banned objects
+	if (handler.saving)
 	{
-		auto rmg = objectConfig["rmg"].Struct();
-
-		// TODO: Use common code with default rmg config
-
-		ObjectInfo object;
-
-		// TODO: Configure basic generateObject function
-		object.value = rmg["value"].Integer();
-		object.probability = rmg["rarity"].Integer();
-		object.maxPerZone = rmg["zoneLimit"].Integer();
-		if (object.maxPerZone == 0)
-			object.maxPerZone = std::numeric_limits<int>::max();
-
-		if (objectConfig["id"].isNull())
+		// Group banned objects by primary ID
+		std::map<int, std::set<int>> groupedBanned;
+		for(const auto & objid : bannedObjects)
 		{
-			LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+			groupedBanned[objid.primaryID].insert(objid.secondaryID);
+		}
+		
+		auto bannedObjectsStruct = handler.enterStruct("bannedObjects");
+		
+		for(const auto & [primaryID, secondaryIDs] : groupedBanned)
+		{
+			const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+			
+			if(secondaryIDs.size() == 1 && *secondaryIDs.begin() == -1)
 			{
-				if (objectConfig["subtype"].isNull())
+				// Ban entire object type - write as boolean true
+				bool allBanned = true;
+				bannedObjectsStruct->serializeBool(jsonKey, allBanned);
+			}
+			else
+			{
+				// Ban specific subtypes
+				auto objStruct = bannedObjectsStruct->enterStruct(jsonKey);
+				for(int secondaryID : secondaryIDs)
 				{
-					auto objectWithID = object;
-					objectWithID.primaryID = primaryID;
-					objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID);
-				}
-				else
-				{
-					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
-
-					LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+					if(secondaryID != -1)
 					{
-						auto objectWithID = object;
-						objectWithID.primaryID = primaryID;
-						objectWithID.secondaryID = secondaryID;
-						addCustomObject(objectWithID);
-					});
+						auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
+						const std::string subtypeKey = handler->getSubTypeName();
+						bool banned = true;
+						objStruct->serializeBool(subtypeKey, banned);
+					}
 				}
-			});
+			}
+		}
+	}
+	else
+	{
+		const JsonNode & config = handler.getCurrent();
+		const JsonNode & configBannedObjects = config["bannedObjects"];
+
+		if(configBannedObjects.isVector())
+		{
+			// MOD COMPATIBILITY - 1.6 format
+
+			for(const auto & node : configBannedObjects.Vector())
+			{
+				LIBRARY->objtypeh->resolveObjectCompoundId(node.String(),
+					[this](CompoundMapObjectID objid)
+					{
+						addBannedObject(objid);
+					}
+				);
+			}
 		}
 		else
 		{
-			// MOD COMPATIBILITY - 1.6 format
-			auto objectName = objectConfig["id"].String();
-
-			LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
+			for(const auto & node : configBannedObjects.Struct())
 			{
-				auto objectWithID = object;
-				objectWithID.primaryID = objid.primaryID;
-				objectWithID.secondaryID = objid.secondaryID;
-				if (objectWithID.secondaryID == -1)
-					objectWithID.secondaryID = 0;
-				addCustomObject(objectWithID);
-			});
+				LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
+				{
+					if (node.second.isBool())
+					{
+						if (node.second.Bool())
+							addBannedObject(CompoundMapObjectID(primaryID, -1));
+					}
+					else
+					{
+						for (const auto & subNode : node.second.Struct())
+						{
+							const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+							{
+								addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+							});
+						}
+					}
+				});
+			}
+		}
+	}
+
+	// Serialize common objects
+	if (handler.saving)
+	{
+		auto commonObjectsArray = handler.enterArray("commonObjects");
+		commonObjectsArray.syncSize(customObjects, JsonNode::JsonType::DATA_STRUCT);
+		
+		for(size_t i = 0; i < customObjects.size(); ++i)
+		{
+			auto objectStruct = commonObjectsArray.enterStruct(i);
+			const auto & object = customObjects[i];
+			
+			// Serialize object type/subtype
+			std::string objectType = LIBRARY->objtypeh->getJsonKey(object.primaryID);
+			objectStruct->serializeString("type", objectType);
+			
+			auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
+			std::string subtypeName = handler->getSubTypeName();
+			objectStruct->serializeString("subtype", subtypeName);
+			
+			// Serialize RMG properties
+			auto rmgStruct = objectStruct->enterStruct("rmg");
+			int value = object.value;
+			int rarity = object.probability;
+			int zoneLimit = (object.maxPerZone == std::numeric_limits<int>::max()) ? 0 : object.maxPerZone;
+				
+			rmgStruct->serializeInt("value", value);
+			rmgStruct->serializeInt("rarity", rarity);
+			rmgStruct->serializeInt("zoneLimit", zoneLimit);
+		}
+	}
+	else
+	{
+		const JsonNode & config = handler.getCurrent();
+		const JsonNode & configCommonObjects = config["commonObjects"];
+
+		for (const auto & objectConfig : configCommonObjects.Vector())
+		{
+			auto rmg = objectConfig["rmg"].Struct();
+
+			// TODO: Use common code with default rmg config
+
+			ObjectInfo object;
+
+			// TODO: Configure basic generateObject function
+			object.value = rmg["value"].Integer();
+			object.probability = rmg["rarity"].Integer();
+			object.maxPerZone = rmg["zoneLimit"].Integer();
+			if (object.maxPerZone == 0)
+				object.maxPerZone = std::numeric_limits<int>::max();
+
+			if (objectConfig["id"].isNull())
+			{
+				LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+				{
+					if (objectConfig["subtype"].isNull())
+					{
+						auto objectWithID = object;
+						objectWithID.primaryID = primaryID;
+						objectWithID.secondaryID = 0;
+						addCustomObject(objectWithID);
+					}
+					else
+					{
+						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+						LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+						{
+							auto objectWithID = object;
+							objectWithID.primaryID = primaryID;
+							objectWithID.secondaryID = secondaryID;
+							addCustomObject(objectWithID);
+						});
+					}
+				});
+			}
+			else
+			{
+				// MOD COMPATIBILITY - 1.6 format
+				auto objectName = objectConfig["id"].String();
+
+				LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
+				{
+					auto objectWithID = object;
+					objectWithID.primaryID = objid.primaryID;
+					objectWithID.secondaryID = objid.secondaryID;
+					if (objectWithID.secondaryID == -1)
+						objectWithID.secondaryID = 0;
+					addCustomObject(objectWithID);
+				});
+			}
 		}
 	}
 }

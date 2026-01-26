@@ -10,12 +10,18 @@
 #pragma once
 
 #include <TargetConditionals.h>
+#include <string>
 
 #pragma GCC visibility push(default)
 namespace iOS_utils
 {
 const char *documentsPath();
 const char *cachesPath();
+
+// share file using system share sheet (e.g. Mail app)
+void shareFile(const std::string & filePath);
+
+std::string iphoneHardwareId();
 
 #if TARGET_OS_SIMULATOR
 const char *hostApplicationSupportPath();

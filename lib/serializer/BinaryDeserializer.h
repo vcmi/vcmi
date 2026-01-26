@@ -12,6 +12,7 @@
 #include "CSerializer.h"
 #include "ESerializationVersion.h"
 #include "SerializerReflection.h"
+#include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -156,6 +157,17 @@ private:
 		this->read(static_cast<void *>(&data), sizeof(data));
 	}
 
+	void load(BonusType & data)
+	{
+		int32_t read;
+		load(read);
+
+		if (!hasFeature(Version::RANDOMIZATION_REWORK))
+			read += 1;
+
+		data = static_cast<BonusType>(read);
+	}
+
 	template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
 	void load(T & data)
 	{
@@ -193,15 +205,6 @@ private:
 		uint32_t length = readAndCheckLength();
 		data.resize(length);
 		for (uint32_t i = 0; i < length; i++)
-			load(data[i]);
-	}
-
-	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
-	void load(std::deque<T> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		data.resize(length);
-		for(uint32_t i = 0; i < length; i++)
 			load(data[i]);
 	}
 
@@ -356,19 +359,6 @@ private:
 		}
 	}
 
-	template<typename T>
-	void load(std::list<T> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		data.clear();
-		T ins;
-		for(uint32_t i = 0; i < length; i++)
-		{
-			load(ins);
-			data.push_back(ins);
-		}
-	}
-
 	template<typename T1, typename T2>
 	void load(std::pair<T1, T2> & data)
 	{
@@ -464,21 +454,6 @@ private:
 		}
 	}
 
-	template<typename T>
-	void load(boost::multi_array<T, 3> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		uint32_t x;
-		uint32_t y;
-		uint32_t z;
-		load(x);
-		load(y);
-		load(z);
-		data.resize(boost::extents[x][y][z]);
-		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
-		for(uint32_t i = 0; i < length; i++)
-			load(data.data()[i]);
-	}
 	template<std::size_t T>
 	void load(std::bitset<T> & data)
 	{

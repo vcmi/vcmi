@@ -66,7 +66,7 @@ public:
 	virtual int32_t getBaseShots() const = 0;
 
 	virtual int32_t getRecruitCost(GameResID resIndex) const = 0;
-	virtual ResourceSet getFullRecruitCost() const = 0;
+	virtual const ResourceSet & getFullRecruitCost() const = 0;
 	
 	virtual bool hasUpgrades() const = 0;
 

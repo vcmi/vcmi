@@ -17,18 +17,25 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CSaveFile final : public IBinaryWriter
 {
 	BinarySerializer serializer;
-	std::fstream sfile;
+	std::vector<std::byte> saveData;
 
 	int write(const std::byte * data, unsigned size) final;
 
 public:
-	explicit CSaveFile(const boost::filesystem::path & fname); //throws!
+	CSaveFile();
 
 	template<class T>
 	void save(const T & data)
 	{
 		static_assert(is_serializeable<BinarySerializer, T>::value, "This class can't be serialized (possible pointer?)");
 		serializer & data;
+	}
+
+	void write(const boost::filesystem::path & fname);
+
+	const std::vector<std::byte> & currentContent() const
+	{
+		return saveData;
 	}
 };
 

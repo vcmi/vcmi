@@ -166,6 +166,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	Bonus defenseBonusToAdd(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 20, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::PERCENT_TO_ALL);
 	Bonus bonus2(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, stack->valOfBonuses(BonusType::DEFENSIVE_STANCE), BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
 	Bonus alternativeWeakCreatureBonus(BonusDuration::STACK_GETS_TURN, BonusType::PRIMARY_SKILL, BonusSource::OTHER, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE), BonusValueType::ADDITIVE_VALUE);
+	Bonus tagBonus(BonusDuration::STACK_GETS_TURN, BonusType::UNIT_DEFENDING, BonusSource::OTHER, 0, BonusSourceID());
 
 	BonusList defence = *stack->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE)));
 	int oldDefenceValue = defence.totalValue();
@@ -186,6 +187,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	}
 
 	buffer.push_back(bonus2);
+	buffer.push_back(tagBonus);
 
 	sse.toUpdate.emplace_back(ba.stackNumber, buffer);
 	gameHandler->sendAndApply(sse);
@@ -229,6 +231,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	BattleHex startingPos = stack->getPosition();
+	int beforeAttackSpeed = stack->getMovementRange(0);
 	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
 
 	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
@@ -320,13 +323,19 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 
 	//return
 	if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
+		&& !stack->hasBonusOfType(BonusType::NOT_ACTIVE)
+		&& !stack->hasBonusOfType(BonusType::BIND_EFFECT)
 		&& target.size() == 3
 		&& startingPos != stack->getPosition()
 		&& startingPos == target.at(2).hexValue
 		&& stack->alive())
 	{
 		assert(stack->unitId() == ba.stackNumber);
-		moveStack(battle, ba.stackNumber, startingPos);
+		int afterAttackSpeed = stack->getMovementRange(0);
+		std::pair<BattleHexArray, int> path = battle.getPath(stack->getPosition(), startingPos, stack);
+		size_t maxReachbleIndex = std::max(0, beforeAttackSpeed - afterAttackSpeed);
+		if(maxReachbleIndex < path.first.size())
+			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
 	}
 	return true;
 }
@@ -525,6 +534,61 @@ bool BattleActionProcessor::doHealAction(const CBattleInfoCallback & battle, con
 	return true;
 }
 
+bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+{
+	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
+	battle::Target target = ba.getTarget(&battle);
+	SpellID spellID = ba.spell;
+
+	if (!canStackAct(battle, stack))
+		return false;
+
+	if(target.size() < 2)
+	{
+		gameHandler->complain("Two destinations required for walk and spellcast action.");
+		return false;
+	}
+
+	BattleHex movementDestinationTile = target.at(0).hexValue;
+	BattleHex targetUnitTile = target.at(1).hexValue;
+	const CStack * destinationStack = battle.battleGetStackByPos(targetUnitTile, false);
+
+	if(!destinationStack)
+	{
+		gameHandler->complain("Invalid target for walk and spellcast");
+		return false;
+	}
+
+	auto bonus = stack->getBonus(Selector::typeSubtype(BonusType::ADJACENT_SPELLCASTER, BonusSubtypeID(spellID)));
+	if (!bonus)
+	{
+		gameHandler->complain("Creature cannot walk and spellcast.");
+		return false;
+	}
+
+	const auto movementResult = moveStack(battle, ba.stackNumber, movementDestinationTile);
+
+	if (movementResult.invalidRequest)
+	{
+		gameHandler->complain("Stack failed walk and spellcast - unable to reach target!");
+		return false;
+	}
+
+	if(movementResult.obstacleHit)
+	{
+		return true;
+	}
+
+	const CSpell * spell = spellID.toSpell();
+	spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
+	battle::Target spellTarget;
+	spellTarget.emplace_back(destinationStack);
+	parameters.setSpellLevel(std::max(0, bonus->val));
+	parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
+
+	return true;
+}
+
 bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, const CStack * stack)
 {
 	if (!stack)
@@ -580,6 +644,8 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 			return doDefendAction(battle, ba);
 		case EActionType::WALK_AND_ATTACK:
 			return doAttackAction(battle, ba);
+		case EActionType::WALK_AND_CAST:
+			return doWalkAndSpellcastAction(battle, ba);
 		case EActionType::SHOOT:
 			return doShootAction(battle, ba);
 		case EActionType::CATAPULT:
@@ -623,10 +689,10 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 
 BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
 {
-	const CStack *curStack = battle.battleGetStackByID(stack);
+	const CStack *currentUnit = battle.battleGetStackByID(stack);
 	const CStack *stackAtEnd = battle.battleGetStackByPos(dest);
 
-	assert(curStack);
+	assert(currentUnit);
 	assert(dest < GameConstants::BFIELD_SIZE);
 
 	if (battle.battleGetTacticDist())
@@ -634,28 +700,28 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 		assert(battle.isInTacticRange(dest));
 	}
 
-	auto start = curStack->getPosition();
+	auto start = currentUnit->getPosition();
 	if (start == dest)
 		return { 0, false, false };
 
 	//initing necessary tables
-	auto accessibility = battle.getAccessibility(curStack);
+	auto accessibility = battle.getAccessibility(currentUnit);
 	BattleHexArray passed;
 	//Ignore obstacles on starting position
-	passed.insert(curStack->getPosition());
-	if(curStack->doubleWide())
-		passed.insert(curStack->occupiedHex());
+	passed.insert(currentUnit->getPosition());
+	if(currentUnit->doubleWide())
+		passed.insert(currentUnit->occupiedHex());
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
-	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
+	if(!stackAtEnd && currentUnit->doubleWide() && !accessibility.accessible(dest, currentUnit))
 	{
-		BattleHex shifted = dest.cloneInDirection(curStack->headDirection(), false);
+		BattleHex shifted = dest.cloneInDirection(currentUnit->headDirection(), false);
 
-		if(accessibility.accessible(shifted, curStack))
+		if(accessibility.accessible(shifted, currentUnit))
 			dest = shifted;
 	}
 
-	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
+	if((stackAtEnd && stackAtEnd!=currentUnit && stackAtEnd->alive()) || !accessibility.accessible(dest, currentUnit))
 	{
 		gameHandler->complain("Given destination is not accessible!");
 		return { 0, false, true };
@@ -663,21 +729,26 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 	bool canUseGate = false;
 	auto dbState = battle.battleGetGateState();
-	if(battle.battleGetFortifications().wallsHealth > 0 && curStack->unitSide() == BattleSide::DEFENDER &&
+	if(battle.battleGetFortifications().wallsHealth > 0 && currentUnit->unitSide() == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{
 		canUseGate = true;
 	}
 
-	std::pair< BattleHexArray, int > path = battle.getPath(start, dest, curStack);
-	int8_t passedHexes = path.second;
+	auto [unitPath, pathDistance] = battle.getPath(start, dest, currentUnit);
 	bool movementSuccess = true;
 
-	int creSpeed = curStack->getMovementRange(0);
+	int unitMovementRange = currentUnit->getMovementRange(0);
 
-	if (battle.battleGetTacticDist() > 0 && creSpeed > 0)
-		creSpeed = GameConstants::BFIELD_SIZE;
+	if (battle.battleGetTacticDist() > 0 && unitMovementRange > 0)
+		unitMovementRange = GameConstants::BFIELD_SIZE;
+
+	if (pathDistance > unitMovementRange)
+	{
+		gameHandler->complain("Given destination is not reachable!");
+		return { 0, false, true };
+	}
 
 	bool hasWideMoat = vstd::contains_if(battle.battleGetAllObstaclesOnPos(BattleHex(BattleHex::GATE_BRIDGE), false), [](const std::shared_ptr<const CObstacleInstance> & obst)
 	{
@@ -701,9 +772,9 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 		if (isGateDrawbridgeHex(hex))
 			return true;
 
-		if (curStack->doubleWide())
+		if (currentUnit->doubleWide())
 		{
-			BattleHex otherHex = curStack->occupiedHex(hex);
+			BattleHex otherHex = currentUnit->occupiedHex(hex);
 			if (otherHex.isValid() && isGateDrawbridgeHex(otherHex))
 				return true;
 		}
@@ -711,9 +782,9 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 		return false;
 	};
 
-	if (curStack->hasBonusOfType(BonusType::FLYING))
+	if (currentUnit->hasBonusOfType(BonusType::FLYING))
 	{
-		if (path.second <= creSpeed && !path.first.empty())
+		if (pathDistance <= unitMovementRange && !unitPath.empty())
 		{
 			if (canUseGate && dbState != EGateState::OPENED &&
 				occupyGateDrawbridgeHex(dest))
@@ -727,11 +798,11 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 			//inform clients about move
 			BattleStackMoved sm;
 			sm.battleID = battle.getBattle()->getBattleID();
-			sm.stack = curStack->unitId();
+			sm.stack = currentUnit->unitId();
 			BattleHexArray tiles;
-			tiles.insert(path.first[0]);
+			tiles.insert(unitPath[0]);
 			sm.tilesToMove = tiles;
-			sm.distance = path.second;
+			sm.distance = pathDistance;
 			sm.teleporting = false;
 			gameHandler->sendAndApply(sm);
 		}
@@ -739,22 +810,22 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	else //for non-flying creatures
 	{
 		BattleHexArray tiles;
-		const int tilesToMove = std::max<int>(path.first.size() - creSpeed, 0);
-		int v = static_cast<int>(path.first.size())-1;
-		path.first.insert(start);
+		const int tilesToMove = std::max<int>(unitPath.size() - unitMovementRange, 0);
+		int movementsLeft = static_cast<int>(unitPath.size())-1;
+		unitPath.insert(start);
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex;
 		BattleHex gateMayCloseAtHex;
 		if (canUseGate)
 		{
-			for (int i = static_cast<int>(path.first.size())-1; i >= 0; i--)
+			for (int i = static_cast<int>(unitPath.size())-1; i >= 0; i--)
 			{
-				auto needOpenGates = [&](const BattleHex & hex) -> bool
+				auto needOpenGates = [hasWideMoat, i, unitPath = unitPath](const BattleHex & hex) -> bool
 				{
 					if (hasWideMoat && hex == BattleHex::GATE_BRIDGE)
 						return true;
-					if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && unitPath[i-1] == BattleHex::GATE_OUTER)
 						return true;
 					if (hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
 						return true;
@@ -762,19 +833,19 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 					return false;
 				};
 
-				auto hex = path.first[i];
+				auto hex = unitPath[i];
 				if (!openGateAtHex.isValid() && dbState != EGateState::OPENED)
 				{
 					if (needOpenGates(hex))
-						openGateAtHex = path.first[i+1];
+						openGateAtHex = unitPath[i+1];
 
-					//TODO we need find batter way to handle double-wide stacks
+					//TODO we need find better way to handle double-wide stacks
 					//currently if only second occupied stack part is standing on gate / bridge hex then stack will start to wait for bridge to lower before it's needed. Though this is just a visual bug.
-					if (curStack->doubleWide() && i + 2 < path.first.size())
+					if (currentUnit->doubleWide() && i + 2 < unitPath.size())
 					{
-						BattleHex otherHex = curStack->occupiedHex(hex);
+						BattleHex otherHex = currentUnit->occupiedHex(hex);
 						if (otherHex.isValid() && needOpenGates(otherHex))
-							openGateAtHex = path.first[i+2];
+							openGateAtHex = unitPath[i+2];
 					}
 
 					//gate may be opened and then closed during stack movement, but not other way around
@@ -784,26 +855,26 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 				if (!gateMayCloseAtHex.isValid() && dbState != EGateState::CLOSED)
 				{
-					if (hex == BattleHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
+					if (hex == BattleHex::GATE_INNER && i-1 >= 0 && unitPath[i-1] != BattleHex::GATE_OUTER)
 					{
-						gateMayCloseAtHex = path.first[i-1];
+						gateMayCloseAtHex = unitPath[i-1];
 					}
 					if (hasWideMoat)
 					{
-						if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
+						if (hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && unitPath[i-1] != BattleHex::GATE_OUTER)
 						{
-							gateMayCloseAtHex = path.first[i-1];
+							gateMayCloseAtHex = unitPath[i-1];
 						}
 						else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 &&
-							path.first[i-1] != BattleHex::GATE_INNER &&
-							path.first[i-1] != BattleHex::GATE_BRIDGE)
+							unitPath[i-1] != BattleHex::GATE_INNER &&
+							unitPath[i-1] != BattleHex::GATE_BRIDGE)
 						{
-							gateMayCloseAtHex = path.first[i-1];
+							gateMayCloseAtHex = unitPath[i-1];
 						}
 					}
-					else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_INNER)
+					else if (hex == BattleHex::GATE_OUTER && i-1 >= 0 && unitPath[i-1] != BattleHex::GATE_INNER)
 					{
-						gateMayCloseAtHex = path.first[i-1];
+						gateMayCloseAtHex = unitPath[i-1];
 					}
 				}
 			}
@@ -811,7 +882,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 		while(movementSuccess)
 		{
-			if (v<tilesToMove)
+			if (movementsLeft<tilesToMove)
 				throw std::runtime_error("Movement terminated abnormally");
 
 			bool gateStateChanging = false;
@@ -820,9 +891,9 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 				gateStateChanging = true;
 			else
 			{
-				for (bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
+				for (bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (movementsLeft >= tilesToMove); --movementsLeft)
 				{
-					BattleHex hex = path.first[v];
+					BattleHex hex = unitPath[movementsLeft];
 					tiles.insert(hex);
 
 					if ((openGateAtHex.isValid() && openGateAtHex == hex) ||
@@ -835,9 +906,9 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 					if(!battle.battleGetAllObstaclesOnPos(hex, false).empty())
 						obstacleHit = true;
 
-					if (curStack->doubleWide())
+					if (currentUnit->doubleWide())
 					{
-						BattleHex otherHex = curStack->occupiedHex(hex);
+						BattleHex otherHex = currentUnit->occupiedHex(hex);
 						//two hex creature hit obstacle by backside
 						auto obstacle2 = battle.battleGetAllObstaclesOnPos(otherHex, false);
 						if(otherHex.isValid() && !obstacle2.empty())
@@ -853,8 +924,8 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 				//commit movement
 				BattleStackMoved sm;
 				sm.battleID = battle.getBattle()->getBattleID();
-				sm.stack = curStack->unitId();
-				sm.distance = path.second;
+				sm.stack = currentUnit->unitId();
+				sm.distance = pathDistance;
 				sm.teleporting = false;
 				sm.tilesToMove = tiles;
 				gameHandler->sendAndApply(sm);
@@ -862,22 +933,22 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 			}
 
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
-			if (curStack->getPosition() != dest)
+			if (currentUnit->getPosition() != dest)
 			{
-				if(movementSuccess && start != curStack->getPosition())
+				if(movementSuccess && start != currentUnit->getPosition())
 				{
-					movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
-					passed.insert(curStack->getPosition());
-					if(curStack->doubleWide())
-						passed.insert(curStack->occupiedHex());
+					movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *currentUnit, passed);
+					passed.insert(currentUnit->getPosition());
+					if(currentUnit->doubleWide())
+						passed.insert(currentUnit->occupiedHex());
 				}
 				if (gateStateChanging)
 				{
-					if (curStack->getPosition() == openGateAtHex)
+					if (currentUnit->getPosition() == openGateAtHex)
 					{
 						openGateAtHex = BattleHex();
 						//only open gate if stack is still alive
-						if (curStack->alive())
+						if (currentUnit->alive())
 						{
 							BattleUpdateGateState db;
 							db.battleID = battle.getBattle()->getBattleID();
@@ -885,7 +956,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 							gameHandler->sendAndApply(db);
 						}
 					}
-					else if (curStack->getPosition() == gateMayCloseAtHex)
+					else if (currentUnit->getPosition() == gateMayCloseAtHex)
 					{
 						gateMayCloseAtHex = BattleHex();
 						owner->updateGateState(battle);
@@ -902,16 +973,16 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	//handle last hex separately for deviation
 	if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
 	{
-		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->unitSide())
-			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))
+		if (dest == battle::Unit::occupiedHex(start, currentUnit->doubleWide(), currentUnit->unitSide())
+			|| start == battle::Unit::occupiedHex(dest, currentUnit->doubleWide(), currentUnit->unitSide()))
 			passed.clear(); //Just empty passed, obstacles will handled automatically
 	}
 	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
 		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
+	movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *currentUnit, passed);
 
-	return { passedHexes, !movementSuccess, false };
+	return { static_cast<int16_t>(pathDistance), !movementSuccess, false };
 }
 
 void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)
@@ -1155,9 +1226,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 
 			auto m = spell->battleMechanics(&parameters);
 
-			spells::detail::ProblemImpl ignored;
-
-			if(!m->canBeCastAt(target, ignored))
+			if(!m->canBeCastAt(target))
 				continue;
 
 			//check if spell should be cast (probability handling)

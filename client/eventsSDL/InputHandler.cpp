@@ -28,6 +28,7 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
@@ -45,6 +46,10 @@ InputHandler::InputHandler()
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
 	, gameControllerHandler(std::make_unique<InputSourceGameController>())
+	, cachedPowerStateMode(static_cast<int>(PowerStateMode::UNKNOWN))
+	, cachedPowerStateSeconds(-1)
+	, cachedPowerStatePercent(-1)
+	, powerStateFrameCounter(0)
 {
 }
 
@@ -149,7 +154,7 @@ void InputHandler::copyToClipBoard(const std::string & text)
 	SDL_SetClipboardText(text.c_str());
 }
 
-PowerState InputHandler::getPowerState()
+void InputHandler::updatePowerState()
 {
 	int seconds;
 	int percent;
@@ -161,7 +166,18 @@ PowerState InputHandler::getPowerState()
 	else if(sdlPowerState == SDL_POWERSTATE_CHARGING || sdlPowerState == SDL_POWERSTATE_CHARGED)
 		powerState = PowerStateMode::CHARGING;
 
-	return PowerState{powerState, seconds, percent};
+	cachedPowerStateMode.store(static_cast<int>(powerState), std::memory_order_relaxed);
+	cachedPowerStateSeconds.store(seconds, std::memory_order_relaxed);
+	cachedPowerStatePercent.store(percent, std::memory_order_relaxed);
+}
+
+PowerState InputHandler::getPowerState()
+{
+	return PowerState{
+		static_cast<PowerStateMode>(cachedPowerStateMode.load(std::memory_order_relaxed)),
+		cachedPowerStateSeconds.load(std::memory_order_relaxed),
+		cachedPowerStatePercent.load(std::memory_order_relaxed)
+	};
 }
 
 std::vector<SDL_Event> InputHandler::acquireEvents()
@@ -175,6 +191,18 @@ std::vector<SDL_Event> InputHandler::acquireEvents()
 
 void InputHandler::processEvents()
 {
+	
+	// Update power state every ~300 frames (approx 5 seconds at 60 FPS)
+	if (++powerStateFrameCounter >= 300)
+	{
+		const auto updateTask = [this]()
+		{
+			updatePowerState();
+		};
+		ENGINE->async().run(updateTask);
+		powerStateFrameCounter = 0;
+	}
+	
 	std::vector<SDL_Event> eventsToProcess = acquireEvents();
 
 	for(const auto & currentEvent : eventsToProcess)
@@ -450,7 +478,10 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	std::unique_ptr<std::function<void()>> task;
 
 	if (!dispatchedTasks.try_pop(task))
-		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
+	{
+		logGlobal->error("InputHandler::handleUserEvent received without active task!");
+		return;
+	}
 
 	(*task)();
 }

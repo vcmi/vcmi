@@ -25,7 +25,8 @@ enum class EShortcut
 	GLOBAL_ACCEPT,     // Return - Accept query
 	GLOBAL_CANCEL,     // Escape - Cancel query
 	GLOBAL_RETURN,     // Enter, Escape - Close current window and return to previous view
-	GLOBAL_FULLSCREEN, // F4 - TODO: remove hardcoded check for key
+	GLOBAL_FULLSCREEN, // F4
+	GLOBAL_SCREENSHOT, // F3
 	GLOBAL_OPTIONS,    // 'O' - Open System Options dialog
 	GLOBAL_BACKSPACE,  // Backspace - erase last symbol in text input
 	GLOBAL_MOVE_FOCUS, // Tab - move focus to next text input

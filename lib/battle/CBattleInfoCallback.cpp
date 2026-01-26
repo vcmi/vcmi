@@ -295,6 +295,12 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
 		if(stack->hasBonusOfType(BonusType::HEALER))
 			allowedActionList.push_back(PossiblePlayerBattleAction::HEAL);
+		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
+		{
+			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();
+			if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
+				allowedActionList.push_back(PossiblePlayerBattleAction(PossiblePlayerBattleAction::WALK_AND_SPELLCAST, spellID));
+		}
 	}
 
 	return allowedActionList;
@@ -757,6 +763,9 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 			if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
 				return false;
 		}
+		const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
+		if (defender && defender->isDead() && defender->coversPos(fromHex))
+			return false;
 	}
 
 	return true;
@@ -1346,6 +1355,40 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 	return ret;
 }
 
+BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityInfo & cache, const Unit & unit, const BattleHex & targetHex) const
+{
+	if (unit.hasBonusOfType(BonusType::FLYING))
+	{
+		BattleHexArray reachableHexes = battleGetAvailableHexes(cache, &unit, false);
+		return boost::min_element(reachableHexes, [&targetHex](const BattleHex & lhs, const BattleHex & rhs)
+		{
+			return BattleHex::getDistance(lhs, targetHex) < BattleHex::getDistance(rhs, targetHex);
+		})[0];
+	}
+
+	BattleHexArray path = getPath(unit.getPosition(), targetHex, &unit).first; //TODO: does not find path through moat
+	if(!path.empty())
+	{
+		int pathHexIndex = path.size() - unit.getMovementRange();
+		if(pathHexIndex < 0)
+		{
+			return targetHex;
+		}
+		return path[pathHexIndex];
+	}
+
+	// FALLBACK: If path is empty (target blocked by obstacles/units),
+	// find the reachable hex that is geometrically closest to the target.
+	BattleHexArray reachableHexes = battleGetAvailableHexes(cache, &unit, false);
+	if (reachableHexes.empty())
+		return BattleHex::INVALID;
+
+	return *std::ranges::min_element(reachableHexes, {}, [&](const BattleHex & h)
+	{
+		return BattleHex::getDistance(h, targetHex);
+	});
+}
+
 ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * berserker) const
 {
 	logGlobal->trace("Handle Berserk effect");
@@ -1407,21 +1450,7 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 		}
 		else if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
 		{
-			BattleHex intermediaryHex;
-			if (berserker->hasBonusOfType(BonusType::FLYING))
-			{
-				BattleHexArray reachableHexes = battleGetAvailableHexes(cache, berserker, false);
-				BattleHex targetPosition = closestUnit.target->getPosition();
-				intermediaryHex = boost::min_element(reachableHexes, [&targetPosition](const BattleHex & lhs, const BattleHex & rhs)
-				{
-					return BattleHex::getDistance(lhs, targetPosition) < BattleHex::getDistance(rhs, targetPosition);
-				})[0];
-			}
-			else
-			{
-				BattleHexArray path = getPath(berserker->getPosition(), closestUnit.closestAttackableHex, berserker).first;
-				intermediaryHex = path[path.size() - berserker->getMovementRange()];
-			}
+			BattleHex intermediaryHex = getClosestHexToTargetInRange(cache, *berserker, closestUnit.closestAttackableHex);
 
 			ForcedAction result = {
 				EActionType::WALK,
@@ -2043,9 +2072,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		spells::BattleCast cast(this, caster, spells::Mode::CREATURE_ACTIVE, spellPtr);
 
 		auto m = spellPtr->battleMechanics(&cast);
-		spells::detail::ProblemImpl problem;
-
-		if (!m->canBeCastAt(target, problem))
+		if (!m->canBeCastAt(target))
 			continue;
 
 		switch (spellID.toEnum())

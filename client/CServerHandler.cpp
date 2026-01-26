@@ -781,7 +781,10 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
-				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim(), false, 1, [campaignScoreCalculator, statistic](bool skipped){
+				auto rim = ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim();
+				if(ourCampaign->getVideoRim() == ImagePath::builtin("NONE"))
+					rim = ImagePath();
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
 					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}

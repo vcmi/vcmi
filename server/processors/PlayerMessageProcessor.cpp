@@ -19,6 +19,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/constants/Enumerations.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -405,12 +406,19 @@ void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInst
 
 	for (auto & build : town->getTown()->buildings)
 	{
-		if (!town->hasBuilt(build.first)
-			&& !build.second->getNameTranslated().empty()
-			&& build.first != BuildingID::SHIP)
-		{
-			gameHandler->buildStructure(town->id, build.first, true);
-		}
+		if (town->hasBuilt(build.first))
+			continue;
+
+		if (build.second->getNameTranslated().empty())
+			continue;
+
+		if (build.first == BuildingID::SHIP)
+			continue;
+
+		if (build.first == BuildingID::GRAIL && LIBRARY->engineSettings()->getBoolean(EGameSettings::CHEATS_BUILD_WITHOUT_GRAIL))
+			continue;
+		
+		gameHandler->buildStructure(town->id, build.first, true);
 	}
 }
 
@@ -631,7 +639,7 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	for(int z = 0; z < mapSize.z; z++)
 		for(int x = 0; x < mapSize.x; x++)
 			for(int y = 0; y < mapSize.y; y++)
-				if(!fowMap[z][x][y] || fc.mode == ETileVisibility::HIDDEN)
+				if(!fowMap[int3(x, y, z)] || fc.mode == ETileVisibility::HIDDEN)
 					hlp_tab[lastUnc++] = int3(x, y, z);
 
 	fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
@@ -766,6 +774,16 @@ void PlayerMessageProcessor::cheatTeleport(PlayerColor player, const CGHeroInsta
 	gameHandler->moveHero(hero->id, pos, EMovementMode::DIMENSION_DOOR);
 }
 
+void PlayerMessageProcessor::cheatGiveGrail(PlayerColor player, const CGHeroInstance * hero)
+{
+	if (!hero)
+		return;
+
+	auto grail = ArtifactID(ArtifactID::GRAIL);
+	if(grail.toArtifact()->canBePutAt(hero))
+		gameHandler->giveHeroNewArtifact(hero, grail, ArtifactPosition::FIRST_AVAILABLE);
+}
+
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
@@ -887,6 +905,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatColorSchemeChange = [&](ColorScheme filter) { cheatColorSchemeChange(player, filter); };
 	const auto & doCheatSkill = [&]() { cheatSkill(player, hero, words); };
 	const auto & doCheatTeleport = [&]() { cheatTeleport(player, hero, words); };
+	const auto & doCheatGiveGrail = [&]() { cheatGiveGrail(player, hero); };
 
 	auto getCheatKey = [this](const std::string& cheat) {
 		for (const auto& [category, structNode] : cheatConfig.Struct())
@@ -932,6 +951,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"gray",               [&] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
 		{"skill",              doCheatSkill                                                },
 		{"teleport",           doCheatTeleport                                             },
+		{"grail",              doCheatGiveGrail                                            },
 	};
 
 	assert(callbacks.count(key));

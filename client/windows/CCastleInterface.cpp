@@ -1068,8 +1068,9 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 	}
 
 	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building.getNum());//will be deleted by selection window
-	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40],
-		LIBRARY->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, GAME->interface()->castleInt, _1), 0, images);
+	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40], LIBRARY->generaltexth->jktexts[41], [availableTowns](int index){
+		GAME->interface()->castleInt->castleTeleport(availableTowns[index]);
+	}, 0, images);
 	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(GAME->interface()->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
 	ENGINE->windows().pushWindow(wnd);
 }
@@ -1790,6 +1791,10 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 {
 	OBJECT_CONSTRUCTION;
 
+	background->srcRect = Rect(0, 0, 395, 520); // fix white line under image (error in original resource) -> original height is 521 -> fixes #6492
+	pos.h = 520;
+	updateShadow();
+
 	icon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building->bid.getNum(), 0, 125, 50);
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
@@ -2247,8 +2252,11 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 
 		ResourceSet costBase;
 		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
+		double pastResearchesCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
+		double pastRerollsCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
+		double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, town->spellResearchAcceptedCounter);
+		double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, town->spellResearchPendingRerollsCounters[level]);
+		ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 
@@ -2283,6 +2291,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
 		temp->buttons[1]->addCallback([this, town](){ GAME->interface()->cb->spellResearch(town, spell->id, false); });
 		temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.spellResearch.skip")); });
+		temp->buttons[1]->setEnabled(GAME->interface()->cb->getResourceAmount().canAfford(cost));
 		temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
 		temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.spellResearch.abort")); });
 

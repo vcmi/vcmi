@@ -35,6 +35,12 @@ class BattleActionsController
 	/// spell for which player's hero is choosing destination
 	std::shared_ptr<BattleAction> heroSpellToCast;
 
+	// targets of multi-target spells cast by monsters
+	std::vector<BattleHex> monsterSpellTargets;
+
+	// the monster that casts the spell 
+	const CStack * monsterCaster = nullptr;
+
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
 
@@ -91,6 +97,9 @@ public:
 	/// - we are casting spell by creature in targeted mode (F hotkey)
 	/// - current creature is spellcaster and preferred action for current hex is spellcast
 	bool currentActionSpellcasting(const BattleHex & hoveredHex);
+
+	/// returns true if current hex action is "walk and spellcast" with active stack
+	bool currentActionWalkAndCast(const BattleHex& hoveredHex);
 
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();

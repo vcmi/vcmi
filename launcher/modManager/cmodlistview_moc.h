@@ -61,6 +61,7 @@ class CModListView : public QWidget
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
+	QString getRepoUrl(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 

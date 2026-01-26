@@ -413,6 +413,14 @@ Heroes affected by this bonus will not lose all movement points when embarking o
 
 Heroes affected by this bonus won't lose army when moving through whirlpool
 
+### FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT
+
+When the hero engages neutral creatures, this bonus forces the number of stacks that the neutral army will be split into.
+
+- val: the neutral army will be split into (0 – enable weighted mode using addInfo)
+- addInfo – [W1, W2, W3, W4, W5, W6, W7]
+- W1–W7 – weights for generating 1–7 stacks when val = 0; missing entries are treated as 0.
+
 ## Creature bonuses
 
 ### STACK_HEALTH
@@ -492,6 +500,10 @@ Affected units can not receive good or bad luck
 ### NO_MORALE
 
 Affected units can not receive good or bad morale
+
+### CPU_CONTROLLED
+
+Player cannot control the affected unit by default. Note: uses custom behavior logic that is not coming from battle AI.
 
 ## Combat abilities
 
@@ -912,7 +924,7 @@ Affected unit will not use spellcast as default attack option
 
 ### SPELLCASTER
 
-Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
+Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting (counter is shared with other bonuses like ADJACENT_SPELLCASTER). Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
 
 - subtype: spell identifier
 - val: spell mastery level
@@ -931,6 +943,13 @@ Affected unit will cast specified spell before his turn (Enchanter)
 Affected unit can cast randomly selected beneficial spell on its turn (Master Genie)
 
 - val - spell mastery level
+
+### ADJACENT_SPELLCASTER
+
+Affected units can walk and cast spell at target unit (like HotA engineers). Empty hexes are not currently supported. Use CASTS bonus to specify how many times per combat creature can cast spell (counter is shared with other bonuses like SPELLCASTER). Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
+
+- subtype: spell identifier
+- val: spell mastery level
 
 ### CASTS
 
@@ -1172,3 +1191,20 @@ When a unit affected by this bonus dies, no corpse is left behind
 ### INVINCIBLE
 
 The unit affected by this bonus cannot be target of attacks or spells
+
+### UNIT_DEFENDING
+
+Bonus that is automatically granted to unit whenever unit uses defend action in battle. Has no gameplay effects, however mods can use presence of this bonus to provide abilities that are active while unit is defending using limiter
+
+### MARKETPLACE_ACCESS
+
+Increases amount of counted marketplaces when trading in town. You may want to use PLAYER_PROPAGATOR with this bonus to make its effect player wide.
+
+- val: additional number of 'marketplaces' to reduce costs
+
+### DEITYOFFIRE
+
+Enforce the "week of" to a special creature. If this bonus is existing multiple times, it's randomly selected from all bonus sources.
+
+- val: how many additional creatures should generated
+- subtype - id of creature

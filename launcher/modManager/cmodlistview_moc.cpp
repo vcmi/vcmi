@@ -33,6 +33,7 @@
 #include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/CModVersion.h"
+#include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
@@ -76,10 +77,11 @@ void CModListView::setupModsView()
 {
 	ui->allModsView->setModel(filterModel);
 	// input data is not sorted - sort it before display
-	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
+	ui->allModsView->sortByColumn(ModFields::STARS, Qt::AscendingOrder);
 
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
+	ui->allModsView->header()->setSectionResizeMode(ModFields::STARS, QHeaderView::Fixed);
 
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	auto state = s.value("AllModsView/State").toByteArray();
@@ -95,6 +97,7 @@ void CModListView::setupModsView()
 
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
+	ui->allModsView->resizeColumnToContents(ModFields::STARS);
 
 	ui->allModsView->setUniformRowHeights(true);
 
@@ -159,10 +162,10 @@ void CModListView::reload(const QString & modToSelect)
 
 	if (!modToSelect.isEmpty())
 	{
-		QModelIndexList matches = filterModel->match(filterModel->index(0, 0), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
+		QModelIndexList matches = modModel->match(modModel->index(0, 0, QModelIndex()), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
 
 		if (!matches.isEmpty())
-			ui->allModsView->setCurrentIndex(matches.first());
+			ui->allModsView->setCurrentIndex(filterModel->mapFromSource(matches.first()));
 	}
 }
 
@@ -232,11 +235,10 @@ static QString replaceIfNotEmpty(QStringList value, QString pattern)
 
 QString CModListView::genChangelogText(const ModState & mod)
 {
-	QString headerTemplate = "<p><span style=\" font-weight:600;\">%1: </span></p>";
-	QString entryBegin = "<p align=\"justify\"><ul>";
-	QString entryEnd = "</ul></p>";
-	QString entryLine = "<li>%1</li>";
-	//QString versionSeparator = "<hr/>";
+	QString headerTemplate = "### %1:";
+	QString entryBegin = "\n\n";
+	QString entryEnd = "\n";
+	QString entryLine = "- %1\n";
 
 	QString result;
 
@@ -303,19 +305,27 @@ QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 
 QString CModListView::genModInfoText(const ModState & mod)
 {
-	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
-	QString redPrefix = "<p><span style=\" font-weight:600; color:red\">%1: </span>"; // shared prefix
-	QString lineTemplate = prefix + "%2</p>";
-	QString urlTemplate = prefix + "<a href=\"%2\">%3</a></p>";
-	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
-	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
-	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
-	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
+	QString modNameTemplate = "# %1\n\n";
+	QString lineTemplate = "**%1**: %2\n\n";
+	QString urlTemplate =  "**%1**: [%3](%2)\n\n";
+	QString textTemplate = "**%1**: \n\n%2\n\n";
+	QString listTemplate = "**%1**: %2\n\n";
+	QString noteTemplate = "**%1**\n\n";
+	QString incompatibleString = "**%1**: " + tr("Mod is incompatible") + "\n\n";
+	QString supportedVersions =  "**%1**: %2 %3 %4\n\n";
 
 	QString result;
 
-	result += replaceIfNotEmpty(mod.getName(), lineTemplate.arg(tr("Mod name")));
+	QTextDocument description;
+	description.setMarkdown(mod.getDescription());
+	QString cleanDescription = description.toMarkdown();
+	if (cleanDescription.isEmpty())
+		cleanDescription = description.toPlainText();
+
+	result += replaceIfNotEmpty(mod.getName(), modNameTemplate);
+	result += cleanDescription;
+	result += "\n\n"; // to get some empty space
+
 	if (mod.isUpdateAvailable())
 	{
 		result += replaceIfNotEmpty(mod.getInstalledVersion(), lineTemplate.arg(tr("Installed version")));
@@ -341,7 +351,13 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += urlTemplate.arg(tr("License")).arg(mod.getLicenseUrl()).arg(mod.getLicenseName());
 
 	if(!mod.getContact().isEmpty())
-		result += urlTemplate.arg(tr("Contact")).arg(mod.getContact()).arg(mod.getContact());
+		result += lineTemplate.arg(tr("Contact")).arg(mod.getContact());
+
+	if(!mod.getDownloadUrl().isEmpty())
+		result += urlTemplate.arg(tr("Git-Repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
+
+	if(mod.getGithubStars() != -1)
+		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub-Stars")));
 
 	//compatibility info
 	if(!mod.isCompatible())
@@ -393,9 +409,6 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(getModNames(mod.getID(), conflicts), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(mod.getDescription(), textTemplate.arg(tr("Description")));
-
-	result += "<p></p>"; // to get some empty space
 
 	QString translationMismatch = tr("This mod cannot be enabled because it translates into a different language.");
 	QString notInstalledDeps = tr("This mod can not be enabled because the following dependencies are not present");
@@ -422,6 +435,17 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += textTemplate.arg(tr("Notes")).arg(notes);
 
 	return result;
+}
+
+QString CModListView::getRepoUrl(const ModState & mod)
+{
+	QUrl url(mod.getDownloadUrl());
+	QString repoUrl = QString("%1://%2/%3/%4")
+		.arg(url.scheme())
+		.arg(url.host())
+		.arg(url.path().split('/')[1])
+		.arg(url.path().split('/')[2]);
+	return repoUrl;
 }
 
 void CModListView::disableModInfo()
@@ -539,13 +563,8 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 	addContextEntry(
 		state.repositoryVisible, state.repositoryEnabled, QIcon{":/icons/about-project.png"},
 		tr("Open repository"),
-		[](ModState mod){
-			QUrl url(mod.getDownloadUrl());
-			QString repoUrl = QString("%1://%2/%3/%4")
-				.arg(url.scheme())
-				.arg(url.host())
-				.arg(url.path().split('/')[1])
-				.arg(url.path().split('/')[2]);
+		[this](ModState mod){
+			QString repoUrl = getRepoUrl(mod);
 			QDesktopServices::openUrl(repoUrl);
 		}
 	);
@@ -574,8 +593,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		ui->tabWidget->setTabEnabled(1, !mod.getChangelog().isEmpty());
 		ui->tabWidget->setTabEnabled(2, !mod.getScreenshots().isEmpty());
 
-		ui->modInfoBrowser->setHtml(genModInfoText(mod));
-		ui->changelogBrowser->setHtml(genChangelogText(mod));
+		ui->modInfoBrowser->document()->setMarkdown(genModInfoText(mod), QTextDocument::MarkdownFeature::MarkdownNoHTML);
+		ui->changelogBrowser->document()->setMarkdown(genChangelogText(mod), QTextDocument::MarkdownFeature::MarkdownNoHTML);
 
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
@@ -713,7 +732,20 @@ QStringList CModListView::getModsToInstall(QString mod)
 
 void CModListView::on_updateButton_clicked()
 {
-	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	QModelIndex selectedMod = ui->allModsView->currentIndex();
+	if (!selectedMod.isValid())
+	{
+		logGlobal->error("Update failed! Invalid index selected but update button is not locked!");
+		return;
+	}
+
+	QString modName = selectedMod.data(ModRoles::ModNameRole).toString();
+	if (modName.isEmpty())
+	{
+		logGlobal->error("Update failed! Model index is valid but mod name is empty!");
+		return;
+	}
+
 	doUpdateMod(modName);
 
 	ui->updateButton->setEnabled(false);
@@ -884,6 +916,8 @@ void CModListView::installFiles(QStringList files)
 
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
 		{
+			try {
+			// TODO: there is some weird crash on Android where this constructor fails to open file
 			ZipArchive archive(qstringToPath(realFilename));
 			auto fileList = archive.listFiles();
 
@@ -909,6 +943,12 @@ void CModListView::installFiles(QStringList files)
 				maps.push_back(filename);
 			else
 				mods.push_back(filename);
+			}
+			catch (const std::runtime_error & e)
+			{
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename).arg(QString::fromStdString(e.what())));
+			}
+
 		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
@@ -928,9 +968,15 @@ void CModListView::installFiles(QStringList files)
 				{
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
 					auto modJsonUrl = modJson["mod"];
+					auto modDescriptionUrl = modJson["descriptionURL"];
 					if(!modJsonUrl.isNull())
 					{
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
+						repositoryFilesEnqueued = true;
+					}
+					if(!modDescriptionUrl.isNull())
+					{
+						downloadFile(QString::fromStdString(modName + ".md"), QString::fromStdString(modDescriptionUrl.String()), tr("mods repository index"));
 						repositoryFilesEnqueued = true;
 					}
 
@@ -947,6 +993,22 @@ void CModListView::installFiles(QStringList files)
 		}
 		else if(realFilename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
+		else if(realFilename.endsWith(".md", Qt::CaseInsensitive))
+		{
+			// This is description of a single mod. Extract name of mod and add it to index
+			auto modName = QFileInfo(filename).baseName().toStdString();
+			auto modNameLower = boost::algorithm::to_lower_copy(modName);
+			QFile file(realFilename);
+			if(file.open(QFile::ReadOnly))
+			{
+				const auto data = file.readAll();
+				std::string modDescriptions(data.data(), data.size());
+				ModDescription::mergeModDescriptions(accumulatedRepositoryData[modNameLower], modDescriptions);
+			}
+			else
+				logGlobal->error("Failed to open file %s. Reason: %s", qUtf8Printable(filename), qUtf8Printable(file.errorString()));
+		}
+
 	}
 
 	if (!accumulatedRepositoryData.isNull() && !repositoryFilesEnqueued)
@@ -1061,7 +1123,11 @@ void CModListView::installMods(QStringList archives)
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
-		ui->progressBar->setFormat(tr("Installing mod %1").arg(modStateModel->getMod(modNames[i]).getName()));
+		QString modDisplayName = modNames[i];
+		if (modStateModel->isModExists(modNames[i]))
+			modDisplayName = modStateModel->getMod(modNames[i]).getName();
+
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
 
@@ -1525,6 +1591,9 @@ void CModListView::importPreset(const JsonNode & data)
 	{
 		activatingPreset = presetName;
 		for (const auto & modID : modList)
-			doInstallMod(modID);
+		{
+			if (modStateModel->isModExists(modID))
+				doInstallMod(modID);
+		}
 	}
 }

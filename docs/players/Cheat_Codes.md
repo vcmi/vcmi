@@ -44,8 +44,9 @@ Gives specific creature in every slot, with optional amount. Examples:
 ### Artifacts
 
 - `nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
-- `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
-- `vcmiscrolls` - give spell scrolls for every possible spells
+- `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included
+- `vcmiscrolls` - give spell scrolls for every possible spells  
+- `nwcarchitect`, `vcmigrail` - give grail
 
 ### Movement
 

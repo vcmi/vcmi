@@ -597,7 +597,9 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		animation->setAmount(parent->info->creatureCount);
 	}
 
-	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
+	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
+		parent->info->getName() + (parent->info->commander && !parent->info->commander->alive ? (" {red|(" + LIBRARY->generaltexth->translate("vcmi.battleWindow.killed") + ")}") : "")
+	);
 
 	const CStack* battleStack = parent->info->stack;
 
@@ -926,7 +928,7 @@ void CStackWindow::initBonusesList()
 		groupIndepMin.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MIN; });
 		groupIndepMax.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MAX; });
 		groupNoMinMax.remove_if([](const Bonus * b) { return b->valType == BonusValueType::INDEPENDENT_MAX || b->valType == BonusValueType::INDEPENDENT_MIN; });
-		groupBaseOnly.remove_if([](const Bonus * b) { return b->valType != BonusValueType::ADDITIVE_VALUE || b->valType == BonusValueType::BASE_NUMBER; });
+		groupBaseOnly.remove_if([](const Bonus * b) { return b->valType != BonusValueType::ADDITIVE_VALUE && b->valType != BonusValueType::BASE_NUMBER; });
 
 		int valIndepMin = groupIndepMin.totalValue();
 		int valIndepMax = groupIndepMax.totalValue();

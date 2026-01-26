@@ -37,6 +37,7 @@
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
@@ -503,7 +504,7 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	if (bobjs.empty())
 		return nullptr;
 
-	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
+	return *boost::range::max_element(bobjs, &CMap::compareObjectBlitOrder);
 }
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
@@ -882,7 +883,11 @@ void AdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& obje
 
 void AdventureMapInterface::hotkeyNextTown()
 {
+	int selectedIndex = widget->getTownList()->getSelectedIndex();
 	widget->getTownList()->selectNext();
+
+	if(selectedIndex == widget->getTownList()->getSelectedIndex())
+		widget->getTownList()->refreshSelected();
 }
 
 void AdventureMapInterface::hotkeySwitchMapLevel()

@@ -43,6 +43,9 @@
 		"townPortal",
 		"modID:spellFromMod"
 	],
+	
+	// Similar to bannedSpells, list of normally banned spells that are enabled on this map
+	"enabledSpells" : [ ],
 
 	/// List of artifacts that are banned on this map. 
 	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
@@ -51,6 +54,9 @@
 		"armageddonsBlade",
 		"modID:artifactFromMod"
 	],
+	
+	// Similar to bannedArtifacts, list of normally banned artifacts that are enabled on this map
+	"enabledArtifacts" : [ ],
 
 	/// List of secondary skills that are banned on this map. 
 	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
@@ -60,13 +66,19 @@
 		"modID:secondarySkillFromMod"
 	],
 
+	// Similar to bannedSkills, list of normally banned skills that are enabled on this map
+	"enabledSkills" : [ ],
+
 	/// List of heroes that are banned on this map. 
 	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
 	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"bannedHeroes": [
 		"lordHaart",
 		"modID:heroFromMod"
-	]
+	],
+	
+	// Similar to bannedHeroes, list of normally banned heroes that are enabled on this map
+	"enabledHeroes" : [ ],
 
 	/// List of named zones, see below for format description
 	"zones" :

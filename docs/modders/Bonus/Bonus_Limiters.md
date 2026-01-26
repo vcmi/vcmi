@@ -30,6 +30,10 @@ Bonus is active if affected unit is on native terrain
 
 Bonus is active only on units
 
+### UNIT_DEFENDING
+
+Bonus is active only while unit is defending
+
 ### OPPOSITE_SIDE
 
 Bonus is active only for opposite side for a battle-wide bonus. Requires `BONUS_OWNER_UPDATER` to be present on bonus
@@ -118,14 +122,15 @@ If parameters is empty, any creature will pass this limiter
 
 Parameters:
 
-- `minLevel` - minimal level that creature must have to pass limiter
-- `maxlevel` - maximal level that creature must have to pass limiter
+- `minLevel`: level starting from which creature will pass the limiter
+- `maxLevel`: level starting from which creature will no longer pass the limiter
 
 ```json
 "limiters": [
 	{
+		// accepts creatures of levels 2,3,4, but rejects creatures of level 1 or 5+
 		"type" : "CREATURE_LEVEL_LIMITER",
-		"minLevel" : 1,
+		"minLevel" : 2,
 		"maxlevel" : 5
 	}
 ],
@@ -182,6 +187,30 @@ Parameters:
 	{
 		"type" : "HAS_CHARGES_LIMITER",
 		"cost" : 2
+	}
+]
+```
+
+### UNIT_ADJACENT
+
+Can only be used for units in combat. Bonus is active if another unit is adjacent to unit with this bonus.
+
+If multiple same units are adjacent to holder of the bonus, effect does NOT stacks.
+
+Notes:
+
+- Using battle-wide propagator allows creating aura-like effect, giving bonus to all units adjacent to holder of battle-wide bonus. Filtering to create aura limited to allies or enemies can be done same name as usual battle-wide bonuses
+- If multiple different creatures (e.g. base and upgrade) have same aura effect, consider using stacking bonus property to avoid duplicated effect
+
+Parameters:
+
+- `creature` - Unit that must be adjacent to unit affected by bonus for this bonus to have an effect
+
+```json
+"limiters" : [
+    {
+	    "type" : "UNIT_ADJACENT",
+		"creature" : "unicorn"
 	}
 ]
 ```

@@ -28,6 +28,7 @@
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -85,6 +86,7 @@ void CMapLoaderH3M::init()
 
 	readHeader();
 	readMapOptions();
+	readHotaScripts();
 	readAllowedArtifacts();
 	readAllowedSpellsAbilities();
 	readRumors();
@@ -145,12 +147,13 @@ void CMapLoaderH3M::readHeader()
 			int32_t townTypesCount = reader->readUInt32();
 			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
 
-			assert(features.factionsCount == townTypesCount);
+			// wrong assumption and this is not related to factions?
+			// assert(features.factionsCount == townTypesCount);
 
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
 
-			if (allowedDifficultiesMask != 0)
+			if (allowedDifficultiesMask != 0 && allowedDifficultiesMask != 31) //TODO: recheck if 0 is possible
 				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, static_cast<int>(allowedDifficultiesMask));
 		}
 
@@ -167,6 +170,13 @@ void CMapLoaderH3M::readHeader()
 			bool forceMatchingVersion = reader->readBool();
 			if (forceMatchingVersion)
 				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", mapName);
+		}
+
+		if(features.levelHOTA9)
+		{
+			int unknown = reader->readInt32();
+			if(unknown != 0)
+				logGlobal->warn("Map '%s': Unknown value in header was set to %d!", mapName, unknown);
 		}
 	}
 	else
@@ -185,7 +195,7 @@ void CMapLoaderH3M::readHeader()
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
-	mapHeader->mapLevels = reader->readBool() ? 2 : 1;
+	mapHeader->mapLayers = reader->readBool() ? std::vector<MapLayerId>({MapLayerId::SURFACE, MapLayerId::UNDERGROUND}) : std::vector<MapLayerId>({MapLayerId::SURFACE});
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->author.appendRawString("");
@@ -748,6 +758,701 @@ void CMapLoaderH3M::readMapOptions()
 	map->overrideGameSettings(identifierMapper.getFormatSettings());
 }
 
+void CMapLoaderH3M::readHotaScripts()
+{
+	if(!features.levelHOTA9)
+		return;
+
+	bool eventsSystemActive = reader->readBool();
+	if(!eventsSystemActive)
+		return;
+
+	const auto & loadEventList = [this](const std::string & eventType) -> void
+	{
+		int eventsCount = reader->readInt32();
+		for(int i = 0; i < eventsCount; ++i)
+		{
+			int eventID = reader->readInt32();
+			readHotaScriptActions();
+			std::string eventName = reader->readBaseString();
+			logGlobal->warn("Map %s: Event %s (%d), type %d is not implemented!", mapName, eventName, eventID, eventType);
+		}
+	};
+
+	const auto & loadEventMap = [this]() -> void
+	{
+		int mappingSize = reader->readInt32();
+		for(int i = 0; i < mappingSize; ++i)
+			reader->readInt32(); // UID of event
+	};
+
+	loadEventList("hero event");
+	loadEventList("player event");
+	loadEventList("town event");
+	loadEventList("quest event");
+
+	int nextVariableID = reader->readInt32();
+	int nextHeroEventID = reader->readInt32();
+	int nextPlayerEventID = reader->readInt32();
+	int nextTownEventID = reader->readInt32();
+	int nextQuestEventID = reader->readInt32();
+	logGlobal->trace("Map %s: Next event ID's: %d, %d, %d, %d, %d", mapName, nextVariableID, nextHeroEventID, nextPlayerEventID, nextTownEventID, nextQuestEventID);
+
+	int variablesCount = reader->readInt32();
+	for(int i = 0; i < variablesCount; ++i)
+	{
+		int32_t uniqueID = reader->readInt32(); // 1... - unique index?
+		std::string variableID = reader->readBaseString();
+		bool unkPropA = reader->readBool(); // save in campaign?
+		bool unkPropB = reader->readBool(); // import from prev map?
+		int32_t initialValue = reader->readInt32();
+		logGlobal->warn("Map %s: Variable %s (%d), initial value %d, flags %d/%d is not implemented", mapName, variableID, uniqueID, initialValue, unkPropA, unkPropB);
+	}
+
+	loadEventMap(); // hero event
+	loadEventMap(); // player event
+	loadEventMap(); // town event
+	loadEventMap(); // quest event
+	loadEventMap(); // variable
+}
+
+void CMapLoaderH3M::readHotaScriptActions()
+{
+	enum class HotaScriptActions : int32_t
+	{
+		// NOOP = 0? Unused?
+		CONDITIONAL_CHAIN = 1,
+		SET_VARIABLE_CONDITIONAL = 2,
+		MODIFY_VARIABLE = 3,
+		RESOURCES = 4,
+		REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST = 5, // shared ID ???
+		SHOW_REWARDS_MESSAGE = 6,
+		QUEST_ACTION = 7,
+		CREATURES = 8,
+		ARTIFACT = 9,
+		CONSTRUCT_BUILDING = 10,
+		SET_QUEST_HINT = 11,
+		SHOW_QUESTION = 12,
+		CONDITIONAL = 13,
+		CREATURES_TO_HIRE = 14,
+		SPELL = 15,
+		EXPERIENCE = 16,
+		SPELL_POINTS = 17,
+		MOVEMENT_POINTS = 18,
+		PRIMARY_SKILL = 19,
+		SECONDARY_SKILL = 20,
+		LUCK = 21,
+		MORALE = 22,
+		START_COMBAT = 23,
+		EXECUTE_EVENT = 24,
+		WAR_MACHINE = 25,
+		SPELLBOOK = 26,
+		DISABLE_EVENT = 27,
+		LOOP_FOR = 28,
+		SHOW_MESSAGE = 29
+	};
+
+	int unk2 = reader->readInt32(); // event type?
+	int unk3 = reader->readInt8();
+	assert(unk2 == 1);
+	assert(unk3 == 0);
+	logGlobal->warn("Map %s: HotA Script action - unkown values %d/%d", mapName, unk2, unk3);
+
+	int actionsCount = reader->readInt32();
+	for(int j = 0; j < actionsCount; ++j)
+	{
+		HotaScriptActions actionType = static_cast<HotaScriptActions>(reader->readInt32());
+
+		switch(actionType)
+		{
+			case HotaScriptActions::SHOW_MESSAGE:
+			{
+				std::string textID = readBasicString();
+				int32_t numberOfImages = reader->readInt32();
+				for (int i = 0; i < numberOfImages;++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: type %d/%d", mapName, imageType, imageSubtype);
+				}
+				logGlobal->warn("Map %s: HotA Script action - SHOW_MESSAGE: message %s, %d images", mapName, textID, numberOfImages);
+				break;
+			}
+			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
+			{
+				std::string textID = readBasicString();
+				readHotaScriptActions();
+				logGlobal->warn("Map %s: HotA Script action - SHOW_REWARDS_MESSAGE: message %s", mapName, textID);
+				break;
+			}
+			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
+			{
+				logGlobal->warn("Map %s: HotA Script action - REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST", mapName);
+				break; // no-op
+			}
+			case HotaScriptActions::DISABLE_EVENT:
+			{
+				logGlobal->warn("Map %s: HotA Script action - DISABLE_EVENT", mapName);
+				break; // no-op
+			}
+			case HotaScriptActions::QUEST_ACTION:
+			{
+				readHotaScriptCondition();
+				std::string proposalTextID = readBasicString();
+				std::string progressionTextID = readBasicString();
+				std::string completionTextID = readBasicString();
+				std::string hintTextID = readBasicString();
+				readHotaScriptActions();
+				bool unk5 = reader->readBool(); // ???
+				assert(unk5 == 1);
+				logGlobal->warn("Map %s: HotA Script action - QUEST_ACTION: '%s' / '%s' / '%s' / '%s', unknown: %d", mapName, proposalTextID, progressionTextID, completionTextID, hintTextID, unk5);
+				break;
+			}
+			case HotaScriptActions::CONDITIONAL:
+			{
+				readHotaScriptCondition();
+				readHotaScriptActions();
+				readHotaScriptActions();
+				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL", mapName);
+				break;
+			}
+
+			case HotaScriptActions::LOOP_FOR:
+			{
+				readHotaScriptActions(); // loop body
+				readHotaScriptExpression(); // initial value
+				readHotaScriptExpression(); // final value
+				int variableID = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - LOOP_FOR: variable ID %d", mapName, variableID);
+				break;
+			}
+
+			case HotaScriptActions::SET_QUEST_HINT:
+			{
+				std::string messageTextID = readBasicString();
+				int32_t numberOfImages = reader->readInt32();
+				for (int i = 0; i < numberOfImages;++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: type %d/%d", mapName, imageType, imageSubtype);
+				}
+				bool showInLog = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SET_QUEST_HINT: '%s', %d images, show in log: %d", mapName, messageTextID, numberOfImages, showInLog);
+				break;
+			}
+
+			case HotaScriptActions::SHOW_QUESTION:
+			{
+				// 0 = no images
+				// 1 = no exit
+				// 2 = can exit?
+				// 3 = specify images
+				int imageShowType = reader->readInt8();
+				std::string messageTextID = readBasicString();
+				readHotaScriptActions();
+				readHotaScriptActions();
+
+				if (imageShowType == 2)
+					readHotaScriptActions();
+
+				int numberOfImages = 2;
+				if (imageShowType == 0 || imageShowType == 3)
+					numberOfImages = reader->readInt32();
+
+				for (int i = 0; i < numberOfImages; ++i)
+				{
+					int32_t imageType = reader->readInt32(); // e.g. Creatures
+					int32_t imageSubtype = reader->readInt32(); // e.g. Archers
+					readHotaScriptExpression(); // e.g. 10 Archers
+					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: type %d/%d", mapName, imageType, imageSubtype);
+				}
+
+				if (imageShowType == 1 || imageShowType == 2)
+				{
+					bool showOrBetweenImages = reader->readBool();
+					int32_t unknown = reader->readInt32();
+					logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: show OR: %d, unknown: %d", mapName, showOrBetweenImages, unknown);
+				}
+				logGlobal->warn("Map %s: HotA Script action - SHOW_QUESTION: '%s', mode: %d, images: %d", mapName, messageTextID, imageShowType, numberOfImages);
+				break;
+			}
+			case HotaScriptActions::ARTIFACT:
+			{
+				bool takeArtifact = reader->readBool();
+				ArtifactID artifact = reader->readArtifact32();
+				SpellID scrollSpellID = reader->readSpell32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - ARTIFACT: art %d, spell %d, take: %d, show message: %d", mapName, artifact.getNum(), scrollSpellID.getNum(), takeArtifact, showMessage);
+				break;
+			}
+			case HotaScriptActions::WAR_MACHINE:
+			{
+				bool takeMachine = reader->readBool();
+				ArtifactID machine = reader->readArtifact32();
+				reader->skipUnused(4); // garbage?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - WAR_MACHINE: art %d, take: %d, show message: %d", mapName, machine.getNum(), takeMachine, showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELL:
+			{
+				SpellID spellID = reader->readSpell32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELL: spell %d, show message: %d", mapName, spellID.getNum(), showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELLBOOK:
+			{
+				bool takeSpellbook = reader->readBool();
+				reader->skipUnused(8); // garbage?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELLBOOK: take: %d, show message: %d", mapName, takeSpellbook, showMessage);
+				break;
+			}
+			case HotaScriptActions::CREATURES:
+			{
+				bool takeCreatures = reader->readBool();
+				CreatureID creature = reader->readCreature32();
+				readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - CREATURES: creature %d, take creatures: %d, show message: %d", mapName, creature.getNum(), takeCreatures, showMessage);
+				break;
+			}
+			case HotaScriptActions::START_COMBAT:
+			{
+				for(int i = 0; i < 7; ++i)
+				{
+					readHotaScriptExpression();
+					CreatureID creature = reader->readCreature32();
+					logGlobal->warn("Map %s: HotA Script action - START_COMBAT, unit %d", mapName, creature.getNum());
+				}
+				logGlobal->warn("Map %s: HotA Script action - START_COMBAT done", mapName);
+				break;
+			}
+			case HotaScriptActions::SECONDARY_SKILL:
+			{
+				int masteryLevel = reader->readInt32(); // 1..3
+				SecondarySkill skill = reader->readSkill32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SECONDARY_SKILL %d mastery %d, show message %d", mapName, skill.getNum(), masteryLevel, showMessage);
+				break;
+			}
+			case HotaScriptActions::MORALE:
+			{
+				int amount = reader->readInt32(); // -3..3
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - MORALE amount: %d, show message: %d", mapName, amount, showMessage);
+				break;
+			}
+			case HotaScriptActions::LUCK:
+			{
+				int amount = reader->readInt32(); // -3..3
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - LUCK amount: %d, show message: %d", mapName, amount, showMessage);
+				break;
+			}
+			case HotaScriptActions::EXPERIENCE:
+			{
+				readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - EXPERIENCE show message: %d", mapName, showMessage);
+				break;
+			}
+			case HotaScriptActions::SPELL_POINTS:
+			{
+				readHotaScriptExpression();
+				int mode = reader->readInt32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - SPELL_POINTS mode: %d, show message: %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::CREATURES_TO_HIRE:
+			{
+				int dwelling = reader->readInt32(); // 0-based
+				readHotaScriptExpression(); // amount
+				int unknown = reader->readInt32(); // factory 8th dwelling?
+				bool showMessage = reader->readBool();
+				assert(unknown == -1);
+				logGlobal->warn("Map %s: HotA Script action - CREATURES_TO_HIRE dwelling: %d, unknown: %d, show message: %d", mapName, dwelling, unknown, showMessage);
+				break;
+			}
+			case HotaScriptActions::CONSTRUCT_BUILDING:
+			{
+				BuildingID buildingID = reader->readBuilding32(std::nullopt);
+				int unknownA = reader->readInt16(); // faction ID?
+				int unknownB = reader->readInt16(); // faction building ID?
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - CONSTRUCT_BUILDING, building %d, unknown %d / %d, show message %d", mapName, buildingID.getNum(), unknownA, unknownB, showMessage);
+				break;
+			}
+			case HotaScriptActions::EXECUTE_EVENT:
+			{
+				int eventType = reader->readInt32();
+				int eventID = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - EXECUTE_EVENT event type %d, event ID %d", mapName, eventType, eventID);
+				break;
+			}
+			case HotaScriptActions::MOVEMENT_POINTS:
+			{
+				readHotaScriptExpression();
+				int mode = reader->readInt32();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - MOVEMENT_POINTS mode %d, show message %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::RESOURCES:
+			{
+				int mode = reader->readInt8();
+				for(int i = 0; i < 7; ++i)
+					readHotaScriptExpression();
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - RESOURCES mode %d, show message %d", mapName, mode, showMessage);
+				break;
+			}
+			case HotaScriptActions::PRIMARY_SKILL:
+			{
+				readHotaScriptExpression();
+				PrimarySkill skillToGive(reader->readInt32());
+				bool showMessage = reader->readBool();
+				logGlobal->warn("Map %s: HotA Script action - PRIMARY_SKILL skill %d, show message %d", mapName, skillToGive.getNum(), showMessage);
+				break;
+			}
+			case HotaScriptActions::MODIFY_VARIABLE:
+			{
+				int variableID = reader->readInt32();
+				int mode = reader->readInt8(); // 0 = add, 1 = substract, 2 = set
+				readHotaScriptExpressionInternal(); // new value
+				logGlobal->warn("Map %s: HotA Script action - MODIFY_VARIABLE variable ID %d, mode %d", mapName, variableID, mode);
+				break;
+			}
+			case HotaScriptActions::SET_VARIABLE_CONDITIONAL:
+			{
+				int variableID = reader->readInt32();
+				readHotaScriptCondition();
+				readHotaScriptExpression();
+				readHotaScriptExpression();
+				logGlobal->warn("Map %s: HotA Script action - SET_VARIABLE_CONDITIONAL variable ID %d", mapName, variableID);
+				break;
+			}
+			case HotaScriptActions::CONDITIONAL_CHAIN:
+			{
+				for(;;)
+				{
+					readHotaScriptCondition();
+					readHotaScriptActions();
+
+					int unknown = reader->readBool();
+					int unknown2 = reader->readInt32();
+					assert(unknown == 1);
+					assert(unknown2 == 1 || unknown2 == 0);
+					logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN block, unknown %d/%d", mapName, unknown, unknown2);
+					if(unknown2 == 0)
+						break;
+				}
+				int unknown3 = reader->readInt32();
+				logGlobal->warn("Map %s: HotA Script action - CONDITIONAL_CHAIN end, unknown %d", mapName, unknown3);
+				break;
+			}
+			default:
+				throw std::runtime_error("Unknown event action code:" + std::to_string(static_cast<int>(actionType)));
+		}
+	}
+}
+
+void CMapLoaderH3M::readHotaScriptCondition()
+{
+	bool unknown = reader->readBool();
+	assert(unknown == true);
+	logGlobal->warn("Map %s: HotA Script condition - unknown value %d", mapName, unknown);
+	readHotaScriptConditionInternal();
+}
+
+void CMapLoaderH3M::readHotaScriptConditionInternal()
+{
+	enum class HotaScriptCondition : int32_t
+	{
+		CONSTANT = 0,
+		ALL_OF = 1, // and
+		ANY_OF = 2, // or
+		LESSER = 3,
+		GREATER = 4,
+		EQUAL = 5,
+		NOT = 6,
+		HAS_ARTIFACT = 7,
+		GREATER_OR_EQUAL = 8,
+		LESSER_OR_EQUAL = 9,
+		NOT_EQUAL = 10,
+		CURRENT_PLAYER = 11,
+		HERO_OWNER = 12,
+		// ??? = 13 unused or missing?
+		PLAYER_DEFEATED_MONSTER = 14,
+		PLAYER_DEFEATED_HERO = 15,
+		HERO_SECONDARY_SKILL = 16,
+		PLAYER_DEFEATED = 17,
+		PLAYER_OWNS_TOWN = 18,
+		PLAYER_IS_HUMAN = 19,
+		PLAYER_STARTING_FACTION = 20,
+		TOWN_IS_NEUTRAL = 21
+	};
+
+	HotaScriptCondition conditionCode = static_cast<HotaScriptCondition>(reader->readInt32());
+	switch(conditionCode)
+	{
+		case HotaScriptCondition::CONSTANT:
+		{
+			bool value = reader->readBool();
+			logGlobal->warn("Map %s: HotA Script condition - CONSTANT %d", mapName, value);
+			break;
+		}
+		case HotaScriptCondition::ANY_OF:
+		case HotaScriptCondition::ALL_OF:
+		{
+			int argumentsCount = reader->readInt32();
+			for(int i = 0; i < argumentsCount; ++i)
+				readHotaScriptConditionInternal();
+			logGlobal->warn("Map %s: HotA Script condition - ANY_OF/ALL_OF, %d arguments", mapName, argumentsCount);
+			break;
+		}
+		case HotaScriptCondition::LESSER_OR_EQUAL:
+		case HotaScriptCondition::NOT_EQUAL:
+		case HotaScriptCondition::GREATER_OR_EQUAL:
+		case HotaScriptCondition::LESSER:
+		case HotaScriptCondition::EQUAL:
+		case HotaScriptCondition::GREATER:
+		{
+			readHotaScriptExpression();
+			readHotaScriptExpression();
+			logGlobal->warn("Map %s: HotA Script condition - (comparison check)", mapName);
+			break;
+		}
+		case HotaScriptCondition::NOT:
+		{
+			readHotaScriptCondition();
+			logGlobal->warn("Map %s: HotA Script condition - NOT", mapName);
+			break;
+		}
+		case HotaScriptCondition::HAS_ARTIFACT:
+		{
+			ArtifactID artifact = reader->readArtifact32();
+			SpellID scrollSpellID = reader->readSpell32();
+			logGlobal->warn("Map %s: HotA Script condition - HAS_ARTIFACT, %d artifact, %d scroll spell", mapName, artifact.getNum(), scrollSpellID.getNum());
+			break;
+		}
+		case HotaScriptCondition::CURRENT_PLAYER:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32();
+			logGlobal->warn("Map %s: HotA Script condition - CURRENT_PLAYER, %d player", mapName, expectedPlayer.getNum());
+			break;
+		}
+		case HotaScriptCondition::HERO_OWNER:
+		{
+			HeroTypeID expectedHero = reader->readHero32();
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -2 = current hero, -1 = current player
+			logGlobal->warn("Map %s: HotA Script condition - HERO_OWNER $d hero, %d player", mapName, expectedHero.getNum(), expectedPlayer.getNum());
+			break;
+		}
+		case HotaScriptCondition::HERO_SECONDARY_SKILL:
+		{
+			SecondarySkill expectedSkill = reader->readSkill32();
+			int32_t expectedMastery = reader->readInt32();
+			logGlobal->warn("Map %s: HotA Script condition - HERO_SECONDARY_SKILL, expectec %d skill with $d mastery", mapName, expectedSkill.getNum(), expectedMastery);
+			break;
+		}
+		case HotaScriptCondition::TOWN_IS_NEUTRAL:
+		{
+			logGlobal->warn("Map %s: HotA Script condition - TOWN_IS_NEUTRAL", mapName);
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32();
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED, %d player", mapName, expectedPlayer.getNum());
+			break;
+		}
+		case HotaScriptCondition::PLAYER_IS_HUMAN:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_IS_HUMAN, %d player", mapName, expectedPlayer.getNum());
+			break;
+		}
+		case HotaScriptCondition::PLAYER_STARTING_FACTION:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			FactionID expectedFaction = reader->readFaction32();
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_STARTING_FACTION, %d player %d faction", mapName, expectedPlayer.getNum(), expectedFaction.getNum());
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED_MONSTER, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
+			break;
+		}
+		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier? Hero tyoe ID? Garbage???
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_DEFEATED_HERO, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
+			break;
+		}
+		case HotaScriptCondition::PLAYER_OWNS_TOWN:
+		{
+			PlayerColor expectedPlayer = reader->readPlayer32(); // -1 = current player
+			int32_t targetObjectID = reader->readInt32(); // Quest identifier?
+			logGlobal->warn("Map %s: HotA Script condition - PLAYER_OWNS_TOWN, %d player %d object ID", mapName, expectedPlayer.getNum(), targetObjectID);
+			break;
+		}
+		default:
+			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));
+	}
+}
+
+void CMapLoaderH3M::readHotaScriptExpression()
+{
+	bool isExpression = reader->readBool();
+
+	if(!isExpression)
+	{
+		int rawValue = reader->readInt32();
+		logGlobal->warn("Map %s: HotA Script expression - RAW VALUE, %d value", mapName, rawValue);
+		return;
+	}
+
+	readHotaScriptExpressionInternal();
+}
+
+void CMapLoaderH3M::readHotaScriptExpressionInternal()
+{
+	enum class HotaScriptExpression : int32_t
+	{
+		INTEGER_VALUE = 0,
+		VARIABLE_VALUE = 1,
+		NEGATE = 2,
+		ADD = 3,
+		SUBSTRACT = 4,
+		RESOURCE = 5,
+		MULTIPLY = 6,
+		DIVIDE = 7,
+		REMAINDER = 8,
+		CREATURE_COUNT_IN_ARMY = 9,
+		CURRENT_DIFFICULTY = 10,
+		COMPARE_DIFFICULTY = 11,
+		CURRENT_DATE = 12,
+		HERO_EXPERIENCE = 13,
+		HERO_LEVEL = 14,
+		HERO_PRIMARY_SKILL = 15,
+		RANDOM_NUMBER = 16,
+		HERO_OWNED_ARTIFACTS = 17,
+	};
+
+	int unknown = reader->readBool();
+	assert(unknown==true);
+	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, unknown);
+
+
+	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
+	switch(expressionCode)
+	{
+		case HotaScriptExpression::INTEGER_VALUE:
+		{
+			int value = reader->readInt32();
+			logGlobal->warn("Map %s: HotA Script expression - INTEGER_VALUE %d", mapName, value);
+			break;
+		}
+		case HotaScriptExpression::VARIABLE_VALUE:
+		{
+			int variableIndex = reader->readInt32();
+			logGlobal->warn("Map %s: HotA Script expression - VARIABLE_VALUE %d", mapName, variableIndex);
+			break;
+		}
+		case HotaScriptExpression::RANDOM_NUMBER:
+		{
+			readHotaScriptExpression();
+			readHotaScriptExpression();
+			logGlobal->warn("Map %s: HotA Script expression - RANDOM_NUMBER", mapName);
+			break;
+		}
+		case HotaScriptExpression::ADD:
+		case HotaScriptExpression::SUBSTRACT:
+		case HotaScriptExpression::MULTIPLY:
+		case HotaScriptExpression::DIVIDE:
+		case HotaScriptExpression::REMAINDER:
+		{
+			readHotaScriptExpressionInternal();
+			readHotaScriptExpressionInternal();
+			logGlobal->warn("Map %s: HotA Script expression - (arithmetic)", mapName);
+			break;
+		}
+		case HotaScriptExpression::NEGATE:
+		{
+			int unknown = reader->readInt32();
+			readHotaScriptExpression();
+			assert(unknown == 1);
+			logGlobal->warn("Map %s: HotA Script expression - NEGATE, unknown %d", mapName, unknown);
+			break;
+		}
+		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
+		{
+			CreatureID creature = reader->readCreature32();
+			logGlobal->warn("Map %s: HotA Script expression - CREATURE_COUNT_IN_ARMY, creature %d", mapName, creature.getNum());
+			break;
+		}
+		case HotaScriptExpression::CURRENT_DIFFICULTY:
+		{
+			logGlobal->warn("Map %s: HotA Script expression - CURRENT_DIFFICULTY", mapName);
+			break;
+		}
+		case HotaScriptExpression::COMPARE_DIFFICULTY:
+		{
+			// TODO: figure out what exactly this does
+			int difficultyToCompare = reader->readInt32();
+			logGlobal->warn("Map %s: HotA Script expression - COMPARE_DIFFICULTY, difficulty %d", mapName, difficultyToCompare);
+			break;
+		}
+		case HotaScriptExpression::HERO_PRIMARY_SKILL:
+		{
+			PrimarySkill skill(reader->readInt32());
+			logGlobal->warn("Map %s: HotA Script expression - HERO_PRIMARY_SKILL, skill %d", mapName, skill);
+			break;
+		}
+		case HotaScriptExpression::CURRENT_DATE:
+		{
+			logGlobal->warn("Map %s: HotA Script expression - CURRENT_DATE", mapName);
+			break;
+		}
+		case HotaScriptExpression::HERO_EXPERIENCE:
+		{
+			logGlobal->warn("Map %s: HotA Script expression - HERO_EXPERIENCE", mapName);
+			break;
+		}
+		case HotaScriptExpression::HERO_LEVEL:
+		{
+			logGlobal->warn("Map %s: HotA Script expression - HERO_LEVEL", mapName);
+			break;
+		}
+		case HotaScriptExpression::HERO_OWNED_ARTIFACTS:
+		{
+			ArtifactID artifact = reader->readArtifact32();
+			SpellID scrollSpell = reader->readSpell32();
+			logGlobal->warn("Map %s: HotA Script expression - HERO_OWNED_ARTIFACTS, %d artifact, %d scroll spell", mapName, artifact.getNum(), scrollSpell.getNum());
+			break;
+		}
+		case HotaScriptExpression::RESOURCE:
+		{
+			PlayerColor player = reader->readPlayer(); // has special value for current player
+			GameResID resource = reader->readGameResID32();
+			logGlobal->warn("Map %s: HotA Script expression - RESOURCE, %d player, %d resource", mapName, player.getNum(), resource.getNum());
+			break;
+		}
+		default:
+			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
+	}
+}
+
 void CMapLoaderH3M::readAllowedArtifacts()
 {
 	map->allowedArtifact = LIBRARY->arth->getDefaultAllowed();
@@ -1132,18 +1837,46 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 	{
 		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
 		int32_t movementAmount = reader->readInt32();
-
 		assert(movementMode >= 0 && movementMode <= 4);
-		if (movementMode != 0 || movementAmount != 0)
-			logGlobal->warn("Map '%s': Event/Pandora %s option to modify (mode %d) movement points by %d is not implemented!", mapName, mapPosition.toString(), movementMode, movementAmount);
+
+		auto & boxReward = object->configuration.info.back();
+
+		switch (movementMode)
+		{
+			case 0: // Give
+				boxReward.reward.movePoints = movementAmount;
+				break;
+			case 1: // Take
+				boxReward.reward.movePoints = -movementAmount;
+				break;
+			case 2: // Nullify
+				boxReward.reward.movePercentage = 0;
+				break;
+			case 3: // Set
+			case 4: // Replenish
+				// TODO: what's the difference?
+				boxReward.reward.movePercentage = 0;
+				boxReward.reward.movePoints = movementAmount;
+				break;
+		}
 	}
 
 	if(features.levelHOTA6)
 	{
 		int32_t allowedDifficultiesMask = reader->readInt32();
 		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 31)
-			logGlobal->warn("Map '%s': Event/Pandora %s availability by difficulty (mode %d) is not implemented!", mapName, mapPosition.toString(), allowedDifficultiesMask);
+		object->presentOnDifficulties = MapDifficultySet(allowedDifficultiesMask);
+	}
+
+	if (features.levelHOTA9)
+	{
+		bool usesEventSystem = reader->readBool();
+		if(usesEventSystem)
+		{
+			int32_t eventID = reader->readInt32();
+			bool syncronizeObjects = reader->readBool();
+			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for event/pandora at %s is not implemented!", mapName, eventID, syncronizeObjects, mapPosition.toString());
+		}
 	}
 }
 
@@ -1154,8 +1887,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 
 	if(features.levelAB)
 	{
-		object->identifier = reader->readUInt32();
-		questIdentifierToId[object->identifier] = objectInstanceID;
+		int32_t identifier = reader->readUInt32();
+		questIdentifierToId[identifier] = objectInstanceID;
 	}
 
 	auto hlp = std::make_unique<CStackInstance>(map->cb);
@@ -1165,7 +1898,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	object->putStack(SlotID(0), std::move(hlp));
 
 	//TODO: 0-4 is h3 range. 5 is hota extension for exact aggression?
-	object->character = reader->readInt8Checked(0, 5);
+	object->initialCharacter = static_cast<CGCreature::Character>(reader->readInt8Checked(0, 5));
 
 	bool hasMessage = reader->readBool();
 	if(hasMessage)
@@ -1181,23 +1914,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	if(features.levelHOTA3)
 	{
 		//TODO: HotA
-		int32_t aggressionExact = reader->readInt32(); // -1 = default, 1-10 = possible values range
-		bool joinOnlyForMoney = reader->readBool(); // if true, monsters will only join for money
-		int32_t joinPercent = reader->readInt32(); // 100 = default, percent of monsters that will join on successful aggression check
-		int32_t upgradedStack = reader->readInt32(); // Presence of upgraded stack, -1 = random, 0 = never, 1 = always
-		int32_t stacksCount = reader->readInt32(); // TODO: check possible values. How many creature stacks will be present on battlefield, -1 = default
 
-		if(aggressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
-			logGlobal->warn(
-				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemented!",
-				mapName,
-				mapPosition.toString(),
-				aggressionExact,
-				int(joinOnlyForMoney),
-				joinPercent,
-				upgradedStack,
-				stacksCount
-			);
+		// -1 = default, 1-10 = possible values range
+		object->agression = reader->readInt32();
+		// if true, monsters will only join for money
+		object->joinOnlyForMoney = reader->readBool();
+		// 100 = default, percent of monsters that will join on successful aggression check
+		object->joiningPercentage = reader->readInt32();
+		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
+		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(reader->readInt32());
+		// How many creature stacks will be present on battlefield, -1 = default
+		object->stacksCount = reader->readInt32();
 	}
 
 	if (features.levelHOTA5)
@@ -1293,34 +2020,28 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readScholar(const int3 & positi
 			case ScholarBonusType::PRIM_SKILL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = NPrimarySkill::names[bonusID];
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 80;
 				rewardable->configuration.presetVariable("primarySkill", "gainedStat", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
 				break;
 			}
 			case ScholarBonusType::SECONDARY_SKILL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = LIBRARY->skills()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 50;
 				rewardable->configuration.presetVariable("secondarySkill", "gainedSkill", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
 				break;
 			}
 			case ScholarBonusType::SPELL:
 			{
 				JsonNode variable;
-				JsonNode dice;
 				variable.String() = LIBRARY->spells()->getByIndex(bonusID)->getJsonKey();
 				variable.setModScope(ModScope::scopeGame());
-				dice.Integer() = 20;
 				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
-				rewardable->configuration.presetVariable("dice", "0", dice);
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
 				break;
 			}
 			case ScholarBonusType::RANDOM:
@@ -1426,17 +2147,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 
 	if(features.levelHOTA5)
 	{
-		bool customGuards = reader->readBool();
-		CreatureID guardsUnit = reader->readCreature32();
-		int32_t guardsMin = reader->readInt32();
-		int32_t guardsMax = reader->readInt32();
-
-		if (customGuards)
+		bool hasCustomGuards = reader->readBool();
+		if (hasCustomGuards)
 		{
-			assert(guardsMin <= guardsMax);
-			assert(guardsUnit.hasValue());
-			logGlobal->warn("Map '%s': Abandoned Mine %s: not implemented guards of %d-%d %s", mapName, mapPosition.toString(), guardsMin, guardsMax, guardsUnit.toEntity(LIBRARY)->getJsonKey());
+			object->abandonedMineGuards.creature = reader->readCreature32();
+			object->abandonedMineGuards.minAmount = reader->readInt32();
+			object->abandonedMineGuards.maxAmount = reader->readInt32();
 		}
+		else
+			reader->skipUnused(12);
 	}
 	return object;
 }
@@ -1603,12 +2322,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLighthouse(const int3 & map
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA3)
 	{
-		//TODO: HotA
 		// index of guards preset. -1 = random, 0-4 = index of possible guards settings
 		int32_t guardsPresetIndex = reader->readInt32();
 
+		//TODO: HotA
 		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
 		int8_t upgradedStackPresence = reader->readInt8Checked(-1, 1);
 
@@ -1622,50 +2344,98 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPositi
 		std::vector<ArtifactID> artifacts;
 		int artNumber = reader->readUInt32();
 		for(int yy = 0; yy < artNumber; ++yy)
-		{
 			artifacts.push_back(reader->readArtifact32());
-		}
 
-		if(guardsPresetIndex != -1 || upgradedStackPresence != -1 || !artifacts.empty())
+		if(rewardable && guardsPresetIndex != -1)
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(guardsPresetIndex));
+
+		if(upgradedStackPresence != -1 || !artifacts.empty())
 			logGlobal->warn(
-				"Map '%s': creature bank at %s settings %d %d %d are not implemented!",
+				"Map '%s': creature bank at %s settings %d %d are not implemented!",
 				mapName,
 				mapPosition.toString(),
-				guardsPresetIndex,
 				int(upgradedStackPresence),
 				artifacts.size()
 			);
 	}
 
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithGarbage(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA5)
 	{
-		// TREASURE_CHEST       - rewards index, if 3 - then 2nd value is artifact
-		// CORPSE               - rewards index, if 1 - then 2nd value is artifact
-		// SHIPWRECK_SURVIVOR   - if content = 0 then 2nd value is granted artifact
-		// SEA_CHEST            - rewards index, if 2 - then 2nd value is artifact
-		// FLOTSAM              - rewards index (0-3) + -1
-		// TREE_OF_KNOWLEDGE    - rewards index (0-2) + -1
-		// PYRAMID              - if content = 0 then 2nd value is granted spell
-		// WARRIORS_TOMB        - if content = 0 then 2nd value is granted artifact
-		// HOTA_JETSAM          - rewards index (0-3) + -1
-		// HOTA_VIAL_OF_MANA    - rewards index (0-3) + -1
-
 		int32_t content = reader->readInt32();
-		ArtifactID artifact;
-		if (content != -1)
+
+		if(content != -1 && rewardable)
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+
+		reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readPyramid(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+		if(content == 0)
 		{
-			artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
-			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact);
+			SpellID spell = reader->readSpell32();
+			if(rewardable && spell.hasValue())
+			{
+				JsonNode variable;
+				variable.String() = spell.toSpell()->getJsonKey();
+				variable.setModScope(ModScope::scopeGame());
+				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
+			}
 		}
 		else
 			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 	}
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifact(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate, int artifactRewardIndex)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			if(rewardable)
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+
+			if(content == artifactRewardIndex)
+			{
+				ArtifactID artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
+				if(rewardable && artifact.hasValue())
+				{
+					JsonNode variable;
+					variable.String() = artifact.toArtifact()->getJsonKey();
+					variable.setModScope(ModScope::scopeGame());
+					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+				}
+			}
+			else
+				reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+		}
+		else
+			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
+	}
+	return object;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBlackMarket(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
@@ -1706,30 +2476,231 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readUniversity(const int3 & map
 	return readGeneric(mapPosition, objectTemplate);
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifactAndResources(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaGrave(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
 	if(features.levelHOTA5)
 	{
-		// Sea Barrel / 0   -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
-		// Sea Barrel / 1   -> aID = -1, aA = 1, rA = 1, aB = garbage, rB = 0
-		// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
-		// Grave / 0        -> aID = artifact to give, aA = resource amount, rA = resource type, aB = 1, rB = garbage
-		// CAMPFIRE 12 / 0  -> aID = -1, aA = gold amount, rA = gold type, aB = resource amount, rB = resource type
-		// WAGON  105 / 0   -> aID = -1 or artifact, aA = resource amount, rA = resource type, aB = 1, rB = garbage?
-		// WAGON  105 / 1   -> empty / garbage?
-		// LEAN_TO / 39 / 0 -> aID = -1, aA = resource amount, rA = resource type, aB = garbage, rB = 0
-
 		int32_t content = reader->readInt32();
-		int32_t artifact = reader->readInt32();
-		int32_t amountA = reader->readInt32();
-		int8_t resourceA = reader->readInt8();
-		int32_t amountB = reader->readInt32();
-		int8_t resourceB = reader->readInt8();
 
 		if (content != -1)
-			logGlobal->warn("Map '%s': Object (%d) %s settings %d %d %d %d %d %d are not implemented!", mapName, objectTemplate->id, mapPosition.toString(), content, artifact, amountA, static_cast<int>(resourceA), amountB, static_cast<int>(resourceB));
+		{
+			ArtifactID artifact = reader->readArtifact32();
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			reader->skipUnused(5); // no 2nd resource
+
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+				variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+
+				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+			}
+		}
+		else
+			reader->skipUnused(14); // garbage data
 	}
-	return readGeneric(mapPosition, objectTemplate);
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWagon(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		switch(content)
+		{
+			case -1: // random
+				reader->skipUnused(14); // garbage data
+				break;
+			case 1: // empty
+				reader->skipUnused(14); // garbage data
+				if(rewardable)
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
+				break;
+			case 0: // custom
+			{
+				ArtifactID artifact = reader->readArtifact32();
+				int32_t amountA = reader->readInt32();
+				GameResID resourceA = reader->readGameResID();
+				reader->skipUnused(5); // no 2nd resource
+
+				if(rewardable)
+				{
+					if (artifact.hasValue())
+					{
+						JsonNode variable;
+						variable.setModScope(ModScope::scopeGame());
+						variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
+						rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
+						rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
+					}
+					else
+					{
+						JsonNode variable;
+						variable.setModScope(ModScope::scopeGame());
+						variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+						rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+						rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
+						rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+
+					}
+				}
+			}
+		}
+	}
+	return object;
+}
+
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	// TODO
+	// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
+
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		switch(content)
+		{
+			case -1: // random
+				reader->skipUnused(14); // garbage data
+				break;
+			case 0: // custom
+			{
+				reader->skipUnused(4); // no artifact
+				int32_t amountA = reader->readInt32();
+				reader->skipUnused(6); // no 1st resource ID, no 2nd resource
+
+				if(rewardable)
+					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+			}
+		}
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaTrapperLodge(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA9)
+	{
+		// -1 = random
+		// 0 = gold
+		// 1 = creatures
+		int32_t content = reader->readInt32();
+		int32_t goldAmount = reader->readInt32();
+		int32_t creatureAmount = reader->readInt32();
+		CreatureID creatureType = reader->readCreature32();
+
+		if(content != -1)
+		{
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = creatureType.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("creature", "gainedCreature", variable);
+
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("number", "gainedCreatureAmount", JsonNode(creatureAmount));
+				rewardable->configuration.presetVariable("number", "gainedGoldAmount", JsonNode(goldAmount));
+			}
+		}
+	}
+	return object;
+}
+
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			reader->skipUnused(4); // no artifact
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			reader->skipUnused(5); // no 2nd resource
+
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
+				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
+			}
+		}
+		else
+			reader->skipUnused(14); // garbage data
+	}
+	return object;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readCampfire(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
+{
+	auto object = readGeneric(mapPosition, objectTemplate);
+	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
+
+	if(features.levelHOTA5)
+	{
+		int32_t content = reader->readInt32();
+
+		if(content != -1)
+		{
+			reader->skipUnused(4); // no artifact
+			int32_t amountA = reader->readInt32();
+			GameResID resourceA = reader->readGameResID();
+			int32_t amountB = reader->readInt32();
+			GameResID resourceB = reader->readGameResID();
+
+			if(rewardable)
+			{
+				JsonNode variable;
+				variable.setModScope(ModScope::scopeGame());
+
+				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResourceA", variable);
+
+				variable.String() = resourceB.toEntity(LIBRARY)->getJsonKey();
+				rewardable->configuration.presetVariable("resource", "gainedResourceB", variable);
+
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+				rewardable->configuration.presetVariable("number", "gainedAmountA", JsonNode(amountA));
+				rewardable->configuration.presetVariable("number", "gainedAmountB", JsonNode(amountB));
+			}
+		}
+		else
+			reader->skipUnused(14); // garbage data
+	}
+	return object;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & mapPosition, const ObjectInstanceID & objectInstanceID)
@@ -1839,26 +2810,40 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 		case Obj::SHIPWRECK:
 			return readBank(mapPosition, objectTemplate);
 
+		case Obj::PYRAMID:
+			return readPyramid(mapPosition, objectTemplate);
+
 		case Obj::TREASURE_CHEST:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 3);
+
 		case Obj::CORPSE:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 1);
+
+		case Obj::WARRIORS_TOMB:
 		case Obj::SHIPWRECK_SURVIVOR:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 0);
+
 		case Obj::SEA_CHEST:
+			return readRewardWithArtifact(mapPosition, objectTemplate, 2);
+
 		case Obj::FLOTSAM:
 		case Obj::TREE_OF_KNOWLEDGE:
-		case Obj::PYRAMID:
-		case Obj::WARRIORS_TOMB:
-			return readRewardWithArtifact(mapPosition, objectTemplate);
+			return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::CAMPFIRE:
-		case Obj::WAGON:
+			return readCampfire(mapPosition, objectTemplate);
+
 		case Obj::LEAN_TO:
-			return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+			return readLeanTo(mapPosition, objectTemplate);
+
+		case Obj::WAGON:
+			return readWagon(mapPosition, objectTemplate);
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
 				return readQuestGuard(mapPosition);
 			if (subid == 1001) // HotA hacks - Grave
-				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_1:
@@ -1866,14 +2851,22 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			// 1 -> Sea Barrel
 			// 2 -> Jetsam
 			// 3 -> Vial of Mana
-			if (subid == 0 || subid == 1)
-				return readRewardWithArtifactAndResources(mapPosition, objectTemplate);
+			if (subid == 0)
+				return readRewardWithAmount(mapPosition, objectTemplate);
+			if (subid == 1)
+				return readLeanTo(mapPosition, objectTemplate);
 			else
-				return readRewardWithArtifact(mapPosition, objectTemplate);
+				return readRewardWithGarbage(mapPosition, objectTemplate);
 
 		case Obj::HOTA_CUSTOM_OBJECT_2:
 			if (subid == 0) // Seafaring Academy
 				return readUniversity(mapPosition, objectTemplate);
+			else
+				return readGeneric(mapPosition, objectTemplate);
+
+		case Obj::HOTA_CUSTOM_OBJECT_3:
+			if (subid == 12) // Trapper Lodge?
+				return readHotaTrapperLodge(mapPosition, objectTemplate);
 			else
 				return readGeneric(mapPosition, objectTemplate);
 
@@ -2426,7 +3419,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::HOTA_MULTI:
 		{
 			uint32_t missionSubID = reader->readUInt32();
-			assert(missionSubID < 3);
+			assert(missionSubID < 4);
 
 			if(missionSubID == 0)
 			{
@@ -2449,6 +3442,14 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				int32_t difficultyMask = reader->readUInt32();
 				assert(difficultyMask > 0 && difficultyMask < 32);
 				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
+				break;
+			}
+			if(missionSubID == 3)
+			{
+				missionId = EQuestMission::HOTA_SCRIPTED;
+				int32_t scriptID = reader->readUInt32();
+				bool unknown = reader->readBool();
+				logGlobal->warn("Map '%s': Seer Hut at %s: Scripted quest (%d/%d) is not implemented!", mapName, position.toString(), scriptID, unknown);
 				break;
 			}
 			break;
@@ -2583,6 +3584,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 		if(features.levelHOTA7)
 		{
+			// TODO: hota
 			[[maybe_unused]] bool neutralAffected = reader->readBool();
 		}
 
@@ -2653,10 +3655,20 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 
 	if (features.levelHOTA7)
 	{
-		int32_t allowedDifficultiesMask = reader->readInt32();
-		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
-		if (allowedDifficultiesMask != 31)
-			logGlobal->warn("Map '%s': Map event: availability by difficulty (mode %d) is not implemented!", mapName, allowedDifficultiesMask);
+		int32_t affectedDifficulties = reader->readInt32();
+		assert(affectedDifficulties > 0 && affectedDifficulties < 32);
+		event.affectedDifficulties = MapDifficultySet(affectedDifficulties);
+	}
+
+	if(features.levelHOTA9)
+	{
+		bool usesEventSystem = reader->readBool();
+		if(usesEventSystem)
+		{
+			int32_t eventID = reader->readInt32();
+			bool syncronizeObjects = reader->readBool();
+			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for timed/town event is not implemented!", mapName, eventID, syncronizeObjects);
+		}
 	}
 }
 

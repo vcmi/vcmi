@@ -11,7 +11,9 @@
 #include "scenarioproperties.h"
 #include "ui_scenarioproperties.h"
 #include "startingbonus.h"
+#include "campaigneditor.h"
 
+#include "callback/EditorCallback.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -21,11 +23,12 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/constants/StringConstants.h"
 
-ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario):
+ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb):
 	ui(new Ui::ScenarioProperties),
 	campaignState(campaignState),
-	map(campaignState->getMap(scenario, nullptr)),
-	scenario(scenario)
+	map(campaignState->getMap(scenario, cb)),
+	scenario(scenario),
+	cb(cb)
 {
 	ui->setupUi(this);
 
@@ -33,7 +36,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	
 	setWindowModality(Qt::ApplicationModal);
 
-	ui->lineEditRegionName->setText(getRegionChar(scenario.getNum()));
+	ui->lineEditRegionName->setText(QString::fromStdString(campaignState->getRegions().regions.at(scenario).infix));
 	ui->plainTextEditRightClickText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).regionText.toString()));
 	
 	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
@@ -54,10 +57,10 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 		++index;
 	}
 
-	for(int i = 0; i < scenario.getNum(); ++i)
+	for(int i = 0; i < campaignState->scenarios.size(); ++i)
 	{
 		auto tmpScenario = CampaignScenarioID(i);
-		auto * item = new QListWidgetItem(getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName));
+		auto * item = new QListWidgetItem(QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(campaignState->scenarios.at(scenario).preconditionRegions.count(tmpScenario) ? Qt::Checked : Qt::Unchecked);
@@ -131,7 +134,7 @@ ScenarioProperties::~ScenarioProperties()
 
 void ScenarioProperties::reloadMapRelatedUi()
 {
-	map = campaignState->getMap(scenario, nullptr);
+	map = campaignState->getMap(scenario, cb);
 
 	ui->lineEditMapFile->setText(QString::fromStdString(campaignState->scenarios.at(scenario).mapName));
 	ui->lineEditScenarioName->setText(map ? QString::fromStdString(map->name.toString()) : tr("No map"));
@@ -212,7 +215,7 @@ void ScenarioProperties::reloadMapRelatedUi()
 				for(int j = 0; j < scenario.getNum(); ++j)
 				{
 					auto tmpScenario = CampaignScenarioID(j);
-					auto text = getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+					auto text = QString::fromStdString(campaignState->getRegions().regions.at(j).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
 					comboBoxOption->addItem(text, j);
 				}
 			}
@@ -256,12 +259,12 @@ void ScenarioProperties::reloadEnableState()
 	ui->pushButtonStartingRemove->setEnabled(ui->tableWidgetStartingCrossover->rowCount() > 0 || ui->listWidgetStartingBonusOption->count() > 0);
 }
 
-bool ScenarioProperties::showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario)
+bool ScenarioProperties::showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb)
 {
 	if(!campaignState || scenario == CampaignScenarioID::NONE)
 		return false;
 
-	auto * dialog = new ScenarioProperties(campaignState, scenario);
+	auto * dialog = new ScenarioProperties(campaignState, scenario, cb);
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -404,6 +407,13 @@ void ScenarioProperties::on_pushButtonImport_clicked()
 	QString baseName = fileInfo.fileName();
 	campaignState->scenarios.at(scenario).mapName = baseName.toStdString();
 
+	if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
+	{
+		campaignState->mapPieces.erase(scenario);
+		campaignState->scenarios.at(scenario) = CampaignScenario();
+		return;
+	}
+
 	reloadMapRelatedUi();
 }
 
@@ -480,7 +490,7 @@ void ScenarioProperties::on_pushButtonStartingAdd_clicked()
 			for(int i = 0; i < scenario.getNum(); ++i)
 			{
 				auto tmpScenario = CampaignScenarioID(i);
-				auto text = getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+				auto text = QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
 				comboBoxOption->addItem(text, i);
 			}
 		}
@@ -540,9 +550,4 @@ void ScenarioProperties::on_pushButtonStartingRemove_clicked()
 			delete ui->listWidgetStartingBonusOption->takeItem(ui->listWidgetStartingBonusOption->row(item));
 	}
 	reloadEnableState();
-}
-
-QString ScenarioProperties::getRegionChar(int no)
-{
-	return QString(static_cast<char>('A' + no));
 }

@@ -156,7 +156,7 @@ public:
 	int32_t getBaseShots() const override;
 
 	int32_t getRecruitCost(GameResID resIndex) const override;
-	TResources getFullRecruitCost() const override;
+	const TResources & getFullRecruitCost() const override;
 	bool isDoubleWide() const override; //returns true if unit is double wide on battlefield
 	bool hasUpgrades() const override;
 

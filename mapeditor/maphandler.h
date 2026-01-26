@@ -115,6 +115,4 @@ public:
 	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y, QPointF offset, bool locked = false);
 	
 	void drawMinimapTile(QPainter & painter, int x, int y, int z);
-
-	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };

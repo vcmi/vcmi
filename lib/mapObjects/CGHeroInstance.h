@@ -187,9 +187,6 @@ public:
 	/// Returns true if hero has lower level than should upon his experience.
 	bool gainsLevel() const;
 
-	/// Selects 0-2 skills for player to select on levelup
-	std::vector<SecondarySkill> getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const;
-
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 	int getPrimSkillLevel(PrimarySkill id) const;
 
@@ -245,8 +242,8 @@ public:
 	CCommanderInstance * getCommander();
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
-	void initHero(IGameRandomizer & gameRandomizer);
-	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID);
+	void initHero(IGameRandomizer & gameRandomizer, bool isFake = false);
+	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID, bool isFake = false);
 
 	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
