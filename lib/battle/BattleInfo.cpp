@@ -674,8 +674,11 @@ void BattleInfo::nextTurn(uint32_t unitId, BattleUnitTurnReason reason)
 
 	CStack * st = getStack(activeStack);
 
-	//remove bonuses that last until when stack gets new turn
-	st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	if (reason != BattleUnitTurnReason::UNIT_SPELLCAST)
+	{
+		//remove bonuses that last until when stack gets new turn
+		st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	}
 
 	st->afterGetsTurn(reason);
 }
