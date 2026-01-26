@@ -581,6 +581,14 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : parameters[1];
 	const JsonNode & jsonSourceType = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : parameters[2]["type"];
 	const JsonNode & jsonSourceID = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : parameters[2]["id"];
+	const JsonNode & jsonMinValue = limiter["bonusMinValue"];
+	const JsonNode & jsonMaxValue = limiter["bonusMaxValue"];
+
+	if (!jsonMinValue.isNull())
+		bonusLimiter->minValue = jsonMinValue.Integer();
+
+	if (!jsonMaxValue.isNull())
+		bonusLimiter->maxValue = jsonMaxValue.Integer();
 
 	if (!jsonType.isNull())
 	{
