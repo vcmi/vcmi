@@ -19,6 +19,7 @@
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
 #include "MinePlacer.h"
+#include "ObjectPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
@@ -69,6 +70,7 @@ void ObjectManager::init()
 
 	DEPENDENCY(TownPlacer); //Only secondary towns
 	DEPENDENCY(MinePlacer);
+	DEPENDENCY(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
 	createDistancesPriorityQueue();
 }

@@ -237,6 +237,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ConnectionsPlacer.cpp
 	rmg/modificators/WaterAdopter.cpp
 	rmg/modificators/MinePlacer.cpp
+	rmg/modificators/ObjectPlacer.cpp
 	rmg/modificators/TownPlacer.cpp
 	rmg/modificators/WaterProxy.cpp
 	rmg/modificators/WaterRoutes.cpp
@@ -702,6 +703,7 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ConnectionsPlacer.h
 	rmg/modificators/WaterAdopter.h
 	rmg/modificators/MinePlacer.h
+	rmg/modificators/ObjectPlacer.h
 	rmg/modificators/TownPlacer.h
 	rmg/modificators/WaterProxy.h
 	rmg/modificators/WaterRoutes.h
