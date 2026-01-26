@@ -19,6 +19,7 @@
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
+#include "../spells/CSpellHandler.h"
 #include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -764,7 +765,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>() != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
