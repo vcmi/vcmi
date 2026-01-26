@@ -268,9 +268,30 @@ std::shared_ptr<Bonus> Bonus::addLimiter(const TLimiterPtr & Limiter)
 
 // Updaters
 
-std::shared_ptr<Bonus> Bonus::addUpdater(const TUpdaterPtr & Updater)
+static TUpdaterPtr appendToUpdaters(const TUpdaterPtr & current, const TUpdaterPtr & added)
 {
-	updater = Updater;
+	if (!current)
+		return added;
+
+	auto newList = std::make_shared<CompositeUpdater>();
+	auto oldList = std::dynamic_pointer_cast<const CompositeUpdater>(current);
+
+	if(oldList)
+		newList->updaters = oldList->updaters;
+
+	newList->updaters.push_back(added);
+	return newList;
+}
+
+std::shared_ptr<Bonus> Bonus::addUpdater(const TUpdaterPtr & newUpdater)
+{
+	updater = appendToUpdaters(updater, newUpdater);
+	return this->shared_from_this();
+}
+
+std::shared_ptr<Bonus> Bonus::addPropagationUpdater(const TUpdaterPtr & newUpdater)
+{
+	propagationUpdater = appendToUpdaters(propagationUpdater, newUpdater);
 	return this->shared_from_this();
 }
 

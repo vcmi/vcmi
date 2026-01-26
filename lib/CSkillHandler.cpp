@@ -287,7 +287,10 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		{
 			auto bonus = JsonUtils::parseBonus(bonusNode);
 			bonus->val = 0; // set by HeroHandler on specialty load
-			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
+			if (bonus->propagator != nullptr)
+				bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());
+			else
+				bonus->addUpdater(std::make_shared<TimesHeroLevelUpdater>());
 			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
 			skill->specialtyTargetBonuses.push_back(bonus);
