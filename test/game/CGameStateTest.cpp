@@ -15,8 +15,10 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/json/JsonBonus.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
@@ -307,7 +309,6 @@ TEST_F(CGameStateTest, issue2765)
 
 		EXPECT_TRUE(def->activeSpells().empty());
 	}
-
 }
 
 TEST_F(CGameStateTest, battleResurrection)
@@ -411,4 +412,86 @@ TEST_F(CGameStateTest, battleResurrection)
 
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
+}
+
+TEST_F(CGameStateTest, battleInterference)
+{
+	static const char skillText[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : -10,
+		"valueType" : "PERCENT_TO_ALL",
+		"propagator" : "BATTLE_WIDE",
+		"sourceType" : "SECONDARY_SKILL",
+		"sourceID" : "wisdom",
+		"propagationUpdater" : "BONUS_OWNER_UPDATER",
+		"limiters" : [
+			"OPPOSITE_SIDE"
+		]
+	}
+	)";
+
+	static const char specialtyTextA[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : 5,
+		"sourceType" : "HERO_SPECIAL",
+		"sourceID" : "lordHaart",
+		"targetSourceType" : "SECONDARY_SKILL",
+		"valueType" : "PERCENT_TO_TARGET_TYPE",
+		"propagator" : "BATTLE_WIDE",
+		"propagationUpdater" : "TIMES_HERO_LEVEL",
+	}
+	)";
+
+	static const char specialtyTextB[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : -5,
+		"sourceType" : "HERO_SPECIAL",
+		"sourceID" : "lordHaart",
+		"targetSourceType" : "SECONDARY_SKILL",
+		"valueType" : "PERCENT_TO_TARGET_TYPE",
+		"updater" : "TIMES_HERO_LEVEL"
+	}
+	)";
+
+	JsonNode skillJson(skillText, std::size(skillText), "testBattleInterferenceSkillText");
+	JsonNode specialtyJsonA(specialtyTextA, std::size(specialtyTextA), "testBattleInterferenceSpecialtyTextA");
+	JsonNode specialtyJsonB(specialtyTextB, std::size(specialtyTextB), "testBattleInterferenceSpecialtyTextB");
+
+	skillJson.setModScope(ModScope::scopeGame());
+	specialtyJsonA.setModScope(ModScope::scopeGame());
+	specialtyJsonB.setModScope(ModScope::scopeGame());
+
+	auto skillBonus = JsonUtils::parseBonus(skillJson);
+	auto specialTextA = JsonUtils::parseBonus(specialtyJsonA);
+	auto specialTextB = JsonUtils::parseBonus(specialtyJsonB);
+
+	startTestGame();
+
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
+
+	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
+
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->addNewBonus(skillBonus);
+	attacker->addNewBonus(specialTextA);
+	attacker->addNewBonus(specialTextB);
+	attacker->level = 20;
+
+	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	defender->level = 10;
+
+	startTestBattle(attacker, defender);
+
+	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
+	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 80);
 }
