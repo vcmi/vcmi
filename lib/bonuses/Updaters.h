@@ -187,4 +187,19 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
+class DLL_LINKAGE CompositeUpdater : public IUpdater
+{
+public:
+	std::vector<TUpdaterPtr> updaters;
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & updaters;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

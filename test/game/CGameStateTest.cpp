@@ -426,13 +426,11 @@ TEST_F(CGameStateTest, battleInterference)
 		"sourceType" : "SECONDARY_SKILL",
 		"sourceID" : "wisdom",
 		"propagationUpdater" : "BONUS_OWNER_UPDATER",
-		"limiters" : [
-			"OPPOSITE_SIDE"
-		]
+		"limiters" : [ "OPPOSITE_SIDE" ]
 	}
 	)";
 
-	static const char specialtyTextA[] = R"(
+	static const char specialtyText[] = R"(
 	{
 		"type" : "PRIMARY_SKILL",
 		"subtype" : "spellpower",
@@ -442,34 +440,18 @@ TEST_F(CGameStateTest, battleInterference)
 		"targetSourceType" : "SECONDARY_SKILL",
 		"valueType" : "PERCENT_TO_TARGET_TYPE",
 		"propagator" : "BATTLE_WIDE",
-		"propagationUpdater" : "TIMES_HERO_LEVEL",
+		"propagationUpdater" : [ "TIMES_HERO_LEVEL", "BONUS_OWNER_UPDATER" ]
+		"limiters" : [ "OPPOSITE_SIDE" ]
 	}
 	)";
-
-	static const char specialtyTextB[] = R"(
-	{
-		"type" : "PRIMARY_SKILL",
-		"subtype" : "spellpower",
-		"val" : -5,
-		"sourceType" : "HERO_SPECIAL",
-		"sourceID" : "lordHaart",
-		"targetSourceType" : "SECONDARY_SKILL",
-		"valueType" : "PERCENT_TO_TARGET_TYPE",
-		"updater" : "TIMES_HERO_LEVEL"
-	}
-	)";
-
 	JsonNode skillJson(skillText, std::size(skillText), "testBattleInterferenceSkillText");
-	JsonNode specialtyJsonA(specialtyTextA, std::size(specialtyTextA), "testBattleInterferenceSpecialtyTextA");
-	JsonNode specialtyJsonB(specialtyTextB, std::size(specialtyTextB), "testBattleInterferenceSpecialtyTextB");
+	JsonNode specialtyJson(specialtyText, std::size(specialtyText), "testBattleInterferenceSpecialtyTextA");
 
 	skillJson.setModScope(ModScope::scopeGame());
-	specialtyJsonA.setModScope(ModScope::scopeGame());
-	specialtyJsonB.setModScope(ModScope::scopeGame());
+	specialtyJson.setModScope(ModScope::scopeGame());
 
 	auto skillBonus = JsonUtils::parseBonus(skillJson);
-	auto specialTextA = JsonUtils::parseBonus(specialtyJsonA);
-	auto specialTextB = JsonUtils::parseBonus(specialtyJsonB);
+	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson);
 
 	startTestGame();
 
@@ -483,8 +465,7 @@ TEST_F(CGameStateTest, battleInterference)
 
 	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
 	attacker->addNewBonus(skillBonus);
-	attacker->addNewBonus(specialTextA);
-	attacker->addNewBonus(specialTextB);
+	attacker->addNewBonus(specialtyBonus);
 	attacker->level = 20;
 
 	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);

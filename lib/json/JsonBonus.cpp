@@ -417,6 +417,13 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			logGlobal->error("Unknown bonus updater type '%s'", updaterJson.String());
 			return nullptr;
 		}
+	case JsonNode::JsonType::DATA_VECTOR:
+		{
+			auto result = std::make_shared<CompositeUpdater>();
+			for (const auto & entry : updaterJson.Vector())
+				result->updaters.push_back(parseUpdater(entry));
+			return result;
+		}
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{

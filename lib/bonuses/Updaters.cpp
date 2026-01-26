@@ -293,4 +293,23 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 	return updated;
 }
 
+std::string CompositeUpdater::toString() const
+{
+	return "CompositeUpdater";
+}
+
+JsonNode CompositeUpdater::toJsonNode() const
+{
+	return JsonNode("COMPOSITE_UPDATER");
+}
+
+std::shared_ptr<Bonus> CompositeUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	std::shared_ptr<Bonus> result = b;
+	for (const auto & updater : updaters)
+		result = updater->createUpdatedBonus(result, context);
+
+	return result;
+}
+
 VCMI_LIB_NAMESPACE_END
