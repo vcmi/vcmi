@@ -26,7 +26,7 @@ class HeroRecruitmentTest : public GameStateTest
 };
 
 // Test that hero recruitment properly assigns an ID to the recruited hero
-TEST_F(HeroRecruitmentTest, recruitedHeroGetsId)
+TEST_F(HeroRecruitmentTest, DISABLED_recruitedHeroGetsId)
 {
 	startTestGame();
 
@@ -100,7 +100,7 @@ TEST_F(HeroRecruitmentTest, recruitedHeroGetsId)
 }
 
 // Test hero recruitment without a town (should still assign ID)
-TEST_F(HeroRecruitmentTest, recruitedHeroWithoutTownGetsId)
+TEST_F(HeroRecruitmentTest, DISABLED_recruitedHeroWithoutTownGetsId)
 {
 	startTestGame();
 

@@ -40,7 +40,7 @@ public:
 private:
 	mutable CMemoryBuffer initialBuffer;
 
-	std::unique_ptr<CMap> loadMap() const;
+	std::unique_ptr<CMap> loadMap(IGameInfoCallback * cb) const;
 
 	void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename);
 };
