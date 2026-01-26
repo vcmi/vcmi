@@ -98,6 +98,9 @@ std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus
 {
 	if(context.getNodeType() == BonusNodeType::HERO)
 	{
+		// FIXME: current logic is (val * hero level) / stack level
+		// However H3 logic is val * (hero level / stack level)
+		// Probably needs creation of temporary limiter & passing hero level into it, to perform all math in one place
 		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
 		newBonus->updater = divideStackLevel;
 		return newBonus;
