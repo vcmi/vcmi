@@ -14,6 +14,8 @@
 #include "campaignproperties.h"
 #include "scenarioproperties.h"
 
+#include "callback/EditorCallback.h"
+
 #include "../BitmapHandler.h"
 #include "../helper.h"
 
@@ -28,9 +30,10 @@
 #include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CampaignEditor::CampaignEditor():
+CampaignEditor::CampaignEditor(EditorCallback * cb):
 	ui(new Ui::CampaignEditor),
-	selectedScenario(CampaignScenarioID::NONE)
+	selectedScenario(CampaignScenarioID::NONE),
+	cb(cb)
 {
 	ui->setupUi(this);
 	
@@ -49,7 +52,6 @@ CampaignEditor::CampaignEditor():
 
 	campaignScene.reset(new CampaignScene());
 	ui->campaignView->setScene(campaignScene.get());
-	
 	// Connect the fileDropped signal from campaignView to handle file drops
 	connect(ui->campaignView, &CampaignView::fileDropped, this, [this](const QString & filename) {
 		if(!getAnswerAboutUnsavedChanges())
@@ -113,7 +115,7 @@ void CampaignEditor::redraw()
 				redraw();
 		}, [this, scenario]()
 		{
-			if(ScenarioProperties::showScenarioProperties(campaignState, scenario))
+			if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
 				changed();
 			redraw();
 		}, [this, scenario](QGraphicsSceneContextMenuEvent * event)
@@ -122,7 +124,7 @@ void CampaignEditor::redraw()
 			QAction *actionScenarioProperties = contextMenu.addAction(tr("Scenario editor"));
 			actionScenarioProperties->setIcon(ui->actionScenarioProperties->icon());
 			connect(actionScenarioProperties, &QAction::triggered, this, [this, scenario]() {
-				if(ScenarioProperties::showScenarioProperties(campaignState, scenario))
+				if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
 					changed();
 				redraw();
 			});
@@ -166,6 +168,12 @@ void CampaignEditor::changed()
 
 bool CampaignEditor::validate()
 {
+	if(campaignState->mapPieces.empty())
+	{
+		QMessageBox::critical(this, tr("Validation failed"), tr("Campaign has no maps defined."));
+		return false;
+	}
+
 	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
 		logGlobal->trace("Not all regions have a map");
 
@@ -181,18 +189,18 @@ void CampaignEditor::saveCampaign()
 	unsaved = false;
 }
 
-void CampaignEditor::showCampaignEditor(QWidget *parent)
+void CampaignEditor::showCampaignEditor(QWidget *parent, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor();
+	auto * dialog = new CampaignEditor(cb);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile)
+void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor();
+	auto * dialog = new CampaignEditor(cb);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
@@ -221,7 +229,7 @@ void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
 
 	for(auto const & scenario : campaignState->allScenarios())
 	{
-		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario))
+		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
 		{
 			campaignState.reset();
 			selectedScenario = CampaignScenarioID::NONE;
@@ -359,7 +367,7 @@ void CampaignEditor::on_actionScenarioProperties_triggered()
 	if(!campaignState || selectedScenario == CampaignScenarioID::NONE)
 		return;
 
-	if(ScenarioProperties::showScenarioProperties(campaignState, selectedScenario))
+	if(ScenarioProperties::showScenarioProperties(campaignState, selectedScenario, cb))
 		changed();
 	redraw();
 }
@@ -401,11 +409,11 @@ void CampaignEditor::dropEvent(QDropEvent *event)
 	}
 }
 
-std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario)
+std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario, EditorCallback * cb)
 {
 	try
 	{
-		auto map = state->getMap(scenario, nullptr);
+		auto map = state->getMap(scenario, cb);
 		return map;
 	}
 	catch(const ModIncompatibility & e)

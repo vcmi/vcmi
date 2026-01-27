@@ -484,7 +484,7 @@ void ObstacleSetHandler::afterLoadFinalization()
 	{
 		if (os->getObstacles().empty())
 		{
-			logMod->warn("Obstacle set %d is empty, removing it", os->id);
+			logMod->debug("Obstacle set %d is empty, removing it", os->id);
 			return true;
 		}
 		return false;

@@ -29,6 +29,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("help,h", "display help and exit")
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
+	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
@@ -84,6 +85,7 @@ int main(int argc, const char * argv[])
 
 	LIBRARY->initializeLibrary();
 
+	if(!opts.count("dummy-run"))
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");

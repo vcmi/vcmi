@@ -206,6 +206,7 @@ public:
 
 		BattleStart bs;
 		bs.info = std::move(battle);
+		bs.battleID = BattleID(0);
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameEventCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
@@ -223,7 +224,7 @@ public:
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
-TEST_F(CGameStateTest, DISABLED_issue2765)
+TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
@@ -255,6 +256,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);
@@ -308,7 +310,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 
 }
 
-TEST_F(CGameStateTest, DISABLED_battleResurrection)
+TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
@@ -348,6 +350,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);
@@ -363,6 +366,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);

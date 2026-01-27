@@ -13,6 +13,7 @@
 #include "startingbonus.h"
 #include "campaigneditor.h"
 
+#include "callback/EditorCallback.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -22,11 +23,12 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/constants/StringConstants.h"
 
-ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario):
+ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb):
 	ui(new Ui::ScenarioProperties),
 	campaignState(campaignState),
-	map(campaignState->getMap(scenario, nullptr)),
-	scenario(scenario)
+	map(campaignState->getMap(scenario, cb)),
+	scenario(scenario),
+	cb(cb)
 {
 	ui->setupUi(this);
 
@@ -132,7 +134,7 @@ ScenarioProperties::~ScenarioProperties()
 
 void ScenarioProperties::reloadMapRelatedUi()
 {
-	map = campaignState->getMap(scenario, nullptr);
+	map = campaignState->getMap(scenario, cb);
 
 	ui->lineEditMapFile->setText(QString::fromStdString(campaignState->scenarios.at(scenario).mapName));
 	ui->lineEditScenarioName->setText(map ? QString::fromStdString(map->name.toString()) : tr("No map"));
@@ -257,12 +259,12 @@ void ScenarioProperties::reloadEnableState()
 	ui->pushButtonStartingRemove->setEnabled(ui->tableWidgetStartingCrossover->rowCount() > 0 || ui->listWidgetStartingBonusOption->count() > 0);
 }
 
-bool ScenarioProperties::showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario)
+bool ScenarioProperties::showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb)
 {
 	if(!campaignState || scenario == CampaignScenarioID::NONE)
 		return false;
 
-	auto * dialog = new ScenarioProperties(campaignState, scenario);
+	auto * dialog = new ScenarioProperties(campaignState, scenario, cb);
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -405,7 +407,7 @@ void ScenarioProperties::on_pushButtonImport_clicked()
 	QString baseName = fileInfo.fileName();
 	campaignState->scenarios.at(scenario).mapName = baseName.toStdString();
 
-	if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario))
+	if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
 	{
 		campaignState->mapPieces.erase(scenario);
 		campaignState->scenarios.at(scenario) = CampaignScenario();

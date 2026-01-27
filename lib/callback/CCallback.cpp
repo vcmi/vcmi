@@ -286,6 +286,12 @@ void CCallback::setFormation(const CGHeroInstance * hero, EArmyFormation mode)
 	sendRequest(pack);
 }
 
+void CCallback::setTactics(const CGHeroInstance * hero, bool enabled)
+{
+	SetTactics pack(hero->id, enabled);
+	sendRequest(pack);
+}
+
 void CCallback::setTownName(const CGTownInstance * town, std::string & name)
 {
 	SetTownName pack(town->id, name);
@@ -311,9 +317,9 @@ void CCallback::saveLocalState(const JsonNode & data)
 	sendRequest(state);
 }
 
-void CCallback::save( const std::string &fname )
+void CCallback::save( const std::string &fname, bool notifySuccess )
 {
-	SaveGame save_game(fname);
+	SaveGame save_game(fname, notifySuccess);
 	sendRequest(save_game);
 }
 

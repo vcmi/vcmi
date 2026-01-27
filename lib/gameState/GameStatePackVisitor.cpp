@@ -125,6 +125,11 @@ void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 	gs.getHero(pack.hid)->setFormation(pack.formation);
 }
 
+void GameStatePackVisitor::visitChangeTactics(ChangeTactics & pack)
+{
+	gs.getHero(pack.hid)->tacticFormationEnabled = pack.enabled;
+}
+
 void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
 {
 	gs.getTown(pack.tid)->setCustomName(pack.name);
@@ -855,7 +860,8 @@ void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 	assert(!art->getParentNodes().empty());
 	auto hero = gs.getHero(pack.al.artHolder);
 	assert(hero);
-	assert(art && art->canBePutAt(hero, pack.al.slot));
+	assert(art);
+	assert(art->canBePutAt(hero, pack.al.slot));
 	assert(ArtifactUtils::checkIfSlotValid(*hero, pack.al.slot));
 	gs.getMap().putArtifactInstance(*hero, art->getId(), pack.al.slot);
 }

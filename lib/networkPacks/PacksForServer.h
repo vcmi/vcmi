@@ -609,6 +609,28 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE SetTactics : public CPackForServer
+{
+	SetTactics() = default;
+	;
+	SetTactics(const ObjectInstanceID & HID, bool Enabled)
+		: hid(HID)
+		, enabled(Enabled)
+	{
+	}
+	ObjectInstanceID hid;
+	bool enabled = false;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & hid;
+		h & enabled;
+	}
+};
+
 struct DLL_LINKAGE SetTownName : public CPackForServer
 {
 	SetTownName() = default;
@@ -756,17 +778,20 @@ struct DLL_LINKAGE RequestStatistic : public CPackForServer
 struct DLL_LINKAGE SaveGame : public CPackForServer
 {
 	SaveGame() = default;
-	SaveGame(std::string Fname)
+	SaveGame(std::string Fname, bool NotifySuccess)
 		: fname(std::move(Fname))
+		, notifySuccess(NotifySuccess)
 	{
 	}
 	std::string fname;
+	bool notifySuccess = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CPackForServer &>(*this);
+		h & notifySuccess;
 		h & fname;
 	}
 };

@@ -169,6 +169,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
+	adventureInt->onCurrentPlayerChanged(playerID);
 }
 
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
@@ -282,7 +283,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -291,7 +292,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
 		}
 	}
 }
@@ -1808,7 +1809,7 @@ void CPlayerInterface::quickSaveGame()
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
 	txt.replaceRawString(QUICKSAVE_PATH);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
-	GAME->interface()->cb->save(QUICKSAVE_PATH);
+	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
 	hasQuickSave = true;
 	if(adventureInt)
 		adventureInt->updateActiveState();
