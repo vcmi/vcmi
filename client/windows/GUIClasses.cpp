@@ -502,10 +502,26 @@ void CLevelWindow::createSkillBox()
 
 void CLevelWindow::close()
 {
-	//FIXME: call callback if there was nothing to select?
-	if (box && box->selectedIndex() != -1)
+	int idx = -1;
+
+	if(box)
+		idx = box->selectedIndex();
+
+	// If there are skills available, we must not close without producing a valid choice
+	// For a single available option, auto-pick it
+	if(!skills.empty())
 	{
-		auto it = std::find(skills.begin(), skills.end(), sortedSkills[(box->selectedIndex() + skillViewOffset) % skills.size()]);
+		if(idx == -1)
+		{
+			if(skills.size() == 1)
+				idx = 0;
+			else
+				return; // require explicit selection
+		}
+
+		const auto & chosen = sortedSkills[(idx + skillViewOffset) % skills.size()];
+		auto it = std::find(skills.begin(), skills.end(), chosen);
+
 		cb(std::distance(skills.begin(), it));
 	}
 

@@ -27,6 +27,7 @@ public:
 	TimerPauseQuery(CGameHandler * owner, PlayerColor player);
 	
 	bool blocksPack(const CPackForServer *pack) const override;
+	void onExposure(QueryPtr topQuery) override;
 	void onAdding(PlayerColor color) override;
 	void onRemoval(PlayerColor color) override;
 	bool endsByPlayerAnswer() const override;
@@ -96,8 +97,8 @@ public:
 	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
-	void onExposure(QueryPtr topQuery) override;
 	void onAdded(PlayerColor color) override;
+	void onExposure(QueryPtr topQuery) override;
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 
 	HeroLevelUp hlu;

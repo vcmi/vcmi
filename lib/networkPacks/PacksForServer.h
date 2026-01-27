@@ -818,4 +818,16 @@ struct DLL_LINKAGE PlayerMessage : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
+{
+	AdvInterfaceReady() = default;
+
+	void visitTyped(ICPackVisitor & cpackVisitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

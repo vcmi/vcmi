@@ -634,6 +634,26 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 	newTurnProcessor->onPlayerTurnEnded(which);
 }
 
+void CGameHandler::onAdvInterfaceReady(PlayerColor player)
+{
+	if(uiReadyForDialogs.count(player))
+		return;
+
+	uiReadyForDialogs.insert(player);
+
+	logGlobal->trace("AdvInterfaceReady received for player %s", player);
+
+	// Kick top query for this player: if it's a dialog query waiting for UI, it should prompt now.
+	auto top = queries->topQuery(player);
+	if(!top)
+		return;
+
+	// We only want dialog queries to try prompting here.
+	// They should override onExposure() to "prompt when uiReadyForDialogs is true" (next step),
+	// so triggering exposure is enough.
+	top->onExposure(top);
+}
+
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
 {
 	for (const auto & elem : gameState().players)

@@ -69,4 +69,5 @@ public:
 	void visitRequestStatistic(RequestStatistic & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
 	void visitSaveLocalState(SaveLocalState & pack) override;
+	void visitAdvInterfaceReady(AdvInterfaceReady & pack) override;
 };
