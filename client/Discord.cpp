@@ -27,6 +27,7 @@ Discord::Discord() :
 	if(!enabled)
 		return;
 
+	// ID of an App created in discord for VCMI. Needed for title and icon
 	constexpr auto APPLICATION_ID = "1416538363254669455";
 
 	discord::RPCManager::get().initialize();
