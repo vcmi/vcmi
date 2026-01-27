@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct Bonus;
 class ILimiter;
 class CSelector;
-class CAddInfo;
+class BonusParameters;
 namespace JsonUtils
 {
 	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);

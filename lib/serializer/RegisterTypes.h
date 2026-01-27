@@ -16,6 +16,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../gameState/CGameState.h"
@@ -303,6 +304,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetTactics>(261);
 	s.template registerType<ChangeTactics>(262);
 	s.template registerType<CompositeUpdater>(263);
+	s.template registerType<BonusParameters>(264);
 }
 
 VCMI_LIB_NAMESPACE_END

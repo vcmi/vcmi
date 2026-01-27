@@ -16,6 +16,7 @@
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../json/JsonBonus.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
@@ -147,7 +148,7 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		if(peculiarBonus)
 		{
 			si32 power = 0;
-			switch (peculiarBonus->additionalInfo[0])
+			switch (peculiarBonus->parameters->toNumber())
 			{
 			case 0: //normal
 				switch (tier)
@@ -187,14 +188,14 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		{
 			for(Bonus & b : buffer)
 			{
-				b.val += addedValueBonus->additionalInfo[0];
+				b.val += addedValueBonus->parameters->toNumber();
 			}
 		}
 		if(fixedValueBonus)
 		{
 			for(Bonus & b : buffer)
 			{
-				b.val = fixedValueBonus->additionalInfo[0];
+				b.val = fixedValueBonus->parameters->toNumber();
 			}
 		}
 
@@ -232,7 +233,7 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 			nb.val = 100 - nb.val;
 		//we need to know who cast Bind
 		else if(nb.sid.as<SpellID>() == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
-			nb.additionalInfo = m->caster->getCasterUnitId();
+			nb.parameters = std::make_shared<BonusParameters>(m->caster->getCasterUnitId());
 
 		converted.push_back(nb);
 	}

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "TargetConditionItemFixture.h"
+#include "../../../lib/bonuses/BonusParameters.h"
 
 namespace test
 {
@@ -45,7 +46,7 @@ TEST_P(AbsoluteSpellConditionTest, ChecksAbsoluteCase)
 {
 	setDefaultExpectations();
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID(), BonusSubtypeID(SpellID(immuneSpell)));
-	bonus->additionalInfo = 1;
+	bonus->parameters = std::make_shared<BonusParameters>(1);
 
 	unitBonuses.addNewBonus(bonus);
 

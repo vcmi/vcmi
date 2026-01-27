@@ -1116,7 +1116,7 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack *casterS
 
 	for(const auto & bonus : *bl)
 	{
-		if (bonus->additionalInfo[0] <= 0 && bonus->subtype.as<SpellID>().hasValue())
+		if (!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
 			creatureSpells.push_back(bonus->subtype.as<SpellID>().toSpell());
 	}
 }

@@ -18,6 +18,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
@@ -204,7 +205,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	}
 }
 
-static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & value)
+static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -215,7 +216,10 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 	};
 
 	if (value.isNull())
-		return;
+		return nullptr;
+
+	auto result = std::make_shared<BonusParameters>();
+	BonusParameters & var = *result;
 
 	switch (type)
 	{
@@ -237,7 +241,7 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::FULL_MAP_DARKNESS:
 		case BonusType::OPENING_BATTLE_SPELL:
 			// 1 number
-			var = getFirstValue(value).Integer();
+			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
 		case BonusType::TRANSMUTATION:
@@ -253,19 +257,23 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 			// 3 numbers
 			if (value.isNumber())
 			{
-				var = getFirstValue(value).Integer();
+				var = static_cast<int32_t>(getFirstValue(value).Integer());
 			}
 			else
 			{
-				var.resize(3);
-				var[0] = value[0].Integer();
-				var[1] = value[1].Integer();
-				var[2] = value[2].Integer();
+				std::vector<int32_t> loadedData{
+					static_cast<int32_t>(value[0].Integer()),
+					static_cast<int32_t>(value[1].Integer()),
+					static_cast<int32_t>(value[2].Integer())
+				};
+				var = loadedData;
 			}
 			break;
 		case BonusType::MULTIHEX_UNIT_ATTACK:
 		case BonusType::MULTIHEX_ENEMY_ATTACK:
 		case BonusType::MULTIHEX_ANIMATION:
+		{
+			std::vector<int32_t> loadedData;
 			for (const auto & sequence : value.Vector())
 			{
 				static const std::map<char, int> charToDirection = {
@@ -278,16 +286,24 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 					if (charToDirection.count(chLower))
 						converted = 10 * converted + charToDirection.at(chLower);
 				}
-				var.push_back(converted);
+				loadedData.push_back(converted);
 			}
+			var = loadedData;
 			break;
+		}
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
+		{
+			std::vector<int32_t> loadedData;
 			for(const auto & sequence : value.Vector())
-				var.push_back(sequence.Integer());
+				loadedData.push_back(sequence.Integer());
+			var = loadedData;
 			break;
+		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
+
+	return result;
 }
 
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
@@ -502,7 +518,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
-	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
+	b->parameters = std::make_shared<BonusParameters>(static_cast<si32>(ability_vec[3].Integer()));
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
 	return b;
@@ -785,7 +801,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
-		loadBonusAddInfo(b->additionalInfo, b->type, addinfoNode);
+		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
@@ -963,13 +979,6 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		auto it = bonusValueMap.find(value->String());
 		if(it != bonusValueMap.end())
 			ret = ret.And(Selector::valueType(it->second));
-	}
-	CAddInfo info;
-	value = &ability["addInfo"];
-	if(!value->isNull())
-	{
-		loadBonusAddInfo(info, type, ability["addInfo"]);
-		ret = ret.And(Selector::info()(info));
 	}
 	value = &ability["effectRange"];
 	if(value->isString())

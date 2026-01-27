@@ -211,7 +211,7 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 				&& mask->val == b->val
 				&& mask->sid == b->sid
 				&& mask->valType == b->valType
-				&& mask->additionalInfo == b->additionalInfo
+//				&& mask->additionalInfo == b->additionalInfo
 				&& mask->effectRange == b->effectRange;
 			};
 

@@ -40,6 +40,7 @@
 #include "../entities/hero/CHeroClass.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../battle/CBattleInfoEssentials.h"
+#include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"
@@ -999,7 +1000,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->additionalInfo[0] > necromancerPower)
+		if(newPick->parameters->toNumber() > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
@@ -1738,7 +1739,7 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
-		auto nid = CreatureID(it->additionalInfo[0]);
+		auto nid = it->parameters->toCreature();
 		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
 		{
 			info.addUpgrade(nid, stack.getType());

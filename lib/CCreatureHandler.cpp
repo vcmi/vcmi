@@ -20,6 +20,7 @@
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "bonuses/BonusParameters.h"
 #include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
@@ -786,7 +787,7 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		b.duration = BonusDuration::PERMANENT;
 		b.valType = BonusValueType::ADDITIVE_VALUE;
 		b.effectRange = BonusLimitEffect::NO_LIMIT;
-		b.additionalInfo = 0;
+		b.parameters = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
 
@@ -1140,42 +1141,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B': //Blind
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BLIND));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::HYPNOTIZE));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::IMPLOSION));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BERSERK));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'N': //dispel beneficial spells
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::ARMAGEDDON));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::SLOW));
-				b.additionalInfo = 0;//normal immunity
+				b.parameters = 0;//normal immunity
 				break;
 			case '6':
 			case '7':
@@ -1273,7 +1274,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	case 'J':
 		b.type = BonusType::SPELL_BEFORE_ATTACK;
 		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
-		b.additionalInfo = 3; //always expert?
+		b.parameters = std::make_shared<BonusParameters>(3); //always expert?
 		break;
 	case 'r':
 		b.type = BonusType::HP_REGENERATION;
