@@ -975,7 +975,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters->toNumber() != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);

@@ -617,6 +617,9 @@ int CGCreature::getNumberOfStacksFromBonus(const CGHeroInstance * hero) const
 	if(bonus->val > 0)
 		return bonus->val;
 
+	if (!bonus->parameters)
+		return 0;
+
 	auto addInfo = bonus->parameters->toVector();
 	if(addInfo.empty())
 		return 0;

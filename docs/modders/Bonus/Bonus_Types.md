@@ -32,6 +32,7 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 Allows to execute an action when specific event happens with affected unit
 
 Subtypes:
+
 - combatEventBeforeAttack: executed before unit attack another unit
 - combatEventAfterAttack: executed after unit attack another unit
 - combatEventBeforeAttacked: executed before unit is attacked by another unit
@@ -40,17 +41,21 @@ Subtypes:
 - combatEventDefend: executed when unit defends
 - combatEventBeforeMove: executed before unit starts movement
 - combatEventAfterMove: executed after unit ends movement
+- combatEventCast: executed after unit casts a spell
 
 Bonus action:
+
 - `targetEnemy`: if set to true, bonus will be added to opponent unit, if exists
 - `bonus`: bonus to give. See bonus format. WARNING: make sure to correctly set bonus duration of such bonus
 
 Spell action:
+
 - `targetEnemy`: if set to true, spell will be casts on opponent unit, if exists
 - `spell`: identifier of spell to cast
 - `mastery`: mastery level with which to cast the spell
 
 Example:
+
 ```json
 {
     "type" : "ON_COMBAT_EVENT",
@@ -72,9 +77,10 @@ Example:
 				"spell" : "bless",
 				"mastery" : 0,
 				"targetEnemy" : false
-				}
-			]
-		}
+			}
+		]
+	}
+}
 ```
 
 ## Player bonuses

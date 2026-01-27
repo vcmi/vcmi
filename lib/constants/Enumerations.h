@@ -286,6 +286,7 @@ enum class CombatEventType : int8_t
 	DEFEND = 6,
 	BEFORE_MOVE = 7,
 	AFTER_MOVE = 8,
+	UNIT_SPELLCAST = 9,
 };
 
 VCMI_LIB_NAMESPACE_END

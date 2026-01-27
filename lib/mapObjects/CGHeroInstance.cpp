@@ -1000,7 +1000,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->parameters->toNumber() > necromancerPower)
+		if(newPick->parameters && newPick->parameters->toNumber() > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
@@ -1739,10 +1739,11 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
-		auto nid = it->parameters->toCreature();
-		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+		if (it->parameters)
 		{
-			info.addUpgrade(nid, stack.getType());
+			auto nid = it->parameters->toCreature();
+			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+				info.addUpgrade(nid, stack.getType());
 		}
 	}
 }

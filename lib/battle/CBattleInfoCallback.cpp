@@ -2168,7 +2168,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->parameters->toNumber(), includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
+		totalWeight += std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
 	}
 
 	if (totalWeight == 0)
@@ -2177,7 +2177,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(const auto & b : *bl)
 	{
-		randomPos -= std::max(b->parameters->toNumber(), includeAllowed ? 1 : 0);
+		randomPos -= std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0);
 		if(randomPos < 0)
 		{
 			return b->subtype.as<SpellID>();

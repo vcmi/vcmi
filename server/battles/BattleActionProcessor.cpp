@@ -502,7 +502,7 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), target);
 
-	processBattleEventTriggers(battle, CombatEventType::CAST, stack, nullptr);
+	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
 	return true;
 }
 
@@ -1360,7 +1360,7 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	{
 		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
 		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
-		if(bonus && bonus->parameters->toSpell() != SpellID::NONE)
+		if(bonus && bonus->parameters && bonus->parameters->toSpell() != SpellID::NONE)
 			spellID = bonus->parameters->toSpell();
 
 		const CSpell * spell = spellID.toSpell();
@@ -1401,7 +1401,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	for(const auto & b : *acidBreath)
 	{
-		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, b->parameters->toNumber()))
+		if (b->parameters && gameHandler->randomizer->rollCombatAbility(ownerArmy, b->parameters->toNumber()))
 			acidDamage += b->val;
 	}
 
@@ -1475,13 +1475,15 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
 		{
 			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
-			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)))->parameters->toNumber();
+			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)));
+			int percentageToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
 			amountToDie = defender->getCount() * percentageToDie / 100;
 		}
 		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
 		{
 			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
-			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)))->parameters->toNumber();
+			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)));
+			amountToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
 		}
 
 		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))

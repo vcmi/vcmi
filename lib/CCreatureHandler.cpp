@@ -787,7 +787,6 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		b.duration = BonusDuration::PERMANENT;
 		b.valType = BonusValueType::ADDITIVE_VALUE;
 		b.effectRange = BonusLimitEffect::NO_LIMIT;
-		b.parameters = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
 
@@ -1141,42 +1140,34 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B': //Blind
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BLIND));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::HYPNOTIZE));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::IMPLOSION));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BERSERK));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'N': //dispel beneficial spells
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::ARMAGEDDON));
-				b.parameters = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::SLOW));
-				b.parameters = 0;//normal immunity
 				break;
 			case '6':
 			case '7':

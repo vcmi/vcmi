@@ -145,7 +145,7 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 
 		//Apply hero specials - peculiar enchants
 		const auto tier = std::max(affected->creatureLevel(), 1); //don't divide by 0 for certain creatures (commanders, war machines)
-		if(peculiarBonus)
+		if(peculiarBonus && peculiarBonus->parameters)
 		{
 			si32 power = 0;
 			switch (peculiarBonus->parameters->toNumber())
@@ -184,14 +184,14 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 
 		}
 
-		if(addedValueBonus)
+		if(addedValueBonus && addedValueBonus->parameters)
 		{
 			for(Bonus & b : buffer)
 			{
 				b.val += addedValueBonus->parameters->toNumber();
 			}
 		}
-		if(fixedValueBonus)
+		if(fixedValueBonus && fixedValueBonus->parameters)
 		{
 			for(Bonus & b : buffer)
 			{

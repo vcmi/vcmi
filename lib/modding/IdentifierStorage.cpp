@@ -89,6 +89,7 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventDefend", static_cast<int>(CombatEventType::DEFEND));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventBeforeMove", static_cast<int>(CombatEventType::BEFORE_MOVE));
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventAfterMove", static_cast<int>(CombatEventType::AFTER_MOVE));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventCast", static_cast<int>(CombatEventType::UNIT_SPELLCAST));
 }
 
 void CIdentifierStorage::checkIdentifier(const std::string & ID)

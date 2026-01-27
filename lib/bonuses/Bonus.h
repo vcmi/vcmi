@@ -103,11 +103,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 
 	void convertAddInfo(const std::vector<int> & oldAddInfo);
 
-	template <typename Ptr>
-	static bool compareByAdditionalInfo(const Ptr& a, const Ptr& b)
-	{
-		return a->additionalInfo < b->additionalInfo;
-	}
 	static bool NDays(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::N_DAYS;

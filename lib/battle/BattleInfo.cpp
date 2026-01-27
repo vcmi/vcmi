@@ -876,7 +876,6 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 			&& one.val == b->val
 			&& one.sid == b->sid
 			&& one.valType == b->valType
-//			&& one.additionalInfo == b->additionalInfo
 			&& one.effectRange == b->effectRange;
 		};
 		sta->removeBonusesRecursive(selector);
@@ -887,7 +886,6 @@ uint32_t BattleInfo::nextUnitId() const
 {
 	return static_cast<uint32_t>(stacks.size());
 }
-
 
 void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd)
 {

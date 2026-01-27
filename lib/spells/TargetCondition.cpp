@@ -135,10 +135,21 @@ protected:
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
 
-		const auto & bonuses = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
-		for (const auto & bonus : *bonuses)
+		if (m->getSpellLevel() <= 0)
+			return true;
+
+		bool hasAbsoluteImmunity = false;
+
+		const auto & levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
+		for (const auto & bonus : *levelImmunities)
 			if (bonus->parameters && bonus->parameters->toNumber() == 1)
-				return false;
+				hasAbsoluteImmunity = true;
+
+		if (!hasAbsoluteImmunity)
+			return true;
+
+		return levelImmunities->totalValue() < m->getSpellLevel();
+
 		return true;
 	}
 };
