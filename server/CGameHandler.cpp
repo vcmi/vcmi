@@ -1003,7 +1003,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		gameInfo().getPlayerState(h->getOwner())->human &&
 	   (guardian || objectToVisit) &&
 	   movementMode == EMovementMode::STANDARD)
-		save("Saves/BeforeVisitSave");
+		save("Saves/BeforeVisitSave", PlayerColor::CANNOT_DETERMINE);
 
 	if (!transit && embarking)
 	{
@@ -1612,13 +1612,22 @@ bool CGameHandler::responseStatistic(PlayerColor player)
 	return true;
 }
 
-void CGameHandler::save(const std::string & filename)
+void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess)
 {
 	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
 	CResourceHandler::get("local")->createResource(savefname);
+
+	std::string filenameWithoutPath;
+	auto pos = filename.find_last_of("/\\");
+	if (pos != std::string::npos)
+		filenameWithoutPath = filename.substr(pos + 1);
+	else
+		filenameWithoutPath = filename;
+	InfoWindow iw;
+	iw.player = playerToNotifyOnSuccess;
 
 	try
 	{
@@ -1627,12 +1636,25 @@ void CGameHandler::save(const std::string & filename)
 		logGlobal->info("Saving server state");
 		save.save(*this);
 		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
+
+		if(playerToNotifyOnSuccess.isValidPlayer())
+		{
+			iw.text = MetaString::createFromTextID("core.genrltxt.350");
+			iw.text.replaceRawString(filenameWithoutPath);
+			sendAndApply(iw);
+		}
+		logGlobal->info("Game has been successfully saved!");
 	}
 	catch(std::exception &e)
 	{
+		if(playerToNotifyOnSuccess.isValidPlayer())
+		{
+			iw.text = MetaString::createFromTextID("core.genrltxt.9");
+			iw.text.replaceRawString(filenameWithoutPath);
+			sendAndApply(iw);
+		}
 		logGlobal->error("Failed to save game: %s", e.what());
 	}
-	logGlobal->info("Game has been successfully saved!");
 }
 
 void CGameHandler::load(const StartInfo &info)

@@ -121,7 +121,7 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 
 	if(words.size() == 2)
 	{
-		gameHandler->save("Saves/" + words[1]);
+		gameHandler->save("Saves/" + words[1], PlayerColor::CANNOT_DETERMINE);
 		MetaString str;
 		str.appendTextID("vcmi.broadcast.gameSavedAs");
 		str.appendRawString(" ");

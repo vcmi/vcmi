@@ -756,17 +756,20 @@ struct DLL_LINKAGE RequestStatistic : public CPackForServer
 struct DLL_LINKAGE SaveGame : public CPackForServer
 {
 	SaveGame() = default;
-	SaveGame(std::string Fname)
+	SaveGame(std::string Fname, bool NotifySuccess)
 		: fname(std::move(Fname))
+		, notifySuccess(NotifySuccess)
 	{
 	}
 	std::string fname;
+	bool notifySuccess = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CPackForServer &>(*this);
+		h & notifySuccess;
 		h & fname;
 	}
 };
