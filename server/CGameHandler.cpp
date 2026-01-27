@@ -3327,6 +3327,23 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 	return true;
 }
 
+bool CGameHandler::setTactics(ObjectInstanceID hid, bool enabled)
+{
+	const CGHeroInstance *h = gameInfo().getHero(hid);
+	if (!h)
+	{
+		logGlobal->error("Hero doesn't exist!");
+		return false;
+	}
+
+	ChangeTactics ct;
+	ct.hid = hid;
+	ct.enabled = enabled;
+	sendAndApply(ct);
+
+	return true;
+}
+
 bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
 {
 	const CGTownInstance *t = gameInfo().getTown(tid);

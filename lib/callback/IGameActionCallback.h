@@ -70,6 +70,7 @@ public:
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, EArmyFormation mode)=0;
+	virtual void setTactics(const CGHeroInstance * hero, bool enabled)=0;
 	virtual void setTownName(const CGTownInstance * town, std::string & name)=0;
 
 	virtual void save(const std::string &fname, bool notifySuccess) = 0;

@@ -125,6 +125,11 @@ void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 	gs.getHero(pack.hid)->setFormation(pack.formation);
 }
 
+void GameStatePackVisitor::visitChangeTactics(ChangeTactics & pack)
+{
+	gs.getHero(pack.hid)->tacticFormationEnabled = pack.enabled;
+}
+
 void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
 {
 	gs.getTown(pack.tid)->setCustomName(pack.name);
