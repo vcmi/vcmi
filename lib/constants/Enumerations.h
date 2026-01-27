@@ -275,4 +275,17 @@ enum class ChangeValueMode : int8_t
 	ABSOLUTE
 };
 
+enum class CombatEventType : int8_t
+{
+	INVALID = 0,
+	BEFORE_ATTACK = 1,
+	AFTER_ATTACK = 2,
+	BEFORE_ATTACKED = 3,
+	AFTER_ATTACKED = 4,
+	WAIT = 5,
+	DEFEND = 6,
+	BEFORE_MOVE = 7,
+	AFTER_MOVE = 8,
+};
+
 VCMI_LIB_NAMESPACE_END

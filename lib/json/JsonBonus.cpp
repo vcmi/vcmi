@@ -190,6 +190,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL: // spell level
 		case BonusType::CREATURE_GROWTH: // creature level
+		case BonusType::ON_COMBAT_EVENT:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
 			{
@@ -297,6 +298,38 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			for(const auto & sequence : value.Vector())
 				loadedData.push_back(sequence.Integer());
 			var = loadedData;
+			break;
+		}
+		case BonusType::ON_COMBAT_EVENT:
+		{
+			var = BonusParameters(BonusParametersOnCombatEvent());
+			auto & loadedData = result->toCustom<BonusParametersOnCombatEvent>();
+
+			for (const auto & effect : value["effect"].Vector())
+			{
+				int index = loadedData.effects.size();
+				bool targetEnemy = effect["targetEnemy"].Bool();
+				if (effect["action"].String() == "bonus")
+				{
+					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectBonus{
+						bonus, targetEnemy
+					});
+				}
+				if (effect["action"].String() == "spell")
+				{
+					int mastery = effect["mastery"].Bool();
+					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
+						SpellID(), mastery, targetEnemy
+					});
+					LIBRARY->identifiers()->requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
+					{
+						auto * targetEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&loadedData.effects[index]);
+						targetEffect->spell = SpellID(identifier);
+					});
+				}
+			}
 			break;
 		}
 		default:

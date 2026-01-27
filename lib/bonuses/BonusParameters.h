@@ -15,10 +15,51 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct BonusParametersOnCombatEvent
+{
+	struct CombatEffectBonus
+	{
+		std::shared_ptr<const Bonus> bonus;
+		bool targetEnemy = false;
+
+		template <class H>
+		void serialize(H& h)
+		{
+			h & bonus;
+			h & targetEnemy;
+		}
+	};
+
+	struct CombatEffectSpell
+	{
+		SpellID spell;
+		int masteryLevel = 0;
+		bool targetEnemy = false;
+
+		template <class H>
+		void serialize(H& h)
+		{
+			h & spell;
+			h & masteryLevel;
+			h & targetEnemy;
+		}
+	};
+
+	using CombatEffect = std::variant<CombatEffectBonus, CombatEffectSpell>;
+
+	std::vector<CombatEffect> effects;
+
+	template <class H>
+	void serialize(H& h)
+	{
+		h & effects;
+	}
+};
+
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>>;
+	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent>;
 
 	BonusParameters() = default;
 
@@ -52,6 +93,15 @@ public:
 
 	template<typename CustomType>
 	const CustomType & toCustom() const
+	{
+		auto * result = std::get_if<CustomType>(&data_);
+		if (result)
+			return *result;
+		throw std::runtime_error("Invalid addInfo type access!");
+	}
+
+	template<typename CustomType>
+	CustomType & toCustom()
 	{
 		auto * result = std::get_if<CustomType>(&data_);
 		if (result)
