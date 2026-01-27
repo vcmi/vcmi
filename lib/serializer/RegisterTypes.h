@@ -302,6 +302,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<AdvInterfaceReady>(260);
 	s.template registerType<SetTactics>(261);
 	s.template registerType<ChangeTactics>(262);
+	s.template registerType<CompositeUpdater>(263);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -37,6 +37,7 @@ public:
 	virtual bool isPositive() const = 0;
 	virtual bool isNegative() const = 0;
 	virtual bool isNeutral() const = 0;
+	virtual bool isPersistent() const = 0;
 
 	virtual bool isDamage() const = 0;
 	virtual bool isOffensive() const = 0;

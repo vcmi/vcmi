@@ -195,6 +195,13 @@
 					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
 				},
 				{
+					"type" : "array",
+					"items" : {
+						"$ref" : "#/definitions/updater",
+						"description" : "nested updaters"
+					}
+				},
+				{
 					"description" : "GROWS_WITH_LEVEL updater",
 					"type" : "object",
 					"required" : ["type", "valPer20", "stepSize"],
@@ -308,7 +315,7 @@
 			"description" : "subtype"
 		},
 		"sourceID" : {
-			"type" : "number",
+			"type" : "string",
 			"description" : "sourceID"
 		},
 		"sourceType" : {

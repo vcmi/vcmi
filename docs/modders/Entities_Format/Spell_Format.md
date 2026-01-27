@@ -67,6 +67,7 @@
 		// rising - (Deprecated?) rising spell (implicitly sets positive)
 		// special - this spell can not be present in mage guild, or leared by hero, and can only be received explicitly, e.g. from bonus SPELL
 		// nonMagical - this spell is not affected by Sorcery or magic resistance. School resistances (if any) apply.
+		// persistent - this spell can not be removed from unit, such as by dispel effect (e.g. Disrupting Ray)
 		"flags" : {
 			"positive": true,
 		},
