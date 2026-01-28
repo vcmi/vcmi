@@ -36,7 +36,7 @@ void ServerDiscovery::discoverAsync(std::function<void(const DiscoveredServer &)
 				boost::asio::ip::udp::endpoint sender_endpoint;
 				socket.non_blocking(true);
 				auto start = std::chrono::steady_clock::now();
-				while(std::chrono::steady_clock::now() - start < std::chrono::milliseconds(3000))
+				while(std::chrono::steady_clock::now() - start < std::chrono::milliseconds(5000))
 				{
 					boost::system::error_code ec;
 					size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint, 0, ec);
@@ -67,4 +67,29 @@ void ServerDiscovery::discoverAsync(std::function<void(const DiscoveredServer &)
 			}
 		}
 	);
+}
+
+std::vector<std::string> ServerDiscovery::ipAddresses()
+{
+    std::vector<std::string> addresses;
+
+    try
+	{
+        boost::asio::io_context io;
+        boost::asio::ip::udp::socket socket(io);
+
+        socket.connect({
+            boost::asio::ip::make_address("8.8.8.8"), 53
+        });
+
+        auto addr = socket.local_endpoint().address();
+        if (addr.is_v4())
+            addresses.push_back(addr.to_string());
+    }
+    catch (const std::exception& e)
+	{
+        logGlobal->error("IP address retrieval error: %s", e.what());
+    }
+
+    return addresses;
 }

@@ -20,4 +20,5 @@ class ServerDiscovery
 {
 public:
 	static void discoverAsync(std::function<void(const DiscoveredServer &)> callback);
+	static std::vector<std::string> ipAddresses();
 };

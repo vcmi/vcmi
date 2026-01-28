@@ -121,9 +121,11 @@
 	"vcmi.mainMenu.serverAddressEnter" : "Addresse eingeben:",
 	"vcmi.mainMenu.serverConnectionFailed" : "Verbindung fehlgeschlagen",
 	"vcmi.mainMenu.serverClosing" : "Trenne...",
-	"vcmi.mainMenu.serverFound" : "Server %s:%d gefunden, verbinden?",
 	"vcmi.mainMenu.hostTCP" : "Hoste TCP/IP Spiel",
 	"vcmi.mainMenu.joinTCP" : "Trete TCP/IP Spiel bei",
+	"vcmi.mainMenu.ipAddress" : "Lokale IP Addresse",
+	"vcmi.mainMenu.ipAddressUnknown" : "Unbekannt",
+	"vcmi.mainMenu.join" : "Beitreten",
 
 	"vcmi.lobby.filepath" : "Dateipfad",
 	"vcmi.lobby.creationDate" : "Erstellungsdatum",
