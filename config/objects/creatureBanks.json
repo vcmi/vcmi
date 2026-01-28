@@ -633,7 +633,7 @@
 				"onVisited" : [
 					{
 						"message" : 123, // Such a despicable act reduces your army's morale.
-						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 99 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "stacking" : "shipwreckVisited", "description" : 99 } ]
 					}
 				],
 				"guardsLayout" : "creatureBankNarrow",
@@ -720,7 +720,6 @@
 			"derelictShip" : {
 				"index" : 0,
 
-				"blockedVisitable" : true,
 				"name" : "Derelict Ship",
 				"aiValue" : 4000,
 				"rmg" : {
@@ -733,7 +732,7 @@
 				"onVisited" : [
 					{
 						"message" : 42, // Such a despicable act reduces your army's morale.
-						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "description" : 101 } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "stacking" : "derelictShipVisited", "description" : 101 } ]
 					}
 				],
 				"guardsLayout" : "creatureBankWide",
@@ -832,7 +831,7 @@
 				"onVisited" : [
 					{
 						"message" : 120, // Such a despicable act reduces your army's morale.
-						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE" } ]
+						"bonuses" : [ { "type" : "MORALE", "val" : -1, "duration" : "ONE_BATTLE", "stacking" : "sepulcherVisited", "description" : 98 } ]
 					}
 				],
 				"guardsLayout" : "creatureBankNarrow",
