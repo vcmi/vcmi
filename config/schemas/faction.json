@@ -36,6 +36,13 @@
 	},
 	"additionalProperties" : false,
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"name" : {
 			"type" : "string",
 			"description" : "Localizable faction name, e.g. Rampart"
