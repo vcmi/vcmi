@@ -129,7 +129,7 @@ std::pair<std::optional<ColorRGBA>, std::optional<IFont::FontStyle>> IFont::pars
 			style = IFont::FontStyle::BOLD;
 		else if(s == "italic")
 			style = IFont::FontStyle::ITALIC;
-		else if(s == "underline")
+		else if(s == "underscore" || s == "underline")
 			style = IFont::FontStyle::UNDERLINE;
 		else if(s == "strikethrough" || s == "strike")
 			style = IFont::FontStyle::STRIKETHROUGH;

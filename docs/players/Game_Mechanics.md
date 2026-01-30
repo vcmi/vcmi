@@ -143,7 +143,7 @@ Allowed styles:
 
 - `normal`
 - `italic`
-- `underline`
+- `underscore` or `underline`
 - `strikethrough` or `strike`
 
 ### Original Heroes III Support
