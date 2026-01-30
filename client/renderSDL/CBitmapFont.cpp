@@ -266,6 +266,11 @@ bool CBitmapFont::canRepresentString(const std::string & data) const
 	return true;
 }
 
+void CBitmapFont::setFontStyle(const FontStyle style) const
+{
+	// Bitmap font does not support any styles
+}
+
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const BitmapChar & character, const ColorRGBA & color, int &posX, int &posY) const
 {
 	int scalingFactor = ENGINE->screenHandler().getScalingFactor();

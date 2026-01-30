@@ -40,4 +40,5 @@ public:
 	size_t getGlyphWidthScaled(const char * data) const override;
 	size_t getStringWidthScaled(const std::string & data) const override;
 	bool canRepresentCharacter(const char * data) const override;
+	void setFontStyle(const FontStyle style) const override;
 };
