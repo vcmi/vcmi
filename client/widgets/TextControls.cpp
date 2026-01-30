@@ -140,7 +140,62 @@ void CLabel::setColor(const ColorRGBA & Color)
 size_t CLabel::getWidth()
 {
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
-	return fontPtr->getStringWidth(visibleText());
+
+	const std::string txt = visibleText();
+	if(txt.empty())
+		return 0;
+
+	size_t width = 0;
+	std::string segment;
+
+	auto flush = [&]() {
+		if(!segment.empty())
+		{
+			width += fontPtr->getStringWidth(segment);
+			segment.clear();
+		}
+	};
+
+	IFont::FontStyle currentStyle = IFont::FontStyle::DEFAULT;
+
+	for(size_t i = 0; i < txt.size(); )
+	{
+		if(txt[i] == '{')
+		{
+			size_t pipe = txt.find('|', i + 1);
+			if(pipe != std::string::npos)
+			{
+				std::string token = txt.substr(i + 1, pipe - (i + 1));
+				auto parsed = IFont::parseColorAndFontStyle(token);
+				if(parsed.second)
+				{
+					flush();
+					currentStyle = parsed.second.value();
+					fontPtr->setFontStyle(currentStyle);
+				}
+				i = pipe + 1;
+				continue;
+			}
+			// malformed — treat as visible char
+		}
+
+		if(txt[i] == '}')
+		{
+			flush();
+			currentStyle = IFont::FontStyle::DEFAULT;
+			fontPtr->setFontStyle(currentStyle);
+			++i;
+			continue;
+		}
+
+		size_t chsz = TextOperations::getUnicodeCharacterSize(txt[i]);
+		segment.append(txt.data() + i, chsz);
+		i += chsz;
+	}
+
+	flush();
+	fontPtr->setFontStyle(IFont::FontStyle::DEFAULT);
+	return width;
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
@@ -337,7 +392,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 	textSize.y = lineHeight * (int)lines.size();
 	textSize.x = 0;
 	for(const std::string & line : lines)
-		vstd::amax(textSize.x, fontPtr->getStringWidth(line.c_str()));
+		vstd::amax(textSize.x, CLabel(0, 0, font, alignment, color, line).getWidth());
 	if(redrawAfter)
 		redraw();
 }
