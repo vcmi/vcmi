@@ -133,9 +133,18 @@ Mouse click on castle icon in the town screen open quick recruitment window, whe
 
 It's the new feature meant for testing game performance on various platforms.
 
-## Color support in game text
+## Color and style support in game text
 
-Additional color are supported for text fields (e.g. map description). Uses HTML color syntax (e.g. #abcdef) / HTML predefined colors (e.g. green).
+Additional color and styles are supported for text fields (e.g. map description). Uses HTML color syntax (e.g. #abcdef) / HTML predefined colors (e.g. green).
+
+Styles are only supported with scalable fonts. They have to be added to color seperated by `;`.
+
+Allowed styles:
+
+- `normal`
+- `italic`
+- `underline`
+- `strikethrough` or `strike`
 
 ### Original Heroes III Support
 
@@ -156,6 +165,10 @@ Additional color are supported for text fields (e.g. map description). Uses HTML
 `{green|This is green}`
 
 <span style="color:green">This is green</span>
+
+`{green;italic|This is green in italic}`
+
+<span style="color:green;font-style:italic">This is green in italic</span>
 
 ## Multiplayer features
 
