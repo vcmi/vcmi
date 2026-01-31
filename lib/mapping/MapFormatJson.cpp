@@ -919,7 +919,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	// Fix TextIDs in JSON to include map name prefix before deserialization
 	std::string actualMapName = TextOperations::convertMapName(mapName);
 	std::string mapPrefix = "map." + actualMapName + ".";
-	JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+	auto & headerData = const_cast<JsonNode &>(handler.getCurrent());
 	fixStringsTextIDInJson(headerData, mapPrefix, false);
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
@@ -1402,7 +1402,7 @@ void CMapSaverJson::writeHeader()
 
 	writeTranslations();
 	
-	JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+	auto & headerData = const_cast<JsonNode &>(handler.getCurrent());
 	fixStringsTextIDInJson(headerData, "", true);
 
 	addToArchive(header, HEADER_FILE_NAME);
