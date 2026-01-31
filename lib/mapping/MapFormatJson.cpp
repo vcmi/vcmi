@@ -326,64 +326,55 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 
 void CMapFormatJson::fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix, bool remove) const
 {
-	if(!node.isStruct())
-		return;
-
-	auto & nodeStruct = node.Struct();
-	auto it = nodeStruct.find("stringsTextID");
-
-	// Process stringsTextID array if present (MetaString structure)
-	if(it != nodeStruct.end() && it->second.isVector())
+	if(node.isStruct())
 	{
-		for(auto & textID : it->second.Vector())
+		auto & nodeStruct = node.Struct();
+		auto it = nodeStruct.find("stringsTextID");
+
+		// Process stringsTextID array if present (MetaString structure)
+		if(it != nodeStruct.end() && it->second.isVector())
 		{
-			if(textID.isString() && !textID.String().empty())
+			for(auto & textID : it->second.Vector())
 			{
-				if(remove)
+				if(textID.isString() && !textID.String().empty())
 				{
-					if(textID.String().find("map.") == 0)
-						textID.String() = removeMapNamePrefix(textID.String());
-				}
-				else if(textID.String().find("map.") != 0 
-						&& textID.String().find("core.") != 0
-						&& textID.String().find("vcmi.") != 0)
-				{
-					textID.String() = mapPrefix + textID.String();
+					if(remove)
+					{
+						if(textID.String().find("map.") == 0)
+							textID.String() = removeMapNamePrefix(textID.String());
+					}
+					else if(textID.String().find("map.") != 0 
+							&& textID.String().find("core.") != 0
+							&& textID.String().find("vcmi.") != 0)
+					{
+						textID.String() = mapPrefix + textID.String();
+					}
 				}
 			}
 		}
+
+		for(auto & child : nodeStruct)
+		{
+			if(child.second.isStruct() || child.second.isVector())
+				fixStringsTextIDInJson(child.second, mapPrefix, remove);
+		}
+		return;
 	}
 
-	// Recursively search for more stringsTextID arrays in child Struct nodes only
-	for(auto & child : nodeStruct)
+	if(node.isVector())
 	{
-		if(child.second.isStruct())
-			fixStringsTextIDInJson(child.second, mapPrefix, remove);
+		for(auto & elem : node.Vector())
+		{
+			if(elem.isStruct() || elem.isVector())
+				fixStringsTextIDInJson(elem, mapPrefix, remove);
+		}
 	}
 }
 
 void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 {
-	if(!handler.saving)
-	{
-		// When loading: Fix TextIDs in JSON to include map name prefix before deserialization
-		std::string actualMapName = TextOperations::convertMapName(mapName);
-		std::string mapPrefix = "map." + actualMapName + ".";
-		
-		JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
-		fixStringsTextIDInJson(headerData, mapPrefix, false);
-
-		handler.serializeStruct("name", mapHeader->name);
-		handler.serializeStruct("description", mapHeader->description);
-	}
-	else
-	{
-		handler.serializeStruct("name", mapHeader->name);
-		handler.serializeStruct("description", mapHeader->description);
-
-		JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
-		fixStringsTextIDInJson(headerData, "", true);
-	}
+	handler.serializeStruct("name", mapHeader->name);
+	handler.serializeStruct("description", mapHeader->description);
 	
 	handler.serializeStruct("author", mapHeader->author);
 	handler.serializeStruct("authorContact", mapHeader->authorContact);
@@ -925,6 +916,12 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	JsonDeserializer handler(mapObjectResolver.get(), header);
 
+	// Fix TextIDs in JSON to include map name prefix before deserialization
+	std::string actualMapName = TextOperations::convertMapName(mapName);
+	std::string mapPrefix = "map." + actualMapName + ".";
+	JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+	fixStringsTextIDInJson(headerData, mapPrefix, false);
+
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 	
 	//loading mods
@@ -992,7 +989,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	if(complete)
 		readOptions(handler);
-	
 }
 
 void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile)
@@ -1405,6 +1401,9 @@ void CMapSaverJson::writeHeader()
 	writeOptions(handler);
 
 	writeTranslations();
+	
+	JsonNode & headerData = const_cast<JsonNode &>(handler.getCurrent());
+	fixStringsTextIDInJson(headerData, "", true);
 
 	addToArchive(header, HEADER_FILE_NAME);
 }
