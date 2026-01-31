@@ -744,6 +744,11 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
 	}
 
+	if(healthDelta < 0)
+	{
+		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
+	}
+
 	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)

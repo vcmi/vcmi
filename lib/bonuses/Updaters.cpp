@@ -121,7 +121,7 @@ JsonNode TimesHeroLevelDivideStackLevelUpdater::toJsonNode() const
 std::shared_ptr<Bonus> TimesStackSizeUpdater::apply(const std::shared_ptr<Bonus> & b, int count) const
 {
 	auto newBonus = std::make_shared<Bonus>(*b);
-	newBonus->val *= std::clamp(count / stepSize, minimum, maximum);
+	newBonus->val = stepValue * std::clamp(count / stepSize, minimum, maximum);
 	return newBonus;
 }
 

@@ -444,12 +444,13 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			int minimum = updaterJson["minimum"].isNull() ? std::numeric_limits<int>::min() : updaterJson["minimum"].Integer();
 			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
 			int stepSize = updaterJson["stepSize"].Integer();
+			int stepValue = updaterJson["stepValue"].Integer();
 			if (minimum > maximum)
 			{
 				logMod->warn("TIMES_STACK_SIZE updater: minimum value (%d) is above maximum value(%d)!", minimum, maximum);
-				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize));
+				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize), std::max(1, stepValue));
 			}
-			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize));
+			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize), std::max(1, stepValue));
 		}
 		if(updaterJson["type"].String() == "TIMES_ARMY_SIZE")
 		{
