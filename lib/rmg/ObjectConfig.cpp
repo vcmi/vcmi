@@ -47,7 +47,7 @@ void ObjectConfig::addRequiredObject(const CompoundMapObjectID & objid, ui16 cou
 {
 	requiredObjects[objid] = std::pair{count, guardLevel};
 
-	logGlobal->info("Added required object of type %d.%d, count: %d, guard level: %d",
+	logGlobal->debug("Added required object of type %d.%d, count: %d, guard level: %d",
 		objid.primaryID, objid.secondaryID, count,
 		guardLevel.has_value() ? std::to_string(guardLevel.value()) : "none");
 }
