@@ -81,6 +81,15 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "creatureLevel7", 7);
 	registerObject(ModScope::scopeBuiltin(), "spell", "preset", SpellID::PRESET);
 	registerObject(ModScope::scopeBuiltin(), "spell", "spellbook_preset", SpellID::SPELLBOOK_PRESET);
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventBeforeAttack", static_cast<int>(CombatEventType::BEFORE_ATTACK));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventAfterAttack", static_cast<int>(CombatEventType::AFTER_ATTACK));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventBeforeAttacked", static_cast<int>(CombatEventType::BEFORE_ATTACKED));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventAfterAttacked", static_cast<int>(CombatEventType::AFTER_ATTACKED));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventWait", static_cast<int>(CombatEventType::WAIT));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventDefend", static_cast<int>(CombatEventType::DEFEND));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventBeforeMove", static_cast<int>(CombatEventType::BEFORE_MOVE));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventAfterMove", static_cast<int>(CombatEventType::AFTER_MOVE));
+	registerObject(ModScope::scopeBuiltin(), "bonusSubtype", "combatEventCast", static_cast<int>(CombatEventType::UNIT_SPELLCAST));
 }
 
 void CIdentifierStorage::checkIdentifier(const std::string & ID)

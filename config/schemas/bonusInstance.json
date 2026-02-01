@@ -52,7 +52,9 @@
 							"bonusType" : { "type" : "string" },
 							"bonusSubtype" : { "type" : "string" },
 							"bonusSourceType" : { "type" : "string" },
-							"bonusSourceID" : { "type" : "string" }
+							"bonusSourceID" : { "type" : "string" },
+							"bonusMinValue" : { "type" : "number" },
+							"bonusMaxValue" : { "type" : "number" }
 						}
 					}
 				},

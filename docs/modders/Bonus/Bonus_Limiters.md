@@ -50,6 +50,8 @@ Parameters:
 - `bonusSubtype` - subtype of bonus to check against (only used if bonus type is set)
 - `bonusSourceType` - source type of bonus to check against
 - `bonusSourceID` -source ID of bonus to check against (only used if bonus type is set)
+- `bonusMinValue` - minimal total value of bonus to check against (inclusive)
+- `bonusMaxValue` - maximal total value of bonus to check against (inclusive)
 
 All parameters are optional.
 

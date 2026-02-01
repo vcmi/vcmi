@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "Bonus.h"
+#include "BonusParameters.h"
 #include "Limiters.h"
 #include "Updaters.h"
 #include "Propagators.h"
@@ -31,34 +32,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-//This constructor should be placed here to avoid side effects
-CAddInfo::CAddInfo() = default;
-
-CAddInfo::CAddInfo(si32 value)
-{
-	if (value != CAddInfo::NONE)
-		data_.push_back(value);
-}
-
-std::string CAddInfo::toString() const
-{
-	return toJsonNode().toCompactString();
-}
-
-JsonNode CAddInfo::toJsonNode() const
-{
-	if(size() < 2)
-	{
-		return JsonNode((*this)[0]);
-	}
-	else
-	{
-		JsonNode node;
-		for(si32 value : data_)
-			node.Vector().emplace_back(value);
-		return node;
-	}
-}
 std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32> customValue) const
 {
 	MetaString descriptionHelper = description;
@@ -127,17 +100,6 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 	return descriptionHelper.toString();
 }
 
-static JsonNode additionalInfoToJson(BonusType type, CAddInfo addInfo)
-{
-	switch(type)
-	{
-	case BonusType::SPECIAL_UPGRADE:
-		return JsonNode(ModUtility::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
-	default:
-		return addInfo.toJsonNode();
-	}
-}
-
 JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root;
@@ -145,8 +107,8 @@ JsonNode Bonus::toJsonNode() const
 	root["type"].String() = LIBRARY->bth->bonusToString(type);
 	if(subtype != BonusSubtypeID())
 		root["subtype"].String() = subtype.toString();
-	if(additionalInfo != CAddInfo::NONE)
-		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
+	if(parameters)
+		root["addInfo"] = parameters->toJsonNode();
 	if(source != BonusSource::OTHER)
 		root["sourceType"].String() = vstd::findKey(bonusSourceMap, source);
 	if(targetSourceType != BonusSource::OTHER)
@@ -176,6 +138,22 @@ JsonNode Bonus::toJsonNode() const
 	if(hidden)
 		root["hidden"].Bool() = hidden;
 	return root;
+}
+
+void Bonus::convertAddInfo(const std::vector<int> & oldAddInfo)
+{
+	if (oldAddInfo.size() > 1)
+		parameters = std::make_shared<BonusParameters>(oldAddInfo);
+
+	if (oldAddInfo.size() == 1 && oldAddInfo[0] != -1)
+	{
+		if (type == BonusType::SPECIAL_UPGRADE || type == BonusType::TRANSMUTATION)
+			parameters = std::make_shared<BonusParameters>(CreatureID(oldAddInfo[0]));
+		else if (type == BonusType::DEATH_STARE)
+			parameters = std::make_shared<BonusParameters>(SpellID(oldAddInfo[0]));
+		else
+			parameters = std::make_shared<BonusParameters>(oldAddInfo[0]);
+	}
 }
 
 Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID ID)
@@ -229,8 +207,8 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	printField(duration);
 	printField(source);
 	out << "\tSource ID: " << bonus.sid.toString() << "\n";
-	if(bonus.additionalInfo != CAddInfo::NONE)
-		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
+	if(bonus.parameters)
+		out << "\taddInfo: " << bonus.parameters->toString() << "\n";
 	printField(turnsRemain);
 	printField(valType);
 	if(!bonus.stacking.empty())

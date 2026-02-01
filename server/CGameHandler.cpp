@@ -36,6 +36,7 @@
 #include "../lib/int3.h"
 
 #include "../lib/battle/BattleInfo.h"
+#include "../lib/bonuses/BonusParameters.h"
 #include "../lib/callback/GameRandomizer.h"
 
 #include "../lib/entities/ResourceTypeHandler.h"
@@ -197,7 +198,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		return;
 	}
 
-	scp.accumulatedBonus.additionalInfo = 0;
+	scp.accumulatedBonus.parameters = 0;
 	scp.accumulatedBonus.duration = BonusDuration::PERMANENT;
 	scp.accumulatedBonus.turnsRemain = 0;
 	scp.accumulatedBonus.source = BonusSource::COMMANDER;
@@ -695,9 +696,9 @@ void CGameHandler::onNewTurn()
 
 	const auto & currentDaySelector = [day = gameState().day+1](const Bonus * bonus)
 	{
-		if (bonus->additionalInfo[0] <= 0)
+		if (!bonus->parameters)
 			return true;
-		if ((day % bonus->additionalInfo[0]) == 0)
+		if ((day % bonus->parameters->toNumber()) == 0)
 			return true;
 		return false;
 	};

@@ -15,6 +15,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../IGameSettings.h"
+#include "../bonuses/BonusParameters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
@@ -616,7 +617,10 @@ int CGCreature::getNumberOfStacksFromBonus(const CGHeroInstance * hero) const
 	if(bonus->val > 0)
 		return bonus->val;
 
-	auto addInfo = bonus->additionalInfo;
+	if (!bonus->parameters)
+		return 0;
+
+	auto addInfo = bonus->parameters->toVector();
 	if(addInfo.empty())
 		return 0;
 	const size_t maxEntries = std::min<size_t>(addInfo.size(), 7);

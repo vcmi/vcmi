@@ -20,6 +20,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
@@ -55,6 +56,7 @@ bool BattleActionProcessor::doWaitAction(const CBattleInfoCallback & battle, con
 	if (!canStackAct(battle, stack))
 		return false;
 
+	processBattleEventTriggers(battle, CombatEventType::WAIT, stack, nullptr);
 	return true;
 }
 
@@ -143,12 +145,15 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 		return false;
 	}
 
+	processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, stack, nullptr);
+
 	auto movementResult = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
 	if (movementResult.invalidRequest)
 	{
 		gameHandler->complain("Stack failed movement!");
 		return false;
 	}
+	processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, stack, nullptr);
 	return true;
 }
 
@@ -203,6 +208,8 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 	message.lines.push_back(text);
 
 	gameHandler->sendAndApply(message);
+
+	processBattleEventTriggers(battle, CombatEventType::DEFEND, stack, nullptr);
 	return true;
 }
 
@@ -299,7 +306,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
 				auto ferocityBonus = stack->getBonus(Selector::type()(BonusType::FEROCITY));
-				int32_t requiredCreaturesToKill = ferocityBonus->additionalInfo != CAddInfo::NONE ? ferocityBonus->additionalInfo[0] : 1;
+				int32_t requiredCreaturesToKill = ferocityBonus->parameters ? ferocityBonus->parameters->toNumber() : 1;
 				if(defenderInitialQuantity - destinationStack->getCount() >= requiredCreaturesToKill)
 				{
 					ferocityApplied = true;
@@ -494,6 +501,8 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 		vstd::amax(spellLvl, randSpellcaster->val);
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), target);
+
+	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
 	return true;
 }
 
@@ -1207,10 +1216,10 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 			for(const auto & sf : *spellsByType)
 			{
 				int meleeRanged;
-				vstd::amax(spellLevel, sf->additionalInfo[0]);
-				meleeRanged = sf->additionalInfo[1];
+				vstd::amax(spellLevel, sf->parameters->toVector()[0]);
+				meleeRanged = sf->parameters->toVector()[1];
 
-				if (meleeRanged == CAddInfo::NONE || meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
+				if (meleeRanged == -1 || meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
 			int chance = attacker->valOfBonuses(Selector::typeSubtype(attackMode, BonusSubtypeID(spellID)));
@@ -1252,7 +1261,7 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 	for(int i = 0; i < spells->size(); i++)
 	{
 		std::shared_ptr<Bonus> bonus = spells->operator[](i);
-		int layer = bonus->additionalInfo[2];
+		int layer = bonus->parameters->toVector()[2];
 		vstd::amax(layer, -1);
 		spellsWithBackupLayers[layer].push_back(bonus);
 	}
@@ -1298,6 +1307,8 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
 	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
+	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACK, attacker, defender);
+	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACKED, defender, attacker);
 }
 
 void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
@@ -1349,8 +1360,8 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 	{
 		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
 		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
-		if(bonus && bonus->additionalInfo[0] != SpellID::NONE)
-			spellID = SpellID(bonus->additionalInfo[0]);
+		if(bonus && bonus->parameters && bonus->parameters->toSpell() != SpellID::NONE)
+			spellID = bonus->parameters->toSpell();
 
 		const CSpell * spell = spellID.toSpell();
 		spells::AbilityCaster caster(attacker, 0);
@@ -1369,6 +1380,8 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		return;
 
 	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
 
 	if(!defender->alive())
 	{
@@ -1388,7 +1401,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	for(const auto & b : *acidBreath)
 	{
-		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, b->additionalInfo[0]))
+		if (b->parameters && gameHandler->randomizer->rollCombatAbility(ownerArmy, b->parameters->toNumber()))
 			acidDamage += b->val;
 	}
 
@@ -1416,10 +1429,10 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
 			return;
 
-		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
+		const auto & bonusParameters = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->parameters;
+		const auto & targetCreature = bonusParameters ? bonusParameters->toCreature() : attacker->creatureId();
 
-		if(defender->unitType()->getIndex() == bonusAdditionalInfo ||
-			(bonusAdditionalInfo == CAddInfo::NONE && defender->unitType()->getId() == attacker->unitType()->getId()))
+		if(defender->unitType()->getId() == targetCreature)
 			return;
 
 		battle::UnitInfo resurrectInfo;
@@ -1427,11 +1440,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		resurrectInfo.summoned = false;
 		resurrectInfo.position = defender->getPosition();
 		resurrectInfo.side = defender->unitSide();
-
-		if(bonusAdditionalInfo != CAddInfo::NONE)
-			resurrectInfo.type = CreatureID(bonusAdditionalInfo);
-		else
-			resurrectInfo.type = attacker->creatureId();
+		resurrectInfo.type = targetCreature;
 
 		if(attacker->hasBonusOfType(BonusType::TRANSMUTATION, BonusCustomSubtype::transmutationPerHealth))
 			resurrectInfo.count = std::max((defender->getCount() * defender->getMaxHealth()) / resurrectInfo.type.toCreature()->getMaxHealth(), 1u);
@@ -1466,13 +1475,15 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
 		{
 			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
-			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)))->additionalInfo[0];
+			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)));
+			int percentageToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
 			amountToDie = defender->getCount() * percentageToDie / 100;
 		}
 		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
 		{
 			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
-			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)))->additionalInfo[0];
+			const auto & bonus = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)));
+			amountToDie = bonus->parameters ? bonus->parameters->toNumber() : 0;
 		}
 
 		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
@@ -1687,4 +1698,50 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	}
 
 	return makeBattleActionImpl(battle, ba);
+}
+
+void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
+{
+	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
+	for (const auto & bonus : *bonuses)
+	{
+		const auto parameters = bonus->parameters->toCustom<BonusParametersOnCombatEvent>();
+
+		for (const auto & effect : parameters.effects)
+		{
+			auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
+			auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
+
+			if (bonusEffect)
+			{
+				SetStackEffect sse;
+				sse.battleID = battle.getBattle()->getBattleID();
+				std::vector<Bonus> bonuses{*bonusEffect->bonus};
+				if (bonusEffect->targetEnemy && secondary)
+					sse.toAdd.emplace_back(secondary->unitId(), bonuses);
+				if (!bonusEffect->targetEnemy)
+					sse.toAdd.emplace_back(target->unitId(), bonuses);
+				gameHandler->sendAndApply(sse);
+			}
+			if (spellEffect)
+			{
+				const CSpell * spell = spellEffect->spell.toSpell();
+				spells::AbilityCaster spellCaster(target, spellEffect->masteryLevel);
+
+				spells::Target spellTarget;
+				if (spellEffect->targetEnemy && secondary)
+					spellTarget.emplace_back(secondary);
+				if (!spellEffect->targetEnemy)
+					spellTarget.emplace_back(target);
+
+				spells::BattleCast parameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
+
+				auto m = spell->battleMechanics(&parameters);
+
+				if(m->canBeCastAt(spellTarget))
+					parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
+			}
+		}
+
+	}
 }

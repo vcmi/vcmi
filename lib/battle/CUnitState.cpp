@@ -15,6 +15,7 @@
 
 #include "../CCreatureHandler.h"
 
+#include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -614,8 +615,8 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
-		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-			return bonus->additionalInfo[0];
+		if(bonus != nullptr && bonus->parameters)
+			return bonus->parameters->toNumber();
 	}
 
 	if (hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))

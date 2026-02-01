@@ -32,7 +32,7 @@ bool operator==(const Bonus & b1, const Bonus & b2)
 		&& b1.val == b2.val
 		&& b1.sid == b2.sid
 		&& b1.valType == b2.valType
-		&& b1.additionalInfo == b2.additionalInfo
+		&& b1.parameters == b2.parameters
 		&& b1.effectRange == b2.effectRange;
 }
 
