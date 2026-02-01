@@ -312,7 +312,7 @@ void CHeroWindow::updateArtifacts()
 	else
 	{
 		tacticsButton->block(false);
-		tacticsButton->addCallback([&](bool on){ GAME->interface()->cb->setTactics(curHero, on); });
+		tacticsButton->addCallback([this](bool on){ GAME->interface()->cb->setTactics(curHero, on); });
 	}
 
 	formations->resetCallback();

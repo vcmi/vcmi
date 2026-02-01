@@ -387,7 +387,7 @@ void CBonusSelection::createBonusesIcons()
 		
 		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(), desc.toString());
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), tooltip, nullptr, EShortcut::NONE, false, [this](){
+		auto bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), tooltip, nullptr, EShortcut::NONE, false, [this](){
 			if(buttonStart->isActive() && !buttonStart->isBlocked())	
 				CBonusSelection::startMap();
 		});

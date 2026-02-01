@@ -73,8 +73,8 @@ std::string MapLayerType::getNameTranslated() const
 }
 
 MapLayerType::MapLayerType():
-	id(MapLayerId::UNKNOWN),
 	identifier("empty"),
-	modScope("core")
+	modScope("core"),
+	id(MapLayerId::UNKNOWN)
 {}
 VCMI_LIB_NAMESPACE_END

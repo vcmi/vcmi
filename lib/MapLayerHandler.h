@@ -42,7 +42,6 @@ public:
 
 class DLL_LINKAGE MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>
 {
-public:
 };
 
 class DLL_LINKAGE MapLayerTypeHandler : public CHandlerBase<MapLayerId, MapLayerType, MapLayerType, MapLayerTypeService>
