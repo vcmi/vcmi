@@ -565,7 +565,7 @@ JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> Pla
 		CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false);
 	}, EShortcut::MAIN_MENU_JOIN_GAME);
 
-	ServerDiscovery::discoverAsync(
+	serverDiscovery = std::make_shared<ServerDiscovery>(
 		GAME->server().getNetworkHandler().getContext(),
 		[this](const DiscoveredServer & server)
 		{
@@ -586,9 +586,12 @@ JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> Pla
 			redraw();
 		}
 	);
+	serverDiscovery->start();
 
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[288], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
+
+JoinScreen::~JoinScreen() = default;
 
 CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode, EShortcut shortcut)
 	: loadMode(LoadMode), screenType(ScreenType), host(Host)

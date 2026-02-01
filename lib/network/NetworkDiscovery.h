@@ -23,8 +23,16 @@ struct DLL_LINKAGE DiscoveredServer
 class DLL_LINKAGE ServerDiscovery
 {
 public:
-	static void discoverAsync(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback);
+	ServerDiscovery(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback);
+	~ServerDiscovery();
+	void start();
+	void abort();
 	static std::vector<std::string> ipAddresses();
+
+private:
+	NetworkContext & context;
+	std::function<void(const DiscoveredServer &)> callback;
+	std::shared_ptr<boost::asio::ip::udp::socket> socket;
 };
 
 class DLL_LINKAGE ServerDiscoveryListener

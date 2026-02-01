@@ -16,6 +16,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CampaignState;
+class ServerDiscovery;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -118,8 +119,10 @@ public:
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CLabel>> labelsJoin;
 	std::vector<std::shared_ptr<CButton>> buttonsJoin;
+	std::shared_ptr<ServerDiscovery> serverDiscovery;
 
 	JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> playerNames);
+	~JoinScreen();
 };
 
 /// Hot seat player window

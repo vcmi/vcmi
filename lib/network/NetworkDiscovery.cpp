@@ -14,20 +14,41 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void ServerDiscovery::discoverAsync(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback)
+ServerDiscovery::ServerDiscovery(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback)
+	: context(context), callback(std::move(callback))
 {
-	auto socket = std::make_shared<boost::asio::ip::udp::socket>(context);
+}
+
+ServerDiscovery::~ServerDiscovery()
+{
+	abort();
+}
+
+void ServerDiscovery::abort()
+{
+	if(socket)
+	{
+		boost::system::error_code ec;
+		socket->close(ec);
+		socket.reset();
+	}
+}
+
+void ServerDiscovery::start()
+{
+	socket = std::make_shared<boost::asio::ip::udp::socket>(context);
 	socket->open(boost::asio::ip::udp::v4());
 	socket->set_option(boost::asio::socket_base::broadcast(true));
 
 	std::string message = "VCMI_DISCOVERY";
 	boost::asio::ip::udp::endpoint broadcastEndpoint(boost::asio::ip::address_v4::broadcast(), 3030);
 	socket->async_send_to(boost::asio::buffer(message), broadcastEndpoint,
-		[socket, callback](const boost::system::error_code& ec, std::size_t)
+		[this, socket = this->socket](const boost::system::error_code& ec, std::size_t)
 		{
 			if(ec)
 			{
-				logGlobal->error("Discovery send error: %s", ec.message());
+				if(ec != boost::asio::error::operation_aborted)
+					logGlobal->error("Discovery send error: %s", ec.message());
 				return;
 			}
 
@@ -36,8 +57,11 @@ void ServerDiscovery::discoverAsync(NetworkContext & context, std::function<void
 			auto timer = std::make_shared<boost::asio::steady_timer>(socket->get_executor(), std::chrono::milliseconds(5000));
 			
 			std::function<void(const boost::system::error_code&, std::size_t)> receiveHandler;
-			receiveHandler = [socket, recvBuf, senderEndpoint, timer, callback, &receiveHandler](const boost::system::error_code& ec, std::size_t len)
+			receiveHandler = [this, socket, recvBuf, senderEndpoint, timer, &receiveHandler](const boost::system::error_code& ec, std::size_t len)
 			{
+				if(ec == boost::asio::error::operation_aborted)
+					return;
+				
 				if(!ec && len > 0)
 				{
 					std::string resp(recvBuf->data(), recvBuf->data() + len);
