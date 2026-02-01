@@ -1397,7 +1397,7 @@ void MainWindow::on_actionMapLayer_triggered()
 	int currentPos = 0;
 
 	QList<QPair<QString, MapLayerId>> layers;
-	for(auto & layer : LIBRARY->mapLayerHandler->objects)
+	for(const auto & layer : LIBRARY->mapLayerHandler->objects)
 	{
 		if(currentType == layer->getId())
 			currentPos = layers.size();

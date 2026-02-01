@@ -378,7 +378,7 @@ int main(int argc, char * argv[])
 	setThreadName("MainGUI");
 #endif
 
-	const auto & runMainLoop = [&]()
+	const auto & runMainLoop = []()
 	{
 		try
 		{
@@ -402,7 +402,7 @@ int main(int argc, char * argv[])
 		}
 	};
 
-	const auto & cleanupEngine = [&]()
+	const auto & cleanupEngine = [&logConfigurator]()
 	{
 		GAME->server().endNetwork();
 

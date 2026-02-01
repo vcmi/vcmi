@@ -31,10 +31,10 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/callback/CCallback.h"
 
-const std::string BattleSiegeController::getSiegePrefix() const
+const std::string & BattleSiegeController::getSiegePrefix() const
 {
-	auto siegePrefixes = town->getTown()->clientInfo.siegePrefix;
-	auto currentLayer = owner.curInt->cb->getMapHeader()->mapLayers.at(town->pos.z);
+	const auto & siegePrefixes = town->getTown()->clientInfo.siegePrefix;
+	const auto & currentLayer = owner.curInt->cb->getMapHeader()->mapLayers.at(town->pos.z);
 	if(siegePrefixes.count(currentLayer))
 		return siegePrefixes.at(currentLayer);
 	else

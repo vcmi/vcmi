@@ -92,7 +92,7 @@ WindowNewMap::~WindowNewMap()
 bool WindowNewMap::loadUserSettings()
 {
 	bool ret = false;
-	CRmgTemplate * templ = nullptr;
+	const CRmgTemplate * templ = nullptr;
 
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
@@ -109,7 +109,7 @@ bool WindowNewMap::loadUserSettings()
 		auto node = JsonUtils::toJson(settings);
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
-		templ = const_cast<CRmgTemplate*>(mapGenOptions.getMapTemplate()); // Remember for later
+		templ = mapGenOptions.getMapTemplate(); // Remember for later
 
 		ui->widthTxt->setValue(mapGenOptions.getWidth());
 		ui->heightTxt->setValue(mapGenOptions.getHeight());

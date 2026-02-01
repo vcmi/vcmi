@@ -777,8 +777,8 @@ void GameStatePackVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 			assert(dstType == srcType);
 			const auto srcHero = dynamic_cast<CGHeroInstance*>(srcObj);
 			const auto dstHero = dynamic_cast<CGHeroInstance*>(dstObj);
-			auto srcStack = const_cast<CStackInstance*>(srcObj->getStackPtr(src.slot));
-			auto dstStack = const_cast<CStackInstance*>(dstObj->getStackPtr(dst.slot));
+			auto srcStack = srcObj->getStackPtr(src.slot);
+			auto dstStack = dstObj->getStackPtr(dst.slot);
 			if(srcStack->getArt(ArtifactPosition::CREATURE_SLOT))
 			{
 				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
@@ -1339,7 +1339,10 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 			case EActionType::MONSTER_SPELL:
 			{
 				auto * spell = pack.ba.spell.toSpell();
-				if (spell && spell->canCastWithoutSkip()) {}	//state does not change
+				if (spell && spell->canCastWithoutSkip())
+				{
+					//state does not change
+				}
 				else
 				{
 					st->waiting = false;
