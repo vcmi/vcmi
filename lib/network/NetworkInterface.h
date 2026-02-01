@@ -9,13 +9,17 @@
  */
 #pragma once
 
-#ifdef _WIN32
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0601 // Windows 7
-#endif
-#endif
-
 #include <boost/asio.hpp>
+
+// Windows headers included by boost/asio.hpp may define these macros which conflict with engine code
+#ifdef _WIN32
+#ifdef AUTO
+#undef AUTO
+#endif
+#ifdef IGNORE
+#undef IGNORE
+#endif
+#endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
