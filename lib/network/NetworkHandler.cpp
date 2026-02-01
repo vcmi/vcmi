@@ -96,4 +96,9 @@ void NetworkHandler::stop()
 	context->stop();
 }
 
+NetworkContext & NetworkHandler::getContext()
+{
+	return *context;
+}
+
 VCMI_LIB_NAMESPACE_END

@@ -22,14 +22,10 @@ public:
 	void stop();
 
 private:
-	void listen();
-	void handle_receive(const boost::system::error_code & error, std::size_t bytes_recvd);
+	void asyncReceive();
 	CVCMIServer & server;
 	unsigned short port;
-	std::unique_ptr<std::thread> thread;
-	std::atomic<bool> running;
-	boost::asio::io_context ioContext;
-	std::unique_ptr<boost::asio::ip::udp::socket> socket;
-	char recvBuffer[1024];
+	std::shared_ptr<boost::asio::ip::udp::socket> socket;
+	std::array<char, 1024> recvBuffer;
 	boost::asio::ip::udp::endpoint remoteEndpoint;
 };

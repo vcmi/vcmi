@@ -13,8 +13,12 @@
 
 #include "CVCMIServer.h"
 #include "ServerDiscoveryListener.h"
+#include "../lib/network/NetworkInterface.h"
 
-ServerDiscoveryListener::ServerDiscoveryListener(CVCMIServer & server, unsigned short port) : server(server), port(port), running(false) {}
+ServerDiscoveryListener::ServerDiscoveryListener(CVCMIServer & server, unsigned short port)
+	: server(server), port(port)
+{
+}
 
 ServerDiscoveryListener::~ServerDiscoveryListener()
 {
@@ -23,71 +27,52 @@ ServerDiscoveryListener::~ServerDiscoveryListener()
 
 void ServerDiscoveryListener::start()
 {
-	if(running)
+	if(socket)
 		return;
-	running = true;
-	thread = std::make_unique<std::thread>(
-		[this]()
-		{
-			listen();
-		}
-	);
+
+	auto & context = server.getNetworkHandler().getContext();
+	boost::asio::ip::udp::endpoint listenEndpoint(boost::asio::ip::udp::v4(), port);
+
+	socket = std::make_shared<boost::asio::ip::udp::socket>(context, listenEndpoint);
+	asyncReceive();
 }
 
 void ServerDiscoveryListener::stop()
 {
-	running = false;
-
 	if(socket)
-		socket->close();
-
-	ioContext.stop();
-
-	if(thread && thread->joinable())
-		thread->join();
+	{
+		boost::system::error_code ec;
+		socket->close(ec);
+		socket.reset();
+	}
 }
 
-void ServerDiscoveryListener::listen()
+void ServerDiscoveryListener::asyncReceive()
 {
-	try
-	{
-		running = true;
+	auto socketPtr = socket;
+	if(!socketPtr)
+		return;
 
-		boost::asio::ip::udp::endpoint listenEndpoint(boost::asio::ip::udp::v4(), port);
+	socketPtr->async_receive_from(
+		boost::asio::buffer(recvBuffer),
+		remoteEndpoint,
+		[this, socketPtr](const boost::system::error_code & ec, std::size_t len)
+		{
+			if(ec == boost::asio::error::operation_aborted)
+				return;
 
-		socket = std::make_unique<boost::asio::ip::udp::socket>(ioContext);
-		socket->open(listenEndpoint.protocol());
-		socket->bind(listenEndpoint);
-
-		socket->async_receive_from(
-			boost::asio::buffer(recvBuffer),
-			remoteEndpoint,
-			[this](const boost::system::error_code & ec, std::size_t len)
+			if(!ec && len > 0)
 			{
-				if(!running || ec == boost::asio::error::operation_aborted)
-					return;
+				std::string msg(recvBuffer.data(), recvBuffer.data() + len);
 
-				if(!ec && len > 0)
+				if(msg == "VCMI_DISCOVERY" && server.getState() == EServerState::LOBBY)
 				{
-					std::string msg(recvBuffer, recvBuffer + len);
-
-					if(msg == "VCMI_DISCOVERY" && server.getState() == EServerState::LOBBY)
-					{
-						std::string response = "VCMI_SERVER:" + std::to_string(server.getPort());
-
-						socket->send_to(boost::asio::buffer(response), remoteEndpoint);
-					}
+					std::string response = "VCMI_SERVER:" + std::to_string(server.getPort());
+					socketPtr->send_to(boost::asio::buffer(response), remoteEndpoint);
 				}
-
-				if(running)
-					listen();
 			}
-		);
 
-		ioContext.run();
-	}
-	catch(const std::exception & e)
-	{
-		logNetwork->error("Discovery listener error: %s", e.what());
-	}
+			asyncReceive();
+		}
+	);
 }

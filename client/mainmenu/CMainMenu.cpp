@@ -477,7 +477,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 
 	auto addresses = ServerDiscovery::ipAddresses();
 	textTitleIp = std::make_shared<CTextBox>("", Rect(7, 38, 440, 50), 0, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	textTitleIp->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddress") + ": " + (addresses.empty() ? LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddressUnknown") : addresses.front()));
+	textTitleIp->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddress") + ": " + (addresses.empty() ? LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddressUnknown") : (addresses.front() + ":" + std::to_string(GAME->server().getLocalPort()))));
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
@@ -566,6 +566,7 @@ JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> Pla
 	}, EShortcut::MAIN_MENU_JOIN_GAME);
 
 	ServerDiscovery::discoverAsync(
+		GAME->server().getNetworkHandler().getContext(),
 		[this](const DiscoveredServer & server)
 		{
 			OBJECT_CONSTRUCTION;

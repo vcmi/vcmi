@@ -12,59 +12,62 @@
 #include "StdInc.h"
 #include "../GameEngine.h"
 #include "ServerDiscovery.h"
-#include <boost/asio.hpp>
 
-#include "../lib/AsyncRunner.h"
+#include "../../lib/network/NetworkDefines.h"
 
-void ServerDiscovery::discoverAsync(std::function<void(const DiscoveredServer &)> callback)
+void ServerDiscovery::discoverAsync(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback)
 {
-	ENGINE->async().run(
-		[callback]
+	auto socket = std::make_shared<boost::asio::ip::udp::socket>(context);
+	socket->open(boost::asio::ip::udp::v4());
+	socket->set_option(boost::asio::socket_base::broadcast(true));
+
+	std::string message = "VCMI_DISCOVERY";
+	boost::asio::ip::udp::endpoint broadcastEndpoint(boost::asio::ip::address_v4::broadcast(), 3030);
+	socket->async_send_to(boost::asio::buffer(message), broadcastEndpoint,
+		[socket, callback](const boost::system::error_code& ec, std::size_t)
 		{
-			try
+			if(ec)
 			{
-				boost::asio::io_context io_context;
-				boost::asio::ip::udp::socket socket(io_context);
-				socket.open(boost::asio::ip::udp::v4());
-				socket.set_option(boost::asio::socket_base::broadcast(true));
+				logGlobal->error("Discovery send error: %s", ec.message());
+				return;
+			}
 
-				std::string message = "VCMI_DISCOVERY";
-				boost::asio::ip::udp::endpoint broadcast_endpoint(boost::asio::ip::address_v4::broadcast(), 3030);
-				socket.send_to(boost::asio::buffer(message), broadcast_endpoint);
-
-				char recv_buf[1024];
-				boost::asio::ip::udp::endpoint sender_endpoint;
-				socket.non_blocking(true);
-				auto start = std::chrono::steady_clock::now();
-				while(std::chrono::steady_clock::now() - start < std::chrono::milliseconds(5000))
+			auto recvBuf = std::make_shared<std::array<char, 1024>>();
+			auto senderEndpoint = std::make_shared<boost::asio::ip::udp::endpoint>();
+			auto timer = std::make_shared<boost::asio::steady_timer>(socket->get_executor(), std::chrono::milliseconds(5000));
+			
+			std::function<void(const boost::system::error_code&, std::size_t)> receiveHandler;
+			receiveHandler = [socket, recvBuf, senderEndpoint, timer, callback, &receiveHandler](const boost::system::error_code& ec, std::size_t len)
+			{
+				if(!ec && len > 0)
 				{
-					boost::system::error_code ec;
-					size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint, 0, ec);
-					if(!ec && len > 0)
+					std::string resp(recvBuf->data(), recvBuf->data() + len);
+					if(resp.rfind("VCMI_SERVER:", 0) == 0)
 					{
-						std::string resp(recv_buf, recv_buf + len);
-						if(resp.rfind("VCMI_SERVER:", 0) == 0)
-						{
-							logGlobal->info("Discovered server: %s", resp.c_str());
-							std::string portStr = resp.substr(12);
-							DiscoveredServer server;
-							server.address = sender_endpoint.address().to_string();
-							server.port = static_cast<uint16_t>(std::stoi(portStr));
-							ENGINE->dispatchMainThread(
-								[callback, server]()
-								{
-									callback(server);
-								}
-							);
-							break;
-						}
+						logGlobal->info("Discovered server: %s", resp.c_str());
+						std::string portStr = resp.substr(12);
+						DiscoveredServer server;
+						server.address = senderEndpoint->address().to_string();
+						server.port = static_cast<uint16_t>(std::stoi(portStr));
+						timer->cancel();
+						ENGINE->dispatchMainThread(
+							[callback, server]()
+							{
+								callback(server);
+							}
+						);
+						return;
 					}
 				}
-			}
-			catch(const std::exception & e)
-			{
-				logGlobal->error("Discovery error: %s", e.what());
-			}
+				socket->async_receive_from(boost::asio::buffer(*recvBuf), *senderEndpoint, receiveHandler);
+			};
+			
+			socket->async_receive_from(boost::asio::buffer(*recvBuf), *senderEndpoint, receiveHandler);
+			
+			timer->async_wait([socket](const boost::system::error_code&) {
+				boost::system::error_code ec;
+				socket->close(ec);
+			});
 		}
 	);
 }

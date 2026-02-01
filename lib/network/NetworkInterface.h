@@ -9,7 +9,15 @@
  */
 #pragma once
 
+#include <boost/asio.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+#if BOOST_VERSION >= 106600
+using NetworkContext = boost::asio::io_context;
+#else
+using NetworkContext = boost::asio::io_service;
+#endif
 
 /// Base class for connections with other services, either incoming or outgoing
 class DLL_LINKAGE INetworkConnection : boost::noncopyable
@@ -119,6 +127,9 @@ public:
 	/// Starts network processing on this thread. Does not returns until networking processing has been terminated
 	virtual void run() = 0;
 	virtual void stop() = 0;
+
+	/// Returns reference to the underlying network context for advanced usage
+	virtual NetworkContext & getContext() = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

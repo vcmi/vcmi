@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../lib/network/NetworkDefines.h"
+
 struct DiscoveredServer
 {
 	std::string address;
@@ -19,6 +21,6 @@ struct DiscoveredServer
 class ServerDiscovery
 {
 public:
-	static void discoverAsync(std::function<void(const DiscoveredServer &)> callback);
+	static void discoverAsync(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback);
 	static std::vector<std::string> ipAddresses();
 };
