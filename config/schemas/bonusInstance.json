@@ -254,6 +254,11 @@
 							"minimum" : 1,
 							"description" : "Size of each step, in levels"
 						},
+						"stepValue" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Bonus value per each step"
+						},
 						"minimum" : {
 							"type" : "integer",
 							"description" : "Minimal bonus value"
