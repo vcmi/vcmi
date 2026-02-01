@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "CVCMIServer.h"
-#include "ServerDiscoveryListener.h"
 
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
@@ -166,7 +165,10 @@ void CVCMIServer::setState(EServerState value)
 }
 void CVCMIServer::startDiscoveryListener()
 {
-	discoveryListener = std::make_unique<ServerDiscoveryListener>(*this);
+	auto & context = getNetworkHandler().getContext();
+	auto isInLobby = [this]() { return getState() == EServerState::LOBBY; };
+	auto getPortFunc = [this]() { return getPort(); };
+	discoveryListener = std::make_unique<ServerDiscoveryListener>(context, isInLobby, getPortFunc);
 	discoveryListener->start();
 }
 

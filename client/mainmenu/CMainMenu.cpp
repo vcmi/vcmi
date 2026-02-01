@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CMainMenu.h"
 
-#include "../network/ServerDiscovery.h"
+#include "../../lib/network/NetworkDiscovery.h"
 #include "CCampaignScreen.h"
 #include "CHighScoreScreen.h"
 #include "CreditsScreen.h"

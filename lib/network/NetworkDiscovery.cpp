@@ -1,6 +1,5 @@
-
 /*
- * ServerDiscovery.cpp, part of VCMI engine
+ * NetworkDiscovery.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,10 +9,10 @@
  */
 
 #include "StdInc.h"
-#include "../GameEngine.h"
-#include "ServerDiscovery.h"
+#include "NetworkDiscovery.h"
+#include "NetworkInterface.h"
 
-#include "../../lib/network/NetworkDefines.h"
+VCMI_LIB_NAMESPACE_BEGIN
 
 void ServerDiscovery::discoverAsync(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback)
 {
@@ -50,12 +49,7 @@ void ServerDiscovery::discoverAsync(NetworkContext & context, std::function<void
 						server.address = senderEndpoint->address().to_string();
 						server.port = static_cast<uint16_t>(std::stoi(portStr));
 						timer->cancel();
-						ENGINE->dispatchMainThread(
-							[callback, server]()
-							{
-								callback(server);
-							}
-						);
+						callback(server);
 						return;
 					}
 				}
@@ -96,3 +90,66 @@ std::vector<std::string> ServerDiscovery::ipAddresses()
 
     return addresses;
 }
+
+ServerDiscoveryListener::ServerDiscoveryListener(NetworkContext & context, std::function<bool()> isInLobby, std::function<uint16_t()> getPort, unsigned short port)
+	: context(context), isInLobby(std::move(isInLobby)), getPort(std::move(getPort)), port(port)
+{
+}
+
+ServerDiscoveryListener::~ServerDiscoveryListener()
+{
+	stop();
+}
+
+void ServerDiscoveryListener::start()
+{
+	if(socket)
+		return;
+
+	boost::asio::ip::udp::endpoint listenEndpoint(boost::asio::ip::udp::v4(), port);
+
+	socket = std::make_shared<boost::asio::ip::udp::socket>(context, listenEndpoint);
+	asyncReceive();
+}
+
+void ServerDiscoveryListener::stop()
+{
+	if(socket)
+	{
+		boost::system::error_code ec;
+		socket->close(ec);
+		socket.reset();
+	}
+}
+
+void ServerDiscoveryListener::asyncReceive()
+{
+	auto socketPtr = socket;
+	if(!socketPtr)
+		return;
+
+	socketPtr->async_receive_from(
+		boost::asio::buffer(recvBuffer),
+		remoteEndpoint,
+		[this, socketPtr](const boost::system::error_code & ec, std::size_t len)
+		{
+			if(ec == boost::asio::error::operation_aborted)
+				return;
+
+			if(!ec && len > 0)
+			{
+				std::string msg(recvBuffer.data(), recvBuffer.data() + len);
+
+				if(msg == "VCMI_DISCOVERY" && isInLobby())
+				{
+					std::string response = "VCMI_SERVER:" + std::to_string(getPort());
+					socketPtr->send_to(boost::asio::buffer(response), remoteEndpoint);
+				}
+			}
+
+			asyncReceive();
+		}
+	);
+}
+
+VCMI_LIB_NAMESPACE_END

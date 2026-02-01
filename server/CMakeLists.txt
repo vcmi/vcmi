@@ -24,7 +24,6 @@ set(vcmiservercommon_SRCS
 		NetPacksServer.cpp
 		NetPacksLobbyServer.cpp
 		TurnTimerHandler.cpp
-		ServerDiscoveryListener.cpp
 )
 
 set(vcmiservercommon_HEADERS
@@ -54,7 +53,6 @@ set(vcmiservercommon_HEADERS
 		LobbyNetPackVisitors.h
 		ServerNetPackVisitors.h
 		TurnTimerHandler.h
-		ServerDiscoveryListener.h
 )
 
 assign_source_group(${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})

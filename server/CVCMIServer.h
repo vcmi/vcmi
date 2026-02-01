@@ -34,7 +34,7 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
-class ServerDiscoveryListener;
+#include "../lib/network/NetworkDiscovery.h"
 class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
 {
 	std::chrono::steady_clock::time_point gameplayStartTime;
