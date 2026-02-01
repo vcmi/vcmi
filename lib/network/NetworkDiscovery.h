@@ -33,6 +33,8 @@ private:
 	NetworkContext & context;
 	std::function<void(const DiscoveredServer &)> callback;
 	std::shared_ptr<boost::asio::ip::udp::socket> socket;
+	std::shared_ptr<boost::asio::steady_timer> sendTimer;
+	std::set<std::pair<std::string, uint16_t>> discoveredServers;
 };
 
 class DLL_LINKAGE ServerDiscoveryListener

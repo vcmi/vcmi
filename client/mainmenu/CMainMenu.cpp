@@ -569,21 +569,24 @@ JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> Pla
 		GAME->server().getNetworkHandler().getContext(),
 		[this](const DiscoveredServer & server)
 		{
-			OBJECT_CONSTRUCTION;
+			ENGINE->dispatchMainThread([this, server]()
+			{
+				OBJECT_CONSTRUCTION;
 
-			if(buttonsJoin.size() >= 12)
-				return; //max 12 servers displayed
+				if(buttonsJoin.size() >= 12)
+					return; //max 12 servers displayed
 
-			auto button = std::make_shared<CButton>(Point(174, 114 + buttonsJoin.size() * 25), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip(), [this, server]{ 
-				auto savedScreenType = screenType;
-				auto savedPlayerNames = playerNames;
-				close();
-				CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false, server.address, server.port);
+				auto button = std::make_shared<CButton>(Point(174, 114 + buttonsJoin.size() * 25), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip(), [this, server]{ 
+					auto savedScreenType = screenType;
+					auto savedPlayerNames = playerNames;
+					close();
+					CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false, server.address, server.port);
+				});
+				button->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.mainMenu.join"), FONT_SMALL, Colors::WHITE);
+				buttonsJoin.push_back(button);
+				labelsJoin.push_back(std::make_shared<CLabel>(107, 124 + labelsJoin.size() * 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, server.address + ":" + std::to_string(server.port)));
+				redraw();
 			});
-			button->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.mainMenu.join"), FONT_SMALL, Colors::WHITE);
-			buttonsJoin.push_back(button);
-			labelsJoin.push_back(std::make_shared<CLabel>(107, 124 + labelsJoin.size() * 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, server.address + ":" + std::to_string(server.port)));
-			redraw();
 		}
 	);
 	serverDiscovery->start();
