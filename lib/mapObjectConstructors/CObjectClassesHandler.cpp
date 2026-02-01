@@ -175,14 +175,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(subObject);
 	baseObject->objectTypeHandlers.push_back(subObject);
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!", scope, identifier);
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -195,14 +188,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	baseObject->objectTypeHandlers.at(index) = subObject;
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -597,7 +583,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 
 		portalVec.push_back(newPortal);
 
-		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
+		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
 	}
 }
 

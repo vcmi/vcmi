@@ -49,6 +49,13 @@
 	],
 	"additionalProperties" : false,
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"special" : {
 			"type" : "boolean",
 			"description" : "Marks this object as special and not available by default"

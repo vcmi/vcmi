@@ -55,14 +55,14 @@ std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadObjectImpl(std:
 void SpellSchoolHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	objects.push_back(loadObjectImpl(scope, name, data, objects.size()));
-	registerObject(scope, "spellSchool", name, objects.back()->getIndex());
+	registerObject(scope, "spellSchool", name, data, objects.back()->getIndex());
 }
 
 void SpellSchoolHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = loadObjectImpl(scope, name, data, index);
-	registerObject(scope, "spellSchool", name, objects[index]->getIndex());
+	registerObject(scope, "spellSchool", name, data, objects[index]->getIndex());
 }
 
 std::vector<SpellSchool> SpellSchoolHandler::getAllObjects() const

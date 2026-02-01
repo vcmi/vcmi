@@ -656,12 +656,6 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	loadJsonAnimation(cre.get(), node["graphics"]);
 	loadCreatureJson(cre.get(), node);
 
-	for(const auto & extraName : node["extraNames"].Vector())
-	{
-		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, extraName.String(), cre->getIndex());
-	}
-
 	if (!cre->special &&
 		!CResourceHandler::get()->existsResource(cre->animDefName) &&
 		!CResourceHandler::get()->existsResource(cre->animDefName.toType<EResType::JSON>()) &&
