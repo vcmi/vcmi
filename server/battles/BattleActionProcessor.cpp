@@ -1215,9 +1215,12 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 			TConstBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, BonusSubtypeID(spellID)));
 			for(const auto & sf : *spellsByType)
 			{
-				int meleeRanged;
-				vstd::amax(spellLevel, sf->parameters->toVector()[0]);
-				meleeRanged = sf->parameters->toVector()[1];
+				int meleeRanged = -1;
+				if (sf->parameters)
+				{
+					vstd::amax(spellLevel, sf->parameters->toVector()[0]);
+					meleeRanged = sf->parameters->toVector()[1];
+				}
 
 				if (meleeRanged == -1 || meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
@@ -1261,7 +1264,7 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 	for(int i = 0; i < spells->size(); i++)
 	{
 		std::shared_ptr<Bonus> bonus = spells->operator[](i);
-		int layer = bonus->parameters->toVector()[2];
+		int layer = bonus->parameters ? bonus->parameters->toVector()[2] : -1;
 		vstd::amax(layer, -1);
 		spellsWithBackupLayers[layer].push_back(bonus);
 	}
