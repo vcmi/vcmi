@@ -89,6 +89,7 @@ if(IOS OR ANDROID)
 	set(ENABLE_LOBBY OFF)
 	set(ENABLE_SERVER OFF)
 	set(COPY_CONFIG_ON_BUILD OFF)
+	set(ENABLE_DISCORD OFF)
 else()
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF) # Used for Snap packages and also useful for debugging
 	option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
@@ -97,6 +98,19 @@ else()
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
+
+	include(CheckCXXCompilerFlag)
+	check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
+	if(COMPILER_SUPPORTS_CXX23 # C++23 features needed
+		AND (MACOS
+			AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" # skip intel for apple (compile issue)
+			OR NOT MACOS
+			OR CMAKE_OSX_DEPLOYMENT_TARGET VERSION_GREATER_EQUAL "10.15") # allow it if we have proper deployment target
+	)
+		option(ENABLE_DISCORD "Enable compilation of discord integration" ON)
+	else()
+		option(ENABLE_DISCORD "Enable compilation of discord integration" OFF)
+	endif()
 endif()
 
 # ERM depends on LUA implicitly

@@ -49,7 +49,8 @@
 				"enableSubtitle",
 				"ignoreMuteSwitch",
 				"highscoreEntriesCap",
-				"highscoreStatisticEntriesCap"
+				"highscoreStatisticEntriesCap",
+				"enableDiscordRichPresence"
 			],
 			"properties" : {
 				"playerName" : {
@@ -181,6 +182,10 @@
 				"highscoreStatisticEntriesCap" : {
 					"type" : "number",
 					"default" : 15
+				},
+				"enableDiscordRichPresence" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
