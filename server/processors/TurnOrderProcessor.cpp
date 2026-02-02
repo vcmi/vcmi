@@ -284,17 +284,20 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	actingPlayers.insert(which);
 	awaitingPlayers.erase(which);
 
-	auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
-	if(gameHandler->gameInfo().getPlayerState(which)->isHuman())
-		gameHandler->queries->addQuery(turnQuery);
-	else
-		turnQuery->queryID = QueryID::NONE;
-	
 	PlayerStartsTurn pst;
 	pst.player = which;
-	pst.queryID = turnQuery->queryID;
-	gameHandler->sendAndApply(pst);
 
+	bool timersActive = gameHandler->gameInfo().getStartInfo()->turnTimerInfo.isEnabled();
+	bool isHuman = gameHandler->gameInfo().getPlayerState(which)->isHuman();
+
+	if(timersActive && isHuman)
+	{
+		auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
+		gameHandler->queries->addQuery(turnQuery);
+		pst.queryID = turnQuery->queryID;
+	}
+
+	gameHandler->sendAndApply(pst);
 	assert(!actingPlayers.empty());
 }
 

@@ -57,7 +57,7 @@ class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player, public G
 
 public:
 	PlayerColor color;
-	bool human; //true if human controlled player, false for AI
+	bool human = false; //true if human controlled player, false for AI
 	TeamID team;
 	TResources resources;
 
