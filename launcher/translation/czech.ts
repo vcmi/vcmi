@@ -54,7 +54,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation>Adresář souborů s logy</translation>
+        <translation>Složka souborů s logy</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
@@ -410,7 +410,9 @@ Nainstalovat úspěšně stažené?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se nainstalovat soubor %1.
+Důvod: %2.
+Nahlaste prosím tento problém vývojářům</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
@@ -697,7 +699,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazovat stav na Discordu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -722,7 +724,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit před návštěvou objektu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
@@ -1106,7 +1108,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Složky Maps, Data a Mp3 můžete ručně zkopírovat z původní složky hry do níže uvedené datové složky VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1145,7 +1147,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Nainstalovat doporučené modifikace pro VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
@@ -1155,32 +1157,32 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="688"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation>Instalovat kompatibilní verzi &apos;Horn of the Abyss&apos;, fanouškovského rozšíření Heroes III portovaného týmem VCMI</translation>
+        <translation>Fanouškovské rozšíření přidávající nová města Zátoku, Továrnu a Bulwark spolu s novými terény, objekty, schopnostmi a herními mechanikami</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation>&quot;Instalovat kompatibilní verzi In The Wake of Gods&apos;, fanouškovského rozšíření Heroes III portovaného týmem VCMI&quot;</translation>
+        <translation>Modifikace rozšiřující hru o velitele armády, nové artefakty, objekty, dekorace a další herní prvky</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozsáhlé rozšíření, které obohacuje hratelnost o alternativní jednotku pro každé z 9 základních měst, a navíc přidává nové neutrální jednotky, obydlí, dovednosti a kouzla</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Sestupte do podzemní říše a objevte Casemate — novou frakci vytvořenou pro VCMI, kde ve tmě vzkvétají houby, kámen a runová magie</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation>Byly nalezeny soubory Heroes III Demo. Tato modifikace je nutná pro použití demo dat ve VCMI, jinak může hra spadnout</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1190,17 +1192,17 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Fallen of the Depth</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation>Podpora demoverze</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1242,7 +1244,7 @@ Heroes® of Might and Magic® III HD není podporována!</translation>
     </message>
     <message>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="vanished">Můžete ručně zkopírovat složky Maps, Data a Mp3 z instalačního adresáře hry do adresáře VCMI, který vidíte výše</translation>
+        <translation type="vanished">Můžete ručně zkopírovat složky Maps, Data a Mp3 z instalační složky hry do složky VCMI, kterou vidíte výše</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="353"/>
@@ -1340,14 +1342,14 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Soubory z Heroes III: HD Edition nejsou ve VCMI  podporovány.
-Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
+Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="508"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Byla nalezena neznámá nebo nepodporovaná verze Heroes III.
-Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
+Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="429"/>
@@ -1365,57 +1367,58 @@ Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Musíte vybrat soubor %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byl vybrán neznámý instalátor.
+Je nutné vybrat offline instalátor z GOGu.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vybrali jste instalátor GOG Galaxy. Tento soubor neobsahuje hru. Stáhněte si prosím místo něj offline instalátor hry.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte offline instalátor z GOGu (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Vybrán neplatný soubor</translation>
+        <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte datový soubor offline instalátoru z GOGu: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Neplatný datový soubor</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importují se Heroes III data...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Připravování instalátoru...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozbalování instalátoru...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
@@ -1440,15 +1443,15 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prohledávání vybrané složky...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="503"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation>Nepodařilo se detekovat platná data Heroes III ve vybraném adresáři.
-Vyberte prosím adresář s nainstalovanými daty Heroes III.</translation>
+        <translation>Nepodařilo se detekovat platná data Heroes III ve vybrané složce.
+Vyberte prosím složku s nainstalovanými daty Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
@@ -1859,7 +1862,7 @@ Bin (%n bajtů):
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation>Modifikace se nachází v chráněném adresáři, odstraňte ji prosím ručně:
+        <translation>Modifikace se nachází v chráněné složce, odstraňte ji prosím ručně:
 </translation>
     </message>
 </context>
@@ -2271,7 +2274,9 @@ Pro vyřešení tohoto problému ručně zkopírujte chybějící datové soubor
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro zlepšení kvality grafiky ve VCMI můžete nainstalovat soubory z oficiální HD verze Heroes III na Steamu. Vyberte složku Heroes III HD ze Steamu.
+
+Po instalaci je nutné nastavit filtr zvětšení alespoň na x2, aby se HD grafika skutečně projevila.</translation>
     </message>
     <message>
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
