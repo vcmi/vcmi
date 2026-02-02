@@ -410,7 +410,9 @@ Installation erfolgreich heruntergeladen?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation der Datei %1 ist fehlgeschlagen.
+Grund: %2.
+Bitte melden Sie dieses Problem den Entwicklern</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
@@ -701,7 +703,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Status in Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -726,7 +728,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichere vor Besuch</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
@@ -1105,7 +1107,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können die Ordner „Maps“, „Data“ und „Mp3“ manuell aus dem ursprünglichen Spielverzeichnis in das unten angegebene VCMI-Datenverzeichnis kopieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1144,7 +1146,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Empfohlene VCMI-Mods installieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
@@ -1159,7 +1161,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
@@ -1169,17 +1171,17 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine funktionsreiche Erweiterung, die das Gameplay um eine alternative Einheit für jede der 9 Standardstädte sowie um neue neutrale Kreaturen, Kreaturenbanken, Fähigkeiten und Zaubersprüche erweitert</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Steigen Sie hinab in das Reich der Unterwelt und entdecken Sie Casemate – eine neue Fraktion, in der Pilze, Stein und Runenmagie in der Dunkelheit gedeihen, geschaffen für VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Demo-Dateien erkannt. Dieser Mod ist erforderlich, um Demo-Assets in VCMI zu verwenden, da das Spiel sonst abstürzt</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1189,17 +1191,17 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Fallen of the Depth</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo-Unterstützung</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1388,41 +1390,42 @@ Bitte wählt das Verzeichnis mit installierten Heroes III-Daten.</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen eine %1-Datei auswählen!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Installer ausgewählt.
+Sie müssen den Offline-Installer von GOG auswählen.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben ein GOG Galaxy-Installationsprogramm ausgewählt. Diese Datei enthält nicht das Spiel. Bitte laden Sie stattdessen das Offline-Backup-Installationsprogramm für das Spiel herunter.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Offline-Installationsprogramm von GOG (.exe) aus</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Ungültige Datei ausgewählt</translation>
+        <translation>Ungültige Datei ausgewählt</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Offline-Installationsdatei von GOG aus: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Datendatei</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
@@ -1434,17 +1437,17 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren von Heroes III-Daten...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsprogramm wird vorbereitet...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer wird extrahiert...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
@@ -1454,7 +1457,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählten Ordner scannen...</translation>
     </message>
 </context>
 <context>
@@ -2262,7 +2265,9 @@ Um dieses Problem zu beheben, kopieren Sie bitte die fehlenden Dateien aus Heroe
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um die Grafikqualität in VCMI zu verbessern, können Sie Dateien aus der offiziellen Heroes III HD-Version auf Steam installieren. Wählen Sie den Ordner „Heroes HD” aus Steam aus.
+
+Nach der Installation müssen Sie den Upscaling-Filter auf x2 oder höher einstellen, um die HD-Grafiken tatsächlich sehen zu können.</translation>
     </message>
     <message>
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.

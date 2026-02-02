@@ -146,17 +146,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampagne konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Validierung fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die Kampagne sind keine Karten definiert.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
@@ -959,7 +959,7 @@
         <location filename="../mainwindow.ui" line="1254"/>
         <location filename="../mainwindow.cpp" line="1413"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartenschichttyp auswählen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
@@ -1183,7 +1183,7 @@
         <location filename="../mainwindow.cpp" line="453"/>
         <location filename="../mainwindow.cpp" line="1430"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ebene %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
@@ -1383,7 +1383,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1469"/>
@@ -1639,7 +1639,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Erforderliche Objekte</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
@@ -1749,7 +1749,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="278"/>
         <location filename="../templateeditor/objectselector.cpp" line="360"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
@@ -1761,12 +1761,12 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Guard</source>
-        <translation type="unfinished">Wächter</translation>
+        <translation>Wächter</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
@@ -2484,7 +2484,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampagne konnte nicht geöffnet werden</translation>
     </message>
 </context>
 <context>
@@ -4382,7 +4382,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="99"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -4526,7 +4526,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="65"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
