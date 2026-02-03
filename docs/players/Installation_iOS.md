@@ -48,7 +48,7 @@ g) The process may take a few seconds. Please be patient.
 
 ## Step 3: Configuration settings
 
-e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
+h) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
 - Set **Reserved Screen Area** to **0%**.
 - Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" iPad Air).
@@ -81,7 +81,7 @@ Alternatively, use Xcode or Apple Configurator (available for free on the Mac Ap
 
 ## Alternative Step 2: Installing Heroes III Data Files
 
-**Note:** To save space and time, you can skip downloading the `VIDEO.VID` file from the **Data** folder if you don’t need in-game videos. You can also skip the **Mp3** directory.
+**Note:** To save space and time, you can skip downloading the `VIDEO.VID` file from the **Data** folder if you don’t need in-game videos. You may also skip the **Mp3** directory if you don't need music.
 
 ### Step 2.a: Using Finder or Windows Explorer
 
