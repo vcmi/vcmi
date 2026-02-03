@@ -44,6 +44,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool isRunningInMapEditor = false;
+
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -917,9 +919,13 @@ void CMapLoaderJson::readHeader(const bool complete)
 	JsonDeserializer handler(mapObjectResolver.get(), header);
 
 	// Fix TextIDs in JSON to include map name prefix before deserialization
-	std::string actualMapName = TextOperations::convertMapName(mapName);
-	std::string mapPrefix = "map." + actualMapName + ".";
-	fixStringsTextIDInJson(header, mapPrefix, false);
+	// Skip this when called from map editor to preserve original TextIDs without mapname prefix
+	if(!isRunningInMapEditor)
+	{
+		std::string actualMapName = TextOperations::convertMapName(mapName);
+		std::string mapPrefix = "map." + actualMapName + ".";
+		fixStringsTextIDInJson(header, mapPrefix, false);
+	}
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 	
@@ -1231,6 +1237,15 @@ void CMapLoaderJson::readObjects()
 
 	JsonNode data = getFromArchive(OBJECTS_FILE_NAME);
 
+	// Fix TextIDs in JSON to include map name prefix before deserialization
+	// Skip this when called from map editor to preserve original TextIDs without mapname prefix
+	if(!isRunningInMapEditor)
+	{
+		std::string actualMapName = TextOperations::convertMapName(mapName);
+		std::string mapPrefix = "map." + actualMapName + ".";
+		fixStringsTextIDInJson(data, mapPrefix, false);
+	}
+
 	//get raw data
 	if (fileVersionMajor <= 2)
 	{
@@ -1299,7 +1314,9 @@ void CMapLoaderJson::readTranslations()
 			for(auto & str : translationsFromFile[baseLanguage].Struct())
 			{
 				// Keys in JSON don't have map name (e.g. "header.name"), add map name when registering: map.<mapName>.<identifier>
-				TextIdentifier fullIdentifier("map", actualMapName, str.first);
+				TextIdentifier fullIdentifier = isRunningInMapEditor 
+					? TextIdentifier(str.first)
+					: TextIdentifier("map", actualMapName, str.first);
 				mapRegisterLocalizedString("map", *mapHeader, fullIdentifier, str.second.String(), baseLanguage);
 			}
 		}
@@ -1310,7 +1327,9 @@ void CMapLoaderJson::readTranslations()
 			JsonNode translationOverrides;
 			for(auto & str : translationsFromFile[preferredLanguage].Struct())
 			{
-				TextIdentifier fullIdentifier("map", actualMapName, str.first);
+				TextIdentifier fullIdentifier = isRunningInMapEditor 
+					? TextIdentifier(str.first)
+					: TextIdentifier("map", actualMapName, str.first);
 				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();
 			}
 			mapHeader->texts.loadTranslationOverrides("map", preferredLanguage, translationOverrides);
@@ -1499,6 +1518,8 @@ void CMapSaverJson::writeObjects()
 		if(obj["options"].Struct().empty())
 			obj.Struct().erase("options");
 	}
+
+	fixStringsTextIDInJson(data, "", true);
 
 	addToArchive(data, OBJECTS_FILE_NAME);
 }

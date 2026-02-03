@@ -21,6 +21,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/MapFormatJson.h"
+#include "../lib/mapping/MapFormat.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/serializer/JsonSerializer.h"
@@ -50,6 +51,10 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 {
 	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::MAP, "map");
 	
+	// Set flag to indicate map is being loaded from map editor
+	// This prevents TextID prefix fixup which would interfere with editing
+	isRunningInMapEditor = true;
+	
 	CMapService mapService;
 	if(auto header = mapService.loadMapHeader(resId))
 	{
@@ -59,12 +64,20 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 			modList.push_back(m.second.name);
 		
 		if(!modList.empty())
+		{
+			isRunningInMapEditor = false;
 			throw ModIncompatibility(modList);
+		}
 		
-		return mapService.loadMap(resId, cb);
+		auto map = mapService.loadMap(resId, cb);
+		isRunningInMapEditor = false;
+		return map;
 	}
 	else
+	{
+		isRunningInMapEditor = false;
 		throw std::runtime_error("Corrupted map");
+	}
 }
 
 std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & filenameSelect)

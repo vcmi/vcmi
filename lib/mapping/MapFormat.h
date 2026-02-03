@@ -12,6 +12,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+// Global flag to indicate if map loading is happening from map editor
+// This is set by the map editor before loading maps to skip certain processing
+extern DLL_LINKAGE bool isRunningInMapEditor;
+
 enum class EMapFormat : uint8_t
 {
 	INVALID = 0,
