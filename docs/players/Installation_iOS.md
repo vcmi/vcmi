@@ -4,6 +4,8 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 
 ## Step 1: Download and install VCMI
 
+We're on the road to publish VCMI on the AppStore and we have TestFlight now! Please join via [this link](https://testflight.apple.com/join/pJWHSbmu)
+
 The easiest and recommended way to install on a non-jailbroken device is to install the [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/). We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
 
 a) Install AltStore
