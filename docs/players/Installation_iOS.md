@@ -99,6 +99,8 @@ If the data files are on your iOS device (e.g., in a shared folder), copy them d
 1. Place the **Data**, **Maps**, and **Mp3** folders into the VCMI application folder.
 2. The VCMI app folder will appear alongside other app folders in the **Files** app.
 
+**NB**: if you're going to transfer the files via Google Drive, be aware that Google Drive iOS app changes extension of `.snd` files to `.au`! Therefore after downloading the files you must change `.au` extension back to `.snd` on the respective files.
+
 ### Step 2.c: Installing data files with Xcode on macOS
 
 You can also upload files with Xcode. You need to prepare "container" for that.
