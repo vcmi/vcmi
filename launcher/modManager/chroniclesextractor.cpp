@@ -18,7 +18,7 @@
 #include "../helper.h"
 
 ChroniclesExtractor::ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb) :
-	parent(p), cb(cb)
+	cb{cb}
 {
 }
 
@@ -61,8 +61,6 @@ std::vector<int> ChroniclesExtractor::getChronicleNo()
 				tmp.push_back(i);
 		}
 	}
-	if(tmp.empty())
-		QMessageBox::critical(parent, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
 	return tmp;
 }
 
@@ -79,11 +77,9 @@ bool ChroniclesExtractor::extractGogInstaller(QString file)
 		logGlobal->error("Gog chronicles installer extraction failure! Reason: %s", errorText.toStdString());
 
 		QString hashError = Innoextract::getHashError(file, {}, {}, {});
-		QMessageBox::critical(parent, tr("Extracting error!"), errorText);
 		if(!hashError.isEmpty())
 		{
 			logGlobal->error("Hash error: %s", hashError.toStdString());
-			QMessageBox::critical(parent, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
 		}
 		return false;
 	}
@@ -247,12 +243,14 @@ void ChroniclesExtractor::extractFiles(int no) const
 	QFile(outDirData.filePath(outDirData.entryList({"Main.h3c"}).front())).copy(outDirMaps.filePath(campaignFileName));
 }
 
-void ChroniclesExtractor::installChronicles(QStringList exe)
+int ChroniclesExtractor::installChronicles(QStringList exe)
 {
 	logGlobal->info("Installing Chronicles");
 
 	extractionFile = -1;
 	fileCount = exe.size();
+
+	int result = ChroniclesInstallResultMask::Success;
 	for(QString f : exe)
 	{
 		extractionFile++;
@@ -274,12 +272,18 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 
 		logGlobal->info("Extracting offline installer");
 		if(!extractGogInstaller(filepath))
+		{
+			result |= ChroniclesInstallResultMask::ExtractError;
 			continue;
+		}
 
 		logGlobal->info("Detecting Chronicles");
 		auto chronicleNo = getChronicleNo();
 		if(chronicleNo.empty())
+		{
+			result |= ChroniclesInstallResultMask::InvalidFile;
 			continue;
+		}
 
 		logGlobal->info("Creating base Chronicle mod");
 		createBaseMod();
@@ -295,4 +299,5 @@ void ChroniclesExtractor::installChronicles(QStringList exe)
 	}
 
 	logGlobal->info("Chronicles installed");
+	return result;
 }

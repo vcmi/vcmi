@@ -1051,8 +1051,7 @@ void CModListView::installFiles(QStringList files)
 		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
-			ce.installChronicles(exe);
-			return true;
+			return ce.installChronicles(exe);
 		});
 
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
@@ -1060,19 +1059,22 @@ void CModListView::installFiles(QStringList files)
 			extractionProgress(static_cast<int>(prog * 1000.f), 1000);
 			qApp->processEvents();
 		}
+		const auto extractResult = futureExtract.get();
 
-		if(futureExtract.get())
-		{
-			Helper::keepScreenOn(false);
-			hideProgressBar();
-			ui->abortButton->setEnabled(true);
-			ui->progressWidget->setVisible(false);
-			//update
-			reload("chronicles");
-			if (modStateModel->isModExists("chronicles"))
-				enableModByName("chronicles");
-		}
+		Helper::keepScreenOn(false);
+		hideProgressBar();
+		ui->abortButton->setEnabled(true);
+		ui->progressWidget->setVisible(false);
+		//update
+		reload("chronicles");
+		if(modStateModel->isModExists("chronicles"))
+			enableModByName("chronicles");
 		logGlobal->info("Installing chronicles: ended");
+
+		if(extractResult & ChroniclesExtractor::ChroniclesInstallResultMask::ExtractError)
+			QMessageBox::critical(this, {}, tr("Extracting error!"));
+		if(extractResult & ChroniclesExtractor::ChroniclesInstallResultMask::InvalidFile)
+			QMessageBox::critical(this, tr("Invalid file selected"), tr("You have to select a Heroes Chronicles installer file!"));
 	}
 
 	if(!images.empty())
