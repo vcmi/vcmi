@@ -123,6 +123,43 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, c
 	throw std::runtime_error("Can not allocate hero. All heroes are already used.");
 }
 
+void CGameState::markObjectControlled(PlayerColor player, ObjectInstanceID id)
+{
+	if(!player.isValidPlayer() || id == ObjectInstanceID::NONE)
+		return;
+
+	everControlledObjects[player.getNum()].insert(id);
+}
+
+bool CGameState::hasEverControlled(PlayerColor player, ObjectInstanceID id) const
+{
+	if(!player.isValidPlayer() || id == ObjectInstanceID::NONE)
+		return false;
+
+	const auto & set = everControlledObjects[player.getNum()];
+	return set.find(id) != set.end();
+}
+
+bool CGameState::isControlLossTriggered(const PlayerColor & player, const EventCondition & cond) const
+{
+	if(cond.condition != EventCondition::CONTROL)
+		return false;
+
+	if(cond.objectID == ObjectInstanceID::NONE)
+		return false;
+
+	// If player never controlled this object, condition is not active yet
+	if(!hasEverControlled(player, cond.objectID))
+		return false;
+
+	// Reuse existing CONTROL semantics: "does team control this object?"
+	bool currentlyControls = checkForVictory(player, cond); // CONTROL branch in checkForVictory
+
+	// Lose when you no longer control it
+	return !currentlyControls;
+}
+
+
 int CGameState::getDate(int d, Date mode)
 {
 	int temp;
@@ -622,7 +659,16 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 	for (auto heroID : map->getHeroesOnMap())
 	{
 		auto hero = getHero(heroID);
-		assert(map->isInTheMap(hero->visitablePos()));
+		const auto pos = hero->visitablePos();
+
+		if(!map->isInTheMap(pos))
+		{
+			logGlobal->warn(
+				"initHeroes: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
+				hero->getNameTranslated(), pos.toString());
+			continue;
+		}
+
 		const auto & tile = map->getTile(hero->visitablePos());
 
 		if (hero->ID == Obj::PRISON)
@@ -1192,6 +1238,69 @@ bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) 
 	);
 }
 
+static std::optional<EventCondition> findSingleControlCondition(const EventExpression & expr)
+{
+	using Expr    = EventExpression;
+	using Value   = Expr::Value;
+	using All     = Expr::OperatorAll;
+	using None    = Expr::OperatorNone;
+	using Variant = Expr::Variant;
+
+	std::function<std::optional<EventCondition>(const Variant &)> impl;
+	impl = [&](const Variant & var) -> std::optional<EventCondition>
+	{
+		// Plain condition node
+		if(const auto * cond = std::get_if<Value>(&var))
+		{
+			if(cond->condition == EventCondition::CONTROL)
+				return *cond; // copy
+			return std::nullopt;
+		}
+
+		// ALL( ..., ... )
+		if(const auto * all = std::get_if<All>(&var))
+		{
+			std::optional<EventCondition> result;
+
+			for(const auto & childVar : all->expressions)
+			{
+				// Skip IS_HUMAN condition (LoseConditions / VictoryConditions wrap with ALL(IS_HUMAN, trigger))
+				if(const auto * childCond = std::get_if<Value>(&childVar))
+				{
+					if(childCond->condition == EventCondition::IS_HUMAN)
+						continue;
+				}
+
+				auto found = impl(childVar);
+				if(!found)
+					continue;
+
+				// More than one CONTROL inside -> not our simple lose-town/hero case
+				if(result.has_value())
+					return std::nullopt;
+
+				result = std::move(found);
+			}
+
+			return result;
+		}
+
+		// NONE( ... )
+		if(const auto * none = std::get_if<None>(&var))
+		{
+			if(none->expressions.size() != 1)
+				return std::nullopt;
+
+			return impl(none->expressions.front());
+		}
+
+		// ANY / other operators -> not the pattern we care about
+		return std::nullopt;
+	};
+
+	return impl(expr.get());
+}
+
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
 {
 	const MetaString messageWonSelf = MetaString::createFromTextID("core.genrltxt.659");
@@ -1213,14 +1322,28 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 	if (p->enteredLosingCheatCode)
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 
-	for (const TriggeredEvent & event : map->triggeredEvents)
+	for(const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if (event.trigger.test(evaluateEvent))
+		if(event.effect.type == EventEffect::VICTORY)
 		{
-			if (event.effect.type == EventEffect::VICTORY)
+			if(event.trigger.test(evaluateEvent))
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
+		}
+		else if(event.effect.type == EventEffect::DEFEAT)
+		{
+			// Special handling for "lose town/hero" style conditions:
+			// triggers built as NONE(CONTROL(...)), optionally wrapped into ALL(IS_HUMAN, ...).
+			if(auto ctrlOpt = findSingleControlCondition(event.trigger))
+			{
+				if(isControlLossTriggered(player, *ctrlOpt))
+					return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 
-			if (event.effect.type == EventEffect::DEFEAT)
+				// If our custom logic says "no loss yet", do NOT fall through to generic .test()
+				continue;
+			}
+
+			// All other defeat events: generic evaluation
+			if(event.trigger.test(evaluateEvent))
 				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 		}
 	}

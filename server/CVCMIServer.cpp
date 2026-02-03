@@ -302,9 +302,9 @@ bool CVCMIServer::prepareToStartGame()
 	catch(const std::exception & e)
 	{
 		logGlobal->error("Failed to launch game: %s", e.what());
-		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+		auto str = MetaString::createFromTextID("vcmi.client.errors.invalidMap");
 		str.appendRawString(":\n");
-		str.appendRawString(e.what());
+		str.replaceRawString(e.what());
 		announceMessage(str);
 	}
 	current.finish();

@@ -89,7 +89,8 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			continue;
 
 		PlayerColor player = town->getOwner();
-		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
+		const auto * playerState = gameHandler->gameInfo().getPlayerState(player);
+		if(playerState && !event.affectsPlayer(player, playerState->isHuman()))
 			continue;
 
 		// dialog

@@ -124,8 +124,17 @@ const std::set<int3> & CGObjectInstance::getBlockedOffsets() const
 void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
-	auto oldOffset = appearance->getCornerOffset();
 	const auto * tile = cb->getTile(position);
+
+	if(!tile)
+	{
+		logGlobal->warn(
+			"CGObjectInstance::setType: object %s at %s has invalid visitablePos (null tile). "
+			"Skipping appearance update.",
+			LIBRARY->objtypeh->getObjectName(ID, newSubID), position.toString());
+		return;
+		// skip visual/type update here which would fail; object is already on map with bad coords.
+	}
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState().getMap().hideObject(this);
@@ -137,7 +146,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile->getTerrain()->getNameTranslated());
+		logGlobal->warn("Object %s at %s has no templates suitable for terrain %s", LIBRARY->objtypeh->getObjectName(ID, newSubID), visitablePos().toString(), tile->getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
@@ -148,6 +157,23 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	needToAdjustOffset |= this->ID == Obj::PRISON && newID == Obj::HERO;
 	needToAdjustOffset |= newID == Obj::MONSTER;
 	needToAdjustOffset |= newID == Obj::CREATURE_GENERATOR1 || newID == Obj::CREATURE_GENERATOR2 || newID == Obj::CREATURE_GENERATOR3 || newID == Obj::CREATURE_GENERATOR4;
+
+	int3 oldOffset{};
+	if(needToAdjustOffset)
+		oldOffset = appearance->getCornerOffset();
+
+	if(!handler->getTemplates(tile->getTerrainID()).empty())
+	{
+		appearance = handler->getTemplates(tile->getTerrainID())[0];
+	}
+	else
+	{
+		logGlobal->warn(
+			"Object %s at %s has no templates suitable for terrain %s",
+			LIBRARY->objtypeh->getObjectName(ID, newSubID), visitablePos().toString(),
+			tile->getTerrain()->getNameTranslated());
+		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
+	}
 
 	if(needToAdjustOffset)
 	{
