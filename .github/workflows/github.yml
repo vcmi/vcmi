@@ -94,7 +94,7 @@ jobs:
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
             artifact_platform: arm64
 
-          - platform: android-32
+          - platform: android-arm32
             os: ubuntu-latest
             upload: 1
             extension: apk
@@ -104,7 +104,7 @@ jobs:
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: armeabi-v7a
 
-          - platform: android-64
+          - platform: android-arm64
             os: ubuntu-latest
             upload: 1
             extension: apk
@@ -114,7 +114,17 @@ jobs:
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: arm64-v8a
 
-          - platform: android-64-intel
+          - platform: android-x86
+            os: ubuntu-latest
+            upload: 1
+            extension: apk
+            preset: android-conan-ninja-release
+            conan_profile: android-x86-ndk
+            conan_prebuilts: dependencies-android-x86
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
+            artifact_platform: x86
+
+          - platform: android-x86_64
             os: ubuntu-latest
             upload: 1
             extension: apk
