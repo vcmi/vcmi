@@ -55,6 +55,7 @@ if(WIN32)
 		set_target_properties(vcmiclient PROPERTIES WIN32_EXECUTABLE)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
+	target_link_libraries(vcmiclient PRIVATE bcrypt)
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(IOS)
 	set_target_properties(vcmiclient PROPERTIES

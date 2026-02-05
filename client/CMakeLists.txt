@@ -501,6 +501,7 @@ if(WIN32)
 	if(NOT ENABLE_DEBUG_CONSOLE)
 		target_link_libraries(vcmiclientcommon SDL2::SDL2main)
 	endif()
+	target_link_libraries(vcmiclientcommon PRIVATE bcrypt)
 	target_compile_definitions(vcmiclientcommon PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(IOS)
 	target_link_libraries(vcmiclientcommon PRIVATE

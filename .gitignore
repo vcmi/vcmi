@@ -25,6 +25,8 @@ out/
 *.h.gch
 *~
 *.autosave.*
+*.obj
+*.log
 /CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -65,6 +67,12 @@ fuzzylite.pc
 /AI/FuzzyLite.lib
 /deps
 .vs/
+*.vcxproj*
+*.tlog
+*.dll
+*.lib
+*.pdb
+*.pch
 
 # Visual Studio Code
 /.vscode/
