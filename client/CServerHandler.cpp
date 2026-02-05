@@ -78,6 +78,7 @@ CServerHandler::~CServerHandler()
 	serverRunner.reset();
 	if (threadNetwork.joinable())
 	{
+		//ENGINE->interfaceMutex must have been locked by the current thread, otherwise an unlock will cause undefined behavior
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
@@ -91,6 +92,7 @@ void CServerHandler::endNetwork()
 
 	if (threadNetwork.joinable())
 	{
+		//ENGINE->interfaceMutex must have been locked by the current thread, otherwise an unlock will cause undefined behavior
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
