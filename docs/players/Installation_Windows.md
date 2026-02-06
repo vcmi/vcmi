@@ -9,11 +9,8 @@
 
 Download and install VCMI using one of the following options:
 
-- **Latest release (recommended):**  
-  https://github.com/vcmi/vcmi/releases/latest
-
-- **Daily builds (unstable, for testing):**  
-  https://builds.vcmi.download/branch/
+- **Latest release (recommended):** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
+- **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/)
 
 Download the installer and run it. Follow the installer instructions.
 
@@ -26,7 +23,7 @@ VCMI requires original *Heroes of Might and Magic III* data files.
 ### Option A (recommended): GOG offline installer
 
 1. Download the **offline backup installer** from GOG.com.
-2. The installer consists of two files:
+2. The installer comes as two files:
    - `.exe`
    - `.bin`
 3. Make sure both files are downloaded.
@@ -58,13 +55,11 @@ If detection fails:
 
 1. Locate your Heroes III installation folder.
 2. Copy these directories:
-
    - `Data`
    - `Maps`
    - `Mp3`
 
    into: "%USERPROFILE%\Documents\My Games\vcmi"
-
 
 3. Return to Launcher and press **Scan again**.
 
