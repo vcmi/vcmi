@@ -1288,8 +1288,16 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 		SpellID spellID(SpellID::DEATH_STARE); //also used as fallback spell for ACCURATE_SHOT
 		auto bonus = attacker->getBonus(Selector::typeSubtype(BonusType::DEATH_STARE, subtype));
 		if(bonus && bonus->additionalInfo[0] != SpellID::NONE)
-			spellID = SpellID(bonus->additionalInfo[0]);
-
+		{
+			try 
+			{
+				spellID = SpellID(bonus->additionalInfo[0]);
+			}
+			catch (e)
+			{
+				spellID =  spellID(SpellID::DEATH_STARE); 
+			}
+		}
 		const CSpell * spell = spellID.toSpell();
 		spells::AbilityCaster caster(attacker, 0);
 
