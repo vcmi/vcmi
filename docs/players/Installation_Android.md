@@ -9,16 +9,11 @@
 
 Install VCMI using one of the following options:
 
-- **Google Play version (recommended):**  
-  https://play.google.com/store/apps/details?id=is.xyz.vcmi
+- **Google Play version (recommended):** [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi)
+- **APK from GitHub releases:** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
+- **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/develop/Android/)
 
-- **APK from GitHub releases:**  
-  https://github.com/vcmi/vcmi/releases/latest
-
-- **Daily builds (unstable):**  
-  https://builds.vcmi.download/branch/develop/Android/
-
-Install the app and start **VCMI Launcher**.
+Install the app and start **VCMI**.
 
 ## Step 2: Obtain Heroes III data files
 
@@ -40,7 +35,7 @@ If you already have Heroes III installed on a PC, you can reuse those files.
 
 ## Step 3: Import Heroes III data into VCMI
 
-Open **VCMI Launcher** on your device.
+Open **VCMI** on your device.
 
 ### A) Import from GOG installer
 
@@ -48,7 +43,7 @@ Open **VCMI Launcher** on your device.
 2. First select the `.exe` file.
 3. Then select the matching `.bin` file when prompted.
 
-Launcher will extract the required files.
+VCMI will extract the required files.
 
 ### B) Import from PC installation
 
@@ -57,7 +52,6 @@ If you already have Heroes III installed on a PC:
 1. Connect your device to the PC using a USB cable.
 2. Enable file transfer mode on the device.
 3. Copy these folders from the Heroes III installation:
-
    - `Data`
    - `Maps`
    - `Mp3`
