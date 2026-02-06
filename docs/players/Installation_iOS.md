@@ -38,7 +38,7 @@ gog.com download page:
 
 e) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
 
-f) First, select the **.bin** file, then select the **.exe** file.
+f) First, select the **.exe** file, then select the **.bin** file.
 
 ![image](https://github.com/user-attachments/assets/9a02a76f-bb2e-45ad-b2fe-ffd97112021f)
 
