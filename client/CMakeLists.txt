@@ -545,9 +545,7 @@ if(VCMI_PORTMASTER)
 endif()
 
 if (ENABLE_DISCORD)
-	if(NOT MACOS) # MacOS seems to find different fmt...
-		find_package(fmt QUIET)
-	endif()
+	find_package(fmt QUIET)
 	find_package(glaze QUIET)
 	add_subdirectory(lib/discord-presence)
 	target_link_libraries(vcmiclientcommon PRIVATE discord-rpc)
