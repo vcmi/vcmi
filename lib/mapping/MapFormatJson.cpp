@@ -44,8 +44,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-bool isRunningInMapEditor = false;
-
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -845,6 +843,11 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream, const std::string & mapNam
 	this->mapName = mapName;
 }
 
+void CMapLoaderJson::setRunningInMapEditor(bool val)
+{
+	runningInMapEditor = val;
+}
+
 std::unique_ptr<CMap> CMapLoaderJson::loadMap(IGameInfoCallback * cb)
 {
 	LOG_TRACE(logGlobal);
@@ -920,7 +923,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	// Fix TextIDs in JSON to include map name prefix before deserialization
 	// Skip this when called from map editor to preserve original TextIDs without mapname prefix
-	if(!isRunningInMapEditor)
+	if(!runningInMapEditor)
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
 		std::string mapPrefix = "map." + actualMapName + ".";
@@ -1239,7 +1242,7 @@ void CMapLoaderJson::readObjects()
 
 	// Fix TextIDs in JSON to include map name prefix before deserialization
 	// Skip this when called from map editor to preserve original TextIDs without mapname prefix
-	if(!isRunningInMapEditor)
+	if(!runningInMapEditor)
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
 		std::string mapPrefix = "map." + actualMapName + ".";
@@ -1314,7 +1317,7 @@ void CMapLoaderJson::readTranslations()
 			for(auto & str : translationsFromFile[baseLanguage].Struct())
 			{
 				// Keys in JSON don't have map name (e.g. "header.name"), add map name when registering: map.<mapName>.<identifier>
-				TextIdentifier fullIdentifier = isRunningInMapEditor 
+				TextIdentifier fullIdentifier = runningInMapEditor 
 					? TextIdentifier(str.first)
 					: TextIdentifier("map", actualMapName, str.first);
 				mapRegisterLocalizedString("map", *mapHeader, fullIdentifier, str.second.String(), baseLanguage);
@@ -1327,7 +1330,7 @@ void CMapLoaderJson::readTranslations()
 			JsonNode translationOverrides;
 			for(auto & str : translationsFromFile[preferredLanguage].Struct())
 			{
-				TextIdentifier fullIdentifier = isRunningInMapEditor 
+				TextIdentifier fullIdentifier = runningInMapEditor 
 					? TextIdentifier(str.first)
 					: TextIdentifier("map", actualMapName, str.first);
 				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();

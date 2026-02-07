@@ -47,7 +47,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map header class
 	 */
-	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const = 0;
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name, bool isEditor = false) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
@@ -82,7 +82,7 @@ public:
 	virtual ~CMapService() = default;
 
 	std::unique_ptr<CMap> loadMap(const ResourcePath & name, IGameInfoCallback * cb) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name, bool isEditor = false) const override;
 	std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;

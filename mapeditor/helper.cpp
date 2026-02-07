@@ -51,12 +51,8 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 {
 	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::MAP, "map");
 	
-	// Set flag to indicate map is being loaded from map editor
-	// This prevents TextID prefix fixup which would interfere with editing
-	isRunningInMapEditor = true;
-	
 	CMapService mapService;
-	if(auto header = mapService.loadMapHeader(resId))
+	if(auto header = mapService.loadMapHeader(resId, true))
 	{
 		auto missingMods = CMapService::verifyMapHeaderMods(*header);
 		ModIncompatibility::ModList modList;
@@ -65,17 +61,13 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 		
 		if(!modList.empty())
 		{
-			isRunningInMapEditor = false;
 			throw ModIncompatibility(modList);
 		}
-		
 		auto map = mapService.loadMap(resId, cb);
-		isRunningInMapEditor = false;
 		return map;
 	}
 	else
 	{
-		isRunningInMapEditor = false;
 		throw std::runtime_error("Corrupted map");
 	}
 }
