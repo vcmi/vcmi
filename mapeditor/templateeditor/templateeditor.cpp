@@ -581,6 +581,31 @@ void TemplateEditor::saveContent()
 	if(ui->checkBoxAllowedWaterContentIslands->isChecked())
 		templates[selectedTemplate]->allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
 
+	{
+		auto *widget = ui->tableWidgetConnections;
+		std::vector<rmg::ZoneConnection> newConnections;
+		for(int row = 0; row < widget->rowCount(); ++row)
+		{
+			auto *zoneA = qobject_cast<QSpinBox*>(widget->cellWidget(row, 0));
+			auto *zoneB = qobject_cast<QSpinBox*>(widget->cellWidget(row, 1));
+			auto *guardStrength = qobject_cast<QSpinBox*>(widget->cellWidget(row, 2));
+			auto *connectionType = qobject_cast<QComboBox*>(widget->cellWidget(row, 3));
+			auto *hasRoad = qobject_cast<QComboBox*>(widget->cellWidget(row, 4));
+			if(!zoneA || !zoneB || !guardStrength || !connectionType || !hasRoad)
+				continue;
+
+			rmg::ZoneConnection conn;
+			conn.zoneA = zoneA->value();
+			conn.zoneB = zoneB->value();
+			conn.guardStrength = guardStrength->value();
+			conn.connectionType = static_cast<rmg::EConnectionType>(connectionType->currentData().toInt());
+			conn.hasRoad = static_cast<rmg::ERoadOption>(hasRoad->currentData().toInt());
+
+			newConnections.push_back(conn);
+		}
+		templates[selectedTemplate]->connections = std::move(newConnections);
+	}
+
 	changed();
 }
 
@@ -622,7 +647,7 @@ bool TemplateEditor::validate()
 		}
 		for(auto & range : tpl.second->players.range)
 		{
-			if(range.second < range.first)
+			if(range.second < range.first && range.first < 1)
 			{
 				QMessageBox::critical(this, vf, tr("Invalid range for players."));
 				return false;
@@ -634,6 +659,34 @@ bool TemplateEditor::validate()
 			{
 				QMessageBox::critical(this, vf, tr("Invalid range for human players."));
 				return false;
+			}
+		}
+
+		{
+			auto & connections = tpl.second->connections;
+			auto & zones = tpl.second->getZones();
+
+			for (const auto & c : connections)
+			{
+				int a = c.getZoneA();
+				int b = c.getZoneB();
+				if (!zones.count(a) || !zones.count(b))
+				{
+					QMessageBox::critical(this, vf, tr("Connection references non-existing zone(s): %1 - %2").arg(QString::number(a)).arg(QString::number(b)));
+					return false;
+				}
+			}
+			for (auto & zp : zones)
+			{
+				int zoneId = zp.first;
+				bool hasConnection = std::any_of(connections.begin(), connections.end(), [zoneId](const rmg::ZoneConnection &c){
+					return c.getZoneA() == zoneId || c.getZoneB() == zoneId;
+				});
+				if(!hasConnection)
+				{
+					QMessageBox::critical(nullptr, vf, tr("Zone %1 has no connections.").arg(QString::number(zoneId)));
+					return false;
+				}
 			}
 		}
 	}
