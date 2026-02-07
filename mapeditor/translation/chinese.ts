@@ -146,17 +146,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>打开战役失败</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>校验失败</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>战役没有定义地图。</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
@@ -959,7 +959,7 @@
         <location filename="../mainwindow.ui" line="1254"/>
         <location filename="../mainwindow.cpp" line="1413"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>选择地图层级类型</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
@@ -1183,7 +1183,7 @@
         <location filename="../mainwindow.cpp" line="453"/>
         <location filename="../mainwindow.cpp" line="1430"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>层级%1：%2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
@@ -1383,7 +1383,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1469"/>
@@ -1639,7 +1639,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>必需对象</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
@@ -1749,7 +1749,7 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="278"/>
         <location filename="../templateeditor/objectselector.cpp" line="360"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
@@ -1761,12 +1761,12 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>数量</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Guard</source>
-        <translation type="unfinished">守卫</translation>
+        <translation>守卫</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
@@ -2483,7 +2483,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>打开战役失败</translation>
     </message>
 </context>
 <context>
@@ -4381,7 +4381,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="99"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
 </context>
 <context>
@@ -4525,7 +4525,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="65"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
 </context>
 <context>
