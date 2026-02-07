@@ -61,12 +61,11 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 		
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
+		
 		return mapService.loadMap(resId, cb);
 	}
 	else
-	{
 		throw std::runtime_error("Corrupted map");
-	}
 }
 
 std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & filenameSelect)
