@@ -177,7 +177,7 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 			return ILimiter::EDecision::ACCEPT;
 
 		// can't determine final bonus value yet
-		if(!context.stillUndecided.getFirst(mySelector))
+		if(context.stillUndecided.getFirst(mySelector))
 			return ILimiter::EDecision::NOT_SURE;
 
 		int bonusValue = context.alreadyAccepted.valOfBonuses(mySelector);

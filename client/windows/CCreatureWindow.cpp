@@ -859,9 +859,9 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	const IBonusBearer * bonusSource = (info->stack && !info->stack->base) 
-    ? static_cast<const IBonusBearer*>(info->stack)  // Use CStack for war machines
-    : static_cast<const IBonusBearer*>(info->stackNode);  // Use CStackInstance for regular units
+	const IBonusBearer * bonusSource = info->stack
+	? static_cast<const IBonusBearer*>(info->stack)  // Use CStack in battle
+	: static_cast<const IBonusBearer*>(info->stackNode);  // Use CStackInstance outside of battle
 
 	auto bonusToString = [bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
 	{
@@ -871,7 +871,7 @@ void CStackWindow::initBonusesList()
 			return LIBRARY->getBth()->bonusToString(bonus, bonusSource);
 	};
 
-	BonusList receivedBonuses = *bonusSource->getBonuses(CSelector(Bonus::Permanent));
+	BonusList receivedBonuses = *bonusSource->getBonuses(Selector::all);
 	BonusList abilities = info->creature->getExportedBonusList();
 
 	// remove all bonuses that are not propagated away
