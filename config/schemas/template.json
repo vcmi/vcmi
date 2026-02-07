@@ -7,14 +7,14 @@
 	{
 		"zone" : {
 			"type" : "object",
-			"required" : ["type", "monsters", "size"],
+			"required" : ["type"],
 			"additionalProperties" : false,
 			"properties" : {
 				"type" : {
 					"type" : "string",
 					"enum" : ["playerStart", "cpuStart", "treasure", "junction", "sealed"]
 				},
-				"size" : { "type" : "number", "minimum" : 1 },
+				"size" : { "type" : "number", "minimum" : 1, "default": 1 },
 				"owner" : {},
 				"playerTowns" : {"$ref" : "#/definitions/towns"},
 				"neutralTowns" : {"$ref" : "#/definitions/towns"},
@@ -63,7 +63,8 @@
 
 				"monsters" : {
 					"type" : "string",
-					"enum" : ["weak", "normal", "strong", "none"]
+					"enum" : ["weak", "normal", "strong", "none"],
+					"default": "normal"
 				},
 
 				"mines" : {"$ref" : "#/definitions/mines"},

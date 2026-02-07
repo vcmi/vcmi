@@ -109,6 +109,7 @@ private:
 	void saveTemplate();
 	void initContent();
 	void setDefaultContent(std::shared_ptr<CRmgTemplate> tpl);
+	void setDefaultContentZone(std::shared_ptr<rmg::ZoneOptions> zone, TRmgTemplateZoneId id);
 	void loadContent(bool autoPosition = false);
 	void saveContent();
 	void loadZoneMenuContent(bool onlyPosition = false);
