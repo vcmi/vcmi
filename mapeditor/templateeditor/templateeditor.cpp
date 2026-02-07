@@ -581,31 +581,6 @@ void TemplateEditor::saveContent()
 	if(ui->checkBoxAllowedWaterContentIslands->isChecked())
 		templates[selectedTemplate]->allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
 
-	{
-		auto *widget = ui->tableWidgetConnections;
-		std::vector<rmg::ZoneConnection> newConnections;
-		for(int row = 0; row < widget->rowCount(); ++row)
-		{
-			auto *zoneA = qobject_cast<QSpinBox*>(widget->cellWidget(row, 0));
-			auto *zoneB = qobject_cast<QSpinBox*>(widget->cellWidget(row, 1));
-			auto *guardStrength = qobject_cast<QSpinBox*>(widget->cellWidget(row, 2));
-			auto *connectionType = qobject_cast<QComboBox*>(widget->cellWidget(row, 3));
-			auto *hasRoad = qobject_cast<QComboBox*>(widget->cellWidget(row, 4));
-			if(!zoneA || !zoneB || !guardStrength || !connectionType || !hasRoad)
-				continue;
-
-			rmg::ZoneConnection conn;
-			conn.zoneA = zoneA->value();
-			conn.zoneB = zoneB->value();
-			conn.guardStrength = guardStrength->value();
-			conn.connectionType = static_cast<rmg::EConnectionType>(connectionType->currentData().toInt());
-			conn.hasRoad = static_cast<rmg::ERoadOption>(hasRoad->currentData().toInt());
-
-			newConnections.push_back(conn);
-		}
-		templates[selectedTemplate]->connections = std::move(newConnections);
-	}
-
 	changed();
 }
 
