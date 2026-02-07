@@ -1,27 +1,70 @@
-# Installation Windows
+# Installation on Windows
 
 ## Prerequisites
 
-As of VCMI 1.2 and newer Windows 10 or newer is required since our automated system uses elements incompatible with older Windows.
+- Windows 7 SP1 or newer is required.
+- Windows Vista and Windows XP are **no longer supported**.
 
 ## Step 1: Download and install VCMI
 
-Install one of following into new folder, same as when installing new game:
+Download and install VCMI using one of the following options:
 
-- Latest release (recommended): <https://github.com/vcmi/vcmi/releases/latest>
-- Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Windows/>
-- Please report about problems on GitHub: [Bug Tracker](https://github.com/vcmi/vcmi/issues)
+- **Latest release (recommended):** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
+- **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/)
 
-## Step 2: Installing Heroes III data files
+Download the installer and run it. Follow the installer instructions.
 
-**Since VCMI 1.2 you can skip this step, just run VCMI launcher and it will help you with importing H3 data. For older releases you can follow this step.**
+After installation, start **VCMI Launcher**.
 
-- Install Heroes III from disk or using GOG installer.
-- Place "Data", "Maps" and "Mp3" from Heroes III to: `Documents\My Games\vcmi\`
+## Step 2: Obtain Heroes III data files
 
-Create this folder if it doesnt exist yet
+VCMI requires original *Heroes of Might and Magic III* data files.
 
-## Step 3: connect to the mod repository
+### Option A (recommended): GOG offline installer
 
-- If that's your first installation, connection to the mod repository will be configured automatically, you'll see mods available to install from VCMI launcher -
-- We recommend you to install VCMI extras to support various helpful UI tweaks
+1. Download the **offline backup installer** from GOG.com.
+2. The installer comes as two files:
+   - `.exe`
+   - `.bin`
+3. Make sure both files are downloaded.
+
+![GoG-Installer](images/gog_offline_installer.png)
+
+### Option B: Existing installation
+
+If you already have Heroes III installed (Complete or Shadow of Death edition), you can reuse that installation.
+
+## Step 3: Import Heroes III data into VCMI
+
+Start **VCMI Launcher**.
+
+1. Select your preferred language.
+2. Choose one of the following methods:
+
+### A) Import from GOG installer
+
+- Select the option to import GOG files.
+- First select the `.exe` file. The matching `.bin` file will be located automatically if the correct installer is selected.
+- Launcher will automatically extract required files.
+
+### B) Use existing Heroes III installation
+
+Launcher may automatically detect your Heroes III installation.
+
+If detection fails:
+
+1. Locate your Heroes III installation folder.
+2. Copy these directories:
+   - `Data`
+   - `Maps`
+   - `Mp3`
+
+   into: "%USERPROFILE%\Documents\My Games\vcmi"
+
+3. Return to Launcher and press **Scan again**.
+
+## Step 4: Finish setup in Launcher
+
+Follow the instructions shown in the Launcher to complete installation and optionally download recommended mods.
+
+VCMI is now ready to play.
