@@ -165,22 +165,29 @@ void CVCMIServer::setState(EServerState value)
 }
 void CVCMIServer::startDiscoveryListener()
 {
-	auto & context = getNetworkHandler().getContext();
-	auto isInLobby = [this]() { return getState() == EServerState::LOBBY; };
-	auto getPortFunc = [this]() { return getPort(); };
-	discoveryListener = std::make_unique<ServerDiscoveryListener>(context, isInLobby, getPortFunc);
+	if(!discoveryListener)
+		discoveryListener = getNetworkHandler().createServerDiscoveryListener(*this);
+
 	discoveryListener->start();
 }
 
 void CVCMIServer::stopDiscoveryListener()
 {
 	if(discoveryListener)
+	{
+		discoveryListener->stop();
 		discoveryListener.reset();
+	}
 }
 
 EServerState CVCMIServer::getState() const
 {
 	return state;
+}
+
+bool CVCMIServer::isInLobby() const
+{
+	return getState() == EServerState::LOBBY;
 }
 
 std::shared_ptr<GameConnection> CVCMIServer::findConnection(const std::shared_ptr<INetworkConnection> & netConnection)

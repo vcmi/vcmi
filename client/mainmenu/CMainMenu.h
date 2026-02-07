@@ -12,11 +12,11 @@
 #include "../windows/CWindowObject.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/LoadProgress.h"
+#include "../../lib/network/NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CampaignState;
-class ServerDiscovery;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -106,7 +106,7 @@ public:
 };
 
 /// Multiplayer join
-class JoinScreen : public WindowBase
+class JoinScreen : public WindowBase, public IServerDiscoveryObserver
 {
 public:
 	ESelectionScreen screenType;
@@ -119,10 +119,12 @@ public:
 	std::shared_ptr<CGStatusBar> statusBar;
 	std::vector<std::shared_ptr<CLabel>> labelsJoin;
 	std::vector<std::shared_ptr<CButton>> buttonsJoin;
-	std::shared_ptr<ServerDiscovery> serverDiscovery;
+	std::shared_ptr<IServerDiscovery> serverDiscovery;
 
 	JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> playerNames);
 	~JoinScreen();
+
+	void onServerDiscovered(const DiscoveredServer & server) override;
 };
 
 /// Hot seat player window

@@ -25,11 +25,11 @@ public:
 	void createInternalConnection(INetworkClientListener & listener, INetworkServer & server) override;
 	std::shared_ptr<INetworkConnection> createAsyncConnection(INetworkConnectionListener & listener) override;
 	void createTimer(INetworkTimerListener & listener, std::chrono::milliseconds duration) override;
+	std::shared_ptr<IServerDiscovery> createServerDiscovery(IServerDiscoveryObserver & listener) override;
+	std::shared_ptr<IServerDiscoveryListener> createServerDiscoveryListener(IServerDiscoveryAnnouncer & announcer, uint16_t port = 3030) override;
 
 	void run() override;
 	void stop() override;
-
-	NetworkContext & getContext() override;
 };
 
 VCMI_LIB_NAMESPACE_END

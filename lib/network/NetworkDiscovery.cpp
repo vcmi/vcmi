@@ -14,8 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ServerDiscovery::ServerDiscovery(NetworkContext & context, std::function<void(const DiscoveredServer &)> callback)
-	: context(context), callback(std::move(callback))
+ServerDiscovery::ServerDiscovery(NetworkContext & context, IServerDiscoveryObserver & observer)
+	: context(context), observer(observer)
 {
 }
 
@@ -41,6 +41,7 @@ void ServerDiscovery::abort()
 
 void ServerDiscovery::start()
 {
+	auto self = shared_from_this();
 	socket = std::make_shared<boost::asio::ip::udp::socket>(context);
 	socket->open(boost::asio::ip::udp::v4());
 	socket->set_option(boost::asio::socket_base::broadcast(true));
@@ -51,7 +52,7 @@ void ServerDiscovery::start()
 	
 	// Receive handler for incoming server responses
 	auto receiveHandler = std::make_shared<std::function<void(const boost::system::error_code&, std::size_t)>>();
-	*receiveHandler = [this, socket = this->socket, recvBuf, senderEndpoint, receiveHandler](const boost::system::error_code& ec, std::size_t len)
+	*receiveHandler = [self, socket = this->socket, recvBuf, senderEndpoint, receiveHandler](const boost::system::error_code& ec, std::size_t len)
 	{
 		if(ec == boost::asio::error::operation_aborted)
 			return;
@@ -67,10 +68,10 @@ void ServerDiscovery::start()
 				server.port = static_cast<uint16_t>(std::stoi(portStr));
 				
 				auto serverKey = std::make_pair(server.address, server.port);
-				if(discoveredServers.insert(serverKey).second)
+				if(self->discoveredServers.insert(serverKey).second)
 				{
 				    logGlobal->info("Discovered server: %s", resp.c_str());
-					callback(server);
+					self->observer.onServerDiscovered(server);
 				}
 			}
 		}
@@ -79,7 +80,7 @@ void ServerDiscovery::start()
 	
 	// Send handler for broadcasting discovery message
 	auto sendHandler = std::make_shared<std::function<void(const boost::system::error_code&)>>();
-	*sendHandler = [this, socket = this->socket, sendHandler](const boost::system::error_code& ec)
+	*sendHandler = [self, socket = this->socket, sendHandler](const boost::system::error_code& ec)
 	{
 		if(ec == boost::asio::error::operation_aborted || ec == boost::asio::error::bad_descriptor)
 			return;
@@ -93,15 +94,15 @@ void ServerDiscovery::start()
 		std::string message = "VCMI_DISCOVERY";
 		boost::asio::ip::udp::endpoint broadcastEndpoint(boost::asio::ip::address_v4::broadcast(), 3030);
 		socket->async_send_to(boost::asio::buffer(message), broadcastEndpoint,
-			[this, sendHandler](const boost::system::error_code& ec, std::size_t)
+			[self, sendHandler](const boost::system::error_code& ec, std::size_t)
 			{
 				if(ec && ec != boost::asio::error::operation_aborted && ec != boost::asio::error::bad_descriptor)
 					logGlobal->error("Discovery send error: %s", ec.message());
 				else if(!ec)
 				{
 					// Schedule next broadcast in 1 second
-					sendTimer->expires_after(std::chrono::seconds(1));
-					sendTimer->async_wait(*sendHandler);
+					self->sendTimer->expires_after(std::chrono::seconds(1));
+					self->sendTimer->async_wait(*sendHandler);
 				}
 			}
 		);
@@ -139,8 +140,8 @@ std::vector<std::string> ServerDiscovery::ipAddresses()
     return addresses;
 }
 
-ServerDiscoveryListener::ServerDiscoveryListener(NetworkContext & context, std::function<bool()> isInLobby, std::function<uint16_t()> getPort, unsigned short port)
-	: context(context), isInLobby(std::move(isInLobby)), getPort(std::move(getPort)), port(port)
+ServerDiscoveryListener::ServerDiscoveryListener(NetworkContext & context, IServerDiscoveryAnnouncer & announcer, uint16_t port)
+	: context(context), announcer(announcer), port(port)
 {
 }
 
@@ -172,6 +173,7 @@ void ServerDiscoveryListener::stop()
 
 void ServerDiscoveryListener::asyncReceive()
 {
+	auto self = shared_from_this();
 	auto socketPtr = socket;
 	if(!socketPtr)
 		return;
@@ -179,7 +181,7 @@ void ServerDiscoveryListener::asyncReceive()
 	socketPtr->async_receive_from(
 		boost::asio::buffer(recvBuffer),
 		remoteEndpoint,
-		[this, socketPtr](const boost::system::error_code & ec, std::size_t len)
+		[self, socketPtr, this](const boost::system::error_code & ec, std::size_t len)
 		{
 			if(ec == boost::asio::error::operation_aborted)
 				return;
@@ -188,14 +190,14 @@ void ServerDiscoveryListener::asyncReceive()
 			{
 				std::string msg(recvBuffer.data(), recvBuffer.data() + len);
 
-				if(msg == "VCMI_DISCOVERY" && isInLobby())
+				if(msg == "VCMI_DISCOVERY" && self->announcer.isInLobby())
 				{
-					std::string response = "VCMI_SERVER:" + std::to_string(getPort());
+					std::string response = "VCMI_SERVER:" + std::to_string(self->announcer.getPort());
 					socketPtr->send_to(boost::asio::buffer(response), remoteEndpoint);
 				}
 			}
 
-			asyncReceive();
+			self->asyncReceive();
 		}
 	);
 }

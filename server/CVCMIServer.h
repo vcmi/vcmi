@@ -34,8 +34,7 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
-#include "../lib/network/NetworkDiscovery.h"
-class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IServerDiscoveryAnnouncer, public IGameServer
 {
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
@@ -56,14 +55,16 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	uint16_t port;
 	bool runByClient;
 
-	std::unique_ptr<ServerDiscoveryListener> discoveryListener;
+	std::shared_ptr<IServerDiscoveryListener> discoveryListener;
 
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
-	uint16_t getPort() const
+	uint16_t getPort() const override
 	{
 		return port;
 	}
+
+	bool isInLobby() const override;
 
 	// IGameServer impl
 	void setState(EServerState value) override;

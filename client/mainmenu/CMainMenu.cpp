@@ -565,36 +565,39 @@ JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> Pla
 		CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false);
 	}, EShortcut::MAIN_MENU_JOIN_GAME);
 
-	serverDiscovery = std::make_shared<ServerDiscovery>(
-		GAME->server().getNetworkHandler().getContext(),
-		[this](const DiscoveredServer & server)
-		{
-			ENGINE->dispatchMainThread([this, server]()
-			{
-				OBJECT_CONSTRUCTION;
-
-				if(buttonsJoin.size() >= 12)
-					return; //max 12 servers displayed
-
-				auto button = std::make_shared<CButton>(Point(174, 114 + buttonsJoin.size() * 25), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip(), [this, server]{ 
-					auto savedScreenType = screenType;
-					auto savedPlayerNames = playerNames;
-					close();
-					CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false, server.address, server.port);
-				});
-				button->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.mainMenu.join"), FONT_SMALL, Colors::WHITE);
-				buttonsJoin.push_back(button);
-				labelsJoin.push_back(std::make_shared<CLabel>(107, 124 + labelsJoin.size() * 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, server.address + ":" + std::to_string(server.port)));
-				redraw();
-			});
-		}
-	);
+	serverDiscovery = GAME->server().getNetworkHandler().createServerDiscovery(*this);
 	serverDiscovery->start();
 
 	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[288], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-JoinScreen::~JoinScreen() = default;
+JoinScreen::~JoinScreen()
+{
+	if(serverDiscovery)
+		serverDiscovery->abort();
+}
+
+void JoinScreen::onServerDiscovered(const DiscoveredServer & server)
+{
+	ENGINE->dispatchMainThread([this, server]()
+	{
+		OBJECT_CONSTRUCTION;
+
+		if(buttonsJoin.size() >= 12)
+			return; //max 12 servers displayed
+
+		auto button = std::make_shared<CButton>(Point(174, 114 + buttonsJoin.size() * 25), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip(), [this, server]{ 
+			auto savedScreenType = screenType;
+			auto savedPlayerNames = playerNames;
+			close();
+			CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false, server.address, server.port);
+		});
+		button->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.mainMenu.join"), FONT_SMALL, Colors::WHITE);
+		buttonsJoin.push_back(button);
+		labelsJoin.push_back(std::make_shared<CLabel>(107, 124 + labelsJoin.size() * 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, server.address + ":" + std::to_string(server.port)));
+		redraw();
+	});
+}
 
 CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode, EShortcut shortcut)
 	: loadMode(LoadMode), screenType(ScreenType), host(Host)
@@ -714,7 +717,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host, std::string server, ui16 port)
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
 
-	if(server.length())
+	if(!server.empty())
 	{
 		inputAddress->setText(server);
 		inputPort->setText(std::to_string(port));
