@@ -152,7 +152,7 @@ jobs:
 
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+      run: source '${{ github.workspace }}/CI/before_install/${{ matrix.before_install }}'
 
     - name: Configure codesigning for macOS
       if: ${{ startsWith(matrix.platform, 'mac-') }}
@@ -556,7 +556,7 @@ jobs:
           ${{ matrix.platform }}-apt-${{ matrix.os }}
 
     - name: Prepare CI
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+      run: source '${{ github.workspace }}/CI/before_install/${{ matrix.before_install }}'
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
