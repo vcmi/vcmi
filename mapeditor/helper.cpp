@@ -60,11 +60,8 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 			modList.push_back(m.second.name);
 		
 		if(!modList.empty())
-		{
 			throw ModIncompatibility(modList);
-		}
-		auto map = mapService.loadMap(resId, cb);
-		return map;
+		return mapService.loadMap(resId, cb);
 	}
 	else
 	{
