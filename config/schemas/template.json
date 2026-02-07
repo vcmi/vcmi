@@ -213,7 +213,8 @@
 				"type":
 				{
 					"type" : "string",
-					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
+					"enum" : ["guarded", "wide", "fictive", "repulsive", "forcePortal"],
+            		"default" : "guarded"
 				},
 				"road":
 				{

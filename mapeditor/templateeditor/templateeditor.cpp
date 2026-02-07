@@ -88,6 +88,11 @@ void TemplateEditor::initContent()
 		ui->comboBoxTemplateSelection->addItem(QString::fromStdString(tpl.first));
 }
 
+void TemplateEditor::setDefaultContent(std::shared_ptr<CRmgTemplate> tpl)
+{
+	tpl->players.range = {{1, 8}};
+}
+
 void TemplateEditor::autoPositionZones()
 {
 	auto & zones = templates[selectedTemplate]->getZones();
@@ -605,6 +610,37 @@ void TemplateEditor::changed()
 	setTitle();
 }
 
+bool TemplateEditor::validate()
+{
+	QString vf = tr("Validation failed!");
+	for(auto tpl : templates)
+	{
+		if(!tpl.second->players.range.size())
+		{
+			QMessageBox::critical(this, vf, tr("No player range defined."));
+			return false;
+		}
+		for(auto & range : tpl.second->players.range)
+		{
+			if(range.second < range.first)
+			{
+				QMessageBox::critical(this, vf, tr("Invalid range for players."));
+				return false;
+			}
+		}
+		for(auto & range : tpl.second->humanPlayers.range)
+		{
+			if(range.second < range.first)
+			{
+				QMessageBox::critical(this, vf, tr("Invalid range for human players."));
+				return false;
+			}
+		}
+	}
+	
+	return true;
+}
+
 void TemplateEditor::saveTemplate()
 {
 	saveContent();
@@ -624,6 +660,9 @@ void TemplateEditor::showTemplateEditor(QWidget *parent)
 
 void TemplateEditor::on_actionOpen_triggered()
 {
+	if(!validate())
+		return;
+
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 	
@@ -642,6 +681,9 @@ void TemplateEditor::on_actionOpen_triggered()
 
 void TemplateEditor::on_actionSave_as_triggered()
 {
+	if(!validate())
+		return;
+
 	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save template"), "", tr("VCMI templates (*.json)"));
 
 	if(filenameSelect.isNull())
@@ -664,6 +706,7 @@ void TemplateEditor::on_actionNew_triggered()
 
 	templates = std::map<std::string, std::shared_ptr<CRmgTemplate>>();
 	templates["TemplateEditor"] = std::make_shared<CRmgTemplate>();
+	setDefaultContent(templates["TemplateEditor"]);
 	
 	changed();
 	initContent();
@@ -768,6 +811,7 @@ void TemplateEditor::on_pushButtonAddSubTemplate_clicked()
 
 	selectedTemplate = text.toStdString();
 	templates[selectedTemplate] = std::make_shared<CRmgTemplate>();
+	setDefaultContent(templates[selectedTemplate]);
 	ui->comboBoxTemplateSelection->addItem(text);
 	ui->comboBoxTemplateSelection->setCurrentIndex(ui->comboBoxTemplateSelection->count() - 1);
 
