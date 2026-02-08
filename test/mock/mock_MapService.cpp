@@ -58,7 +58,7 @@ std::unique_ptr<CMap> MapServiceMock::loadMap(const ResourcePath & name, IGameIn
 	return loadMap(cb);
 }
 
-std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourcePath & name) const
+std::unique_ptr<CMapHeader> MapServiceMock::loadMapHeader(const ResourcePath & name, bool isEditor) const
 {
 	initialBuffer.seek(0);
 	CMapLoaderJson initialLoader(&initialBuffer);

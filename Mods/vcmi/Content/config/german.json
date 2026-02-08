@@ -107,7 +107,7 @@
 	"vcmi.spellBook.search" : "suchen...",
 	"vcmi.spellBook.tab.hover" : "%szauber",
 	"vcmi.spellBook.tab.help" : "Zu %szaubersprüchen blättern",
-    "vcmi.spellBook.zero_level.hint" : "0. Stf",
+	"vcmi.spellBook.zero_level.hint" : "0. Stf",
 
 	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen.",
 	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
@@ -903,6 +903,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
+	"vcmi.campaignSet.wog" : "In The Wake of Gods",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -1031,6 +1032,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Doppelschlag}\nGreift zweimal an", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Zusätzliche Vergeltungsmaßnahmen}\nKann ${val} zusätzliche Male vergelten",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Angrenzender Zauberwirker}\nDie Einheit kann ${subtype.spell} wirken, während sie neben dem Ziel steht.",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximaler Schaden}\nDiese Einheit verursacht immer den maximal möglichen Schaden",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Rundum angreifen}\nGreift alle benachbarten Gegner an",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Keine Reichweitenverschiebung}\nFeind kann nicht durch Schießen vergelten",
@@ -1039,6 +1041,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Reduziere Zauberkosten (${val})}\nReduziert die Zauberkosten für den Helden",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Zauberdämpfer (${val})}\nErhöht die Kosten von gegnerischen Zaubern",
 	"core.bonus.CHARGE_IMMUNITY.description" : "{Immun gegen Aufladung}\nImmun gegen Aufladung",
+	"core.bonus.CPU_CONTROLLED.description" : "{Automatisch gesteuert}\nDieses Gerät kann standardmäßig nicht manuell vom Spieler gesteuert werden.",
 	"core.bonus.DEATH_STARE.description" : "{Todesstarren (${val}%)}\n${val}% Chance, eine einzelne Kreatur zu töten",
 	"core.bonus.DEFENSIVE_STANCE.description" : "{Verteidigungsbonus}\n+${val} Verteidigung beim Verteidigen",
 	"core.bonus.DESTRUCTION.description" : "{Zerstörung}\nHat ${val}% Chance, zusätzliche Einheiten nach dem Angriff zu töten",
