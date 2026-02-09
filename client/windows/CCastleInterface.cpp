@@ -90,8 +90,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 	// special animation frame manipulation for castle shipyard with and without ship
 	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
-	if(Town->getFactionID() == FactionID::CASTLE && Str->building &&
-		(Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	if(Town->getFactionID() == FactionID::CASTLE && Str->building && (Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
 	{
 		if(Town->hasBuilt(BuildingID::CITADEL))
 		{
@@ -100,6 +99,19 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 		}
 		else
 			this->last = 0;
+	}
+
+	// special animation frame manipulation for dungeon Mana Vortex with and without Mage Guild 5
+	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
+	if(Town->getFactionID() == FactionID::DUNGEON && Str->building && Str->building->bid == BuildingID::SPECIAL_2)
+	{
+		if(Town->hasBuilt(BuildingID::MAGES_GUILD_5))
+		{
+			this->first = 10;
+			this->frame = 10;
+		}
+		else
+			this->last = 9;
 	}
 
 	if(!str->borderName.empty())
