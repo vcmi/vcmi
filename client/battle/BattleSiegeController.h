@@ -90,7 +90,7 @@ class BattleSiegeController
 	BattleHex getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const;
 	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
 
-	const std::string getSiegePrefix() const;
+	const std::string & getSiegePrefix() const;
 
 public:
 	BattleSiegeController(BattleInterface & owner, const CGTownInstance *siegeTown);

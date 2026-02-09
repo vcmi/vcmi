@@ -30,6 +30,7 @@ class ISoundPlayer;
 class IMusicPlayer;
 class CursorHandler;
 class IVideoPlayer;
+class Discord;
 
 class GameEngine
 {
@@ -54,6 +55,8 @@ private:
 	std::unique_ptr<CursorHandler> cursorHandlerInstance;
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
 	std::unique_ptr<AsyncRunner> asyncTasks;
+
+	std::unique_ptr<Discord> discordInstance;
 
 	IGameEngineUser *engineUser = nullptr;
 
@@ -80,6 +83,7 @@ public:
 	IMusicPlayer & music() { return *musicPlayerInstance; }
 	CursorHandler & cursor() { return *cursorHandlerInstance; }
 	IVideoPlayer & video() { return *videoPlayerInstance; }
+	Discord & discord() { return *discordInstance; }
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%

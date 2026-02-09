@@ -21,21 +21,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct DLL_LINKAGE GamePause : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<CPackForServer &>(*this);
-	}
 };
 
 struct DLL_LINKAGE EndTurn : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<CPackForServer &>(*this);
-	}
 };
 
 struct DLL_LINKAGE DismissHero : public CPackForServer
@@ -766,11 +756,6 @@ struct DLL_LINKAGE CastAdvSpell : public CPackForServer
 struct DLL_LINKAGE RequestStatistic : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<CPackForServer &>(*this);
-	}
 };
 
 /***********************************************************************************************************/
@@ -816,6 +801,13 @@ struct DLL_LINKAGE PlayerMessage : public CPackForServer
 		h & text;
 		h & currObj;
 	}
+};
+
+struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
+{
+	AdvInterfaceReady() = default;
+
+	void visitTyped(ICPackVisitor & cpackVisitor) override;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
+#include "../bonuses/BonusParameters.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
@@ -287,7 +288,10 @@ void CGameState::updateOnLoad(const StartInfo & si)
 	assert(services);
 	scenarioOps->playerInfos = si.playerInfos;
 	for(auto & i : si.playerInfos)
+	{
 		players.at(i.first).human = i.second.isControlledByHuman();
+		logGlobal->debug("Player %d is controlled by %s, team %d", i.first.getNum(), i.second.isControlledByHuman() ? "human" : "AI", players.at(i.first).team.getNum());
+	}
 	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si.turnTimerInfo;
 	scenarioOps->simturnsInfo = si.simturnsInfo;
@@ -535,6 +539,7 @@ void CGameState::initPlayerStates()
 		p.color=elem.first;
 		p.human = elem.second.isControlledByHuman();
 		p.team = map->players[elem.first.getNum()].team;
+		logGlobal->debug("Player %d is controlled by %s, team %d", elem.first.getNum(), p.human ? "human" : "AI", p.team.getNum());
 		teams[p.team].id = p.team;//init team
 		teams[p.team].players.insert(elem.first);//add player to team
 	}

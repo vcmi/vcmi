@@ -98,6 +98,9 @@ std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus
 {
 	if(context.getNodeType() == BonusNodeType::HERO)
 	{
+		// FIXME: current logic is (val * hero level) / stack level
+		// However H3 logic is val * (hero level / stack level)
+		// Probably needs creation of temporary limiter & passing hero level into it, to perform all math in one place
 		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
 		newBonus->updater = divideStackLevel;
 		return newBonus;
@@ -118,7 +121,7 @@ JsonNode TimesHeroLevelDivideStackLevelUpdater::toJsonNode() const
 std::shared_ptr<Bonus> TimesStackSizeUpdater::apply(const std::shared_ptr<Bonus> & b, int count) const
 {
 	auto newBonus = std::make_shared<Bonus>(*b);
-	newBonus->val *= std::clamp(count / stepSize, minimum, maximum);
+	newBonus->val = stepValue * std::clamp(count / stepSize, minimum, maximum);
 	return newBonus;
 }
 
@@ -291,6 +294,25 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 		std::make_shared<Bonus>(*b);
 	updated->bonusOwner = owner;
 	return updated;
+}
+
+std::string CompositeUpdater::toString() const
+{
+	return "CompositeUpdater";
+}
+
+JsonNode CompositeUpdater::toJsonNode() const
+{
+	return JsonNode("COMPOSITE_UPDATER");
+}
+
+std::shared_ptr<Bonus> CompositeUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	std::shared_ptr<Bonus> result = b;
+	for (const auto & updater : updaters)
+		result = updater->createUpdatedBonus(result, context);
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

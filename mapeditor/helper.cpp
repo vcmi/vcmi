@@ -21,6 +21,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/MapFormatJson.h"
+#include "../lib/mapping/MapFormat.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/serializer/JsonSerializer.h"
@@ -51,7 +52,7 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::MAP, "map");
 	
 	CMapService mapService;
-	if(auto header = mapService.loadMapHeader(resId))
+	if(auto header = mapService.loadMapHeader(resId, true))
 	{
 		auto missingMods = CMapService::verifyMapHeaderMods(*header);
 		ModIncompatibility::ModList modList;

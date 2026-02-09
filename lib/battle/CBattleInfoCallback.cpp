@@ -19,6 +19,7 @@
 #include "DamageCalculator.h"
 #include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
+#include "../bonuses/BonusParameters.h"
 #include "../entities/building/TownFortifications.h"
 #include "../GameLibrary.h"
 #include "../spells/ObstacleCasterProxy.h"
@@ -1662,13 +1663,13 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	const auto multihexAnimation = attacker->getBonusesOfType(BonusType::MULTIHEX_ANIMATION);
 
 	for (const auto & bonus : *multihexUnit)
-		at.friendlyCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
+		at.friendlyCreaturePositions.insert(processTargets(bonus->parameters->toVector()));
 
 	for (const auto & bonus : *multihexEnemy)
-		at.hostileCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
+		at.hostileCreaturePositions.insert(processTargets(bonus->parameters->toVector()));
 
 	for (const auto & bonus : *multihexAnimation)
-		at.overrideAnimationPositions.insert(processTargets(bonus->additionalInfo.data()));
+		at.overrideAnimationPositions.insert(processTargets(bonus->parameters->toVector()));
 
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
 		at.hostileCreaturePositions.insert(processTargets({2,6}));
@@ -1872,8 +1873,8 @@ bool CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer * shooter,
 		int range = GameConstants::BATTLE_SHOOTING_PENALTY_DISTANCE;
 
 		auto bonus = shooter->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
-		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-			range = bonus->additionalInfo[0];
+		if(bonus != nullptr && bonus->parameters)
+			range = bonus->parameters->toNumber();
 
 		if(isEnemyUnitWithinSpecifiedRange(shooterPosition, target, range))
 			return false;
@@ -2167,7 +2168,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->additionalInfo[0], includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
+		totalWeight += std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
 	}
 
 	if (totalWeight == 0)
@@ -2176,7 +2177,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(const auto & b : *bl)
 	{
-		randomPos -= std::max(b->additionalInfo[0], includeAllowed ? 1 : 0);
+		randomPos -= std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0);
 		if(randomPos < 0)
 		{
 			return b->subtype.as<SpellID>();

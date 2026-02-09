@@ -23,85 +23,13 @@ class IPropagator;
 class IUpdater;
 class CSelector;
 class IGameInfoCallback;
+class BonusParameters;
 
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TPropagatorPtr = std::shared_ptr<const IPropagator>;
 using TUpdaterPtr = std::shared_ptr<const IUpdater>;
-
-class DLL_LINKAGE CAddInfo final
-{
-public:
-	using container = std::vector<si32>;
-	using size_type = container::size_type;
-	enum { NONE = -1 };
-
-	CAddInfo();
-	CAddInfo(si32 value);
-
-	// Inline definitions in the header to avoid missing symbols across TUs
-	bool operator==(const CAddInfo& other) const noexcept {
-		return data_ == other.data_;
-	}
-
-	bool operator!=(const CAddInfo& other) const noexcept {
-		return !(*this == other);
-	}
-
-	bool operator==(si32 value) const
-	{
-		switch(data_.size())
-		{
-		case 0:
-			return value == CAddInfo::NONE;
-		case 1:
-			return data_[0] == value;
-		default:
-			return false;
-		}
-	}
-
-	bool operator!=(si32 value) const
-	{
-		return !(*this == value);
-	}
-
-
-	si32 & operator[](size_type pos)
-	{
-		if(pos >= data_.size())
-			data_.resize(pos + 1, CAddInfo::NONE);
-		return data_[pos];
-	}
-
-	si32 operator[](size_type pos) const
-	{
-		return pos < data_.size() ? data_[pos] : CAddInfo::NONE;
-	}
-
-	std::string toString() const;
-	JsonNode toJsonNode() const;
-
-	// Minimal vector-like facade
-	size_type size() const noexcept { return data_.size(); }
-	bool empty() const noexcept { return data_.empty(); }
-	void push_back(si32 v) { data_.push_back(v); }
-	void resize(size_type n, si32 fill = CAddInfo::NONE) { data_.resize(n, fill); }
-
-	container::iterator begin() noexcept { return data_.begin(); }
-	container::iterator end() noexcept { return data_.end(); }
-	container::const_iterator begin() const noexcept { return data_.begin(); }
-	container::const_iterator end() const noexcept { return data_.end(); }
-
-	// expose const view for free operators
-	const container& data() const noexcept { return data_; }
-
-	template <class H>
-	void serialize(H& h) { h & data_; }
-
-private:
-	container data_;
-};
+using TBonusParametersPtr = std::shared_ptr<const BonusParameters>;
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
@@ -120,8 +48,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	BonusSourceID sid; //source id: id of object/artifact/spell
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
-	CAddInfo additionalInfo;
-
+	TBonusParametersPtr parameters;
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 	TUpdaterPtr updater;
@@ -153,7 +80,16 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 			h & customIconPath;
 		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
 			h & hidden;
-		h & additionalInfo;
+		if (h.hasFeature(Handler::Version::BONUS_TRIGGER))
+		{
+			h & parameters;
+		}
+		else
+		{
+			std::vector<int> oldAddInfo;
+			h & oldAddInfo;
+			convertAddInfo(oldAddInfo);
+		}
 		h & turnsRemain;
 		h & valType;
 		h & stacking;
@@ -165,11 +101,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & targetSourceType;
 	}
 
-	template <typename Ptr>
-	static bool compareByAdditionalInfo(const Ptr& a, const Ptr& b)
-	{
-		return a->additionalInfo < b->additionalInfo;
-	}
+	void convertAddInfo(const std::vector<int> & oldAddInfo);
+
 	static bool NDays(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::N_DAYS;
@@ -240,6 +173,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	std::shared_ptr<Bonus> addLimiter(const TLimiterPtr & Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(const TPropagatorPtr & Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
+	std::shared_ptr<Bonus> addPropagationUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

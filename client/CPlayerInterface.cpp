@@ -390,8 +390,9 @@ void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 		else
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
-	
-	cb->selectionMade(0, queryID);
+
+	if (queryID.hasValue())
+		cb->selectionMade(0, queryID);
 	movementController->onPlayerTurnStarted();
 }
 
@@ -523,6 +524,9 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -534,6 +538,9 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }

@@ -17,7 +17,6 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-#include "../server/processors/TurnOrderProcessor.h"
 
 TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	CQuery(owner)
@@ -25,12 +24,21 @@ TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	addPlayer(player);
 }
 
-bool TimerPauseQuery::blocksPack(const CPackForServer *pack) const
+bool TimerPauseQuery::blocksPack(const CPackForServer * pack) const
 {
-	if(dynamic_cast<const SaveGame*>(pack) != nullptr)
+	if(dynamic_cast<const SaveGame *>(pack) != nullptr)
+		return false;
+
+	if(dynamic_cast<const AdvInterfaceReady *>(pack) != nullptr)
 		return false;
 
 	return blockAllButReply(pack);
+}
+
+void TimerPauseQuery::onExposure(QueryPtr topQuery)
+{
+	// do nothing - don't self-pop (base onExposure)
+	// is removed explicitly when the pause ends (timer/handler triggers popQuery)
 }
 
 void TimerPauseQuery::onAdding(PlayerColor color)
@@ -141,9 +149,7 @@ CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectIn
 	addPlayer(bd.player);
 }
 
-OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode):
-	CDialogQuery(owner),
-	mode(mode)
+OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance * hero, EOpenWindowMode mode) : CDialogQuery(owner), mode(mode)
 {
 	addPlayer(hero->getOwner());
 }
@@ -153,7 +159,7 @@ void OpenWindowQuery::onExposure(QueryPtr topQuery)
 	//do nothing - wait for reply
 }
 
-bool OpenWindowQuery::blocksPack(const CPackForServer *pack) const
+bool OpenWindowQuery::blocksPack(const CPackForServer * pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
 	{
@@ -210,8 +216,7 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * vis
 		logGlobal->error("Invalid instance in teleport query");
 }
 
-CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & td):
-	CDialogQuery(owner)
+CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & td) : CDialogQuery(owner)
 {
 	this->td = td;
 	addPlayer(gh->gameInfo().getHero(td.hero)->getOwner());
@@ -221,7 +226,6 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const Her
 	CDialogQuery(owner), hero(Hero)
 {
 	hlu = Hlu;
-	hlu.queryID = queryID;
 	addPlayer(hero->tempOwner);
 }
 
@@ -232,26 +236,6 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
-void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
-{
-	if(prompted || answer)
-	{
-		if(answer)
-			owner->popIfTop(*this);
-		return;
-	}
-
-	for(auto color : players)
-	{
-		if(owner->topQuery(color).get() == this)
-		{
-			prompted = true;
-			gh->sendAndApply(hlu);
-			break;
-		}
-	}
-}
-
 void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
 {
 	if(prompted || answer)
@@ -260,12 +244,38 @@ void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
 	if(owner->topQuery(color).get() != this)
 		return;
 
-	// Only prompt immediately during active turn processing (when map interface is ready)
-	if(!gh->turnOrder->isPlayerMakingTurn(color))
+	if(!gh->uiReadyForDialogs.contains(color))
 		return;
 
 	prompted = true;
+	hlu.queryID = queryID;
 	gh->sendAndApply(hlu);
+}
+
+void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(prompted)
+		return;
+
+	if(answer)
+	{
+		owner->popIfTop(*this);
+		return;
+	}
+
+	for(auto color : players)
+	{
+		if(owner->topQuery(color).get() != this)
+			continue;
+
+		if(!gh->uiReadyForDialogs.contains(color))
+			continue;
+
+		prompted = true;
+		hlu.queryID = queryID;
+		gh->sendAndApply(hlu);
+		break;
+	}
 }
 
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
@@ -277,7 +287,6 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner,
 	CDialogQuery(owner), hero(Hero)
 {
 	clu = Clu;
-	clu.queryID = queryID;
 	addPlayer(hero->tempOwner);
 }
 
@@ -290,18 +299,21 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 
 void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
 {
-	if(prompted || answer)
+	if(answer)
 	{
-		if(answer)
-			owner->popIfTop(*this);
+		owner->popIfTop(*this);
 		return;
 	}
 
-	for(auto color : players)
+	if(prompted)
+		return;
+
+	for(const auto & color : players)
 	{
 		if(owner->topQuery(color).get() == this)
 		{
 			prompted = true;
+			clu.queryID = queryID;
 			gh->sendAndApply(clu);
 			break;
 		}
@@ -316,11 +328,8 @@ void CCommanderLevelUpDialogQuery::onAdded(PlayerColor color)
 	if(owner->topQuery(color).get() != this)
 		return;
 
-	// Only prompt immediately during active turn processing (when map interface is ready)
-	if(!gh->turnOrder->isPlayerMakingTurn(color))
-		return;
-
 	prompted = true;
+	clu.queryID = queryID;
 	gh->sendAndApply(clu);
 }
 

@@ -140,18 +140,8 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 	if(info.reward.manaDiff || info.reward.manaPercentage >= 0)
 		gameEvents.setManaPoints(hero->id, info.reward.calculateManaPoints(hero));
 
-	if(info.reward.movePoints || info.reward.movePercentage >= 0)
-	{
-		SetMovePoints smp;
-		smp.hid = hero->id;
-		smp.val = hero->movementPointsRemaining();
-
-		if (info.reward.movePercentage >= 0) // percent from max
-			smp.val = hero->movementPointsLimit(hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
-		smp.val = std::max<si32>(0, smp.val + info.reward.movePoints);
-
-		gameEvents.setMovePoints(&smp);
-	}
+	if(info.reward.movePoints != 0 || info.reward.movePercentage >= 0)
+		gameEvents.setMovePoints(hero->id, info.reward.calculateMovePoints(hero));
 
 	for(const auto & bonus : info.reward.heroBonuses)
 	{

@@ -1,5 +1,151 @@
 # VCMI Project Changelog
 
+## 1.7.1 -> 1.7.2
+
+### Key Changes
+
+* Added improved first launch UI in Launcher
+* Significantly improved performance of Nullkiller2 AI
+* Significant improvements to decision-making of Nullkiller2 AI
+* Added support for HotA 1.8 maps
+* Improved support for HotA 1.7 maps
+* Added support for most of new creature abilities from HotA 1.8
+* It is now possible to load a save made with different configuration of submods
+* Added optional Discord integration on Windows, Linux and arm-based MacOS systems
+
+### Stability
+
+* Fixed crash on enemy hero going into fog of war while simultaneous turns are active in multiplayer
+* Fixed poor performance when FPS/battery overlay is active
+* Fixed possible crash if unit has movement speed below zero
+* Fixed crash on starting map with prebuilt Battle Scholar Academy when commanders are enabled
+* Fixed strange bugs on using quick load option, such as crash on opening puzzle map or empty tavern
+
+### Mechanics
+
+* Fixed Grail in Castle not providing any effects
+* Reworked spell research logic to be more in line with expectations from this feature
+* Fixed heroes receiving guaranteed skills (Wisdom or magic schools) twice more often than in H3
+* Added option to block retreat after casting spell on 1st combat round, disabled by default
+* Implemented `vcmigrail` cheat that gives Grail, added support for cheat to build everything other than Grail in town
+* Fixed behavior of subterranean gates on maps with more than 2 layers
+* Battle-only mode now always runs without commanders, even if corresponding mod is active
+* Added possibilty to define new map layers types
+* It is now possible to limit battlefield to specific map layers
+* Fixed bug allowing to gain more than 8 skills when receiving skills from Pandora Box
+* Sphere of Permanence now correctly blocks mass Dispell as well as Dragonfly Dispell Helpful
+* It is now possible to disable Tactics using button in hero window
+* Combined artifacts now have proper cost for selling them in artifacts merchant instead of 1 gold
+* Revisiting Crypt, Derelict Ship or Shipwreck will no longer apply morale debuff twice
+* Derelict Ship is now visited by hero moving on top of it, in line with H3
+
+### Interface
+
+* New or changed shortcuts bindings are now applied immediately and not after restart
+* Fixed wrong audio selected for some scenarios of campaigns from original H3
+* Timer UI now shows remaining movement points percentage of all players and they in-game status
+* Fixed battle turn queue advancing to next unit after high morale or casting spell without skipping turn
+* Right-click on object name in search object dialog will now show minimap with all locations of targeted object
+* Units in combat will now turn towards target when casting a spell
+* If player has only 1 town and a town is currently selected, then next town hotkey should center adventure map on current town
+* Map preview will now display all layers on maps with more than 2 layers
+* Creature window title now shows whether commander is alive
+* Campaign prolog or epilog video will now play entirely before progressing if no key is pressed
+* Pressing Esc will now close open backpack window
+* Added more informative tooltips for right-click popups of campaign starting bonuses
+* Implemented notifications for receiving resources from another player
+* Added "save was successful" message on saving the game
+
+### Map Format
+
+* Added support for HotA 1.8.0 maps
+* Pandoras or map events can now grant movement points
+* Pandoras or map events can now specify map difficulties on which these objects are present
+* Timed events and town events can now specify map difficulties on which these objects are present
+* Creature banks now support selection of difficulty preset (number of guards/reward) instead of random-selection
+* Wandering monsters: exact aggression setting, join percentage and joins only for money properties are now supported
+* Wandering monsters presence of upgraded stack can now be configured in map
+* Pyramid can now grant specific spell configured in map
+* Campfire, Wagon and Lean-to, Treasure Chest, Corpse, Sea Chest, Flotsam, Tree of Knowledge can now grant specific reward instead of randomly selected one
+* Treasure Chest, Corpse, Warrior's Tomb, Shipwreck Survivor and Sea Chest can now grant specific artifact configured in map
+* HotA objects (Grave, Ancient Lamp, Sea Barrel, Trapper Lodge) can now grant specific reward instead of randomly selected one
+* Custom guards are now supported for Abandoned Mines
+
+### Random Map Generator
+
+* Added support for required objects for zone in RMG map template zone configuration
+* Fixed RMG generating duplicated portals resulting in more than 2 exits
+* Fixed RMG picking template that is allowed for all land terrains as most-specific for terrain instead of actual terrain-specific template
+
+### Adventure Map AI
+
+* Significantly improved performance of Nullkiller2 AI
+* Fixed possible crash of the entire AI player's turn, especially later in the game
+* Fix multiple multi-thread issues in chain calculation, which was more prone to happen if had more vCPUs.
+* Fix safe attack ratio calculation to be consistent as in all other places
+* Encourage higher battle strength by allowing only 1 / owned town in the first 3 weeks (21 days).
+* Global number of main heroes improved to: 1/town + biggerMapFactor (after 3w), total not allowed over 2/town.
+* Deactivate StayAtTownBehavior because it was keeping some heroes on the spot pointless.
+* Deactivate reduction to ScanDepth:SMALL because AI suffers from lack of capability, no point to make it dumber and make it miss actions on purpose.
+* Improved consistency in how movement and route efficiency are calculated for all cases
+* Added significant priority bonus for proximity and significant penalty for being further away
+* Introduced ESCAPE strategy when overwhelmed and surrounded or ended up in a corner and enemy came nearby
+* Improved hero army exchange and gather army logic
+* Encourage fights, artifacts, skills and exploration with fights for MAINs
+* Encourage groundwork for SCOUTs
+* Merged exploration with gathering in order to combine them better and make a more human-like behavior
+* An overall rebalance of priorities for most of the actions the AI can do within a turn.
+* An overall rebalance of nk2ai-settings.json to make it stronger based on the latest improvements.
+
+### Combat AI
+
+* Fixed bug that caused MMAI to move to enemy without attacking it in some cases
+* MMAI will no longer attempt to unnecessarily retreat
+* MMAI will now view Clones as more valuable targets and focus on eliminating them
+
+### Launcher
+
+* Added Heroes 3 data import overlay with progress bar
+* Added Tides of Wars to recommended mods
+* Added Fallen of the Depth to recommended mods (will be activated after mod release)
+* Side button panel is now hidden during first launch
+* Copy existing files option should now work in all scenarios such as spaces or scpecial character in folder name
+* Importing GOG files option is now the first one
+* Added Fail-Fast for EXE / BIN selection. EXE is now choosed first to perform required checks
+
+### Map Editor
+
+* Fixed inability to pick objects for events on layers lower than 2nd
+* Fixed export of entire map not actually exporting full map
+* Added drag-and-drop support to map editor
+
+### Modding
+
+* Added support for `compatibilityIdentifers` field for all game entities to ease migration of saves and map to new mod versions
+* Fixed handling of multiple json array modifications via `append` or `appendItems`
+* It is now possible to provide `description.md` file with detailed description of mod in Markdown format
+* Implemented ON_COMBAT_EVENT bonus that allows to add bonus or cast spell on various unit actions
+* Implemented ADJACENT_SPELLCASTER bonus that causes unit to move towards target before casting the spell
+* Implemented UNIT_ADJACENT limiter to support aura-like effects or unit synergies
+* Implemented UNIT_DEFENDING bonus and limiter to allow abilities that grant bonuses while defending
+* Implemented CPU_CONTROLLED bonus for units that are by default controlled by AI, such as war machines
+* Implemented MARKETPLACE_ACCESS bonus that defines cost of resource trade in town marketplaces
+* Implemented DEITYOFFIRE bonus that provides configurable version of Inferno Grail
+* Bonus NEGATIVE_EFFECTS_IMMUNITY now supports `spellShool.any`
+* Short form of secondary skill specialties now works with skills that have bonuses with propagators
+* It is now possible to use multiple propagators on the same bonus using json array
+* Added `persistent` flag to spells that can't be dispelled with dispel effect
+* Level updater now correctly works with negative value
+* `stacking` field in bonuses now selects bonus with largest absolute value, ignoring sign
+* Fixed loading of heroes and hero classes in rewardable objects config
+* Fixed HAS_ANOTHER_BONUS_LIMITER not behaving as expected when used to check for flying, non-teleporting units
+* HAS_ANOTHER_BONUS_LIMITER now supports testing for bonus range using `bonusMinValue` and `bonusMaxValue` keys
+* Added support for external translations for .vmap's
+* It is now possible to use spells with Teleport or Sacrifice effects for creature spells
+* Bonuses with STACK_GETS_TURN duration will no longer expire on casting spell without spending turn
+* Added support for movement points limiters and rewards in configurable map objects
+* Fixed potential double-apply of TIMES_STACK_SIZE updater
+
 ## 1.7.0 -> 1.7.1
 
 ### Stability

@@ -406,7 +406,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		}
 	}
 
-	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
+	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, source, ret->bid.getNum());
 }
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
@@ -854,7 +854,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index.getNum());
+	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -885,7 +885,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index.getNum());
+	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadRandomFaction()

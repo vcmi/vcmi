@@ -18,6 +18,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -217,7 +218,7 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 			const CSpell * spell = spellID.toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			int32_t spellLevel = b->additionalInfo != CAddInfo::NONE ? b->additionalInfo[0] : 3;
+			int32_t spellLevel = b->parameters ? b->parameters->toNumber() : 3;
 			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
 			parameters.massive = true;
@@ -893,9 +894,9 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 			for (const auto & b : bl)
 			{
-				if(b->additionalInfo != CAddInfo::NONE)
+				if(b->parameters)
 				{
-					const CStack * stack = battle.battleGetStackByID(b->additionalInfo[0]); //binding stack must be alive and adjacent
+					const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
 					if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
 						unbind = false;
 				}
@@ -974,7 +975,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->additionalInfo[0] != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -985,7 +986,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->additionalInfo[0];
+					int cooldown = bonus->parameters->toNumber();
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;

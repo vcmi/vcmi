@@ -171,7 +171,22 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
-		return ILimiter::EDecision::ACCEPT;
+	{
+		if ( minValue == std::numeric_limits<int32_t>::min() &&
+			 maxValue == std::numeric_limits<int32_t>::max())
+			return ILimiter::EDecision::ACCEPT;
+
+		// can't determine final bonus value yet
+		if(context.stillUndecided.getFirst(mySelector))
+			return ILimiter::EDecision::NOT_SURE;
+
+		int bonusValue = context.alreadyAccepted.valOfBonuses(mySelector);
+
+		if (bonusValue >= minValue && bonusValue <= maxValue)
+			return ILimiter::EDecision::ACCEPT;
+		else
+			return ILimiter::EDecision::DISCARD;
+	}
 
 	//if there are no matching bonuses pending, we can (and must) reject right away
 	if(!context.stillUndecided.getFirst(mySelector))

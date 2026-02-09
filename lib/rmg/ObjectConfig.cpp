@@ -43,6 +43,25 @@ void ObjectConfig::addCustomObject(const ObjectInfo & object)
 	logGlobal->info("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 }
 
+void ObjectConfig::addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel)
+{
+	requiredObjects[objid] = std::pair{count, guardLevel};
+
+	logGlobal->debug("Added required object of type %d.%d, count: %d, guard level: %d",
+		objid.primaryID, objid.secondaryID, count,
+		guardLevel.has_value() ? std::to_string(guardLevel.value()) : "none");
+}
+
+void ObjectConfig::addRequiredObject(const CompoundMapObjectID & objid, std::pair<ui16, std::optional<ui32>> info)
+{
+	addRequiredObject(objid, info.first, info.second);
+}
+
+void ObjectConfig::clearRequiredObjects()
+{
+	requiredObjects.clear();
+}
+
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 {
 	static const std::map<std::string, EObjectCategory> OBJECT_CATEGORY_STRINGS = {
@@ -271,6 +290,82 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			}
 		}
 	}
+
+	// Serialize required objects
+	if(handler.saving)
+	{
+		if(!requiredObjects.empty())
+		{
+			auto requiredObjectsStruct = handler.enterStruct("requiredObjects");
+			for(const auto & [objId, info] : requiredObjects)
+			{
+				std::string jsonKey = LIBRARY->objtypeh->getJsonKey(objId.primaryID);
+				auto entryStruct = requiredObjectsStruct->enterStruct(jsonKey);
+				auto objHandler = LIBRARY->objtypeh->getHandlerFor(objId);
+				std::string jsonSubKey = objHandler->getJsonKey();
+				auto subEntryStruct = requiredObjectsStruct->enterStruct(jsonSubKey);
+
+				ui16 countVal = info.first;
+				subEntryStruct->serializeInt("count", countVal);
+				if (info.second.has_value())
+				{
+					ui32 guardVal = info.second.value();
+					subEntryStruct->serializeInt("guard", guardVal);
+				}
+			}
+		}
+	}
+	else
+	{
+		const JsonNode & config = handler.getCurrent();
+		const JsonNode & configRequiredObjects = config["requiredObjects"];
+
+		const auto getInfo = [](const JsonNode & node) {
+			auto & child = node.Struct();
+			ui16 countVal = static_cast<ui16>(child.at("count").Integer());
+			std::optional<ui32> guardVal = std::nullopt;
+			if (child.contains("guard"))
+				guardVal = static_cast<ui32>(child.at("guard").Integer());
+			return std::pair{countVal, guardVal};
+		};
+
+		for(const auto & node : configRequiredObjects.Struct())
+		{
+			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &getInfo](int primaryID)
+			{
+				if (node.second.isNumber())
+				{
+					addRequiredObject(CompoundMapObjectID(primaryID, -1), static_cast<ui16>(node.second.Integer()));
+				}
+				else
+				{
+					if (node.second.Struct().contains("count"))
+					{
+						addRequiredObject(CompoundMapObjectID(primaryID, -1), getInfo(node.second));
+					}
+					else
+					{
+						// secondary ID specified
+						for (const auto & subNode : node.second.Struct())
+						{
+							std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+							if(node.first == "artifact" || node.first == "core:artifact")
+								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
+								jsonKey = "artifact";
+
+							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, &getInfo](int secondaryID)
+							{
+								if(subNode.second.isNumber())
+									addRequiredObject(CompoundMapObjectID(primaryID, secondaryID), static_cast<ui16>(subNode.second.Integer()));
+								else
+									addRequiredObject(CompoundMapObjectID(primaryID, secondaryID), getInfo(subNode.second));
+							});
+						}
+					}
+				}
+			});
+		}
+	}
 }
 
 const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
@@ -286,6 +381,11 @@ const std::vector<CompoundMapObjectID> & ObjectConfig::getBannedObjects() const
 const std::vector<ObjectConfig::EObjectCategory> & ObjectConfig::getBannedObjectCategories() const
 {
 	return bannedObjectCategories;
+}
+
+std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> ObjectConfig::getRequiredObjects() const
+{
+	return requiredObjects;
 }
 
 VCMI_LIB_NAMESPACE_END

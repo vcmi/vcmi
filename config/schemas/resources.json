@@ -6,6 +6,13 @@
 	"required" : [ "name", "price" ],
 	"additionalProperties" : false,
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"index" : {
 			"type" : "number",
 			"description" : "numeric id of h3 resource, prohibited for new resources"

@@ -16,6 +16,7 @@
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusParameters.h"
 #include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
@@ -134,11 +135,22 @@ protected:
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
 
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::LEVEL_SPELL_IMMUNITY) << "addInfo_1";
+		if (m->getSpellLevel() <= 0)
+			return true;
 
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
-		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
+		bool hasAbsoluteImmunity = false;
+
+		const auto & levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
+		for (const auto & bonus : *levelImmunities)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				hasAbsoluteImmunity = true;
+
+		if (!hasAbsoluteImmunity)
+			return true;
+
+		return levelImmunities->totalValue() < m->getSpellLevel();
+
+		return true;
 	}
 };
 
@@ -154,9 +166,11 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
+		const auto & bonuses = target->getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
+		for (const auto & bonus : *bonuses)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				return false;
+		return true;
 	}
 };
 
@@ -176,7 +190,7 @@ protected:
 		bool elementalImmune = false;
 		auto bearer = target->getBonusBearer();
 
-		if (bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY,BonusSubtypeID(SpellSchool::ANY)))
+		if(!m->isPositiveSpell() && bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::ANY)))
 			return true;
 
 		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)

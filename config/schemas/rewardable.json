@@ -110,6 +110,7 @@
 				"heroLevel" : { "$ref" : "#/definitions/value" },
 				"movePercentage" : { "$ref" : "#/definitions/value" },
 				"movePoints" : { "$ref" : "#/definitions/value" },
+				"moveOverflowFactor" : { "$ref" : "#/definitions/value" },
 				"manaPercentage" : { "$ref" : "#/definitions/value" },
 				"manaPoints" : { "$ref" : "#/definitions/value" },
 				"manaOverflowFactor" : { "$ref" : "#/definitions/value" },
@@ -180,6 +181,8 @@
 				"heroLevel" : { "$ref" : "#/definitions/value" },
 				"manaPercentage" : { "$ref" : "#/definitions/value" },
 				"manaPoints" : { "$ref" : "#/definitions/value" },
+				"movePercentage" : { "$ref" : "#/definitions/value" },
+				"movePoints" : { "$ref" : "#/definitions/value" },
 
 				"canLearnSkills" : { "type" : "boolean" },
 				"commanderAlive" : { "type" : "boolean" },

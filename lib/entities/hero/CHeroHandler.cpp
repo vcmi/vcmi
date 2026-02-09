@@ -370,10 +370,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 	objects.emplace_back(object);
 
-	registerObject(scope, "hero", name, object->getIndex());
-
-	for(const auto & compatID : data["compatibilityIdentifiers"].Vector())
-		registerObject(scope, "hero", compatID.String(), object->getIndex());
+	registerObject(scope, "hero", name, data, object->getIndex());
 }
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -384,9 +381,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
-	registerObject(scope, "hero", name, object->getIndex());
-	for(const auto & compatID : data["compatibilityIdentifiers"].Vector())
-		registerObject(scope, "hero", compatID.String(), object->getIndex());
+	registerObject(scope, "hero", name, data, object->getIndex());
 }
 
 ui32 CHeroHandler::level (TExpType experience) const

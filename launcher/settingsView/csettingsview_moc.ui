@@ -53,7 +53,7 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="20,5,5,5,5,10">
-       <item row="64" column="5">
+      <item row="65" column="5">
         <widget class="QToolButton" name="buttonValidationFull">
          <property name="enabled">
           <bool>true</bool>
@@ -126,7 +126,7 @@
          </property>
         </widget>
        </item>
-       <item row="64" column="3" colspan="2">
+      <item row="65" column="3" colspan="2">
         <widget class="QToolButton" name="buttonValidationBasic">
          <property name="enabled">
           <bool>true</bool>
@@ -151,7 +151,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="64" column="1" colspan="2">
+      <item row="65" column="1" colspan="2">
         <widget class="QToolButton" name="buttonValidationOff">
          <property name="enabled">
           <bool>true</bool>
@@ -328,7 +328,7 @@
          </property>
         </widget>
        </item>
-       <item row="64" column="0">
+      <item row="65" column="0">
         <widget class="QLabel" name="labelModsValidation">
          <property name="text">
           <string>Mods Validation</string>
@@ -431,7 +431,7 @@
          </property>
         </widget>
        </item>
-       <item row="65" column="1" colspan="5">
+       <item row="66" column="1" colspan="5">
         <widget class="QPushButton" name="buttonConfigEditor">
          <property name="text">
           <string>Open editor</string>
@@ -555,6 +555,35 @@
          </property>
          <property name="margin">
           <number>5</number>
+         </property>
+        </widget>
+       </item>
+       <item row="64" column="0">
+        <widget class="QLabel" name="labelDiscordRichPresence">
+         <property name="text">
+          <string>Show Status in Discord</string>
+         </property>
+        </widget>
+       </item>
+       <item row="64" column="1" colspan="5">
+        <widget class="QToolButton" name="buttonEnableDiscordRichPresence">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -1314,7 +1343,7 @@
          </property>
         </widget>
        </item>
-       <item row="65" column="0">
+       <item row="66" column="0">
         <widget class="QLabel" name="labelConfigEditor">
          <property name="text">
           <string>Config editor</string>

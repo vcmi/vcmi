@@ -60,9 +60,11 @@ enum class ESerializationVersion : int32_t
 	HOTA_MAP_FORMAT_EXTENSIONS_2, // more Hota 1.7 map format features
 	TIMER_MOVEMENT_POINTS, // movement points for timer
 	DISABLE_TACTICS, // disable tactics
+	REWARDABLE_EXTENSIONS_2, // movement points limiter for rewardables
+	BONUS_TRIGGER, // bonus that allows triggered effects in combat
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
-	CURRENT = DISABLE_TACTICS
+	CURRENT = BONUS_TRIGGER,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

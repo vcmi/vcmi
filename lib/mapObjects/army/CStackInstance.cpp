@@ -193,7 +193,7 @@ void CStackInstance::setArmy(CArmedInstance * ArmyObj)
 
 	if(ArmyObj)
 	{
-		attachTo(const_cast<CArmedInstance &>(*ArmyObj));
+		attachTo(*ArmyObj);
 		armyInstance = ArmyObj;
 	}
 }

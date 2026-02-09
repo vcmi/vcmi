@@ -888,4 +888,9 @@ void ResponseStatistic::visitTyped(ICPackVisitor & visitor)
 	visitor.visitResponseStatistic(*this);
 }
 
+void AdvInterfaceReady::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAdvInterfaceReady(*this);
+}
+
 VCMI_LIB_NAMESPACE_END
