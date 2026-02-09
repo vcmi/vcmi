@@ -28,8 +28,12 @@ void ServerDiscovery::abort()
 {
 	if(sendTimer)
 	{
+#if BOOST_VERSION >= 108700
+		sendTimer->cancel();
+#else
 		boost::system::error_code ec;
 		sendTimer->cancel(ec);
+#endif
 	}
 	if(socket)
 	{
