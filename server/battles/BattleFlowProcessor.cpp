@@ -986,7 +986,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->parameters->toNumber();
+					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;
