@@ -193,7 +193,16 @@ CMap::CMap(IGameInfoCallback * cb)
 	gameSettings->loadBase(LIBRARY->settingsHandler->getFullConfig());
 }
 
-CMap::~CMap() = default;
+CMap::~CMap()
+{
+	// Workaround for destruction order - parts are not "aware" of their composite artifact
+	// As result, destruction of part of a composite artifact leads to a hanging pointer in combined artifact
+	// Force-detach everything before executing actual deletion
+	for (const auto & artifact : artInstances)
+		if (artifact)
+			for (const auto & part : artifact->getPartsInfo())
+				artifact->detachFromSource(*part.getArtifact());
+}
 
 void CMap::hideObject(CGObjectInstance * obj)
 {
