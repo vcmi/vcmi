@@ -10,7 +10,10 @@
 #pragma once
 
 #include "../lib/GameConstants.h"
+#include "../lib/mapping/MapTilesStorage.h"
 #include "../lib/int3.h"
+
+#include <boost/container/small_vector.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
@@ -53,8 +56,10 @@ public:
 
 	using MapObject = ObjectInstanceID;
 	using MapObjectsList = std::vector<MapObject>;
+	using ObjectTilesList = boost::container::small_vector<int3, 16>;
 
-	boost::multi_array<MapObjectsList, 3> objects;
+	MapTilesStorage<MapObjectsList> objects;
+	std::map<ObjectInstanceID, ObjectTilesList> usedTiles;
 
 	void addObject(const CGObjectInstance * object);
 	void addMovingObject(const CGObjectInstance * object, const int3 & tileFrom, const int3 & tileDest);

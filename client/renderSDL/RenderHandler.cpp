@@ -669,5 +669,5 @@ void RenderHandler::preloadAnimationsAsync()
 		logGlobal->info("Animation preload completed");
 	};
 	
-	ENGINE->async().run(preloadTask);
+	preloadTask();
 }
