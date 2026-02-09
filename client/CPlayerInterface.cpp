@@ -390,8 +390,9 @@ void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 		else
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
-	
-	cb->selectionMade(0, queryID);
+
+	if (queryID.hasValue())
+		cb->selectionMade(0, queryID);
 	movementController->onPlayerTurnStarted();
 }
 
