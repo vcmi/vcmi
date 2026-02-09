@@ -9,7 +9,31 @@
  */
 #pragma once
 
+#include <boost/asio.hpp>
+
+// Windows headers included by boost/asio.hpp may define these macros which conflict with engine code
+#ifdef _WIN32
+#ifdef AUTO
+#undef AUTO
+#endif
+#ifdef IGNORE
+#undef IGNORE
+#endif
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
+
+#if BOOST_VERSION >= 106600
+using NetworkContext = boost::asio::io_context;
+#else
+using NetworkContext = boost::asio::io_service;
+#endif
+
+struct DLL_LINKAGE DiscoveredServer
+{
+	std::string address;
+	uint16_t port;
+};
 
 /// Base class for connections with other services, either incoming or outgoing
 class DLL_LINKAGE INetworkConnection : boost::noncopyable
@@ -87,6 +111,41 @@ public:
 	virtual void onTimer() = 0;
 };
 
+/// Base interface that must be implemented by user of networking API to handle server discovery results
+class DLL_LINKAGE IServerDiscoveryObserver
+{
+public:
+	virtual ~IServerDiscoveryObserver() = default;
+	virtual void onServerDiscovered(const DiscoveredServer & server) = 0;
+};
+
+/// Base interface for server discovery component
+class DLL_LINKAGE IServerDiscovery : boost::noncopyable
+{
+public:
+	virtual ~IServerDiscovery() = default;
+	virtual void start() = 0;
+	virtual void abort() = 0;
+};
+
+/// Base interface that provides data for responding to discovery requests
+class DLL_LINKAGE IServerDiscoveryAnnouncer
+{
+public:
+	virtual ~IServerDiscoveryAnnouncer() = default;
+	virtual bool isInLobby() const = 0;
+	virtual uint16_t getPort() const = 0;
+};
+
+/// Base interface for server discovery listener component
+class DLL_LINKAGE IServerDiscoveryListener : boost::noncopyable
+{
+public:
+	virtual ~IServerDiscoveryListener() = default;
+	virtual void start() = 0;
+	virtual void stop() = 0;
+};
+
 /// Main class for handling of all network activity
 class DLL_LINKAGE INetworkHandler : boost::noncopyable
 {
@@ -115,6 +174,12 @@ public:
 	/// On success: INetworkTimerListener::onTimer() will be called
 	/// On failure: no-op
 	virtual void createTimer(INetworkTimerListener & listener, std::chrono::milliseconds duration) = 0;
+
+	/// Creates a server discovery component that broadcasts discovery messages and reports results
+	virtual std::shared_ptr<IServerDiscovery> createServerDiscovery(IServerDiscoveryObserver & listener) = 0;
+
+	/// Creates a server discovery listener that responds to discovery requests
+	virtual std::shared_ptr<IServerDiscoveryListener> createServerDiscoveryListener(IServerDiscoveryAnnouncer & announcer, uint16_t port = 3030) = 0;
 
 	/// Starts network processing on this thread. Does not returns until networking processing has been terminated
 	virtual void run() = 0;
