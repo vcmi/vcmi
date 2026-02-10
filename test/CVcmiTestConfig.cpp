@@ -35,9 +35,6 @@ void CVcmiTestConfig::SetUp()
 		auto loader = std::make_unique<CFilesystemLoader>("test/", TEST_DATA_DIR);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
 
-		loader = std::make_unique<CFilesystemLoader>("scripts/test/erm/", TEST_DATA_DIR+"erm/");
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
-
 		loader = std::make_unique<CFilesystemLoader>("scripts/test/lua/", TEST_DATA_DIR+"lua/");
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
 

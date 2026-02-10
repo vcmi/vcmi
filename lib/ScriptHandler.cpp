@@ -45,13 +45,6 @@ ScriptImpl::~ScriptImpl() = default;
 void ScriptImpl::compile(vstd::CLoggerBase * logger)
 {
 	code = host->compile(sourcePath, sourceText, logger);
-
-	if(host == owner->erm)
-	{
-		host = owner->lua;
-		sourceText = code;
-		code = host->compile(getName(), getSource(), logger);
-	}
 }
 
 std::shared_ptr<Context> ScriptImpl::createContext(const Environment * env) const
@@ -117,9 +110,7 @@ void ScriptImpl::resolveHost()
 {
 	ResourcePath sourcePathId(sourcePath);
 
-	if(sourcePathId.getType() == EResType::ERM)
-		host = owner->erm;
-	else if(sourcePathId.getType() == EResType::LUA)
+	if(sourcePathId.getType() == EResType::LUA)
 		host = owner->lua;
 	else
 		throw std::runtime_error("Unknown script language in:" + sourcePath);
@@ -183,14 +174,9 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 }
 
 ScriptHandler::ScriptHandler()
-	:erm(nullptr), lua(nullptr)
+	:lua(nullptr)
 {
 	boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiERM");
-
-	if (boost::filesystem::exists(filePath))
-	{
-		erm = CDynLibHandler::getNewScriptingModule(filePath);
-	}
 
 	filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
 

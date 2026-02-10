@@ -38,7 +38,6 @@ endif()
 # Platform-independent options
 
 option(ENABLE_CLIENT "Enable compilation of game client" ON)
-option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_VIDEO "Enable video support using ffmpeg" ON)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
@@ -111,11 +110,6 @@ else()
 	else()
 		option(ENABLE_DISCORD "Enable compilation of discord integration" OFF)
 	endif()
-endif()
-
-# ERM depends on LUA implicitly
-if(ENABLE_ERM AND NOT ENABLE_LUA)
-	set(ENABLE_LUA ON)
 endif()
 
 include(CMakeDependentOption)
@@ -680,10 +674,6 @@ add_subdirectory(lib)
 
 if (ENABLE_CLIENT OR ENABLE_SERVER)
 	add_subdirectory(server)
-endif()
-
-if(ENABLE_ERM)
-	add_subdirectory(scripting/erm)
 endif()
 
 if(ENABLE_LUA)

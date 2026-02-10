@@ -51,9 +51,9 @@ public:
 
 	EffectTarget transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const override;
 
-    bool getStackFilter(const Mechanics * m, bool alwaysSmart, const battle::Unit * s) const;
+	bool getStackFilter(const Mechanics * m, bool alwaysSmart, const battle::Unit * s) const;
 
-    virtual bool eraseByImmunityFilter(const Mechanics * m, const battle::Unit * s) const;
+	virtual bool eraseByImmunityFilter(const Mechanics * m, const battle::Unit * s) const;
 
 	virtual SpellEffectValue getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const;
 

@@ -117,30 +117,6 @@ if(ENABLE_LUA)
 	)
 endif()
 
-if(ENABLE_ERM)
-	list(APPEND test_SRCS
-		erm/ERM_BM.cpp
-		erm/ERM_BU.cpp
-		erm/ERM_FU.cpp
-		erm/ERM_GM_T.cpp
-		erm/ERM_MA.cpp
-		erm/ERM_MC.cpp
-		erm/ERM_MF.cpp
-		erm/ERM_TM_T.cpp
-		erm/ERM_VR.cpp
-		erm/ERM_UN.cpp
-		erm/ERMPersistenceTest.cpp
-		erm/ExamplesTest.cpp
-		erm/interpretter/ERM_VR.cpp
-		erm/interpretter/ERM_UN.cpp
-		erm/interpretter/ErmRunner.cpp
-	)
-
-	list(APPEND test_HEADERS
-		erm/interpretter/ErmRunner.h
-	)
-endif()
-
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
 set(mock_HEADERS

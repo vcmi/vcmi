@@ -126,12 +126,8 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".PAK",   EResType::ARCHIVE_PAK},
 		{".PAL",   EResType::PALETTE},
 		{".VSGM1", EResType::SAVEGAME},
-		{".ERM",   EResType::ERM},
-		{".ERT",   EResType::ERT},
-		{".ERS",   EResType::ERS},
 		{".VMAP",  EResType::MAP},
 		{".VCMP",  EResType::CAMPAIGN},
-		{".VERM",  EResType::ERM},
 		{".LUA",   EResType::LUA},
 		{".ONNX",  EResType::AI_MODEL}
 	};
@@ -167,9 +163,6 @@ std::string EResTypeHelper::getEResTypeAsString(EResType type)
 		MAP_ENUM(PALETTE)
 		MAP_ENUM(SAVEGAME)
 		MAP_ENUM(DIRECTORY)
-		MAP_ENUM(ERM)
-		MAP_ENUM(ERT)
-		MAP_ENUM(ERS)
 		MAP_ENUM(OTHER)
 	};
 

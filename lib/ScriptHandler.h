@@ -120,7 +120,6 @@ public:
 			loadState(state);
 	}
 
-	ModulePtr erm;
 	ModulePtr lua;
 
 protected:
