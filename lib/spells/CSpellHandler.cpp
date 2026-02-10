@@ -95,12 +95,9 @@ int64_t CSpell::calculateDamage(const spells::Caster * caster) const
 	auto rawDamage = calculateRawEffectValue(caster->getEffectLevel(this), caster->getEffectPower(this), 1);
 	const std::string cachingStrDamageCap = "type_DAMAGE_RECEIVED_CAP";
 	static const auto selectorDamageCap = Selector::type()(BonusType::DAMAGE_RECEIVED_CAP);
-
-	int damageCapPercentage = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap);
-	if (damageCapPercentage <= 0)
-		return std::numeric_limits<int64_t>::max();
-
-	rawDamage = rawDamage * damageCapPercentage / 100;
+		
+	if (damageCapPercentage < 100 && damageCapPercentage > 0) 
+		rawDamage = rawDamage * (selectorDamageCap / 100);
 	return caster->getSpellBonus(this, rawDamage, nullptr);
 }
 
@@ -410,12 +407,12 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 		if(affectedCreature->isInvincible())
 			ret = 0;
 	}
+	auto rawDamage = calculateRawEffectValue(caster->getEffectLevel(this), caster->getEffectPower(this), 1);
 	const std::string cachingStrDamageCap = "type_DAMAGE_RECEIVED_CAP";
 	static const auto selectorDamageCap = Selector::type()(BonusType::DAMAGE_RECEIVED_CAP);
-
-	int damageCapPercentage = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap);
-	if (damageCapPercentage <= 0)
-		return std::numeric_limits<int64_t>::max();
+		
+	if (damageCapPercentage < 100 && damageCapPercentage > 0) 
+		rawDamage = rawDamage * (selectorDamageCap / 100);
 
 	ret = ret * damageCapPercentage / 100;
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
