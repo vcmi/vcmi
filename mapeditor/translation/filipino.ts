@@ -478,7 +478,7 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
         <source>Add</source>
-        <translation type="unfinished">Mga Artifact</translation>
+        <translation type="unfinished">Idagdag</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="87"/>
@@ -600,7 +600,7 @@
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="59"/>
         <source>7 days without town</source>
-        <translation type="unfinished">Mensahe ng pagkatalo</translation>
+        <translation type="unfinished">7 araw na walang bayan</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="72"/>
@@ -730,7 +730,7 @@
     <message>
         <location filename="../mainwindow.ui" line="964"/>
         <source>Rivers</source>
-        <translation type="unfinished">Mga Kalsada</translation>
+        <translation type="unfinished">Mga Ilog</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="998"/>
@@ -792,7 +792,7 @@
         <location filename="../mainwindow.ui" line="1085"/>
         <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
-        <translation type="unfinished">Editor ng kampanya</translation>
+        <translation type="unfinished">Editor ng template</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1093"/>
@@ -848,7 +848,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1139"/>
         <source>Fill</source>
-        <translation type="unfinished">Ctrl+V</translation>
+        <translation type="unfinished">Punan</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1142"/>
@@ -878,7 +878,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1170"/>
         <source>Ctrl+Enter</source>
-        <translation type="unfinished">Pamagat at paglalarawan ng mapa</translation>
+        <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1178"/>
@@ -888,7 +888,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1181"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished">Mga setting ng manlalaro</translation>
+        <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1189"/>
@@ -899,17 +899,17 @@
     <message>
         <location filename="../mainwindow.ui" line="1195"/>
         <source>Ctrl+Z</source>
-        <translation type="unfinished">I-undo</translation>
+        <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1206"/>
         <source>Redo</source>
-        <translation type="unfinished">I-undo</translation>
+        <translation type="unfinished">Gawing muli</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1209"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished">I-undo</translation>
+        <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1220"/>
@@ -924,7 +924,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1231"/>
         <source>Neutral</source>
-        <translation type="unfinished">Del</translation>
+        <translation type="unfinished">Neutral</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1234"/>
@@ -934,12 +934,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1239"/>
         <source>Validate</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation type="unfinished">Patunayan</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1242"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation type="unfinished">Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1250"/>
@@ -947,17 +947,17 @@
         <location filename="../mainwindow.cpp" line="1316"/>
         <location filename="../mainwindow.cpp" line="1374"/>
         <source>Update appearance</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation type="unfinished">I-update ang hitsura</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1261"/>
         <source>Recreate obstacles</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation type="unfinished">Muling likhain ang mga balakid</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1272"/>
         <source>Player 1</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation type="unfinished">Manlalaro 1</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1275"/>
@@ -1012,12 +1012,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1330"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished">Manlalaro 6</translation>
+        <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1338"/>
         <source>Player 7</source>
-        <translation type="unfinished">Manlalaro 6</translation>
+        <translation type="unfinished">Manlalaro 7</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1341"/>
@@ -1032,12 +1032,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1352"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished">Manlalaro 8</translation>
+        <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1357"/>
         <source>Export as...</source>
-        <translation type="unfinished">Manlalaro 8</translation>
+        <translation type="unfinished">I-export bilang...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1360"/>
@@ -1094,7 +1094,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1409"/>
         <source>Unlock</source>
-        <translation type="unfinished">Ctrl+L</translation>
+        <translation type="unfinished">I-unlock</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1412"/>
@@ -1104,12 +1104,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1415"/>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished">I-unlock ang lahat ng bagay sa mapa</translation>
+        <translation type="unfinished">Ctrl+Shift+L</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1420"/>
         <source>Zoom in</source>
-        <translation type="unfinished">I-unlock ang lahat ng bagay sa mapa</translation>
+        <translation type="unfinished">Mag-zoom in</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1423"/>
@@ -1119,12 +1119,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1428"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation type="unfinished">Mag-zoom out</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1431"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1436"/>
@@ -1144,12 +1144,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="383"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Kumpirmasyon</translation>
+        <translation type="unfinished">Mawawala ang mga hindi na-save na pagbabago, sigurado ka ba?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="446"/>
         <source>Surface</source>
-        <translation type="unfinished">Kumpirmasyon</translation>
+        <translation type="unfinished">Ibabaw</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="448"/>
@@ -1164,7 +1164,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="474"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Antas - %1</translation>
+        <translation type="unfinished">Kinakailangan ang mga mod</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="482"/>
@@ -1175,7 +1175,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="514"/>
         <source>Open map</source>
-        <translation type="unfinished">Nabigong buksan ang mapa</translation>
+        <translation type="unfinished">Buksan ang mapa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="516"/>
@@ -1210,7 +1210,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="667"/>
         <source>Save map</source>
-        <translation type="unfinished">Nabigong i-save ang mapa</translation>
+        <translation type="unfinished">I-save ang mapa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="667"/>
@@ -1235,7 +1235,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="890"/>
         <source>Heroes</source>
-        <translation type="unfinished">Mga Bagay</translation>
+        <translation type="unfinished">Mga Bayani</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="891"/>
@@ -1245,7 +1245,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="892"/>
         <source>Resources</source>
-        <translation type="unfinished">Mga Artifact</translation>
+        <translation type="unfinished">Mga Mapagkukunan</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="893"/>
@@ -1295,12 +1295,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="902"/>
         <source>Obstacles</source>
-        <translation type="unfinished">Mga Bagay na Wog</translation>
+        <translation type="unfinished">Mga balakid</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="903"/>
         <source>Other</source>
-        <translation type="unfinished">Mga Bagay na Wog</translation>
+        <translation type="unfinished">Iba pa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1040"/>
@@ -1315,17 +1315,17 @@
     <message>
         <location filename="../mainwindow.cpp" line="1046"/>
         <source>Undo clicked</source>
-        <translation type="unfinished">Kritikal na error habang naglo-load ang mga Mod. I-disable ang mga invalid na mod at i-restart.</translation>
+        <translation type="unfinished">Na-click ang pag-undo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1057"/>
         <source>Redo clicked</source>
-        <translation type="unfinished">Kritikal na error habang naglo-load ang mga Mod. I-disable ang mga invalid na mod at i-restart.</translation>
+        <translation type="unfinished">Na-click ang pag-ulit</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1068"/>
         <source>Passability clicked</source>
-        <translation type="unfinished">Kritikal na error habang naglo-load ang mga Mod. I-disable ang mga invalid na mod at i-restart.</translation>
+        <translation type="unfinished">Na-click ang kakayahang pumasa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1081"/>
@@ -1350,7 +1350,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1374"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation type="unfinished">Hindi na maibabalik ang operasyong ito. Gusto mo pa bang magpatuloy?</translation>
+        <translation type="unfinished">May mga naganap na error. %1 na mga bagay ang hindi na-update</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
@@ -1360,7 +1360,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1433"/>
         <source>Select maps to convert</source>
-        <translation type="unfinished">I-save sa larawan</translation>
+        <translation type="unfinished">Pumili ng mga mapa na iko-convert</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1435"/>
@@ -1385,7 +1385,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1457"/>
         <source>Failed to convert the map. Abort operation</source>
-        <translation type="unfinished">Matagumpay na na-convert ang %1 na mga mapa</translation>
+        <translation type="unfinished">Nabigong i-convert ang mapa. Itigil ang operasyon</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1463"/>
@@ -1400,12 +1400,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="1469"/>
         <source>Select destination file</source>
-        <translation type="unfinished">Mga kampanyang HoMM3 (*.h3c)</translation>
+        <translation type="unfinished">Piliin ang patutunguhang file</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1471"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished">Mga kampanyang HoMM3 (*.h3c)</translation>
+        <translation type="unfinished">Mga kampanyang VCMI (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -1413,7 +1413,7 @@
     <message>
         <location filename="../mapcontroller.cpp" line="602"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">Mga kampanyang HoMM3 (*.h3c)</translation>
+        <translation type="unfinished">Hindi maaaring gawing NEUTRAL ang Hero %1.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="616"/>
@@ -1609,7 +1609,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Object Categories</source>
-        <translation type="unfinished">Mga Ipinagbabawal na Bagay</translation>
+        <translation type="unfinished">Mga Kategorya ng Ipinagbabawal na Bagay</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="33"/>
@@ -1704,7 +1704,7 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Object</source>
-        <translation type="unfinished">Burahin</translation>
+        <translation type="unfinished">Bagay</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
@@ -1727,7 +1727,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.ui" line="89"/>
         <source>Human/CPU</source>
-        <translation type="unfinished">Pinakamataas bawat sona</translation>
+        <translation type="unfinished">Tao/CPU</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="76"/>
@@ -1885,7 +1885,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="938"/>
         <source>Friendly</source>
-        <translation type="unfinished">Sumusunod</translation>
+        <translation type="unfinished">Palakaibigan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="939"/>
@@ -1926,7 +1926,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="330"/>
         <source>Portrait</source>
-        <translation type="unfinished">Klase ng bayani</translation>
+        <translation type="unfinished">Larawan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="333"/>
@@ -2045,7 +2045,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="302"/>
         <location filename="../inspector/inspector.cpp" line="705"/>
         <source>Power rank</source>
-        <translation type="unfinished">Uri ng placeholder</translation>
+        <translation type="unfinished">Ranggo ng kapangyarihan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="310"/>
@@ -2138,7 +2138,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="407"/>
         <location filename="../inspector/inspector.cpp" line="642"/>
         <source>Productivity</source>
-        <translation type="unfinished">Spell</translation>
+        <translation type="unfinished">Produktibidad</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="414"/>
@@ -2169,7 +2169,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="436"/>
         <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Not growing</source>
-        <translation type="unfinished">Hindi kailanman tumatakas</translation>
+        <translation type="unfinished">Hindi lumalaki</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="448"/>
@@ -2211,7 +2211,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="474"/>
         <location filename="../inspector/inspector.cpp" line="792"/>
         <source>Completed text</source>
-        <translation type="unfinished">Teksto para sa susunod na pagbisita</translation>
+        <translation type="unfinished">Nakumpletong teksto</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="475"/>
@@ -2283,7 +2283,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
         <source>Days Passed: %1</source>
-        <translation type="unfinished">Araw ng Linggo: %1</translation>
+        <translation type="unfinished">Mga Araw na Lumipas: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
@@ -2312,7 +2312,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/questwidget.cpp" line="454"/>
         <location filename="../inspector/rewardswidget.cpp" line="779"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation type="unfinished">Porsyento ng Mana: %1</translation>
+        <translation type="unfinished">Pangunahing Kasanayan: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="465"/>
@@ -2362,7 +2362,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Rewards:</source>
-        <translation type="unfinished">Mga Manlalaro: %1</translation>
+        <translation type="unfinished">Mga Gantimpala:</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="772"/>
@@ -2470,7 +2470,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">...</translation>
+        <translation type="unfinished">Pangunahing kasanayan</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
@@ -2485,7 +2485,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Depensa</translation>
+        <translation type="unfinished">Kapangyarihan ng spell</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="251"/>
@@ -2495,7 +2495,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">Kaalaman</translation>
+        <translation type="unfinished">Mga Mapagkukunan</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
@@ -2550,7 +2550,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.cpp" line="41"/>
         <source>Day %1</source>
-        <translation type="unfinished">Wala</translation>
+        <translation type="unfinished">Araw %1</translation>
     </message>
 </context>
 <context>
@@ -2566,7 +2566,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/rewardswidget.ui" line="821"/>
         <location filename="../inspector/rewardswidget.ui" line="1410"/>
         <source>Add</source>
-        <translation type="unfinished">Mga Gantimpala</translation>
+        <translation type="unfinished">Idagdag</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
@@ -2599,7 +2599,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="121"/>
         <source>Reset parameters</source>
-        <translation type="unfinished">Maaaring tumanggi</translation>
+        <translation type="unfinished">I-reset ang mga parameter</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="141"/>
@@ -2614,12 +2614,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="160"/>
         <source>Reset visitors</source>
-        <translation type="unfinished">mga araw</translation>
+        <translation type="unfinished">I-reset ang mga bisita</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="167"/>
         <source>Reset rewards</source>
-        <translation type="unfinished">mga araw</translation>
+        <translation type="unfinished">I-reset ang mga gantimpala</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="179"/>
@@ -2639,7 +2639,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="228"/>
         <source>Reward</source>
-        <translation type="unfinished">Mensahe na ipapakita sa pagkakaloob ng gantimpalang ito</translation>
+        <translation type="unfinished">Gantimpala</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="248"/>
@@ -2657,7 +2657,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/rewardswidget.ui" line="305"/>
         <location filename="../inspector/rewardswidget.ui" line="1092"/>
         <source>Spell points</source>
-        <translation type="unfinished">Karanasan ng bayani</translation>
+        <translation type="unfinished">Mga punto ng pagbaybay</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="328"/>
@@ -2728,7 +2728,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/rewardswidget.ui" line="585"/>
         <location filename="../inspector/rewardswidget.ui" line="1289"/>
         <source>Spells</source>
-        <translation type="unfinished">Mga Artifact</translation>
+        <translation type="unfinished">Mga Spell</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="617"/>
@@ -2837,7 +2837,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Gantimpala %1</translation>
+        <translation type="unfinished">Pormularyo</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
@@ -2847,7 +2847,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished">Mga tsismis tungkol sa tavern</translation>
+        <translation type="unfinished">Idagdag</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="82"/>
@@ -2876,7 +2876,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
         <source>Region name</source>
-        <translation type="unfinished">Heneral</translation>
+        <translation type="unfinished">Pangalan ng rehiyon</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="50"/>
@@ -3302,7 +3302,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished">Ang pangunahing bayan ay binubuo ng random na pangkat</translation>
+        <translation type="unfinished">Walang pangunahing bayan ang manlalaro!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -3478,17 +3478,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
         <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Normal</source>
-        <translation type="unfinished">Wala</translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="492"/>
         <source>Islands</source>
-        <translation type="unfinished">Wala</translation>
+        <translation type="unfinished">Mga Isla</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="502"/>
         <source>Entities</source>
-        <translation type="unfinished">Wala</translation>
+        <translation type="unfinished">Mga entidad</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="508"/>
@@ -3503,7 +3503,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="522"/>
         <source>Banned Skills</source>
-        <translation type="unfinished">Mga Ipinagbabawal na Artifact</translation>
+        <translation type="unfinished">Mga Ipinagbabawal na Kasanayan</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="529"/>
@@ -3513,17 +3513,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="561"/>
         <source>Zone</source>
-        <translation type="unfinished">Mga Bayani na Ipinagbawal</translation>
+        <translation type="unfinished">Sona</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="567"/>
         <source>Visualisation</source>
-        <translation type="unfinished">Mga Bayani na Ipinagbawal</translation>
+        <translation type="unfinished">Pagpapakita ng Biswalisasyon</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="573"/>
         <source>Position</source>
-        <translation type="unfinished">Mga Bayani na Ipinagbawal</translation>
+        <translation type="unfinished">Posisyon</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="645"/>
@@ -3540,7 +3540,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
         <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Type</source>
-        <translation type="unfinished">ID</translation>
+        <translation type="unfinished">Uri</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="717"/>
@@ -3664,7 +3664,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1166"/>
         <source>Town hints</source>
-        <translation type="unfinished">Mga ipinagbabawal na bayan</translation>
+        <translation type="unfinished">Mga pahiwatig ng bayan</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1176"/>
@@ -3765,7 +3765,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1413"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Mag-zoom out</translation>
+        <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1418"/>
@@ -3816,7 +3816,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="256"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished">ID: %1</translation>
+        <translation type="unfinished">Pinakamataas na kayamanan: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="337"/>
@@ -3836,7 +3836,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="341"/>
         <source>Water</source>
-        <translation type="unfinished">Sangandaan</translation>
+        <translation type="unfinished">Tubig</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="342"/>
@@ -3996,7 +3996,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="781"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished">Sa ilang mga template!</translation>
+        <translation type="unfinished">Dapat may matira kahit isang template pagkatapos tanggalin.</translation>
     </message>
 </context>
 <context>
@@ -4893,7 +4893,7 @@ Guard: %3</source>
     <message>
         <location filename="../mainwindow.cpp" line="112"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation type="unfinished">I-extract ang mga orihinal na archive ng H3 sa isang hiwalay na folder.</translation>
+        <translation type="unfinished">Mula sa isang nakuha na archive, hinahati nito ang TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 at Un44 sa mga indibidwal na PNG.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="113"/>
