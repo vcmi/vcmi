@@ -42,12 +42,12 @@ class UnitEffect : public Effect
 public:
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
-	void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const override;
+	void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const final;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
 	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
 
-	EffectTarget filterTarget(const Mechanics * m, const EffectTarget & target) const override;
+	EffectTarget filterTarget(const Mechanics * m, const EffectTarget & target) const final;
 
 	EffectTarget transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const override;
 
@@ -62,10 +62,10 @@ protected:
 	double chainFactor = 0.0;
 
 	virtual bool isReceptive(const Mechanics * m, const battle::Unit * unit) const;
-	virtual bool isSmartTarget(const Mechanics * m, const battle::Unit * unit, bool alwaysSmart) const;
+	bool isSmartTarget(const Mechanics * m, const battle::Unit * unit, bool alwaysSmart) const;
 	virtual bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const;
 
-	void serializeJsonEffect(JsonSerializeFormat & handler) override final;
+	void serializeJsonEffect(JsonSerializeFormat & handler) final;
 	virtual void serializeJsonUnitEffect(JsonSerializeFormat & handler) = 0;
 
 private:

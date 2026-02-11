@@ -77,7 +77,7 @@ void UnitsFake::setDefaultBonusExpectations()
 BattleFake::~BattleFake() = default;
 
 #if SCRIPTING_ENABLED
-BattleFake::BattleFake(std::shared_ptr<scripting::PoolMock> pool_):
+BattleFake::BattleFake(std::shared_ptr<scripting::Pool> pool_):
 	pool(pool_)
 {
 }

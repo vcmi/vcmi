@@ -20,7 +20,7 @@ namespace scripting
 {
 namespace api
 {
-VCMI_REGISTER_CORE_SCRIPT_API(ObjectInstanceProxy, "ObjectInstance");
+VCMI_REGISTER_CORE_SCRIPT_API(ObjectInstanceProxy, "adventure.ObjectInstance");
 
 const std::vector<ObjectInstanceProxy::CustomRegType> ObjectInstanceProxy::REGISTER_CUSTOM =
 {

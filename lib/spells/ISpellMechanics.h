@@ -297,10 +297,8 @@ public:
 
 	IBattleCast::Value getEffectLevel() const override;
 	IBattleCast::Value getRangeLevel() const override;
-
 	IBattleCast::Value getEffectPower() const override;
 	IBattleCast::Value getEffectDuration() const override;
-
 	IBattleCast::Value64 getEffectValue() const override;
 
 	PlayerColor getCasterColor() const override;

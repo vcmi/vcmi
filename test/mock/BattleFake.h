@@ -63,11 +63,11 @@ public:
 class BattleFake : public CBattleInfoCallback, public BattleStateMock
 {
 #if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::PoolMock> pool;
+	std::shared_ptr<scripting::Pool> pool;
 #endif
 public:
 #if SCRIPTING_ENABLED
-	BattleFake(std::shared_ptr<scripting::PoolMock> pool_);
+	BattleFake(std::shared_ptr<scripting::Pool> pool_);
 #else
 	BattleFake();
 #endif

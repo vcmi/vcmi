@@ -10,10 +10,13 @@
 
 #pragma once
 
+#include "../../lib/json/JsonNode.h"
 #include "../../lib/spells/effects/Effect.h"
 #include "../../lib/spells/effects/Registry.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class JsonNode;
 
 namespace scripting
 {
@@ -65,10 +68,13 @@ protected:
 
 private:
 	const Script * script;
+	JsonNode parameters;
 
 	std::shared_ptr<Context> resolveScript(const Mechanics * m) const;
 
-	static void setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) ;
+	void setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) const;
+	JsonNode spellTargetToJson(const Target & spellTarget) const;
+	Target spellTargetFromJson(const Mechanics * m, const JsonNode & config) const;
 };
 
 }

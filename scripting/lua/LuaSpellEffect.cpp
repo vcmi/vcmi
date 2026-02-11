@@ -67,7 +67,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 {
 	std::shared_ptr<scripting::Context> context = resolveScript(m);
 	if(!context)
-		return false;
+		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
 
 	setContextVariables(m, context);
 
@@ -75,7 +75,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
-		logMod->error("Invalid API response from script %s.", script->getName());
+		logMod->error("Invalid API response from script %s.", script->getJsonKey());
 		logMod->debug(response.toCompactString());
 		return false;
 	}
@@ -86,7 +86,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 {
 	std::shared_ptr<scripting::Context> context = resolveScript(m);
 	if(!context)
-		return false;
+		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
 
 	setContextVariables(m, context);
 
@@ -115,7 +115,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 
 	if(response.getType() != JsonNode::JsonType::DATA_BOOL)
 	{
-		logMod->error("Invalid API response from script %s.", script->getName());
+		logMod->error("Invalid API response from script %s.", script->getJsonKey());
 		logMod->debug(response.toCompactString());
 		return false;
 	}
@@ -131,28 +131,13 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	if(!context)
 	{
 		server->complain("Unable to create scripting context");
-		return;
+		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
 	}
 
 	setContextVariables(m, context);
 
-	JsonNode requestP;
-
-	for(const auto & dest : target)
-	{
-		JsonNode targetData;
-		targetData.Vector().emplace_back(dest.hexValue.toInt());
-
-		if(dest.unitValue)
-			targetData.Vector().emplace_back(dest.unitValue->unitId());
-		else
-			targetData.Vector().emplace_back(-1);
-
-		requestP.Vector().push_back(targetData);
-	}
-
 	JsonNode request;
-	request.Vector().push_back(requestP);
+	request.Vector().push_back(spellTargetToJson(target));
 
 	context->callGlobal(server, APPLY, request);
 }
@@ -169,6 +154,7 @@ EffectTarget LuaSpellEffect::transformTarget(const Mechanics * m, const Target &
 
 void LuaSpellEffect::serializeJsonEffect(JsonSerializeFormat & handler)
 {
+	parameters = handler.getCurrent();
 	//TODO: load everything and provide to script
 }
 
@@ -177,14 +163,50 @@ std::shared_ptr<Context> LuaSpellEffect::resolveScript(const Mechanics * m) cons
 	return m->battle()->getContextPool()->getContext(script);
 }
 
-void LuaSpellEffect::setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) 
+void LuaSpellEffect::setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context)  const
 {
-	context->setGlobal("effectLevel", m->getEffectLevel());
-	context->setGlobal("effectRangeLevel", m->getRangeLevel());
-	context->setGlobal("effectPower", m->getEffectPower());
-	context->setGlobal("effectDuration", m->getEffectDuration());
-	context->setGlobal("effectValue", static_cast<int>(m->getEffectValue()));
+	context->setGlobal("parameters", parameters);
 }
+
+JsonNode LuaSpellEffect::spellTargetToJson(const Target & target) const
+{
+	JsonNode requestP;
+
+	for(const auto & dest : target)
+	{
+		JsonNode targetData;
+		targetData.Vector().emplace_back(dest.hexValue.toInt());
+
+		if(dest.unitValue)
+			targetData.Vector().emplace_back(dest.unitValue->unitId());
+		else
+			targetData.Vector().emplace_back(-1);
+
+		requestP.Vector().push_back(targetData);
+	}
+
+	return requestP;
+}
+
+Target LuaSpellEffect::spellTargetFromJson(const Mechanics * m, const JsonNode & config) const
+{
+	Target result;
+
+	for (const auto & entry : config.Vector())
+	{
+		Destination dest;
+
+		if (!entry[1].isNull() && entry[1].Integer() != -1 )
+			dest = Destination(m->battle()->battleGetUnitByID(entry[1].Integer()), BattleHex(entry[0].Integer()));
+		else
+			dest = Destination(BattleHex(entry[0].Integer()));
+
+		result.push_back(dest);
+	}
+
+	return result;
+}
+
 }
 }
 

@@ -23,7 +23,7 @@ namespace scripting
 {
 namespace api
 {
-VCMI_REGISTER_CORE_SCRIPT_API(StackInstanceProxy, "StackInstance");
+VCMI_REGISTER_CORE_SCRIPT_API(StackInstanceProxy, "adventure.StackInstance");
 
 const std::vector<StackInstanceProxy::CustomRegType> StackInstanceProxy::REGISTER_CUSTOM =
 {

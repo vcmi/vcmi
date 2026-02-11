@@ -22,7 +22,7 @@ namespace api
 namespace events
 {
 //No methods here, just an empty metatable for type safety.
-VCMI_REGISTER_CORE_SCRIPT_API(EventSubscriptionProxy, "EventSubscription");
+VCMI_REGISTER_CORE_SCRIPT_API(EventSubscriptionProxy, "game.EventSubscription");
 const std::vector<EventSubscriptionProxy::CustomRegType> EventSubscriptionProxy::REGISTER_CUSTOM = {};
 }
 }

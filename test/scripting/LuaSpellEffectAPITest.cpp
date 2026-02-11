@@ -34,7 +34,7 @@ protected:
 	}
 };
 
-TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnExpert)
+TEST_F(LuaSpellEffectAPITest, ApplicableOnExpert)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -53,7 +53,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnExpert)
 
 }
 
-TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnAdvanced)
+TEST_F(LuaSpellEffectAPITest, NotApplicableOnAdvanced)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -71,7 +71,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnAdvanced)
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
+TEST_F(LuaSpellEffectAPITest, ApplicableOnLeftSideOfField)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -100,7 +100,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_ApplicableOnLeftSideOfField)
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnRightSideOfField)
+TEST_F(LuaSpellEffectAPITest, NotApplicableOnRightSideOfField)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPITest.lua");
 
@@ -129,7 +129,7 @@ TEST_F(LuaSpellEffectAPITest, DISABLED_NotApplicableOnRightSideOfField)
 	cmp.compare("applicable result", ret, expected);
 }
 
-TEST_F(LuaSpellEffectAPITest, DISABLED_ApplyMoveUnit)
+TEST_F(LuaSpellEffectAPITest, ApplyMoveUnit)
 {
 	loadScriptFromFile("test/lua/SpellEffectAPIMoveUnit.lua");
 

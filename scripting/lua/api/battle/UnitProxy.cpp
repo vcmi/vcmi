@@ -34,7 +34,12 @@ const std::vector<UnitProxy::CustomRegType> UnitProxy::REGISTER_CUSTOM =
 	{"getAttack", LuaMethodWrapper<Unit, decltype(&ACreature::getAttack), &ACreature::getAttack>::invoke, false},
 	{"getDefense", LuaMethodWrapper<Unit, decltype(&ACreature::getDefense), &ACreature::getDefense>::invoke, false},
 	{"isAlive", LuaMethodWrapper<Unit, decltype(&Unit::alive), &Unit::alive>::invoke, false},
-	{"unitId", LuaMethodWrapper<Unit, decltype(&IUnitInfo::unitId), &IUnitInfo::unitId>::invoke, false},
+	{"isClone", LuaMethodWrapper<Unit, decltype(&Unit::isClone), &Unit::isClone>::invoke, false},
+	{"isSummoned", LuaMethodWrapper<Unit, decltype(&Unit::isSummoned), &Unit::isSummoned>::invoke, false},
+//	{"unitId", LuaMethodWrapper<Unit, decltype(&IUnitInfo::unitId), &IUnitInfo::unitId>::invoke, false},
+	{"getOwner", LuaMethodWrapper<Unit, decltype(&IUnitInfo::unitOwner), &IUnitInfo::unitOwner>::invoke, false},
+	{"getSlot", LuaMethodWrapper<Unit, decltype(&IUnitInfo::unitSlot), &IUnitInfo::unitSlot>::invoke, false},
+	{"getCreature", LuaMethodWrapper<Unit, decltype(&Unit::creatureId), &Unit::creatureId>::invoke, false},
 };
 
 }

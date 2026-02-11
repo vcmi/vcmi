@@ -22,6 +22,9 @@ set(lib_SRCS
 		api/netpacks/InfoWindow.cpp
 		api/netpacks/SetResources.cpp
 
+		api/spells/Mechanics.cpp
+		api/texts/MetaString.cpp
+
 		api/Artifact.cpp
 		api/BattleCb.cpp
 		api/BonusSystem.cpp
@@ -65,6 +68,9 @@ set(lib_HDRS
 		api/netpacks/PackForClient.h
 		api/netpacks/SetResources.h
 
+		api/spells/Mechanics.h
+		api/texts/MetaString.h
+
 		api/Artifact.h
 		api/BattleCb.h
 		api/BonusSystem.h
@@ -81,6 +87,8 @@ set(lib_HDRS
 		api/Spell.h
 		api/StackInstance.h
 )
+
+assign_source_group(${lib_SRCS} ${lib_HDRS})
 
 add_library(vcmiLua SHARED ${lib_SRCS} ${lib_HDRS})
 target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)

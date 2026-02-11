@@ -22,7 +22,7 @@ namespace scripting
 {
 namespace api
 {
-VCMI_REGISTER_CORE_SCRIPT_API(SkillProxy, "Skill");
+VCMI_REGISTER_CORE_SCRIPT_API(SkillProxy, "entity.Skill");
 
 const std::vector<SkillProxy::CustomRegType> SkillProxy::REGISTER_CUSTOM =
 {

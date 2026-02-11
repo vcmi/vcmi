@@ -22,7 +22,7 @@ namespace api
 {
 
 
-VCMI_REGISTER_CORE_SCRIPT_API(PlayerProxy, "Player");
+VCMI_REGISTER_CORE_SCRIPT_API(PlayerProxy, "game.Player");
 
 const std::vector<PlayerProxy::CustomRegType> PlayerProxy::REGISTER_CUSTOM =
 {

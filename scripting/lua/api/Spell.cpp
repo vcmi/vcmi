@@ -24,7 +24,7 @@ namespace api
 {
 using ::spells::Spell;
 
-VCMI_REGISTER_CORE_SCRIPT_API(SpellProxy, "Spell");
+VCMI_REGISTER_CORE_SCRIPT_API(SpellProxy, "entity.Spell");
 
 //TODO:calculateDamage,forEachSchool
 

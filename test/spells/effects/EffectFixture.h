@@ -26,9 +26,13 @@
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
 #include "../../mock/mock_vstd_RNG.h"
+#include "ScriptHandler.h"
+#include "mock/mock_vstd_CLoggerBase.h"
+#include "scripting/ScriptFixture.h"
 #if SCRIPTING_ENABLED
 #include "../../mock/mock_scripting_Pool.h"
 #endif
+#include "../../mock/mock_Environment.h"
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
 
@@ -63,12 +67,16 @@ public:
 	StrictMock<SpellServiceMock> spellServiceMock;
 	StrictMock<SpellMock> spellStub;
 	StrictMock<IGameInfoCallbackMock> gameMock;
+	StrictMock<EnvironmentMock> environmentMock;
+	LoggerMock loggerMock;
+	EventBus eventBus;
+	StrictMock<ServicesMock> servicesMock;
 	vstd::RNGMock rngMock;
 
 	battle::UnitsFake unitsFake;
 
 #if SCRIPTING_ENABLED
-	std::shared_ptr<PoolMock> pool;
+	std::shared_ptr<PoolImpl> pool;
 #endif
 	std::shared_ptr<battle::BattleFake> battleFake;
 

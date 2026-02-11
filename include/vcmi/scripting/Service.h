@@ -54,7 +54,7 @@ class DLL_LINKAGE Script
 public:
 	virtual ~Script() = default;
 
-	virtual const std::string & getName() const = 0;
+	virtual std::string getJsonKey() const = 0;
 	virtual const std::string & getSource() const = 0;
 
 	virtual std::shared_ptr<Context> createContext(const Environment * env) const = 0;

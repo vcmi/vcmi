@@ -74,9 +74,6 @@ LuaContext::LuaContext(const Script * source, const Environment * env_):
 	S.push(env->game());
 	lua_setglobal(L, "GAME");
 
-	S.push(env->battle(BattleID::NONE));
-	lua_setglobal(L, "BATTLE");
-
 	S.push(env->eventBus());
 	lua_setglobal(L, "EVENT_BUS");
 
@@ -160,11 +157,11 @@ void LuaContext::run(const JsonNode & initialState)
 {
 	setGlobal(STATE_FIELD, initialState);
 
-	int ret = luaL_loadbuffer(L, script->getSource().c_str(), script->getSource().size(), script->getName().c_str());
+	int ret = luaL_loadbuffer(L, script->getSource().c_str(), script->getSource().size(), script->getJsonKey().c_str());
 
 	if(ret)
 	{
-		logger->error("Script '%s' failed to load, error: %s", script->getName(), toStringRaw(-1));
+		logger->error("Script '%s' failed to load, error: %s", script->getJsonKey(), toStringRaw(-1));
 		popAll();
 		return;
 	}
@@ -177,7 +174,7 @@ void LuaContext::run(const JsonNode & initialState)
 
 	if(ret)
 	{
-		logger->error("Script '%s' failed to run, error: '%s'", script->getName(), toStringRaw(-1));
+		logger->error("Script '%s' failed to run, error: '%s'", script->getJsonKey(), toStringRaw(-1));
 		popAll();
 	}
 }
@@ -521,7 +518,7 @@ int LuaContext::loadModule()
 
 		modulePath = "scripts/lib/" + modulePath;
 
-		ResourcePath id(modulePath, EResType::LUA);
+		ResourcePath id(modulePath, EResType::LUA_SCRIPT);
 
 		if(!loader->existsResource(id))
 			return errorRetVoid("Module not found: "+modulePath);

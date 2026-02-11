@@ -271,15 +271,19 @@ public:
 			h & *statistics;
 		}
 
-
+		if (h.hasFeature(Handler::Version::LUA_SCRIPTS))
+		{
+			JsonNode scriptsState;
 #if SCRIPTING_ENABLED
-		JsonNode scriptsState;
-		if(h.saving)
-			serverScripts->serializeState(h.saving, scriptsState);
-		h & scriptsState;
-		if(!h.saving)
-			serverScripts->serializeState(h.saving, scriptsState);
+			if(h.saving)
+				serverScripts->serializeState(h.saving, scriptsState);
+			h & scriptsState;
+			if(!h.saving)
+				serverScripts->serializeState(h.saving, scriptsState);
+#else
+			h & scriptsState;
 #endif
+		}
 	}
 
 	void sendAndApply(CPackForClient & pack) override;

@@ -37,7 +37,7 @@ public:
 
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(script, getName()).WillRepeatedly(ReturnRef(SCRIPT_NAME));
+		EXPECT_CALL(script, getJsonKey()).WillRepeatedly(Return(SCRIPT_NAME));
 	}
 
 protected:

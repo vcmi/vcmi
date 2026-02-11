@@ -18,7 +18,7 @@ namespace scripting
 class ScriptMock : public Script
 {
 public:
- 	MOCK_CONST_METHOD0(getName, const std::string &());
+    MOCK_CONST_METHOD0(getJsonKey, std::string());
  	MOCK_CONST_METHOD0(getSource, const std::string &());
 	MOCK_CONST_METHOD1(createContext, std::shared_ptr<Context>(const Environment *));
 };

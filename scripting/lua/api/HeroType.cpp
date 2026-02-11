@@ -23,7 +23,7 @@ namespace scripting
 namespace api
 {
 
-VCMI_REGISTER_CORE_SCRIPT_API(HeroTypeProxy, "HeroType");
+VCMI_REGISTER_CORE_SCRIPT_API(HeroTypeProxy, "entity.HeroType");
 
 const std::vector<HeroTypeProxy::CustomRegType> HeroTypeProxy::REGISTER_CUSTOM =
 {

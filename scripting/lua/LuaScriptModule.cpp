@@ -51,7 +51,7 @@ std::shared_ptr<ContextBase> LuaScriptModule::createContextFor(const Script * so
 
 void LuaScriptModule::registerSpellEffect(spells::effects::Registry * registry, const Script * source) const
 {
-	registry->add(source->getName(), std::make_shared<spells::effects::LuaSpellEffectFactory>(source));
+	registry->add(source->getJsonKey(), std::make_shared<spells::effects::LuaSpellEffectFactory>(source));
 }
 
 

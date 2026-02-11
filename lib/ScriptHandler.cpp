@@ -52,9 +52,9 @@ std::shared_ptr<Context> ScriptImpl::createContext(const Environment * env) cons
 	return host->createContextFor(this, env);
 }
 
-const std::string & ScriptImpl::getName() const
+std::string ScriptImpl::getJsonKey() const
 {
-	return identifier;
+	return modScope + ':' + identifier;
 }
 
 const std::string & ScriptImpl::getSource() const
@@ -83,7 +83,7 @@ void ScriptImpl::serializeJson(vstd::CLoggerBase * logger, JsonSerializeFormat &
 	{
 		resolveHost();
 
-		ResourcePath sourcePathId("SCRIPTS/" + sourcePath);
+		ResourcePath sourcePathId(sourcePath);
 
 		auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
 
@@ -110,7 +110,7 @@ void ScriptImpl::resolveHost()
 {
 	ResourcePath sourcePathId(sourcePath);
 
-	if(sourcePathId.getType() == EResType::LUA)
+	if(sourcePathId.getType() == EResType::LUA_SCRIPT)
 		host = owner->lua;
 	else
 		throw std::runtime_error("Unknown script language in:" + sourcePath);
@@ -137,7 +137,7 @@ std::shared_ptr<Context> PoolImpl::getContext(const Script * script)
 		auto context = script->createContext(env);
 		cache[script] = context;
 
-		const auto & key = script->getName();
+		const auto & key = script->getJsonKey();
 		const JsonNode & scriptState = state[key];
 
 		if(srv)
@@ -162,7 +162,7 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 			const auto * script = scriptAndContext.first;
 			auto context = scriptAndContext.second;
 
-			state[script->getName()] = context->saveState();
+			state[script->getJsonKey()] = context->saveState();
 
 			data = state;
 		}
@@ -215,6 +215,7 @@ ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::str
 
 	JsonDeserializer handler(nullptr, json);
 	ret->identifier = identifier;
+	ret->modScope = scope;
 	ret->serializeJson(logger, handler);
 	return ret;
 }
@@ -222,7 +223,7 @@ ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::str
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(logMod, scope, data, name);
-	objects[object->identifier] = object;
+	objects[object->getJsonKey()] = object;
 }
 
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)

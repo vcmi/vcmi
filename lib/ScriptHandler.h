@@ -44,6 +44,7 @@ public:
 	Implements implements;
 
 	std::string identifier;
+	std::string modScope;
 	std::string sourcePath;
 	std::string sourceText;
 
@@ -60,7 +61,7 @@ public:
 	void serializeJsonState(JsonSerializeFormat & handler);
 
 	std::shared_ptr<Context> createContext(const Environment * env) const override;
-	const std::string & getName() const override;
+	std::string getJsonKey() const override;
 	const std::string & getSource() const override;
 
 	void performRegistration(Services * services) const;

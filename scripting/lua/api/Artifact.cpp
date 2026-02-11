@@ -25,7 +25,7 @@ namespace scripting
 namespace api
 {
 
-VCMI_REGISTER_CORE_SCRIPT_API(ArtifactProxy, "Artifact");
+VCMI_REGISTER_CORE_SCRIPT_API(ArtifactProxy, "entity.Artifact");
 
 const std::vector<ArtifactProxy::CustomRegType> ArtifactProxy::REGISTER_CUSTOM =
 {

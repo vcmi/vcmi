@@ -22,7 +22,7 @@ namespace scripting
 {
 namespace api
 {
-VCMI_REGISTER_CORE_SCRIPT_API(HeroInstanceProxy, "HeroInstance");
+VCMI_REGISTER_CORE_SCRIPT_API(HeroInstanceProxy, "adventure.HeroInstance");
 
 const std::vector<HeroInstanceProxy::CustomRegType> HeroInstanceProxy::REGISTER_CUSTOM =
 {

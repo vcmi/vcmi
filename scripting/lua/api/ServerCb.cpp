@@ -23,7 +23,7 @@ namespace scripting
 namespace api
 {
 
-VCMI_REGISTER_CORE_SCRIPT_API(ServerCbProxy, "Server");
+VCMI_REGISTER_CORE_SCRIPT_API(ServerCbProxy, "game.Server");
 
 const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 {
