@@ -30,6 +30,23 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/adventure/AdventureSpellEffect.h"
 
+namespace
+{
+CPlayerInterface * getInterface()
+{
+	return GAME ? GAME->interface() : nullptr;
+}
+
+std::shared_ptr<CCallback> getCallback()
+{
+	auto * interface = getInterface();
+	if(!interface)
+		return {};
+
+	return interface->cb;
+}
+}
+
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
 {
@@ -58,30 +75,46 @@ uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) co
 
 int3 MapRendererBaseContext::getMapSize() const
 {
-	return GAME->interface()->cb->getMapSize();
+	auto callback = getCallback();
+	if(!callback)
+		return int3();
+
+	return callback->getMapSize();
 }
 
 bool MapRendererBaseContext::isInMap(const int3 & coordinates) const
 {
-	return GAME->interface()->cb->isInTheMap(coordinates);
+	auto callback = getCallback();
+	if(!callback)
+		return false;
+
+	return callback->isInTheMap(coordinates);
 }
 
 bool MapRendererBaseContext::isVisible(const int3 & coordinates) const
 {
+	auto callback = getCallback();
+	if(!callback)
+		return false;
+
 	if(settingsSessionSpectate)
-		return GAME->interface()->cb->isInTheMap(coordinates);
+		return callback->isInTheMap(coordinates);
 	else
-		return GAME->interface()->cb->isVisible(coordinates);
+		return callback->isVisible(coordinates);
 }
 
 bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 {
+	auto * interface = getInterface();
+	if(!interface || !interface->localState)
+		return false;
+
 	if(obj->ID == Obj::HERO)
 	{
 		assert(dynamic_cast<const CGHeroInstance *>(obj) != nullptr);
-		if(GAME->interface()->localState->getCurrentHero() != nullptr)
+		if(interface->localState->getCurrentHero() != nullptr)
 		{
-			if(obj->id == GAME->interface()->localState->getCurrentHero()->id)
+			if(obj->id == interface->localState->getCurrentHero()->id)
 				return true;
 		}
 	}
@@ -91,12 +124,35 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 
 int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const
 {
+	auto * interface = getInterface();
+	if(!interface || settingsSessionSpectate || !interface->playerID.isValidPlayer())
+		return -1;
+
+	auto callback = getCallback();
+	if(!callback)
+		return -1;
+
 	if(wanderingMonster->ID != Obj::MONSTER)
 		return -1;
 		
-	for(const auto & battle : GAME->interface()->cb->getActiveBattles())
-		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
-			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
+	for(const auto & battle : callback->getActiveBattles())
+	{
+		if(!battle.second)
+			continue;
+
+		const auto * battleState = battle.second->getBattle();
+		if(!battleState)
+			continue;
+
+		if(wanderingMonster->pos != battleState->getLocation())
+			continue;
+
+		const auto * attackerHero = battleState->getSideHero(BattleSide::ATTACKER);
+		if(attackerHero)
+			return attackerHero->moveDir;
+
+		return -1;
+	}
 
 	return -1;
 }
@@ -249,15 +305,19 @@ MapRendererAdventureContext::MapRendererAdventureContext(const MapRendererContex
 
 const CGPath * MapRendererAdventureContext::currentPath() const
 {
-	const auto * hero = GAME->interface()->localState->getCurrentHero();
+	auto * interface = getInterface();
+	if(!interface || !interface->localState)
+		return nullptr;
+
+	const auto * hero = interface->localState->getCurrentHero();
 
 	if(!hero)
 		return nullptr;
 
-	if(!GAME->interface()->localState->hasPath(hero))
+	if(!interface->localState->hasPath(hero))
 		return nullptr;
 
-	return &GAME->interface()->localState->getPath(hero);
+	return &interface->localState->getPath(hero);
 }
 
 size_t MapRendererAdventureContext::objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const
@@ -309,6 +369,12 @@ std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) c
 
 ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates) const
 {
+	auto * interface = getInterface();
+	auto callback = getCallback();
+
+	if(!interface || !interface->localState || !callback)
+		return {};
+
 	if(!isVisible(coordinates))
 		return {};
 
@@ -319,10 +385,10 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 
 	const auto * object = getObject(tile.visitableObjects.back());
 
-	if (object->getOwner() == GAME->interface()->playerID)
+	if (object->getOwner() == interface->playerID)
 		return { 0, 192, 0};
 
-	if (GAME->interface()->cb->getPlayerRelations(object->getOwner(), GAME->interface()->playerID) == PlayerRelations::ALLIES)
+	if (callback->getPlayerRelations(object->getOwner(), interface->playerID) == PlayerRelations::ALLIES)
 		return { 0, 128, 255};
 
 	if (object->getOwner().isValidPlayer())
@@ -331,7 +397,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (object->ID == MapObjectID::MONSTER)
 		return { 255, 0, 0};
 
-	auto hero = GAME->interface()->localState->getCurrentHero();
+	auto hero = interface->localState->getCurrentHero();
 
 	if (hero)
 	{
@@ -340,7 +406,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	}
 	else
 	{
-		if (object->wasVisited(GAME->interface()->playerID))
+		if (object->wasVisited(interface->playerID))
 			return { 160, 160, 160 };
 	}
 
@@ -379,14 +445,18 @@ bool MapRendererAdventureContext::showTextOverlay() const
 
 bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 {
-	auto hero = GAME->interface()->localState->getCurrentHero();
-	auto spell = GAME->interface()->localState->getCurrentSpell();
+	auto * interface = getInterface();
+	if(!interface || !interface->localState || !interface->cb)
+		return false;
+
+	auto hero = interface->localState->getCurrentHero();
+	auto spell = interface->localState->getCurrentSpell();
 
 	if (!hero || !spell.hasValue())
 		return false;
 
 	const auto * spellEffect = spell.toSpell()->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(hero);
-	return !spellEffect->isTargetInRange(GAME->interface()->cb.get(), hero, position);
+	return !spellEffect->isTargetInRange(interface->cb.get(), hero, position);
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)
@@ -614,7 +684,11 @@ double MapRendererPuzzleMapContext::objectTransparency(ObjectInstanceID objectID
 
 bool MapRendererPuzzleMapContext::isVisible(const int3 & coordinates) const
 {
-	return GAME->interface()->cb->isInTheMap(coordinates);
+	auto callback = getCallback();
+	if(!callback)
+		return false;
+
+	return callback->isInTheMap(coordinates);
 }
 
 bool MapRendererPuzzleMapContext::filterGrayscale() const
