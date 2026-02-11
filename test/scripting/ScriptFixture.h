@@ -15,7 +15,7 @@
 #include <vcmi/events/EventBus.h>
 
 #include "../../../lib/json/JsonNode.h"
-#include "../../lib/ScriptHandler.h"
+#include "../../lib/scripting/ScriptHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/bonuses/Bonus.h"
 

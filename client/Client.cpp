@@ -45,7 +45,7 @@
 #include <vcmi/events/EventBus.h>
 
 #if SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
+#include "../lib/scripting/ScriptPool.h"
 #endif
 
 #ifdef VCMI_ANDROID
@@ -506,7 +506,7 @@ void CClient::reinitScripting()
 {
 	clientEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
-	clientScripts.reset(new scripting::PoolImpl(this));
+	clientScripts.reset(new scripting::ScriptPoolImpl(this));
 #endif
 }
 

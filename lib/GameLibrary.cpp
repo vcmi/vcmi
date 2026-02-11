@@ -40,7 +40,7 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
-#include "ScriptHandler.h"
+#include "scripting/ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "GameSettings.h"

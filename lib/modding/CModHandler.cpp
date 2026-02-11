@@ -19,7 +19,7 @@
 #include "../CConfigHandler.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
-#include "../ScriptHandler.h"
+#include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"

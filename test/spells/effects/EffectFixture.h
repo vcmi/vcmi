@@ -26,7 +26,6 @@
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
 #include "../../mock/mock_vstd_RNG.h"
-#include "ScriptHandler.h"
 #include "mock/mock_vstd_CLoggerBase.h"
 #include "scripting/ScriptFixture.h"
 #if SCRIPTING_ENABLED
@@ -38,6 +37,7 @@
 
 
 #include "../../../lib/battle/CBattleInfoCallback.h"
+#include "../../../lib/scripting/ScriptPool.h"
 
 namespace battle
 {
@@ -76,7 +76,7 @@ public:
 	battle::UnitsFake unitsFake;
 
 #if SCRIPTING_ENABLED
-	std::shared_ptr<PoolImpl> pool;
+	std::shared_ptr<ScriptPoolImpl> pool;
 #endif
 	std::shared_ptr<battle::BattleFake> battleFake;
 

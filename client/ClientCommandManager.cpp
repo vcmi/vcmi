@@ -44,7 +44,8 @@
 #include "../lib/logging/VisualLogger.h"
 
 #ifdef SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
+#include "../lib/scripting/ScriptImpl.h"
+#include "../lib/scripting/ScriptHandler.h"
 #endif
 
 void ClientCommandManager::handleQuitCommand()

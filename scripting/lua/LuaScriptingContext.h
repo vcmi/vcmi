@@ -13,8 +13,7 @@
 #include "LuaWrapper.h"
 #include "LuaReference.h"
 
-#include "../../lib/ScriptHandler.h"
-#include "../../lib/CScriptingModule.h"
+#include "../../lib/scripting/ScriptContext.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

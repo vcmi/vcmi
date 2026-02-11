@@ -14,7 +14,7 @@
 
 #include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
-#include "../../lib/ScriptHandler.h"
+#include "../../lib/scripting/ScriptPool.h"
 #include "../../lib/gameState/GameStatePackVisitor.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
@@ -264,7 +264,7 @@ HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 	serverCallback.reset(new HypotheticServerCallback(this));
 
 #if SCRIPTING_ENABLED
-	pool.reset(new scripting::PoolImpl(localEnvironment.get(), serverCallback.get()));
+	pool.reset(new scripting::ScriptPoolImpl(localEnvironment.get(), serverCallback.get()));
 #endif
 }
 

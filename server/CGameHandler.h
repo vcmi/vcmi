@@ -13,7 +13,7 @@
 
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
-#include "../lib/ScriptHandler.h"
+#include "../lib/scripting/ScriptPool.h"
 #include "../lib/gameState/GameStatistics.h"
 #include "../lib/networkPacks/PacksForServer.h"
 #include "../lib/serializer/GameConnectionID.h"
@@ -41,7 +41,7 @@ struct NewStructures;
 #if SCRIPTING_ENABLED
 namespace scripting
 {
-	class PoolImpl;
+	class ScriptPoolImpl;
 }
 #endif
 
@@ -326,7 +326,7 @@ public:
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
 #if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::PoolImpl> serverScripts;
+	std::shared_ptr<scripting::ScriptPoolImpl> serverScripts;
 #endif
 
 	void reinitScripting();

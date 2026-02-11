@@ -101,10 +101,3 @@ if(IOS)
 else()
 	install(TARGETS vcmiLua DESTINATION ${SCRIPTING_LIB_DIR})
 endif()
-
-#manually copy lua dll from vcpkg folder to build directory on windows since vcpkg deps copy feature has flaws, using hardcoded paths based on vcmi windows deps package 1.1 from github
-if(MSVC)
-	if(EXISTS ${LUA_INCLUDE_DIR}/../../bin/lua51.dll)
-		file(COPY ${LUA_INCLUDE_DIR}/../../bin/lua51.dll DESTINATION ${CMAKE_BINARY_DIR}/bin)
-	endif()
-endif()

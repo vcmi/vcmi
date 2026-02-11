@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../lib/CScriptingModule.h"
+#include "../../lib/scripting/ScriptModule.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

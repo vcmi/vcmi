@@ -34,7 +34,7 @@
 #include "../mapObjects/ObstacleSetHandler.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
-#include "../ScriptHandler.h"
+#include "../scripting/ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../MapLayerHandler.h"

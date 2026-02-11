@@ -1,5 +1,5 @@
 /*
- * CScriptingModule.h, part of VCMI engine
+ * ScriptModule.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -25,15 +25,7 @@ namespace spells
 namespace scripting
 {
 
-class DLL_LINKAGE ContextBase : public Context
-{
-public:
-	ContextBase(vstd::CLoggerBase * logger_);
-	virtual ~ContextBase() = default;
-
-protected:
-	vstd::CLoggerBase * logger;
-};
+class ContextBase;
 
 class DLL_LINKAGE Module
 {
@@ -47,7 +39,6 @@ public:
 
 	virtual void registerSpellEffect(spells::effects::Registry * registry, const Script * source) const = 0;
 };
-
 }
 
 VCMI_LIB_NAMESPACE_END

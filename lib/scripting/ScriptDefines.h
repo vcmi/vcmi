@@ -1,5 +1,5 @@
 /*
- * CScriptingModule.cpp, part of VCMI engine
+ * ScriptDefines.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,20 +7,23 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
 
-#include "CScriptingModule.h"
+#pragma once
 
 #if SCRIPTING_ENABLED
+#include <vcmi/scripting/Service.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting
 {
+class Module;
+class ScriptImpl;
+class ScriptHandler;
 
-ContextBase::ContextBase(vstd::CLoggerBase * logger_):
-    logger(logger_)
-{
-}
+using ModulePtr = std::shared_ptr<Module>;
+using ScriptPtr = std::shared_ptr<ScriptImpl>;
+using ScriptMap = std::map<std::string, ScriptPtr>;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/ScriptHandler.h"
+#include "../../lib/scripting/ScriptPool.h"
 
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_ServerCallback.h"
@@ -32,7 +32,7 @@ public:
 	NiceMock<EnvironmentMock> env;
 
 	StrictMock<ScriptMock> script;
-	std::shared_ptr<PoolImpl> subject;
+	std::shared_ptr<ScriptPoolImpl> subject;
 	StrictMock<ServerCallbackMock> server;
 
 	void setDefaultExpectations()
@@ -43,7 +43,7 @@ public:
 protected:
 	void SetUp() override
 	{
-		subject = std::make_shared<PoolImpl>(&env);
+		subject = std::make_shared<ScriptPoolImpl>(&env);
 	}
 };
 

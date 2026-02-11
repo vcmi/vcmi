@@ -8,10 +8,12 @@
  *
  */
 #include "StdInc.h"
-#include "lib/modding/ModScope.h"
-#include "lib/GameLibrary.h"
-
 #include "ScriptFixture.h"
+
+#include "../../lib/modding/ModScope.h"
+#include "../../lib/scripting/ScriptImpl.h"
+#include "../../lib/GameLibrary.h"
+
 
 namespace test
 {

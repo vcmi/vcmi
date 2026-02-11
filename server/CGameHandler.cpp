@@ -29,7 +29,7 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"
 #include "../lib/IGameSettings.h"
-#include "../lib/ScriptHandler.h"
+#include "../lib/scripting/ScriptHandler.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/GameLibrary.h"
@@ -556,7 +556,7 @@ void CGameHandler::reinitScripting()
 {
 	serverEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
-	serverScripts.reset(new scripting::PoolImpl(this, spellEnv.get()));
+	serverScripts.reset(new scripting::ScriptPoolImpl(this, spellEnv.get()));
 #endif
 }
 

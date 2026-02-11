@@ -34,7 +34,7 @@ class CBattleCallback;
 #if SCRIPTING_ENABLED
 namespace scripting
 {
-	class PoolImpl;
+	class ScriptPoolImpl;
 }
 #endif
 
@@ -189,7 +189,7 @@ private:
 	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 
 #if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::PoolImpl> clientScripts;
+	std::shared_ptr<scripting::ScriptPoolImpl> clientScripts;
 #endif
 	std::unique_ptr<events::EventBus> clientEventBus;
 
