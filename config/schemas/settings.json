@@ -79,12 +79,12 @@
 				},
 				"language" : {
 					"type" : "string",
-					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
