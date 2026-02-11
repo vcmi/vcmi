@@ -1414,9 +1414,24 @@
 					"generalAttackReduction" : {
 						"type" : "GENERAL_ATTACK_REDUCTION",
 						"duration" : [
-							"UNTIL_BEING_ATTACKED",
+							"UNTIL_AFTER_ATTACK_SEQUENCE",
+							"UNTIL_TAKING_INDIRECT_DAMAGE",
 							"N_TURNS"
 						]
+					}
+				}
+			},
+			"basic":{
+				"effects" : {
+					"generalAttackReduction" : {
+						"val" : 50
+					}
+				}
+			},
+			"advanced":{
+				"effects" : {
+					"generalAttackReduction" : {
+						"val" : 75
 					}
 				}
 			},
@@ -1426,7 +1441,8 @@
 						"val" : 0,
 						"type" : "NO_RETALIATION",
 						"duration" : [
-							"UNTIL_BEING_ATTACKED",
+							"UNTIL_AFTER_ATTACK_SEQUENCE",
+							"UNTIL_TAKING_INDIRECT_DAMAGE",
 							"N_TURNS"
 						]
 					}

@@ -91,6 +91,7 @@ class BattleActionProcessor : boost::noncopyable
 
 	bool dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
+	void removeBonuses(const CBattleInfoCallback & battle, const CStack * stack, BonusList bonuses);
 
 	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary);
 public:
