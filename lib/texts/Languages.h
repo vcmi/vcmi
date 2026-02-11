@@ -109,7 +109,7 @@ inline const auto & getLanguageList()
 		{ "italian",     "Italian",     "Italiano",     "CP1250",      "it_IT", "it", "ita", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "japanese",    "Japanese",    "日本語",        "JIS",         "ja_JP", "ja", "jpn", "%Y年%m月%d日 %H:%M", EPluralForms::VI_1, true },
 		{ "korean",      "Korean",      "한국어",        "CP949",       "ko_KR", "ko", "kor", "%Y-%m-%d %H:%M",    EPluralForms::VI_1, true },
-		{ "latvian",     "Latvian",     "Latviešu",     "CP1250",      "lv_LV", "lv", "lva", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true },
+		{ "latvian",     "Latvian",     "Latviešu",     "CP1257",      "lv_LV", "lv", "lva", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true },
 		{ "norwegian",   "Norwegian",   "Norsk Bokmål", "UTF-8",       "nb_NO", "nb", "nor", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, false },
 		{ "polish",      "Polish",      "Polski",       "CP1250",      "pl_PL", "pl", "pol", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true },
 		{ "portuguese",  "Portuguese",  "Português",    "CP1252",      "pt_BR", "pt", "por", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true }, // Note: actually Brazilian Portuguese
