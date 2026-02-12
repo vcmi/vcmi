@@ -669,7 +669,7 @@ if (ENABLE_CLIENT OR ENABLE_SERVER)
 	add_subdirectory(server)
 endif()
 
-add_subdirectory(scripting/lua)
+add_subdirectory(luascript)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	add_subdirectory(vcmiqt)

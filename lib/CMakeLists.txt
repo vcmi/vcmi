@@ -738,7 +738,6 @@ set(lib_MAIN_HEADERS
 	serializer/SerializerReflection.h
 
 	scripting/ScriptPool.h
-	scripting/ScriptContext.h
 	scripting/ScriptDefines.h
 	scripting/ScriptHandler.h
 	scripting/ScriptImpl.h
