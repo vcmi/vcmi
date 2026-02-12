@@ -41,6 +41,7 @@ public:
 	virtual ~IBattleInfo() = default;
 
 	virtual BattleID getBattleID() const = 0;
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
 
 	virtual int32_t getActiveStackID() const = 0;
 

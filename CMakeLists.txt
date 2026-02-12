@@ -38,7 +38,6 @@ endif()
 # Platform-independent options
 
 option(ENABLE_CLIENT "Enable compilation of game client" ON)
-option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_VIDEO "Enable video support using ffmpeg" ON)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
@@ -456,10 +455,6 @@ if(HAIKU)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
 endif()
 
-if(ENABLE_LUA)
-	add_definitions(-DSCRIPTING_ENABLED=1)
-endif()
-
 ############################################
 #        Finding packages                  #
 ############################################
@@ -546,21 +541,19 @@ if(NOT ENABLE_MINIMAL_LIB)
 	find_package(TBB REQUIRED)
 endif()
 
-if(ENABLE_LUA)
-	find_package(luajit)
+find_package(luajit)
 
-	if(TARGET luajit::luajit)
-		message(STATUS "Using LuaJIT provided by system")
-	else()
-		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
-		find_package(Lua REQUIRED)
-		if(Lua_FOUND)
-			add_library(luajit::luajit UNKNOWN IMPORTED)
-			set_target_properties(luajit::luajit PROPERTIES
-				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
-			set_target_properties(luajit::luajit PROPERTIES
-				IMPORTED_LOCATION "${LUA_LIBRARIES}")
-		endif()
+if(TARGET luajit::luajit)
+	message(STATUS "Using LuaJIT provided by system")
+else()
+	message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
+	find_package(Lua REQUIRED)
+	if(Lua_FOUND)
+		add_library(luajit::luajit UNKNOWN IMPORTED)
+		set_target_properties(luajit::luajit PROPERTIES
+			INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
+		set_target_properties(luajit::luajit PROPERTIES
+			IMPORTED_LOCATION "${LUA_LIBRARIES}")
 	endif()
 endif()
 
@@ -676,9 +669,7 @@ if (ENABLE_CLIENT OR ENABLE_SERVER)
 	add_subdirectory(server)
 endif()
 
-if(ENABLE_LUA)
-	add_subdirectory(scripting/lua)
-endif()
+add_subdirectory(scripting/lua)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	add_subdirectory(vcmiqt)
@@ -730,9 +721,8 @@ else()
 		install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 	endif()
 endif()
-if(ENABLE_LUA)
-	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
-endif()
+
+install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 
 # that script is useless for Windows / iOS / Android
 if(NOT WIN32 AND NOT IOS AND NOT ANDROID)

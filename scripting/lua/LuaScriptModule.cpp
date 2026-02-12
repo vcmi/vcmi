@@ -44,7 +44,7 @@ std::string LuaScriptModule::compile(const std::string & name, const std::string
 	return source;
 }
 
-std::shared_ptr<ContextBase> LuaScriptModule::createContextFor(const Script * source, const Environment * env) const
+std::shared_ptr<Context> LuaScriptModule::createContextFor(const Script * source, const Environment * env) const
 {
 	return std::make_shared<LuaContext>(source, env);
 }

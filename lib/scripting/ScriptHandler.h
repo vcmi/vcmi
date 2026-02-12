@@ -10,7 +10,6 @@
 
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include "ScriptDefines.h"
 
 #include "../IHandlerBase.h"
@@ -46,7 +45,8 @@ public:
 
 	void performRegistration(Services * services) const override;
 
-	void run(std::shared_ptr<Pool> pool) const override;
+	void initializePool(Pool & pool) const override;
+	void run(Pool & pool) const override;
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -72,4 +72,3 @@ private:
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

@@ -31,6 +31,11 @@ namespace battle
 	using UnitFilter = std::function<bool(const Unit *)>;
 }
 
+namespace scripting
+{
+	class Pool;
+}
+
 struct DamageRange
 {
 	int64_t min = 0;
@@ -43,21 +48,12 @@ struct DamageEstimation
 	DamageRange kills;
 };
 
-#if SCRIPTING_ENABLED
-namespace scripting
-{
-	class Pool;
-}
-#endif
-
 class DLL_LINKAGE IBattleInfoCallback : public IConstBonusProvider
 {
 public:
-#if SCRIPTING_ENABLED
-	virtual scripting::Pool * getContextPool() const = 0;
-#endif
 	virtual ~IBattleInfoCallback() = default;
 
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
 	virtual const IBattleInfo * getBattle() const = 0;
 	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 
@@ -83,7 +79,5 @@ public:
 	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true) const = 0;
 	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const BattleHexArray & passed) const = 0;
 };
-
-
 
 VCMI_LIB_NAMESPACE_END

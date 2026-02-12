@@ -25,7 +25,7 @@ public:
 
 	std::string compile(const std::string & name, const std::string & source, vstd::CLoggerBase * logger) const override;
 
-	std::shared_ptr<ContextBase> createContextFor(const Script * source, const Environment * env) const override;
+	std::shared_ptr<Context> createContextFor(const Script * source, const Environment * env) const override;
 
 	void registerSpellEffect(spells::effects::Registry * registry, const Script * source) const override;
 

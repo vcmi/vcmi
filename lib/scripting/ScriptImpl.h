@@ -10,7 +10,6 @@
 
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include "ScriptDefines.h"
 
 #include "../IHandlerBase.h"
@@ -69,4 +68,3 @@ private:
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

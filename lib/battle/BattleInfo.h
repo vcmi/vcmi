@@ -77,7 +77,8 @@ public:
 	BattleInfo(IGameInfoCallback *cb, const BattleLayout & layout);
 	BattleInfo(IGameInfoCallback *cb);
 	virtual ~BattleInfo();
-
+	
+	const scripting::Pool & getScriptContextPool() const override;
 	const IBattleInfo * getBattle() const override;
 	std::optional<PlayerColor> getPlayerID() const override;
 
@@ -166,11 +167,6 @@ public:
 	static std::unique_ptr<BattleInfo> setupBattle(IGameInfoCallback *cb, const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
 
 	BattleSide whatSide(const PlayerColor & player) const;
-
-protected:
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
 };
 
 

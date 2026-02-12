@@ -12,7 +12,6 @@
 #include "ScriptHandler.h"
 #include "ScriptImpl.h"
 
-#if SCRIPTING_ENABLED
 #include "../VCMIDirs.h"
 #include "../callback/CDynLibHandler.h"
 #include "../serializer/JsonDeserializer.h"
@@ -88,7 +87,13 @@ void ScriptHandler::performRegistration(Services * services) const
 	}
 }
 
-void ScriptHandler::run(std::shared_ptr<Pool> pool) const
+void ScriptHandler::initializePool(Pool & pool) const
+{
+	for(const auto & keyValue : objects)
+		pool.registerScript(keyValue.second.get());
+}
+
+void ScriptHandler::run(Pool & pool) const
 {
 	for(const auto & keyValue : objects)
 	{
@@ -96,7 +101,7 @@ void ScriptHandler::run(std::shared_ptr<Pool> pool) const
 
 		if(script->implements == ScriptImpl::Implements::ANYTHING)
 		{
-			auto context = pool->getContext(script.get());
+			auto context = pool.getContext(script.get());
 			//todo: consider explicit run for generic scripts
 		}
 	}
@@ -141,4 +146,3 @@ void ScriptHandler::saveState(JsonNode & state)
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

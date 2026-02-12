@@ -38,13 +38,6 @@ struct CGarrisonOperationPack;
 struct SetResources;
 struct NewStructures;
 
-#if SCRIPTING_ENABLED
-namespace scripting
-{
-	class ScriptPoolImpl;
-}
-#endif
-
 VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
@@ -90,8 +83,6 @@ public:
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
 	const GameCb * game() const override;
-	vstd::CLoggerBase * logger() const override;
-	events::EventBus * eventBus() const override;
 	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
@@ -270,20 +261,6 @@ public:
 		{
 			h & *statistics;
 		}
-
-		if (h.hasFeature(Handler::Version::LUA_SCRIPTS))
-		{
-			JsonNode scriptsState;
-#if SCRIPTING_ENABLED
-			if(h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-			h & scriptsState;
-			if(!h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-#else
-			h & scriptsState;
-#endif
-		}
 	}
 
 	void sendAndApply(CPackForClient & pack) override;
@@ -317,20 +294,8 @@ public:
 
 	vstd::RNG & getRandomGenerator() override;
 
-//#if SCRIPTING_ENABLED
-//	scripting::Pool * getGlobalContextPool() const override;
-//	scripting::Pool * getContextPool() const override;
-//#endif
-
 	friend class CVCMIServer;
 private:
-	std::unique_ptr<events::EventBus> serverEventBus;
-#if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::ScriptPoolImpl> serverScripts;
-#endif
-
-	void reinitScripting();
-
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 
 	const std::string complainNoCreatures;

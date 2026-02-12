@@ -19,10 +19,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 
-#if SCRIPTING_ENABLED
-using scripting::Pool;
-#endif
-
 void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
 	for(auto & bonus : *target) //TODO: optimize
@@ -258,14 +254,8 @@ HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 
 	nextId = 0x00F00000;
 
-	eventBus.reset(new events::EventBus());
-
 	localEnvironment.reset(new HypotheticEnvironment(this, env));
 	serverCallback.reset(new HypotheticServerCallback(this));
-
-#if SCRIPTING_ENABLED
-	pool.reset(new scripting::ScriptPoolImpl(localEnvironment.get(), serverCallback.get()));
-#endif
 }
 
 bool HypotheticBattle::unitHasAmmoCart(const battle::Unit * unit) const
@@ -489,13 +479,6 @@ int32_t HypotheticBattle::getTreeVersion() const
 	return getBonusBearer()->getTreeVersion() + bonusTreeVersion;
 }
 
-#if SCRIPTING_ENABLED
-Pool * HypotheticBattle::getContextPool() const
-{
-	return pool.get();
-}
-#endif
-
 ServerCallback * HypotheticBattle::getServerCallback()
 {
 	return serverCallback.get();
@@ -599,14 +582,3 @@ const Environment::GameCb * HypotheticBattle::HypotheticEnvironment::game() cons
 {
 	return env->game();
 }
-
-vstd::CLoggerBase * HypotheticBattle::HypotheticEnvironment::logger() const
-{
-	return env->logger();
-}
-
-events::EventBus * HypotheticBattle::HypotheticEnvironment::eventBus() const
-{
-	return owner->eventBus.get();
-}
-

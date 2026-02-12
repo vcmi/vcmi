@@ -11,11 +11,8 @@
 
 #include "ScriptImpl.h"
 
-#include "ScriptContext.h"
 #include "ScriptHandler.h"
 #include "ScriptModule.h"
-
-#if SCRIPTING_ENABLED
 
 #include "../filesystem/Filesystem.h"
 #include "../serializer/JsonSerializer.h"
@@ -114,4 +111,3 @@ void ScriptImpl::resolveHost()
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

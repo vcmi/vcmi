@@ -32,6 +32,11 @@ void EditorCallback::setMap(const CMap * newMap)
 	map = newMap;
 }
 
+const scripting::Pool & EditorCallback::getScriptContextPool() const
+{
+	THROW_EDITOR_UNSUPPORTED;
+}
+
 CGameState & EditorCallback::gameState()
 {
 	THROW_EDITOR_UNSUPPORTED;
@@ -151,13 +156,6 @@ bool EditorCallback::isVisibleFor(const CGObjectInstance *obj, PlayerColor playe
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
-
-#if SCRIPTING_ENABLED
-scripting::Pool * EditorCallback::getGlobalContextPool() const
-{
-	THROW_EDITOR_UNSUPPORTED;
-}
-#endif
 
 const TeamState * EditorCallback::getTeam(TeamID) const
 {

@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,7 +24,6 @@ namespace spells
 namespace scripting
 {
 
-class ContextBase;
 
 class DLL_LINKAGE Module
 {
@@ -35,11 +33,10 @@ public:
 
 	virtual std::string compile(const std::string & name, const std::string & source, vstd::CLoggerBase * logger) const = 0;
 
-	virtual std::shared_ptr<ContextBase> createContextFor(const Script * source, const Environment * env) const = 0;
+	virtual std::shared_ptr<Context> createContextFor(const Script * source, const Environment * env) const = 0;
 
 	virtual void registerSpellEffect(spells::effects::Registry * registry, const Script * source) const = 0;
 };
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

@@ -28,9 +28,7 @@
 #include "../../mock/mock_vstd_RNG.h"
 #include "mock/mock_vstd_CLoggerBase.h"
 #include "scripting/ScriptFixture.h"
-#if SCRIPTING_ENABLED
 #include "../../mock/mock_scripting_Pool.h"
-#endif
 #include "../../mock/mock_Environment.h"
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
@@ -52,9 +50,7 @@ namespace test
 using namespace ::testing;
 using namespace ::spells;
 using namespace ::spells::effects;
-#if SCRIPTING_ENABLED
 using namespace ::scripting;
-#endif
 
 class EffectFixture
 {
@@ -75,9 +71,7 @@ public:
 
 	battle::UnitsFake unitsFake;
 
-#if SCRIPTING_ENABLED
 	std::shared_ptr<ScriptPoolImpl> pool;
-#endif
 	std::shared_ptr<battle::BattleFake> battleFake;
 
 	StrictMock<ServerCallbackMock> serverMock;

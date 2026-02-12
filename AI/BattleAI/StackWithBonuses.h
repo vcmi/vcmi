@@ -115,7 +115,7 @@ private:
 	SlotID slot;
 };
 
-class HypotheticBattle : public BattleProxy, public battle::IUnitEnvironment
+class HypotheticBattle final : public BattleProxy, public battle::IUnitEnvironment
 {
 public:
 	std::map<uint32_t, std::shared_ptr<StackWithBonuses>> stackStates;
@@ -170,11 +170,8 @@ public:
 		activeUnitId = -1;
 	}
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
-
 	ServerCallback * getServerCallback();
+	const scripting::Pool & getScriptContextPool() const override;
 
 private:
 
@@ -210,8 +207,6 @@ private:
 		const Services * services() const override;
 		const BattleCb * battle(const BattleID & battleID) const override;
 		const GameCb * game() const override;
-		vstd::CLoggerBase * logger() const override;
-		events::EventBus * eventBus() const override;
 
 	private:
 		HypotheticBattle * owner;
@@ -224,9 +219,4 @@ private:
 
 	std::unique_ptr<HypotheticServerCallback> serverCallback;
 	std::unique_ptr<HypotheticEnvironment> localEnvironment;
-
-#if SCRIPTING_ENABLED
-	mutable std::shared_ptr<scripting::Pool> pool;
-#endif
-	mutable std::shared_ptr<events::EventBus> eventBus;
 };

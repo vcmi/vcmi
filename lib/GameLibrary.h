@@ -45,12 +45,10 @@ class MapFormatSettings;
 class CampaignRegionsHandler;
 class MapLayerTypeHandler;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class ScriptHandler;
 }
-#endif
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
@@ -62,9 +60,7 @@ public:
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
 	const ResourceTypeService * resources() const override;
-#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
-#endif
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
@@ -103,10 +99,7 @@ public:
 	std::unique_ptr<MapFormatSettings> mapFormat;
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
-
-#if SCRIPTING_ENABLED
 	std::unique_ptr<scripting::ScriptHandler> scriptHandler;
-#endif
 
 	GameLibrary();
 	~GameLibrary();
@@ -122,9 +115,7 @@ private:
 	void loadFilesystem(bool extractArchives);
 	void loadModFilesystem();
 
-#if SCRIPTING_ENABLED
 	void scriptsLoaded();
-#endif
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;

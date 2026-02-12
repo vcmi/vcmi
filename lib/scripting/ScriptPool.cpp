@@ -10,8 +10,7 @@
 #include "StdInc.h"
 
 #include "ScriptPool.h"
-
-#if SCRIPTING_ENABLED
+#include "vcmi/Services.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,40 +24,33 @@ namespace scripting
 {
 
 ScriptPoolImpl::ScriptPoolImpl(const Environment * ENV)
-	: env(ENV),
-	srv(nullptr)
-{
-}
+	: ScriptPoolImpl(ENV, nullptr)
+{}
 
 ScriptPoolImpl::ScriptPoolImpl(const Environment * ENV, ServerCallback * SRV)
 	: env(ENV),
 	srv(SRV)
 {
+	env->services()->scripts()->initializePool(*this);
 }
 
-std::shared_ptr<Context> ScriptPoolImpl::getContext(const Script * script)
+void ScriptPoolImpl::registerScript(const Script * script)
 {
-	auto iter = cache.find(script);
+	auto context = script->createContext(env);
+	cache[script] = context;
 
-	if(iter == cache.end())
-	{
-		auto context = script->createContext(env);
-		cache[script] = context;
+	const auto & key = script->getJsonKey();
+	const JsonNode & scriptState = state[key];
 
-		const auto & key = script->getJsonKey();
-		const JsonNode & scriptState = state[key];
-
-		if(srv)
-			context->run(srv, scriptState);
-		else
-			context->run(scriptState);
-
-		return context;
-	}
+	if(srv)
+		context->run(srv, scriptState);
 	else
-	{
-		return iter->second;
-	}
+		context->run(scriptState);
+}
+
+std::shared_ptr<Context> ScriptPoolImpl::getContext(const Script * script) const
+{
+	return cache.at(script);
 }
 
 void ScriptPoolImpl::serializeState(const bool saving, JsonNode & data)
@@ -83,4 +75,3 @@ void ScriptPoolImpl::serializeState(const bool saving, JsonNode & data)
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

@@ -15,9 +15,7 @@
 #include "mock_BonusBearer.h"
 #include "mock_battle_IBattleState.h"
 #include "mock_battle_Unit.h"
-#if SCRIPTING_ENABLED
 #include "mock_scripting_Pool.h"
-#endif
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/gameState/GameStatePackVisitor.h"
@@ -62,24 +60,15 @@ public:
 
 class BattleFake : public CBattleInfoCallback, public BattleStateMock
 {
-#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::Pool> pool;
-#endif
+
 public:
-#if SCRIPTING_ENABLED
 	BattleFake(std::shared_ptr<scripting::Pool> pool_);
-#else
-	BattleFake();
-#endif
 	virtual ~BattleFake();
 
 	void setUp();
 
 	void setupEmptyBattlefield();
-
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
 
 	template <typename T>
 	void accept(T & pack)

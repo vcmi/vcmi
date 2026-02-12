@@ -10,7 +10,6 @@
 
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,4 +26,3 @@ using ScriptMap = std::map<std::string, ScriptPtr>;
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

@@ -34,7 +34,6 @@ namespace scripting
 const std::string LuaContext::STATE_FIELD = "DATA";
 
 LuaContext::LuaContext(const Script * source, const Environment * env_):
-	ContextBase(env_->logger()),
 	L(luaL_newstate()),
 	script(source),
 	env(env_)
@@ -73,9 +72,6 @@ LuaContext::LuaContext(const Script * source, const Environment * env_):
 
 	S.push(env->game());
 	lua_setglobal(L, "GAME");
-
-	S.push(env->eventBus());
-	lua_setglobal(L, "EVENT_BUS");
 
 	S.push(env->services());
 	lua_setglobal(L, "SERVICES");
@@ -161,7 +157,7 @@ void LuaContext::run(const JsonNode & initialState)
 
 	if(ret)
 	{
-		logger->error("Script '%s' failed to load, error: %s", script->getJsonKey(), toStringRaw(-1));
+		logGlobal->error("Script '%s' failed to load, error: %s", script->getJsonKey(), toStringRaw(-1));
 		popAll();
 		return;
 	}
@@ -174,14 +170,14 @@ void LuaContext::run(const JsonNode & initialState)
 
 	if(ret)
 	{
-		logger->error("Script '%s' failed to run, error: '%s'", script->getJsonKey(), toStringRaw(-1));
+		logGlobal->error("Script '%s' failed to run, error: '%s'", script->getJsonKey(), toStringRaw(-1));
 		popAll();
 	}
 }
 
 int LuaContext::errorRetVoid(const std::string & message)
 {
-	logger->error(message);
+	logGlobal->error(message);
 	popAll();
 	return 0;
 }
@@ -197,7 +193,7 @@ JsonNode LuaContext::callGlobal(const std::string & name, const JsonNode & param
 		boost::format fmt("%s is not a function");
 		fmt % name;
 
-		logger->error(fmt.str());
+		logGlobal->error(fmt.str());
 
 		S.clear();
 
@@ -216,7 +212,7 @@ JsonNode LuaContext::callGlobal(const std::string & name, const JsonNode & param
 		boost::format fmt("Lua function %s failed with message: %s");
 		fmt % name % error;
 
-		logger->error(fmt.str());
+		logGlobal->error(fmt.str());
 
 		S.clear();
 
@@ -536,7 +532,7 @@ int LuaContext::loadModule()
 
 		if(ret)
 		{
-			logger->error("Module '%s' failed to run, error: %s", modulePath, toStringRaw(-1));
+			logGlobal->error("Module '%s' failed to run, error: %s", modulePath, toStringRaw(-1));
 			popAll();
 			return 0;
 		}
@@ -596,7 +592,7 @@ int LuaContext::logErrorImpl()
 	std::string message;
 
 	if(S.tryGet(1, message))
-		logger->error(message);
+		logGlobal->error(message);
 
 	return S.retVoid();
 }

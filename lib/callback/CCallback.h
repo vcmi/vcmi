@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class IBattleEventsReceiver;
 
-class DLL_LINKAGE CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
+class DLL_LINKAGE CCallback final : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
 {
 	std::shared_ptr<CGameState> gamestate;
 

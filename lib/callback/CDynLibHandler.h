@@ -14,21 +14,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGlobalAI;
 class CBattleGameInterface;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Module;
 }
-#endif
 
 class DLL_LINKAGE CDynLibHandler
 {
 public:
 	static std::shared_ptr<CGlobalAI> getNewAI(const std::string & dllname);
 	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(const std::string & dllname);
-#if SCRIPTING_ENABLED
 	static std::shared_ptr<scripting::Module> getNewScriptingModule(const boost::filesystem::path & dllname);
-#endif
 };
 
 VCMI_LIB_NAMESPACE_END

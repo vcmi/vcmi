@@ -10,7 +10,6 @@
 
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 #include "json/JsonNode.h"
 
@@ -26,9 +25,10 @@ class DLL_LINKAGE ScriptPoolImpl : public Pool
 public:
 	ScriptPoolImpl(const Environment * ENV);
 	ScriptPoolImpl(const Environment * ENV, ServerCallback * SRV);
-	std::shared_ptr<Context> getContext(const Script * script) override;
+	std::shared_ptr<Context> getContext(const Script * script) const override;
 
 	void serializeState(const bool saving, JsonNode & data) override;
+	void registerScript(const Script * script) override;
 
 private:
 	std::map<const Script *, std::shared_ptr<Context>> cache;
@@ -41,4 +41,3 @@ private:
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

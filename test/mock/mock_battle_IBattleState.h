@@ -41,6 +41,7 @@ public:
 	MOCK_CONST_METHOD0(getLocation, int3());
 	MOCK_CONST_METHOD0(getLayout, BattleLayout());
 	MOCK_CONST_METHOD1(getUsedSpells, std::vector<SpellID>(BattleSide));
+	MOCK_CONST_METHOD0(getScriptContextPool, const scripting::Pool &());
 
 	MOCK_METHOD0(nextRound, void());
 	MOCK_METHOD2(nextTurn, void(uint32_t, BattleUnitTurnReason));

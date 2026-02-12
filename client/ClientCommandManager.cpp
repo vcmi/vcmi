@@ -43,10 +43,8 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
 
-#ifdef SCRIPTING_ENABLED
 #include "../lib/scripting/ScriptImpl.h"
 #include "../lib/scripting/ScriptHandler.h"
-#endif
 
 void ClientCommandManager::handleQuitCommand()
 {
@@ -373,7 +371,6 @@ void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBu
 
 void ClientCommandManager::handleGetScriptsCommand()
 {
-#if SCRIPTING_ENABLED
 	printCommandMessage("Command accepted.\t");
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "scripts";
@@ -392,7 +389,6 @@ void ClientCommandManager::handleGetScriptsCommand()
 	}
 	printCommandMessage("\rExtracting done :)\n");
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
-#endif
 }
 
 void ClientCommandManager::handleGetTextCommand()

@@ -31,12 +31,10 @@ struct BankConfig;
 class CCallback;
 class CBattleCallback;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class ScriptPoolImpl;
 }
-#endif
 
 namespace events
 {
@@ -115,8 +113,6 @@ public:
 
 	CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::shared_ptr<CCallback> mainCallback_);
 	const Services * services() const override;
-	vstd::CLoggerBase * logger() const override;
-	events::EventBus * eventBus() const override;
 	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
 };
@@ -142,8 +138,6 @@ public:
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battle) const override;
 	const GameCb * game() const override;
-	vstd::CLoggerBase * logger() const override;
-	events::EventBus * eventBus() const override;
 
 	std::shared_ptr<CGameState> gameStatePtr() { return gamestate; }
 	CGameState & gameState() { return *gamestate; }
@@ -187,11 +181,4 @@ public:
 private:
 	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
 	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
-
-#if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::ScriptPoolImpl> clientScripts;
-#endif
-	std::unique_ptr<events::EventBus> clientEventBus;
-
-	void reinitScripting();
 };

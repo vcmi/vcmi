@@ -40,13 +40,11 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/serializer/GameConnection.h"
+#include "../lib/scripting/ScriptPool.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
 
-#if SCRIPTING_ENABLED
-#include "../lib/scripting/ScriptPool.h"
-#endif
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -63,16 +61,6 @@ CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::
 const Services * CPlayerEnvironment::services() const
 {
 	return LIBRARY;
-}
-
-vstd::CLoggerBase * CPlayerEnvironment::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CPlayerEnvironment::eventBus() const
-{
-	return cl->eventBus();//always get actual value
 }
 
 const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle(const BattleID & battleID) const
@@ -112,16 +100,6 @@ const CClient::GameCb * CClient::game() const
 	return gamestate.get();
 }
 
-vstd::CLoggerBase * CClient::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CClient::eventBus() const
-{
-	return clientEventBus.get();
-}
-
 void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 {
 	GAME->server().th->update();
@@ -131,7 +109,6 @@ void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 
 	initMapHandler();
-	reinitScripting();
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -147,7 +124,6 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
-	reinitScripting();
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -178,10 +154,6 @@ void CClient::finishGameplay()
 
 void CClient::endGame()
 {
-#if SCRIPTING_ENABLED
-	clientScripts.reset();
-#endif
-
 	logNetwork->info("Ending current game!");
 	removeGUI();
 
@@ -500,14 +472,6 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	{
 		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
 	}
-}
-
-void CClient::reinitScripting()
-{
-	clientEventBus = std::make_unique<events::EventBus>();
-#if SCRIPTING_ENABLED
-	clientScripts.reset(new scripting::ScriptPoolImpl(this));
-#endif
 }
 
 void CClient::removeGUI() const

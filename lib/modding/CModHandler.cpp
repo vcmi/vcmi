@@ -290,9 +290,7 @@ void CModHandler::load()
 			validationPassed.erase(modName);
 	}
 
-#if SCRIPTING_ENABLED
 	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
-#endif
 
 	content->loadCustom();
 
