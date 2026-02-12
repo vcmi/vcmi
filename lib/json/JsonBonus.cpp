@@ -258,7 +258,12 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			// 3 numbers
 			if (value.isNumber())
 			{
-				var = static_cast<int32_t>(getFirstValue(value).Integer());
+				std::vector<int32_t> loadedData{
+					static_cast<int32_t>(getFirstValue(value).Integer()),
+					-1,
+					-1
+				};
+				var = loadedData;
 			}
 			else
 			{
