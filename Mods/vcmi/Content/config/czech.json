@@ -325,6 +325,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Tlačítka joysticku",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell" : "Mapa: seslat kouzlo",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail" : "Mapa: kopat Grál",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Mapa: vystoupit",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn" : "Mapa: ukončit tah",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView" : "Mapa: zavřít přehled království",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero" : "Mapa: první hrdina",

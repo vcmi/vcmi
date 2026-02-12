@@ -204,7 +204,7 @@ public:
 	int movementPointsLimit() const;
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
-	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
+	int movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const;
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
 

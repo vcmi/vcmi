@@ -138,6 +138,7 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
+	EPathfindingLayer getLayer() const;
 };
 
 VCMI_LIB_NAMESPACE_END

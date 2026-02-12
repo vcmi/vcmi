@@ -122,6 +122,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
 		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
 		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } },
+		{ EShortcut::ADVENTURE_DISEMBARK,        optionCanDisembark(),   [this]() { this->enterDisembarkMode(); } },
 		{ EShortcut::MAIN_MENU_LOBBY,            optionSidePanelActive(),[    ]() { ENGINE->user().onGlobalLobbyInterfaceActivated(); } }
 	};
 	return result;
@@ -425,6 +426,11 @@ void AdventureMapShortcuts::visitObject()
 		GAME->interface()->cb->moveHero(h, h->pos, false);
 }
 
+void AdventureMapShortcuts::enterDisembarkMode()
+{
+	owner.enterDisembarkMode();
+}
+
 void AdventureMapShortcuts::openObject()
 {
 	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
@@ -561,6 +567,17 @@ void AdventureMapShortcuts::search(bool next)
 	}
 }
 
+bool AdventureMapShortcuts::optionCanDisembark()
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->inBoat();
+}
+
+bool AdventureMapShortcuts::optionDisembarking()
+{
+	return state == EAdventureState::DISEMBARKING;
+}
+
 void AdventureMapShortcuts::nextObject()
 {
 	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
@@ -587,7 +604,11 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 	if (!GAME->map().isInMap((dst)))
 		return;
 
-	if ( !GAME->interface()->localState->setPath(h, dst))
+	EPathfindingLayer destinationLayer = EPathfindingLayer::AUTO;
+	if (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::AVIATE)
+		destinationLayer = EPathfindingLayer::AVIATE;
+
+	if (!GAME->interface()->localState->setPath(h, dst, destinationLayer))
 		return;
 
 	const CGPath & path = GAME->interface()->localState->getPath(h);
@@ -688,7 +709,7 @@ bool AdventureMapShortcuts::optionMapScrollingActive()
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL || state == EAdventureState::DISEMBARKING;
 }
 
 bool AdventureMapShortcuts::optionMarketplace()
@@ -701,7 +722,7 @@ bool AdventureMapShortcuts::optionMarketplace()
 	return false;
 }
 
-bool AdventureMapShortcuts::optionHeroBoat(EPathfindingLayer layer)
+bool AdventureMapShortcuts::optionHeroBoat(const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
 	return optionInMapView() && hero && hero->inBoat() && hero->getBoat()->layer == layer;

@@ -835,7 +835,7 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 	return true;
 }
 
-bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker)
+bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker, const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *h = gameInfo().getHero(hid);
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
@@ -879,7 +879,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	const bool embarking = !h->inBoat() && objectToVisit && objectToVisit->ID == Obj::BOAT;
 	const bool disembarking = h->inBoat()
 		&& t.isLand()
-		&& (dst == h->pos || (h->getBoat()->layer == EPathfindingLayer::SAIL && !t.blocked()));
+		&& layer == EPathfindingLayer::LAND
+		&& (dst == h->pos || ((h->getBoat()->layer == EPathfindingLayer::SAIL || h->getBoat()->layer == EPathfindingLayer::AVIATE) && !t.blocked()));
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -893,7 +894,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(gameInfo()));
 	const auto * ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::AIR);
+	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && (h->getBoat()->layer == EPathfindingLayer::AIR || h->getBoat()->layer == EPathfindingLayer::AVIATE));
 	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 

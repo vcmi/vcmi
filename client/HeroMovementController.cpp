@@ -380,12 +380,12 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
 		int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
 
-		GAME->interface()->cb->moveHero(h, nextCoord, useTransit);
+		GAME->interface()->cb->moveHero(h, nextCoord, useTransit, nextNode.layer);
 		return;
 	}
 
 	bool useTransitAtStart = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
-	std::vector<int3> pathToMove;
+	std::vector<std::pair<int3, EPathfindingLayer>> pathToMove;
 
 	for (auto const & node : boost::adaptors::reverse(path.nodes))
 	{
@@ -403,7 +403,7 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 			break;
 
 		int3 coord = h->convertFromVisitablePos(node.coord);
-		pathToMove.push_back(coord);
+		pathToMove.push_back({coord, node.layer});
 
 		if (GAME->interface()->cb->guardingCreaturePosition(node.coord) != int3(-1, -1, -1))
 			break; // we reached zone-of-control of wandering monster

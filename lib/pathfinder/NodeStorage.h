@@ -26,7 +26,7 @@ public:
 	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
 
 	STRONG_INLINE
-	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer)
+	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer & layer)
 	{
 		return out.getNode(coord, layer);
 	}

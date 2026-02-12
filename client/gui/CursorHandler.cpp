@@ -158,7 +158,11 @@ void CursorHandler::set(Cursor::Map index)
 		"mapScrollNorthWest",
 		"UNUSED",
 		"mapDimensionDoor",
-		"mapScuttleBoat"
+		"mapScuttleBoat",
+		"mapTurn1Aviate",
+		"mapTurn2Aviate",
+		"mapTurn3Aviate",
+		"mapTurn4Aviate"
 	};
 
 	set(mapCursorNames.at(static_cast<int>(index)));

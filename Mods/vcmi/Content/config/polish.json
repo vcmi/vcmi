@@ -319,6 +319,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Gamepad - Przyciski",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Rzut zaklęcia przygody",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Przygoda - Kopanie graala",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Przygoda - wyokrętować",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Przygoda - Zakończ turę",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Przygoda - Wyjście z widoku świata",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Przygoda - Pierwszy bohater",

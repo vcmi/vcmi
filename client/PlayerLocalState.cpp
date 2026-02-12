@@ -51,10 +51,10 @@ bool PlayerLocalState::hasPath(const CGHeroInstance * h) const
 	return paths.count(h) > 0;
 }
 
-bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination)
+bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination, const EPathfindingLayer & layer)
 {
 	CGPath path;
-	if(!owner.getPathsInfo(h)->getPath(path, destination))
+	if(!owner.getPathsInfo(h)->getPath(path, destination, layer))
 	{
 		paths.erase(h); //invalidate previously possible path if selected (before other hero blocked only path / fly spell expired)
 		synchronizeState();
@@ -88,7 +88,7 @@ void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 {
 	if(!hasPath(h))
 		return;
-	setPath(h, getPath(h).endPos());
+	setPath(h, getPath(h).endPos(), getPath(h).endLayer());
 }
 
 SpellID PlayerLocalState::getCurrentSpell() const
@@ -346,6 +346,7 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 			record["path"]["x"].Integer() = paths.at(hero).lastNode().coord.x;
 			record["path"]["y"].Integer() = paths.at(hero).lastNode().coord.y;
 			record["path"]["z"].Integer() = paths.at(hero).lastNode().coord.z;
+			record["path"]["layer"].Integer() = paths.at(hero).lastNode().layer;
 		}
 		dest["heroes"].Vector().push_back(record);
 	}
@@ -404,10 +405,11 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 		if (hero["sleeping"].Bool())
 			sleepingHeroes.push_back(heroPtr);
 
-		if (hero["path"]["x"].isNumber() && hero["path"]["y"].isNumber() && hero["path"]["z"].isNumber())
+		if (hero["path"]["x"].isNumber() && hero["path"]["y"].isNumber() && hero["path"]["z"].isNumber() && hero["path"]["layer"].isNumber())
 		{
 			int3 pathTarget(hero["path"]["x"].Integer(), hero["path"]["y"].Integer(), hero["path"]["z"].Integer());
-			setPath(heroPtr, pathTarget);
+			EPathfindingLayer pathLayer = static_cast<EPathfindingLayer>(hero["path"]["layer"].Integer());
+			setPath(heroPtr, pathTarget, pathLayer);
 		}
 	}
 

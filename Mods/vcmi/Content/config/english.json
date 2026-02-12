@@ -325,6 +325,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Joystick Buttons",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Adventure cast spell",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Adventure dig grail",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Adventure disembark",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Adventure end turn",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Adventure exit world view",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Adventure first hero",

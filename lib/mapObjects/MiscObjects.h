@@ -383,7 +383,8 @@ protected:
 
 public:
 	using CGObjectInstance::CGObjectInstance;
-
+	int3 bestLocation(const EPathfindingLayer & layer = EPathfindingLayer::AUTO) const override;
+	void getBoatCost(ResourceSet & cost) const override;
 	template<typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

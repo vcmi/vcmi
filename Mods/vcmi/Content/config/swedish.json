@@ -277,6 +277,7 @@
 	"vcmi.keyBindings.group.joystickButtons"              : "Joystickknappar",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell"      : "Äventyr kasta trollformel",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail"       : "Äventyr gräv efter graalen",
+	"vcmi.keyBindings.keyBinding.adventureDisembark"      : "Äventyr gå iland",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn"        : "Äventyr avsluta tur",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView"  : "Äventyr lämna världsvy",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero"      : "Äventyr första hjälten",

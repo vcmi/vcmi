@@ -173,6 +173,7 @@ enum class EShortcut
 	ADVENTURE_QUIT_GAME,
 	ADVENTURE_SEARCH,
 	ADVENTURE_SEARCH_CONTINUE,
+	ADVENTURE_DISEMBARK,
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,

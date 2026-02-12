@@ -213,6 +213,7 @@ int CGHeroInstance::movementPointsLimit() const
 
 int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
+	//FIXME wrong when hero is in airship (not on land, not in water)
 	auto ti = getTurnInfo(0);
 	return onLand ? ti->getMovePointsLimitLand() : ti->getMovePointsLimitWater();
 }
@@ -242,12 +243,19 @@ std::unique_ptr<TurnInfo> CGHeroInstance::getTurnInfo(int days) const
 	return std::make_unique<TurnInfo>(turnInfoCache.get(), this, days);
 }
 
-int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) const
+int CGHeroInstance::movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const
 {
-	if (onLand)
+	if (layer == EPathfindingLayer::LAND)
 		return ti->getMovePointsLimitLand();
-	else
+	else if (layer == EPathfindingLayer::WATER || layer == EPathfindingLayer::SAIL)
 		return ti->getMovePointsLimitWater();
+	else if (layer == EPathfindingLayer::AVIATE)
+		return ti->getMovePointsLimitAir();
+	else
+	{
+		logGlobal->error("CGHeroInstance::movementPointsLimitCached: invalid layer %d", static_cast<int>(layer));
+		return ti->getMovePointsLimitLand();
+	}
 }
 
 CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
@@ -1368,6 +1376,9 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 		return 0; // take all MPs by default
 	
 	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
+
+	if(boatLayer == EPathfindingLayer::AVIATE)
+		return 0; // boarding an airship takes all MPs
 
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
 	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);

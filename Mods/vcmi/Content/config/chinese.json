@@ -322,6 +322,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "手柄按键",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "冒险地图 - 施放法术",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "冒险地图 - 挖掘神器",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "冒险地图 - 下船",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "冒险地图 - 结束回合",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "冒险地图 - 退出查看世界",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "冒险地图 - 选取第一个英雄",

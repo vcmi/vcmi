@@ -316,6 +316,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Кнопки геймпада",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Приключение: направить заклинание",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Приключение: выкопать Грааль",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Приключение: высадка",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Приключение: завершить ход",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Приключение: закрыть просмотр мира",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Приключение: первый герой",

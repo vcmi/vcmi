@@ -103,7 +103,7 @@ public:
 
 	virtual BoatId getBoatType() const = 0; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	virtual void getOutOffsets(std::vector<int3> & offsets) const = 0; //offsets to obj pos when we boat can be placed
-	int3 bestLocation() const; //returns location when the boat should be placed
+	virtual int3 bestLocation(const EPathfindingLayer & layer = EPathfindingLayer::AUTO) const; //returns location when the boat should be placed
 
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER, UNKNOWN};
 	virtual EGeneratorState shipyardStatus() const;

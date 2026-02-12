@@ -318,6 +318,7 @@
 	"vcmi.keyBindings.group.joystickButtons" : "Nút điều khiển",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Mở sách phép",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Đào kho báu",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "phiêu lưu: xuống tàu",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Kết thúc lượt đi",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Xem các đối tượng",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Chọn tướng đầu tiên",
