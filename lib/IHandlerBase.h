@@ -21,7 +21,8 @@ protected:
 	static std::string getScopeBuiltin();
 
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
-	static void registerObject(const std::string & scope, const std::string & type_name, const std::string & name, si32 index);
+	void registerObject(const std::string & scope, const std::string & typeName, const std::string & name, const JsonNode & data, si32 index);
+	void registerObject(const std::string & scope, const std::vector<std::string> & typeNames, const std::string & name, const JsonNode & data, si32 index);
 
 public:
 	/// loads all original game data in vector of json nodes
@@ -91,18 +92,14 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
 		objects.push_back(loadFromJson(scope, data, name, objects.size()));
-
-		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, name, objects.back()->getIndex());
+		registerObject(scope, getTypeNames(), name, data, objects.back()->getIndex());
 	}
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = loadFromJson(scope, data, name, index);
-
-		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, name, objects[index]->getIndex());
+		registerObject(scope, getTypeNames(), name, data, index);
 	}
 
 	const _Object * operator[] (const _ObjectID id) const

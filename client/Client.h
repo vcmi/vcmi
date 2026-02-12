@@ -126,6 +126,7 @@ class CClient : public Environment, public IClient
 {
 	std::shared_ptr<CGameState> gamestate;
 	int requestCounter = 1;
+	std::set<PlayerColor> advInterfaceReadySent;
 
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;

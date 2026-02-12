@@ -81,6 +81,7 @@ public:
 	bool doubleWide() const override { return doubleWideCached;};
 
 	std::string getDescription() const override;
+	const BattleInfo * getBattle() const { return battle;}
 
 	bool unitHasAmmoCart(const battle::Unit * unit) const override;
 	PlayerColor unitEffectiveOwner(const battle::Unit * unit) const override;

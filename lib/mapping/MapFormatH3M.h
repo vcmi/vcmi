@@ -127,6 +127,16 @@ private:
 	void readMapOptions();
 
 	/**
+	 * Reads HotA events system.
+	 */
+	void readHotaScripts();
+	void readHotaScriptActions();
+	void readHotaScriptCondition();
+	void readHotaScriptConditionInternal();
+	void readHotaScriptExpression();
+	void readHotaScriptExpressionInternal();
+
+	/**
 	 * Reads the list of allowed heroes.
 	 */
 	void readAllowedHeroes();
@@ -215,8 +225,15 @@ private:
 	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readBank(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readRewardWithArtifactAndResources(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate, int artifactRewardIndex);
+	std::shared_ptr<CGObjectInstance> readPyramid(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithGarbage(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readHotaGrave(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readWagon(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readCampfire(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readLeanTo(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readHotaTrapperLodge(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+	std::shared_ptr<CGObjectInstance> readRewardWithAmount(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 

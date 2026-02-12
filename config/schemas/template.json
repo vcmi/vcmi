@@ -7,7 +7,7 @@
 	{
 		"zone" : {
 			"type" : "object",
-			"required" : ["type", "monsters", "size"],
+			"required" : ["type"],
 			"additionalProperties" : false,
 			"properties" : {
 				"type" : {
@@ -106,6 +106,39 @@
 								
 							}
 						},
+						"requiredObjects": {
+							"type": "object",
+							"additionalProperties": {
+								"anyOf" : [
+									{ "type": "number", "minimum" : 0 },
+									{
+										"type": "object",
+										"additionalProperties": { "type": "number", "minimum" : 0 }
+									},
+									{
+										"type": "object",
+										"properties": {
+											"count": { "type": "number", "minimum": 0 },
+											"guard": { "type": "number", "minimum": 0 }
+										},
+										"required": ["count"],
+										"additionalProperties": false
+									},
+									{
+										"type": "object",
+										"additionalProperties": {
+											"type": "object",
+											"properties": {
+												"count": { "type": "number", "minimum": 0 },
+												"guard": { "type": "number", "minimum": 0 }
+											},
+											"required": ["count"],
+											"additionalProperties": false
+										}
+									}
+								]
+							}
+						},
 						"commonObjects": {
 							"type": "array",
 							"items": {
@@ -180,7 +213,7 @@
 				"type":
 				{
 					"type" : "string",
-					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
+					"enum" : ["guarded", "wide", "fictive", "repulsive", "forcePortal"]
 				},
 				"road":
 				{

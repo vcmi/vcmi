@@ -37,6 +37,7 @@ void TurnTimerHandler::onGameplayStart(PlayerColor player)
 		timers[player].unitTimer = 0;
 		timers[player].isActive = true;
 		timers[player].isBattle = false;
+		timers[player].remainingMovementPointsPercent = 0;
 		lastUpdate[player] = std::numeric_limits<int>::max();
 		endTurnAllowed[player] = true;
 	}
@@ -53,6 +54,14 @@ void TurnTimerHandler::setEndTurnAllowed(PlayerColor player, bool enabled)
 {
 	assert(player.isValidPlayer());
 	endTurnAllowed[player] = enabled;
+}
+
+void TurnTimerHandler::onEndTurn(PlayerColor player)
+{
+	assert(player.isValidPlayer());
+	auto & timer = timers[player];
+	timer.isTurnEnded = true;
+	sendTimerUpdate(player);
 }
 
 void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
@@ -72,6 +81,8 @@ void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 		{
 			endTurnAllowed[player] = true;
 			auto & timer = timers[player];
+			timer.isTurnStart = true;
+			timer.isTurnEnded = false;
 			if(si->turnTimerInfo.accumulatingTurnTimer)
 				timer.baseTimer += timer.turnTimer;
 			timer.turnTimer = si->turnTimerInfo.turnTimer;
@@ -93,8 +104,23 @@ void TurnTimerHandler::update(int waitTimeMs)
 		return;
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
+	{
 		if(gameHandler.gameState().isPlayerMakingTurn(player))
 			onPlayerMakingTurn(player, waitTimeMs);
+		
+		int movementPoints = 0;
+		int movementPointsLimit = 0;
+		for(auto & hero : gameHandler.gameState().getHeroes(player))
+		{
+			movementPoints += hero->movementPointsRemaining();
+			movementPointsLimit += hero->movementPointsLimit(!hero->inBoat());
+		}
+		if(movementPointsLimit)
+			// limit to 100 - ignore overflow conditions: if hero unequips boots of speed or visits rally flag he will end up with movement points over 100%
+			timers[player].remainingMovementPointsPercent = std::min(100, (movementPoints * 100) / movementPointsLimit);
+		else
+			timers[player].remainingMovementPointsPercent = 0;
+	}
 
 	// create copy for iterations - battle might end during onBattleLoop call
 	std::vector<BattleID> ongoingBattles;
@@ -128,6 +154,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 		return;
 	
 	auto & timer = timers[player];
+	timer.isTurnStart = false;
 	const auto * state = gameHandler.gameInfo().getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{

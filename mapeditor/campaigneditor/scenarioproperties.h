@@ -16,6 +16,7 @@
 class CMap;
 class CampaignState;
 class QAbstractButton;
+class EditorCallback;
 
 namespace Ui {
 class ScenarioProperties;
@@ -28,10 +29,10 @@ class ScenarioProperties : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario);
+	explicit ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb);
 	~ScenarioProperties();
 
-	static bool showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario);
+	static bool showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb);
 	
 private slots:
 	void on_buttonBox_clicked(QAbstractButton * button);
@@ -56,10 +57,10 @@ private:
 	std::shared_ptr<CMap> map;
 	std::shared_ptr<CampaignState> campaignState;
 	CampaignScenarioID scenario;
+	EditorCallback * cb;
 	
 	std::map<int, std::string> heroSelection;
 
 	void reloadMapRelatedUi();
 	void reloadEnableState();
-	QString getRegionChar(int no);
 };

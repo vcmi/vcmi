@@ -58,7 +58,7 @@
 	{
 		"index": 58,
 		"level": 2,
-		"extraNames": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
+		"compatibilityIdentifiers": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
 		"faction" : "necropolis",
 		"upgrades": ["zombieLord"],
 		"abilities" :

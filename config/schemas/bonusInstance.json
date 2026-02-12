@@ -13,7 +13,7 @@
 						"type" : "string"
 					},
 					"then" : {
-						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
 						"description" : "parameterless limiter or boolean operator at start of array"
 					}
 				},
@@ -52,7 +52,9 @@
 							"bonusType" : { "type" : "string" },
 							"bonusSubtype" : { "type" : "string" },
 							"bonusSourceType" : { "type" : "string" },
-							"bonusSourceID" : { "type" : "string" }
+							"bonusSourceID" : { "type" : "string" },
+							"bonusMinValue" : { "type" : "number" },
+							"bonusMaxValue" : { "type" : "number" }
 						}
 					}
 				},
@@ -146,6 +148,22 @@
 						"type" : "object",
 						"required" : [ "type" ],
 						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ADJACENT" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ADJACENT" },
+							"creature" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
 							"type" : { "type" : "string", "const" : "HAS_CHARGES_LIMITER" }
 						}
 					},
@@ -177,6 +195,13 @@
 				{
 					"type" : "string",
 					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
+				},
+				{
+					"type" : "array",
+					"items" : {
+						"$ref" : "#/definitions/updater",
+						"description" : "nested updaters"
+					}
 				},
 				{
 					"description" : "GROWS_WITH_LEVEL updater",
@@ -231,6 +256,11 @@
 							"minimum" : 1,
 							"description" : "Size of each step, in levels"
 						},
+						"stepValue" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Bonus value per each step"
+						},
 						"minimum" : {
 							"type" : "integer",
 							"description" : "Minimal bonus value"
@@ -282,6 +312,157 @@
 		}
 	},
 	"additionalProperties" : false,
+	"allOf" : [
+		{
+			"if" : {
+				"properties" : {
+					"type" : {
+						"enum" : [
+							"IMPROVED_NECROMANCY", 
+							"SPECIAL_ADD_VALUE_ENCHANT", 
+							"SPECIAL_FIXED_VALUE_ENCHANT",
+							"DESTRUCTION", 
+							"LIMITED_SHOOTING_RANGE", 
+							"ACID_BREATH", 
+							"BIND_EFFECT", 
+							"SPELLCASTER", 
+							"FEROCITY", 
+							"PRIMARY_SKILL", 
+							"ENCHANTER", 
+							"SPECIAL_PECULIAR_ENCHANT", 
+							"SPELL_IMMUNITY", 
+							"DARKNESS", 
+							"FULL_MAP_SCOUTING", 
+							"FULL_MAP_DARKNESS", 
+							"OPENING_BATTLE_SPELL"
+						]
+					}
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
+						],
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "SPELL_BEFORE_ATTACK", "SPELL_AFTER_ATTACK" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{ "type" : "array", "minItems" : 1, "maxItems" : 3, "items" : { "type" : "number" } }
+						]
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "SPECIAL_UPGRADE",  "TRANSMUTATION",  "DEATH_STARE" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "string" },
+							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "string" } }
+						],
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "MULTIHEX_UNIT_ATTACK",  "MULTIHEX_ENEMY_ATTACK",  "MULTIHEX_ANIMATION" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : { "type" : "array", "minItems" : 1, "maxItems" : 9, "items" : { "type" : "string" } }
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : { "type" : "array", "minItems" : 1, "maxItems" : 7, "items" : { "type" : "number" } }
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "ON_COMBAT_EVENT" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"type" : "object",
+						"additionalProperties" : false,
+						"required" : [ "effect" ],
+						"properties" : {
+							"effect" : {
+								"type" : "array",
+								"items" : {
+									"type" : "object",
+									"allOf" : [
+										{
+											"if" : {
+												"properties" : { "action" : { "enum" : [ "bonus" ] } }
+											},
+											"then" : {
+												"additionalProperties" : false,
+												"required" : [ "action", "bonus" ],
+												"properties" : {
+													"action" : { "enum" : [ "bonus" ] },
+													"targetEnemy" : { "type" : "boolean" },
+													"bonus" : { "$ref" : "bonusInstance.json" }
+												}
+											}
+										},
+										{
+											"if" : {
+												"properties" : { "action" : { "enum" : [ "spell" ] } }
+											},
+											"then" : {
+												"additionalProperties" : false,
+												"required" : [ "action", "spell" ],
+												"properties" : {
+													"action" : { "enum" : [ "spell" ] },
+													"targetEnemy" : { "type" : "boolean" },
+													"spell" : { "type" : "string" }
+												}
+											}
+										}
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	],
 	"properties" : {
 		"type" : {
 			"type" : "string",
@@ -292,7 +473,7 @@
 			"description" : "subtype"
 		},
 		"sourceID" : {
-			"type" : "number",
+			"type" : "string",
 			"description" : "sourceID"
 		},
 		"sourceType" : {
@@ -334,22 +515,7 @@
 			"enum" : ["ADDITIVE_VALUE", "BASE_NUMBER", "PERCENT_TO_ALL", "PERCENT_TO_BASE", "PERCENT_TO_SOURCE", "PERCENT_TO_TARGET_TYPE", "INDEPENDENT_MAX", "INDEPENDENT_MIN" ],
 			"description" : "valueType"
 		},
-		"addInfo" : {
-			"anyOf" : [
-				{ "type" : "string" },
-				{ "type" : "number" },
-				{
-					"type" : "array",
-					"items" : {
-						"anyof" : [
-							{ "type" : "string" },
-							{ "type" : "number" }
-						]
-					}
-				}
-			],
-			"description" : "addInfo"
-		},
+		"addInfo" : {}, // validated via allOf
 		"duration" : {
 			"anyOf" : [
 				{

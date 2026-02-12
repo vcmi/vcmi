@@ -36,7 +36,7 @@
 		},
 		"type" : {
 			"type" : "string",
-			"enum" : [ "mysticPond", "castleGate", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank", "auroraBorealis", "deityOfFire" ],
+			"enum" : [ "mysticPond", "castleGate", "portalOfSummoning", "library", "escapeTunnel", "treasury", "bank", "auroraBorealis" ],
 			"description" : "Subtype for some special buildings"
 		},
 		"mode" : {

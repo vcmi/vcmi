@@ -207,6 +207,14 @@ public:
 		return ret;
 	}
 
+	ResourceSet multipliedBy(double factor) const
+	{
+		ResourceSet ret;
+		for(int i = 0; i < container.size(); i++)
+			ret[i] = static_cast<int>(std::round(container.at(i) * factor));
+		return ret;
+	}
+
 	bool operator==(const ResourceSet &rhs) const
 	{
 		return this->container == rhs.container;

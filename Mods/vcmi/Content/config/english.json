@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "ranged",
 	"vcmi.adventureMap.search.hover"            : "Search map object",
 	"vcmi.adventureMap.search.help"             : "Select object to search on map.",
+	"vcmi.adventureMap.layer.hover"             : "Switch Layer  -  %s (%d) to %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Switch Layer}\n\nSwitches the adventure map between map layers\n\nSwitch %s (%d) to %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"               : "Are you sure you want to restart the game?",
 	"vcmi.adventureMap.noTownWithMarket"                 : "There are no available marketplaces!",
@@ -107,7 +109,7 @@
 	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
 	"vcmi.spellBook.zero_level.hint" : "0th lev",
 
-	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
+	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
 	"vcmi.spellResearch.pay" : "Would you like to replace {%SPELL1} with {%SPELL2}? Or discard this spell and continue spell research?",
 	"vcmi.spellResearch.research" : "Research this Spell",
@@ -121,6 +123,9 @@
 	"vcmi.mainMenu.serverClosing" : "Closing...",
 	"vcmi.mainMenu.hostTCP" : "Host TCP/IP game",
 	"vcmi.mainMenu.joinTCP" : "Join TCP/IP game",
+	"vcmi.mainMenu.ipAddress" : "Local IP Address",
+	"vcmi.mainMenu.ipAddressUnknown" : "Unknown",
+	"vcmi.mainMenu.join" : "Join",
 
 	"vcmi.lobby.filepath" : "File path",
 	"vcmi.lobby.creationDate" : "Creation date",
@@ -1030,6 +1035,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional ${val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Adjacent Spellcaster}\nUnit can cast ${subtype.spell} while standing next to target",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximum Damage}\nThis unit always deals the maximum possible damage",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attack all around}\nAttacks all adjacent enemies in addition to the primary target",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{No ranged retaliation}\nThe enemy cannot retaliate when shot by this unit",
@@ -1038,6 +1044,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Reduce Casting Cost (${val})}\nReduces the spellcasting cost for the hero by ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Magic Damper (${val})}\nIncreases the spellcasting cost of enemy spells by ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description" : "{Immune to jousting bonus}\nThis unit does not receive additional damage from the jousting bonus",
+	"core.bonus.CPU_CONTROLLED.description" : "{Automatically Controlled}\nThis unit cannot be manually controlled by player by default.",
 	"core.bonus.DEATH_STARE.description" : "{Death Stare (${val}%)}\nHas a ${val}% chance to instantly kill a single living creature",
 	"core.bonus.DEFENSIVE_STANCE.description" : "{Defense Bonus}\nIncreases defence by +${val} after using defence action",
 	"core.bonus.DESTRUCTION.description" : "{Destruction}\nHas ${val}% chance to kill extra units after attack",
@@ -1142,7 +1149,7 @@
 	"spell.core.summonDemons.name" : "Summon Demons",
 	"spell.core.towerMoat.name" : "Land Mine",
 
-	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked it takes 50% damage, and become unfrozen",
+	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked, it takes half damage (both melee and ranged attacks) and retaliates at full strength.",
 	"spell.core.poison.description.none" : "{Poison}\n\nWhen poisoned, the target stack's maximum health is decreased by 10% for every combat round for three rounds. After three rounds, the creature is no longer poisoned, but the maximum health remains decreased",
 	"spell.core.bind.description.none" : "{Bind}\n\nTargeted unit is bound to the ground, unable to move until the stack that entangled them moves or perishes.",
 	"spell.core.disease.description.none" : "{Disease}\n\nThe living target becomes ill, thus having their attack and defense values reduced by two for a period of three rounds",
@@ -1156,5 +1163,9 @@
 	"spellSchool.core.air.name" : "Air",
 	"spellSchool.core.earth.name" : "Earth",
 	"spellSchool.core.fire.name" : "Fire",
-	"spellSchool.core.water.name" : "Water"
+	"spellSchool.core.water.name" : "Water",
+
+	"mapLayer.core.surface.name" : "Surface",
+	"mapLayer.core.underground.name" : "Underground",
+	"mapLayer.core.unknown.name" : "Unknown"
 }

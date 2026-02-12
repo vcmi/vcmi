@@ -18,6 +18,7 @@ class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 public:
 	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets);
 	void notFocusedClick() override;
+	void keyPressed(EShortcut key) override;
 	
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;

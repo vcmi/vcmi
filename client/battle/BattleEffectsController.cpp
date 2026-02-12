@@ -29,6 +29,7 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -132,7 +133,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(JsonPath::builtin("config/battleEffects.json"));
+	const JsonNode config = JsonUtils::assembleFromFiles("config/battleEffects.json");
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{

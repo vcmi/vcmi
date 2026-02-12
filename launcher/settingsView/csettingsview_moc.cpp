@@ -199,8 +199,6 @@ void CSettingsView::loadSettings()
 	ui->labelHapticFeedback->hide();
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
-	ui->labelAllowPortrait->hide();
-	ui->buttonAllowPortrait->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -213,6 +211,11 @@ void CSettingsView::loadSettings()
 #ifndef VCMI_IOS
 	ui->labelIgnoreMuteSwitch->hide();
 	ui->buttonIgnoreMuteSwitch->hide();
+#endif
+
+#ifndef ENABLE_DISCORD
+	ui->labelDiscordRichPresence->hide();
+	ui->buttonEnableDiscordRichPresence->hide();
 #endif
 
 	fillValidScalingRange();
@@ -303,6 +306,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
 
 	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
+
+	setCheckbuttonState(ui->buttonEnableDiscordRichPresence, settings["general"]["enableDiscordRichPresence"].Bool());
 
 	setCheckbuttonState(ui->buttonSaveBeforeVisit, settings["general"]["saveBeforeVisit"].Bool());
 
@@ -972,4 +977,11 @@ void CSettingsView::on_buttonIgnoreMuteSwitch_toggled(bool checked)
 	Settings node = settings.write["general"]["ignoreMuteSwitch"];
 	node->Bool() = checked;
 	updateCheckbuttonText(ui->buttonIgnoreMuteSwitch);
+}
+
+void CSettingsView::on_buttonEnableDiscordRichPresence_toggled(bool checked)
+{
+	Settings node = settings.write["general"]["enableDiscordRichPresence"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonEnableDiscordRichPresence);
 }

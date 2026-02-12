@@ -206,6 +206,7 @@ set(vcmiclientcommon_SRCS
 	NetPacksLobbyClient.cpp
 	ServerRunner.cpp
 	UIHelper.cpp
+	Discord.cpp
 )
 
 set(vcmiclientcommon_HEADERS
@@ -443,6 +444,7 @@ set(vcmiclientcommon_HEADERS
 	ServerRunner.h
 	resource.h
 	UIHelper.h
+	Discord.h
 )
 
 if(IOS)
@@ -540,6 +542,14 @@ endif()
 
 if(VCMI_PORTMASTER)
 	target_compile_definitions(vcmiclientcommon PRIVATE VCMI_PORTMASTER)
+endif()
+
+if (ENABLE_DISCORD)
+	find_package(fmt QUIET)
+	find_package(glaze QUIET)
+	add_subdirectory(lib/discord-presence)
+	target_link_libraries(vcmiclientcommon PRIVATE discord-rpc)
+	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_DISCORD)
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

@@ -93,6 +93,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 	static const std::map<std::string, EResType> stringToRes =
 	{
 		{".TXT",   EResType::TEXT},
+		{".MD",   EResType::TEXT},
 		{".JSON",  EResType::JSON},
 		{".DEF",   EResType::ANIMATION},
 		{".MSK",   EResType::MASK},

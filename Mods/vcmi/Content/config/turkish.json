@@ -27,6 +27,8 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Buraya taşınmak {%POINTS} puan tutacaktır. Taşındıktan sonra {%REMAINING} puan kalacaktır.",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Hareket puanları: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Üzgünüz, rakibin hamlesini tekrar oynatma özelliği henüz uygulanmamıştır!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Hızlı kaydetmeyi yüklemek istediğinizden emin misiniz?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Oyun %s'ye kaydediliyor",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\n%s veya %s'yi işe almak ister misiniz?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\n%s, %s veya %s'yi işe almak ister misiniz?",
@@ -103,7 +105,8 @@
 	"vcmi.spellBook.search" : "arama...",
 	"vcmi.spellBook.tab.hover" : "%s Büyüler",
 	"vcmi.spellBook.tab.help" : "%s büyülerini görüntülemek için çevir",
-
+	"vcmi.spellBook.zero_level.hint" : "0. seviye",
+	
 	"vcmi.spellResearch.canNotAfford" : "{%SPELL1} büyüsünü {%SPELL2} ile değiştirmeyi göze alamazsın. Ama yine de bu büyüyü atıp büyü araştırmasına devam edebilirsin.",
 	"vcmi.spellResearch.comeAgain" : "Araştırma bugün zaten yapıldı. Yarın tekrar gelin.",
 	"vcmi.spellResearch.pay" : "{%SPELL1} büyüsünü {%SPELL2} ile değiştirmek ister misiniz? Yoksa bu büyüyü atıp büyü araştırmasına devam mı etmek istersiniz?",
@@ -139,6 +142,7 @@
 	"vcmi.lobby.deleteFolder" : "Aşağıdaki klasörü silmek istiyor musunuz?",
 	"vcmi.lobby.deleteMode" : "Silme moduna geç ve geri dön",
 	"vcmi.lobby.battleOnlyMode" : "Sadece Savaş Modu",
+	"vcmi.lobby.battleOnlyMode.help" : "Macera haritası olmadan basit bir savaş oynayın",
 	"vcmi.lobby.battleOnlyModeSubTitle" : "Macera haritası olmadan basit savaş için kahramanları, orduları, becerileri, eserleri ve savaş alanını seçin",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "Savaş Alanı",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Savaş Alanını Seç",
@@ -280,6 +284,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Sohbete iki rastgele kasaba yazın",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Ekran görüntüsü %s konumuna kaydedildi",
 	"vcmi.client.errors.invalidMap" : "{Geçersiz harita veya senaryo}\n\nOyun başlatılamadı! Seçilen harita veya senaryo geçersiz veya bozuk olabilir. Neden:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod yükleme hatası}\n\nModları yüklerken kritik sorunlar bulundu! Oyun düzgün çalışmayabilir veya çökebilir! Lütfen aşağıdaki modları güncelleyin veya devre dışı bırakın:\n\n",
 	"vcmi.server.errors.disconnected" : "{Ağ Hatası}\n\nOyun sunucusuna bağlantı kesildi!",
@@ -342,6 +347,8 @@
 	"vcmi.keyBindings.keyBinding.adventureReplayTurn": "Macera tekrarı sırası",
 	"vcmi.keyBindings.keyBinding.adventureRestartGame": "Macera oyunu yeniden başlat",
 	"vcmi.keyBindings.keyBinding.adventureSaveGame": "Macera oyunu kaydet",
+	"vcmi.keyBindings.keyBinding.adventureQuickSave": "Macera hızlı kaydetme",
+	"vcmi.keyBindings.keyBinding.adventureQuickLoad": "Macera hızlı yükleme",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAsleep": "Macera kahramanı uykuya daldır",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAwake": "Macera kahramanı uyandır",
 	"vcmi.keyBindings.keyBinding.adventureThievesGuild": "Macera hırsızlar loncası",
@@ -413,6 +420,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Global geri al",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Global iptal",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Global tam ekran",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Global ekran görüntüsü",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Global odak noktası",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Global seçenekler",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Global geri dön",
@@ -705,6 +713,11 @@
 	"vcmi.adventureMap.revisitObject.hover" : "Nesneyi Tekrar Ziyaret Et",
 	"vcmi.adventureMap.revisitObject.help" : "{Nesneyi Tekrar Ziyaret Et}\n\nBir kahraman şu anda bir Harita Nesnesi üzerinde duruyorsa, o konumu tekrar ziyaret edebilir.",
 
+	"vcmi.adventureMap.quickLoad.hover" : "Hızlı Yükleme",
+	"vcmi.adventureMap.quickLoad.help" : "{Hızlı Yükleme}\n\nHızlı kaydetme yuvasından oyunu yükler.",
+	"vcmi.adventureMap.quickSave.hover" : "Hızlı Kaydet",
+	"vcmi.adventureMap.quickSave.help" : "{Hızlı Kaydet}\n\nMevcut oyunu hızlı kaydetme yuvasına kaydeder.",
+
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Savaşı hemen başlatmak için herhangi bir tuşa basın",
 	"vcmi.battleWindow.damageEstimation.melee" : "Saldırı %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Saldırı %CREATURE (%DAMAGE, %KILLS).",
@@ -716,6 +729,12 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d hasar",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d kişi ölecek",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d ölecek",
+	"vcmi.battleWindow.healValuePreview.0" : "%d sağlık iyileştirilecek",
+	"vcmi.battleWindow.healValuePreview.1" : "%d sağlık iyileştirilecek",
+	"vcmi.battleWindow.healValuePreview.2" : "%d sağlık iyileştirilecek",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.0" : "%d sağlık puanı kazan",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.1" : "%d sağlık puanı kazan",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.2" : "%d sağlık puanı kazan",
 	
 	"vcmi.battleWindow.damageRetaliation.will" : "Misilleme yapacak ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Misilleme yapabilir ",
@@ -747,7 +766,7 @@
 	"core.credits.designers" : "Tasarımcılar",
 	"core.credits.leadProgrammers" : "Baş Programcılar",
 	"core.credits.programmers" : "Programcılar",
-	"core.credits.installerProgrammes" : "Programları Yükle",
+	"core.credits.installerProgrammes" : "Kurulum Programcısı",
 	"core.credits.leadArtists" : "Baş Sanatçılar",
 	"core.credits.artists" : "Sanatçılar",
 	"core.credits.assetCoordinator" : "Varlık Koordinatörü",
@@ -828,6 +847,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Kurulum...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Takım Hizalamaları",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Yol Türleri",
+	"vcmi.randomMapTab.template.minimalSize" : "Minimum boyut: %dx%d, katmanlar: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Maksimum boyut: %dx%d, katmanlar: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Seçenekleri Döndür",
 	"vcmi.optionsTab.turnOptions.help" : "Dönüş zamanlayıcısını ve eşzamanlı dönüş seçeneklerini seçin",
@@ -880,6 +901,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Kahramanların Günlükleri",
 	"vcmi.campaignSet.hota" : "Cehennemin Boynuzu",
+	"vcmi.campaignSet.wog" : "Tanrıların Ardından",
 	
 	// Çeviri notu: Aşağıdaki dizeleri, dilinizde "0 gün", "1 gün" ve "2 gün" için doğru olan biçim kullanarak çevirin.
 	// Bu bilgileri kullanarak, VCMI her olası miktar için doğru çoğul formu otomatik olarak seçecektir.
@@ -1096,6 +1118,7 @@
 	"core.bonus.UNDEAD.description" : "{Ölümsüz}\nYaratık Ölümsüzdür ve sadece canlıları etkileyen etkilere karşı bağışıktır",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Sınırsız misilleme}\nBu birim sınırsız sayıda saldırıya misilleme yapabilir",
 	"core.bonus.WIDE_BREATH.description" : "{Geniş nefes}\nBu birim, hedefinin etrafındaki tüm birimlere saldırır",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Hasar sınırı (${val}%) }\nHiçbir saldırı, maksimum sağlığın ${val}%'inden fazla hasar veremez",
 
 	"spell.core.castleMoat.name" : "Hendek",
 	"spell.core.castleMoatTrigger.name" : "Hendek",
@@ -1118,7 +1141,6 @@
 	"spell.core.strongholdMoatTrigger.name" : "Tahta Çiviler",
 	"spell.core.summonDemons.name" : "Şeytanları Çağır",
 	"spell.core.towerMoat.name" : "Kara Mayını",
-
 
 	"spell.core.stoneGaze.description.none" : "{Taşlaşma}\n\nHedeflenen birim taşlaşır ve üç savaş turu boyunca hareket edemez. Saldırıya uğradığında %50 hasar alır ve taşlaşması bozulur",
 	"spell.core.poison.description.none" : "{Zehir}\n\nZehirlenildiğinde, hedef yığının maksimum sağlığı üç tur boyunca her savaş turunda %10 azalır. Üç turdan sonra, yaratık artık zehirli değildir, ancak maksimum sağlığı azalmış olarak kalır",

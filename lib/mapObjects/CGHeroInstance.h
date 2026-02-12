@@ -82,7 +82,7 @@ public:
 	//          8 4
 	//          765
 	ui8 moveDir;
-	mutable ui8 tacticFormationEnabled;
+	bool tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -187,9 +187,6 @@ public:
 	/// Returns true if hero has lower level than should upon his experience.
 	bool gainsLevel() const;
 
-	/// Selects 0-2 skills for player to select on levelup
-	std::vector<SecondarySkill> getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const;
-
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 	int getPrimSkillLevel(PrimarySkill id) const;
 
@@ -204,6 +201,7 @@ public:
 
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
+	int movementPointsLimit() const;
 	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
 	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
@@ -356,6 +354,8 @@ public:
 		h & spells;
 		h & patrol;
 		h & moveDir;
+		if (h.hasFeature(Handler::Version::DISABLE_TACTICS))
+			h & tacticFormationEnabled;
 		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
 		{
 			ui8 magicSchoolCounter = 0;

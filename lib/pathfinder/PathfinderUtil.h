@@ -11,6 +11,7 @@
 
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapping/TerrainTile.h"
+#include "../mapping/MapTilesStorage.h"
 #include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 
@@ -18,13 +19,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace PathfinderUtil
 {
-	using FoW = boost::multi_array<ui8, 3>;
+	using FoW = MapTilesStorage<uint8_t>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::Type layer>
 	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, const FoW & fow, const PlayerColor player, const IGameInfoCallback & gameInfo)
 	{
-		if(!fow[pos.z][pos.x][pos.y])
+		if(!fow[pos])
 			return EPathAccessibility::BLOCKED;
 
 		switch(layer)

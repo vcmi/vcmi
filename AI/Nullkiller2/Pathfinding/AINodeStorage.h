@@ -297,7 +297,6 @@ public:
 			return;
 
 		auto chains = nodes.get(pos);
-
 		for(AIPathNode & node : chains)
 		{
 			if(node.version != AISharedStorage::version || node.layer != layer)
@@ -314,7 +313,6 @@ public:
 			return false;
 
 		auto chains = nodes.get(pos);
-
 		for(AIPathNode & node : chains)
 		{
 			if(node.version != AISharedStorage::version || node.layer != layer)

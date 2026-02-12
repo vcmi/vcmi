@@ -39,16 +39,13 @@ Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * aiNk) const
 	return tasks;
 }
 
-Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::shared_ptr<ObjectCluster> cluster) const
+Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, const std::shared_ptr<ObjectCluster> & cluster) const
 {
-	auto center = cluster->calculateCenter(aiNk->cc.get());
+	const auto * center = cluster->calculateCenter(aiNk->cc.get());
 	auto paths = aiNk->pathfinder->getPathInfo(center->visitablePos(), aiNk->isObjectGraphAllowed());
-
-	auto blockerPos = cluster->blocker->visitablePos();
+	const auto blockerPos = cluster->blocker->visitablePos();
 	std::vector<AIPath> blockerPaths;
-
 	blockerPaths.reserve(paths.size());
-
 	TGoalVec goals;
 
 #if NK2AI_TRACE_LEVEL >= 2
@@ -62,11 +59,10 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 	for(auto path = paths.begin(); path != paths.end();)
 	{
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("ClusterBehavior Checking path %s", path->toString());
+		logAi->trace("ClusterBehavior::decomposeCluster Checking path (of %d paths) %s", paths.size(), path->toString());
 #endif
 
-		auto blocker = aiNk->objectClusterizer->getBlocker(*path);
-
+		const auto * blocker = aiNk->objectClusterizer->getBlocker(*path);
 		if(blocker != cluster->blocker)
 		{
 			path = paths.erase(path);
@@ -74,15 +70,14 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 		}
 
 		blockerPaths.push_back(*path);
-
 		AIPath & clonedPath = blockerPaths.back();
-
 		clonedPath.nodes.clear();
 
-		for(auto node = path->nodes.rbegin(); node != path->nodes.rend(); node++)
+		// The pathfinding algorithm naturally returns paths in reverse order (destination → source)
+		// We need to find the blocker position and include only nodes up to that point
+		for(auto node = path->nodes.rbegin(); node != path->nodes.rend(); ++node)
 		{
 			clonedPath.nodes.insert(clonedPath.nodes.begin(), *node);
-
 			if(node->coord == blockerPos || aiNk->cc->getGuardingCreaturePosition(node->coord) == blockerPos)
 				break;
 		}
@@ -90,10 +85,21 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 		for(auto & node : clonedPath.nodes)
 			node.parentIndex -= path->nodes.size() - clonedPath.nodes.size();
 
+		if(clonedPath.nodes.empty())
+			throw std::runtime_error("ClusterBehavior::decomposeCluster clonedPath has no nodes");
+		if(clonedPath.nodes.size() < 2 && clonedPath.nodes.front().targetHero != clonedPath.targetHero)
+		{
+			logAi->warn("ClusterBehavior::decomposeCluster clonedPath not satisfying AIPath::targetNode() requirements. Original path: %s", path->toString());
+			clonedPath.targetHero = clonedPath.nodes.front().targetHero;
+			// Has to log after the fix is applied in the line above, otherwise toString will crash
+			logAi->warn("ClusterBehavior::decomposeCluster clonedPath after fix: %s", clonedPath.toString());
+		}
+
 #if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Unlock path found %s", blockerPaths.back().toString());
 #endif
-		path++;
+
+		++path;
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
@@ -104,12 +110,14 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 
 	for(int i = 0; i < paths.size(); i++)
 	{
+		if(i >= unlockTasks.size())
+			throw std::runtime_error("ClusterBehavior::decomposeCluster unlockTasks size mismatch with paths size");
+
 		if(unlockTasks[i]->invalid())
 			continue;
 
 		auto path = paths[i];
 		auto elementarUnlock = sptr(UnlockCluster(cluster, path));
-
 		goals.push_back(sptr(Composition().addNext(elementarUnlock).addNext(unlockTasks[i])));
 	}
 

@@ -17,6 +17,7 @@
 #include "GameInstance.h"
 #include "LobbyClientNetPackVisitors.h"
 #include "ServerRunner.h"
+#include "Discord.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
 
@@ -50,6 +51,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/HighScore.h"
 #include "../lib/CPlayerState.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
@@ -648,6 +650,9 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	default:
 		throw std::runtime_error("Invalid mode");
 	}
+
+	ENGINE->discord().setPlayingStatus(si, &gameState->getMap(), howManyPlayerInterfaces());
+
 	// After everything initialized we can accept CPackToClient netpacks
 	setState(EClientState::GAMEPLAY);
 }
@@ -690,6 +695,8 @@ void CServerHandler::endGameplay()
 		GAME->mainmenu()->playMusic();
 		GAME->mainmenu()->makeActiveInterface();
 	}
+
+	ENGINE->discord().setStatus("", "", {0, 0});
 }
 
 std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const

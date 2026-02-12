@@ -54,6 +54,28 @@
 		]
 	},
 
+	"dutch" : {
+		"name" : "VCMI - vereiste bestanden",
+		"description" : "Benodigde bestanden om VCMI correct te laten werken",
+		"author" : "Fabrice TIERCELIN",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/dutch.json"
+		]
+	},
+
+	"filipino" : {
+		"name" : "VCMI - mga kinakailangang file",
+		"description" : "Mga file na kinakailangan para maayos na mapatakbo ang VCMI",
+		"author" : "Fabrice TIERCELIN",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/filipino.json"
+		]
+	},
+
 	"finnish" : {
 		"name" : "VCMI - tarvittavat tiedostot",
 		"description" : "VCMI:n asianmukaiseen käyttöön tarvittavat tiedostot",
@@ -141,6 +163,17 @@
 		]
 	},
 
+	"latvian" : {
+		"name" : "VCMI — nepieciešamie faili",
+		"description" : "Faili, kas nepieciešami VCMI pareizai palaišanai",
+		"author" : "Fabrice TIERCELIN",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/latvian.json"
+		]
+	},
+
 	"norwegian" : {
 		"name" : "VCMI - Grunnleggende filer",
 		"description" : "Grunnleggende filer som kreves for at VCMI skal fungere korrekt",
@@ -193,6 +226,17 @@
 		"skipValidation" : true,
 		"translations" : [
 			"config/russian.json"
+		]
+	},
+
+	"serbian" : {
+		"name" : "VCMI - потребне датотеке",
+		"description" : "Датотеке потребне за исправно покретање VCMI-ја",
+		"author" : "Fabrice TIERCELIN",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/serbian.json"
 		]
 	},
 

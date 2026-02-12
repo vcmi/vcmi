@@ -96,17 +96,13 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 			if(!sourceSpell)
 				return false;//error
 
-			//Special case: DISRUPTING_RAY and ACID_BREATH_DEFENSE are "immune" to dispel
-			//Other even PERMANENT effects can be removed (f.e. BIND)
-			if(sourceSpell->getIndex() == SpellID::DISRUPTING_RAY || sourceSpell->getIndex() == SpellID::ACID_BREATH_DEFENSE)
-				return false;
-			//Special case: do not remove lifetime marker
-			if(sourceSpell->getIndex() == SpellID::CLONE)
+			//Spells that can't be dispelled
+			if(sourceSpell->isPersistent())
 				return false;
 			//stack may have inherited effects
 			if(sourceSpell->isAdventure())
 				return false;
-
+			//Don't remove bonuses that may have been added by this very spell
 			if(sourceSpell->getIndex() == m->getSpellIndex())
 				return false;
 

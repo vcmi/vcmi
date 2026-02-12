@@ -13,6 +13,8 @@
 #include "../ResourceSet.h"
 #include "../texts/MetaString.h"
 
+#include "MapDifficulty.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
@@ -26,12 +28,14 @@ public:
 	virtual ~CMapEvent() = default;
 
 	bool occursToday(int currentDay) const;
+	bool affectsDifficulty(EMapDifficulty difficulty) const;
 	bool affectsPlayer(PlayerColor player, bool isHuman) const;
 
 	std::string name;
 	MetaString message;
 	TResources resources;
 	std::set<PlayerColor> players;
+	MapDifficultySet affectedDifficulties;
 	bool humanAffected;
 	bool computerAffected;
 	ui32 firstOccurrence;
@@ -46,6 +50,8 @@ public:
 		h & message;
 		h & resources;
 		h & players;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+			h & affectedDifficulties;
 		h & humanAffected;
 		h & computerAffected;
 		h & firstOccurrence;

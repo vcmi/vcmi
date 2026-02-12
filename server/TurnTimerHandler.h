@@ -48,6 +48,7 @@ public:
 	void update(int waitTimeMs);
 	void setTimerEnabled(PlayerColor player, bool enabled);
 	void setEndTurnAllowed(PlayerColor player, bool enabled);
+	void onEndTurn(PlayerColor player);
 
 	void prolongTimers(int durationMs);
 

@@ -13,10 +13,9 @@
 #include "Nullkiller.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/entities/ResourceTypeHandler.h"
-#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
-#include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapping/TerrainTile.h"
+#include "../../../lib/CPlayerState.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
@@ -129,7 +128,7 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 
 	// probably well developed town will have city hall
 	if(fortLevel == CGTownInstance::CASTLE) return booster * 750;
-	
+
 	return booster * (town->hasFort() && town->tempOwner != PlayerColor::NEUTRAL  ? booster * 500 : 250);
 }
 
@@ -150,7 +149,7 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
-	
+
 	for(auto & creLevel : dwelling->creatures)
 	{
 		if(creLevel.first && creLevel.second.size())
@@ -180,8 +179,14 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 		if(creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-
 			score += creature->getAIValue() * creature->getGrowth();
+
+			// Increase priority towards the end of the week if units are lost afterwards
+			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
+			{
+				const auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+				score *= dayOfWeek;
+			}
 		}
 	}
 
@@ -227,10 +232,8 @@ uint64_t RewardEvaluator::getArmyReward(
 	bool checkGold) const
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
-
 	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID);
-
-	if(!target)
+	if(!target) // TODO: Mircea: Shouldn't it be relations instead of target in the if? See getArmyGrowth below
 		return 0;
 
 	switch(target->ID)
@@ -260,7 +263,6 @@ uint64_t RewardEvaluator::getArmyReward(
 	}
 
 	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-
 	if(rewardable)
 	{
 		auto totalValue = 0;
@@ -268,7 +270,6 @@ uint64_t RewardEvaluator::getArmyReward(
 		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
 		{
 			auto & info = rewardable->configuration.info[index];
-
 			auto rewardValue = 0;
 
 			for(auto artID : info.reward.grantedArtifacts)
@@ -301,7 +302,6 @@ uint64_t RewardEvaluator::getArmyGrowth(
 		return 0;
 
 	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, hero->tempOwner);
-
 	if(relations != PlayerRelations::ENEMIES)
 		return 0;
 
@@ -583,6 +583,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 
 	auto skill = SecondarySkill(*rewardable->configuration.getVariable("secondarySkill", "gainedSkill"));
 
+	// TODO: Mircea: Move to constants
 	if(!hut->wasVisited(hero->tempOwner))
 		return role == HeroRole::SCOUT ? 2 : 0;
 
@@ -592,6 +593,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 
 	auto score = aiNk->heroManager->evaluateSecSkill(skill, hero);
 
+	// TODO: Mircea: Move to constants
 	return score >= 2 ? (role == HeroRole::MAIN ? 10 : 4) : score;
 }
 
@@ -776,13 +778,21 @@ public:
 		if(task->goalType != Goals::HERO_EXCHANGE)
 			return;
 
-		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		const auto & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+		// const auto receiverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);
+		const auto giverHeroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.exchangePath.targetHero);
+		// It's allowed for SCOUTs to receive from other SCOUTs, so all army gets in one place before delivery to main
 
-		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
+		// TODO: Mircea: See how we can get some kind of balance between MAINs in terms of army delivery
+		// See: GatherArmyBehavior::deliverArmyToHero
+		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(evaluationContext.evaluator.aiNk);
+		const float additionalArmyRatio = additionalArmyStrength / heroExchange.hero->getArmyStrength();
 
-		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength());
-		evaluationContext.conquestValue += 2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength();
-		evaluationContext.heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(heroExchange.hero);
+		evaluationContext.addNonCriticalStrategicalValue(additionalArmyRatio);
+		evaluationContext.armyGrowth = additionalArmyStrength;
+		evaluationContext.movementCost = heroExchange.exchangePath.movementCost();
+		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
+		evaluationContext.heroRole = giverHeroRole;
 		evaluationContext.isExchange = true;
 	}
 };
@@ -795,12 +805,11 @@ public:
 		if(task->goalType != Goals::ARMY_UPGRADE)
 			return;
 
-		Goals::ArmyUpgrade & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
+		const auto & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
+		const uint64_t additionalArmyStrength = armyUpgrade.getUpgradeValue();
 
-		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
-
-		evaluationContext.armyReward += upgradeValue;
-		evaluationContext.addNonCriticalStrategicalValue(upgradeValue / (float)armyUpgrade.hero->getArmyStrength());
+		// No strategical value and reduce the strength a bit to don't explode the final score so nothing else gets done by no one
+		evaluationContext.armyGrowth = additionalArmyStrength / 5.0f;
 		evaluationContext.isArmyUpgrade = true;
 	}
 };
@@ -814,26 +823,29 @@ public:
 			return;
 
 		int tilesDiscovered = task->value;
-
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
-		for (auto obj : evaluationContext.evaluator.aiNk->cc->getVisitableObjs(task->tile))
+
+		for(const auto obj : evaluationContext.evaluator.aiNk->cc->getVisitableObjs(task->tile))
 		{
-			switch (obj->ID.num)
+			switch(obj->ID.num)
 			{
-			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-			case Obj::MONOLITH_TWO_WAY:
-			case Obj::SUBTERRANEAN_GATE:
-				evaluationContext.explorePriority = 1;
-				break;
-			case Obj::REDWOOD_OBSERVATORY:
-			case Obj::PILLAR_OF_FIRE:
-				evaluationContext.explorePriority = 2;
-				break;
+				case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+				case Obj::MONOLITH_TWO_WAY:
+				case Obj::SUBTERRANEAN_GATE:
+					evaluationContext.explorePriority = 1;
+					break;
+				case Obj::REDWOOD_OBSERVATORY:
+				case Obj::PILLAR_OF_FIRE:
+					evaluationContext.explorePriority = 2;
+					break;
+				default:
+					logAi->warn("ExplorePointEvaluator buildEvaluationContext unknown exploration point %d", obj->ID.num);
 			}
 		}
+
 		if(evaluationContext.evaluator.aiNk->cc->getTile(task->tile)->roadType != RoadId::NO_ROAD)
 			evaluationContext.explorePriority = 1;
-		if (evaluationContext.explorePriority == 0)
+		if(evaluationContext.explorePriority == 0)
 			evaluationContext.explorePriority = 3;
 	}
 };
@@ -1271,8 +1283,7 @@ uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, cons
 	return upgradedPower - creaturesToUpgrade.power;
 }
 
-PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk)
-	:aiNk(aiNk)
+PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 {
 	initVisitTile();
 	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(aiNk));
@@ -1287,7 +1298,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
 }
 
-EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
+EvaluationContext PriorityEvaluator::buildEvaluationContext(const Goals::TSubgoal & goal) const
 {
 	Goals::TGoalVec parts;
 	EvaluationContext context(aiNk);
@@ -1315,6 +1326,46 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 	return context;
 }
 
+float PriorityEvaluator::evaluateMovement(float score, const float movementCost)
+{
+	if(movementCost > 0)
+	{
+		if(movementCost < 1)
+			// Reduce bonus if it's too close, otherwise the score is amplified too much
+			score /= std::pow(movementCost, 0.6f);
+		else
+			// Penalize distance, including when 1.0
+			score /= 0.75 + std::pow(movementCost, 1.3f);
+	}
+	return score;
+}
+
+float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLossRatio, const HeroRole heroRole)
+{
+	if(armyLossRatio > 0)
+	{
+		score -= score * armyLossRatio;
+
+		// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
+		if(heroRole != MAIN)
+			score /= 5.0f;
+	}
+	return score;
+}
+
+float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyInvolvement, const float armyLossRatio)
+{
+	// Encourage stronger heroes
+	return score + skillReward * armyInvolvement * (1 - armyLossRatio) * 0.05;
+}
+
+float PriorityEvaluator::evaluateConquestValue(float score, const float conquestValue, const float armyInvolvement)
+{
+	if(conquestValue > 0)
+		score = armyInvolvement * conquestValue;
+	return score;
+}
+
 float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 {
 	auto evaluationContext = buildEvaluationContext(task);
@@ -1325,7 +1376,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
 
 	float goldRewardVsMovement = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
-
+	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
 
 	if (aiNk->settings->isUseFuzzy())
@@ -1363,40 +1414,30 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	else
 	{
 		float score = 0;
-		bool currentPositionThreatened = false;
-		if (task->hero)
-		{
-			auto currentTileThreat = aiNk->dangerHitMap->getTileThreat(task->hero->visitablePos());
-			if (currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->getTotalStrength())
-				currentPositionThreatened = true;
-		}
-		if (priorityTier == PriorityTier::FAR_HUNTER_GATHER && currentPositionThreatened == true)
-		{
-#if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Skip FAR_HUNTER_GATHER because hero would be threatened.");
-#endif
-			return 0;
-		}
-		const bool amIInDanger = aiNk->cc->getTownsInfo().empty();
+
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		const float maxWillingToLose = amIInDanger ? 1 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
-		float dangerThreshold = 1;
-		dangerThreshold *= evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
-
-		bool arriveNextWeek = false;
-		if (aiNk->cc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7 && priorityTier < PriorityTier::FAR_KILL)
-			arriveNextWeek = true;
+		const float maxWillingToLose = amIWithoutCastle ? 1
+									 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0
+										 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio
+										 : 1.0;
+		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
+		const bool arriveNextWeek = aiNk->cc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7;
 
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, dangerThreshold: %f explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
+		logAi->trace(
+			"BEFORE: priorityTier %d, Evaluated %s, armyLossRatio: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, "
+			"goldReward: %f, goldRewardVsMovement: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
+			"heroRole: %s, strategicalValue: %f, conquestValue: %f, buildingCost.marketValue: %f, closestWayRatio: %f, enemyHeroDangerRatio: %f, "
+			"maxEnemyDangerRatio: %f, explorePriority: %d, isDefend: %d, isEnemy: %d, arriveNextWeek: %d, powerRatio: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossRatio,
 			maxWillingToLose,
-			(int)evaluationContext.turn,
+			static_cast<int>(evaluationContext.turn),
 			evaluationContext.movementCostByRole[HeroRole::MAIN],
 			evaluationContext.movementCostByRole[HeroRole::SCOUT],
 			evaluationContext.armyInvolvement,
+			evaluationContext.goldReward,
 			goldRewardVsMovement,
 			evaluationContext.goldCost,
 			evaluationContext.armyReward,
@@ -1408,9 +1449,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 			evaluationContext.strategicalValue,
 			evaluationContext.conquestValue,
+			evaluationContext.buildingCost.marketValue(),
 			evaluationContext.closestWayRatio,
 			evaluationContext.enemyHeroDangerRatio,
-			dangerThreshold,
+			maxEnemyDangerRatio,
 			evaluationContext.explorePriority,
 			evaluationContext.isDefend,
 			evaluationContext.isEnemy,
@@ -1420,252 +1462,271 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 		switch (priorityTier)
 		{
-			case PriorityTier::INSTAKILL: //Take towns / kill heroes in immediate reach
+			case INSTAKILL: //Take towns / kill heroes in immediate reach
 			{
-				if (evaluationContext.turn > 0 || evaluationContext.isExchange)
+				if(evaluationContext.turn > 0 || evaluationContext.isExchange || evaluationContext.isDefend)
 					return 0;
-				if (evaluationContext.movementCost >= 1)
+				if(evaluationContext.movementCost >= 1)
 					return 0;
-				if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+
+				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::getArmyStrength
+				// TODO: Mircea: make it dynamic, allow higher risk for killing a higher risk hero if it leads to killing an entire player. See conquestValue
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
-				if(evaluationContext.conquestValue > 0)
-					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cc->getTownsInfo().empty()))
+
+				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
+				if(vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio && !amIWithoutCastle))
 					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
-					return 0;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::INSTADEFEND: //Defend immediately threatened towns
+			case INSTADEFEND: //Defend immediately threatened towns
 			{
-				//No point defending if we don't have defensive-structures
-				if (evaluationContext.defenseValue < 2)
+				if(!evaluationContext.isDefend)
 					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				// TODO: Mircea: Often is better to die as long as you're almost destroying the opponent. To revisit
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
-				if (evaluationContext.closestWayRatio < 1.0)
+				if(evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
-				if (evaluationContext.isEnemy && evaluationContext.turn > 0)
-					return 0;
-				if (evaluationContext.isDefend && evaluationContext.threatTurns <= evaluationContext.turn)
+				if(evaluationContext.threatTurns <= evaluationContext.turn)
 				{
+					// TODO: Mircea: Too many heroes are rushing for INSTADEFEND.
+					// We need some kind of smart selection of who to go, not everyone qualified
+					// Probably apply normal fight calculation as in others + filter out unnecessary ones in makeTurn buildPlan
+
 					const float OPTIMAL_PERCENTAGE = 0.75f; // We want army to be 75% of the threat
 					float optimalStrength = evaluationContext.threat * OPTIMAL_PERCENTAGE;
 
 					// Calculate how far the army is from optimal strength
 					float deviation = std::abs(evaluationContext.armyInvolvement - optimalStrength);
-
-					// Convert deviation to a percentage of the threat to normalize it
 					float deviationPercentage = deviation / evaluationContext.threat;
-
 					// Calculate score: 1.0 is perfect, decreasing as deviation increases
 					score = 1.0f / (1.0f + deviationPercentage);
 
-					// Apply turn penalty to still prefer earlier moves when scores are close
-					score = score / (evaluationContext.turn + 1);
+					score *= evaluationContext.closestWayRatio;
+					score = evaluateMovement(score, evaluationContext.movementCost);
 				}
 				break;
 			}
-			case PriorityTier::KILL: //Take towns / kill heroes that are further away
-				//FALL_THROUGH
-			case PriorityTier::FAR_KILL:
+			case KILL: //Take towns / kill heroes that are further away
 			{
-				if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+				if(evaluationContext.isDefend)
 					return 0;
+				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::getArmyStrength
+				// if (evaluationContext.defenseValue < 2 && evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio)
+					// return 0;
 				if (evaluationContext.turn > 0 && evaluationContext.isHero)
 					return 0;
 				if (arriveNextWeek && evaluationContext.isEnemy)
 					return 0;
-				if (evaluationContext.conquestValue > 0)
-					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cc->getTownsInfo().empty()))
+				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
+				// TODO: Mircea: Last part of the if looks strange, to revisit
+				if(vstd::isAlmostZero(score)
+				   || (evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio && (evaluationContext.turn > 0 || evaluationContext.isExchange)
+					   && !amIWithoutCastle))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
+
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
+
 				score *= evaluationContext.closestWayRatio;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::HIGH_PRIO_EXPLORE:
-			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
-					return 0;
-				if (evaluationContext.explorePriority != 1)
-					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
-					return 0;
-				if (vstd::isAlmostZero(evaluationContext.armyLossRatio) && evaluationContext.closestWayRatio < 1.0)
-					return 0;
-				score = 1000;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
-				break;
-			}
-			case PriorityTier::HUNTER_GATHER: //Collect guarded stuff
-				//FALL_THROUGH
-			case PriorityTier::FAR_HUNTER_GATHER:
+			case EXPLORE_AND_GATHER:
+			case ESCAPE:
 			// TODO: Mircea: Should not go to something that gives army if no slots available in the hero, but probably not in the evaluator, but in the finder
 			// task.get()->hero->getSlotFor(creature, 7) == false (not sure I get to know which creature is there in Orc Tower building)
 			// /// so I can't know for sure if it fits my stacks or not, but at least we can avoid going there with all 7 stacks occupied by other units
 			// task.get()->hero->getFreeSlots(7) == 7
 			// getDuplicatingSlots(task.get()->hero) == false
 			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && !evaluationContext.isDefend && priorityTier != PriorityTier::FAR_HUNTER_GATHER)
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 1");
+				if(evaluationContext.conquestValue > 0)
 					return 0;
-				}
-				if (evaluationContext.buildingCost.marketValue() > 0)
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 2");
+				if(evaluationContext.isDefend)
 					return 0;
-				}
-				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && evaluationContext.isDefend && (evaluationContext.enemyHeroDangerRatio > dangerThreshold || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 3");
+				if(evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
-				}
-				if (evaluationContext.explorePriority == 3)
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 4");
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
-				}
-				if (priorityTier != PriorityTier::FAR_HUNTER_GATHER && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > dangerThreshold))
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 5");
+
+				if(priorityTier == EXPLORE_AND_GATHER && evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio)
 					return 0;
-				}
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(priorityTier == ESCAPE && task->hero)
 				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 6");
-					return 0;
-				}
-				if (vstd::isAlmostZero(evaluationContext.armyLossRatio) && evaluationContext.closestWayRatio < 1.0)
-				{
-//					logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 7");
-					return 0;
+					const auto currentTileThreat = aiNk->dangerHitMap->getTileThreat(task->hero->visitablePos());
+					if(currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->getTotalStrength())
+					{
+						// Encourage routes which go away of the threat
+						const auto currentTileThreatVal = currentTileThreat.fastestDanger.threat;
+						const auto destTileThreatVal = aiNk->dangerHitMap->getTileThreat(task->tile).fastestDanger.threat;
+						const auto delta = currentTileThreatVal - destTileThreatVal;
+						if(delta > 0)
+						{
+							logAi->trace("priorityTier %d, Encouraging route with less threat delta: %f", priorityTier, delta);
+							score += delta;
+						}
+						else
+							logAi->trace("priorityTier %d, Cannot encourage route because it has a negative threat delta: %f. Hoping hero will live", priorityTier, delta);
+					}
 				}
 
+				// TODO: Mircea: Not sure this makes sense anymore, deactivating for now, to test more and delete in the end
+				// if(evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio && !evaluationContext.isDefend && priorityTier != FAR_HUNTER_GATHER)
+					// return 0;
+				// TODO: Mircea: Not sure these make sense anymore, deactivating for now, to test more and delete in the end
+				// if(priorityTier != FAR_HUNTER_GATHER && evaluationContext.isDefend
+				//    && (evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio || evaluationContext.threatTurns > 0 || evaluationContext.turn > 0))
+				// 	return 0;
+				// TODO: Mircea: Candidate to re-include arriveNextWeek with !isExploration or > 0, but might prevent fights far away, maybe just discourage
+				// if(priorityTier != FAR_HUNTER_GATHER
+				//    && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio))
+				// 	return 0;
+
+				const auto requiresBattle = evaluationContext.armyLossRatio > 0 || evaluationContext.danger > 0;
 				score += evaluationContext.strategicalValue * 1000;
-				score += evaluationContext.goldReward;
-				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05;
-				score += evaluationContext.armyReward;
-				score += evaluationContext.armyGrowth;
-				score -= evaluationContext.goldCost / 2; // don't include the full cost of School of Magic or others because those locations are beneficial
-				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossRatio * 0.1;
-
-#if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, armyGrowth %f, goldCost -%f, armyInvolvementMultiplied -%f, "
-				 "armyLossPersentage %f, movementCost %f, enemyHeroDangerRatio %f",
-					score, evaluationContext.strategicalValue, evaluationContext.goldReward, evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05,
-					evaluationContext.armyReward, evaluationContext.armyGrowth, evaluationContext.goldCost, evaluationContext.armyInvolvement * evaluationContext.armyLossRatio,
-					evaluationContext.armyLossRatio, evaluationContext.movementCost, evaluationContext.enemyHeroDangerRatio);
-#endif
-				if (score > 0)
+				if(evaluationContext.explorePriority > 0)
 				{
-					// score = 1000;
-					if (evaluationContext.movementCost > 0)
+					score = 600.0f / evaluationContext.explorePriority;
+
+					// Encourage exploration for MAIN that requires battles, so SCOUTs can continue exploring
+					if(evaluationContext.heroRole == MAIN && requiresBattle)
+						score *= 2;
+				}
+
+				if(evaluationContext.goldReward > 0)
+				{
+					// try to balance other resources vs gold, especially 2500 gold treasures
+					score += evaluationContext.goldReward > 500 ? evaluationContext.goldReward / 2.0f : evaluationContext.goldReward * 2.0f;
+
+					if(evaluationContext.heroRole == MAIN)
 					{
-//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 8");
-						score -= evaluationContext.movementCost / 20 * score; // we expect movement won't be over 20 turns
-					}
-					// TODO: Mircea: This doesn't make sense at it always seems to be 0. To test
-					if(evaluationContext.enemyHeroDangerRatio > 0)
-					{
-//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 9");
-						score *= 1 - evaluationContext.enemyHeroDangerRatio;
-					}
-					if(evaluationContext.armyLossRatio > 0)
-					{
-//						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
-						score *= 1 - evaluationContext.armyLossRatio;
+						if(requiresBattle)
+							// Encourage MAIN to fight for crypts and similar
+							score *= 2;
+						else
+							// Discourage MAIN to waste time picking resources if they don't require a fight
+							score *= 0.33;
 					}
 				}
 
-//				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score final %f", score);
+				if(evaluationContext.skillReward > 0)
+				{
+					if(evaluationContext.heroRole == MAIN)
+					{
+						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
+
+						// Encourage skill increases before battles
+						if(!requiresBattle)
+							score *= 3;
+					}
+					else
+						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
+						// TODO: Mircea: Ease the restriction after 1 month or a bit more, because MAINs had enough time to grow, avoiding a SPAM of role shifts for each upgrade a SCOUT gets
+						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
+						// MAINs grow and fight, SCOUTs do the groundwork.
+						score = std::max(1.0f, score / 1000.0f);
+				}
+
+				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10.0f;
+				// workshop (free lvl 1 units for Tower) and similar dwellings receive both armyReward and armyGrowth in evaluationContext
+				// For that reason only getDwellingArmyGrowth gets amplified towards day 7 if units are lost after
+				// Hero exchange and army upgrade are using this too
+				score += evaluationContext.armyGrowth;
+
+				if(evaluationContext.goldCost > 0)
+					// Will be outside the if, just temporary for debugging
+					score -= evaluationContext.goldCost / 4.0f; // don't include the full cost of School of Magic or others because those locations are beneficial
+				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
+
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
+
 				break;
 			}
-			case PriorityTier::LOW_PRIO_EXPLORE:
+			case DEFEND: //Defend whatever if nothing else is to do
 			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
-					return 0;
-				if (evaluationContext.explorePriority != 3)
-					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
-					return 0;
-				if (evaluationContext.closestWayRatio < 1.0)
-					return 0;
-				score = 1000;
-				if (evaluationContext.movementCost > 0)
-					score /= evaluationContext.movementCost;
-				break;
-			}
-			case PriorityTier::DEFEND: //Defend whatever if nothing else is to do
-			{
-				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold)
+				if (evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio)
 					return 0;
 				if (evaluationContext.isDefend || evaluationContext.isArmyUpgrade)
 					score = evaluationContext.armyInvolvement;
-				score /= (evaluationContext.turn + 1);
+
+				score *= evaluationContext.closestWayRatio;
+				score = evaluateMovement(score, evaluationContext.movementCost);
 				break;
 			}
-			case PriorityTier::BUILDINGS: //For buildings and buying army
+			case BUILDINGS: //For buildings and buying army
 			{
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				// TODO: Mircea: What's the point of this check for ::BUILDINGS? Isn't the priority itself just for buildings? To test
+				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
 				//If we already have locked resources, we don't look at other buildings
-				if (aiNk->getLockedResources().marketValue() > 0)
+				if(aiNk->getLockedResources().marketValue() > 0)
 					return 0;
+
+				// TODO: Mircea: See if evaluateConquestValue can be reused here as well, to test, don't want to disturb building logic
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
-				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05;
+				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
-				if (evaluationContext.buildingCost.marketValue() > 0)
+
+				if(evaluationContext.buildingCost.marketValue() > 0)
 				{
-					if (!evaluationContext.isTradeBuilding && aiNk->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5 && aiNk->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
+					if(!evaluationContext.isTradeBuilding && aiNk->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5
+					   && aiNk->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
 					{
-						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
-						for (auto town : aiNk->cc->getTownsInfo())
+						logAi->trace("priorityTier %d, Should make sure to build marketplace instead of %s", priorityTier, task->toString());
+						for(auto town : aiNk->cc->getTownsInfo())
 						{
-							if (!town->hasBuiltResourceMarketplace())
+							if(!town->hasBuiltResourceMarketplace())
 								return 0;
 						}
 					}
+
 					score += 1000;
 					auto resourcesAvailable = evaluationContext.evaluator.aiNk->getFreeResources();
 					auto income = aiNk->buildAnalyzer->getDailyIncome();
+
+					// TODO: Mircea: Might want to use isGoldPressureOverMax or canAfford inside hunter gather as well if it's not already applied before
 					if(aiNk->buildAnalyzer->isGoldPressureOverMax())
 						score /= evaluationContext.buildingCost.marketValue();
-					if (!resourcesAvailable.canAfford(evaluationContext.buildingCost))
+					if(!resourcesAvailable.canAfford(evaluationContext.buildingCost))
 					{
 						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
-						for (const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
+
+						for(const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
-							if (i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
+							if(i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;
 						}
-						if (turnsTo == INT_MAX)
+
+						if(turnsTo == INT_MAX)
 							return 0;
-						if (!haveEverythingButGold)
+						if(!haveEverythingButGold)
 							score /= turnsTo;
 					}
 				}
 				else
 				{
-					if (evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && vstd::isAlmostZero(evaluationContext.conquestValue))
+					if(evaluationContext.enemyHeroDangerRatio > 1 && !evaluationContext.isDefend && vstd::isAlmostZero(evaluationContext.conquestValue))
 						return 0;
 				}
 				break;
 			}
+			default:
+				throw std::runtime_error("PriorityEvaluator::evaluate Unsupported priority: " + std::to_string(priorityTier));
 		}
+
 		result = score;
 		//TODO: Figure out the root cause for why evaluationContext.closestWayRatio has become -nan(ind).
 		if (std::isnan(result))
@@ -1673,14 +1734,19 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, result %f",
+	logAi->trace(
+		"priorityTier %d, Evaluated %s, armyLossRatio: %f, turn: %d, turns main: %f, turns scout: %f, armyInvolvement: %f, "
+		"goldReward: %f, goldRewardVsMovement: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
+		"heroRole: %s, strategicalValue: %f, conquestValue: %f, buildingCost.marketValue: %f, closestWayRatio: %f, enemyHeroDangerRatio: %f, "
+		"explorePriority: %d, isDefend: %d, isEnemy: %d, powerRatio: %f, result %f",
 		priorityTier,
 		task->toString(),
 		evaluationContext.armyLossRatio,
-		(int)evaluationContext.turn,
+		static_cast<int>(evaluationContext.turn),
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
 		evaluationContext.armyInvolvement,
+		evaluationContext.goldReward,
 		goldRewardVsMovement,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
@@ -1692,9 +1758,15 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,
 		evaluationContext.conquestValue,
+		evaluationContext.buildingCost.marketValue(),
 		evaluationContext.closestWayRatio,
 		evaluationContext.enemyHeroDangerRatio,
-		result);
+		evaluationContext.explorePriority,
+		evaluationContext.isDefend,
+		evaluationContext.isEnemy,
+		evaluationContext.powerRatio,
+		result
+	);
 #endif
 
 	return result;

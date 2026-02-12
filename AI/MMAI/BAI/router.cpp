@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "CRandomGenerator.h"
 #include "callback/CBattleCallback.h"
 #include "callback/CDynLibHandler.h"
 #include "callback/IGameInfoCallback.h"
@@ -17,6 +18,7 @@
 
 #include "BAI/base.h"
 #include "BAI/model/NNModel.h"
+#include "BAI/model/NNModelStochastic.h"
 #include "BAI/model/ScriptedModel.h"
 #include "BAI/router.h"
 
@@ -26,8 +28,7 @@
 
 namespace MMAI::BAI
 {
-using ConfigStorage = std::map<std::string, std::string>;
-using ModelStorage = std::map<std::string, std::unique_ptr<NNModel>>;
+using ModelStorage = std::map<std::string, std::unique_ptr<Schema::IModel>>;
 
 namespace
 {
@@ -52,28 +53,44 @@ namespace
 
 		JsonUtils::validate(json, "vcmi:mmaiSettings", "mmai");
 		repo->temperature = static_cast<float>(json["temperature"].Float());
+
 		repo->seed = json["seed"].Integer();
+		if(repo->seed == 0)
+			repo->seed = CRandomGenerator::getDefault().nextInt();
+
 		for(const std::string key : {"attacker", "defender"})
 		{
 			std::string path = "MMAI/models/" + json["models"][key].String();
 
-			// Try loading dynamic models with priority
+			// Try loading stochastic and dynamic models with priority
 			// (temporary code for a smooth migration path)
+			std::string suffix;
 			const auto pos = path.rfind(".onnx");
 			if(pos != std::string::npos)
 			{
-				std::string dynpath = path;
-				dynpath.insert(pos, "-dynamic"); // insert right before ".onnx"
-				const auto rpath = ResourcePath(dynpath, EResType::AI_MODEL);
-				const auto * rhandler = CResourceHandler::get();
-				if(rhandler->existsResource(rpath))
-					path = dynpath;
+				for(const std::string s : {"stochastic", "dynamic"})
+				{
+					std::string altpath = path;
+					altpath.insert(pos, "-" + s); // insert right before ".onnx"
+					const auto rpath = ResourcePath(altpath, EResType::AI_MODEL);
+					const auto * rhandler = CResourceHandler::get();
+					if(rhandler->existsResource(rpath))
+					{
+						path = altpath;
+						suffix = s;
+						break;
+					}
+				}
 			}
 
 			logAi->debug("MMAI: Loading NN %s model from: %s", key, path);
 			try
 			{
-				repo->models.try_emplace(key, std::make_unique<NNModel>(path, repo->temperature, repo->seed));
+				// Only stochastic models use a separate class
+				if(suffix == "stochastic")
+					repo->models.try_emplace(key, std::make_unique<NNModelStochastic>(path, repo->temperature, repo->seed));
+				else
+					repo->models.try_emplace(key, std::make_unique<NNModel>(path, repo->temperature, repo->seed));
 			}
 			catch(std::exception & e)
 			{

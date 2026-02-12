@@ -23,12 +23,23 @@ public:
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};
 
-	enum Character {
-		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
+	enum class Character : int8_t {
+		COMPLIANT = 0,
+		FRIENDLY = 1,
+		AGGRESSIVE = 2,
+		HOSTILE = 3,
+		SAVAGE = 4,
+		CUSTOM = 5
 	};
 
-	ui32 identifier = -1; //unique code for this monster (used in missions)
-	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
+	enum class UpgradedStackPresence : int8_t {
+		RANDOM = -1,
+		NEVER = 0,
+		ALWAYS = 1
+	};
+
+	Character initialCharacter = Character::COMPLIANT;
+	int8_t agression = 0; // h3 range: -4 -> compliant, 10 -> savage, set on init
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
@@ -36,6 +47,9 @@ public:
 	bool notGrowingTeam = false; //if true, number of units won't grow
 	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
 	int64_t stacksCount = -1; // the split stack count specified in a HotA 1.7 map (0 - one more, -1 - default, -2 one less, -3 average)
+	UpgradedStackPresence upgradedStackPresence = UpgradedStackPresence::RANDOM;
+	int8_t joiningPercentage = -1;
+	bool joinOnlyForMoney = false;
 
 	bool refusedJoining = false;
 
@@ -61,8 +75,16 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier;
-		h & character;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+		{
+			h & initialCharacter;
+		}
+		else
+		{
+			int32_t identifier = 0;
+			h & identifier;
+		}
+		h & agression;
 		h & message;
 		h & resources;
 		h & gainedArtifact;
@@ -73,6 +95,15 @@ public:
 		h & formation;
 		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
 			h & stacksCount;
+
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+			h & joiningPercentage;
+
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+		{
+			h & upgradedStackPresence;
+			h & joinOnlyForMoney;
+		}
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
