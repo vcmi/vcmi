@@ -8,23 +8,19 @@
  *
  */
 #include "StdInc.h"
-
-#include "LuaScriptingContext.h"
-
-#include <vstd/StringUtils.h>
-#include <vcmi/events/EventBus.h>
-#include <vcmi/ServerCallback.h>
-#include "vcmi/Services.h"
+#include "LuaContext.h"
 
 #include "LuaStack.h"
-
-#include "api/Registry.h"
+#include "LuaReference.h"
 
 #include "../lib/callback/IGameInfoCallback.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/battle/IBattleInfoCallback.h"
 #include "../lib/modding/ModScope.h"
+
+#include <vstd/StringUtils.h>
+#include <vcmi/ServerCallback.h>
+#include <vcmi/Services.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

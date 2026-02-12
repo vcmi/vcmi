@@ -14,7 +14,6 @@
 
 #include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
-#include "../../lib/scripting/ScriptPool.h"
 #include "../../lib/gameState/GameStatePackVisitor.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"

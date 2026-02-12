@@ -11,13 +11,14 @@
 
 #include "LuaSpellEffect.h"
 
+#include "LuaContext.h"
+#include "LuaScriptInstance.h"
+
 #include <vcmi/scripting/Service.h>
 
-#include "../lib/spells/effects/Registry.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/battle/Unit.h"
 #include "../lib/battle/CBattleInfoCallback.h"
-#include "../lib/json/JsonUtils.h"
 #include "../lib/serializer/JsonSerializeFormat.h"
 
 static const std::string APPLICABLE_GENERAL = "applicable";
@@ -31,7 +32,7 @@ namespace spells
 namespace effects
 {
 
-LuaSpellEffectFactory::LuaSpellEffectFactory(const Script * script_)
+LuaSpellEffectFactory::LuaSpellEffectFactory(const LuaScriptInstance * script_)
 	: script(script_)
 {
 
@@ -44,7 +45,7 @@ Effect * LuaSpellEffectFactory::create() const
 	return new LuaSpellEffect(script);
 }
 
-LuaSpellEffect::LuaSpellEffect(const Script * script_)
+LuaSpellEffect::LuaSpellEffect(const LuaScriptInstance * script_)
 	: script(script_)
 {
 
@@ -64,9 +65,7 @@ void LuaSpellEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics
 
 bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 {
-	std::shared_ptr<scripting::Context> context = resolveScript(m);
-	if(!context)
-		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
+	std::shared_ptr<LuaContext> context = resolveScript(m);
 
 	setContextVariables(m, context);
 
@@ -83,9 +82,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m) const
 
 bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
 {
-	std::shared_ptr<scripting::Context> context = resolveScript(m);
-	if(!context)
-		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
+	std::shared_ptr<scripting::LuaContext> context = resolveScript(m);
 
 	setContextVariables(m, context);
 
@@ -126,12 +123,7 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	if(target.empty())
 		return;
 
-	std::shared_ptr<scripting::Context> context = resolveScript(m);
-	if(!context)
-	{
-		server->complain("Unable to create scripting context");
-		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
-	}
+	std::shared_ptr<scripting::LuaContext> context = resolveScript(m);
 
 	setContextVariables(m, context);
 
@@ -157,12 +149,18 @@ void LuaSpellEffect::serializeJsonEffect(JsonSerializeFormat & handler)
 	//TODO: load everything and provide to script
 }
 
-std::shared_ptr<Context> LuaSpellEffect::resolveScript(const Mechanics * m) const
+std::shared_ptr<scripting::LuaContext> LuaSpellEffect::resolveScript(const Mechanics * m) const
 {
-	return m->battle()->getScriptContextPool().getContext(script);
+	//TODO: find a way to avoid dynamic casting
+	auto genericContext = m->battle()->getScriptContextPool().getContext(script);
+	auto luaContext = std::dynamic_pointer_cast<scripting::LuaContext>(genericContext);
+	if(!luaContext)
+		throw std::runtime_error("Failed to execute Lua script effect! Context not available!");
+
+	return luaContext;
 }
 
-void LuaSpellEffect::setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context)  const
+void LuaSpellEffect::setContextVariables(const Mechanics * m, const std::shared_ptr<scripting::LuaContext>& context)  const
 {
 	context->setGlobal("parameters", parameters);
 }

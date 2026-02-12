@@ -31,11 +31,6 @@ struct BankConfig;
 class CCallback;
 class CBattleCallback;
 
-namespace scripting
-{
-	class ScriptPoolImpl;
-}
-
 namespace events
 {
 	class EventBus;

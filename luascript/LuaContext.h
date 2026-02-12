@@ -10,15 +10,14 @@
 
 #pragma once
 
-#include "LuaWrapper.h"
-#include "LuaReference.h"
-
 #include <vcmi/scripting/Service.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting
 {
+
+class LuaReference;
 
 class LuaContext : public Context
 {

@@ -63,7 +63,6 @@
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
 #include "../rmg/CMapGenerator.h"
-#include "../scripting/ScriptPool.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../serializer/CLoadFile.h"
 #include "../serializer/CSaveFile.h"
@@ -71,6 +70,7 @@
 #include "UpgradeInfo.h"
 #include "mapObjects/CGPandoraBox.h"
 
+#include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -176,7 +176,7 @@ CGameState::CGameState()
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
 	scriptingEnvironment = std::make_unique<GameStateEnvironment>(*this);
-	scriptingPool = std::make_unique<scripting::ScriptPoolImpl>(scriptingEnvironment.get());
+	scriptingPool = LIBRARY->scripts()->createPoolInstance(scriptingEnvironment.get());
 }
 
 CGameState::~CGameState()

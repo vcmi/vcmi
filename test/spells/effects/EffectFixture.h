@@ -25,17 +25,18 @@
 #include "../../mock/mock_BonusBearer.h"
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
+#include "../../mock/mock_Services.h"
 #include "../../mock/mock_vstd_RNG.h"
 #include "mock/mock_vstd_CLoggerBase.h"
-#include "scripting/ScriptFixture.h"
 #include "../../mock/mock_scripting_Pool.h"
 #include "../../mock/mock_Environment.h"
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
 
-
 #include "../../../lib/battle/CBattleInfoCallback.h"
-#include "../../../lib/scripting/ScriptPool.h"
+#include "../../../luascript/LuaScriptPool.h"
+
+#include <vcmi/events/EventBus.h>
 
 namespace battle
 {
@@ -65,13 +66,14 @@ public:
 	StrictMock<IGameInfoCallbackMock> gameMock;
 	StrictMock<EnvironmentMock> environmentMock;
 	LoggerMock loggerMock;
-	EventBus eventBus;
+	events::EventBus eventBus;
 	StrictMock<ServicesMock> servicesMock;
 	vstd::RNGMock rngMock;
 
 	battle::UnitsFake unitsFake;
 
-	std::shared_ptr<ScriptPoolImpl> pool;
+	std::shared_ptr<LuaModule> luaModule;
+	std::unique_ptr<scripting::Pool> pool;
 	std::shared_ptr<battle::BattleFake> battleFake;
 
 	StrictMock<ServerCallbackMock> serverMock;

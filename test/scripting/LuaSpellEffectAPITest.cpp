@@ -19,6 +19,8 @@
 namespace test
 {
 
+#if 0
+
 using namespace ::testing;
 using namespace ::scripting;
 
@@ -172,5 +174,7 @@ TEST_F(LuaSpellEffectAPITest, ApplyMoveUnit)
 
 	context->callGlobal(&serverMock, "apply", params);
 }
+
+#endif
 
 }

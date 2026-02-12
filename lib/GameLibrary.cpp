@@ -203,11 +203,6 @@ void GameLibrary::initializeLibrary()
 	createHandler(mapFormat);
 }
 
-void GameLibrary::scriptsLoaded()
-{
-	scriptHandler->performRegistration(this);
-}
-
 GameLibrary::GameLibrary() = default;
 GameLibrary::~GameLibrary() = default;
 

@@ -40,7 +40,6 @@
 #include "../lib/mapping/CMapService.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/serializer/GameConnection.h"
-#include "../lib/scripting/ScriptPool.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>

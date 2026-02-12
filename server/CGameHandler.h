@@ -13,7 +13,6 @@
 
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
-#include "../lib/scripting/ScriptPool.h"
 #include "../lib/gameState/GameStatistics.h"
 #include "../lib/networkPacks/PacksForServer.h"
 #include "../lib/serializer/GameConnectionID.h"

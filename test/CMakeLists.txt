@@ -103,19 +103,17 @@ set(test_HEADERS
 
 )
 
-if(ENABLE_LUA)
-	list(APPEND test_SRCS
-		scripting/LuaSandboxTest.cpp
-		scripting/LuaSpellEffectTest.cpp
-		scripting/LuaSpellEffectAPITest.cpp
-		scripting/PoolTest.cpp
-		scripting/ScriptFixture.cpp
-	)
+list(APPEND test_SRCS
+	scripting/LuaSandboxTest.cpp
+	scripting/LuaSpellEffectTest.cpp
+	scripting/LuaSpellEffectAPITest.cpp
+	scripting/PoolTest.cpp
+	scripting/ScriptFixture.cpp
+)
 
-	list(APPEND test_HEADERS
-		scripting/ScriptFixture.h
-	)
-endif()
+list(APPEND test_HEADERS
+	scripting/ScriptFixture.h
+)
 
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
@@ -156,9 +154,7 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
-if(ENABLE_LUA)
-	target_link_libraries(vcmitest PRIVATE vcmiLua)
-endif()
+target_link_libraries(vcmitest PRIVATE vcmiLua)
 if(ENABLE_NULLKILLER2_AI)
 	target_link_libraries(vcmitest PUBLIC Nullkiller2)
 endif()

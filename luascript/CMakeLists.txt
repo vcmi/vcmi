@@ -3,8 +3,10 @@ include_directories(${Boost_INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${CMAKE_HOME_DIRECT
 set(lib_SRCS
 		StdInc.cpp
 		LuaReference.cpp
-		LuaScriptModule.cpp
-		LuaScriptingContext.cpp
+		LuaModule.cpp
+		LuaScriptInstance.cpp
+		LuaContext.cpp
+		LuaScriptPool.cpp
 		LuaSpellEffect.cpp
 		LuaStack.cpp
 
@@ -47,9 +49,11 @@ set(lib_HDRS
 		LuaCallWrapper.h
 		LuaFunctor.h
 		LuaReference.h
-		LuaScriptModule.h
-		LuaScriptingContext.h
+		LuaModule.h
+		LuaScriptInstance.h
+		LuaContext.h
 		LuaSpellEffect.h
+		LuaScriptPool.h
 		LuaStack.h
 		LuaWrapper.h
 

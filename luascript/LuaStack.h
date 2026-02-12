@@ -11,7 +11,7 @@
 #pragma once
 
 #include "api/Registry.h"
-#include "../lib/GameConstants.h"
+#include "../lib/constants/IdentifierBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

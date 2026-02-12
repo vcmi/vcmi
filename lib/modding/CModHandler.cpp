@@ -290,8 +290,6 @@ void CModHandler::load()
 			validationPassed.erase(modName);
 	}
 
-	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
-
 	content->loadCustom();
 
 	for(const TModID & modName : activeMods)

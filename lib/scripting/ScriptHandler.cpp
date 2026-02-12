@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "ScriptHandler.h"
-#include "ScriptImpl.h"
 
 #include "../VCMIDirs.h"
 #include "../callback/CDynLibHandler.h"
@@ -28,49 +27,17 @@ ScriptHandler::ScriptHandler()
 
 	filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
 
-	if(boost::filesystem::exists(filePath))
-	{
-		lua = CDynLibHandler::getNewScriptingModule(filePath);
-	}
+	if(!boost::filesystem::exists(filePath))
+		throw std::runtime_error("Critical error! Failed to initialize Lua scripting module!");
+
+	lua = CDynLibHandler::getNewScriptingModule(filePath);
 }
 
 ScriptHandler::~ScriptHandler() = default;
 
-const Script * ScriptHandler::resolveScript(const std::string & name) const
-{
-	auto iter = objects.find(name);
-
-	if(iter == objects.end())
-	{
-		logMod->error("Unknown script id '%s'", name);
-		return nullptr;
-	}
-	else
-	{
-		return iter->second.get();
-	}
-}
-
-std::vector<JsonNode> ScriptHandler::loadLegacyData()
-{
-	return std::vector<JsonNode>();
-}
-
-ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::string & scope, const JsonNode & json, const std::string & identifier) const
-{
-	auto ret = std::make_shared<ScriptImpl>(this);
-
-	JsonDeserializer handler(nullptr, json);
-	ret->identifier = identifier;
-	ret->modScope = scope;
-	ret->serializeJson(logger, handler);
-	return ret;
-}
-
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(logMod, scope, data, name);
-	objects[object->getJsonKey()] = object;
+	return lua->loadObject(scope, name, data);
 }
 
 void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -78,71 +45,21 @@ void ScriptHandler::loadObject(std::string scope, std::string name, const JsonNo
 	throw std::runtime_error("No legacy data load allowed for scripts");
 }
 
-void ScriptHandler::performRegistration(Services * services) const
+void ScriptHandler::afterLoadFinalization()
 {
-	for(const auto & keyValue : objects)
-	{
-		auto script = keyValue.second;
-		script->performRegistration(services);
-	}
+	return lua->afterLoadFinalization();
 }
 
-void ScriptHandler::initializePool(Pool & pool) const
+std::unique_ptr<Pool> ScriptHandler::createPoolInstance(const Environment * ENV) const
 {
-	for(const auto & keyValue : objects)
-		pool.registerScript(keyValue.second.get());
+	return lua->createPoolInstance(ENV);
 }
 
-void ScriptHandler::run(Pool & pool) const
+std::vector<JsonNode> ScriptHandler::loadLegacyData()
 {
-	for(const auto & keyValue : objects)
-	{
-		auto script = keyValue.second;
-
-		if(script->implements == ScriptImpl::Implements::ANYTHING)
-		{
-			auto context = pool.getContext(script.get());
-			//todo: consider explicit run for generic scripts
-		}
-	}
+	return std::vector<JsonNode>();
 }
 
-void ScriptHandler::loadState(const JsonNode & state)
-{
-	objects.clear();
-
-	const JsonNode & scriptsData = state["scripts"];
-
-	for(const auto & keyValue : scriptsData.Struct())
-	{
-		std::string name = keyValue.first;
-
-		const JsonNode & scriptData = keyValue.second;
-
-		auto script = std::make_shared<ScriptImpl>(this);
-
-		JsonDeserializer handler(nullptr, scriptData);
-		script->serializeJsonState(handler);
-		objects[name] = script;
-	}
-}
-
-void ScriptHandler::saveState(JsonNode & state)
-{
-	JsonNode & scriptsData = state["scripts"];
-
-	for(auto & keyValue : objects)
-	{
-		std::string name = keyValue.first;
-
-		ScriptPtr script = keyValue.second;
-		JsonNode scriptData;
-		JsonSerializer handler(nullptr, scriptData);
-		script->serializeJsonState(handler);
-
-		scriptsData[name] = scriptData;
-	}
-}
 }
 
 VCMI_LIB_NAMESPACE_END

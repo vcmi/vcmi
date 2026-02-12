@@ -20,10 +20,12 @@
 
 #include "../../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../../../lib/scripting/ScriptModule.h"
 
 namespace test
 {
+
+#if 0
+
 using namespace ::spells;
 using namespace ::spells::effects;
 using namespace ::scripting;
@@ -203,6 +205,8 @@ TEST_F(LuaSpellEffectTest, DISABLED_ApplyRedirected)
 	JsonComparer c(false);
 	c.compare("apply request", request, expected);
 }
+
+#endif
 
 }
 

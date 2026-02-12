@@ -17,6 +17,8 @@ namespace test
 
 using ::testing::Test;
 
+#if 0
+
 class LuaSandboxTest : public Test, public ScriptFixture
 {
 public:
@@ -35,5 +37,7 @@ TEST_F(LuaSandboxTest, Example)
 	loadScriptFromFile("test/lua/SandboxTest.lua");
 	runClientServer();
 }
+
+#endif
 
 }

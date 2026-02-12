@@ -716,13 +716,12 @@ if(ANDROID)
 		vcmi_install_libs_symlink("${CMAKE_SYSROOT}/usr/lib/${ANDROID_SYSROOT_LIB_SUBDIR}/${stlLibName}")
 	endif()
 else()
+	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
 	if (ENABLE_CLIENT OR ENABLE_SERVER)
 		install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 	endif()
 endif()
-
-install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 
 # that script is useless for Windows / iOS / Android
 if(NOT WIN32 AND NOT IOS AND NOT ANDROID)

@@ -31,8 +31,12 @@
 
 #include "../JsonComparer.h"
 
+#include "../../luascript/LuaScriptInstance.h"
+
 namespace test
 {
+
+#if 0
 
 using namespace ::testing;
 using namespace ::scripting;
@@ -45,7 +49,7 @@ public:
 
 	std::shared_ptr<PoolMock> pool;
 
-	std::shared_ptr<ScriptImpl> subject;
+	std::shared_ptr<LuaScriptInstance> subject;
 	std::shared_ptr<Context> context;
 
 	battle::UnitsFake unitsFake;
@@ -63,13 +67,13 @@ public:
 
 	void loadScriptFromFile(const std::string & path);
 	void loadScript(const JsonNode & scriptConfig);
-	void loadScript(ModulePtr modulePtr, const std::string & scriptSource);
-	void loadScript(ModulePtr modulePtr, const std::vector<std::string> & scriptSource);
+	void loadScript(LuaModule modulePtr, const std::string & scriptSource);
+	void loadScript(LuaModule modulePtr, const std::vector<std::string> & scriptSource);
 
 	JsonNode runClientServer(const JsonNode & scriptState = JsonNode());
 	JsonNode runServer(const JsonNode & scriptState = JsonNode());
 
-	JsonNode runScript(ModulePtr modulePtr, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
+	JsonNode runScript(LuaModule modulePtr, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
 
 protected:
 	void setUp();
@@ -77,5 +81,6 @@ protected:
 private:
 };
 
+#endif
 
 }

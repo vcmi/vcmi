@@ -43,9 +43,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
 
-#include "../lib/scripting/ScriptImpl.h"
-#include "../lib/scripting/ScriptHandler.h"
-
 void ClientCommandManager::handleQuitCommand()
 {
 		exit(EXIT_SUCCESS);
@@ -369,28 +366,6 @@ void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBu
 	}
 }
 
-void ClientCommandManager::handleGetScriptsCommand()
-{
-	printCommandMessage("Command accepted.\t");
-
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "scripts";
-
-	boost::filesystem::create_directories(outPath);
-
-	for(const auto & kv : LIBRARY->scriptHandler->objects)
-	{
-		std::string name = kv.first;
-		boost::algorithm::replace_all(name,":","_");
-
-		const scripting::ScriptImpl * script = kv.second.get();
-		boost::filesystem::path filePath = outPath / (name + ".lua");
-		std::ofstream file(filePath.c_str());
-		file << script->getSource();
-	}
-	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
-}
-
 void ClientCommandManager::handleGetTextCommand()
 {
 	printCommandMessage("Command accepted.\t");
@@ -641,9 +616,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(message=="get config")
 		handleGetConfigCommand();
-
-	else if(message=="get scripts")
-		handleGetScriptsCommand();
 
 	else if(message=="get txt")
 		handleGetTextCommand();

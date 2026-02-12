@@ -114,8 +114,6 @@ private:
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
 	void loadModFilesystem();
-
-	void scriptsLoaded();
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;

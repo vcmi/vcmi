@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-
 #include "LuaReference.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

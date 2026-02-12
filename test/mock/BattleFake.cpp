@@ -76,7 +76,7 @@ void UnitsFake::setDefaultBonusExpectations()
 
 BattleFake::~BattleFake() = default;
 
-BattleFake::BattleFake(std::shared_ptr<scripting::Pool> pool_):
+BattleFake::BattleFake(scripting::Pool & pool_):
 	pool(pool_)
 {
 }

@@ -12,6 +12,7 @@
 #include "MetaString.h"
 
 #include "../Registry.h"
+#include "../../../lib/constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +35,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 				{"replaceNumber", LuaMethodWrapper<MetaString, decltype(&MetaString::replaceNumber), &MetaString::replaceNumber>::invoke, false},
 
 				{"replaceNamePlural", LuaMethodWrapper<MetaString, decltype(&MetaString::replaceNamePlural), &MetaString::replaceNamePlural>::invoke, false},
-
 			};
 	}
 }

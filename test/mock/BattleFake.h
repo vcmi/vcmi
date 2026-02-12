@@ -60,10 +60,10 @@ public:
 
 class BattleFake : public CBattleInfoCallback, public BattleStateMock
 {
-	std::shared_ptr<scripting::Pool> pool;
+	scripting::Pool & pool;
 
 public:
-	BattleFake(std::shared_ptr<scripting::Pool> pool_);
+	BattleFake(scripting::Pool & pool_);
 	virtual ~BattleFake();
 
 	void setUp();

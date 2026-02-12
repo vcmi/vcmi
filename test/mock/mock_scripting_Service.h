@@ -18,9 +18,7 @@ namespace scripting
 class ServiceMock : public Service
 {
 public:
-	MOCK_CONST_METHOD1(performRegistration, void(Services * ));
-	MOCK_CONST_METHOD1(initializePool, void(Pool & ));
-	MOCK_CONST_METHOD1(run, void(Pool & ));
+    MOCK_CONST_METHOD1(createPoolInstance, std::unique_ptr<Pool>(const Environment * ));
 };
 
 }

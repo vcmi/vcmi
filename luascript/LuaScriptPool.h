@@ -11,7 +11,6 @@
 #pragma once
 
 #include <vcmi/scripting/Service.h>
-#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,23 +19,23 @@ class JsonNode;
 namespace scripting
 {
 
-class DLL_LINKAGE ScriptPoolImpl : public Pool
+class LuaModule;
+class LuaScriptInstance;
+
+class LuaScriptPool : public Pool
 {
 public:
-	ScriptPoolImpl(const Environment * ENV);
-	ScriptPoolImpl(const Environment * ENV, ServerCallback * SRV);
+	LuaScriptPool(const LuaModule & module, const Environment * ENV);
+
 	std::shared_ptr<Context> getContext(const Script * script) const override;
 
-	void serializeState(const bool saving, JsonNode & data) override;
-	void registerScript(const Script * script) override;
+	void registerScript(const LuaScriptInstance * script);
 
 private:
 	std::map<const Script *, std::shared_ptr<Context>> cache;
 
-	JsonNode state;
-
+	const LuaModule & module;
 	const Environment * env;
-	ServerCallback * srv;
 };
 }
 

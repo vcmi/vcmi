@@ -20,8 +20,8 @@ class JsonNode;
 
 namespace scripting
 {
-	class Script;
-	class Context;
+class LuaScriptInstance;
+class LuaContext;
 }
 
 namespace spells
@@ -29,25 +29,30 @@ namespace spells
 namespace effects
 {
 
-using scripting::Script;
-using scripting::Context;
+
 
 class LuaSpellEffectFactory : public IEffectFactory
 {
+	using LuaScriptInstance = scripting::LuaScriptInstance;
+	using LuaContext = scripting::LuaContext;
+
 public:
-	LuaSpellEffectFactory(const Script * script_);
+	LuaSpellEffectFactory(const LuaScriptInstance * script_);
 	virtual ~LuaSpellEffectFactory();
 
 	Effect * create() const override;
 
 private:
-	const Script * script;
+	const LuaScriptInstance * script;
 };
 
 class LuaSpellEffect : public Effect
 {
+	using LuaScriptInstance = scripting::LuaScriptInstance;
+	using LuaContext = scripting::LuaContext;
+
 public:
-	LuaSpellEffect(const Script * script_);
+	LuaSpellEffect(const LuaScriptInstance * script_);
 	virtual ~LuaSpellEffect();
 
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
@@ -67,12 +72,12 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 
 private:
-	const Script * script;
+	const LuaScriptInstance * script;
 	JsonNode parameters;
 
-	std::shared_ptr<Context> resolveScript(const Mechanics * m) const;
+	std::shared_ptr<LuaContext> resolveScript(const Mechanics * m) const;
 
-	void setContextVariables(const Mechanics * m, const std::shared_ptr<Context>& context) const;
+	void setContextVariables(const Mechanics * m, const std::shared_ptr<LuaContext>& context) const;
 	JsonNode spellTargetToJson(const Target & spellTarget) const;
 	Target spellTargetFromJson(const Mechanics * m, const JsonNode & config) const;
 };
