@@ -22,6 +22,42 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
+namespace
+{
+CPlayerInterface * getInterface()
+{
+	return GAME ? GAME->interface() : nullptr;
+}
+
+std::shared_ptr<CCallback> getCallback()
+{
+	auto * interface = getInterface();
+	if(!interface)
+		return {};
+
+	return interface->cb;
+}
+
+int3 getMapSizeSafe()
+{
+	auto callback = getCallback();
+	if(callback)
+		return callback->getMapSize();
+
+	const auto * map = GAME->map().getMap();
+	return int3(map->width, map->height, map->mapLevels);
+}
+
+bool isInMapSafe(const int3 & tile)
+{
+	auto callback = getCallback();
+	if(callback)
+		return callback->isInTheMap(tile);
+
+	return GAME->map().getMap()->isInTheMap(tile);
+}
+}
+
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
@@ -30,7 +66,7 @@ static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right
 
 MapRendererContextState::MapRendererContextState()
 {
-	auto mapSize = GAME->interface()->cb->getMapSize();
+	auto mapSize = getMapSizeSafe();
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
@@ -51,7 +87,7 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 		{
 			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
+			if(isInMapSafe(currTile) && obj->coveringAt(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
 				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
@@ -74,7 +110,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 		{
 			int3 currTile(x, y, object->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile))
+			if(isInMapSafe(currTile))
 			{
 				auto & container = objects[currTile.z][currTile.x][currTile.y];
 
@@ -87,8 +123,10 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 void MapRendererContextState::removeObject(const CGObjectInstance * object)
 {
-	for(int z = 0; z < GAME->interface()->cb->getMapSize().z; z++)
-		for(int x = 0; x < GAME->interface()->cb->getMapSize().x; x++)
-			for(int y = 0; y < GAME->interface()->cb->getMapSize().y; y++)
+	auto mapSize = getMapSizeSafe();
+
+	for(int z = 0; z < mapSize.z; z++)
+		for(int x = 0; x < mapSize.x; x++)
+			for(int y = 0; y < mapSize.y; y++)
 				vstd::erase(objects[z][x][y], object->id);
 }
