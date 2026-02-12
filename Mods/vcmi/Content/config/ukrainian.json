@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "-стрілок",
 	"vcmi.adventureMap.search.hover"            : "Шукати об'єкт мапи",
 	"vcmi.adventureMap.search.help"             : "Оберіть об'єкт для пошуку на мапі.",
+	"vcmi.adventureMap.layer.hover"             : "Змінити рівень  -  %s (%d) на %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Змінити рівень}\n\nПеремикає мапу пригод між рівнями мапи\n\nПеремикає %s (%d) на %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"  : "Ви впевнені, що хочете перезапустити гру?",
 	"vcmi.adventureMap.noTownWithMarket"    : "Немає доступних ринків!",
@@ -121,6 +123,9 @@
 	"vcmi.mainMenu.serverClosing" : "Завершення...",
 	"vcmi.mainMenu.hostTCP" : "Створити TCP/IP гру",
 	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
+	"vcmi.mainMenu.ipAddress" : "Локальна IP-адреса",
+	"vcmi.mainMenu.ipAddressUnknown" : "Невідомий",
+	"vcmi.mainMenu.join" : "Приєднатися",
 
 	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
@@ -284,6 +289,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Написати в чаті два випадкових міста",
 	"vcmi.lobby.pvp.versus" : "проти",
 
+	"vcmi.client.screenShot" : "Знімок екрана збережено в %s",
 	"vcmi.client.errors.invalidMap" : "{Пошкоджена карта або кампанія}\n\nНе вдалося запустити гру! Вибрана карта або кампанія може бути невірною або пошкодженою. Причина:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Помилка завантаження модифікації}\n\nВиявлено критичні проблеми при завантаженні модифікацій! Гра може працювати некоректно або аварійно завершитись! Будь ласка, оновіть або вимкніть наступні моди:\n\n",
 	"vcmi.server.errors.disconnected" : "{Помилка мережі}\n\nВтрачено зв'язок з сервером гри!",
@@ -305,6 +311,19 @@
 	"vcmi.settingsMainWindow.adventureTab.hover" : "Мапа Пригод",
 	"vcmi.settingsMainWindow.adventureTab.help"  : "Перемикає на вкладку параметрів мапи пригод - мапа пригод є частиною гри, де ви можете переміщати своїх героїв",
 
+	"vcmi.keyBindings.button.hover" : "Комбінації клавіш",
+	"vcmi.keyBindings.button.help"  : "{Комбінації клавіш}\n\nВідкрити меню для перегляду та налаштування комбінацій клавіш",
+	"vcmi.keyBindings.editButton.help" : "Змінити комбінацію клавіш",
+	"vcmi.keyBindings.input" : "Змінити прив'язку клавіш для {%s}.\n\nВведіть клавішу або комбінацію клавіш. Клацніть поза межами вікна, щоб скасувати.",
+	"vcmi.keyBindings.inputSet" : "Прив'язка клавіш для {%s} буде змінена на {%s}.\n\nДодати до існуючих прив'язок? Інакше вона буде замінена.",
+	"vcmi.keyBindings.popup" : "Для {%s} налаштовані наступні клавіші:\n\n",
+	"vcmi.keyBindings.reset" : "Скинути",
+	"vcmi.keyBindings.reset.help" : "{Скинути}\n\nСкидає налаштування клавіш до типових",
+	"vcmi.keyBindings.resetConfirm" : "Чи хочете ви скинути всі налаштування клавіш до типових?",
+	"vcmi.keyBindings.group.keyboard" : "Клавіатура",
+	"vcmi.keyBindings.group.joystickAxes" : "Осі контролера",
+	"vcmi.keyBindings.group.joystickButtons" : "Кнопки контролера",
+	
 	"vcmi.systemOptions.videoGroup" : "Налаштування відео",
 	"vcmi.systemOptions.audioGroup" : "Налаштування аудіо",
 	"vcmi.systemOptions.otherGroup" : "Інші налаштування",
@@ -624,6 +643,7 @@
 
 	"vcmi.campaignSet.chronicles" : "Хроніки Героїв",
 	"vcmi.campaignSet.hota" : "Ріг Безодні",
+	"vcmi.campaignSet.wog" : "Слідами Богів",
 
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -752,6 +772,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Додаткові удари}\nАтакує двічі",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Додаткові відплати}\nЗагін може нанести ${val} додаткових ударів у відповідь",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Чаклування при дотику}\nЗагін може накладати закляття ${subtype.spell} стоячи поруч із ціллю.",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Максимальний урон}\nЦей юніт завжди завдає максимально можливого урону",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Атакує всіх навколо}\nАтакує всіх прилеглих супротивників на додаток до основної цілі",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Ворог не відповідає пострілом}\nПротивник не може відповісти на постріл цього загону",
@@ -760,6 +781,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Зменшує вартість закляття}\nЗменшує вартість заклятть для героя на ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Демпфер магії (${val})}\nЗбільшує вартість ворожих заклять",
 	"core.bonus.CHARGE_IMMUNITY.description" : "{Захист від атаки кавалерії}\nЦей загін не отримує додаткової шкоди від кавалерійської атаки",
+	"core.bonus.CPU_CONTROLLED.description" : "{Автоматичні дії}\nГравець не може керувати цим загоном за замовчуванням.",
 	"core.bonus.DEATH_STARE.description" : "{Погляд смерті (${val}%) }\nМиттєво вбиває живу істоту з імовірністю ${val}%.",
 	"core.bonus.DEFENSIVE_STANCE.description" : "{Бонус до захисту}\nЗбільшує захист на +${val} після застосування захисту.",
 	"core.bonus.DESTRUCTION.description" : "{Знищення}\nМає ${val}% шанс вбити додаткових створінь після атаки",
@@ -878,5 +900,9 @@
 	"spellSchool.core.air.name" : "Повітря",
 	"spellSchool.core.earth.name" : "Земля",
 	"spellSchool.core.fire.name" : "Вогонь",
-	"spellSchool.core.water.name" : "Вода"
+	"spellSchool.core.water.name" : "Вода",
+	
+	"mapLayer.core.surface.name" : "Поверхня",
+	"mapLayer.core.underground.name" : "Підземелля",
+	"mapLayer.core.unknown.name" : "Невідомий"
 }

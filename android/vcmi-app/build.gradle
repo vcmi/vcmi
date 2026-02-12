@@ -35,7 +35,7 @@ android {
 		minSdk = qtMinSdkVersion as Integer
 		targetSdk = qtTargetSdkVersion as Integer // ANDROID_TARGET_SDK_VERSION in the CMake project
 
-        versionCode 1721
+        versionCode 1724
 		versionName "1.7.2"
 	}
 
