@@ -2284,4 +2284,9 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 		return BattleSide::DEFENDER;
 }
 
+const scripting::Pool & CBattleInfoCallback::getScriptContextPool() const
+{
+	return getBattle()->getScriptContextPool();
+}
+
 VCMI_LIB_NAMESPACE_END

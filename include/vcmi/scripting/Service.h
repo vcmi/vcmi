@@ -10,7 +10,6 @@
 
 #pragma once
 
-#if SCRIPTING_ENABLED
 #include <vcmi/Environment.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -54,10 +53,8 @@ class DLL_LINKAGE Script
 public:
 	virtual ~Script() = default;
 
-	virtual const std::string & getName() const = 0;
+	virtual std::string getJsonKey() const = 0;
 	virtual const std::string & getSource() const = 0;
-
-	virtual std::shared_ptr<Context> createContext(const Environment * env) const = 0;
 };
 
 class DLL_LINKAGE Pool
@@ -65,9 +62,7 @@ class DLL_LINKAGE Pool
 public:
 	virtual ~Pool() = default;
 
-	virtual void serializeState(const bool saving, JsonNode & data) = 0;
-
-	virtual std::shared_ptr<Context> getContext(const Script * script) = 0;
+	virtual std::shared_ptr<Context> getContext(const Script * script) const = 0;
 };
 
 class DLL_LINKAGE Service
@@ -75,12 +70,21 @@ class DLL_LINKAGE Service
 public:
 	virtual ~Service() = default;
 
-	virtual void performRegistration(Services * services) const = 0;
-	virtual void run(std::shared_ptr<Pool> pool) const = 0;
+	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
 };
 
+class DLL_LINKAGE Module
+{
+public:
+	virtual ~Module() = default;
+
+	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) = 0;
+	virtual void afterLoadFinalization() = 0;
+
+	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
+
+};
 
 }
 
 VCMI_LIB_NAMESPACE_END
-#endif

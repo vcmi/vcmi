@@ -19,7 +19,7 @@
 #include "../CConfigHandler.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
-#include "../ScriptHandler.h"
+#include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
@@ -289,10 +289,6 @@ void CModHandler::load()
 		if (!isValid)
 			validationPassed.erase(modName);
 	}
-
-#if SCRIPTING_ENABLED
-	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
-#endif
 
 	content->loadCustom();
 

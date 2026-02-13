@@ -174,11 +174,9 @@ std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(const std::
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-#if SCRIPTING_ENABLED
 std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const boost::filesystem::path & dllname)
 {
 	return createAny<scripting::Module>(dllname, "GetNewModule");
 }
-#endif
 
 VCMI_LIB_NAMESPACE_END

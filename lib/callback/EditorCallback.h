@@ -25,6 +25,7 @@ public:
 	// Access to full game state — not available in editor
 	CGameState & gameState() override;
 	const CGameState & gameState() const override;
+	const scripting::Pool & getScriptContextPool() const override;
 
 	// Unused in editor — return null or dummy
 	const StartInfo * getStartInfo() const override;
@@ -53,11 +54,6 @@ public:
 
 	bool isVisibleFor(int3 pos, PlayerColor player) const override;
 	bool isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const override;
-
-// Optional scripting
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
-#endif
 
 	// Player-related (stub or throw)
 	const TeamState * getTeam(TeamID teamID) const override;

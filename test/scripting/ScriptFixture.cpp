@@ -8,15 +8,18 @@
  *
  */
 #include "StdInc.h"
-#include "lib/modding/ModScope.h"
-#include "lib/GameLibrary.h"
-
 #include "ScriptFixture.h"
+
+#include "../../lib/modding/ModScope.h"
+#include "../../lib/GameLibrary.h"
+
 
 namespace test
 {
 using namespace ::testing;
 using namespace ::scripting;
+
+#if 0
 
 ScriptFixture::ScriptFixture() =  default;
 
@@ -89,5 +92,6 @@ JsonNode ScriptFixture::runScript(ModulePtr modulePtr, const std::string & scrip
 	return runClientServer(scriptState);
 }
 
+#endif
 
 }

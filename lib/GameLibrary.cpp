@@ -40,7 +40,7 @@
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
-#include "ScriptHandler.h"
+#include "scripting/ScriptHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "GameSettings.h"
@@ -81,12 +81,10 @@ const ResourceTypeService * GameLibrary::resources() const
 	return resourceTypeHandler.get();
 }
 
-#if SCRIPTING_ENABLED
 const scripting::Service * GameLibrary::scripts() const
 {
 	return scriptHandler.get();
 }
-#endif
 
 const spells::Service * GameLibrary::spells() const
 {
@@ -194,9 +192,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(terviewh);
 	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
-#if SCRIPTING_ENABLED
 	createHandler(scriptHandler);
-#endif
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
@@ -206,13 +202,6 @@ void GameLibrary::initializeLibrary()
 
 	createHandler(mapFormat);
 }
-
-#if SCRIPTING_ENABLED
-void GameLibrary::scriptsLoaded()
-{
-	scriptHandler->performRegistration(this);
-}
-#endif
 
 GameLibrary::GameLibrary() = default;
 GameLibrary::~GameLibrary() = default;

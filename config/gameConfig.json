@@ -140,6 +140,12 @@
 		"config/mapLayers.json"
 	],
 	
+	"scripts" : {
+		"summon" : {
+			"source" : "scripts/SpellEffectSummon.lua",
+			"implements" : "BATTLE_EFFECT"
+		}
+	},
 	
 	"settings":
 	{

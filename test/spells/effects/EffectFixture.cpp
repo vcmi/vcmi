@@ -76,16 +76,19 @@ void EffectFixture::setupEffect(Registry * registry, const JsonNode & effectConf
 
 void EffectFixture::setUp()
 {
-#if SCRIPTING_ENABLED
-	pool = std::make_shared<PoolMock>();
-	battleFake = std::make_shared<battle::BattleFake>(pool);
-#else
-	battleFake = std::make_shared<battle::BattleFake>();
-#endif
+	EXPECT_CALL(environmentMock, game()).WillRepeatedly(Return(&gameMock));
+	EXPECT_CALL(environmentMock, logger()).WillRepeatedly(Return(&loggerMock));
+	EXPECT_CALL(environmentMock, eventBus()).WillRepeatedly(Return(&eventBus));
+	EXPECT_CALL(environmentMock, services()).WillRepeatedly(Return(&servicesMock));
+
+	pool = LIBRARY->scripts()->createPoolInstance(&environmentMock);
+	battleFake = std::make_shared<battle::BattleFake>(*pool);
 	battleFake->setUp();
 
 	EXPECT_CALL(mechanicsMock, game()).WillRepeatedly(Return(&gameMock));
 	EXPECT_CALL(mechanicsMock, battle()).WillRepeatedly(Return(battleFake.get()));
+
+	EXPECT_CALL(*battleFake, getScriptContextPool()).WillRepeatedly(ReturnRef(*pool));
 
 	ON_CALL(*battleFake, getUnitsIf(_)).WillByDefault(Invoke(&unitsFake, &battle::UnitsFake::getUnitsIf));
 	ON_CALL(mechanicsMock, spells()).WillByDefault(Return(&spellServiceMock));

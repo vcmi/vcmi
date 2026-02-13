@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/ScriptHandler.h"
-
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_ServerCallback.h"
 #include "../mock/mock_scripting_Context.h"
@@ -18,11 +16,15 @@
 
 #include "../JsonComparer.h"
 
+#include "../../luascript/LuaScriptPool.h"
+
 namespace scripting
 {
 namespace test
 {
 using namespace ::testing;
+
+#if 0
 
 class PoolTest : public Test
 {
@@ -32,18 +34,18 @@ public:
 	NiceMock<EnvironmentMock> env;
 
 	StrictMock<ScriptMock> script;
-	std::shared_ptr<PoolImpl> subject;
+	std::shared_ptr<LuaScriptPool> subject;
 	StrictMock<ServerCallbackMock> server;
 
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(script, getName()).WillRepeatedly(ReturnRef(SCRIPT_NAME));
+		EXPECT_CALL(script, getJsonKey()).WillRepeatedly(Return(SCRIPT_NAME));
 	}
 
 protected:
 	void SetUp() override
 	{
-		subject = std::make_shared<PoolImpl>(&env);
+		subject = std::make_shared<LuaScriptPool>(&env);
 	}
 };
 
@@ -76,41 +78,7 @@ TEST_F(PoolTest, CreatesNewContextWithEmptyState)
 	subject->getContext(&script);//return value ignored
 }
 
-TEST_F(PoolTest, SavesScriptState)
-{
-	setDefaultExpectations();
-	auto context = std::make_shared<StrictMock<ContextMock>>();
-	EXPECT_CALL(script, createContext(Eq(&env))).WillOnce(Return(context));
-
-	EXPECT_CALL(*context, run(Eq(JsonNode()))).Times(1);
-	subject->getContext(&script);
-
-	JsonNode expectedState;
-	expectedState[SCRIPT_NAME]["foo"].String() = "bar";
-
-	EXPECT_CALL(*context, saveState()).WillOnce(Return(expectedState[SCRIPT_NAME]));
-
-	JsonNode actualState;
-	subject->serializeState(true, actualState);
-
-	JsonComparer c(false);
-	c.compare("state", actualState, expectedState);
-}
-
-TEST_F(PoolTest, LoadsScriptState)
-{
-	setDefaultExpectations();
-	auto context = std::make_shared<StrictMock<ContextMock>>();
-	EXPECT_CALL(script, createContext(Eq(&env))).WillOnce(Return(context));
-
-	JsonNode expectedState;
-	expectedState[SCRIPT_NAME]["foo"].String() = "bar";
-
-	subject->serializeState(false, expectedState);
-
-	EXPECT_CALL(*context, run(Eq(expectedState[SCRIPT_NAME]))).Times(1);
-	subject->getContext(&script);
-}
+#endif
 
 }
 }

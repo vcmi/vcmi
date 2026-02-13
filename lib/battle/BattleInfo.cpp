@@ -499,6 +499,11 @@ const IBattleInfo * BattleInfo::getBattle() const
 	return this;
 }
 
+const scripting::Pool & BattleInfo::getScriptContextPool() const
+{
+	return cb->getScriptContextPool();
+}
+
 std::optional<PlayerColor> BattleInfo::getPlayerID() const
 {
 	return std::nullopt;
@@ -974,15 +979,6 @@ void BattleInfo::postDeserialize()
 	for (const auto & unit : stacks)
 		unit->postDeserialize(getSideArmy(unit->unitSide()));
 }
-
-#if SCRIPTING_ENABLED
-scripting::Pool * BattleInfo::getContextPool() const
-{
-	//this is real battle, use global scripting context pool
-	//TODO: make this line not ugly
-	return battleGetFightingHero(BattleSide::ATTACKER)->cb->getGlobalContextPool();
-}
-#endif
 
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b) const
 {

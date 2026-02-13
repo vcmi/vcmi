@@ -98,6 +98,7 @@ public:
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 	bool isMeleeAttacker() const;
+	bool isSummoned() const;
 
 	/// returns initial size of this unit
 	virtual int32_t getCount() const = 0;

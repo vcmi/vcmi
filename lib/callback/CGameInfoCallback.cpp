@@ -173,6 +173,11 @@ const StartInfo * CGameInfoCallback::getInitialStartInfo() const
 	return gameState().getInitialStartInfo();
 }
 
+const scripting::Pool & CGameInfoCallback::getScriptContextPool() const
+{
+	return gameState().getScriptContextPool();
+}
+
 int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(caster), "Cannot get info about caster!", -1);
@@ -934,12 +939,5 @@ bool CGameInfoCallback::checkForVisitableDir(const int3 & src, const int3 & dst)
 	const TerrainTile * pom = &map.getTile(dst);
 	return map.checkForVisitableDir(src, pom, dst);
 }
-
-#if SCRIPTING_ENABLED
-scripting::Pool * CGameInfoCallback::getGlobalContextPool() const
-{
-	return nullptr; // TODO
-}
-#endif
 
 VCMI_LIB_NAMESPACE_END

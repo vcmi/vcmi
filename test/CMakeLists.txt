@@ -103,43 +103,17 @@ set(test_HEADERS
 
 )
 
-if(ENABLE_LUA)
-	list(APPEND test_SRCS
-		scripting/LuaSandboxTest.cpp
-		scripting/LuaSpellEffectTest.cpp
-		scripting/LuaSpellEffectAPITest.cpp
-		scripting/PoolTest.cpp
-		scripting/ScriptFixture.cpp
-	)
+list(APPEND test_SRCS
+	scripting/LuaSandboxTest.cpp
+	scripting/LuaSpellEffectTest.cpp
+	scripting/LuaSpellEffectAPITest.cpp
+	scripting/PoolTest.cpp
+	scripting/ScriptFixture.cpp
+)
 
-	list(APPEND test_HEADERS
-		scripting/ScriptFixture.h
-	)
-endif()
-
-if(ENABLE_ERM)
-	list(APPEND test_SRCS
-		erm/ERM_BM.cpp
-		erm/ERM_BU.cpp
-		erm/ERM_FU.cpp
-		erm/ERM_GM_T.cpp
-		erm/ERM_MA.cpp
-		erm/ERM_MC.cpp
-		erm/ERM_MF.cpp
-		erm/ERM_TM_T.cpp
-		erm/ERM_VR.cpp
-		erm/ERM_UN.cpp
-		erm/ERMPersistenceTest.cpp
-		erm/ExamplesTest.cpp
-		erm/interpretter/ERM_VR.cpp
-		erm/interpretter/ERM_UN.cpp
-		erm/interpretter/ErmRunner.cpp
-	)
-
-	list(APPEND test_HEADERS
-		erm/interpretter/ErmRunner.h
-	)
-endif()
+list(APPEND test_HEADERS
+	scripting/ScriptFixture.h
+)
 
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
@@ -180,9 +154,7 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
-if(ENABLE_LUA)
-	target_link_libraries(vcmitest PRIVATE vcmiLua)
-endif()
+target_link_libraries(vcmitest PRIVATE vcmiLua)
 if(ENABLE_NULLKILLER2_AI)
 	target_link_libraries(vcmitest PUBLIC Nullkiller2)
 endif()

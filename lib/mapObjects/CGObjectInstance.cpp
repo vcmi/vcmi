@@ -181,10 +181,6 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 	case ObjProperty::OWNER:
 		tempOwner = identifier.as<PlayerColor>();
 		break;
-	case ObjProperty::BLOCKVIS:
-		// Never actually used in code, but possible in ERM
-		blockVisit = identifier.getNum();
-		break;
 	case ObjProperty::ID:
 		ID = identifier.as<MapObjectID>();
 		break;

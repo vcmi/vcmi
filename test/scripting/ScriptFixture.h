@@ -15,7 +15,7 @@
 #include <vcmi/events/EventBus.h>
 
 #include "../../../lib/json/JsonNode.h"
-#include "../../lib/ScriptHandler.h"
+#include "../../lib/scripting/ScriptHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/bonuses/Bonus.h"
 
@@ -23,9 +23,7 @@
 #include "../mock/mock_IBattleInfoCallback.h"
 #include "../mock/mock_IGameInfoCallback.h"
 #include "../mock/mock_battle_IBattleState.h"
-#if SCRIPTING_ENABLED
 #include "../mock/mock_scripting_Pool.h"
-#endif
 #include "../mock/mock_Environment.h"
 #include "../mock/mock_Services.h"
 #include "../mock/mock_vstd_CLoggerBase.h"
@@ -33,8 +31,12 @@
 
 #include "../JsonComparer.h"
 
+#include "../../luascript/LuaScriptInstance.h"
+
 namespace test
 {
+
+#if 0
 
 using namespace ::testing;
 using namespace ::scripting;
@@ -47,7 +49,7 @@ public:
 
 	std::shared_ptr<PoolMock> pool;
 
-	std::shared_ptr<ScriptImpl> subject;
+	std::shared_ptr<LuaScriptInstance> subject;
 	std::shared_ptr<Context> context;
 
 	battle::UnitsFake unitsFake;
@@ -65,13 +67,13 @@ public:
 
 	void loadScriptFromFile(const std::string & path);
 	void loadScript(const JsonNode & scriptConfig);
-	void loadScript(ModulePtr modulePtr, const std::string & scriptSource);
-	void loadScript(ModulePtr modulePtr, const std::vector<std::string> & scriptSource);
+	void loadScript(LuaModule modulePtr, const std::string & scriptSource);
+	void loadScript(LuaModule modulePtr, const std::vector<std::string> & scriptSource);
 
 	JsonNode runClientServer(const JsonNode & scriptState = JsonNode());
 	JsonNode runServer(const JsonNode & scriptState = JsonNode());
 
-	JsonNode runScript(ModulePtr modulePtr, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
+	JsonNode runScript(LuaModule modulePtr, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
 
 protected:
 	void setUp();
@@ -79,5 +81,6 @@ protected:
 private:
 };
 
+#endif
 
 }

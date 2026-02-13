@@ -42,12 +42,10 @@ class IMarket;
 
 using FowTilesType = std::set<int3>;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 class Pool;
 }
-#endif
 
 namespace vstd
 {
@@ -166,9 +164,8 @@ public:
 	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
 
-#if SCRIPTING_ENABLED
-	virtual scripting::Pool * getGlobalContextPool() const = 0;
-#endif
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
+
 };
 
 VCMI_LIB_NAMESPACE_END

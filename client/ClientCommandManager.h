@@ -57,9 +57,6 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// Saves current game configuration into extracted/configuration folder
 	void handleGetConfigCommand();
 
-	// Dumps all scripts in Extracted/Scripts
-	void handleGetScriptsCommand();
-
 	// Dumps all .txt files from DATA into Extracted/DATA
 	void handleGetTextCommand();
 

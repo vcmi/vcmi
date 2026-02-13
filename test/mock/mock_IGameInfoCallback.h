@@ -37,12 +37,12 @@ public:
 
 	//hero
 	MOCK_CONST_METHOD1(getHero, const CGHeroInstance *(ObjectInstanceID));
-	MOCK_CONST_METHOD1(getHeroWithSubid, const CGHeroInstance *(int));
 
 	//objects
 	MOCK_CONST_METHOD2(getObj, const CGObjectInstance *(ObjectInstanceID, bool));
 	MOCK_CONST_METHOD2(getVisitableObjs, std::vector<const CGObjectInstance*>(int3, bool));
 
+	const scripting::Pool & getScriptContextPool() const override { throw std::runtime_error("not implemented");}
 	CGameState & gameState() { throw std::runtime_error("not implemented");}
 	const CGameState & gameState() const { throw std::runtime_error("not implemented");}
 	const IGameSettings & getSettings() const { throw std::runtime_error("not implemented");}
@@ -82,7 +82,5 @@ public:
 
 	MOCK_METHOD2(pickAllowedArtsSet, void(std::vector<ArtifactID> & out, vstd::RNG & rand));
 
-#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
-#endif
 };
