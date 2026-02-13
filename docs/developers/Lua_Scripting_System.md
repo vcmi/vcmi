@@ -38,7 +38,7 @@
 
 ### API Reference
 
-TODO **In near future Lua API may change drastically several times. Information here may be outdated**
+The Lua scripting API provides access to core game functionality and is continuously improved. For the latest API changes, check the Git history of the `scripting/lua/api/` directory.
 
 #### Globals
 
