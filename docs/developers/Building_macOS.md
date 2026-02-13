@@ -37,7 +37,7 @@ On the step where you need to replace **PROFILE**, choose:
 ### Homebrew
 
 1. [Install Homebrew](https://brew.sh/)
-2. Install dependencies: `brew install boost minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb libsquish onnxruntime fmt glaze`
+2. Install dependencies: `brew install boost minizip sdl2 sdl2_image sdl2_mixer sdl2_ttf tbb`
     - you can also use minizip-ng instead of minizip
 3. If you want to watch in-game videos, also install FFmpeg: `brew install ffmpeg` (you can also use an earlier FFmpeg version)
 4. Install Qt dependency in either of the ways (note that you can skip this if you're not going to build Launcher and Map editor):

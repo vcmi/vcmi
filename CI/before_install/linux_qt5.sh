@@ -23,7 +23,7 @@ sudo eatmydata apt -yq --no-install-recommends \
   libqt5svg5-dev \
   ninja-build zlib1g-dev libavformat-dev libswscale-dev libtbb-dev \
   libluajit-5.1-dev libminizip-dev libfuzzylite-dev libsqlite3-dev \
-  libsquish-dev libfmt-dev
+  libsquish-dev
 
 sudo rm -f  "$APT_CACHE/lock" || true
 sudo rm -rf "$APT_CACHE/partial" || true
