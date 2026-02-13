@@ -548,13 +548,6 @@ if(TARGET luajit::luajit)
 else()
 	message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
 	find_package(Lua REQUIRED)
-	if(Lua_FOUND)
-		add_library(luajit::luajit UNKNOWN IMPORTED)
-		set_target_properties(luajit::luajit PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
-		set_target_properties(luajit::luajit PROPERTIES
-			IMPORTED_LOCATION "${LUA_LIBRARIES}")
-	endif()
 endif()
 
 ############################################

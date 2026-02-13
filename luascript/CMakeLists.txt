@@ -1,5 +1,9 @@
 include_directories(${Boost_INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 
+if(NOT TARGET luajit::luajit)
+	include_directories(${LUA_INCLUDE_DIR})
+endif()
+
 set(lib_SRCS
 		StdInc.cpp
 		LuaReference.cpp
@@ -95,7 +99,11 @@ set(lib_HDRS
 assign_source_group(${lib_SRCS} ${lib_HDRS})
 
 add_library(vcmiLua SHARED ${lib_SRCS} ${lib_HDRS})
-target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
+if(TARGET luajit::luajit)
+	target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
+else()
+	target_link_libraries(vcmiLua Boost::boost ${LUA_LIBRARIES} vcmi)
+endif()
 
 vcmi_set_output_dir(vcmiLua "scripting")
 enable_pch(vcmiLua)

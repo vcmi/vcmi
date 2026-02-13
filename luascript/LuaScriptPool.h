@@ -34,7 +34,6 @@ public:
 private:
 	std::map<const Script *, std::shared_ptr<Context>> cache;
 
-	const LuaModule & module;
 	const Environment * env;
 };
 }

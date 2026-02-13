@@ -27,7 +27,7 @@ namespace scripting
 {
 
 LuaScriptPool::LuaScriptPool(const LuaModule & module, const Environment * ENV)
-	: module(module), env(ENV)
+	: env(ENV)
 {
 }
 

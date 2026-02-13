@@ -483,6 +483,11 @@ ServerCallback * HypotheticBattle::getServerCallback()
 	return serverCallback.get();
 }
 
+const scripting::Pool & HypotheticBattle::getScriptContextPool() const
+{
+	return subject->getBattle()->getScriptContextPool();
+}
+
 void HypotheticBattle::makeWait(const battle::Unit * activeStack)
 {
 	auto unit = getForUpdate(activeStack->unitId());
