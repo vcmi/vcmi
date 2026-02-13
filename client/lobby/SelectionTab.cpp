@@ -58,8 +58,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (aaa->isFolder > bbb->isFolder);
 		else
 		{
-			if(boost::algorithm::starts_with(aaa->folderName, "..") || boost::algorithm::starts_with(bbb->folderName, ".."))
-				return boost::algorithm::starts_with(aaa->folderName, "..");
+			const bool aParent = boost::algorithm::starts_with(aaa->folderName, "..");
+			const bool bParent = boost::algorithm::starts_with(bbb->folderName, "..");
+			if(aParent != bParent)
+				return aParent;
 			return TextOperations::compareLocalizedStrings(aaa->folderName, bbb->folderName);
 		}
 	}
@@ -1166,4 +1168,3 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	labelName->setText(info->name);
 	labelName->setColor(color);
 }
-

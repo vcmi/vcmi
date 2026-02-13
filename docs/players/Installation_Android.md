@@ -1,69 +1,68 @@
-# Installation Android
+# Installation on Android
+
+## Prerequisites
+
+- Android 5 or newer is required.
+- VCMI requires original *Heroes of Might and Magic III: Shadow of Death* or *Complete* data files.
 
 ## Step 1: Download and install VCMI
 
-**This app requires original Heroes of Might and Magic 3 SOD / Complete files to operate, they are not supplied with this installer. It is recommended to purchase version from GOG.com. It is frequently discounted. Heroes of Might and Magic 3 "HD edition" (steam version) files are not supported !!!**
+Install VCMI using one of the following options:
 
-Installation is a two step process. First you need to install VCMI, then you need to upload HOMM 3 original data files to your android device.
+- **Google Play version (recommended):** [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi)
+- **APK from GitHub releases:** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
+- **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/develop/Android/)
 
-- Latest release on Google Play (recommended): <https://play.google.com/store/apps/details?id=is.xyz.vcmi>
-- Latest release as .apk file: <https://github.com/vcmi/vcmi/releases/latest>
-- Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Android/>
+Install the app and start **VCMI**.
 
-## Step 2: Installing Heroes of Might and Magic 3 data files
+## Step 2: Obtain Heroes III data files
 
-If you already have HOMM 3 installed on your PC, you can connect your Android device and do the following:
+VCMI requires original *Heroes of Might and Magic III* data files.
 
-Copy "Data", "Maps" and "Mp3" from HOMM 3 to any folder on  mobile device, then open VCMI, select HOMM 3 data import option, then select the folder where you copied HOMM 3 data.
+### Option A (recommended): GOG offline installer
 
-Otherwise, please follow the steps below:
+1. Download the **offline backup installer** from GOG.com.
+2. The installer comes as two files:
+   - `.exe`
+   - `.bin`
+3. Make sure both files are downloaded.
 
-a) If you purchased HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the required files directly on your device. If you are logged into GOG you can follow the links below for instant access.
+![GoG-Installer](images/gog_offline_installer.png)
 
-[Heroes Chronicles AIO](https://www.gog.com/downloads/heroes_chronicles_all_chapters/en1installer0)
-[HOMM 3 GOG EXE](https://www.gog.com/downloads/heroes_of_might_and_magic_3_complete_edition/en1installer0)
-[HOMM 3 GOG BIN](https://www.gog.com/downloads/heroes_of_might_and_magic_3_complete_edition/en1installer1)
+### Option B: Use existing Heroes III installation on PC
 
-b) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
+If you already have Heroes III installed on a PC, you can reuse those files.
 
-c) First, select the **.bin** file, then select the **.exe** file.
+## Step 3: Import Heroes III data into VCMI
 
-![image](https://github.com/user-attachments/assets/9a02a76f-bb2e-45ad-b2fe-ffd97112021f)
+Open **VCMI** on your device.
 
-d) The process may take a few seconds. Please be patient.
+### A) Import from GOG installer
 
-## Step 3: Configuration settings
+1. Select the option to import GOG files.
+2. First select the `.exe` file.
+3. Then select the matching `.bin` file when prompted.
 
-e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
+VCMI will extract the required files.
 
-- Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" tablet).
-- Set **Upscaling filter** to **xBRZ x2** if not selected by default. This will enable the VCMI HD upscaling that is similar in effect to HOMM3 HD mod. Higher xBRZ selections may tank your Android device perfomance without providing a tangible benefit.
-- If you would like to have additional black bars on either side, increase **Reserved Screen Area** by moving the slider. This may show some minor extras such as fps counter, rounded edges and waterdrop notches.
+### B) Import from PC installation
 
-These settings will enable a full-screen VCMI experience. Enjoy!
+If you already have Heroes III installed on a PC:
 
-## Troubleshooting / known issues
+1. Connect your device to the PC using a USB cable.
+2. Enable file transfer mode on the device.
+3. Copy these folders from the Heroes III installation:
+   - `Data`
+   - `Maps`
+   - `Mp3`
 
-### The game crashes on start
+   to any accessible folder on your device, for example: Downloads/Heroes3
 
-**Please double check that you copied original SoD/Complete game files into your Android Device**  
+4. Start VCMI Launcher.
+5. Choose data import and select the folder where the files were copied.
 
-### I imported game data files, but music in game is missing
+## Step 4: Finish setup in Launcher
 
-**Solution:** Try to run data import again or place Mp3 folder from Heroes III manually to Android/data/is.xyz.vcmi/files/vcmi-data/Mp3
+Follow the instructions in the Launcher to finish installation and optionally download recommended mods.
 
-### I installed google play version, but have a problem while installing daily builds
-
-**Solution:** Uninstall google play version first, before installing daily build version.
-
-### I installed play version, but the screen is flashing / blank on its edges
-
-**Solution:** Update app to latest version
-
-### The game always starts in 800x600 resolution, cannot effectively change it, also there is a lot of blank space on my widescreen device
-
-**Solution:** Update app to latest version
-
-## Other problems
-
-Please report about gameplay problem: [Github](https://github.com/vcmi/vcmi/issues), [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) or [Discord](https://discord.gg/chBT42V). Make sure to specify your device and used version of Android.
+VCMI is now ready to play.

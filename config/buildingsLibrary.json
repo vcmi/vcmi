@@ -72,7 +72,14 @@
 
 	"marketplace":    { 
 		"id" : 14,
-		"marketModes" : ["resource-resource", "resource-player"]
+		"marketModes" : ["resource-resource", "resource-player"],
+		"bonuses": [
+			{
+				"propagator": "PLAYER",
+				"type": "MARKETPLACE_ACCESS",
+				"val": 1
+			}
+		]
 	},
 	"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ] },
 	"blacksmith":     { "id" : 16 },

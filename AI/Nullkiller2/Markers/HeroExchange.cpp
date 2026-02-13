@@ -32,7 +32,6 @@ std::string HeroExchange::toString() const
 uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) const
 {
 	uint64_t armyValue = aiNk->armyManager->howManyReinforcementsCanGet(hero, exchangePath.heroArmy);
-
 	return armyValue;
 }
 

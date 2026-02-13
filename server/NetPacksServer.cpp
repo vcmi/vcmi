@@ -29,7 +29,7 @@
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
-	gh.save(pack.fname);
+	gh.save(pack.fname, pack.notifySuccess ? pack.player : PlayerColor::CANNOT_DETERMINE);
 	logGlobal->info("Game has been saved as %s", pack.fname);
 	result = true;
 }
@@ -306,9 +306,18 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
+	{
+		ResourceSet resources;
 		for(int i = 0; i < pack.r1.size(); ++i)
+		{
 			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
+			resources[pack.r1[i].as<GameResID>()] = pack.val[i];
+		}
+		
+		if(pack.r1.size())
+			gh.informPlayerAboutSentResources(pack.player, pack.r2[0].as<PlayerColor>(), resources);
 		break;
+	}
 	case EMarketMode::CREATURE_RESOURCE:
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());
@@ -362,6 +371,14 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 	result = gh.setFormation(pack.hid, pack.formation);
 }
 
+void ApplyGhNetPackVisitor::visitSetTactics(SetTactics & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.hid);
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.setTactics(pack.hid, pack.enabled);
+}
+
 void ApplyGhNetPackVisitor::visitSetTownName(SetTownName & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.tid);
@@ -402,6 +419,15 @@ void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 	*gh.gameState().getPlayerState(pack.player)->playerLocalSettings = pack.data;
+	result = true;
+}
+
+void ApplyGhNetPackVisitor::visitAdvInterfaceReady(AdvInterfaceReady &pack)
+{
+	gh.throwIfWrongPlayer(connection, &pack);
+
+	gh.onAdvInterfaceReady(pack.player);
+
 	result = true;
 }
 

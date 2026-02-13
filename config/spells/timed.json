@@ -686,7 +686,8 @@
 			}
 		},
 		"flags" : {
-			"negative": true
+			"negative": true,
+			"persistent" : true
 		}
 	},
 	"prayer" : {

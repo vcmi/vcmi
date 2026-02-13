@@ -82,7 +82,7 @@ Usage:
 
 ## TIMES_STACK_SIZE
 
-Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in current unit stack
+Effect: Updates val to `val = stepValue * clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in current unit stack.
 
 Example of short form with default parameters:
 
@@ -104,6 +104,8 @@ Example of long form with custom parameters:
     
     // Optional, by default - 1
     "stepSize" : 2
+    // Optional, by default - 1
+    "stepValue" : 2
 }
 ```
 

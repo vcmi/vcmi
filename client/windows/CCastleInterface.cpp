@@ -90,8 +90,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 	// special animation frame manipulation for castle shipyard with and without ship
 	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
-	if(Town->getFactionID() == FactionID::CASTLE && Str->building &&
-		(Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	if(Town->getFactionID() == FactionID::CASTLE && Str->building && (Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
 	{
 		if(Town->hasBuilt(BuildingID::CITADEL))
 		{
@@ -100,6 +99,19 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 		}
 		else
 			this->last = 0;
+	}
+
+	// special animation frame manipulation for dungeon Mana Vortex with and without Mage Guild 5
+	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
+	if(Town->getFactionID() == FactionID::DUNGEON && Str->building && Str->building->bid == BuildingID::SPECIAL_2)
+	{
+		if(Town->hasBuilt(BuildingID::MAGES_GUILD_5))
+		{
+			this->first = 10;
+			this->frame = 10;
+		}
+		else
+			this->last = 9;
 	}
 
 	if(!str->borderName.empty())
@@ -1068,8 +1080,9 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 	}
 
 	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building.getNum());//will be deleted by selection window
-	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40],
-		LIBRARY->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, GAME->interface()->castleInt, _1), 0, images);
+	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40], LIBRARY->generaltexth->jktexts[41], [availableTowns](int index){
+		GAME->interface()->castleInt->castleTeleport(availableTowns[index]);
+	}, 0, images);
 	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(GAME->interface()->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
 	ENGINE->windows().pushWindow(wnd);
 }
@@ -2251,8 +2264,11 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 
 		ResourceSet costBase;
 		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
+		double pastResearchesCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
+		double pastRerollsCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
+		double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, town->spellResearchAcceptedCounter);
+		double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, town->spellResearchPendingRerollsCounters[level]);
+		ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 
@@ -2287,6 +2303,7 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/reroll")));
 		temp->buttons[1]->addCallback([this, town](){ GAME->interface()->cb->spellResearch(town, spell->id, false); });
 		temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.spellResearch.skip")); });
+		temp->buttons[1]->setEnabled(GAME->interface()->cb->getResourceAmount().canAfford(cost));
 		temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
 		temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.spellResearch.abort")); });
 

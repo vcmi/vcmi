@@ -135,6 +135,10 @@
 	[
 		"config/campaignRegions.json"
 	],
+	"mapLayers":
+	[
+		"config/mapLayers.json"
+	],
 	
 	
 	"settings":
@@ -552,16 +556,18 @@
 			"spellResearch": false,
 			// Cost for an spell research (array index is spell tier)
 			"spellResearchCost": [
-				{ "gold": 1000, "wood" : 2, "mercury": 2, "ore": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
-				{ "gold": 1000, "wood" : 4, "mercury": 4, "ore": 4, "sulfur": 4, "crystal": 4, "gems": 4 },
-				{ "gold": 1000, "wood" : 6, "mercury": 6, "ore": 6, "sulfur": 6, "crystal": 6, "gems": 6 },
-				{ "gold": 1000, "wood" : 8, "mercury": 8, "ore": 8, "sulfur": 8, "crystal": 8, "gems": 8 },
-				{ "gold": 1000, "wood" : 10, "mercury": 10, "ore": 10, "sulfur": 10, "crystal": 10, "gems": 10 }
+				{ "gold": 1000, "mercury": 2, "sulfur": 2, "crystal": 2, "gems": 2 },
+				{ "gold": 1000, "mercury": 3, "sulfur": 3, "crystal": 3, "gems": 3 },
+				{ "gold": 1000, "mercury": 4, "sulfur": 4, "crystal": 4, "gems": 4 },
+				{ "gold": 1000, "mercury": 5, "sulfur": 5, "crystal": 5, "gems": 5 },
+				{ "gold": 1000, "mercury": 6, "sulfur": 6, "crystal": 6, "gems": 6 }
 			],
 			// How much researchs/skips per day are possible? (array index is spell tier)
 			"spellResearchPerDay": [ 2, 2, 2, 2, 1 ],
-			// Exponent for increasing cost for each research (factor 1 disables this; array index is spell tier)
-			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ],
+			// Multiplier for increasing/decreasing cost for each accept/reroll on 2nd/3rd etc. slot after accepting spell on the previous slot (factor 1 disables this; array index is spell tier)
+			"spellResearchCostMultiplierPerResearch": [ 1, 1, 1, 1, 1 ],
+			// Multiplier for increasing/decreasing cost of research actions after each reroll - resets on accepting spell (factor 1 disables this; array index is spell tier)
+			"spellResearchCostMultiplierPerReroll": [ 1, 1, 1, 1, 1 ],
 			
 			// Base scouting range for town without any range modifiers
 			"baseScoutingRange" : 5
@@ -608,6 +614,8 @@
 			"oneHexTriggersObstacles": false,
 			// Allow area shooters with SPELL_LIKE_ATTACK bonus such as liches or magogs to target empty hexes
 			"areaShotCanTargetEmptyHex" : false,
+			// Amount of first rounds since battle start which disallow fleeing/surrendering as attacker after casting spell - part of established H3 PvP standard rules, HotA default is 1
+			"noSpellHitAndRunRounds" : 0,
 			
 			// Positions of units on start of the combat
 			// If battle does not defines specific configuration, 'default' configuration will be used
@@ -685,6 +693,14 @@
 			"weeklyGrowthPercent" : 10,
 			// creatures on map will not grow if their quantity is greater than this value
 			"weeklyGrowthCap" : 4000,
+			// additional growth applied during special growth weeks
+			"additionalWeeklyGrowthSpecialWeek" : 5,
+			// probability (in percent) for double growth month
+			"monthDoubleGrowthProbability" : 40,
+			// probability (in percent) for plague month
+			"monthPlagueProbability" : 10,
+			// probability (in percent) for special week
+			"weekSpecialProbability" : 25,
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
 			"dailyStackExperience" : 100,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
@@ -695,6 +711,7 @@
 			// if enabled creatures may join player for free, disabling it removes free joining globally unless creature is set to join in map editor
 			"allowJoiningForFree" : true,
 			// percent of stack amount that joins player per each successful join (does not decrease cost when joining for gold), if 0 or lower creatures never join for free or gold
+			// NOTE: on HotA maps this setting has no effect on units placed in map editor, preset value from h3m will be used instead
 			"joiningPercentage" : 100
 		},
 		
@@ -850,6 +867,12 @@
 		{
 			// Unlock all campaigns
 			"unlockAll" : false
+		},
+
+		"cheats" :
+		{
+			// build town cheat without grail
+			"buildWithoutGrail" : false
 		}
 	}
 }

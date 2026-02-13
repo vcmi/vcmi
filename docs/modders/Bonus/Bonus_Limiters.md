@@ -30,6 +30,10 @@ Bonus is active if affected unit is on native terrain
 
 Bonus is active only on units
 
+### UNIT_DEFENDING
+
+Bonus is active only while unit is defending
+
 ### OPPOSITE_SIDE
 
 Bonus is active only for opposite side for a battle-wide bonus. Requires `BONUS_OWNER_UPDATER` to be present on bonus
@@ -46,6 +50,8 @@ Parameters:
 - `bonusSubtype` - subtype of bonus to check against (only used if bonus type is set)
 - `bonusSourceType` - source type of bonus to check against
 - `bonusSourceID` -source ID of bonus to check against (only used if bonus type is set)
+- `bonusMinValue` - minimal total value of bonus to check against (inclusive)
+- `bonusMaxValue` - maximal total value of bonus to check against (inclusive)
 
 All parameters are optional.
 
@@ -183,6 +189,30 @@ Parameters:
 	{
 		"type" : "HAS_CHARGES_LIMITER",
 		"cost" : 2
+	}
+]
+```
+
+### UNIT_ADJACENT
+
+Can only be used for units in combat. Bonus is active if another unit is adjacent to unit with this bonus.
+
+If multiple same units are adjacent to holder of the bonus, effect does NOT stacks.
+
+Notes:
+
+- Using battle-wide propagator allows creating aura-like effect, giving bonus to all units adjacent to holder of battle-wide bonus. Filtering to create aura limited to allies or enemies can be done same name as usual battle-wide bonuses
+- If multiple different creatures (e.g. base and upgrade) have same aura effect, consider using stacking bonus property to avoid duplicated effect
+
+Parameters:
+
+- `creature` - Unit that must be adjacent to unit affected by bonus for this bonus to have an effect
+
+```json
+"limiters" : [
+    {
+	    "type" : "UNIT_ADJACENT",
+		"creature" : "unicorn"
 	}
 ]
 ```

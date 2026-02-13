@@ -15,8 +15,10 @@
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/json/JsonBonus.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
@@ -206,6 +208,7 @@ public:
 
 		BattleStart bs;
 		bs.info = std::move(battle);
+		bs.battleID = BattleID(0);
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameEventCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
@@ -223,7 +226,7 @@ public:
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
-TEST_F(CGameStateTest, DISABLED_issue2765)
+TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
@@ -255,6 +258,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);
@@ -305,10 +309,9 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 
 		EXPECT_TRUE(def->activeSpells().empty());
 	}
-
 }
 
-TEST_F(CGameStateTest, DISABLED_battleResurrection)
+TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
@@ -348,6 +351,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);
@@ -363,6 +367,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
 		gameEventCallback->sendAndApply(pack);
@@ -407,4 +412,67 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
+}
+
+TEST_F(CGameStateTest, battleInterference)
+{
+	static const char skillText[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : -10,
+		"valueType" : "PERCENT_TO_ALL",
+		"propagator" : "BATTLE_WIDE",
+		"sourceType" : "SECONDARY_SKILL",
+		"sourceID" : "wisdom",
+		"propagationUpdater" : "BONUS_OWNER_UPDATER",
+		"limiters" : [ "OPPOSITE_SIDE" ]
+	}
+	)";
+
+	static const char specialtyText[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : 5,
+		"sourceType" : "HERO_SPECIAL",
+		"sourceID" : "lordHaart",
+		"targetSourceType" : "SECONDARY_SKILL",
+		"valueType" : "PERCENT_TO_TARGET_TYPE",
+		"propagator" : "BATTLE_WIDE",
+		"propagationUpdater" : [ "TIMES_HERO_LEVEL", "BONUS_OWNER_UPDATER" ]
+		"limiters" : [ "OPPOSITE_SIDE" ]
+	}
+	)";
+	JsonNode skillJson(skillText, std::size(skillText), "testBattleInterferenceSkillText");
+	JsonNode specialtyJson(specialtyText, std::size(specialtyText), "testBattleInterferenceSpecialtyTextA");
+
+	skillJson.setModScope(ModScope::scopeGame());
+	specialtyJson.setModScope(ModScope::scopeGame());
+
+	auto skillBonus = JsonUtils::parseBonus(skillJson);
+	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson);
+
+	startTestGame();
+
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
+
+	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
+
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->addNewBonus(skillBonus);
+	attacker->addNewBonus(specialtyBonus);
+	attacker->level = 20;
+
+	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	defender->level = 10;
+
+	startTestBattle(attacker, defender);
+
+	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
+	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 80);
 }

@@ -4,6 +4,12 @@ vcmi (1.8.0) jammy; urgency=medium
 
  -- Ivan Savenko <saven.ivan@gmail.com>  Fri, 31 Dec 2026 12:00:00 +0200
 
+vcmi (1.7.2) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Fri, 13 Feb 2025 12:00:00 +0200
+
 vcmi (1.7.1) jammy; urgency=medium
 
   * New upstream release

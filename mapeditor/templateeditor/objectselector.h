@@ -45,4 +45,6 @@ private:
 	void getBannedObjects();
 	void fillCustomObjects();
 	void getCustomObjects();
+	void fillRequiredObjects();
+	void getRequiredObjects();
 };

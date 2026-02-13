@@ -19,12 +19,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class BattleFieldInfo : public EntityT<BattleField>
+class DLL_LINKAGE BattleFieldInfo : public EntityT<BattleField>
 {
 public:
 	BattleField battlefield;
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	bool isSpecial;
+	std::vector<MapLayerId> limitToLayers;
 	ImagePath graphics;
 	std::string name;
 	std::string modScope;
@@ -75,6 +76,8 @@ public:
 
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
+
+	static BattleField selectRandomBattlefield(const std::vector<BattleField> & battleFields, MapLayerId currentLayer, vstd::RNG & randomGenerator);
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -96,5 +96,8 @@ enum class ECreatureAnimType
 
 	GROUP_ATTACK_UP    = 40,
 	GROUP_ATTACK_FRONT = 41,
-	GROUP_ATTACK_DOWN  = 42
+	GROUP_ATTACK_DOWN  = 42,
+
+	TELEPORT_START     = 50,
+	TELEPORT_END       = 51,
 };

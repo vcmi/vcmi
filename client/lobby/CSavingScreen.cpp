@@ -85,7 +85,7 @@ void CSavingScreen::saveGame()
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
-		GAME->interface()->cb->save(path);
+		GAME->interface()->cb->save(path, true);
 		close();
 	};
 

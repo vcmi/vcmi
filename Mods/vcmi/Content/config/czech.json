@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "útočí na dálku",
 	"vcmi.adventureMap.search.hover"            : "Vyhledat",
 	"vcmi.adventureMap.search.help"             : "Vyberte objekt na mapě k vyhledání.",
+	"vcmi.adventureMap.layer.hover"             : "Přepnout vrstvu  -  %s (%d) na %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Přepnout vrstvu}\n\nPřepne mapu dobrodružství mezi jednotlivými vrstvami\n\nPřepnout %s (%d) na %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "Jste si jisti, že chcete restartovat hru?",
 	"vcmi.adventureMap.noTownWithMarket"       : "Nejsou dostupné žádné tržnice!",
@@ -107,7 +109,7 @@
 	"vcmi.spellBook.tab.help" : "Otočit pro zobrazení %s kouzel",
 	"vcmi.spellBook.zero_level.hint" : "Žádná úroveň",
 
-	"vcmi.spellResearch.canNotAfford" : "Nemáš dostatek prostředků na výměnu kouzla {%SPELL1} za {%SPELL2}. Můžeš ho však odstranit a pokračovat ve výzkumu.",
+	"vcmi.spellResearch.canNotAfford" : "Nemáš dostatek prostředků na výměnu kouzla {%SPELL1} za {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Výzkum už byl dnes proveden. Vrať se zítra.",
 	"vcmi.spellResearch.pay" : "Chceš nahradit {%SPELL1} za {%SPELL2}? Nebo zrušit toto kouzlo a pokračovat ve výzkumu dalších kouzel?",
 	"vcmi.spellResearch.research" : "Prozkoumat toto kouzlo",
@@ -121,6 +123,9 @@
 	"vcmi.mainMenu.serverClosing" : "Zavírání...",
 	"vcmi.mainMenu.hostTCP" : "Pořádat hru TCP/IP",
 	"vcmi.mainMenu.joinTCP" : "Připojit se do hry TCP/IP",
+	"vcmi.mainMenu.ipAddress" : "Místní IP adresa",
+	"vcmi.mainMenu.ipAddressUnknown" : "Neznámá",
+	"vcmi.mainMenu.join" : "Připojit se",
 
 	"vcmi.lobby.filepath" : "Název souboru",
 	"vcmi.lobby.creationDate" : "Datum vytvoření",
@@ -284,6 +289,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Napsat 2 náhodná města do chatu",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Snímek obrazovky uložen do %s",
 	"vcmi.client.errors.invalidMap" : "{Neplatná mapa nebo kampaň}\n\nChyba při startu hry! Vybraná mapa nebo kampaň může být neplatná nebo poškozená. Důvod:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Chyba při načítání modifikací}\n\nPři načítání modifikací byly nalezeny kritické problémy! Hra nemusí fungovat správně nebo může spadnout! Aktualizujte nebo deaktivujte následující modifikace:\n\n",
 	"vcmi.server.errors.disconnected" : "{Chyba sítě}\n\nPřipojení k hernímu serveru bylo ztraceno!",
@@ -419,6 +425,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace" : "Obecné: Backspace",
 	"vcmi.keyBindings.keyBinding.globalCancel" : "Obecné: zrušit",
 	"vcmi.keyBindings.keyBinding.globalFullscreen" : "Obecné: celá obrazovka",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Obecné: snímek obrazovky",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus" : "Obecné: přesunout zaměření",
 	"vcmi.keyBindings.keyBinding.globalOptions" : "Obecné: možnosti",
 	"vcmi.keyBindings.keyBinding.globalReturn" : "Obecné: Enter",
@@ -938,8 +945,8 @@
 	"vcmi.stackExperience.description" : "» P o d r o b n o s t i   z k u š e n o s t í   o d d í l u «\n\nDruh jednotky ................... : %s\nÚroveň hodnosti ................. : %s (%i)\nBody zkušeností ............... : %i\nZkušenostních bodů do další úrovně hodnosti .. : %i\nMaximum zkušeností na bitvu ... : %i%% (%i)\nPočet jednotek v oddílu .... : %i\nMaximum nových rekrutů\n bez ztráty současné hodnosti .... : %i\nNásobič zkušeností ........... : %.2f\nNásobič vylepšení .............. : %.2f\nZkušnosti po 10. úrovně hodnosti ........ : %i\nMaximální počet nových rekrutů pro zachování\n 10. úrovně hodnosti s maximálními zkušenostmi: %i",
 	"vcmi.stackExperience.rank.0" : "Začátečník",
 	"vcmi.stackExperience.rank.1" : "Učeň",
-	"vcmi.stackExperience.rank.2" : "Trénovaný",
-	"vcmi.stackExperience.rank.3" : "Zručný",
+	"vcmi.stackExperience.rank.2" : "Vycvičený",
+	"vcmi.stackExperience.rank.3" : "Zkušený",
 	"vcmi.stackExperience.rank.4" : "Prověřený",
 	"vcmi.stackExperience.rank.5" : "Veterán",
 	"vcmi.stackExperience.rank.6" : "Adept",
@@ -1028,6 +1035,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Další útoky}\nJednotka může zaútočit ještě ${val}x během svého kola", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Další odvetné útoky}\nMůže odvetně zaútočit ${val} krát navíc",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Kouzlení zblízka}\nJednotka může seslat kouzlo ${subtype.spell}, pokud stojí vedle cíle",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximální poškození}\nTato jednotka vždy způsobuje maximální možné poškození",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Útok na všechny kolem}\nÚtočí na všechny sousední nepřátele",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Bez střelecké odvety}\nNepřítel se nemůže bránit střelbě této jednotky",
@@ -1036,6 +1044,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Snížit cenu kouzel (${val})}\nSnižuje náklady na kouzla pro hrdinu o ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Tlumič magie (${val})}\nZvyšuje náklady na kouzla nepřítele o ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description" : "{Odolnost vůči Nájezdu}\nImunní vůči Nájezdu Jezdců a Šampionů",
+	"core.bonus.CPU_CONTROLLED.description" : "{Řízeno počítačem}\nTato jednotka je standardně ovládána počítačem a hráč ji nemůže řídit.",
 	"core.bonus.DEATH_STARE.description" : "{Smrtící pohled (${val}%)}\nMá ${val}% šanci zabít jednu jednotku",
 	"core.bonus.DEFENSIVE_STANCE.description" : "{Obranný bonus}\n+${val} k obraně při bránění",
 	"core.bonus.DESTRUCTION.description" : "{Zničení}\nMá ${val}% šanci zabít další jednotky po útoku",
@@ -1154,5 +1163,9 @@
 	"spellSchool.core.air.name" : "Vdušných",
 	"spellSchool.core.earth.name" : "Zemských",
 	"spellSchool.core.fire.name" : "Ohnivých",
-	"spellSchool.core.water.name" : "Vodních"
+	"spellSchool.core.water.name" : "Vodních",
+
+	"mapLayer.core.surface.name" : "Povrch",
+	"mapLayer.core.underground.name" : "Podzemí",
+	"mapLayer.core.unknown.name" : "Neznámo"
 }

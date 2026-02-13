@@ -36,6 +36,7 @@ Rewardable::Reward::Reward()
 	, manaOverflowFactor(0)
 	, movePoints(0)
 	, movePercentage(-1)
+	, moveOverflowFactor(100)
 	, primary(4, 0)
 	, removeObject(false)
 	, spellCast(SpellID::NONE, MasteryLevel::NONE)
@@ -57,6 +58,23 @@ si32 Rewardable::Reward::calculateManaPoints(const CGHeroInstance * hero) const
 	si32 manaOutput    = manaScaled + manaGranted + manaOverLimit;
 
 	return manaOutput;
+}
+
+si32 Rewardable::Reward::calculateMovePoints(const CGHeroInstance * hero) const
+{
+	si32 moveScaled = hero->movementPointsRemaining();
+	si32 moveLimit = hero->movementPointsLimit();
+
+	if (movePercentage >= 0)
+		moveScaled = moveLimit * movePercentage / 100;
+
+	si32 moveMissing   = std::max(0, moveLimit - moveScaled);
+	si32 moveGranted   = std::min(moveMissing, movePoints);
+	si32 moveOverflow  = movePoints - moveGranted;
+	si32 moveOverLimit = moveOverflow * moveOverflowFactor / 100;
+	si32 moveOutput    = moveScaled + moveGranted + moveOverLimit;
+
+	return std::max(0, moveOutput);
 }
 
 Component Rewardable::Reward::getDisplayedComponent(const CGHeroInstance * h) const
@@ -163,6 +181,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaDiff", manaDiff);
 	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
 	handler.serializeInt("movePoints", movePoints);
+	handler.serializeInt("moveOverflowFactor", manaOverflowFactor);
 	handler.serializeIdArray("artifacts", grantedArtifacts);
 	handler.serializeIdArray("takenArtifacts", takenArtifacts);
 	handler.serializeIdArray("takenArtifactSlots", takenArtifactSlots);

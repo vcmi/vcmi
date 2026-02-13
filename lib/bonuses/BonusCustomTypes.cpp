@@ -42,7 +42,7 @@ const BonusCustomSubtype BonusCustomSubtype::destructionKillPercentage(0);
 const BonusCustomSubtype BonusCustomSubtype::destructionKillAmount(1);
 const BonusCustomSubtype BonusCustomSubtype::soulStealPermanent(0);
 const BonusCustomSubtype BonusCustomSubtype::soulStealBattle(1);
-const BonusCustomSubtype BonusCustomSubtype::movementFlying(0);
+const BonusCustomSubtype BonusCustomSubtype::movementFlying(-1);
 const BonusCustomSubtype BonusCustomSubtype::movementTeleporting(1);
 
 const BonusCustomSource BonusCustomSource::undeadMoraleDebuff(-2);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>480</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,16 @@
    <item>
     <widget class="QTableWidget" name="tableWidgetObjects"/>
    </item>
+  <item>
+   <widget class="QLabel" name="labelRequiredObjects">
+    <property name="text">
+      <string>Required Objects</string>
+    </property>
+   </widget>
+  </item>
+  <item>
+   <widget class="QTableWidget" name="tableWidgetRequiredObjects"/>
+  </item>
    <item>
     <widget class="QLabel" name="labelBannedObjects">
      <property name="text">

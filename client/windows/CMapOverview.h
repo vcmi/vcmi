@@ -39,6 +39,7 @@ class CMapOverviewWidget : public InterfaceObjectConfigurable
 	std::vector<std::shared_ptr<CanvasImage>> createMinimaps(const ResourcePath & resource) const;
 	std::vector<std::shared_ptr<CanvasImage>> createMinimaps(std::unique_ptr<CMap> & map) const;
 
+	void resizeMinimaps(int size) const;
 	std::shared_ptr<CPicture> buildDrawMinimap(const JsonNode & config) const;
 public:
 	CMapOverviewWidget(CMapOverview& p);

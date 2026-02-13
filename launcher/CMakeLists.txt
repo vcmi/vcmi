@@ -20,6 +20,7 @@ set(launcher_SRCS
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
+		firstLaunch/progressoverlay.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -59,6 +60,7 @@ set(launcher_HEADERS
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
+		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
@@ -91,7 +93,9 @@ set(launcher_TS
 	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
+	"${translationsDir}/dutch.ts"
 	"${translationsDir}/english.ts"
+	"${translationsDir}/filipino.ts"
 	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
@@ -100,11 +104,13 @@ set(launcher_TS
 	"${translationsDir}/italian.ts"
 	"${translationsDir}/japanese.ts"
 	"${translationsDir}/korean.ts"
+	"${translationsDir}/latvian.ts"
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
+	"${translationsDir}/serbian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"
 	"${translationsDir}/turkish.ts"
@@ -245,6 +251,10 @@ enable_pch(vcmilauncher)
 if(ENABLE_INNOEXTRACT)
 	target_compile_definitions(vcmilauncher PRIVATE ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
+endif()
+
+if(ENABLE_DISCORD)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_DISCORD)
 endif()
 
 if(IOS)

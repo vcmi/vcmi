@@ -141,6 +141,8 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 
 	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], variables);
 	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], variables);
+	limiter.movePercentage = randomizer.loadValue(source["movePercentage"], variables);
+	limiter.movePoints = randomizer.loadValue(source["movePoints"], variables);
 
 	limiter.resources = randomizer.loadResources(source["resources"], variables);
 
@@ -179,6 +181,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGame
 
 	reward.movePoints = randomizer.loadValue(source["movePoints"], variables);
 	reward.movePercentage = randomizer.loadValue(source["movePercentage"], variables, -1);
+	reward.moveOverflowFactor = source["moveOverflowFactor"].isNull() ? 100 : randomizer.loadValue(source["moveOverflowFactor"], variables);
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);
@@ -254,8 +257,14 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, IG
 			if (category.first == "artifact")
 				value = randomizer.loadArtifact(input, object.variables.values).getNum();
 
+			if (category.first == "creature")
+				value = randomizer.loadCreatureType(input, object.variables.values).getNum();
+
 			if (category.first == "spell")
 				value = randomizer.loadSpell(input, object.variables.values).getNum();
+
+			if (category.first == "resource")
+				value = randomizer.loadResourceType(input, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
 				value = randomizer.loadPrimary(input, object.variables.values).getNum();
@@ -363,36 +372,40 @@ void Rewardable::Info::configureRewards(
 	{
 		const JsonNode & reward = source.Vector().at(i);
 
-		if (!reward["appearChance"].isNull())
+		auto diceValue = object.getPresetVariable("dice", "map");
+
+		if (!diceValue.isNull())
 		{
-			const JsonNode & chance = reward["appearChance"];
-			std::string diceID = std::to_string(chance["dice"].Integer());
-
-			auto diceValue = object.getVariable("dice", diceID);
-
-			if (!diceValue.has_value())
+			if (!reward["mapDice"].isNull() && reward["mapDice"] != diceValue)
+				continue;
+		}
+		else
+		{
+			if (!reward["appearChance"].isNull())
 			{
-				const JsonNode & preset = object.getPresetVariable("dice", diceID);
-				if (preset.isNull())
+				const JsonNode & chance = reward["appearChance"];
+				std::string diceID = std::to_string(chance["dice"].Integer());
+
+				auto diceValue = object.getVariable("dice", diceID);
+				if (!diceValue.has_value())
+				{
 					object.initVariable("dice", diceID, gameRandomizer.getDefault().nextInt(0, 99));
-				else
-					object.initVariable("dice", diceID, preset.Integer());
+					diceValue = object.getVariable("dice", diceID);
+				}
+				assert(diceValue.has_value());
 
-				diceValue = object.getVariable("dice", diceID);
-			}
-			assert(diceValue.has_value());
-
-			if (!chance["min"].isNull())
-			{
-				int min = static_cast<int>(chance["min"].Float());
-				if (min > *diceValue)
-					continue;
-			}
-			if (!chance["max"].isNull())
-			{
-				int max = static_cast<int>(chance["max"].Float());
-				if (max <= *diceValue)
-					continue;
+				if (!chance["min"].isNull())
+				{
+					int min = static_cast<int>(chance["min"].Float());
+					if (min > *diceValue)
+						continue;
+				}
+				if (!chance["max"].isNull())
+				{
+					int max = static_cast<int>(chance["max"].Float());
+					if (max <= *diceValue)
+						continue;
+				}
 			}
 		}
 

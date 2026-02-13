@@ -19,6 +19,12 @@ MapProxy::MapProxy(RmgMap & map):
 {
 }
 
+CArtifactInstance * MapProxy::createScroll(const SpellID & spellId)
+{
+	Lock lock(mx);
+	return map.mapInstance->createScroll(spellId);
+}
+
 void MapProxy::insertObject(std::shared_ptr<CGObjectInstance> obj)
 {
 	Lock lock(mx);

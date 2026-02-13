@@ -25,6 +25,7 @@
 #include "modificators/ConnectionsPlacer.h"
 #include "modificators/TownPlacer.h"
 #include "modificators/MinePlacer.h"
+#include "modificators/ObjectPlacer.h"
 #include "modificators/ObjectDistributor.h"
 #include "modificators/WaterAdopter.h"
 #include "modificators/WaterProxy.h"
@@ -165,6 +166,7 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<TownPlacer>();
 			zone->addModificator<MinePlacer>();
+			zone->addModificator<ObjectPlacer>();
 			zone->addModificator<QuestArtifactPlacer>();
 			zone->addModificator<ConnectionsPlacer>();
 			zone->addModificator<RoadPlacer>();

@@ -1,11 +1,61 @@
 # Building VCMI for iOS
 
+## TL;DR (iOS device with Conan)
+
+Only the Xcode generator is supported for iOS.
+
+```sh
+# 1) Get the source code
+git clone --recurse-submodules https://github.com/vcmi/vcmi.git
+cd vcmi
+
+# 2) Detect Conan profiles (creates default profile)
+conan profile detect
+
+# 3) Restore prebuilt iOS dependencies cache
+# Download dependencies-ios.tgz from https://github.com/vcmi/vcmi-dependencies/releases
+# If you do not have the tarball, skip this step and use --build=missing in the install command.
+conan cache restore dependencies-ios.tgz
+
+# 4) Install dependencies (prebuilt binaries)
+# Pick Debug or Release and keep it consistent with the build configuration you use later.
+conan install . \
+  --output-folder=conan-generated \
+  --build=never \
+  --profile=dependencies/conan_profiles/ios-arm64 \
+  --profile=dependencies/conan_profiles/base/apple-system \
+  -s "&:build_type=Debug"
+
+# 5) Configure the Xcode project
+# Use -B to keep build artifacts inside the repo.
+cmake --preset ios-device-conan \
+  -B out/build/ios-device-conan \
+  -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME \
+  -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=YOUR_TEAM_ID
+
+# 6) Build from the command line (optional; you can also use Xcode)
+cmake --build out/build/ios-device-conan --target vcmiclient --config Debug -- -quiet
+```
+
+If you already created `conan-ios` (instead of `conan-generated`), keep it and point CMake to it:
+
+```sh
+cmake --preset ios-device-conan \
+  -B out/build/ios-device-conan \
+  -D CMAKE_TOOLCHAIN_FILE=conan-ios/conan_toolchain.cmake \
+  -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME \
+  -D CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM=YOUR_TEAM_ID
+```
+
+By default, if you do not pass `-B`, the build directory is `../build-ios-device-conan`.
+
 ## Requirements
 
 1. **macOS**
 2. Xcode: <https://developer.apple.com/xcode/>
 3. CMake 3.21+: `brew install --cask cmake` or get from <https://cmake.org/download/>
-4. Optional:
+4. Conan 2.x: <https://docs.conan.io/2/>
+5. Optional:
    - CCache to speed up recompilation: `brew install ccache`
 
 ## Obtaining source code
@@ -21,6 +71,12 @@ git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 The primary and officially supported way is [Conan package manager](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Conan.md).
 
 There are also [legacy manually built libraries](https://github.com/vcmi/vcmi-ios-deps) which can be used if you have Xcode 11/12 or to build for simulator / armv7 device, but this way is no longer supported. Using Conan will also let you build with any Xcode version and for any architecture / SDK.
+
+If you are using the prebuilt dependency cache, download `dependencies-ios.tgz` from <https://github.com/vcmi/vcmi-dependencies/releases> and restore it:
+
+```sh
+conan cache restore dependencies-ios.tgz
+```
 
 ## Configuring project
 
@@ -41,6 +97,14 @@ cmake --preset ios-device-conan -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
 By default build directory containing Xcode project will appear at `../build-ios-device-conan`, but you can change it with `-B` option.
 
 If you want to speed up the recompilation, add `-D ENABLE_CCACHE=ON`
+
+If you used a custom Conan output folder (for example `conan-ios`), pass its toolchain file:
+
+```sh
+cmake --preset ios-device-conan \
+  -D CMAKE_TOOLCHAIN_FILE=conan-ios/conan_toolchain.cmake \
+  -D BUNDLE_IDENTIFIER_PREFIX=com.MY-NAME
+```
 
 ### Building for device
 

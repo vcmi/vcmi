@@ -19,6 +19,7 @@
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
+#include "../spells/CSpellHandler.h"
 #include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -167,7 +168,7 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	currentBattle->tile = tile;
 	currentBattle->terrainType = terrain;
 	currentBattle->battlefieldType = battlefieldType;
-	currentBattle->round = -2;
+	currentBattle->round = 0;
 	currentBattle->activeStack = -1;
 	currentBattle->replayAllowed = false;
 	if (town)
@@ -384,8 +385,10 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	}
 
 	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<TerrainLimiter>();
-	
+	auto nativeTerrain = std::make_shared<AllOfLimiter>();
+	nativeTerrain->add(std::make_shared<TerrainLimiter>());
+	nativeTerrain->add(std::make_shared<CreatureLevelLimiter>()); // creature only limiter - exclude hero
+
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
@@ -398,7 +401,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 	{
 		if(heroes[i])
 		{
-			battleRepositionHex[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION);
+			if(heroes[i]->tacticFormationEnabled)
+				battleRepositionHex[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION);
 			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK);
 		}
 	}
@@ -578,6 +582,11 @@ BattleSide BattleInfo::getTacticsSide() const
 	return tacticsSide;
 }
 
+int32_t BattleInfo::getRound() const
+{
+	return round;
+}
+
 const CGTownInstance * BattleInfo::getDefendedTown() const
 {
 	if (townID.hasValue())
@@ -666,8 +675,11 @@ void BattleInfo::nextTurn(uint32_t unitId, BattleUnitTurnReason reason)
 
 	CStack * st = getStack(activeStack);
 
-	//remove bonuses that last until when stack gets new turn
-	st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	if (reason != BattleUnitTurnReason::UNIT_SPELLCAST)
+	{
+		//remove bonuses that last until when stack gets new turn
+		st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	}
 
 	st->afterGetsTurn(reason);
 }
@@ -732,6 +744,11 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
 	}
 
+	if(healthDelta < 0)
+	{
+		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
+	}
+
 	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)
@@ -753,7 +770,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>() != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
@@ -864,7 +881,6 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 			&& one.val == b->val
 			&& one.sid == b->sid
 			&& one.valType == b->valType
-			&& one.additionalInfo == b->additionalInfo
 			&& one.effectRange == b->effectRange;
 		};
 		sta->removeBonusesRecursive(selector);

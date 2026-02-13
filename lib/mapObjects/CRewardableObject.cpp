@@ -218,7 +218,7 @@ std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHe
 			if (wasVisited(hero))
 				result += "\n" + configuration.visitedTooltip.toString();
 			else
-				result += "\n " + configuration.notVisitedTooltip.toString();
+				result += "\n" + configuration.notVisitedTooltip.toString();
 		}
 	}
 	else

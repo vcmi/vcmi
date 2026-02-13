@@ -134,7 +134,7 @@ Goals::TTaskVec TaskPlan::getTasks() const
 	return result;
 }
 
-void TaskPlan::merge(const TSubgoal & task)
+void TaskPlan::mergeAndFilter(const TSubgoal & task)
 {
 	TGoalVec blockers;
 
@@ -156,9 +156,9 @@ void TaskPlan::merge(const TSubgoal & task)
 		}
 	}
 
-	vstd::erase_if(tasks, [&](const TaskPlanItem & task2)
+	vstd::erase_if(tasks, [&](const TaskPlanItem & item)
 		{
-			return vstd::contains(blockers, task2.task);
+			return vstd::contains(blockers, item.task);
 		});
 
 	tasks.emplace_back(task);
@@ -185,30 +185,35 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
+Goals::TTaskVec Nullkiller::buildPlanAndFilter(TGoalVec & tasks, int priorityTier) const
 {
 	TaskPlan taskPlan;
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
-	{
-		auto evaluator = this->priorityEvaluators->acquire();
-
-		for(size_t i = r.begin(); i != r.end(); i++)
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, tasks.size()),
+		[this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
-			const auto & task = tasks[i];
-			if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
-				task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+			const auto evaluator = this->priorityEvaluators->acquire();
+			for(size_t i = r.begin(); i != r.end(); i++)
+			{
+				const auto & task = tasks[i];
+				if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
+					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+			}
 		}
-	});
+	);
 
-	boost::range::sort(tasks, [](const TSubgoal& g1, const TSubgoal& g2) -> bool
+	boost::range::sort(
+		tasks,
+		[](const TSubgoal & g1, const TSubgoal & g2) -> bool
 		{
 			return g2->asTask()->priority < g1->asTask()->priority;
-		});
+		}
+	);
 
 	for(const TSubgoal & task : tasks)
 	{
-		taskPlan.merge(task);
+		taskPlan.mergeAndFilter(task);
 	}
 
 	return taskPlan.getTasks();
@@ -250,70 +255,94 @@ void Nullkiller::invalidatePathfinderData()
 
 void Nullkiller::updateState()
 {
-	logAi->info("PERFORMANCE: AI updateState started");
+	const auto start = std::chrono::high_resolution_clock::now();
+	auto startMethod = start;
+	std::map<std::string, uint64_t> methodToElapsedMs = {};
+	logAi->trace("PERFORMANCE: NK2 AI updateState started");
 
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
-	const auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 	setTargetObject(-1);
 	decomposer->reset();
 
 	buildAnalyzer->update();
+	methodToElapsedMs.emplace("buildAnalyzer->update", timeElapsed(startMethod));
 
 	if(!pathfinderInvalidated && dangerHitMap->isHitMapUpToDate() && dangerHitMap->isTileOwnersUpToDate())
 		logAi->trace("Skipping full state regeneration - up to date");
 	else
 	{
+		startMethod = std::chrono::high_resolution_clock::now();
 		memory->removeInvisibleOrDeletedObjects(*cc);
+		methodToElapsedMs.emplace("memory->removeInvisibleOrDeletedObjects(*cc)", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		dangerHitMap->updateHitMap();
+		methodToElapsedMs.emplace("dangerHitMap->updateHitMap()", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		dangerHitMap->calculateTileOwners();
+		methodToElapsedMs.emplace("dangerHitMap->calculateTileOwners()", timeElapsed(startMethod));
 
+		startMethod = std::chrono::high_resolution_clock::now();
 		makingTurnInterruption.interruptionPoint();
 		heroManager->update();
-		logAi->trace("Updating paths");
+		methodToElapsedMs.emplace("heroManager->update()", timeElapsed(startMethod));
 
+		logAi->trace("Updating paths");
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
 		cfg.allowBypassObjects = true;
 
 		if(scanDepth == ScanDepth::SMALL || isObjectGraphAllowed())
-		{
 			cfg.mainTurnDistanceLimit = settings->getMainHeroTurnDistanceLimit();
-		}
-
 		if(scanDepth != ScanDepth::ALL_FULL || isObjectGraphAllowed())
-		{
 			cfg.scoutTurnDistanceLimit = settings->getScoutHeroTurnDistanceLimit();
-		}
 
 		makingTurnInterruption.interruptionPoint();
+		startMethod = std::chrono::high_resolution_clock::now();
 		const auto heroes = getHeroesForPathfinding();
+		methodToElapsedMs.emplace("getHeroesForPathfinding()", timeElapsed(startMethod));
+		startMethod = std::chrono::high_resolution_clock::now();
 		pathfinder->updatePaths(heroes, cfg);
+		methodToElapsedMs.emplace("pathfinder->updatePaths(heroes, cfg)", timeElapsed(startMethod));
 
 		if(isObjectGraphAllowed())
 		{
+			startMethod = std::chrono::high_resolution_clock::now();
 			pathfinder->updateGraphs(
 				heroes,
-				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10,
-				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3);
+				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10, // TODO: Mircea: Move to constant
+				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3); // TODO: Mircea: Move to constant
+			methodToElapsedMs.emplace("pathfinder->updateGraphs", timeElapsed(startMethod));
 		}
 
 		makingTurnInterruption.interruptionPoint();
+		startMethod = std::chrono::high_resolution_clock::now();
 		objectClusterizer->clusterize();
+		methodToElapsedMs.emplace("objectClusterizer->clusterize()", timeElapsed(startMethod));
 		pathfinderInvalidated = false;
 	}
 
+	startMethod = std::chrono::high_resolution_clock::now();
 	armyManager->update();
+	methodToElapsedMs.emplace("armyManager->update()", timeElapsed(startMethod));
 
-	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 999)
+	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 250)
 	{
-		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+		logAi->warn("PERFORMANCE: NK2 updateState took %ld ms", timeElapsedMs);
+
+#if NK2AI_TRACE_LEVEL >= 1
+		for(const auto & [name, elapsedMs] : methodToElapsedMs)
+		{
+			if(elapsedMs > 25)
+				logAi->warn("PERFORMANCE: NK2 updateState %s took %ld ms", name, elapsedMs);
+		}
+#endif
 	}
 	else
 	{
-		logAi->info("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+		logAi->info("PERFORMANCE: NK2 updateState took %ld ms", timeElapsedMs);
 	}
 }
 
@@ -350,41 +379,61 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 
 HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) const
 {
-	auto found = lockedHeroes.find(hero);
-
+	const auto found = lockedHeroes.find(hero);
 	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
 void Nullkiller::makeTurn()
 {
 	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
+	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
 	resetState();
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
 
-	for(int i = 1; i <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	for(int pass = 1; pass <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; pass++)
 	{
-		if (!updateStateAndExecutePriorityPass(tasks, i)) return;
+		if (pathfinderTurnStorageMisses.load() != 0)
+		{
+			logAi->warn("Nullkiller::makeTurn AINodeStorage had %d nodeAllocationFailures in previous pass", pathfinderTurnStorageMisses.load());
+			pathfinderTurnStorageMisses.store(0);
+		}
+
+		if (!updateStateAndExecutePriorityPass(tasks, pass))
+			return;
 
 		tasks.clear();
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
-		decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
+		// decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
 		if(!isOpenMap())
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
 		int prioOfTask = 0;
-		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		for(int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 			prioOfTask = prio;
-			selectedTasks = buildPlan(tasks, prio);
+			selectedTasks = buildPlanAndFilter(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
+			{
+				// Activate for deep debugging, otherwise too noisy even for trace level 2
+// #if NK2AI_TRACE_LEVEL >= 2
+// 				for(auto t : tasks)
+// 				{
+// 					logAi->info("task of prio %d: %s, prio: %f", prio, t->toString(), t->asTask()->priority);
+// 				}
+// 				for(auto t : selectedTasks)
+// 				{
+// 					logAi->info("selected task of prio %d: %s, prio: %f", prio, t->toString(), t->priority);
+// 				}
+// #endif
 				break;
+			}
 		}
 
 		boost::range::sort(selectedTasks, [](const TTask& a, const TTask& b)
@@ -415,18 +464,19 @@ void Nullkiller::makeTurn()
 			if(heroRole != HeroRole::MAIN || selectedTask->getHeroExchangeCount() <= 1)
 				useHeroChain = false;
 
-			// TODO: better to check turn distance here instead of priority
-			if((heroRole != HeroRole::MAIN || selectedTask->priority < SMALL_SCAN_MIN_PRIORITY)
-				&& scanDepth == ScanDepth::MAIN_FULL)
-			{
-				useHeroChain = false;
-				scanDepth = ScanDepth::SMALL;
-
-				logAi->trace(
-					"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
-					taskDescription,
-					selectedTask->priority);
-			}
+			// TODO: Mircea: AI suffers from lack of capability, no point to activate SMALL, to test more before deleting the code entirely
+			// old-todo: better to check turn distance here instead of priority
+			// if((heroRole != HeroRole::MAIN || selectedTask->priority < SMALL_SCAN_MIN_PRIORITY)
+			// 	&& scanDepth == ScanDepth::MAIN_FULL)
+			// {
+			// 	useHeroChain = false;
+			// 	scanDepth = ScanDepth::SMALL;
+			//
+			// 	logAi->trace(
+			// 		"Goal %s has low priority %f so decreasing scan depth to gain performance.",
+			// 		taskDescription,
+			// 		selectedTask->priority);
+			// }
 
 			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
 			{
@@ -438,8 +488,8 @@ void Nullkiller::makeTurn()
 
 				if(hasMp && scanDepth != ScanDepth::ALL_FULL)
 				{
-					logAi->trace(
-						"Goal %s has too low priority %f so increasing scan depth to full.",
+					logAi->info(
+						"Pass %d: Heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
 						taskDescription,
 						selectedTask->priority);
 
@@ -449,11 +499,11 @@ void Nullkiller::makeTurn()
 					break;
 				}
 
-				logAi->trace("Goal %s has too low priority. It is not worth doing it.", taskDescription);
+				logAi->trace("Pass %d: Goal %s has too low priority. It is not worth doing it.", pass, taskDescription);
 				continue;
 			}
 
-			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
+			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", pass, prioOfTask, selectedTask->toString(), selectedTask->priority);
 
 			if(HeroPtr heroPtr(selectedTask->getHero(), cc.get()); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
@@ -482,7 +532,7 @@ void Nullkiller::makeTurn()
 		for(const auto * heroInfo : cc->getHeroesInfo())
 			AIGateway::pickBestArtifacts(cc, heroInfo);
 
-		if(i == settings->getMaxPass())
+		if(pass == settings->getMaxPass())
 			logAi->warn("MaxPass reached. Terminating AI turn.");
 	}
 }

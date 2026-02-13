@@ -111,14 +111,27 @@ void AObjectTypeHandler::init(const JsonNode & input)
 	blockVisit = input["blockVisit"].Bool();
 	removable = input["removable"].Bool();
 
-	battlefield = BattleField::NONE;
-
 	if(!input["battleground"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+		if(input["battleground"].isVector())
 		{
-			battlefield = BattleField(identifier);
-		});
+			battlefields.resize(input["battleground"].Vector().size());
+			for(int i = 0; i < battlefields.size(); i++)
+			{
+				LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
+				{
+					battlefields.at(i) = BattleField(identifier);
+				});
+			}
+		}
+		else
+		{
+			battlefields.resize(1);
+			LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+			{
+				battlefields.at(0) = BattleField(identifier);
+			});
+		}
 	}
 
 	initTypeData(input);
@@ -197,9 +210,9 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 	return templates;
 }
 
-BattleField AObjectTypeHandler::getBattlefield() const
+std::vector<BattleField> AObjectTypeHandler::getBattlefields() const
 {
-	return battlefield;
+	return battlefields;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const
@@ -227,12 +240,12 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpe
 		//Get terrain-specific template if possible
 		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
 		{
-			return tmp1->getAllowedTerrains().size() < tmp2->getAllowedTerrains().size();
-		}))->getAllowedTerrains().size();
+			return tmp1->getTotalAllowedTerrains() < tmp2->getTotalAllowedTerrains();
+		}))->getTotalAllowedTerrains();
 
 		vstd::erase_if(templates, [leastTerrains](const std::shared_ptr<const ObjectTemplate> & tmp)
 		{
-			return tmp->getAllowedTerrains().size() > leastTerrains;
+			return tmp->getTotalAllowedTerrains() > leastTerrains;
 		});
 	}
 

@@ -18,6 +18,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
@@ -124,6 +125,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
 		case BonusType::SKELETON_TRANSFORMER_TARGET:
+		case BonusType::DEITYOFFIRE:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{
@@ -152,6 +154,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIFIC_SPELL_POWER:
 		case BonusType::ENCHANTED:
 		case BonusType::MORE_DAMAGE_FROM_SPELL:
+		case BonusType::ADJACENT_SPELLCASTER:
 		case BonusType::NOT_ACTIVE:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&subtype](int32_t identifier)
@@ -187,6 +190,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::VISIONS:
 		case BonusType::SPELLS_OF_LEVEL: // spell level
 		case BonusType::CREATURE_GROWTH: // creature level
+		case BonusType::ON_COMBAT_EVENT:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "bonusSubtype", node, [&subtype](int32_t identifier)
 			{
@@ -202,7 +206,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	}
 }
 
-static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & value)
+static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -213,7 +217,10 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 	};
 
 	if (value.isNull())
-		return;
+		return nullptr;
+
+	auto result = std::make_shared<BonusParameters>();
+	BonusParameters & var = *result;
 
 	switch (type)
 	{
@@ -235,35 +242,44 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::FULL_MAP_DARKNESS:
 		case BonusType::OPENING_BATTLE_SPELL:
 			// 1 number
-			var = getFirstValue(value).Integer();
+			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
 		case BonusType::SPECIAL_UPGRADE:
 		case BonusType::TRANSMUTATION:
 			// 1 creature ID
-			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = identifier; });
+			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
 			break;
 		case BonusType::DEATH_STARE:
 			// 1 spell ID
-			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = identifier; });
+			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
 			// 3 numbers
 			if (value.isNumber())
 			{
-				var = getFirstValue(value).Integer();
+				std::vector<int32_t> loadedData{
+					static_cast<int32_t>(getFirstValue(value).Integer()),
+					-1,
+					-1
+				};
+				var = loadedData;
 			}
 			else
 			{
-				var.resize(3);
-				var[0] = value[0].Integer();
-				var[1] = value[1].Integer();
-				var[2] = value[2].Integer();
+				std::vector<int32_t> loadedData{
+					static_cast<int32_t>(value[0].Integer()),
+					static_cast<int32_t>(value[1].Integer()),
+					static_cast<int32_t>(value[2].Integer())
+				};
+				var = loadedData;
 			}
 			break;
 		case BonusType::MULTIHEX_UNIT_ATTACK:
 		case BonusType::MULTIHEX_ENEMY_ATTACK:
 		case BonusType::MULTIHEX_ANIMATION:
+		{
+			std::vector<int32_t> loadedData;
 			for (const auto & sequence : value.Vector())
 			{
 				static const std::map<char, int> charToDirection = {
@@ -276,16 +292,56 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 					if (charToDirection.count(chLower))
 						converted = 10 * converted + charToDirection.at(chLower);
 				}
-				var.push_back(converted);
+				loadedData.push_back(converted);
+			}
+			var = loadedData;
+			break;
+		}
+		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
+		{
+			std::vector<int32_t> loadedData;
+			for(const auto & sequence : value.Vector())
+				loadedData.push_back(sequence.Integer());
+			var = loadedData;
+			break;
+		}
+		case BonusType::ON_COMBAT_EVENT:
+		{
+			var = BonusParameters(BonusParametersOnCombatEvent());
+			auto & loadedData = result->toCustom<BonusParametersOnCombatEvent>();
+
+			for (const auto & effect : value["effect"].Vector())
+			{
+				int index = loadedData.effects.size();
+				bool targetEnemy = effect["targetEnemy"].Bool();
+				if (effect["action"].String() == "bonus")
+				{
+					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectBonus{
+						bonus, targetEnemy
+					});
+				}
+				if (effect["action"].String() == "spell")
+				{
+					int mastery = effect["mastery"].Bool();
+					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
+						SpellID(), mastery, targetEnemy
+					});
+					LIBRARY->identifiers()->requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
+					{
+						auto * targetEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&loadedData.effects[index]);
+						targetEffect->spell = SpellID(identifier);
+					});
+				}
 			}
 			break;
-		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
-			for(const auto & sequence : value.Vector())
-				var.push_back(sequence.Integer());
-			break;
+		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
+
+	return result;
 }
 
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
@@ -343,7 +399,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->identifiers()->requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -415,6 +471,13 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			logGlobal->error("Unknown bonus updater type '%s'", updaterJson.String());
 			return nullptr;
 		}
+	case JsonNode::JsonType::DATA_VECTOR:
+		{
+			auto result = std::make_shared<CompositeUpdater>();
+			for (const auto & entry : updaterJson.Vector())
+				result->updaters.push_back(parseUpdater(entry));
+			return result;
+		}
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
@@ -435,12 +498,13 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			int minimum = updaterJson["minimum"].isNull() ? std::numeric_limits<int>::min() : updaterJson["minimum"].Integer();
 			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
 			int stepSize = updaterJson["stepSize"].Integer();
+			int stepValue = updaterJson["stepValue"].Integer();
 			if (minimum > maximum)
 			{
 				logMod->warn("TIMES_STACK_SIZE updater: minimum value (%d) is above maximum value(%d)!", minimum, maximum);
-				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize));
+				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize), std::max(1, stepValue));
 			}
-			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize));
+			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize), std::max(1, stepValue));
 		}
 		if(updaterJson["type"].String() == "TIMES_ARMY_SIZE")
 		{
@@ -493,7 +557,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
-	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
+	b->parameters = std::make_shared<BonusParameters>(static_cast<si32>(ability_vec[3].Integer()));
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
 	return b;
@@ -572,6 +636,14 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : parameters[1];
 	const JsonNode & jsonSourceType = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : parameters[2]["type"];
 	const JsonNode & jsonSourceID = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : parameters[2]["id"];
+	const JsonNode & jsonMinValue = limiter["bonusMinValue"];
+	const JsonNode & jsonMaxValue = limiter["bonusMaxValue"];
+
+	if (!jsonMinValue.isNull())
+		bonusLimiter->minValue = jsonMinValue.Integer();
+
+	if (!jsonMaxValue.isNull())
+		bonusLimiter->maxValue = jsonMaxValue.Integer();
 
 	if (!jsonType.isNull())
 	{
@@ -680,6 +752,19 @@ static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & li
 	return hexLimiter;
 }
 
+static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode & limiter)
+{
+	const JsonNode & creatureNode = limiter["creature"];
+
+	auto unitLimiter = std::make_shared<UnitAdjacentLimiter>();
+	LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
+	{
+		unitLimiter->targetUnit = creatureID;
+	});
+
+	return unitLimiter;
+}
+
 static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter)
 {
 	const JsonNode & parameters = limiter["parameters"];
@@ -704,6 +789,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 		{"TERRAIN_LIMITER",            parseTerrainLimiter          },
 		{"CREATURE_TERRAIN_LIMITER",   parseTerrainLimiter          },
 		{"UNIT_ON_HEXES",              parseUnitOnHexLimiter        },
+		{"UNIT_ADJACENT",              parseUnitAdjacentLimiter	    },
 		{"HAS_CHARGES_LIMITER",        parseHasChargesLimiter       },
 	};
 
@@ -754,7 +840,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
-		loadBonusAddInfo(b->additionalInfo, b->type, addinfoNode);
+		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
@@ -932,13 +1018,6 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		auto it = bonusValueMap.find(value->String());
 		if(it != bonusValueMap.end())
 			ret = ret.And(Selector::valueType(it->second));
-	}
-	CAddInfo info;
-	value = &ability["addInfo"];
-	if(!value->isNull())
-	{
-		loadBonusAddInfo(info, type, ability["addInfo"]);
-		ret = ret.And(Selector::info()(info));
 	}
 	value = &ability["effectRange"];
 	if(value->isString())

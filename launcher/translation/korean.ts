@@ -203,7 +203,6 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="404"/>
         <source>Description</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설명</translation>
@@ -222,35 +221,35 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">제거</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">활성화</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">비활성화</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">업데이트</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="545"/>
         <source>Install</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치</translation>
@@ -274,191 +273,191 @@
         <translation type="unfinished">중단</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <source>Mod name</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">모드 이름</translation>
+        <translation type="obsolete">모드 이름</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="323"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="329"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="337"/>
         <source>Installed version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치된 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="324"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="332"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
         <source>Latest version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">최신 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="335"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
         <source>Size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">크기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
         <source>Download size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다운로드 크기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="340"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="348"/>
         <source>Authors</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">제작자</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="343"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
         <source>License</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">라이선스</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="346"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <source>Contact</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">연락처</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Compatibility</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">호환성</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
         <source>Required VCMI version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">필요한 VCMI 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Supported VCMI version</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지원되는 VCMI 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>please upgrade mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드를 업데이트하세요</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="192"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="947"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>mods repository index</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드 저장소 인덱스</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="349"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
         <source>Git-Repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Git 저장소</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>GitHub-Stars</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">GitHub 스타</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
         <source>or newer</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이상</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
         <source>Supported VCMI versions</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지원되는 VCMI 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
         <source>Languages</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">언어</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
         <source>Required mods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">필수 모드</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>Conflicting mods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">충돌하는 모드</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="408"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이 모드는 다른 언어로 번역하므로 활성화할 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="409"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다음 의존성이 없어 모드를 활성화할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="410"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다음 의존성이 없어 모드를 설치할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이것은 하위 모드로, 상위 모드와 별도로 설치하거나 제거할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>Notes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">메모</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="512"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="517"/>
         <source>Context menu</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">컨텍스트 메뉴</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
         <source>Open directory</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">디렉터리 열기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="560"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="565"/>
         <source>Open repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">저장소 열기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="826"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 다운로드 중. %p% (%m MB 중 %v MB) 완료</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="834"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
         <source>Download failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다운로드 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="835"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -472,7 +471,7 @@ Encountered errors:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="836"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="854"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -483,49 +482,56 @@ Install successfully downloaded?</source>
 설치 파일을 정상적으로 다운로드했습니까?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="995"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
+        <source>Failed to install file %1.
+Reason: %2.
+Please report this issue to developers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
         <source>Installing Heroes Chronicles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes Chronicles 설치 중</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1082"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Installing mod %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드 %1 설치 중</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1150"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1198"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도가 존재합니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1151"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1199"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도 &apos;%1&apos; 이(가) 이미 존재합니다. 덮어쓰시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1160"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1208"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모두 예</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1161"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1209"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모두 아니오</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">가져오기 완료</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1250"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -537,13 +543,14 @@ Install successfully downloaded?</source>
         <translation type="obsolete">%1개의 지도를 성공적으로 가져왔습니다.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
         <source>Failed to import the following maps:
 %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -551,13 +558,13 @@ Install successfully downloaded?</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1279"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1327"/>
         <source>Operation failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">작업 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1280"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1328"/>
         <source>Encountered errors:
 </source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -565,19 +572,19 @@ Install successfully downloaded?</source>
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1364"/>
         <source>screenshots</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스크린샷</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1322"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1370"/>
         <source>Screenshot %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스크린샷 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="315"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="314"/>
         <source>Mod is incompatible</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드가 호환되지 않습니다</translation>
@@ -586,184 +593,184 @@ Install successfully downloaded?</source>
 <context>
     <name>CSettingsView</name>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="115"/>
         <source>Off</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">끔</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="435"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="420"/>
         <source>Artificial Intelligence</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">인공지능</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1058"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="523"/>
         <source>Interface Scaling</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">인터페이스 배율</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="621"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1299"/>
         <source>Neutral AI in battles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전투 중 중립 AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="875"/>
         <source>Enemy AI in battles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전투 중 적 AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="768"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="912"/>
         <source>Additional repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">추가 저장소</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="614"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="447"/>
         <source>Adventure Map Allies</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모험 맵 아군</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="883"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
         <source>Online Lobby port</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">온라인 로비 포트</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="683"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1164"/>
         <source>Autocombat AI in battles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전투 자동전투 AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1409"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="348"/>
         <source>Sticks Sensitivity</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스틱 감도</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="915"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1211"/>
         <source>Automatic (Linear)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자동(선형)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="704"/>
         <source>Haptic Feedback</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">촉각 피드백</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="846"/>
         <source>Software Cursor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">소프트웨어 커서</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="97"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="556"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1399"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="469"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="625"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
         <source>Automatic</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자동</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Mods Validation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드 유효성 검사</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1349"/>
         <source>Config editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설정 편집기</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Open editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">편집기 열기</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="474"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">없음</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="107"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="479"/>
         <source>xBRZ x2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">xBRZ x2</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="484"/>
         <source>xBRZ x3</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">xBRZ x3</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="117"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="489"/>
         <source>xBRZ x4</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">xBRZ x4</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="330"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
         <source>Full</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전체</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="527"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
         <source>Allow portrait mode</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">세로 모드 허용</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="805"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1003"/>
         <source>Use scalable fonts</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">확장 가능한 글꼴 사용</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="876"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1306"/>
         <source>Online Lobby address</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">온라인 로비 주소</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="993"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Handle back as right mouse button</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">뒤로가기를 마우스 오른쪽 버튼처럼 처리</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1089"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="259"/>
         <source>Cursor Scaling</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">커서 배율</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1118"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="925"/>
         <source>Scalable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">확장 가능</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1154"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="554"/>
         <source>Miscellaneous</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기타</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1192"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1407"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -781,217 +788,227 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 독점 전체 화면 모드 - 선택한 해상도로 화면 전체를 사용합니다.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1313"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
         <source>Font Scaling (experimental)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">글꼴 배율(실험적)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1377"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="984"/>
         <source>Original</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">원본</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1416"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="694"/>
         <source>Upscaling Filter</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">업스케일링 필터</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1449"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="141"/>
         <source>Basic</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기본</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1465"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="385"/>
         <source>Ignore mute switch</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">무음 스위치 무시</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="673"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
+        <source>Show Status in Discord</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
         <source>Use Relative Pointer Mode</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">상대 포인터 모드 사용</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="905"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1201"/>
         <source>Nearest</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">최근접</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="910"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1206"/>
         <source>Linear</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">선형</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="824"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1246"/>
         <source>Input - Touchscreen</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">입력 - 터치스크린</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="791"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
+        <source>Save Before Visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
         <source>Adventure Map Enemies</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모험 맵 적군</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="933"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="362"/>
         <source>Show Tutorial again</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">튜토리얼 다시 보기</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="153"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="355"/>
         <source>Reset</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">초기화</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1139"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="187"/>
         <source>Network</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">네트워크</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="758"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="953"/>
         <source>Audio</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">오디오</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="471"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1400"/>
         <source>Relative Pointer Speed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">상대 포인터 속도</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1065"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="905"/>
         <source>Music Volume</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">음악 볼륨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="923"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1279"/>
         <source>Ignore SSL errors</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">SSL 오류 무시</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="720"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1231"/>
         <source>Input - Mouse</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">입력 - 마우스</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1236"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="313"/>
         <source>Long Touch Duration</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">롱터치 시간</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="890"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Controller Click Tolerance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">컨트롤러 클릭 허용치</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="635"/>
         <source>Touch Tap Tolerance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">터치 탭 허용치</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="351"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1176"/>
         <source>Input - Controller</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">입력 - 컨트롤러</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1272"/>
         <source>Sound Volume</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">사운드 볼륨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1205"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1420"/>
         <source>Windowed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">창 모드</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1210"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1425"/>
         <source>Borderless fullscreen</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">경계 없는 전체 화면</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1215"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1430"/>
         <source>Exclusive fullscreen</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">독점 전체 화면</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1023"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>Autosave limit (0 = off)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자동 저장 제한(0 = 끔)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="478"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="642"/>
         <source>Downscaling Filter</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다운스케일링 필터</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="798"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="320"/>
         <source>Framerate Limit</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">프레임 제한</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1423"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="718"/>
         <source>Autosave prefix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자동 저장 접두사</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="986"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="711"/>
         <source>Mouse Click Tolerance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">마우스 클릭 허용치</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="940"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1100"/>
         <source>Sticks Acceleration</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스틱 가속</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1364"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="753"/>
         <source>empty = map name prefix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">비어 있으면 = 지도 이름 접두사</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="607"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="461"/>
         <source>Refresh now</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지금 새로 고침</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="445"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="454"/>
         <source>Default repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기본 저장소</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="812"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
         <source>Renderer</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">렌더러</translation>
@@ -1003,145 +1020,145 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">켬</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="214"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1219"/>
         <source>Reserved screen area</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">예약된 화면 영역</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="423"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Heroes III Translation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 번역</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1243"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="197"/>
         <source>Check on startup</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">시작 시 확인</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="979"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1157"/>
         <source>Fullscreen</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">전체 화면</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="296"/>
         <source>General</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">일반</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="869"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>VCMI Language</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI 언어</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1430"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="816"/>
         <source>Resolution</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">해상도</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="430"/>
         <source>Autosave</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">자동 저장</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="781"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
         <source>VSync</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">수직 동기화</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="666"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="823"/>
         <source>Display index</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">디스플레이 인덱스</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="730"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="306"/>
         <source>Network port</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">네트워크 포트</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="952"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
         <source>Video</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">비디오</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
         <source>Show intro</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">인트로 표시</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="124"/>
         <source>StupidAI (deprecated)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">StupidAI(사용 중단됨)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>BattleAI (default, recommended)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">BattleAI(기본값, 권장)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="132"/>
         <source>MMAI (experimental)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">MMAI(실험적)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nullkiller(Nullkiller2로 대체됨)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="149"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nullkiller2(기본값, 권장)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">EmptyAI - 유효한 AI 라이브러리를 찾을 수 없습니다!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="672"/>
         <source>Active</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">활성</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="659"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="677"/>
         <source>Disabled</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">비활성화됨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="660"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="678"/>
         <source>Enable</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">활성화</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="665"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="683"/>
         <source>Not Installed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치되지 않음</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="666"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="684"/>
         <source>Install</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치</translation>
@@ -1269,109 +1286,153 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">언어를 선택하세요</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="169"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="172"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">질문이 있나요? 버그를 찾았나요? 돕고 싶나요? 함께하세요!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="251"/>
         <source>Locate Heroes III data files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 데이터 파일 찾기</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="303"/>
         <source>Use offline installer from gog.com</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">gog.com 오프라인 설치 관리자 사용</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
+        <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
         <source>Install gog.com files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">gog.com 파일 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="494"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 데이터 파일을 성공적으로 찾았습니다.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
         <source>Interface Improvements</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">인터페이스 개선</translation>
+        <translation type="obsolete">인터페이스 개선</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="631"/>
         <source>Install a translation of Heroes III in your preferred language</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">원하는 언어로 Heroes III 번역 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="394"/>
         <source>Installing... %p%</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치 중... %p%</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="423"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이미 기기에 Heroes III 파일이 있다면 이 디렉터리를 선택하면 VCMI가 기존 데이터를 자동으로 복사합니다.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="465"/>
         <source>Copy existing files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기존 파일 복사</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
+        <source>Install recommended VCMI Mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">추가 모드는 지금 또는 나중에 언제든 VCMI 런처로 설치할 수 있습니다</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="688"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI 팀이 이식한 팬 메이드 확장팩 &quot;Horn of the Abyss&quot;의 호환 버전 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
+        <source>VCMI Extras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">팬 메이드 확장팩 &quot;In The Wake of Gods&quot;의 호환 버전 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
+        <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
+        <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
+        <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">무작위 맵 인터페이스 개선, 전투 선택 동작 등 다양한 인터페이스 개선 모드 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
+        <source>Tides of War</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
+        <source>Fallen of the Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
+        <source>Demo support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
         <source>Finish</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">완료</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="158"/>
         <source>VCMI on Github</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">GitHub의 VCMI</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="165"/>
         <source>VCMI on Discord</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Discord의 VCMI</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="181"/>
         <source>Thank you for installing VCMI!
 
 Before you can start playing, there are a few more steps to complete.
@@ -1389,44 +1450,43 @@ VCMI를 사용하려면 Heroes® of Might and Magic® III: Complete 혹은 The S
 Heroes® of Might and Magic® III HD는 현재 지원되지 않습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="215"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="570"/>
         <source>Next</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다음</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">원본 게임 디렉터리에서 Maps, Data, Mp3 폴더를 수동으로 복사하여 이 페이지 상단에 표시된 VCMI 데이터 디렉터리에 붙여넣을 수 있습니다</translation>
+        <translation type="obsolete">원본 게임 디렉터리에서 Maps, Data, Mp3 폴더를 수동으로 복사하여 이 페이지 상단에 표시된 VCMI 데이터 디렉터리에 붙여넣을 수 있습니다</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="353"/>
         <source>Manual Installation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">수동 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="360"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="366"/>
         <source>Search again</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다시 검색</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="441"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="447"/>
         <source>Heroes III data files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 데이터 파일</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="279"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="285"/>
         <source>Copy existing data</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">기존 데이터 복사</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="510"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -1434,89 +1494,85 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
 오프라인 설치 관리자는 두 파일(&quot;.exe&quot;와 &quot;.bin&quot;)로 구성됩니다. 둘 다 다운로드해야 합니다.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="860"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="563"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="1058"/>
         <source>Back</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">뒤로</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI 모드 프리셋 설치</translation>
+        <translation type="obsolete">VCMI 모드 프리셋 설치</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="731"/>
         <source>Horn of the Abyss</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Horn of the Abyss</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="658"/>
         <source>Heroes III Translation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 번역</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="890"/>
         <source>In The Wake of Gods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Heroes III installation found!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 설치를 찾았습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="174"/>
         <source>Copy data to VCMI folder?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">데이터를 VCMI 폴더로 복사할까요?</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="324"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">%1 파일 선택...</translation>
+        <translation type="obsolete">%1 파일 선택...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="379"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">%1 파일을 선택해야 합니다!</translation>
+        <translation type="obsolete">%1 파일을 선택해야 합니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
         <source>GOG file (*.*)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">GOG 파일 (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="327"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="402"/>
         <source>File selection</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">파일 선택</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="613"/>
         <source>GOG installer</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">GOG 설치 관리자</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">GOG Galaxy 설치 관리자를 제공하셨습니다! 이 파일에는 게임이 없습니다. 오프라인 백업 게임 설치 관리자를 다운로드하세요!</translation>
+        <translation type="obsolete">GOG Galaxy 설치 관리자를 제공하셨습니다! 이 파일에는 게임이 없습니다. 오프라인 백업 게임 설치 관리자를 다운로드하세요!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -1524,7 +1580,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death가 설치된 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="508"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -1532,44 +1588,107 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="335"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="386"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="429"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="626"/>
         <source>GOG data</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">GOG 데이터</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="372"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="348"/>
         <source>Failed to open file: %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">파일을 열지 못했습니다: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="366"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
+        <source>You need to select a %1 file!</source>
+        <comment>param is file extension</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
+        <source>Unknown installer selected.
+You need to select the offline GOG installer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
+        <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
+        <source>Select the offline GOG installer (.exe)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
+        <source>Invalid file selected</source>
+        <translation type="unfinished">잘못된 파일이 선택되었습니다</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
+        <source>Select the offline GOG installer data file: %1</source>
+        <comment>param is file name</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
+        <source>Invalid data file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <source>Importing Heroes III data...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
+        <source>Preparing installer...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
+        <source>Extracting installer...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
         <source>Extracting error!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">압축 해제 오류!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="669"/>
         <source>Hash error!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">해시 오류!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
         <source>No Heroes III data!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 데이터가 없습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">선택한 파일에 Heroes III 데이터가 포함되어 있지 않습니다!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
+        <source>Scanning selected folder...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="503"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
@@ -1577,10 +1696,8 @@ Please select the directory with installed Heroes III data.</source>
 설치된 Heroes III 데이터가 있는 디렉터리를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="523"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="537"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="514"/>
         <source>Heroes III data not found!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III 데이터를 찾지 못했습니다!</translation>
@@ -1882,25 +1999,25 @@ Bin (%n bytes):
         <translation>VCMI 런처</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="150"/>
+        <location filename="../mainwindow_moc.ui" line="153"/>
         <source>Settings</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설정</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="196"/>
+        <location filename="../mainwindow_moc.ui" line="199"/>
         <source>Help</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">도움말</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="58"/>
+        <location filename="../mainwindow_moc.ui" line="61"/>
         <source>Game</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">게임</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.ui" line="104"/>
+        <location filename="../mainwindow_moc.ui" line="107"/>
         <source>Mods</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드</translation>
@@ -1912,13 +2029,13 @@ Bin (%n bytes):
         <translation type="unfinished">실행 파일 시작 오류</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="295"/>
+        <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Replace config file?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설정 파일을 교체하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="295"/>
+        <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Do you want to replace %1?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1을(를) 교체하시겠습니까?</translation>
@@ -1939,10 +2056,9 @@ Bin (%n bytes):
         <translation type="unfinished">유형</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>⭐</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">⭐</translation>
+        <translation type="obsolete">⭐</translation>
     </message>
 </context>
 <context>
@@ -2504,11 +2620,17 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="403"/>
+        <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
+
+After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI의 그래픽 품질을 향상시키기 위해 공식 Heroes III HD Edition(Steam)에서 리소스를 설치할 수 있습니다. Steam에서 Heroes HD 폴더를 선택하세요.
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="obsolete">VCMI의 그래픽 품질을 향상시키기 위해 공식 Heroes III HD Edition(Steam)에서 리소스를 설치할 수 있습니다. Steam에서 Heroes HD 폴더를 선택하세요.
 
 설치 후 HD 그래픽을 보려면 업스케일 계수를 &gt; 1로 설정해야 합니다.</translation>
     </message>

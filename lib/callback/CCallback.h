@@ -76,9 +76,10 @@ public:
 	void trade(const ObjectInstanceID marketId, EMarketMode mode, TradeItemSell id1, TradeItemBuy id2, ui32 val1, const CGHeroInstance * hero = nullptr) override;
 	void trade(const ObjectInstanceID marketId, EMarketMode mode, const std::vector<TradeItemSell> & id1, const std::vector<TradeItemBuy> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero = nullptr) override;
 	void setFormation(const CGHeroInstance * hero, EArmyFormation mode) override;
+	void setTactics(const CGHeroInstance * hero, bool enabled) override;
 	void setTownName(const CGTownInstance * town, std::string & name) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
-	void save(const std::string &fname) override;
+	void save(const std::string &fname, bool notifySuccess) override;
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
 	void gamePause(bool pause) override;
 	void buildBoat(const IShipyard *obj) override;

@@ -87,6 +87,7 @@
     <addaction name="actionValidate"/>
     <addaction name="actionUpdate_appearance"/>
     <addaction name="actionRecreate_obstacles"/>
+    <addaction name="actionMapLayer"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -1089,6 +1090,9 @@
    </property>
   </action>
   <action name="actionLevel">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>View underground</string>
    </property>
@@ -1240,6 +1244,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+V</string>
+   </property>
+  </action>
+  <action name="actionMapLayer">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Select map layer type</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="actionUpdate_appearance">

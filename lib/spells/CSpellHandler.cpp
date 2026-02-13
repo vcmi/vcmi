@@ -223,6 +223,11 @@ bool CSpell::isNeutral() const
 	return positiveness == NEUTRAL;
 }
 
+bool CSpell::isPersistent() const
+{
+	return persistent;
+}
+
 boost::logic::tribool CSpell::getPositiveness() const
 {
 	switch (positiveness)
@@ -797,8 +802,9 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	//by default all flags are set to false in constructor
 
 	spell->damage = flags["damage"].Bool(); //do this before "offensive"
-
 	spell->nonMagical = flags["nonMagical"].Bool();
+	spell->persistent = flags["persistent"].Bool();
+
 
 	if(flags["offensive"].Bool())
 	{

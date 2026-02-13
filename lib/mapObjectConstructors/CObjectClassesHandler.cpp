@@ -175,14 +175,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(subObject);
 	baseObject->objectTypeHandlers.push_back(subObject);
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!", scope, identifier);
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -195,14 +188,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	baseObject->objectTypeHandlers.at(index) = subObject;
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -564,6 +550,9 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 	//FIXME: Monoliths  in this vector can be already not useful for every terrain
 	const size_t portalCount = portalVec.size();
 
+	if (portalCount == 0)
+		return;
+
 	//Invalid portals will be skipped and portalVec size stays unchanged
 	for (size_t i = portalCount; portalVec.size() < 100; ++i)
 	{
@@ -581,20 +570,20 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->templates = portal->getTemplates();
 		newPortal->sounds = portal->getSounds();
 		newPortal->aiValue = portal->getAiValue();
-		newPortal->battlefield = portal->battlefield; //getter is not initialized at this point
+		newPortal->battlefields = portal->battlefields; //getter is not initialized at this point
 		newPortal->modScope = portal->modScope; //private
 		newPortal->typeName = portal->getTypeName(); 
-		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
+		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size() + 1);
 		newPortal->type = portal->getIndex();
 
 		// Inconsintent original indexing: monolith1 has index 0
-		newPortal->subtype = portalVec.size() - 1; //indexes must be unique, they are returned as a set
+		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
 		newPortal->blockVisit = portal->blockVisit;
 		newPortal->removable = portal->removable;
 
 		portalVec.push_back(newPortal);
 
-		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
+		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
 	}
 }
 

@@ -210,6 +210,7 @@ public:
 	virtual std::vector<const CStack *> getAffectedStacks(const Target & target) const = 0;
 
 	virtual bool canBeCast(Problem & problem) const = 0;
+	virtual bool canBeCastAt(const Target & target) const = 0;
 	virtual bool canBeCastAt(const Target & target, Problem & problem) const = 0;
 
 	virtual void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const = 0;

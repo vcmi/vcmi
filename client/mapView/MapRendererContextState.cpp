@@ -29,11 +29,8 @@ static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right
 }
 
 MapRendererContextState::MapRendererContextState()
+	: objects(GAME->interface()->cb->getMapSize())
 {
-	auto mapSize = GAME->interface()->cb->getMapSize();
-
-	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
-
 	logGlobal->debug("Loading map objects");
 	for(const auto & obj : GAME->map().getMap()->getObjects())
 		addObject(obj);
@@ -53,9 +50,11 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 
 			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 			{
-				auto & container = objects[currTile.z][currTile.x][currTile.y];
+				auto & container = objects[currTile];
 				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
 				container.insert(position, obj->id);
+
+				usedTiles[obj->id].push_back(currTile);
 			}
 		}
 	}
@@ -76,10 +75,11 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 			if(GAME->interface()->cb->isInTheMap(currTile))
 			{
-				auto & container = objects[currTile.z][currTile.x][currTile.y];
+				auto & container = objects[currTile];
+				auto position = std::upper_bound(container.begin(), container.end(), object->id, compareObjectBlitOrder);
+				container.insert(position, object->id);
 
-				container.push_back(object->id);
-				boost::range::sort(container, compareObjectBlitOrder);
+				usedTiles[object->id].push_back(currTile);
 			}
 		}
 	}
@@ -87,8 +87,8 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 
 void MapRendererContextState::removeObject(const CGObjectInstance * object)
 {
-	for(int z = 0; z < GAME->interface()->cb->getMapSize().z; z++)
-		for(int x = 0; x < GAME->interface()->cb->getMapSize().x; x++)
-			for(int y = 0; y < GAME->interface()->cb->getMapSize().y; y++)
-				vstd::erase(objects[z][x][y], object->id);
+	for (const auto & usedTile : usedTiles[object->id])
+		vstd::erase(objects[usedTile], object->id);
+
+	usedTiles.erase(object->id);
 }

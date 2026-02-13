@@ -3,7 +3,7 @@
 	{
 		"index": 84,
 		"level": 1,
-		"extraNames": [ "goblins" ],
+		"compatibilityIdentifiers": [ "goblins" ],
 		"faction": "stronghold",
 		"upgrades": ["hobgoblin"],
 		"graphics" :

@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/bonuses/BonusParameters.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -24,7 +26,7 @@ public:
 	void setDefaultExpectations()
 	{
 		EXPECT_CALL(mechanicsMock, isMagicalEffect()).WillRepeatedly(Return(true));
-		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 	}
 
@@ -55,7 +57,7 @@ TEST_F(AbsoluteLevelConditionTest, ReceptiveNormalSpell)
 	setDefaultExpectations();
 
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 3, BonusSourceID());
-	bonus->additionalInfo = 1;
+	bonus->parameters = std::make_shared<BonusParameters>(1);
 	unitBonuses.addNewBonus(bonus);
 
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(4));
@@ -68,7 +70,7 @@ TEST_F(AbsoluteLevelConditionTest, ReceptiveAbility)
 	setDefaultExpectations();
 
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 5, BonusSourceID());
-	bonus->additionalInfo = 1;
+	bonus->parameters = std::make_shared<BonusParameters>(1);
 	unitBonuses.addNewBonus(bonus);
 
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(0));
@@ -80,7 +82,7 @@ TEST_F(AbsoluteLevelConditionTest, ImmuneNormalSpell)
 	setDefaultExpectations();
 
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID());
-	bonus->additionalInfo = 1;
+	bonus->parameters = std::make_shared<BonusParameters>(1);
 	unitBonuses.addNewBonus(bonus);
 
 	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(2));
@@ -92,6 +94,7 @@ TEST_F(AbsoluteLevelConditionTest, IgnoresNormalCase)
 	setDefaultExpectations();
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LEVEL_SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID());
 	unitBonuses.addNewBonus(bonus);
+	EXPECT_CALL(mechanicsMock, getSpellLevel()).Times(AtLeast(1)).WillRepeatedly(Return(2));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

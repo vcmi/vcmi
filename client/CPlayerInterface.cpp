@@ -169,6 +169,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
+	adventureInt->onCurrentPlayerChanged(playerID);
 }
 
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
@@ -282,7 +283,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -291,7 +292,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
 		}
 	}
 }
@@ -389,8 +390,9 @@ void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 		else
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
-	
-	cb->selectionMade(0, queryID);
+
+	if (queryID.hasValue())
+		cb->selectionMade(0, queryID);
 	movementController->onPlayerTurnStarted();
 }
 
@@ -522,6 +524,9 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -533,6 +538,9 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -1136,16 +1144,6 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	auto selectCallback = [this, askID](int selection)
-	{
-		cb->sendQueryReply(selection, askID);
-	};
-
-	auto cancelCallback = [this, askID]()
-	{
-		cb->sendQueryReply(std::nullopt, askID);
-	};
-
 	const std::string localTitle = title.toString();
 	const std::string localDescription = description.toString();
 
@@ -1173,6 +1171,16 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 			images.push_back(image);
 		}
 	}
+
+	auto selectCallback = [this, askID, objectGuiOrdered](int selection)
+	{
+		cb->sendQueryReply(objectGuiOrdered[selection], askID);
+	};
+
+	auto cancelCallback = [this, askID]()
+	{
+		cb->sendQueryReply(std::nullopt, askID);
+	};
 
 	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
@@ -1802,7 +1810,7 @@ void CPlayerInterface::quickSaveGame()
 	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
 	txt.replaceRawString(QUICKSAVE_PATH);
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
-	GAME->interface()->cb->save(QUICKSAVE_PATH);
+	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
 	hasQuickSave = true;
 	if(adventureInt)
 		adventureInt->updateActiveState();
