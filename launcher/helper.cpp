@@ -108,12 +108,22 @@ bool performNativeCopy(QString src, QString dst)
 	const bool srcIsContent = src.startsWith("content://", Qt::CaseInsensitive);
 	const bool dstIsContent = dst.startsWith("content://", Qt::CaseInsensitive);
 
-	if(srcIsContent || dstIsContent)
+	if(srcIsContent && !dstIsContent)
 	{
-		const QAndroidJniObject jSrc = QAndroidJniObject::fromString(srcIsContent ? safeEncode(src) : src);
-		const QAndroidJniObject jDst = QAndroidJniObject::fromString(dstIsContent ? safeEncode(dst) : dst);
-		QAndroidJniObject::callStaticMethod<void>("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", jSrc.object<jstring>(), jDst.object<jstring>(), QtAndroid::androidContext().object());
-		return QFileInfo(dst).exists();
+		const QAndroidJniObject jSrc = QAndroidJniObject::fromString(safeEncode(src));
+		const QAndroidJniObject jDst = QAndroidJniObject::fromString(dst);
+		QAndroidJniObject::callStaticMethod<void>("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V",	jSrc.object<jstring>(),	jDst.object<jstring>(),	QtAndroid::androidContext().object());
+		// Real filesystem path -> QFileInfo works
+		return QFileInfo(dst).exists() && QFileInfo(dst).size() > 0;
+	}
+
+	// filesystem path -> content://  (NEW Java method that writes via ContentResolver)
+	if(!srcIsContent && dstIsContent)
+	{
+		const QAndroidJniObject jSrc = QAndroidJniObject::fromString(src);
+		const QAndroidJniObject jDst = QAndroidJniObject::fromString(safeEncode(dst));
+		const jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("eu/vcmi/vcmi/util/FileUtil", "copyFilePathToUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)Z", jSrc.object<jstring>(), jDst.object<jstring>(),	QtAndroid::androidContext().object());
+		return ok;
 	}
 #endif
 
