@@ -394,7 +394,7 @@ void LayerTransitionRule::process(
 		{
 			if(source.node->accessible != EPathAccessibility::ACCESSIBLE && source.node->accessible != EPathAccessibility::VISITABLE)
 			{
-				if (destination.node->accessible == EPathAccessibility::BLOCKVIS)
+				if (destination.node->accessible == EPathAccessibility::BLOCKVIS || (destination.node->accessible == EPathAccessibility::VISITABLE && destination.nodeHero != nullptr))
 				{
 					// Can't visit 'blockvisit' objects on coast if hero will end up on water terrain
 					if (source.tile->blocked() || !destination.tile->entrableTerrain(source.tile))
