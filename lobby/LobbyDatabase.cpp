@@ -272,6 +272,15 @@ void LobbyDatabase::prepareStatements()
 		ORDER BY secondsElapsed ASC
 	)");
 
+	getRoomsStatement = database->prepare(R"(
+		SELECT roomID, hostAccountID, displayName, description, status, playerLimit, version, mods, strftime('%s',CURRENT_TIMESTAMP)- strftime('%s',gr.creationTime) AS secondsElapsed
+		FROM gameRooms gr
+		LEFT JOIN accounts a ON gr.hostAccountID = a.accountID
+		WHERE (? = -1 OR strftime('%s',CURRENT_TIMESTAMP) - strftime('%s',gr.creationTime) < ? * 3600)
+		ORDER BY gr.creationTime DESC
+		LIMIT ?
+	)");
+
 	getGameRoomInvitesStatement = database->prepare(R"(
 		SELECT a.accountID, a.displayName
 		FROM gameRoomInvites gri
@@ -303,6 +312,35 @@ void LobbyDatabase::prepareStatements()
 		FROM accounts
 		WHERE accountID = ?
 	)");
+
+	getAccountCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+	)");
+
+	getActiveAccountsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+		WHERE lastLoginTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getRegisteredAccountsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM accounts
+		WHERE creationTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getClosedGameRoomsCountStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM gameRooms
+		WHERE status = 5 AND creationTime >= datetime('now', '-' || ? || ' hours')
+	)");
+
+	getClosedGameRoomsCountAllStatement = database->prepare(R"(
+		SELECT COUNT(*)
+		FROM gameRooms
+		WHERE status = 5
+	)");;
 
 	isAccountCookieValidStatement = database->prepare(R"(
 		SELECT COUNT(accountID)
@@ -339,12 +377,15 @@ void LobbyDatabase::prepareStatements()
 
 LobbyDatabase::~LobbyDatabase() = default;
 
-LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath)
+LobbyDatabase::LobbyDatabase(const boost::filesystem::path & databasePath, bool write)
 {
-	database = SQLiteInstance::open(databasePath, true);
-	createTables();
-	upgradeDatabase();
-	clearOldData();
+	database = SQLiteInstance::open(databasePath, write);
+	if(write)
+	{
+		createTables();
+		upgradeDatabase();
+		clearOldData();
+	}
 	prepareStatements();
 }
 
@@ -477,6 +518,72 @@ std::string LobbyDatabase::getAccountDisplayName(const std::string & accountID)
 	if(getAccountDisplayNameStatement->execute())
 		getAccountDisplayNameStatement->getColumns(result);
 	getAccountDisplayNameStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getAccountCount()
+{
+	int result = 0;
+
+	if(getAccountCountStatement->execute())
+		getAccountCountStatement->getColumns(result);
+	getAccountCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getActiveAccountsCount(int hours)
+{
+	int result = 0;
+
+	getActiveAccountsCountStatement->reset();
+	getActiveAccountsCountStatement->setBinds(hours);
+	
+	if(getActiveAccountsCountStatement->execute())
+		getActiveAccountsCountStatement->getColumns(result);
+	
+	getActiveAccountsCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getRegisteredAccountsCount(int hours)
+{
+	int result = 0;
+
+	getRegisteredAccountsCountStatement->reset();
+	getRegisteredAccountsCountStatement->setBinds(hours);
+	
+	if(getRegisteredAccountsCountStatement->execute())
+		getRegisteredAccountsCountStatement->getColumns(result);
+	
+	getRegisteredAccountsCountStatement->reset();
+
+	return result;
+}
+
+int LobbyDatabase::getClosedGameRoomsCount(int hours)
+{
+	int result = 0;
+
+	if(hours == -1)
+	{
+		getClosedGameRoomsCountAllStatement->reset();
+		if(getClosedGameRoomsCountAllStatement->execute())
+			getClosedGameRoomsCountAllStatement->getColumns(result);
+		getClosedGameRoomsCountAllStatement->reset();
+	}
+	else
+	{
+		getClosedGameRoomsCountStatement->reset();
+		getClosedGameRoomsCountStatement->setBinds(hours);
+		
+		if(getClosedGameRoomsCountStatement->execute())
+			getClosedGameRoomsCountStatement->getColumns(result);
+		
+		getClosedGameRoomsCountStatement->reset();
+	}
 
 	return result;
 }
@@ -642,6 +749,45 @@ std::vector<LobbyAccount> LobbyDatabase::getActiveAccounts()
 		result.push_back(entry);
 	}
 	getActiveAccountsStatement->reset();
+	return result;
+}
+
+std::vector<LobbyGameRoom> LobbyDatabase::getRooms(int hours, int limit)
+{
+	std::vector<LobbyGameRoom> result;
+
+	getRoomsStatement->reset();
+	getRoomsStatement->setBinds(hours, hours, limit);
+
+	while(getRoomsStatement->execute())
+	{
+		LobbyGameRoom entry;
+		std::string hostAccountDisplayName;
+		int64_t secondsElapsed;
+		getRoomsStatement->getColumns(entry.roomID, entry.hostAccountID, hostAccountDisplayName, entry.description, entry.roomState, entry.playerLimit, entry.version, entry.modsJson, secondsElapsed);
+		entry.age = std::chrono::seconds(secondsElapsed);
+		
+		LobbyAccount hostAccount;
+		hostAccount.accountID = entry.hostAccountID;
+		hostAccount.displayName = hostAccountDisplayName;
+		entry.participants.push_back(hostAccount);
+		
+		result.push_back(entry);
+	}
+	getRoomsStatement->reset();
+
+	for (auto & room : result)
+	{
+		getGameRoomPlayersStatement->setBinds(room.roomID);
+		while(getGameRoomPlayersStatement->execute())
+		{
+			LobbyAccount account;
+			getGameRoomPlayersStatement->getColumns(account.accountID, account.displayName);
+			room.participants.push_back(account);
+		}
+		getGameRoomPlayersStatement->reset();
+	}
+	
 	return result;
 }
 

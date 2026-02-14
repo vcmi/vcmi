@@ -47,6 +47,12 @@ class LobbyDatabase
 	SQLiteStatementPtr getAccountInviteStatusStatement;
 	SQLiteStatementPtr getAccountGameRoomStatement;
 	SQLiteStatementPtr getAccountDisplayNameStatement;
+	SQLiteStatementPtr getAccountCountStatement;
+	SQLiteStatementPtr getActiveAccountsCountStatement;
+	SQLiteStatementPtr getRegisteredAccountsCountStatement;
+	SQLiteStatementPtr getClosedGameRoomsCountStatement;
+	SQLiteStatementPtr getClosedGameRoomsCountAllStatement;
+	SQLiteStatementPtr getRoomsStatement;
 	SQLiteStatementPtr getGameRoomPlayersStatement;
 	SQLiteStatementPtr getGameRoomInvitesStatement;
 	SQLiteStatementPtr countRoomUsedSlotsStatement;
@@ -65,7 +71,7 @@ class LobbyDatabase
 	void clearOldData();
 
 public:
-	explicit LobbyDatabase(const boost::filesystem::path & databasePath);
+	explicit LobbyDatabase(const boost::filesystem::path & databasePath, bool write);
 	~LobbyDatabase();
 
 	void setAccountOnline(const std::string & accountID, bool isOnline);
@@ -89,12 +95,17 @@ public:
 	std::vector<LobbyGameRoom> getAccountGameHistory(const std::string & accountID);
 	std::vector<LobbyGameRoom> getActiveGameRooms();
 	std::vector<LobbyAccount> getActiveAccounts();
+	std::vector<LobbyGameRoom> getRooms(int hours, int limit);
 	std::vector<LobbyChatMessage> getRecentMessageHistory(const std::string & channelType, const std::string & channelName);
 	std::vector<LobbyChatMessage> getFullMessageHistory(const std::string & channelType, const std::string & channelName);
 
 	std::string getIdleGameRoom(const std::string & hostAccountID);
 	std::string getAccountGameRoom(const std::string & accountID);
 	std::string getAccountDisplayName(const std::string & accountID);
+	int getAccountCount();
+	int getActiveAccountsCount(int hours);
+	int getRegisteredAccountsCount(int hours);
+	int getClosedGameRoomsCount(int hours = -1);
 
 	LobbyCookieStatus getAccountCookieStatus(const std::string & accountID, const std::string & accessCookieUUID);
 	LobbyInviteStatus getAccountInviteStatus(const std::string & accountID, const std::string & roomID);
