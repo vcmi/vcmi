@@ -420,9 +420,7 @@
 			},
 			"advanced":{
 				"adventureEffect" : {
-					"allowTownSelection" : true,
-					"movementPointsRequired" : 200,
-					"movementPointsTaken" : 200
+					"allowTownSelection" : true
 				}
 			},
 			"expert":{
