@@ -286,14 +286,16 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
 	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
 
-	const bool retaliation = destinationStack->ableToRetaliate();
 	bool ferocityApplied = false;
 	int32_t defenderInitialQuantity = destinationStack->getCount();
+
+	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
+	BonusList defenderBonusesToRemove = *destinationStack->getAllBonuses(Bonus::untilAfterAttackSequence);
 
 	for (int i = 0; i < totalAttacks; ++i)
 	{
 		//first strike
-		if(i == 0 && firstStrike && retaliation && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible())
+		if(i == 0 && firstStrike && destinationStack->ableToRetaliate() && !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION) && !stack->isInvincible())
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -322,7 +324,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 			&& !stack->hasBonusOfType(BonusType::BLOCKS_RETALIATION)
 			&& !stack->isInvincible()
 			&& (i == 0 && !firstStrike)
-			&& retaliation && destinationStack->ableToRetaliate())
+			&& destinationStack->ableToRetaliate())
 		{
 			makeAttack(battle, destinationStack, stack, 0, stack->getPosition(), true, false, true);
 		}
@@ -344,7 +346,32 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		if(maxReachbleIndex < path.first.size())
 			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
 	}
+
+	removeBonuses(battle, stack, attackerBonusesToRemove);
+	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
+
 	return true;
+}
+
+void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const CStack * stack, BonusList bonuses)
+{
+	if (!stack)
+	{
+		logGlobal->error("Attempt at removing bonuses from nullptr!");
+		return;
+	}	
+
+	if (bonuses.empty())
+		return;
+
+	SetStackEffect sse;
+	sse.battleID = battle.getBattle()->getBattleID();
+	std::vector<Bonus> buffer;
+	for (const auto & bonus : bonuses)
+		buffer.push_back(*bonus);
+	sse.toRemove.emplace_back(stack->unitId(), buffer);
+
+	gameHandler->sendAndApply(sse);
 }
 
 bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, const BattleAction & ba)
@@ -389,6 +416,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	if (!firstStrike)
 		makeAttack(battle, stack, destinationStack, 0, destination, true, true, false);
 
+	BonusList attackerBonusesToRemove = *stack->getAllBonuses(Bonus::untilAfterAttackSequence);	//they need to be gathered here since bonuses with this duration added during attack (like blind) should not be removed
+	BonusList defenderBonusesToRemove = *destinationStack->getAllBonuses(Bonus::untilAfterAttackSequence);
+
 	//ranged counterattack
 	if (!emptyTileAreaAttack
 		&& destinationStack->hasBonusOfType(BonusType::RANGED_RETALIATION)
@@ -419,6 +449,9 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 			makeAttack(battle, stack, destinationStack, 0, destination, false, true, false);
 		}
 	}
+
+	removeBonuses(battle, stack, attackerBonusesToRemove);
+	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 
 	return true;
 }
@@ -1050,7 +1083,10 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
+		{
 			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
+			removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
+		}
 	}
 
 	if (useCustomAnimation)
@@ -1082,6 +1118,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
 				applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
+				removeBonuses(battle, stack, *stack->getAllBonuses(Bonus::UntilTakingIndirectDamage));
 			}
 		}
 

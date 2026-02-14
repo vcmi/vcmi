@@ -251,7 +251,7 @@ namespace BonusDuration  //when bonus is automatically removed
 {
 	// We use uint16_t directly because std::bitset<11> eats whole 8 byte word.
 	using Type = uint16_t;
-	constexpr size_t Size = 11;
+	constexpr size_t Size = 13;
 
 	enum BonusDuration : Type {
 		PERMANENT = 1 << 0,
@@ -260,11 +260,14 @@ namespace BonusDuration  //when bonus is automatically removed
 		ONE_WEEK = 1 << 3, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
 		N_TURNS = 1 << 4, //used during battles, after battle bonus is always removed
 		N_DAYS = 1 << 5,
-		UNTIL_BEING_ATTACKED = 1 << 6, /*removed after attack and counterattacks are performed*/
-		UNTIL_ATTACK = 1 << 7, /*removed after attack and counterattacks are performed*/
+		UNTIL_BEING_ATTACKED = 1 << 6, /*removed each time a creature is damaged*/
+		UNTIL_ATTACK = 1 << 7, /*removed after each attack or counterattack in a seuqence is performed */
 		STACK_GETS_TURN = 1 << 8, /*removed when stack gets its turn - used for defensive stance*/
 		COMMANDER_KILLED = 1 << 9,
 		UNTIL_OWN_ATTACK = 1 << 10 /*removed after attack is performed (not counterattack)*/,
+		UNTIL_TAKING_INDIRECT_DAMAGE = 1 << 11 /*removed after unit takes indirect damage (any damage except melee or range creature attacks, tower or ballista damage)*/,
+		UNTIL_AFTER_ATTACK_SEQUENCE = 1 << 12 /*removed on both the attacker and defendant after a full attacks and counterattack sequence is performed
+							(including creature attacks, towers and war machines)*/
 	};
 
 	extern JsonNode toJson(const Type & duration);

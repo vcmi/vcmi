@@ -202,7 +202,8 @@
 						"val" : 75,
 						"type" : "GENERAL_ATTACK_REDUCTION",
 						"duration" : [
-							"UNTIL_BEING_ATTACKED",
+							"UNTIL_AFTER_ATTACK_SEQUENCE",
+							"UNTIL_TAKING_INDIRECT_DAMAGE",
 							"N_TURNS"
 						]
 					}

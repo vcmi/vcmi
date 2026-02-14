@@ -1383,6 +1383,11 @@ void GameStatePackVisitor::visitSetStackEffect(SetStackEffect & pack)
 void GameStatePackVisitor::visitStacksInjured(StacksInjured & pack)
 {
 	BattleStatePackVisitor battleVisitor(*gs.getBattle(pack.battleID));
+	for (auto attackInfo : pack.stacks)
+	{
+		auto injuredStack = gs.getBattle(pack.battleID)->getStack(attackInfo.stackAttacked);
+		injuredStack->removeBonusesRecursive(Bonus::UntilTakingIndirectDamage);
+	}
 	pack.visitTyped(battleVisitor);
 }
 
