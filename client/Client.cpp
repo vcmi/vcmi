@@ -208,11 +208,8 @@ void CClient::initMapHandler()
 	// TODO: CMapHandler initialization can probably go somewhere else
 	// It's can't be before initialization of interfaces
 	// During loading CPlayerInterface from serialized state it's depend on MH
-	if(!settings["session"]["headless"].Bool())
-	{
-		GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState().getMap()));
-		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
-	}
+	GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState().getMap()));
+	logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 }
 
 void CClient::initPlayerEnvironments()
@@ -492,9 +489,16 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 
 	if (!battleint->human)
 	{
-		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		if (ENGINE)
+		{
+			// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+			battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		}
+		else
+		{
+			battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		}
 	}
 	else
 	{

@@ -69,6 +69,25 @@
 
 #include <boost/lexical_cast.hpp>
 
+namespace
+{
+std::unique_lock<std::mutex> lockInterfaceIfPresent()
+{
+	if (ENGINE)
+		return std::unique_lock<std::mutex>(ENGINE->interfaceMutex);
+
+	return {};
+}
+
+vstd::unlock_guard<std::mutex> unlockInterfaceIfPresent()
+{
+	if (ENGINE)
+		return vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+
+	return {};
+}
+}
+
 CServerHandler::~CServerHandler()
 {
 	if (serverRunner)
@@ -80,7 +99,7 @@ CServerHandler::~CServerHandler()
 	serverRunner.reset();
 	if (threadNetwork.joinable())
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		auto unlockInterface = unlockInterfaceIfPresent();
 		threadNetwork.join();
 	}
 }
@@ -93,7 +112,7 @@ void CServerHandler::endNetwork()
 
 	if (threadNetwork.joinable())
 	{
-		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		auto unlockInterface = unlockInterfaceIfPresent();
 		threadNetwork.join();
 	}
 }
@@ -121,6 +140,14 @@ void CServerHandler::threadRunNetwork()
 	logGlobal->info("Starting network thread");
 	try {
 		networkHandler->run();
+	}
+	catch (const GameShutdownException &)
+	{
+		// In debug-test / AI-only flows the client can request shutdown from netpack handling.
+		// This exception is control-flow and should terminate the network thread cleanly.
+		SDL_TLSCleanup();
+		logGlobal->info("Game shutdown requested, terminating network thread");
+		return;
 	}
 	catch (const TerminationRequestedException &)
 	{
@@ -227,7 +254,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
 	assert(getState() == EClientState::CONNECTING);
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	auto interfaceLock = lockInterfaceIfPresent();
 
 	if (isServerLocal())
 	{
@@ -245,14 +272,14 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 
 void CServerHandler::onTimer()
 {
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	auto interfaceLock = lockInterfaceIfPresent();
 
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
 		logNetwork->info("Connection aborted by player!");
 		serverRunner->wait();
 		serverRunner.reset();
-		if (ENGINE->windows().topWindow<CSimpleJoinScreen>() != nullptr)
+		if (ENGINE && ENGINE->windows().topWindow<CSimpleJoinScreen>() != nullptr)
 			ENGINE->windows().popWindows(1);
 		return;
 	}
@@ -265,7 +292,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 {
 	assert(getState() == EClientState::CONNECTING);
 
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	auto interfaceLock = lockInterfaceIfPresent();
 
 	networkConnection = netConnection;
 
@@ -924,7 +951,7 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	auto interfaceLock = lockInterfaceIfPresent();
 
 	if(getState() == EClientState::DISCONNECTING)
 		return;
@@ -936,7 +963,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	auto interfaceLock = lockInterfaceIfPresent();
 
 	if (connection != networkConnection)
 	{
