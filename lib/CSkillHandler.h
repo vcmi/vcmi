@@ -80,6 +80,7 @@ public:
 
 	bool onlyOnWaterMap;
 	bool special;
+	bool banInMapObjects;
 
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
