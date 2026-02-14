@@ -107,195 +107,342 @@ void CZonePlacer::findPathsBetweenZones()
 	}
 }
 
-void CZonePlacer::placeOnGrid(vstd::RNG* rand)
+void CZonePlacer::placeOnGrid(const TZoneMap & zones, vstd::RNG* rand)
 {
-	auto zones = map.getZones();
 	assert(zones.size());
 
-	//Make sure there are at least as many grid fields as the number of zones
-	size_t gridSize = std::ceil(std::sqrt(zones.size()));
+	int mapLevels = map.getMapGenOptions().getLevels();
 
 	typedef boost::multi_array<std::shared_ptr<Zone>, 2> GridType;
-	GridType grid(boost::extents[gridSize][gridSize]);
+	std::vector<std::unique_ptr<GridType>> grids(mapLevels);
+	std::vector<size_t> gridSizes(mapLevels, 0);
+	std::vector<bool> levelHasZones(mapLevels, false);
 
-	TZoneVector zonesVector(zones.begin(), zones.end());
-
-	//Place first zone
-
-	auto firstZone = zonesVector[0].second;
-	size_t x = 0;
-	size_t y = 0;
-
-	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
+	// Pre-calculate grid sizes
+	std::vector<int> zonesPerLevel(mapLevels, 0);
+	for (const auto & z : zones)
 	{
-		switch (rand->nextInt(0, 3) % 4)
-		{
-		case 0:
-			x = 0;
-			y = gridSize / 2;
-			break;
-		case 1:
-			x = gridSize - 1;
-			y = gridSize / 2;
-			break;
-		case 2:
-			x = gridSize / 2;
-			y = 0;
-			break;
-		case 3:
-			x = gridSize / 2;
-			y = gridSize - 1;
-			break;
-		}
-	};
-
-	switch (firstZone->getType())
-	{
-		case ETemplateZoneType::PLAYER_START:
-		case ETemplateZoneType::CPU_START:
-			if (firstZone->getConnectedZoneIds().size() > 2)
-			{
-				getRandomEdge(x, y);
-			}
-			else
-			{
-				//Random corner
-				if (rand->nextInt(0, 1) == 1)
-				{
-					x = 0;
-				}
-				else
-				{
-					x = gridSize - 1;
-				}
-				if (rand->nextInt(0, 1) == 1)
-				{
-					y = 0;
-				}
-				else
-				{
-					y = gridSize - 1;
-				}
-			}
-			break;
-		case ETemplateZoneType::TREASURE:
-			if (gridSize & 1) //odd
-			{
-				x = y = (gridSize / 2);
-			}
-			else
-			{
-				//One of 4 squares in the middle
-				x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-				y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-			}
-			break;
-		case ETemplateZoneType::JUNCTION:
-			getRandomEdge(x, y);
-			break;
+		int level = z.second->getCenter().z;
+		if (level >= 0 && level < mapLevels)
+			zonesPerLevel[level]++;
 	}
-	grid[x][y] = firstZone;
 
-	//Ignore z placement for simplicity
-
-	for (size_t i = 1; i < zones.size(); i++)
+	for (int i = 0; i < mapLevels; ++i)
 	{
-		auto zone = zonesVector[i].second;
-		auto connectedZoneIds = zone->getConnectedZoneIds();
-
-		float maxDistance = -1000.0;
-		int3 mostDistantPlace;
-
-		//Iterate over free positions
-		for (size_t freeX = 0; freeX < gridSize; ++freeX)
+		if (zonesPerLevel[i] > 0)
 		{
-			for (size_t freeY = 0; freeY < gridSize; ++freeY)
+			size_t size = std::ceil(std::sqrt(zonesPerLevel[i]));
+			gridSizes[i] = size;
+			grids[i] = std::make_unique<GridType>(boost::extents[size][size]);
+		}
+	}
+
+	std::map<TRmgTemplateZoneId, int3> placedPositions;
+
+	// Process zones in ID order
+	for (const auto & pair : zones)
+	{
+		auto zone = pair.second;
+		int level = zone->getCenter().z;
+
+		if (level < 0 || level >= mapLevels || !grids[level])
+		{
+			continue;
+		}
+
+		auto &grid = *grids[level];
+		size_t gridSize = gridSizes[level];
+
+		// Find placed neighbors (anchors)
+		std::vector<std::shared_ptr<Zone>> anchors;
+		for (const auto& conn : zone->getConnections())
+		{
+			auto otherId = conn.getOtherZoneId(zone->getId());
+			if (placedPositions.count(otherId))
 			{
-				if (!grid[freeX][freeY])
+				anchors.push_back(zones.at(otherId));
+			}
+		}
+
+		int3 bestPos(-1, -1, level);
+		bool foundPos = false;
+
+		if (anchors.empty())
+		{
+			if (!levelHasZones[level])
+			{
+				// FIRST ZONE ON LEVEL (Random Corner/Edge)
+				size_t x = 0;
+				size_t y = 0;
+
+				auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
 				{
-					//There is free space left here
-					int3 potentialPos(freeX, freeY, 0);
-					
-					//Compute distance to every existing zone
-
-					float distance = 0;
-					for (size_t existingX = 0; existingX < gridSize; ++existingX)
+					switch (rand->nextInt(0, 3) % 4)
 					{
-						for (size_t existingY = 0; existingY < gridSize; ++existingY)
+					case 0:
+						x = 0;
+						y = gridSize / 2;
+						break;
+					case 1:
+						x = gridSize - 1;
+						y = gridSize / 2;
+						break;
+					case 2:
+						x = gridSize / 2;
+						y = 0;
+						break;
+					case 3:
+						x = gridSize / 2;
+						y = gridSize - 1;
+						break;
+					}
+				};
+
+				switch (zone->getType())
+				{
+					case ETemplateZoneType::PLAYER_START:
+					case ETemplateZoneType::CPU_START:
+						if (zone->getConnectedZoneIds().size() > 2)
 						{
-							auto existingZone = grid[existingX][existingY];
-							if (existingZone)
+							getRandomEdge(x, y);
+						}
+						else
+						{
+							//Random corner
+							if (rand->nextInt(0, 1) == 1)
 							{
-								//There is already zone here
-								float localDistance = 0.0f;
+								x = 0;
+							}
+							else
+							{
+								x = gridSize - 1;
+							}
+							if (rand->nextInt(0, 1) == 1)
+							{
+								y = 0;
+							}
+							else
+							{
+								y = gridSize - 1;
+							}
+						}
+						break;
+					case ETemplateZoneType::TREASURE:
+						if (gridSize & 1) //odd
+						{
+							x = y = (gridSize / 2);
+						}
+						else
+						{
+							//One of 4 squares in the middle
+							x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+							y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
+						}
+						break;
+					case ETemplateZoneType::JUNCTION:
+						getRandomEdge(x, y);
+						break;
+				}
+				bestPos = int3(x, y, level);
+				foundPos = true;
+			}
+			else
+			{
+				// SUBSEQUENT INDEPENDENT ZONE (Most Distant)
+				float maxDistance = -1000.0;
 
-								auto graphDistance = distancesBetweenZones[zone->getId()][existingZone->getId()];
-								if (graphDistance > 1)
+				//Iterate over free positions
+				for (size_t freeX = 0; freeX < gridSize; ++freeX)
+				{
+					for (size_t freeY = 0; freeY < gridSize; ++freeY)
+					{
+						if (!grid[freeX][freeY])
+						{
+							int3 potentialPos(freeX, freeY, 0);
+							float distance = 0;
+
+							// Sum distance to all existing zones on this level
+							for (size_t existingX = 0; existingX < gridSize; ++existingX)
+							{
+								for (size_t existingY = 0; existingY < gridSize; ++existingY)
 								{
-									//No direct connection
-									localDistance = potentialPos.dist2d(int3(existingX, existingY, 0)) * graphDistance;
+									auto existingZone = grid[existingX][existingY];
+									if (existingZone)
+									{
+										// Ignore graph distance since we are not connected
+										float localDistance = potentialPos.dist2d(int3(existingX, existingY, 0));
+										localDistance *= scaleForceBetweenZones(zone, existingZone);
+										distance += localDistance;
+									}
 								}
-								else
-								{
-									//Has direct connection - place as close as possible
-									localDistance = -potentialPos.dist2d(int3(existingX, existingY, 0));
-								}
+							}
 
-								localDistance *= scaleForceBetweenZones(zone, existingZone);
-
-								distance += localDistance;
+							if (distance > maxDistance)
+							{
+								maxDistance = distance;
+								bestPos = int3(freeX, freeY, level);
+								foundPos = true;
 							}
 						}
 					}
-					if (distance > maxDistance)
+				}
+			}
+		}
+		else
+		{
+			// ANCHOR LOGIC
+			std::map<std::pair<int, int>, int> candidateScores;
+
+			for (const auto& anchor : anchors)
+			{
+				int3 anchorPos = placedPositions[anchor->getId()];
+				
+				if (anchorPos.z == level)
+				{
+					// Adjacent candidates
+					int dx[] = { -1, 1, 0, 0 };
+					int dy[] = { 0, 0, -1, 1 };
+
+					for (int i = 0; i < 4; ++i)
 					{
-						maxDistance = distance;
-						mostDistantPlace = potentialPos;
+						int nx = anchorPos.x + dx[i];
+						int ny = anchorPos.y + dy[i];
+						if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize)
+						{
+							candidateScores[{nx, ny}]++;
+						}
+					}
+				}
+				else
+				{
+					// Overlap candidate
+					float scale = (float)gridSize / gridSizes[anchorPos.z];
+					int nx = std::round(anchorPos.x * scale);
+					int ny = std::round(anchorPos.y * scale);
+					
+					nx = std::clamp(nx, 0, (int)gridSize - 1);
+					ny = std::clamp(ny, 0, (int)gridSize - 1);
+					
+					candidateScores[{nx, ny}]++;
+				}
+			}
+
+			// Find best valid candidate
+			int maxScore = -1;
+			for (const auto& [pos, score] : candidateScores)
+			{
+				if (!grid[pos.first][pos.second]) // Check if free
+				{
+					if (score > maxScore)
+					{
+						maxScore = score;
+						bestPos = int3(pos.first, pos.second, level);
+						foundPos = true;
+					}
+				}
+			}
+
+			// Fallback: Closest to Center of Mass of anchors
+			if (!foundPos)
+			{
+				float centerOfMassX = 0;
+				float centerOfMassY = 0;
+				for (const auto& anchor : anchors)
+				{
+					int3 anchorPos = placedPositions[anchor->getId()];
+					float scale = (float)gridSize / gridSizes[anchorPos.z];
+					centerOfMassX += anchorPos.x * scale;
+					centerOfMassY += anchorPos.y * scale;
+				}
+				centerOfMassX /= static_cast<float>(anchors.size());
+				centerOfMassY /= static_cast<float>(anchors.size());
+
+				float minDist = 1e10;
+				for (size_t x = 0; x < gridSize; ++x)
+				{
+					for (size_t y = 0; y < gridSize; ++y)
+					{
+						if (!grid[x][y])
+						{
+							float dx = (float)x - centerOfMassX;
+							float dy = (float)y - centerOfMassY;
+							float dist = dx * dx + dy * dy;
+							if (dist < minDist)
+							{
+								minDist = dist;
+								bestPos = int3(x, y, level);
+								foundPos = true;
+							}
+						}
 					}
 				}
 			}
 		}
 
-		//Place in a free slot
-		grid[mostDistantPlace.x][mostDistantPlace.y] = zone;
+		if (foundPos)
+		{
+			grid[bestPos.x][bestPos.y] = zone;
+			placedPositions[zone->getId()] = bestPos;
+			levelHasZones[level] = true;
+		}
+		else
+		{
+			logGlobal->warn("Could not find place for zone %d on level %d grid size %d", zone->getId(), level, gridSize);
+		}
 	}
 
 	//TODO: toggle with a flag
 #ifdef ZONE_PLACEMENT_LOG
 	logGlobal->trace("Initial zone grid:");
-	for (size_t x = 0; x < gridSize; ++x)
+	for (int level = 0; level < mapLevels; ++level)
 	{
-		std::string s;
-		for (size_t y = 0; y < gridSize; ++y)
+		if (!grids[level]) continue;
+		auto &grid = *grids[level];
+		size_t gridSize = gridSizes[level];
+
+		logGlobal->trace("Level %d:", level);
+
+		for (size_t x = 0; x < gridSize; ++x)
 		{
-			if (grid[x][y])
+			std::string s;
+			for (size_t y = 0; y < gridSize; ++y)
 			{
-				s += (boost::format("%3d ") % grid[x][y]->getId()).str();
+				if (grid[x][y])
+				{
+					s += (boost::format("%3d ") % grid[x][y]->getId()).str();
+				}
+				else
+				{
+					s += " -- ";
+				}
 			}
-			else
-			{
-				s += " -- ";
-			}
+			logGlobal->trace(s);
 		}
-		logGlobal->trace(s);
 	}
 #endif
 
 	//Set initial position for zones - random position in square centered around (x, y)
-	for (size_t x = 0; x < gridSize; ++x)
+	for (int level = 0; level < mapLevels; ++level)
 	{
-		for (size_t y = 0; y < gridSize; ++y)
-		{
-			auto zone = grid[x][y];
-			if (zone)
-			{
-				//i.e. for grid size 5 we get range (0.25 - 4.75)
-				auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
-				vstd::abetween(targetX, 0.5, gridSize - 0.5);
-				auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
-				vstd::abetween(targetY, 0.5, gridSize - 0.5);
+		if (!grids[level]) continue;
+		auto &grid = *grids[level];
+		size_t gridSize = gridSizes[level];
 
-				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
+		for (size_t x = 0; x < gridSize; ++x)
+		{
+			for (size_t y = 0; y < gridSize; ++y)
+			{
+				auto zone = grid[x][y];
+				if (zone)
+				{
+					//i.e. for grid size 5 we get range (0.25 - 4.75)
+					auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
+					vstd::abetween(targetX, 0.5, gridSize - 0.5);
+					auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
+					vstd::abetween(targetY, 0.5, gridSize - 0.5);
+
+					zone->setCenter(float3(targetX / gridSize, targetY / gridSize, level));
+				}
 			}
 		}
 	}
@@ -333,14 +480,6 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	int mapLevels = map.getMapGenOptions().getLevels();
 
 	findPathsBetweenZones();
-	placeOnGrid(rand);
-
-	/*
-	Fruchterman-Reingold algorithm
-
-	Let's assume we try to fit N circular zones with radius = size on a map
-	Connected zones attract, intersecting zones and map boundaries push back
-	*/
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -349,6 +488,8 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 
 	//0. set zone sizes and surface / underground level
 	prepareZones(zones, zonesVector, mapLevels, rand);
+
+	placeOnGrid(zones, rand);
 
 	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
