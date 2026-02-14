@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <SDL_ttf.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class ColorRGBA;
@@ -25,6 +27,16 @@ protected:
 public:
 	virtual ~IFont()
 	{}
+
+	enum class FontStyle : int8_t
+	{
+		DEFAULT = -1,
+		NORMAL = TTF_STYLE_NORMAL,
+		BOLD = TTF_STYLE_BOLD,
+		ITALIC = TTF_STYLE_ITALIC,
+		UNDERLINE = TTF_STYLE_UNDERLINE,
+		STRIKETHROUGH = TTF_STYLE_STRIKETHROUGH
+	};
 
 	/// Returns height of font
 	virtual size_t getLineHeightScaled() const = 0;
@@ -49,6 +61,8 @@ public:
 
 	virtual bool canRepresentCharacter(const char * data) const	= 0;
 
+	virtual void setFontStyle(const FontStyle style) const = 0;
+
 	/**
 	 * @param surface - destination to print text on
 	 * @param data - string to print
@@ -68,5 +82,7 @@ public:
 	void renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const ColorRGBA & color, const Point & pos) const;
 	/// pos = bottomright corner of the text
 	void renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const ColorRGBA & color, const Point & pos) const;
+
+	static std::pair<std::optional<ColorRGBA>, std::optional<IFont::FontStyle>> parseColorAndFontStyle(const std::string & text);
 };
 

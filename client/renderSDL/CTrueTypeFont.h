@@ -28,6 +28,8 @@ class CTrueTypeFont final : public IFont
 	const bool outline;
 	const bool dropShadow;
 
+	int defaultFontStyle;
+
 	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const JsonNode & config);
 	TTF_Font * loadFont(const JsonNode & config);
 	int getPointSize(const JsonNode & config) const;
@@ -41,6 +43,8 @@ public:
 	~CTrueTypeFont();
 
 	bool canRepresentCharacter(const char * data) const override;
+
+	void setFontStyle(const FontStyle style) const override;
 
 	size_t getLineHeightScaled() const override;
 	size_t getGlyphWidthScaled(const char * data) const override;

@@ -59,6 +59,8 @@ public:
 	bool canRepresentCharacter(const char * data) const override;
 	bool canRepresentString(const std::string & data) const;
 
+	void setFontStyle(const FontStyle style) const override;
+
 	friend class CBitmapHanFont;
 	friend class CTrueTypeFont;
 };

@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "Colors.h"
 #include "IFont.h"
 
 #include "../GameEngine.h"
@@ -106,3 +107,36 @@ void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::
 	}
 }
 
+std::pair<std::optional<ColorRGBA>, std::optional<IFont::FontStyle>> IFont::parseColorAndFontStyle(const std::string & text)
+{
+	if(text.empty())
+		return {std::nullopt, std::nullopt};
+
+	// split by ';' — if no ';' then only color is parsed
+	std::vector<std::string> parts;
+	boost::split(parts, text, boost::is_any_of(";"));
+
+	std::optional<ColorRGBA> color;
+	std::optional<IFont::FontStyle> style;
+
+	if(!parts.empty() && !parts[0].empty())
+		color = Colors::parseColor(parts[0]);
+
+	if(parts.size() > 1 && !parts[1].empty())
+	{
+		std::string s = boost::to_lower_copy(parts[1]);
+		if(s == "bold")
+			style = IFont::FontStyle::BOLD;
+		else if(s == "italic")
+			style = IFont::FontStyle::ITALIC;
+		else if(s == "underscore" || s == "underline")
+			style = IFont::FontStyle::UNDERLINE;
+		else if(s == "strikethrough" || s == "strike")
+			style = IFont::FontStyle::STRIKETHROUGH;
+		else if(s == "normal")
+			style = IFont::FontStyle::NORMAL;
+		// unknown style -> leave std::nullopt
+	}
+
+	return {color, style};
+}

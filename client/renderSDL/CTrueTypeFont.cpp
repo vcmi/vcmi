@@ -64,11 +64,12 @@ CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
 	font(loadFont(fontConfig), TTF_CloseFont),
 	blended(true),
 	outline(fontConfig["outline"].Bool()),
-	dropShadow(!fontConfig["noShadow"].Bool())
+	dropShadow(!fontConfig["noShadow"].Bool()),
+	defaultFontStyle(getFontStyle(fontConfig))
 {
 	assert(font);
 
-	TTF_SetFontStyle(font.get(), getFontStyle(fontConfig));
+	TTF_SetFontStyle(font.get(), defaultFontStyle);
 	TTF_SetFontHinting(font.get(),TTF_HINTING_MONO);
 
 	logGlobal->debug("Loaded TTF font: '%s', point size %d, height %d, ascent %d, descent %d, line skip %d",
@@ -110,6 +111,14 @@ bool CTrueTypeFont::canRepresentCharacter(const char * text) const
 #else
 	return true;
 #endif
+}
+
+void CTrueTypeFont::setFontStyle(const FontStyle style) const
+{
+	if(style == FontStyle::DEFAULT)
+		TTF_SetFontStyle(font.get(), defaultFontStyle);
+	else
+		TTF_SetFontStyle(font.get(), static_cast<int>(style));
 }
 
 size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const

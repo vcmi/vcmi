@@ -160,3 +160,9 @@ size_t FontChain::getStringWidthScaled(const std::string & data) const
 
 	return result;
 }
+
+void FontChain::setFontStyle(const FontStyle style) const
+{
+	for (const auto & font : chain)
+		font->setFontStyle(style);
+}

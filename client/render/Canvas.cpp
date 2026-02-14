@@ -181,7 +181,13 @@ void Canvas::drawBorderDashed(const Rect & target, const ColorRGBA & color)
 
 void Canvas::drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
 {
+	drawText(position, font, IFont::FontStyle::DEFAULT, colorDest, alignment, text);
+}
+
+void Canvas::drawText(const Point & position, const EFonts & font, const IFont::FontStyle & style, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text )
+{
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
+	fontPtr->setFontStyle(style);
 
 	switch (alignment)
 	{

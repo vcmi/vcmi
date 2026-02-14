@@ -12,6 +12,7 @@
 #include "../gui/TextAlignment.h"
 #include "../../lib/Rect.h"
 #include "../../lib/Color.h"
+#include "IFont.h"
 
 struct SDL_Surface;
 class IImage;
@@ -105,6 +106,7 @@ public:
 
 	/// renders single line of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text );
+	void drawText(const Point & position, const EFonts & font, const IFont::FontStyle & style, const ColorRGBA & colorDest, ETextAlignment alignment, const std::string & text );
 
 	/// renders multiple lines of text with specified parameters
 	void drawText(const Point & position, const EFonts & font, const ColorRGBA & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );

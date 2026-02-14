@@ -140,7 +140,62 @@ void CLabel::setColor(const ColorRGBA & Color)
 size_t CLabel::getWidth()
 {
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
-	return fontPtr->getStringWidth(visibleText());
+
+	const std::string txt = visibleText();
+	if(txt.empty())
+		return 0;
+
+	size_t width = 0;
+	std::string segment;
+
+	auto flush = [&]() {
+		if(!segment.empty())
+		{
+			width += fontPtr->getStringWidth(segment);
+			segment.clear();
+		}
+	};
+
+	IFont::FontStyle currentStyle = IFont::FontStyle::DEFAULT;
+
+	for(size_t i = 0; i < txt.size(); )
+	{
+		if(txt[i] == '{')
+		{
+			size_t pipe = txt.find('|', i + 1);
+			if(pipe != std::string::npos)
+			{
+				std::string token = txt.substr(i + 1, pipe - (i + 1));
+				auto parsed = IFont::parseColorAndFontStyle(token);
+				if(parsed.second)
+				{
+					flush();
+					currentStyle = parsed.second.value();
+					fontPtr->setFontStyle(currentStyle);
+				}
+				i = pipe + 1;
+				continue;
+			}
+			// malformed — treat as visible char
+		}
+
+		if(txt[i] == '}')
+		{
+			flush();
+			currentStyle = IFont::FontStyle::DEFAULT;
+			fontPtr->setFontStyle(currentStyle);
+			++i;
+			continue;
+		}
+
+		size_t chsz = TextOperations::getUnicodeCharacterSize(txt[i]);
+		segment.append(txt.data() + i, chsz);
+		i += chsz;
+	}
+
+	flush();
+	fontPtr->setFontStyle(IFont::FontStyle::DEFAULT);
+	return width;
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const ColorRGBA & Color, const std::string & Text) :
@@ -200,8 +255,12 @@ int CTextContainer::getDelimitersWidth(EFonts font, std::string text)
 	while(std::regex_search(searchStart, text.cend(), match, expr))
 	{
 		std::string colorText = match[1].str();
-		if(auto c = Colors::parseColor(colorText))
+		auto c = IFont::parseColorAndFontStyle(colorText);
+		if(c.first)
+		{
+			f->setFontStyle(c.second.value_or(IFont::FontStyle::DEFAULT));
 			delimitersWidth += f->getStringWidth(colorText + "|");
+		}
 		searchStart = match.suffix().first;
 	}
 
@@ -254,10 +313,11 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 				{
 					std::string colorText = match[1].str();
 					
-					if(auto color = Colors::parseColor(colorText))
+					auto color = IFont::parseColorAndFontStyle(colorText);
+					if(color.first)
 					{
 						toPrint = toPrint.substr(colorText.length() + 1, toPrint.length() - colorText.length());
-						to.drawText(where, font, *color, ETextAlignment::TOPLEFT, toPrint);
+						to.drawText(where, font, color.second.value_or(IFont::FontStyle::DEFAULT), *color.first, ETextAlignment::TOPLEFT, toPrint);
 					}
 					else
 						to.drawText(where, font, Colors::YELLOW, ETextAlignment::TOPLEFT, toPrint);
@@ -332,7 +392,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 	textSize.y = lineHeight * (int)lines.size();
 	textSize.x = 0;
 	for(const std::string & line : lines)
-		vstd::amax(textSize.x, fontPtr->getStringWidth(line.c_str()));
+		vstd::amax(textSize.x, CLabel(0, 0, font, alignment, color, line).getWidth());
 	if(redrawAfter)
 		redraw();
 }

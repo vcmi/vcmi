@@ -72,6 +72,8 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
 
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
+	IFont::FontStyle currentStyle = IFont::FontStyle::DEFAULT;
+	fontPtr->setFontStyle(currentStyle);
 
 	// each iteration generates one output line
 	while(text.length())
@@ -105,10 +107,14 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 				if(std::regex_search(tmp, match, expr))
 				{
 					std::string colorText = match[1].str();
-					if(auto c = Colors::parseColor(colorText))
+					auto c = IFont::parseColorAndFontStyle(colorText);
+					if(c.first)
 					{
 						color = colorText + "|";
 						currPos += colorText.length() + 1;
+						// apply parsed font style for width measurements
+						currentStyle = c.second.value_or(IFont::FontStyle::DEFAULT);
+						fontPtr->setFontStyle(currentStyle);
 					}
 				}
 			}
@@ -116,6 +122,9 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 			{
 				opened = false;
 				color = "";
+				// reset style to normal when leaving brace
+				currentStyle = IFont::FontStyle::DEFAULT;
+				fontPtr->setFontStyle(currentStyle);
 			}
 			else
 				printableString.append(text.data() + currPos, symbolSize);
