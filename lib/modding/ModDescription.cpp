@@ -63,7 +63,11 @@ ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConf
 		dependencies.emplace("core");
 
 	if (!getParentID().empty())
+	{
 		dependencies.emplace(getParentID());
+		if (getTopParentID() != getParentID())
+			dependencies.emplace(getTopParentID());
+	}
 }
 
 ModDescription::~ModDescription() = default;
