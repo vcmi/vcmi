@@ -1338,8 +1338,8 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				break;
 			case EActionType::MONSTER_SPELL:
 			{
-				auto * spell = pack.ba.spell.toSpell();
-				if (spell && spell->canCastWithoutSkip())
+				SpellID spellID = pack.ba.spell;
+				if (spellID.hasValue() && spellID.toSpell()->canCastWithoutSkip())
 				{
 					//state does not change
 				}
