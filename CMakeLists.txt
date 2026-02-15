@@ -552,21 +552,19 @@ if(NOT ENABLE_MINIMAL_LIB)
 	find_package(TBB REQUIRED)
 endif()
 
-if(ENABLE_LUA)
-	find_package(luajit)
+find_package(luajit)
 
-	if(TARGET luajit::luajit)
-		message(STATUS "Using LuaJIT provided by system")
-	else()
-		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
-		find_package(Lua REQUIRED)
-		if(Lua_FOUND)
-			add_library(luajit::luajit UNKNOWN IMPORTED)
-			set_target_properties(luajit::luajit PROPERTIES
-				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
-			set_target_properties(luajit::luajit PROPERTIES
-				IMPORTED_LOCATION "${LUA_LIBRARIES}")
-		endif()
+if(TARGET luajit::luajit)
+	message(STATUS "Using LuaJIT provided by system")
+else()
+	message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
+	find_package(Lua)
+	if(Lua_FOUND)
+		add_library(luajit::luajit UNKNOWN IMPORTED)
+		set_target_properties(luajit::luajit PROPERTIES
+			INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
+		set_target_properties(luajit::luajit PROPERTIES
+			IMPORTED_LOCATION "${LUA_LIBRARIES}")
 	endif()
 endif()
 

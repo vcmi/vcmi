@@ -21,8 +21,12 @@
 #include "../IGameSettings.h"
 #include "../GameLibrary.h"
 
-
 VCMI_LIB_NAMESPACE_BEGIN
+
+#ifdef HAVE_LUAJIT
+std::unique_ptr<LuaExpressionEvaluator> DamageCalculator::attackSkillEvaluator = nullptr;
+std::unique_ptr<LuaExpressionEvaluator> DamageCalculator::defenseSkillEvaluator = nullptr;
+#endif
 
 DamageRange DamageCalculator::getBaseDamageSingle() const
 {
@@ -207,20 +211,45 @@ int DamageCalculator::getTargetDefenseIgnored() const
 	return 0;
 }
 
+
+#ifdef HAVE_LUAJIT
+LuaExpressionEvaluator & DamageCalculator::getAttackSkillEvaluator() const
+{
+	if(!attackSkillEvaluator)
+	{
+		const std::string & formula = LIBRARY->engineSettings()->getValue(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FORMULA).String();
+		attackSkillEvaluator  = std::make_unique<LuaExpressionEvaluator>(formula);
+	}
+	return *attackSkillEvaluator;
+}
+
+LuaExpressionEvaluator & DamageCalculator::getDefenseSkillEvaluator() const
+{
+	if(!defenseSkillEvaluator)
+	{
+		const std::string & formula = LIBRARY->engineSettings()->getValue(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FORMULA).String();
+		defenseSkillEvaluator = std::make_unique<LuaExpressionEvaluator>(formula);
+	}
+	return *defenseSkillEvaluator;
+}
+#endif
+
 double DamageCalculator::getAttackSkillFactor() const
 {
-	int attackAdvantage = getActorAttackEffective() - getTargetDefenseEffective();
-
-	if(attackAdvantage > 0)
+#ifdef HAVE_LUAJIT
+	LuaExpressionEvaluator & evaluator = getAttackSkillEvaluator();
+	std::map<std::string, double> params =
 	{
-		// FIXME: use cb to acquire these settings
-		const double attackMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
-		const double attackMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
-		const double attackFactor = std::min(attackMultiplier * attackAdvantage, attackMultiplierCap);
-
-		return attackFactor;
-	}
-	return 0.f;
+		{"defense", getTargetDefenseEffective()},
+            {"attack", getActorAttackEffective()}
+	};
+	double result = evaluator.evaluate(params);
+	return result;
+#else
+	int attack = getTargetDefenseEffective();
+	int defense = getTargetDefenseEffective();
+	return std::min(std::max((attack - defense) * 0.05, 0.0), 3.0);
+#endif
 }
 
 double DamageCalculator::getAttackBlessFactor() const
@@ -321,19 +350,20 @@ double DamageCalculator::getAttackRevengeFactor() const
 
 double DamageCalculator::getDefenseSkillFactor() const
 {
-	int defenseAdvantage = getTargetDefenseEffective() - getActorAttackEffective();
-
-	//bonus from attack/defense skills
-	if(defenseAdvantage > 0) //decreasing dmg
+#ifdef HAVE_LUAJIT
+	LuaExpressionEvaluator & evaluator = getDefenseSkillEvaluator();
+	std::map<std::string, double> params =
 	{
-		// FIXME: use cb to acquire these settings
-		const double defenseMultiplier = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
-		const double defenseMultiplierCap = LIBRARY->engineSettings()->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR_CAP);
-
-		const double dec = std::min(defenseMultiplier * defenseAdvantage, defenseMultiplierCap);
-		return dec;
-	}
-	return 0.0;
+		{"defense", getTargetDefenseEffective()},
+		{"attack", getActorAttackEffective()}
+	};
+	double result = evaluator.evaluate(params);
+	return result;
+#else
+	int attack = getTargetDefenseEffective();
+	int defense = getTargetDefenseEffective();
+	return std::min(std::max((defense - attack) * 0.25, 0.0), 0.7);
+#endif
 }
 
 double DamageCalculator::getDefenseArmorerFactor() const
