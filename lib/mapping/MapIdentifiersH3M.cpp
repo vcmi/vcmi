@@ -63,7 +63,8 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		AnimationPath h3mName = AnimationPath::builtinTODO(entryTemplate.second.String());
 		AnimationPath vcmiName = AnimationPath::builtinTODO(entryTemplate.first);
 
-		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")))
+		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")) &&
+		   !CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/").toType<EResType::JSON>()))
 			logMod->warn("Template animation file %s was not found!", vcmiName.getOriginalName());
 
 		mappingObjectTemplate[h3mName] = vcmiName;
