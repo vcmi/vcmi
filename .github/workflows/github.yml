@@ -606,6 +606,21 @@ jobs:
     - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
+        
+    - name: Create AppImage
+      if: ${{ matrix.platform == 'clang-oldest-release' }}
+      env:
+        BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
+      run: |
+        chmod +x CI/create_appimage.sh
+        CI/create_appimage.sh
+
+    - name: Upload AppImage
+      if: ${{ matrix.platform == 'clang-oldest-release' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: VCMI-AppImage-${{ matrix.platform }}
+        path: ${{ github.workspace }}/*.AppImage
 
     - name: Test
       run: |
