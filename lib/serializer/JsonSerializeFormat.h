@@ -349,7 +349,7 @@ public:
 			const auto & node = getCurrent()[fieldName].Struct();
 			for (const auto & n : node)
 			{
-				LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+				LIBRARY->identifiers()->requestIdentifierIfFound(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
 					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
 				});
 			}
