@@ -18,12 +18,13 @@ ICON_WIN = "https://raw.githubusercontent.com/EgoistDeveloper/operating-system-l
 ICON_MAC = "https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/MAC.png"
 ICON_IOS = "https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/IOS.png"
 ICON_AND = "https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/AND.png"
+ICON_LIN = "https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/LIN.png"
 ICON_CPP = "https://raw.githubusercontent.com/isocpp/logos/master/cpp_logo.png"
 ICON_PM  = "https://avatars.githubusercontent.com/u/96267164?s=32"
 
 ALIGN_4_COLS = "|:--|:--:|:--:|:--:|\n"  # reused in Validation/Tests/Build matrix sections
 
-FAMILIES = ("windows-msvc", "windows-mingw", "macos", "ios", "android")
+FAMILIES = ("windows-msvc", "windows-mingw", "macos", "linux", "ios", "android")
 
 VALIDATION_ORDER = {"LF line endings": 0, "JSON": 1, "Markdown": 2}
 TESTS_ORDER = {"Clang Latest": 0, "GCC Latest": 1, "Clang Oldest": 2, "GCC Oldest": 3}
@@ -123,6 +124,7 @@ def family_title_and_icon(fam: str) -> Tuple[str, str]:
         case "macos":         return "macOS", ICON_MAC
         case "ios":           return "iOS", ICON_IOS
         case "android":       return "Android", ICON_AND
+        case "linux":         return "Linux (AppImage)", ICON_LIN
         case _:               return fam, ICON_PM
 
 # ----------------------- 1) Collect validation & tests -----------------------

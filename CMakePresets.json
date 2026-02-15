@@ -89,6 +89,17 @@
             }
         },
         {
+            "name": "linux-gcc-release-appimage",
+            "displayName": "GCC x86_64-pc-linux-gnu for appimage",
+            "description": "VCMI Linux GCC",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "ENABLE_STATIC_LIBS": "ON"
+            }
+        },
+        {
             "name": "linux-gcc-release-ccache",
             "displayName": "GCC x86_64-pc-linux-gnu with ccache",
             "description": "VCMI Linux GCC with ccache",
@@ -400,6 +411,11 @@
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release-appimage",
+            "configurePreset": "linux-gcc-release-appimage",
+            "inherits": "linux-gcc-release"
         },
         {
             "name": "linux-gcc-release-ccache",
