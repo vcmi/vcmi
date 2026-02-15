@@ -49,7 +49,6 @@ cp "$BUILD_DIR/bin/vcmiclient" "$APP_DIR/usr/bin/"
 cp "$BUILD_DIR/bin/vcmiserver" "$APP_DIR/usr/bin/"
 cp "$BUILD_DIR/bin/vcmilauncher" "$APP_DIR/usr/bin/"
 cp "$BUILD_DIR/bin/vcmieditor" "$APP_DIR/usr/bin/"
-cp "$BUILD_DIR/bin/vcmilobby" "$APP_DIR/usr/bin/"
 
 # Size Optimization: Strip binaries and libraries
 echo "Stripping binaries and libraries to reduce size..."
