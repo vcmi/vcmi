@@ -128,6 +128,14 @@ jobs:
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: x64
 
+          - platform: linux-appimage-x64
+            os: ubuntu-22.04
+            upload: 1
+            preset: linux-clang-test
+            extension: AppImage
+            before_install: linux_qt5.sh
+            artifact_platform: x86_64
+
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -333,6 +341,14 @@ jobs:
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    - name: Create AppImage
+      if: ${{ matrix.platform == 'linux-appimage-x64' }}
+      env:
+        BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
+      run: |
+        chmod +x CI/create_appimage.sh
+        CI/create_appimage.sh
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
@@ -606,21 +622,6 @@ jobs:
     - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
-        
-    - name: Create AppImage
-      if: ${{ matrix.platform == 'clang-oldest-release' }}
-      env:
-        BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
-      run: |
-        chmod +x CI/create_appimage.sh
-        CI/create_appimage.sh
-
-    - name: Upload AppImage
-      if: ${{ matrix.platform == 'clang-oldest-release' }}
-      uses: actions/upload-artifact@v6
-      with:
-        name: VCMI-AppImage-${{ matrix.platform }}
-        path: ${{ github.workspace }}/*.AppImage
 
     - name: Test
       run: |

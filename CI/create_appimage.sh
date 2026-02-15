@@ -172,3 +172,13 @@ done
 rm -f linuxdeploy-*.AppImage
 
 echo "AppImage creation complete!"
+
+# Move to build directory if specified (for CI integration)
+APPIMAGE_FILE=$(ls VCMI-*.AppImage 2>/dev/null | head -n 1)
+if [ -n "$APPIMAGE_FILE" ] && [ -n "$BUILD_DIR" ]; then
+    # Use VCMI_PACKAGE_FILE_NAME from CI if available, otherwise original name
+    TARGET_NAME="${VCMI_PACKAGE_FILE_NAME:-${APPIMAGE_FILE%.*}}.AppImage"
+    echo "Ensuring $BUILD_DIR exists and moving $APPIMAGE_FILE to $BUILD_DIR/$TARGET_NAME"
+    mkdir -p "$BUILD_DIR"
+    mv "$APPIMAGE_FILE" "$BUILD_DIR/$TARGET_NAME"
+fi
