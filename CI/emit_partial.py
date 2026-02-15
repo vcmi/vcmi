@@ -29,6 +29,8 @@ def detect(platform: str) -> Tuple[str, List[str], str]:
         return ("ccache", ["ccache", "-s"], "ios")
     if platform.startswith("android"):
         return ("ccache", ["ccache", "-s"], "android")
+    if platform.startswith("linux"):
+        return ("ccache", ["ccache", "-s"], "linux")
     return ("ccache", ["ccache", "-s"], "other")
 
 
@@ -91,6 +93,8 @@ def arch_label(platform: str) -> str:
         "android-32": "ARMv7",
         "android-64": "ARM64",
         "android-64-intel": "x86_64",
+        "linux-x64": "x86_64",
+        "linux-arm64": "ARM64",
     }
     return mapping.get(platform, platform)
 

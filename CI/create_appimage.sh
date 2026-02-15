@@ -51,55 +51,6 @@ cp "$BUILD_DIR/bin/vcmilauncher" "$APP_DIR/usr/bin/"
 cp "$BUILD_DIR/bin/vcmieditor" "$APP_DIR/usr/bin/"
 cp "$BUILD_DIR/bin/vcmilobby" "$APP_DIR/usr/bin/"
 
-# Copy AI libraries
-echo "Copying AI libraries..."
-cp -r "$BUILD_DIR/bin/AI" "$APP_DIR/usr/bin/"
-
-# Copy libraries
-echo "Copying libraries..."
-# Check if libs are in lib or bin (sometimes they end up in bin depending on cmake config)
-if [ -f "$BUILD_DIR/bin/libvcmi.so" ]; then
-    cp "$BUILD_DIR/bin/libvcmi.so" "$APP_DIR/usr/lib/"
-    cp "$BUILD_DIR/bin/libvcmiqt.so" "$APP_DIR/usr/lib/"
-elif [ -f "$BUILD_DIR/lib/libvcmi.so" ]; then
-    cp "$BUILD_DIR/lib/libvcmi.so" "$APP_DIR/usr/lib/"
-    cp "$BUILD_DIR/lib/libvcmiqt.so" "$APP_DIR/usr/lib/"
-else 
-    echo "Error: Could not find libvcmi.so"
-    exit 1
-fi
-
-
-
-# Special fix for libfuzzylite and onnxruntime: search and bundle beneath binaries -> fixes not found librarys when loading AI ingame
-echo "Resolving AI dependencies (fuzzylite and onnxruntime)..."
-# Search for libfuzzylite
-FL_PATH=$(find "$BUILD_DIR" /usr/lib /lib /opt /usr/local/lib -name "libfuzzylite.so*" 2>/dev/null | head -n 1 || true)
-if [ -z "$FL_PATH" ]; then
-    echo "Error: libfuzzylite.so not found in $BUILD_DIR or system paths!"
-    exit 1
-fi
-echo "Found libfuzzylite at $FL_PATH"
-cp -L "$FL_PATH" "$APP_DIR/usr/lib/"
-FL_NAME=$(basename "$FL_PATH")
-cp -L "$FL_PATH" "$APP_DIR/usr/bin/$FL_NAME"
-
-# Search for libonnxruntime
-ONNX_PATH=$(find "$BUILD_DIR" /usr/lib /lib /opt /usr/local/lib -name "libonnxruntime.so*" 2>/dev/null | head -n 1 || true)
-if [ -z "$ONNX_PATH" ]; then
-    echo "Error: libonnxruntime.so not found in $BUILD_DIR or system paths!"
-    exit 1
-fi
-echo "Found libonnxruntime at $ONNX_PATH"
-cp -L "$ONNX_PATH" "$APP_DIR/usr/lib/"
-ONNX_NAME=$(basename "$ONNX_PATH")
-cp -L "$ONNX_PATH" "$APP_DIR/usr/bin/$ONNX_NAME"
-
-# Copy all AI plugins to bin folder as well
-cp "$APP_DIR/usr/bin/AI/"*.so "$APP_DIR/usr/bin/"
-
-
-
 # Size Optimization: Strip binaries and libraries
 echo "Stripping binaries and libraries to reduce size..."
 find "$APP_DIR/usr/bin" "$APP_DIR/usr/lib" -type f -exec strip --strip-unneeded {} + 2>/dev/null || true

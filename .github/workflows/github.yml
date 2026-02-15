@@ -131,7 +131,7 @@ jobs:
           - platform: linux-appimage-x64
             os: ubuntu-22.04
             upload: 1
-            preset: linux-clang-test
+            preset: linux-gcc-release-appimage
             extension: AppImage
             before_install: linux_qt5.sh
             artifact_platform: x86_64
