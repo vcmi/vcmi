@@ -28,29 +28,32 @@ if(MACOS)
 		list(APPEND executablesToSign vcmilauncher)
 	endif()
 
-	set(codesignCommand "codesign --verbose=4 --force --options runtime --timestamp --strict --sign")
+	set(codesignCommand "codesign --verbose=4 --force --options runtime --sign")
 	install(CODE "
 set(CODE_SIGN_IDENTITY \$ENV{MACOS_CODE_SIGN_IDENTITY})
 if(NOT CODE_SIGN_IDENTITY AND \"${NEEDS_ADHOC_SIGNING}\")
 	set(CODE_SIGN_IDENTITY \"-\")
+	set(codesignParams --timestamp=none)
 	set(codesignParamsForExecutables --entitlements \"${CMAKE_CURRENT_SOURCE_DIR}/entitlements_adhoc.plist\")
 	message(\"performing adhoc signing\")
+else()
+	set(codesignParams --timestamp --strict)
 endif()
 if(CODE_SIGN_IDENTITY)
 	execute_process(COMMAND
 		bash -c \"
 			for f in '${executablesDir}/vcmibuilder' \$(find '${bundleContentsDir}' -type f -iname '*.dylib'); do
-				${codesignCommand} '\${CODE_SIGN_IDENTITY}' \\\"\$f\\\"
+				${codesignCommand} '\${CODE_SIGN_IDENTITY}' \${codesignParams} \\\"\$f\\\"
 			done
 		\"
 	)
 	foreach(executable ${executablesToSign})
 		execute_process(COMMAND
-			${codesignCommand} \${CODE_SIGN_IDENTITY} --identifier eu.vcmi.\${executable} \${codesignParamsForExecutables} \"${executablesDir}/\${executable}\"
+			${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} --identifier eu.vcmi.\${executable} \${codesignParamsForExecutables} \"${executablesDir}/\${executable}\"
 		)
 	endforeach()
 	execute_process(COMMAND
-		${codesignCommand} \${CODE_SIGN_IDENTITY} \"${bundleDir}\"
+		${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} \"${bundleDir}\"
 	)
 endif()
 	")
