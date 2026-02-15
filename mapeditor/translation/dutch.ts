@@ -47,7 +47,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="159"/>
         <source>VCMI Campaign Editor</source>
         <translation type="unfinished">VCMI-campagneredacteur</translation>
     </message>
@@ -120,78 +120,92 @@
         <translation type="unfinished">Toon volledige achtergrond</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="124"/>
         <source>Scenario editor</source>
         <translation type="unfinished">Scenario-editor</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="147"/>
         <source>Confirmation</source>
         <translation type="unfinished">Bevestiging</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="147"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Niet-opgeslagen wijzigingen gaan verloren, weet je het zeker?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
-        <translation type="unfinished">Minder scenario's dan regio's</translation>
+        <translation type="obsolete">Minder scenario&apos;s dan regio&apos;s</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
-        <translation type="unfinished">Je hebt minder scenario's dan regio's. Dit is alleen toegestaan ​​als de ontbrekende scenario's zich in de laatste regio's bevinden, niet in het midden of aan het begin.</translation>
+        <translation type="obsolete">Je hebt minder scenario&apos;s dan regio&apos;s. Dit is alleen toegestaan ​​als de ontbrekende scenario&apos;s zich in de laatste regio&apos;s bevinden, niet in het midden of aan het begin.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
+        <source>Failed to open campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
+        <source>Validation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
+        <source>Campaign has no maps defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
         <source>Open map</source>
         <translation type="unfinished">Open kaart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="253"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translation type="unfinished">Alle ondersteunde campagnes (*.vcmp *.h3c);;VCMI-campagnes (*.vcmp);;HoMM3-campagnes (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open Campaign set</source>
         <translation type="unfinished">Open campagne-set</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Select Campaign set</source>
         <translation type="unfinished">Selecteer de campagneset</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Open Campaign</source>
         <translation type="unfinished">Open Campagne</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Select Campaign</source>
         <translation type="unfinished">Selecteer campagne</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
         <source>Save campaign</source>
         <translation type="unfinished">Red de campagne</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">Red de campagne</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="423"/>
         <source>Mods are required</source>
         <translation type="unfinished">Mods zijn vereist</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="431"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="436"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Kaart openen mislukt</translation>
     </message>
@@ -253,7 +267,7 @@
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished">Regio's</translation>
+        <translation type="unfinished">Regio&apos;s</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
@@ -353,12 +367,12 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished">Minder scenario's</translation>
+        <translation type="unfinished">Minder scenario&apos;s</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="201"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished">De nieuwe regio-instellingen ondersteunen minder scenario's dan voorheen. Sommige scenario's worden verwijderd. Doorgaan?</translation>
+        <translation type="unfinished">De nieuwe regio-instellingen ondersteunen minder scenario&apos;s dan voorheen. Sommige scenario&apos;s worden verwijderd. Doorgaan?</translation>
     </message>
 </context>
 <context>
@@ -637,7 +651,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="407"/>
+        <location filename="../mainwindow.cpp" line="415"/>
         <source>VCMI Map Editor</source>
         <translation type="unfinished">VCMI-kaarteditor</translation>
     </message>
@@ -648,7 +662,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1040"/>
+        <location filename="../mainwindow.ui" line="1041"/>
         <source>Open Recent</source>
         <translation type="unfinished">VCMI-kaarteditor</translation>
     </message>
@@ -658,752 +672,767 @@
         <translation type="unfinished">Kaart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="93"/>
+        <location filename="../mainwindow.ui" line="94"/>
         <source>Edit</source>
         <translation type="unfinished">Bewerking</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="106"/>
+        <location filename="../mainwindow.ui" line="107"/>
         <source>View</source>
         <translation type="unfinished">Weergave</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="118"/>
+        <location filename="../mainwindow.ui" line="119"/>
         <source>Player</source>
         <translation type="unfinished">Speler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="138"/>
+        <location filename="../mainwindow.ui" line="139"/>
         <source>Toolbar</source>
         <translation type="unfinished">Speler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="199"/>
+        <location filename="../mainwindow.ui" line="200"/>
         <source>Minimap</source>
         <translation type="unfinished">Minimap</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="272"/>
+        <location filename="../mainwindow.ui" line="273"/>
         <source>Map Objects View</source>
         <translation type="unfinished">Kaartobjectenweergave</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="316"/>
+        <location filename="../mainwindow.ui" line="317"/>
         <source>Browser</source>
         <translation type="unfinished">Browser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="394"/>
+        <location filename="../mainwindow.ui" line="395"/>
         <source>Inspector</source>
         <translation type="unfinished">Browser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="436"/>
+        <location filename="../mainwindow.ui" line="437"/>
         <source>Property</source>
         <translation type="unfinished">Eigendom</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="441"/>
+        <location filename="../mainwindow.ui" line="442"/>
         <source>Value</source>
         <translation type="unfinished">Waarde</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="465"/>
+        <location filename="../mainwindow.ui" line="466"/>
         <source>Tools</source>
         <translation type="unfinished">Hulpmiddelen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="829"/>
+        <location filename="../mainwindow.ui" line="830"/>
         <source>Painting</source>
         <translation type="unfinished">Schilderen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="881"/>
+        <location filename="../mainwindow.ui" line="882"/>
         <source>Terrains</source>
         <translation type="unfinished">Terreinen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="924"/>
+        <location filename="../mainwindow.ui" line="925"/>
         <source>Roads</source>
         <translation type="unfinished">Wegen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="964"/>
+        <location filename="../mainwindow.ui" line="965"/>
         <source>Rivers</source>
         <translation type="unfinished">Rivieren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="998"/>
+        <location filename="../mainwindow.ui" line="999"/>
         <source>Preview</source>
         <translation type="unfinished">Voorbeeld</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1032"/>
+        <location filename="../mainwindow.ui" line="1033"/>
         <source>Open</source>
         <translation type="unfinished">Open</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1035"/>
+        <location filename="../mainwindow.ui" line="1036"/>
         <source>Ctrl+O</source>
         <translation type="unfinished">Open</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1045"/>
+        <location filename="../mainwindow.ui" line="1046"/>
         <source>More...</source>
         <translation type="unfinished">Meer...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1053"/>
+        <location filename="../mainwindow.ui" line="1054"/>
         <source>Save</source>
         <translation type="unfinished">Redden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1056"/>
+        <location filename="../mainwindow.ui" line="1057"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Redden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1061"/>
+        <location filename="../mainwindow.ui" line="1062"/>
         <source>New</source>
         <translation type="unfinished">Nieuw</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1064"/>
+        <location filename="../mainwindow.ui" line="1065"/>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1069"/>
+        <location filename="../mainwindow.ui" line="1070"/>
         <source>Save as...</source>
         <translation type="unfinished">Opslaan als...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.ui" line="1073"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished">Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1077"/>
-        <location filename="../mainwindow.ui" line="1080"/>
+        <location filename="../mainwindow.ui" line="1078"/>
+        <location filename="../mainwindow.ui" line="1081"/>
         <source>Campaign editor</source>
         <translation type="unfinished">Campagne-editor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1085"/>
-        <location filename="../mainwindow.ui" line="1088"/>
+        <location filename="../mainwindow.ui" line="1086"/>
+        <location filename="../mainwindow.ui" line="1089"/>
         <source>Template editor</source>
         <translation type="unfinished">Sjablooneditor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1093"/>
-        <location filename="../mainwindow.ui" line="1096"/>
+        <location filename="../mainwindow.ui" line="1097"/>
+        <location filename="../mainwindow.ui" line="1100"/>
         <source>View underground</source>
         <translation type="unfinished">Uitzicht ondergronds</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1099"/>
+        <location filename="../mainwindow.ui" line="1103"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1107"/>
+        <location filename="../mainwindow.ui" line="1111"/>
         <source>Pass</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1110"/>
+        <location filename="../mainwindow.ui" line="1114"/>
         <source>Ctrl+Shift+P</source>
         <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1115"/>
+        <location filename="../mainwindow.ui" line="1119"/>
         <source>Cut</source>
         <translation type="unfinished">Snee</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1118"/>
+        <location filename="../mainwindow.ui" line="1122"/>
         <source>Ctrl+X</source>
         <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1123"/>
+        <location filename="../mainwindow.ui" line="1127"/>
         <source>Copy</source>
         <translation type="unfinished">Kopiëren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1126"/>
+        <location filename="../mainwindow.ui" line="1130"/>
         <source>Ctrl+C</source>
         <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1131"/>
+        <location filename="../mainwindow.ui" line="1135"/>
         <source>Paste</source>
         <translation type="unfinished">Plakken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1134"/>
+        <location filename="../mainwindow.ui" line="1138"/>
         <source>Ctrl+V</source>
         <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1139"/>
+        <location filename="../mainwindow.ui" line="1143"/>
         <source>Fill</source>
         <translation type="unfinished">Vullen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1142"/>
+        <location filename="../mainwindow.ui" line="1146"/>
         <source>Fills the selection with obstacles</source>
         <translation type="unfinished">Vult de selectie met obstakels</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1153"/>
+        <location filename="../mainwindow.ui" line="1157"/>
         <source>Grid</source>
         <translation type="unfinished">Rooster</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1156"/>
+        <location filename="../mainwindow.ui" line="1160"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1164"/>
+        <location filename="../mainwindow.ui" line="1168"/>
         <source>General</source>
         <translation type="unfinished">Algemeen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1167"/>
+        <location filename="../mainwindow.ui" line="1171"/>
         <source>Map title and description</source>
         <translation type="unfinished">Kaarttitel en -beschrijving</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1170"/>
+        <location filename="../mainwindow.ui" line="1174"/>
         <source>Ctrl+Enter</source>
         <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1178"/>
+        <location filename="../mainwindow.ui" line="1182"/>
         <source>Players settings</source>
         <translation type="unfinished">Spelersinstellingen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1181"/>
+        <location filename="../mainwindow.ui" line="1185"/>
         <source>Ctrl+P</source>
         <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1189"/>
-        <location filename="../mainwindow.ui" line="1192"/>
+        <location filename="../mainwindow.ui" line="1193"/>
+        <location filename="../mainwindow.ui" line="1196"/>
         <source>Undo</source>
         <translation type="unfinished">Ongedaan maken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1195"/>
+        <location filename="../mainwindow.ui" line="1199"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1206"/>
+        <location filename="../mainwindow.ui" line="1210"/>
         <source>Redo</source>
         <translation type="unfinished">Opnieuw doen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1209"/>
+        <location filename="../mainwindow.ui" line="1213"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1220"/>
+        <location filename="../mainwindow.ui" line="1224"/>
         <source>Erase</source>
         <translation type="unfinished">Wissen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1223"/>
+        <location filename="../mainwindow.ui" line="1227"/>
         <source>Del</source>
         <translation type="unfinished">Wissen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1231"/>
+        <location filename="../mainwindow.ui" line="1235"/>
         <source>Neutral</source>
         <translation type="unfinished">Neutrale</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1234"/>
+        <location filename="../mainwindow.ui" line="1238"/>
         <source>Ctrl+0</source>
         <translation type="unfinished">Neutrale</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1239"/>
+        <location filename="../mainwindow.ui" line="1243"/>
         <source>Validate</source>
         <translation type="unfinished">Valideren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1242"/>
+        <location filename="../mainwindow.ui" line="1246"/>
         <source>Ctrl+Shift+V</source>
         <translation type="unfinished">Ctrl+Shift+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1312"/>
-        <location filename="../mainwindow.cpp" line="1316"/>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.ui" line="1254"/>
+        <location filename="../mainwindow.cpp" line="1413"/>
+        <source>Select map layer type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1265"/>
+        <location filename="../mainwindow.cpp" line="1322"/>
+        <location filename="../mainwindow.cpp" line="1326"/>
+        <location filename="../mainwindow.cpp" line="1384"/>
         <source>Update appearance</source>
         <translation type="unfinished">Uiterlijk bijwerken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1261"/>
+        <location filename="../mainwindow.ui" line="1276"/>
         <source>Recreate obstacles</source>
         <translation type="unfinished">Hercreëer obstakels</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1272"/>
+        <location filename="../mainwindow.ui" line="1287"/>
         <source>Player 1</source>
         <translation type="unfinished">Speler 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1275"/>
+        <location filename="../mainwindow.ui" line="1290"/>
         <source>Ctrl+1</source>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1283"/>
+        <location filename="../mainwindow.ui" line="1298"/>
         <source>Player 2</source>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1286"/>
+        <location filename="../mainwindow.ui" line="1301"/>
         <source>Ctrl+2</source>
         <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1294"/>
+        <location filename="../mainwindow.ui" line="1309"/>
         <source>Player 3</source>
         <translation type="unfinished">Speler 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1297"/>
+        <location filename="../mainwindow.ui" line="1312"/>
         <source>Ctrl+3</source>
         <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1305"/>
+        <location filename="../mainwindow.ui" line="1320"/>
         <source>Player 4</source>
         <translation type="unfinished">Speler 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1308"/>
+        <location filename="../mainwindow.ui" line="1323"/>
         <source>Ctrl+4</source>
         <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1316"/>
+        <location filename="../mainwindow.ui" line="1331"/>
         <source>Player 5</source>
         <translation type="unfinished">Speler 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1319"/>
+        <location filename="../mainwindow.ui" line="1334"/>
         <source>Ctrl+5</source>
         <translation type="unfinished">Speler 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1327"/>
+        <location filename="../mainwindow.ui" line="1342"/>
         <source>Player 6</source>
         <translation type="unfinished">Speler 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1330"/>
+        <location filename="../mainwindow.ui" line="1345"/>
         <source>Ctrl+6</source>
         <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1338"/>
+        <location filename="../mainwindow.ui" line="1353"/>
         <source>Player 7</source>
         <translation type="unfinished">Speler 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1341"/>
+        <location filename="../mainwindow.ui" line="1356"/>
         <source>Ctrl+7</source>
         <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1349"/>
+        <location filename="../mainwindow.ui" line="1364"/>
         <source>Player 8</source>
         <translation type="unfinished">Speler 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1352"/>
+        <location filename="../mainwindow.ui" line="1367"/>
         <source>Ctrl+8</source>
         <translation type="unfinished">Speler 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1357"/>
+        <location filename="../mainwindow.ui" line="1372"/>
         <source>Export as...</source>
         <translation type="unfinished">Exporteren als...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1360"/>
+        <location filename="../mainwindow.ui" line="1375"/>
         <source>Ctrl+E</source>
         <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1368"/>
+        <location filename="../mainwindow.ui" line="1383"/>
         <source>Translations</source>
         <translation type="unfinished">Vertalingen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1371"/>
+        <location filename="../mainwindow.ui" line="1386"/>
         <source>Ctrl+T</source>
         <translation type="unfinished">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1376"/>
-        <location filename="../mainwindow.ui" line="1379"/>
+        <location filename="../mainwindow.ui" line="1391"/>
+        <location filename="../mainwindow.ui" line="1394"/>
         <source>h3m converter</source>
         <translation type="unfinished">h3m-converter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1382"/>
+        <location filename="../mainwindow.ui" line="1397"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1387"/>
-        <location filename="../mainwindow.ui" line="1390"/>
+        <location filename="../mainwindow.ui" line="1402"/>
+        <location filename="../mainwindow.ui" line="1405"/>
         <source>h3c converter</source>
         <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1393"/>
+        <location filename="../mainwindow.ui" line="1408"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1398"/>
+        <location filename="../mainwindow.ui" line="1413"/>
         <source>Lock</source>
         <translation type="unfinished">Slot</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1401"/>
+        <location filename="../mainwindow.ui" line="1416"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation type="unfinished">Vergrendel objecten op de kaart om onnodige wijzigingen te voorkomen.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1404"/>
+        <location filename="../mainwindow.ui" line="1419"/>
         <source>Ctrl+L</source>
         <translation type="unfinished">Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1409"/>
+        <location filename="../mainwindow.ui" line="1424"/>
         <source>Unlock</source>
         <translation type="unfinished">Ontgrendelen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1412"/>
+        <location filename="../mainwindow.ui" line="1427"/>
         <source>Unlock all objects on the map</source>
         <translation type="unfinished">Ontgrendel alle objecten op de kaart.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1415"/>
+        <location filename="../mainwindow.ui" line="1257"/>
+        <location filename="../mainwindow.ui" line="1430"/>
         <source>Ctrl+Shift+L</source>
         <translation type="unfinished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1420"/>
+        <location filename="../mainwindow.ui" line="1435"/>
         <source>Zoom in</source>
         <translation type="unfinished">Zoom in</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1423"/>
+        <location filename="../mainwindow.ui" line="1438"/>
         <source>Ctrl++</source>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1428"/>
+        <location filename="../mainwindow.ui" line="1443"/>
         <source>Zoom out</source>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1431"/>
+        <location filename="../mainwindow.ui" line="1446"/>
         <source>Ctrl+-</source>
         <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1436"/>
+        <location filename="../mainwindow.ui" line="1451"/>
         <source>Zoom reset</source>
         <translation type="unfinished">Zoom opnieuw instellen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1439"/>
+        <location filename="../mainwindow.ui" line="1454"/>
         <source>Ctrl+Shift+=</source>
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="391"/>
         <source>Confirmation</source>
         <translation type="unfinished">Bevestiging</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="391"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Niet-opgeslagen wijzigingen gaan verloren, weet je het zeker?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
         <source>Surface</source>
-        <translation type="unfinished">Oppervlak</translation>
+        <translation type="obsolete">Oppervlak</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
         <source>Underground</source>
-        <translation type="unfinished">Ondergronds</translation>
+        <translation type="obsolete">Ondergronds</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="450"/>
         <source>Level - %1</source>
-        <translation type="unfinished">Niveau - %1</translation>
+        <translation type="obsolete">Niveau - %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="474"/>
+        <location filename="../mainwindow.cpp" line="453"/>
+        <location filename="../mainwindow.cpp" line="1430"/>
+        <source>Level %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="479"/>
         <source>Mods are required</source>
         <translation type="unfinished">Mods zijn vereist</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="482"/>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="493"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Kaart openen mislukt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="514"/>
+        <location filename="../mainwindow.cpp" line="524"/>
         <source>Open map</source>
         <translation type="unfinished">Open kaart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="516"/>
+        <location filename="../mainwindow.cpp" line="526"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Alle ondersteunde kaarten (*.vmap *.h3m);;VCMI-kaarten (*.vmap);;HoMM3-kaarten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="580"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Recent geopende bestanden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="633"/>
         <source>Map validation</source>
         <translation type="unfinished">Kaartvalidatie</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">De kaart heeft ernstige problemen en is hoogstwaarschijnlijk niet speelbaar. Open de Validator via het kaartmenu om de gevonden problemen te bekijken.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="627"/>
+        <location filename="../mainwindow.cpp" line="637"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">De kaart heeft ernstige problemen en is hoogstwaarschijnlijk niet speelbaar. Open de Validator via het kaartmenu om de gevonden problemen te bekijken.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="654"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Kaart opslaan mislukt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Save map</source>
         <translation type="unfinished">Kaart opslaan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">VCMI-kaarten (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="875"/>
+        <location filename="../mainwindow.cpp" line="885"/>
         <source>Type</source>
         <translation type="unfinished">Type</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Towns</source>
         <translation type="unfinished">Steden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Objects</source>
         <translation type="unfinished">Objecten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="890"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Heroes</source>
         <translation type="unfinished">Helden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Artifacts</source>
         <translation type="unfinished">Helden</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Resources</source>
         <translation type="unfinished">Bronnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="893"/>
+        <location filename="../mainwindow.cpp" line="903"/>
         <source>Banks</source>
         <translation type="unfinished">Bronnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="904"/>
         <source>Dwellings</source>
         <translation type="unfinished">Bronnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="895"/>
+        <location filename="../mainwindow.cpp" line="905"/>
         <source>Grounds</source>
         <translation type="unfinished">terrein</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="906"/>
         <source>Teleports</source>
         <translation type="unfinished">terrein</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="907"/>
         <source>Mines</source>
         <translation type="unfinished">Mijnen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="898"/>
+        <location filename="../mainwindow.cpp" line="908"/>
         <source>Triggers</source>
         <translation type="unfinished">Triggers</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="909"/>
         <source>Monsters</source>
         <translation type="unfinished">Monsters</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="900"/>
+        <location filename="../mainwindow.cpp" line="910"/>
         <source>Quests</source>
         <translation type="unfinished">Missies</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="911"/>
         <source>Wog Objects</source>
         <translation type="unfinished">Wog-objecten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="912"/>
         <source>Obstacles</source>
         <translation type="unfinished">Obstakels</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="903"/>
+        <location filename="../mainwindow.cpp" line="913"/>
         <source>Other</source>
         <translation type="unfinished">Ander</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Probleem met het laden van mods</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Kritieke fout tijdens het laden van mods. Schakel ongeldige mods uit en herstart.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1046"/>
+        <location filename="../mainwindow.cpp" line="1056"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Ongedaan maken aangeklikt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Opnieuw klikken</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1068"/>
+        <location filename="../mainwindow.cpp" line="1078"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Doorgangsmogelijkheid aangeklikt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1091"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Raster aangeklikt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1162"/>
+        <location filename="../mainwindow.cpp" line="1172"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Invullen aangeklikt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1322"/>
         <source>No objects selected</source>
         <translation type="unfinished">Geen objecten geselecteerd</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1316"/>
+        <location filename="../mainwindow.cpp" line="1326"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Geen objecten geselecteerd</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1384"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">Er zijn fouten opgetreden. %1 objecten zijn niet bijgewerkt.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
+        <source>Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1469"/>
         <source>Save to image</source>
         <translation type="unfinished">Opslaan als afbeelding</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1501"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Selecteer kaarten om te converteren</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1435"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">HoMM3-kaarten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1439"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Kies de map waarin u de geconverteerde kaarten wilt opslaan.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1521"/>
         <source>Operation completed</source>
         <translation type="unfinished">Operatie voltooid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1521"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">Succesvol geconverteerde %1 kaarten</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1457"/>
+        <location filename="../mainwindow.cpp" line="1525"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Het converteren van de kaart is mislukt. De bewerking wordt afgebroken.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1463"/>
+        <location filename="../mainwindow.cpp" line="1531"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Selecteer de campagne die u wilt converteren.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1533"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">HoMM3-campagnes (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1469"/>
+        <location filename="../mainwindow.cpp" line="1537"/>
         <source>Select destination file</source>
         <translation type="unfinished">Selecteer het bestemmingsbestand</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1471"/>
+        <location filename="../mainwindow.cpp" line="1539"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">VCMI-campagnes (*.vcmp)</translation>
     </message>
@@ -1411,24 +1440,24 @@
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="602"/>
+        <location filename="../mapcontroller.cpp" line="612"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Held %1 kan niet als NEUTRAAL worden aangemaakt.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="616"/>
+        <location filename="../mapcontroller.cpp" line="626"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Ontbrekende vereiste mod</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="616"/>
+        <location filename="../mapcontroller.cpp" line="626"/>
         <source>
 
 Do you want to do that now ?</source>
         <translation type="unfinished">Wil je dat nu doen?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="626"/>
+        <location filename="../mapcontroller.cpp" line="636"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">De modificatie van dit object is verplicht om de kaart geldig te houden.</translation>
     </message>
@@ -1603,11 +1632,16 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
+        <source>Required Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Objects</source>
         <translation type="unfinished">Verboden voorwerpen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.ui" line="40"/>
+        <location filename="../templateeditor/objectselector.ui" line="50"/>
         <source>Banned Object Categories</source>
         <translation type="unfinished">Categorieën van verboden objecten</translation>
     </message>
@@ -1617,107 +1651,129 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Objectkiezer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <location filename="../templateeditor/objectselector.cpp" line="96"/>
         <source>Category</source>
         <translation type="unfinished">Categorie</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <location filename="../templateeditor/objectselector.cpp" line="96"/>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Action</source>
         <translation type="unfinished">Actie</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="99"/>
+        <location filename="../templateeditor/objectselector.cpp" line="100"/>
         <source>Other</source>
         <translation type="unfinished">Ander</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="100"/>
+        <location filename="../templateeditor/objectselector.cpp" line="101"/>
         <source>All</source>
         <translation type="unfinished">Alle</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="101"/>
+        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <location filename="../templateeditor/objectselector.cpp" line="257"/>
         <source>None</source>
         <translation type="unfinished">Geen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Creature bank</source>
         <translation type="unfinished">Dierenbank</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="103"/>
+        <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>Bonus</source>
         <translation type="unfinished">Bonus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="104"/>
+        <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <source>Dwelling</source>
         <translation type="unfinished">Onderkomen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="105"/>
+        <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Resource</source>
         <translation type="unfinished">Bron</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="106"/>
+        <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Resource generator</source>
         <translation type="unfinished">Bronnengenerator</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="107"/>
+        <location filename="../templateeditor/objectselector.cpp" line="108"/>
         <source>Spell scroll</source>
         <translation type="unfinished">Spreukenrol</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="108"/>
+        <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Random artifact</source>
         <translation type="unfinished">Willekeurig artefact</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="109"/>
+        <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Pandoras box</source>
-        <translation type="unfinished">Pandora's doos</translation>
+        <translation type="unfinished">Pandora&apos;s doos</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="110"/>
+        <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Quest artifact</source>
         <translation type="unfinished">Quest-artefact</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="111"/>
+        <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Seer hut</source>
         <translation type="unfinished">Zienerhut</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="123"/>
+        <location filename="../templateeditor/objectselector.cpp" line="124"/>
         <location filename="../templateeditor/objectselector.cpp" line="184"/>
-        <location filename="../templateeditor/objectselector.cpp" line="259"/>
+        <location filename="../templateeditor/objectselector.cpp" line="261"/>
+        <location filename="../templateeditor/objectselector.cpp" line="345"/>
         <source>Delete</source>
         <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
+        <location filename="../templateeditor/objectselector.cpp" line="139"/>
+        <location filename="../templateeditor/objectselector.cpp" line="199"/>
+        <location filename="../templateeditor/objectselector.cpp" line="278"/>
+        <location filename="../templateeditor/objectselector.cpp" line="360"/>
+        <source>Add</source>
+        <translation type="unfinished">Toevoegen</translation>
+    </message>
+    <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Object</source>
         <translation type="unfinished">Voorwerp</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <source>Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <source>Guard</source>
+        <translation type="unfinished">Bewaker</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Value</source>
         <translation type="unfinished">Waarde</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Probability</source>
         <translation type="unfinished">Waarschijnlijkheid</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Max per zone</source>
         <translation type="unfinished">Maximaal per zone</translation>
     </message>
@@ -1945,7 +2001,6 @@ Do you want to do that now ?</source>
         <translation type="unfinished">
             <numerusform>%n tegel</numerusform>
             <numerusform>%n tegel</numerusform>
-            <numerusform>%n tegels</numerusform>
         </translation>
     </message>
     <message>
@@ -2232,28 +2287,28 @@ Do you want to do that now ?</source>
         <translation type="unfinished">ONVLAMBAAR</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="407"/>
+        <location filename="../mapcontroller.cpp" line="417"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Kan object niet plaatsen</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="584"/>
+        <location filename="../mapcontroller.cpp" line="594"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Er kan slechts één graalobject op de kaart aanwezig zijn.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="639"/>
+        <location filename="../mapcontroller.cpp" line="649"/>
         <source> (submod of %1)</source>
         <translation type="unfinished">(submod van %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="641"/>
+        <location filename="../mapcontroller.cpp" line="651"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">De mod '%1' is vereist door een object op de kaart.
+        <translation type="unfinished">De mod &apos;%1&apos; is vereist door een object op de kaart.
 
-Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > Algemeen.</translation>
+Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart &gt; Algemeen.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="217"/>
@@ -2420,6 +2475,11 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
         <location filename="../inspector/townspellswidget.cpp" line="185"/>
         <source>Possible:</source>
         <translation type="unfinished">Mogelijk:</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
+        <source>Failed to open campaign</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2866,7 +2926,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="35"/>
         <source>Scenario Properties</source>
         <translation type="unfinished">Scenario-eigenschappen</translation>
     </message>
@@ -3059,8 +3119,8 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="470"/>
         <source>Player position</source>
         <translation type="unfinished">Spelerspositie</translation>
     </message>
@@ -3085,74 +3145,74 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
         <translation type="unfinished">Bewerking...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Strongest</source>
         <translation type="unfinished">Sterkste</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="122"/>
         <source>Generated</source>
         <translation type="unfinished">gegenereerd</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="123"/>
         <source>Random</source>
         <translation type="unfinished">Willekeurig</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="140"/>
         <source>No map</source>
         <translation type="unfinished">Geen kaart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="183"/>
         <source>Player</source>
         <translation type="unfinished">Speler</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="391"/>
         <source>Open map</source>
         <translation type="unfinished">Open kaart</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="391"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Alle ondersteunde kaarten (*.vmap *.h3m);;VCMI-kaarten (*.vmap);;HoMM3-kaarten (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="398"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Error</source>
         <translation type="unfinished">Fout</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="398"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Could not open the file.</source>
         <translation type="unfinished">Het bestand kon niet worden geopend.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>Save map</source>
         <translation type="unfinished">Kaart opslaan</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>VCMI maps (*.vmap);</source>
         <translation type="unfinished">VCMI-kaarten (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translation type="unfinished">HoMM3-kaarten (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
         <source>Source scenario</source>
         <translation type="unfinished">Bronscenario</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="470"/>
         <source>Hero</source>
         <translation type="unfinished">Held</translation>
     </message>
@@ -3361,7 +3421,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="598"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="637"/>
         <source>VCMI Template Editor</source>
         <translation type="unfinished">VCMI-sjablooneditor</translation>
     </message>
@@ -3393,7 +3453,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1325"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="226"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="265"/>
         <source>Add</source>
         <translation type="unfinished">Toevoegen</translation>
     </message>
@@ -3471,14 +3531,14 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="364"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="403"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
         <source>None</source>
         <translation type="unfinished">Geen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <source>Normal</source>
         <translation type="unfinished">Normaal</translation>
     </message>
@@ -3540,7 +3600,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Type</source>
         <translation type="unfinished">Type</translation>
     </message>
@@ -3588,7 +3648,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
         <location filename="../templateeditor/templateeditor.ui" line="785"/>
         <location filename="../templateeditor/templateeditor.ui" line="1229"/>
         <location filename="../templateeditor/templateeditor.ui" line="1235"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
         <source>Treasure</source>
         <translation type="unfinished">Terrein</translation>
     </message>
@@ -3735,7 +3795,7 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1389"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="466"/>
         <source>Del</source>
         <translation type="unfinished">Del</translation>
     </message>
@@ -3790,213 +3850,248 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart > A
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Min</source>
         <translation type="unfinished">Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Max</source>
         <translation type="unfinished">Max</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Action</source>
         <translation type="unfinished">Actie</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="215"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="467"/>
         <source>Delete</source>
         <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="293"/>
         <source>ID: %1</source>
         <translation type="unfinished">ID: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="256"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="295"/>
         <source>Max treasure: %1</source>
         <translation type="unfinished">Maximale schat: 1%</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="376"/>
         <source>Player start</source>
         <translation type="unfinished">Speler starten</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="338"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
         <source>CPU start</source>
         <translation type="unfinished">Speler starten</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="340"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
         <source>Junction</source>
         <translation type="unfinished">Knooppunt</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="341"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Water</source>
         <translation type="unfinished">Water</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="342"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
         <source>Sealed</source>
         <translation type="unfinished">Water</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Automatic</source>
         <translation type="unfinished">Water</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>Surface</source>
         <translation type="unfinished">Oppervlak</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
         <source>Underground</source>
         <translation type="unfinished">Ondergronds</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="415"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
         <source>Random</source>
         <translation type="unfinished">Willekeurig</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Weak</source>
         <translation type="unfinished">Zwak</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Strong</source>
         <translation type="unfinished">Sterk</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone A</source>
         <translation type="unfinished">Zone A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone B</source>
         <translation type="unfinished">Zone B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Guard</source>
         <translation type="unfinished">Bewaker</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Road</source>
         <translation type="unfinished">Weg</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="449"/>
         <source>Guarded</source>
         <translation type="unfinished">Bewaakt</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="411"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="450"/>
         <source>Fictive</source>
         <translation type="unfinished">Fictief</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="412"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="451"/>
         <source>Repulsive</source>
         <translation type="unfinished">Weerzinwekkend</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="413"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="452"/>
         <source>Wide</source>
         <translation type="unfinished">Breed</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="414"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Force portal</source>
         <translation type="unfinished">Forceerportaal</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Yes</source>
         <translation type="unfinished">Ja</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="456"/>
         <source>No</source>
         <translation type="unfinished">Nee</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="526"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="565"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
         <translation type="unfinished">Zone A: 1%\nZone B: 2%\nBewaker: 3%</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Confirmation</source>
         <translation type="unfinished">Bevestiging</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Niet-opgeslagen wijzigingen gaan verloren, weet je het zeker?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="630"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="649"/>
+        <source>Validation failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="654"/>
+        <source>No player range defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="661"/>
+        <source>Invalid range for players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="669"/>
+        <source>Invalid range for human players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="684"/>
+        <source>Connection references non-existing zone(s): %1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="696"/>
+        <source>Zone %1 has no connections.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="720"/>
+        <source>Player %1 must have exactly one player start zone (found %2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="757"/>
         <source>Open template</source>
         <translation type="unfinished">Niet-opgeslagen wijzigingen gaan verloren, weet je het zeker?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="632"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="759"/>
         <source>VCMI templates(*.json)</source>
         <translation type="unfinished">VCMI-sjablonen (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>Save template</source>
         <translation type="unfinished">Sjabloon opslaan</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>VCMI templates (*.json)</source>
         <translation type="unfinished">VCMI-sjablonen (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Enter Name</source>
         <translation type="unfinished">Voer naam in</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Name:</source>
         <translation type="unfinished">Naam:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>Already existing!</source>
         <translation type="unfinished">Bestaat al!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>A template with this name is already existing.</source>
         <translation type="unfinished">Bestaat al!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>To few templates!</source>
         <translation type="unfinished">Te weinig sjablonen!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>At least one template should remain after removing.</source>
         <translation type="unfinished">Na verwijdering moet er ten minste één sjabloon overblijven.</translation>
     </message>
@@ -4293,6 +4388,11 @@ Guard: %3</source>
         <source>Delete</source>
         <translation type="unfinished">Verwijderen</translation>
     </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="99"/>
+        <source>Add</source>
+        <translation type="unfinished">Toevoegen</translation>
+    </message>
 </context>
 <context>
     <name>TownSpellsWidget</name>
@@ -4378,18 +4478,18 @@ Guard: %3</source>
         <translation type="unfinished">Tekst</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="162"/>
-        <location filename="../mapsettings/translations.cpp" line="166"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>Remove translation</source>
         <translation type="unfinished">Verwijder vertaling</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="162"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
         <source>Default language cannot be removed</source>
         <translation type="unfinished">De standaardtaal kan niet worden verwijderd.</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="166"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translation type="unfinished">Alle bestaande tekstrecords voor deze taal worden verwijderd. Doorgaan?</translation>
     </message>
@@ -4431,6 +4531,11 @@ Guard: %3</source>
         <location filename="../templateeditor/treasureselector.cpp" line="50"/>
         <source>Delete</source>
         <translation type="unfinished">Actie</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/treasureselector.cpp" line="65"/>
+        <source>Add</source>
+        <translation type="unfinished">Toevoegen</translation>
     </message>
 </context>
 <context>
@@ -4670,12 +4775,12 @@ Guard: %3</source>
         <translation type="unfinished">Kaartgrootte</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="200"/>
+        <location filename="../windownewmap.ui" line="215"/>
         <source>Height</source>
         <translation type="unfinished">Hoogte</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="174"/>
+        <location filename="../windownewmap.ui" line="176"/>
         <source>Width</source>
         <translation type="unfinished">Breedte</translation>
     </message>
@@ -4685,12 +4790,12 @@ Guard: %3</source>
         <translation type="unfinished">XL (144x144)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="328"/>
+        <location filename="../windownewmap.ui" line="357"/>
         <source>Random map</source>
         <translation type="unfinished">Willekeurige kaart</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="340"/>
+        <location filename="../windownewmap.ui" line="369"/>
         <source>Players</source>
         <translation type="unfinished">Spelers</translation>
     </message>
@@ -4725,157 +4830,157 @@ Guard: %3</source>
         <translation type="unfinished">G (252x252)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="286"/>
+        <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
         <translation type="unfinished">Niveaus</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="368"/>
-        <location filename="../windownewmap.ui" line="499"/>
-        <location filename="../windownewmap.ui" line="590"/>
-        <location filename="../windownewmap.ui" line="730"/>
+        <location filename="../windownewmap.ui" line="397"/>
+        <location filename="../windownewmap.ui" line="528"/>
+        <location filename="../windownewmap.ui" line="619"/>
+        <location filename="../windownewmap.ui" line="759"/>
         <source>Random</source>
         <translation type="unfinished">Willekeurig</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="460"/>
+        <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
         <translation type="unfinished">Menselijke teams</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="447"/>
+        <location filename="../windownewmap.ui" line="476"/>
         <source>Computer teams</source>
         <translation type="unfinished">Computerteams</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="239"/>
+        <location filename="../windownewmap.ui" line="265"/>
         <source>Standard size</source>
         <translation type="unfinished">Standaardformaat</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="264"/>
+        <location filename="../windownewmap.ui" line="290"/>
         <source>Custom size</source>
         <translation type="unfinished">Maatwerk</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="428"/>
+        <location filename="../windownewmap.ui" line="457"/>
         <source>Humans</source>
         <translation type="unfinished">Mensen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="491"/>
+        <location filename="../windownewmap.ui" line="520"/>
         <source>Computers</source>
         <translation type="unfinished">Computers</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="557"/>
+        <location filename="../windownewmap.ui" line="586"/>
         <source>Monster strength</source>
         <translation type="unfinished">Monsterlijke kracht</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="618"/>
+        <location filename="../windownewmap.ui" line="647"/>
         <source>Weak</source>
         <translation type="unfinished">Zwak</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="643"/>
-        <location filename="../windownewmap.ui" line="783"/>
+        <location filename="../windownewmap.ui" line="672"/>
+        <location filename="../windownewmap.ui" line="812"/>
         <source>Normal</source>
         <translation type="unfinished">Normaal</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="668"/>
+        <location filename="../windownewmap.ui" line="697"/>
         <source>Strong</source>
         <translation type="unfinished">Sterk</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="697"/>
+        <location filename="../windownewmap.ui" line="726"/>
         <source>Water content</source>
         <translation type="unfinished">Watergehalte</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="758"/>
+        <location filename="../windownewmap.ui" line="787"/>
         <source>None</source>
         <translation type="unfinished">Geen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="808"/>
+        <location filename="../windownewmap.ui" line="837"/>
         <source>Islands</source>
         <translation type="unfinished">eilanden</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="837"/>
+        <location filename="../windownewmap.ui" line="866"/>
         <source>Roads</source>
         <translation type="unfinished">Wegen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="858"/>
+        <location filename="../windownewmap.ui" line="887"/>
         <source>Dirt</source>
         <translation type="unfinished">Vuil</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="871"/>
+        <location filename="../windownewmap.ui" line="900"/>
         <source>Gravel</source>
         <translation type="unfinished">Grind</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="884"/>
+        <location filename="../windownewmap.ui" line="913"/>
         <source>Cobblestone</source>
         <translation type="unfinished">straatstenen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="917"/>
-        <location filename="../windownewmap.ui" line="944"/>
+        <location filename="../windownewmap.ui" line="946"/>
+        <location filename="../windownewmap.ui" line="973"/>
         <source>Template</source>
         <translation type="unfinished">Sjabloon</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="982"/>
+        <location filename="../windownewmap.ui" line="1011"/>
         <source>Custom seed</source>
         <translation type="unfinished">Zaad op maat</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1013"/>
+        <location filename="../windownewmap.ui" line="1042"/>
         <source>Generate random map</source>
         <translation type="unfinished">Genereer een willekeurige kaart</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1041"/>
+        <location filename="../windownewmap.ui" line="1070"/>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1060"/>
+        <location filename="../windownewmap.ui" line="1089"/>
         <source>Cancel</source>
         <translation type="unfinished">Annuleren</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="294"/>
         <source>No template</source>
         <translation type="unfinished">Geen sjabloon</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="294"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation type="unfinished">Er is geen sjabloon voor parameters opgegeven. Er kan geen willekeurige kaart worden gegenereerd.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="307"/>
+        <location filename="../windownewmap.cpp" line="316"/>
         <source>RMG failure</source>
         <translation type="unfinished">RMG-falen</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="334"/>
+        <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support</source>
         <translation type="unfinished">Ondersteuning op meerdere niveaus</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="334"/>
+        <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
         <translation type="unfinished">Ondersteuning voor meerdere niveaus bevindt zich nog in een zeer experimentele fase. Verwacht problemen.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="455"/>
+        <location filename="../windownewmap.cpp" line="464"/>
         <source>[default]</source>
         <translation type="unfinished">[standaard]</translation>
     </message>
@@ -4883,27 +4988,27 @@ Guard: %3</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="108"/>
+        <location filename="../mainwindow.cpp" line="109"/>
         <source>Filepath of the map to open.</source>
         <translation type="unfinished">Het bestandspad van de kaart die geopend moet worden.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="111"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation type="unfinished">Pak de originele H3-archieven uit naar een aparte map.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="112"/>
+        <location filename="../mainwindow.cpp" line="113"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation type="unfinished">Het programma splitst TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 en Un44 op in afzonderlijke PNG-bestanden uit een uitgepakt archief.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="113"/>
+        <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation type="unfinished">Converteert afzonderlijke afbeeldingen (uit de map Afbeeldingen) vanuit een uitgepakt archief van .pcx naar png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="114"/>
+        <location filename="../mainwindow.cpp" line="115"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation type="unfinished">Verwijder de originele bestanden en vervang ze door de gesplitste/geconverteerde bestanden.</translation>
     </message>

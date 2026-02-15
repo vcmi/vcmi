@@ -185,25 +185,25 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translation type="unfinished"></translation>
@@ -1539,101 +1539,121 @@ Bin (%n bytes):
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
-        <source>English</source>
+        <source>Dutch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
-        <source>Finnish</source>
+        <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
-        <source>French</source>
+        <source>Filipino</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
-        <source>German</source>
+        <source>Finnish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
-        <source>Greek</source>
+        <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
-        <source>Hungarian</source>
+        <source>German</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
-        <source>Italian</source>
+        <source>Greek</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
-        <source>Japanese</source>
+        <source>Hungarian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
-        <source>Korean</source>
+        <source>Italian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
-        <source>Norwegian</source>
+        <source>Japanese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
-        <source>Polish</source>
+        <source>Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
-        <source>Portuguese</source>
+        <source>Latvian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
-        <source>Romanian</source>
+        <source>Norwegian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
-        <source>Russian</source>
+        <source>Polish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
-        <source>Spanish</source>
+        <source>Portuguese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
-        <source>Swedish</source>
+        <source>Romanian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="43"/>
-        <source>Turkish</source>
+        <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="44"/>
-        <source>Ukrainian</source>
+        <source>Serbian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
+        <source>Spanish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="46"/>
+        <source>Swedish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="47"/>
+        <source>Turkish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="48"/>
+        <source>Ukrainian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="49"/>
         <source>Vietnamese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="67"/>
+        <location filename="../languages.cpp" line="71"/>
         <source>Auto (%1)</source>
         <translation type="unfinished"></translation>
     </message>

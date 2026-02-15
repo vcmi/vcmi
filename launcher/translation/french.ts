@@ -195,25 +195,25 @@
         <translation> %p% (%v Ko sur %m Ko)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translation>Désinstaller</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translation>Activer</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translation>Désactiver</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translation>Mettre à jour</translation>
