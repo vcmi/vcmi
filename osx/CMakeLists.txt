@@ -46,14 +46,17 @@ if(CODE_SIGN_IDENTITY)
 				${codesignCommand} '\${CODE_SIGN_IDENTITY}' $@ \\\"$f\\\"
 			done
 		\" \"\" \${codesignParams}
+  		COMMAND_ECHO STDOUT
 	)
 	foreach(executable ${executablesToSign})
 		execute_process(COMMAND
 			${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} --identifier eu.vcmi.\${executable} \${codesignParamsForExecutables} \"${executablesDir}/\${executable}\"
+  			COMMAND_ECHO STDOUT
 		)
 	endforeach()
 	execute_process(COMMAND
 		${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} \"${bundleDir}\"
+  		COMMAND_ECHO STDOUT
 	)
 endif()
 	")
