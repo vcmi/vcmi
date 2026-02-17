@@ -59,7 +59,7 @@ static QString actionButtonTextForPlatform()
 static QString updateDialogPlatformInfo()
 {
 #if defined(VCMI_WINDOWS)
-	return QObject::tr("You are running Windows. Release, Beta and Stable can coexist, but they share the VCMI data directory unless you configure separate custom paths.");
+	return QObject::tr("You are running Windows. Release, Beta and Develop can coexist, but they share the VCMI data directory unless you configure separate custom paths in dirs.json.");
 #elif defined(VCMI_ANDROID)
 	return QObject::tr("You are running Android. Release and Beta/Develop can be installed, but Beta/Develop builds overwrite each other as VCMI Daily. Release and Beta/Develop do not share the VCMI data directory.");
 #elif defined(VCMI_MAC)
@@ -180,6 +180,9 @@ void UpdateDialog::on_testingBuilds_stateChanged(int state)
 {
 	Q_UNUSED(state);
 	bool testing = ui->testingBuilds->isChecked();
+
+	if(testing)
+		QMessageBox::warning(this, tr("Testing versions warning"), tr("Be careful with installing Beta / Develop versions, they may be unstable."));
 
 	Settings node = settings.write["launcher"]["testingBuilds"];
 	node->Bool() = testing;
