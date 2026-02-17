@@ -3,8 +3,10 @@ package eu.vcmi.vcmi.util;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.DocumentsContract;
@@ -160,6 +162,37 @@ public class FileUtil
 		}
 
 		return fileName;
+	}
+
+	@Keep
+	@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
+	public static boolean isInstalledFromGooglePlay(Context context)
+	{
+		if (context == null)
+			return false;
+
+		try
+		{
+			final PackageManager packageManager = context.getPackageManager();
+			final String packageName = context.getPackageName();
+			String installer = null;
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+			{
+				installer = packageManager.getInstallSourceInfo(packageName).getInstallingPackageName();
+			}
+			else
+			{
+				installer = packageManager.getInstallerPackageName(packageName);
+			}
+
+			return "com.android.vending".equals(installer);
+		}
+		catch (Exception e)
+		{
+			Log.e("FileUtil", "isInstalledFromGooglePlay failed", e);
+			return false;
+		}
 	}
 
 

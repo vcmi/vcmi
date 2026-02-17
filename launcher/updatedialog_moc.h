@@ -43,21 +43,46 @@ private slots:
     void on_testingBuilds_stateChanged(int state);
 
 	void on_buildChannel_currentIndexChanged(int index);
+	void on_tabWidget_currentChanged(int index);
 
 	void on_installButton_clicked();
 	void on_closeButton_clicked();
+	void on_infoButton_clicked();
 
 private:
+	struct TestingBuildState
+	{
+		QString channel;
+		QString version;
+		QString commit;
+		QString buildDate;
+		QString downloadUrl;
+		QString changelog;
+		bool valid = false;
+	};
+
 	Ui::UpdateDialog *ui;
 	
 	std::string currentVersion;
 	std::string currentCommit;
 	
 	QNetworkAccessManager networkManager;
-	
+	TestingBuildState betaState;
+	TestingBuildState developState;
+	QString selectedTestingCommit;
+	QString selectedTestingBuildDate;
+	QString selectedTestingChannel;
+	QString releaseBuildDate;
+	bool releaseOffer = false;
+	bool testingOffer = false;
+	bool testingChannelAutoSelectPending = true;
+
 	bool calledManually;
-	
-	void loadFromJson(const JsonNode & node, bool testing = false);
+
+	void loadFromJson(const JsonNode & node, bool testing = false, const QString &channel = QString());
 	void fetchChannel(const QString& channel);
+	void refreshTestingBuildFromNewest();
+	void applySelectedTestingChannel();
+	void updateAvailabilityNotice();
 	void startDownloadToCacheAndRun(const QUrl& url, const QString& target = QString());
 };

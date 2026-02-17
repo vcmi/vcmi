@@ -132,6 +132,32 @@ bool performNativeCopy(QString src, QString dst)
 	return QFile::copy(src, dst);
 }
 
+
+QString createFile(QString target, QString fileName, QString mime)
+{
+#ifdef VCMI_ANDROID
+	if(target.startsWith("content://", Qt::CaseInsensitive))
+	{
+		const QAndroidJniObject jTree = QAndroidJniObject::fromString(target);
+		const QAndroidJniObject jName = QAndroidJniObject::fromString(fileName);
+		const QString targetMime = mime.isEmpty() ? QStringLiteral("application/octet-stream") : mime;
+		const QAndroidJniObject jMime = QAndroidJniObject::fromString(targetMime);
+		const QAndroidJniObject jDst = QAndroidJniObject::callStaticObjectMethod(
+			"eu/vcmi/vcmi/util/FileUtil",
+			"createFileInTree",
+			"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)Ljava/lang/String;",
+			jTree.object<jstring>(),
+			jName.object<jstring>(),
+			jMime.object<jstring>(),
+			QtAndroid::androidContext().object());
+
+		return jDst.isValid() ? jDst.toString() : QString();
+	}
+#endif
+
+	return QDir(target).filePath(fileName);
+}
+
 void revealDirectoryInFileBrowser(QString path)
 {
 	const auto dirUrl = QUrl::fromLocalFile(QFileInfo{path}.absoluteFilePath());
@@ -370,6 +396,24 @@ void sendFileToApp(QString path)
 	iOS_utils::shareFile(path.toStdString());
 #else
 	Q_UNUSED(path);
+#endif
+}
+
+bool isInstalledFromGooglePlay()
+{
+#if defined(VCMI_ANDROID)
+	if(!QtAndroid::androidContext().isValid())
+		return false;
+
+	const jboolean installedFromGooglePlay = QAndroidJniObject::callStaticMethod<jboolean>(
+		"eu/vcmi/vcmi/util/FileUtil",
+		"isInstalledFromGooglePlay",
+		"(Landroid/content/Context;)Z",
+		QtAndroid::androidContext().object()
+	);
+	return installedFromGooglePlay;
+#else
+	return false;
 #endif
 }
 
