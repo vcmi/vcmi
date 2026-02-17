@@ -94,6 +94,11 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	ui->buildChannel->setItemData(0, "develop");
 	ui->buildChannel->setItemData(1, "beta");
 
+	ui->releaseChangelog->setReadOnly(true);
+	ui->releaseChangelog->setOpenExternalLinks(true);
+	ui->testingChangelog->setReadOnly(true);
+	ui->testingChangelog->setOpenExternalLinks(true);
+
 #ifdef VCMI_MOBILE
     setStyleSheet("QDialog { border: 2px solid rgba(0,0,0,160); border-radius: 6px; }");
 #endif
