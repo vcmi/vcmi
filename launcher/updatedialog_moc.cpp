@@ -92,7 +92,7 @@ static QString availabilityLine(int comparisonResult, const QString &version)
 	if(comparisonResult < 0)
 		return QString("<span style=\"color:#C53030;font-weight:600;\">%1</span>").arg(QObject::tr("Selected version is older than installed one").toHtmlEscaped());
 
-	return QObject::tr("You are up to date");
+	return QObject::tr("You are using latest version");
 }
 
 UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
