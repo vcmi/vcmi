@@ -29,6 +29,7 @@
 #include <QRegularExpression>
 #include <QFileInfo>
 #include <QSaveFile>
+#include <QSettings>
 
 // Helper to normalize channel key to stable/beta/develop
 static QString normalizeChannel(const QString& text)
@@ -799,9 +800,38 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
         }
 
 #if defined(VCMI_WINDOWS)
-        // Windows: Silent update
-        const QStringList exeArgs = { "/SILENT", "/NORESTART", "/LAUNCH" };
-        if(QProcess::startDetached(fullPath, exeArgs))
+        // Windows: Silent update or Standard setup of not installed channel
+		QString selectedChannel = "stable";
+		if(ui->tabWidget->currentIndex() == 1 && ui->testingBuilds->isChecked())
+			selectedChannel = normalizeChannel(selectedTestingChannel.isEmpty() ? ui->buildChannel->currentData().toString() : selectedTestingChannel);
+	
+		QStringList uninstallKeys;
+		if(selectedChannel == "beta")
+			uninstallKeys = QStringList({ "VCMI (branch beta).x64_is1", "VCMI (branch beta).x86_is1" });
+		else if(selectedChannel == "develop")
+			uninstallKeys = QStringList({ "VCMI (branch develop).x64_is1", "VCMI (branch develop).x86_is1" });
+		else
+			uninstallKeys = QStringList({ "VCMI .x64_is1", "VCMI.x64_is1", "VCMI .x86_is1", "VCMI.x86_is1" });
+	
+		bool silentInstall = false;
+		for(const auto &keyName : uninstallKeys)
+		{
+			const QString regPath = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + keyName;
+			QSettings reg(regPath, QSettings::NativeFormat);
+			if(reg.contains("UninstallString"))
+			{
+				silentInstall = true;
+				break;
+			}
+		}
+	
+		QStringList exeArgs;
+		if(silentInstall)
+			exeArgs = QStringList({ "/SILENT", "/NORESTART", "/LAUNCH" });
+	
+		if(QProcess::startDetached(fullPath, exeArgs))
+
+		if(QProcess::startDetached(fullPath, exeArgs))
 		{
             if(progress)
 				progress->setVisible(false);
