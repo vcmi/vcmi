@@ -77,6 +77,8 @@ static QString updateDialogPlatformInfo()
 	return QObject::tr("You are running macOS. Multiple VCMI versions can be installed side by side. Depending on how they are launched, versions may still use shared user data.");
 #elif defined(VCMI_IOS)
 	return QObject::tr("You are running iOS. Usually only one VCMI app installation is active at a time, and installing another build typically replaces the previous app.");
+#elif defined(VCMI_UNIX)
+	return QObject::tr("You are running Linux. Updates are currently supported only for AppImage builds.");
 #else
 	return QObject::tr("You are running an unsupported or unknown operating system. Platform-specific coexistence details are currently unavailable.");
 #endif
@@ -303,13 +305,13 @@ static QString platformKeyFromRuntime()
 #elif defined(VCMI_UNIX)
 	const auto arch = QSysInfo::buildCpuArchitecture();
 	if(arch == "x86_64")
-		return "linux-x64";
+		return "linux-x86_64";
 
 	if(arch == "arm64" || arch == "aarch64")
 		return "linux-arm64";
 
-	logGlobal->warn("Unknown Linux architecture '%s', falling back to linux-x64", arch.toStdString());
-	return "linux-x64";
+	logGlobal->warn("Unknown Linux architecture '%s', falling back to linux-x86_64", arch.toStdString());
+	return "linux-x86_64";
 
 #else
 	return {};
@@ -830,8 +832,6 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
 			exeArgs = QStringList({ "/SILENT", "/NORESTART", "/LAUNCH" });
 	
 		if(QProcess::startDetached(fullPath, exeArgs))
-
-		if(QProcess::startDetached(fullPath, exeArgs))
 		{
             if(progress)
 				progress->setVisible(false);
@@ -886,8 +886,51 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
             Helper::revealDirectoryInFileBrowser(target);
             ui->downloadLink->setText(tr("Saved to: %1 — install it manually.").arg(target));
         }
-        if(progress)
+		if(progress)
 			progress->setVisible(false);
+
+#elif defined(VCMI_UNIX)
+
+//	Code template by Laserlicht
+//
+//        QString newFilePath = "/home/abc/Qt_Hello_World-1.0-x86_64.AppImage.new"; // Has to downloaded first sucessfully
+//
+//        QString currentAppImage = qgetenv("APPIMAGE");
+//
+//        if(currentAppImage.isEmpty()) {
+//            qDebug() << "No Appimage found";
+//            return;
+//        }
+//
+//        QFileInfo fileInfo(currentAppImage);
+//        if (!fileInfo.isWritable()) {
+//            qDebug() << "AppImage file is not writable (Permissions issue).";
+//            return;
+//        }
+//
+//        if(!QFile::exists(newFilePath)) {
+//            qDebug() << "New AppImage does not exist.";
+//            return;
+//        }
+// 
+//        QFile::setPermissions(newFilePath, 
+//            QFileDevice::ExeUser | QFileDevice::ReadUser | QFileDevice::WriteUser |
+//            QFileDevice::ExeGroup | QFileDevice::ReadGroup |
+//            QFileDevice::ExeOther | QFileDevice::ReadOther
+//        );
+//
+//        if (QFile::remove(currentAppImage)) { 
+//            if (QFile::rename(newFilePath, currentAppImage)) {
+//                // application can restarted
+//                QProcess::startDetached(currentAppImage);
+//                QCoreApplication::quit();
+//            } else {
+//                qDebug() << "Failed to rename new AppImage.";
+//            }
+//        } else {
+//            qDebug() << "Failed to remove old AppImage. Check permissions.";
+//        }
+
 
 #else
         // Fallback: just open or inform
