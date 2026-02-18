@@ -54,10 +54,11 @@ if(CODE_SIGN_IDENTITY)
   			COMMAND_ECHO STDOUT
 		)
 	endforeach()
-	execute_process(COMMAND
-		${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} \"${bundleDir}\"
-  		COMMAND_ECHO STDOUT
-	)
+	if(NOT CODE_SIGN_IDENTITY STREQUAL \"-\")
+		execute_process(COMMAND
+			${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} \"${bundleDir}\"
+		)
+	endif()
 endif()
 	")
 endif()
