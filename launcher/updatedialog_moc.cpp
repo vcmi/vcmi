@@ -412,13 +412,6 @@ static int compareCandidateBuilds(const QString &leftVersion, const QString &lef
 			return -1;
 	}
 
-	if(!leftCommit.isEmpty() && !rightCommit.isEmpty() && leftCommit != rightCommit)
-	{
-		// Different commit hashes with identical version/date are unordered without extra metadata.
-		// Keep channels equivalent instead of using lexicographical SHA order.
-		return 0;
-	}
-
 	return 0;
 }
 
