@@ -398,7 +398,7 @@ static int compareWithInstalled(const std::string &currentVersion, const std::st
 	return 1;
 }
 
-static int compareCandidateBuilds(const QString &leftVersion, const QString &leftBuildDate, const QString &leftCommit, const QString &rightVersion, const QString &rightBuildDate, const QString &rightCommit)
+static int compareCandidateBuilds(const QString &leftVersion, const QString &leftBuildDate, const QString &rightVersion, const QString &rightBuildDate)
 {
 	const int versionCmp = cmpSemver(leftVersion, rightVersion);
 	if(versionCmp != 0)
@@ -537,7 +537,7 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing, const QStrin
 			recommendedTab = 1;
 		else if(hasTestingOffer && releaseOffer)
 		{
-			const int candidateCmp = compareCandidateBuilds(testingVersion, selectedTestingBuildDate, selectedTestingCommit, releaseVersion, releaseBuildDate, QString());
+			const int candidateCmp = compareCandidateBuilds(testingVersion, selectedTestingBuildDate, releaseVersion, releaseBuildDate);
 			recommendedTab = candidateCmp > 0 ? 1 : 0;
 		}
 		ui->tabWidget->setCurrentIndex(recommendedTab);
@@ -556,7 +556,7 @@ void UpdateDialog::refreshTestingBuildFromNewest()
 		newest = &developState;
 	else if(betaState.valid && developState.valid)
 	{
-		const int candidateCmp = compareCandidateBuilds(betaState.version, betaState.buildDate, betaState.commit, developState.version, developState.buildDate, developState.commit);
+		const int candidateCmp = compareCandidateBuilds(betaState.version, betaState.buildDate, developState.version, developState.buildDate);
 		newest = candidateCmp >= 0 ? &betaState : &developState;
 	}
 
