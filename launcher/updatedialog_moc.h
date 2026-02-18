@@ -41,6 +41,7 @@ public:
 private slots:
     void on_checkOnStartup_stateChanged(int state);
     void on_testingBuilds_stateChanged(int state);
+    void on_testingBuilds_clicked(bool checked);
 
 	void on_buildChannel_currentIndexChanged(int index);
 	void on_tabWidget_currentChanged(int index);
@@ -65,6 +66,7 @@ private:
 	
 	std::string currentVersion;
 	std::string currentCommit;
+	std::string currentBranch;
 	
 	QNetworkAccessManager networkManager;
 	TestingBuildState betaState;
