@@ -524,15 +524,24 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					{
 						parent->setSelection(skillID, icon);
 					};
-					for(int i = 0; i < bonuses.size(); i++) 
+					std::string abilityDescription;
+					for(size_t i = 0; i < bonuses.size(); i++)
 					{
 						icon->hoverText += stack->bonusToString(bonuses[i]);
+						if(!abilityDescription.empty())
+							abilityDescription += "\n";
+
+						auto previewBonus = std::make_shared<Bonus>(*bonuses[i]);
+						CStackInstance previewStack(nullptr, stack->getCreatureID(), 1, true);
+						previewStack.addNewBonus(previewBonus);
+						abilityDescription += previewStack.bonusToString(previewBonus);
 					}
+
+					icon->hoverText = abilityDescription;
+					icon->text = abilityDescription;
 
 					return icon;
 				}
-				if(skillID >= 100)
-					index--;
 			}
 			return nullptr;
 		};
