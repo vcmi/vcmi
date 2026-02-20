@@ -410,7 +410,9 @@ Install successfully downloaded?</source>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося встановити файл %1.
+Причина: %2.
+Будь ласка, повідомте про цю проблему розробникам</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
@@ -464,15 +466,13 @@ Please report this issue to developers</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
         <source>Import failed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Помилка імпортування</translation>
+        <translation>Помилка імпорту</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Не вдалося імпортувати такі мапи:
+        <translation>Не вдалося імпортувати такі мапи:
 %1</translation>
     </message>
     <message>
@@ -703,7 +703,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Відображати статус у Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -728,7 +728,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберігати гру перед візитом об&apos;єкту</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
@@ -1107,7 +1107,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви можете самостійно скопіювати папки Maps, Data та Mp3 з оригінального каталогу гри до каталогу даних VCMI, показаного нижче</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1146,7 +1146,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити рекомендовані модифікації VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
@@ -1161,7 +1161,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
@@ -1171,17 +1171,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Насичене розширенням, яке доповнює ігровий процес альтернативною істотою для кожного з 9 стандартних міст, а також новими нейтральними істотами, банками істот, навичками та закляттями</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Спустіться в підземне царство і відкрийте для себе Каземат — нову фракцію, де в темряві процвітають гриби, камінь і магія рун, створену для VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation>Виявлено файли Heroes III Demo. Цей мод необхідний для використання демо-ресурсів у VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1191,17 +1191,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Fallen of the Depth</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation>Підтримка демо</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1390,41 +1390,43 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Необхідно вибрати файл %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрано невідомий інсталятор.
+
+Вам потрібно вибрати офлайн-інсталятор GOG.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви вибрали інсталятор GOG Galaxy. Цей файл не містить гру. Замість цього завантажте резервний офлайн-інсталятор гри.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть офлайн-інсталятор GOG (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Обрано невірний файл</translation>
+        <translation>Обрано невірний файл</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть файл даних офлайн-інсталятора GOG: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Невірний файл даних</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
@@ -1436,17 +1438,17 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Імпортування даних Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Підготовка інсталятора...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Видобування інсталятора...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
@@ -1456,7 +1458,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Сканування вибраної теки...</translation>
     </message>
 </context>
 <context>
@@ -2273,7 +2275,9 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Щоб поліпшити якість графіки в VCMI, ви можете імпортувати файли з офіційної версії Heroes III HD Edition у Steam. Виберіть папку Heroes HD у Steam.
+
+Після встановлення вам потрібно встановити фільтр масштабування на x2 або вище, щоб побачити HD-графіку.</translation>
     </message>
     <message>
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.

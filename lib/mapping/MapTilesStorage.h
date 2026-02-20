@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-	template<typename DataType>
+template<typename DataType>
 class MapTilesStorage
 {
 	using TInternalContainer = std::vector<DataType>;

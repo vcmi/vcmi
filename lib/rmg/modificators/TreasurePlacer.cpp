@@ -1173,7 +1173,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 			auto category = getObjectCategory(oi.getCompoundID());
 			if (categoriesSet.count(category))
 			{
-				logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
+				logGlobal->debug("Removing object %s from possible objects", oi.templates.front()->stringID);
 				return true;
 			}
 			return false;
@@ -1190,7 +1190,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 				if (bannedObjectsSet.count(key) || bannedObjectsSet.count(keyGroup))
 				{
 					// FIXME: Stopped working, nothing is banned
-					logGlobal->info("Banning object %s from possible objects", templ->stringID);
+					logGlobal->debug("Banning object %s from possible objects", templ->stringID);
 					return true;
 				}
 			}
@@ -1205,7 +1205,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	{
 		tp->setBasicProperties(object, object.getCompoundID());
 		addObject(object);
-		logGlobal->info("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
+		logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}
 	// TODO: Overwrite or add to possibleObjects
 

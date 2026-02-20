@@ -12,6 +12,10 @@
 * Added support for most of new creature abilities from HotA 1.8
 * It is now possible to load a save made with different configuration of submods
 * Added optional Discord integration on Windows, Linux and arm-based MacOS systems
+* Added support for Dutch, Filipino, Serbian and Latvian translations
+* Fixed freezes on hero movement when playing on large maps
+* Disabled save before visits by default to avoid freezes on large maps
+* Implemented discovery of running VCMI server in local network
 
 ### Stability
 
@@ -52,6 +56,7 @@
 * Creature window title now shows whether commander is alive
 * Campaign prolog or epilog video will now play entirely before progressing if no key is pressed
 * Pressing Esc will now close open backpack window
+* Fixed Mana Whirlpool animation to correctly account for Mage Guild presence
 * Added more informative tooltips for right-click popups of campaign starting bonuses
 * Implemented notifications for receiving resources from another player
 * Added "save was successful" message on saving the game
@@ -112,12 +117,14 @@
 * Copy existing files option should now work in all scenarios such as spaces or scpecial character in folder name
 * Importing GOG files option is now the first one
 * Added Fail-Fast for EXE / BIN selection. EXE is now choosed first to perform required checks
+* Moved updated button to left from uninstall button to prevent misclicks
 
 ### Map Editor
 
 * Fixed inability to pick objects for events on layers lower than 2nd
 * Fixed export of entire map not actually exporting full map
 * Added drag-and-drop support to map editor
+* Fixed numerous bugs with random map template editor
 
 ### Modding
 
@@ -145,6 +152,7 @@
 * Bonuses with STACK_GETS_TURN duration will no longer expire on casting spell without spending turn
 * Added support for movement points limiters and rewards in configurable map objects
 * Fixed potential double-apply of TIMES_STACK_SIZE updater
+* `/translate` command now shows path with extracted files
 
 ## 1.7.0 -> 1.7.1
 

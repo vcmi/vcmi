@@ -9,17 +9,9 @@
  */
 #pragma once
 
-#include <boost/asio.hpp>
-
 #include "NetworkInterface.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-#if BOOST_VERSION >= 106600
-using NetworkContext = boost::asio::io_context;
-#else
-using NetworkContext = boost::asio::io_service;
-#endif
 using NetworkSocket = boost::asio::ip::tcp::socket;
 using NetworkAcceptor = boost::asio::ip::tcp::acceptor;
 using NetworkBuffer = boost::asio::streambuf;

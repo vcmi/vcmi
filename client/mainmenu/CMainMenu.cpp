@@ -10,9 +10,10 @@
 #include "StdInc.h"
 #include "CMainMenu.h"
 
+#include "../../lib/network/NetworkDiscovery.h"
 #include "CCampaignScreen.h"
-#include "CreditsScreen.h"
 #include "CHighScoreScreen.h"
+#include "CreditsScreen.h"
 
 #include "../lobby/CBonusSelection.h"
 #include "../lobby/CSelectionBase.h"
@@ -397,13 +398,13 @@ void CMainMenu::makeActiveInterface()
 	menu->switchToTab(menu->getActiveTab());
 }
 
-void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode, bool battleMode)
+void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode, bool battleMode, std::string server, ui16 port)
 {
 	GAME->server().resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
 	GAME->server().loadMode = loadMode;
 	GAME->server().battleMode = battleMode;
 
-	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>(host);
+	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>(host, server, port);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName, std::string campaignSet)
@@ -474,6 +475,10 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	textTitle->setText(LIBRARY->generaltexth->zelp[263].second);
 
+	auto addresses = ServerDiscovery::ipAddresses();
+	textTitleIp = std::make_shared<CTextBox>("", Rect(7, 38, 440, 50), 0, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
+	textTitleIp->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddress") + ": " + (addresses.empty() ? LIBRARY->generaltexth->translate("vcmi.mainMenu.ipAddressUnknown") : (addresses.front() + ":" + std::to_string(GAME->server().getLocalPort()))));
+
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
 	playerName->setText(getPlayersNames()[0]);
@@ -533,6 +538,65 @@ void CMultiMode::onNameChange(std::string newText)
 {
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = newText;
+}
+
+JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> PlayerNames) :
+	screenType(ScreenType), playerNames(PlayerNames)
+{
+	OBJECT_CONSTRUCTION;
+
+	background = std::make_shared<CPicture>(ImagePath::builtin("MUPOPUP.bmp"));
+	pos = background->center(); //center, window has size of bg graphic
+
+	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
+	textTitle->setText(LIBRARY->generaltexth->zelp[263].second);
+
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
+
+	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());
+	playerName->setText(CMultiMode::getPlayersNames()[0]);
+	playerName->removeFocus();
+	playerName->deactivate();
+
+	buttonSearch = std::make_shared<CButton>(Point(373, 78 + 57 * 0), AnimationPath::builtin("MUBSRCH.DEF"), LIBRARY->generaltexth->zelp[273], [this](){
+		auto savedScreenType = screenType;
+		auto savedPlayerNames = playerNames;
+		close();
+		CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false);
+	}, EShortcut::MAIN_MENU_JOIN_GAME);
+
+	serverDiscovery = GAME->server().getNetworkHandler().createServerDiscovery(*this);
+	serverDiscovery->start();
+
+	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[288], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
+}
+
+JoinScreen::~JoinScreen()
+{
+	if(serverDiscovery)
+		serverDiscovery->abort();
+}
+
+void JoinScreen::onServerDiscovered(const DiscoveredServer & server)
+{
+	ENGINE->dispatchMainThread([this, server]()
+	{
+		OBJECT_CONSTRUCTION;
+
+		if(buttonsJoin.size() >= 12)
+			return; //max 12 servers displayed
+
+		auto button = std::make_shared<CButton>(Point(174, 114 + buttonsJoin.size() * 25), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip(), [this, server]{ 
+			auto savedScreenType = screenType;
+			auto savedPlayerNames = playerNames;
+			close();
+			CMainMenu::openLobby(savedScreenType, false, savedPlayerNames, ELoadMode::MULTI, false, server.address, server.port);
+		});
+		button->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.mainMenu.join"), FONT_SMALL, Colors::WHITE);
+		buttonsJoin.push_back(button);
+		labelsJoin.push_back(std::make_shared<CLabel>(107, 124 + labelsJoin.size() * 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, server.address + ":" + std::to_string(server.port)));
+		redraw();
+	});
 }
 
 CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelectionScreen ScreenType, bool Host, ELoadMode LoadMode, EShortcut shortcut)
@@ -611,10 +675,18 @@ void CMultiPlayers::enterSelectionScreen()
 		playerName->clear();
 	}
 
+	if(!host)
+	{
+		auto savedScreenType = screenType;
+		auto savedPlayerNames = playerNames;
+		close();
+		ENGINE->windows().createAndPushWindow<JoinScreen>(savedScreenType, savedPlayerNames);
+		return;
+	}
 	CMainMenu::openLobby(screenType, host, playerNames, loadMode, false);
 }
 
-CSimpleJoinScreen::CSimpleJoinScreen(bool host)
+CSimpleJoinScreen::CSimpleJoinScreen(bool host, std::string server, ui16 port)
 {
 	OBJECT_CONSTRUCTION;
 	background = std::make_shared<CPicture>(ImagePath::builtin("MUDIALOG.bmp")); // address background
@@ -644,6 +716,13 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
+
+	if(!server.empty())
+	{
+		inputAddress->setText(server);
+		inputPort->setText(std::to_string(port));
+		connectToServer();
+	}
 }
 
 void CSimpleJoinScreen::connectToServer()
@@ -659,6 +738,7 @@ void CSimpleJoinScreen::leaveScreen()
 {
 	textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverClosing"));
 	GAME->server().setState(EClientState::CONNECTION_CANCELLED);
+	close();
 }
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
