@@ -168,13 +168,13 @@
 	"vcmi.lobby.login.spectator" : "Néző",
 	"vcmi.lobby.header.rooms" : "Játékszobák - %d",
 	"vcmi.lobby.header.channels" : "Csevegő csatornák",
-	"vcmi.lobby.header.chat.global" : "Globális játékon belüli csevegés - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Csevegés az előző játékból: %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Privát csevegés %s-szel", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Globális játékon belüli csevegés - %s", 
+	"vcmi.lobby.header.chat.match" : "Csevegés az előző játékból: %s", 
+	"vcmi.lobby.header.chat.player" : "Privát csevegés %s-szel", 
 	"vcmi.lobby.header.history" : "Korábbi játékaid",
 	"vcmi.lobby.header.players" : "Online játékosok - %d",
 	"vcmi.lobby.match.solo" : "Egyszemélyes játék",
-	"vcmi.lobby.match.duel" : "Játék %s-szel", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Játék %s-szel", 
 	"vcmi.lobby.match.multi" : "%d játékos",
 	"vcmi.lobby.room.create.hover" : "Új szoba létrehozása",
 	"vcmi.lobby.room.players.limit" : "Játékosok száma",
@@ -186,7 +186,7 @@
 	"vcmi.lobby.invite.header" : "Játékosok meghívása",
 	"vcmi.lobby.invite.notification" : "Egy játékos meghívta Önt az ő játékszobájába. Most csatlakozhat a privát szobához.",
 	"vcmi.lobby.preview.title" : "Csatlakozás a játékszobához",
-	"vcmi.lobby.preview.subtitle" : "Játék %s-en, gazdagép: %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Játék %s-en, gazdagép: %s", 
 	"vcmi.lobby.preview.version" : "Játék verzió:",
 	"vcmi.lobby.preview.players" : "Játékosok:",
 	"vcmi.lobby.preview.mods" : "Használt modok:",
@@ -222,7 +222,7 @@
 	"vcmi.client.errors.invalidMap" : "{Érvénytelen térkép vagy kampány}\n\nNem sikerült elindítani a játékot! A kiválasztott térkép vagy kampány érvénytelen vagy sérült lehet. Indok:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod betöltési hiba}\n\nKritikus problémák léptek fel a modok betöltésekor! A játék nem működhet megfelelően, vagy összeomolhat! Frissítse vagy tiltsa le az alábbi modokat:\n\n",
 	"vcmi.server.errors.disconnected" : "{Hálózati hiba}\n\nA kapcsolat a játékszerverrel megszakadt!",
-	"vcmi.server.errors.playerLeft" : "{Játékos kilépett}\n\n%s játékos kilépett a játékból!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Játékos kilépett}\n\n%s játékos kilépett a játékból!", 
 	"vcmi.server.errors.existingProcess" : "Egy másik VCMI szerver folyamat fut. Kérjük, zárja be, mielőtt új játékot indítana.",
 	"vcmi.server.errors.modsToEnable"    : "{Az alábbi modok szükségesek}",
 	"vcmi.server.errors.modsToDisable"   : "{Az alábbi modokat le kell tiltani}",
@@ -241,7 +241,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Videó beállítások",
 	"vcmi.systemOptions.audioGroup" : "Hangbeállítások",
-	"vcmi.systemOptions.otherGroup" : "Egyéb beállítások", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Egyéb beállítások", 
 	"vcmi.systemOptions.townsGroup" : "Város képernyő",
 
 	"vcmi.statisticWindow.statistics" : "Statisztikák",
@@ -288,7 +288,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Felület méretezés}\n\nA játékbeli felület méretezésének módosítása.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Felület méretezés kiválasztása",
 	"vcmi.systemOptions.scalingMenu.help"      : "A játékbeli felület méretezésének módosítása.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Hosszú érintés időtartama: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Hosszú érintés időtartama: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Hosszú érintés időtartama}\n\nÉrintőképernyő használatakor az előugró ablakok megjelennek, miután a képernyőt meghatározott ideig, milliszekundumban megérintették.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Hosszú érintés időtartamának kiválasztása",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Hosszú érintés időtartamának módosítása.",
@@ -496,8 +496,8 @@
 	"vcmi.optionsTab.simturns.blocked2"       : "Simultán körök: 2 hét, blokkolt kapcsolatok",
 	"vcmi.optionsTab.simturns.blocked4"       : "Simultán körök: 1 hónap, blokkolt kapcsolatok",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d nap",
 	"vcmi.optionsTab.simturns.days.1" : " %d nap",
 	"vcmi.optionsTab.simturns.days.2" : " %d nap",
@@ -516,7 +516,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Csalások engedélyezése}\nLehetővé teszi a csalások bevitelét a játék során.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Korlátlan csata visszajátszás}\nNincs korlát a csaták visszajátszására.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Az ellenségnek sikerült túlélni a mai napig. Győzelem az övék!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Gratulálok! Sikerült túlélni. Győzelem a tiéd!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Az ellenség legyőzte az összes szörnyet, amely e földet sújtotta, és igényt tart a győzelemre!",
@@ -526,7 +526,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Győzd le az összes ellenséget és hozd létre az Angyali Szövetséget",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Sajnos elvesztetted az Angyali Szövetség egy részét. Minden elveszett.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» C s o m a g   E l m é l e t i   R é s z l e t e i «\n\nLény típusa ................... : %s\nTapasztalati rang ................. : %s (%i)\nTapasztalati pontok ............... : %i\nKövetkező ranghoz szükséges tapasztalati pontok .. : %i\nMaximális tapasztalati pont csatánként ... : %i%% (%i)\nLények száma a csomagban .... : %i\nMaximális új toborzások\n a jelenlegi rang elvesztése nélkül .... : %i\nTapasztalati szorzó ........... : %.2f\nFejlesztési szorzó .............. : %.2f\nTapasztalat 10-es rang után ........ : %i\nMaximális új toborzások a\n 10-es rang fenntartásához, ha maximális a tapasztalat : %i",
 	"vcmi.stackExperience.rank.0" : "Alap",
 	"vcmi.stackExperience.rank.1" : "Kezdő",
@@ -540,7 +540,7 @@
 	"vcmi.stackExperience.rank.9" : "Mester",
 	"vcmi.stackExperience.rank.10" : "Ász",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ó, te vagy %s. Íme egy ajándék neked. Elfogadod?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ó, te vagy %s. Íme egy ajándék neked. Elfogadod?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ó, te vagy %s. Íme egy ajándék neked. Elfogadod?",

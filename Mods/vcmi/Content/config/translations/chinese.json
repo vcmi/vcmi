@@ -231,13 +231,13 @@
 	"vcmi.lobby.login.spectator" : "旁观者",
 	"vcmi.lobby.header.rooms" : "游戏房间 - %d",
 	"vcmi.lobby.header.channels" : "聊天频道",
-	"vcmi.lobby.header.chat.global" : "全局游戏聊天 - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "在 %s 的游戏聊天", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "与 %s 私聊", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "全局游戏聊天 - %s", 
+	"vcmi.lobby.header.chat.match" : "在 %s 的游戏聊天", 
+	"vcmi.lobby.header.chat.player" : "与 %s 私聊", 
 	"vcmi.lobby.header.history" : "你的历史游戏",
 	"vcmi.lobby.header.players" : "在线玩家 - %d",
 	"vcmi.lobby.match.solo" : "单人游戏",
-	"vcmi.lobby.match.duel" : "与 %s 的游戏", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "与 %s 的游戏", 
 	"vcmi.lobby.match.multi" : "%d 个玩家",
 	"vcmi.lobby.room.create.hover" : "创建房间",
 	"vcmi.lobby.room.create.help" : "于在线大厅里创建一个其他玩家可加入的新房间。",
@@ -250,7 +250,7 @@
 	"vcmi.lobby.invite.header" : "邀请玩家",
 	"vcmi.lobby.invite.notification" : "有玩家邀请你到他们的房间里，你现在可以加入他们的私有房间。",
 	"vcmi.lobby.preview.title" : "加入游戏房间",
-	"vcmi.lobby.preview.subtitle" : "游戏模版为%s，主机玩家为%s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "游戏模版为%s，主机玩家为%s", 
 	"vcmi.lobby.preview.version" : "游戏版本：",
 	"vcmi.lobby.preview.players" : "玩家：",
 	"vcmi.lobby.preview.mods" : "使用模组：",
@@ -290,7 +290,7 @@
 	"vcmi.client.errors.invalidMap" : "{非法地图或战役}\n\n启动游戏失败，选择的地图或者战役，无效或被污染。原因:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{加载mod失败}\n\n加载mod发生致命错误！游戏可能无法正常进行，也可能崩溃。请升级或禁用下列mod：\n\n",
 	"vcmi.server.errors.disconnected" : "{网络错误}\n\n与游戏服务器的连接已断开！",
-	"vcmi.server.errors.playerLeft" : "{玩家离开}\n\n%s玩家已断开游戏！", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{玩家离开}\n\n%s玩家已断开游戏！", 
 	"vcmi.server.errors.existingProcess"     : "一个VCMI进程已经在运行，启动新进程前请结束它。",
 	"vcmi.server.errors.modsToEnable"    : "{需要启用的mod列表}",
 	"vcmi.server.errors.modsToDisable"   : "{需要禁用的mod列表}",
@@ -586,7 +586,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "视频设置",
 	"vcmi.systemOptions.audioGroup" : "音频设置",
-	"vcmi.systemOptions.otherGroup" : "其他设置", // unused right now
+	"vcmi.systemOptions.otherGroup" : "其他设置", 
 	"vcmi.systemOptions.townsGroup" : "城镇画面",
 
 	"vcmi.statisticWindow.statistics" : "统计",
@@ -633,7 +633,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{界面缩放}\n\n改变用户界面的缩放比例。",
 	"vcmi.systemOptions.scalingMenu.hover"     : "选择界面缩放",
 	"vcmi.systemOptions.scalingMenu.help"      : "改变游戏内界面缩放。",
-	"vcmi.systemOptions.longTouchButton.hover"   : "长触延迟: %d 毫秒", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "长触延迟: %d 毫秒", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{长触延迟}\n\n使用触摸屏时，长触屏幕一定时间后出现弹出窗口(单位：毫秒)。",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "选择长触延迟",
 	"vcmi.systemOptions.longTouchMenu.help"      : "改变长触延迟。",
@@ -905,8 +905,8 @@
 	"vcmi.campaignSet.hota" : "深渊号角",
 	"vcmi.campaignSet.wog" : "神之苏醒",
 
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d 天",
 	"vcmi.optionsTab.simturns.days.1" : " %d 天",
 	"vcmi.optionsTab.simturns.days.2" : " %d 天",
@@ -928,7 +928,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{允许作弊}\n允许在游戏过程中输入作弊码。",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{无限战斗回放}\n战斗回放没有任何限制。",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "敌人依然存活至今，你失败了！",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "祝贺你，你依然存活，取得了胜利！",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "敌人消灭了所有怪物，取得了胜利！",
@@ -938,7 +938,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "击败所有敌人并取得天使联盟",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "功亏一篑，你已失去了天使联盟的一个组件。彻底的失败。",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» 经 验 获 得 明 细 «\n\n生物类型 ................... : %s\n经验等级 ................. : %s (%i)\n经验点数 ............... : %i\n下一个等级所需经验 .. : %i\n每次战斗最大获得经验 ... : %i%% (%i)\n获得经验的生物数量 .... : %i\n最大招募数量\n不会丢失经验升级 .... : %i\n经验倍数 ........... : %.2f\n升级倍数 .............. : %.2f\n10级后经验值 ........ : %i\n最大招募数量下\n 升级到10级所需经验数量: %i",
 	"vcmi.stackExperience.rank.0" : "新兵 1级",
 	"vcmi.stackExperience.rank.1" : "列兵 2级",
@@ -952,7 +952,7 @@
 	"vcmi.stackExperience.rank.9" : "中校 10级",
 	"vcmi.stackExperience.rank.10" : "上校 11级",
 
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "啊，你正是%s。这是给你的礼物，你接受吗？",
 	"core.seerhut.quest.heroClass.complete.1" : "啊，你正是%s。这是给你的礼物，你接受吗？",
 	"core.seerhut.quest.heroClass.complete.2" : "啊，你正是%s。这是给你的礼物，你接受吗？",

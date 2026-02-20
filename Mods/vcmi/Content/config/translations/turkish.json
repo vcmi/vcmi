@@ -229,13 +229,13 @@
 	"vcmi.lobby.login.spectator" : "Seyirci",
 	"vcmi.lobby.header.rooms" : "Oyun Odaları - %d",
 	"vcmi.lobby.header.channels" : "Sohbet Kanalları",
-	"vcmi.lobby.header.chat.global" : "Global Oyun Sohbeti - %s", // %s -> Dil
-	"vcmi.lobby.header.chat.match" : "%s'deki önceki oyun sohbeti", // %s -> oyun başlangıç tarihi ve süresi
-	"vcmi.lobby.header.chat.player" : "%s ile özel sohbet", // %s -> diğer kullanıcının kullanıcı adı
+	"vcmi.lobby.header.chat.global" : "Global Oyun Sohbeti - %s", 
+	"vcmi.lobby.header.chat.match" : "%s'deki önceki oyun sohbeti", 
+	"vcmi.lobby.header.chat.player" : "%s ile özel sohbet", 
 	"vcmi.lobby.header.history" : "Önceki Oyunlarınız",
 	"vcmi.lobby.header.players" : "Çevrimiçi Oyuncular - %d",
 	"vcmi.lobby.match.solo" : "Tek Oyunculu Oyun",
-	"vcmi.lobby.match.duel" : "%s ile oyun", // %s -> diğer kullanıcının kullanıcı adı
+	"vcmi.lobby.match.duel" : "%s ile oyun", 
 	"vcmi.lobby.match.multi" : "%d oyuncu",
 	"vcmi.lobby.room.create.hover" : "Yeni Oda Oluştur",
 	"vcmi.lobby.room.create.help" : "Diğer oyuncuların katılabileceği çevrimiçi lobide yeni bir oda oluşturun.",
@@ -248,7 +248,7 @@
 	"vcmi.lobby.invite.header" : "Oyuncuları Davet Et",
 	"vcmi.lobby.invite.notification" : "Oyuncu sizi oyun odasına davet etti. Artık özel odasına katılabilirsiniz.",
 	"vcmi.lobby.preview.title" : "Oyun Odasına Katıl",
-	"vcmi.lobby.preview.subtitle" : "%s'de %s tarafından kurulan oyun", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "%s'de %s tarafından kurulan oyun", 
 	"vcmi.lobby.preview.version" : "Oyun sürümü:",
 	"vcmi.lobby.preview.players" : "Oyuncular:",
 	"vcmi.lobby.preview.mods" : "Kullanılan modlar:",
@@ -288,7 +288,7 @@
 	"vcmi.client.errors.invalidMap" : "{Geçersiz harita veya senaryo}\n\nOyun başlatılamadı! Seçilen harita veya senaryo geçersiz veya bozuk olabilir. Neden:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod yükleme hatası}\n\nModları yüklerken kritik sorunlar bulundu! Oyun düzgün çalışmayabilir veya çökebilir! Lütfen aşağıdaki modları güncelleyin veya devre dışı bırakın:\n\n",
 	"vcmi.server.errors.disconnected" : "{Ağ Hatası}\n\nOyun sunucusuna bağlantı kesildi!",
-	"vcmi.server.errors.playerLeft" : "{Oyuncu}\n\n%s oyuncusu oyundan ayrıldı!", //%s -> oyuncu rengi
+	"vcmi.server.errors.playerLeft" : "{Oyuncu}\n\n%s oyuncusu oyundan ayrıldı!", 
 	"vcmi.server.errors.existingProcess" : "Başka bir VCMI sunucu işlemi çalışıyor. Yeni bir oyun başlatmadan önce lütfen bunu sonlandırın.",
 	"vcmi.server.errors.modsToEnable"    : "{Aşağıdaki modlar gereklidir}",
 	"vcmi.server.errors.modsToDisable"   : "{Aşağıdaki modlar devre dışı bırakılmalıdır}",
@@ -584,7 +584,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Video Ayarları",
 	"vcmi.systemOptions.audioGroup" : "Ses Ayarları",
-	"vcmi.systemOptions.otherGroup" : "Diğer Ayarlar", // şu anda kullanılmıyor
+	"vcmi.systemOptions.otherGroup" : "Diğer Ayarlar", 
 	"vcmi.systemOptions.townsGroup" : "Kasaba Ekranı",
 
 	"vcmi.statisticWindow.statistics" : "İstatistikler",
@@ -631,7 +631,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Arayüz Ölçeklendirme}\n\nOyun içi arayüzün ölçeklendirmesini değiştirir.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Arayüz Ölçeklendirmesini Seç",
 	"vcmi.systemOptions.scalingMenu.help"      : "Oyun içi arayüz ölçeklendirmesini değiştirin.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Uzun Dokunma Aralığı: %d ms", // Çeviri notu: "ms" = "milisaniye"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Uzun Dokunma Aralığı: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Uzun Dokunma Aralığı}\n\nDokunmatik ekran kullanıldığında, belirlenen süre boyunca ekrana dokunduktan sonra açılır pencereler milisaniye cinsinden görüntülenir.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Uzun Dokunma Aralığını Seç",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Uzun dokunma aralığının süresini değiştirin.",
@@ -903,8 +903,8 @@
 	"vcmi.campaignSet.hota" : "Cehennemin Boynuzu",
 	"vcmi.campaignSet.wog" : "Tanrıların Ardından",
 	
-	// Çeviri notu: Aşağıdaki dizeleri, dilinizde "0 gün", "1 gün" ve "2 gün" için doğru olan biçim kullanarak çevirin.
-	// Bu bilgileri kullanarak, VCMI her olası miktar için doğru çoğul formu otomatik olarak seçecektir.
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d gün",
 	"vcmi.optionsTab.simturns.days.1" : " %d gün",
 	"vcmi.optionsTab.simturns.days.2" : " %d gün",
@@ -926,7 +926,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Hileye izin ver}\nOyun sırasında hile girişlerine izin verir.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Sınırsız savaş tekrarı}\nSavaşları tekrar oynatmada sınır yoktur.",
 
-	// H3 kampanyaları ve HotA haritaları için özel zafer koşulları
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Düşman bugüne kadar hayatta kalmayı başardı. Zafer onların!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Tebrikler! Hayatta kalmayı başardınız. Zafer sizin!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Düşman, bu toprağı istila eden tüm canavarları yenilgiye uğrattı ve zaferi ilan etti!",
@@ -936,7 +936,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Tüm düşmanları yen ve Melek İttifakı'nı kur",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Ne yazık ki, Melek İttifakı'nın bir kısmını kaybettiniz. Her şey kaybedildi.",
 
-	// vcmi tarafından kullanılan WoG'dan birkaç dize
+	
 	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
 	"vcmi.stackExperience.rank.0" : "Temel",
 	"vcmi.stackExperience.rank.1" : "Acemi",
@@ -950,7 +950,7 @@
     "vcmi.stackExperience.rank.9" : "Usta",
     "vcmi.stackExperience.rank.10" : "As",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, sen %s'sin.  İşte sana bir hediye.  Kabul ediyor musun?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, sen %s'sin.  İşte sana bir hediye.  Kabul ediyor musun?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, sen %s'sin.  İşte sana bir hediye.  Kabul ediyor musun?",
@@ -1028,7 +1028,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Visions Heroes}\nKahraman, düşman kahramanlar hakkında ayrıntılı bilgileri görebilir",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Visions Towns}\nKahraman, düşman kasabaları hakkında ayrıntılı bilgileri görebilir",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ek saldırılar}\nBirim ek olarak ${val} kez saldırı yapabilir", // TODO: yakın dövüş/menzil etkisi aralığı için alternatif açıklamalar
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ek saldırılar}\nBirim ek olarak ${val} kez saldırı yapabilir", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ek misillemeler}\nBirim ${val} ekstra kez misilleme yapabilir",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maksimum Hasar}\nBu birim her zaman mümkün olan en yüksek hasarı verir",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Etrafındaki tüm düşmanlara saldır}\nAna hedefin yanı sıra tüm komşu düşmanlara saldırır",

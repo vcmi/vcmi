@@ -228,13 +228,13 @@
 	"vcmi.lobby.login.spectator" : "Người xem",
 	"vcmi.lobby.header.rooms" : "Số phòng chơi - %d",
 	"vcmi.lobby.header.channels" : "Kênh Trò Chuyện",
-	"vcmi.lobby.header.chat.global" : "Trò chuyện trực tuyến - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Chat từ ván chơi trước %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Chat riêng với %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Trò chuyện trực tuyến - %s", 
+	"vcmi.lobby.header.chat.match" : "Chat từ ván chơi trước %s", 
+	"vcmi.lobby.header.chat.player" : "Chat riêng với %s", 
 	"vcmi.lobby.header.history" : "Ván Chơi Trước",
 	"vcmi.lobby.header.players" : "Số người chơi - %d",
 	"vcmi.lobby.match.solo" : "Chơi Đơn",
-	"vcmi.lobby.match.duel" : "Chơi với %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Chơi với %s", 
 	"vcmi.lobby.match.multi" : "người chơi %d",
 	"vcmi.lobby.room.create.hover" : "Tạo Phòng Mới",
 	"vcmi.lobby.room.create.help" : "Tạo một phòng mới trong sảnh trực tuyến mà những người chơi khác có thể tham gia.",
@@ -247,7 +247,7 @@
 	"vcmi.lobby.invite.header" : "Mời người chơi",
 	"vcmi.lobby.invite.notification" : "Người chơi đã mời bạn vào phòng chơi riêng tư của họ.",
 	"vcmi.lobby.preview.title" : "Vào Phòng Chơi",
-	"vcmi.lobby.preview.subtitle" : "Tên %s, chủ phòng %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Tên %s, chủ phòng %s", 
 	"vcmi.lobby.preview.version" : "Phiên bản:",
 	"vcmi.lobby.preview.players" : "người chơi:",
 	"vcmi.lobby.preview.mods" : "Sử dụng các mod sau:",
@@ -286,7 +286,7 @@
 	"vcmi.client.errors.invalidMap" : "{Bản đồ hoặc chiến dịch không hợp lệ}\n\nKhông thể bắt đầu trò chơi! Bản đồ hoặc chiến dịch đã chọn có thể không hợp lệ hoặc bị lỗi như sau:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Lỗi tải mod}\n\nĐã phát hiện ra lỗi nghiêm trọng khi tải mod! Trò chơi có thể không hoạt động chính xác hoặc bị văng! Hãy cập nhật hoặc tắt các mod sau:\n\n",
 	"vcmi.server.errors.disconnected" : "{Mạng bị lỗi}\n\nĐã mất kết nối tới máy chủ trò chơi!",
-	"vcmi.server.errors.playerLeft" : "{Người chơi}\n\n%s đã ngắt kết nối khỏi trò chơi!", //%s -> màu của người chơi
+	"vcmi.server.errors.playerLeft" : "{Người chơi}\n\n%s đã ngắt kết nối khỏi trò chơi!", 
 	"vcmi.server.errors.existingProcess" : "Một chương trình máy chủ VCMI khác đang chạy. Hãy đóng nó trước khi bắt đầu một trò chơi mới.",
 	"vcmi.server.errors.modsToEnable"    : "{Các mod sau đây là bắt buộc}",
 	"vcmi.server.errors.modsToDisable"   : "{Bạn phải tắt các mod sau đây}",
@@ -581,7 +581,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Thiết lập phim ảnh",
 	"vcmi.systemOptions.audioGroup" : "Thiết lập âm thanh",
-	"vcmi.systemOptions.otherGroup" : "Thiết lập khác", // chưa sử dụng
+	"vcmi.systemOptions.otherGroup" : "Thiết lập khác", 
 	"vcmi.systemOptions.townsGroup" : "Màn hình trong thành",
 
 	"vcmi.statisticWindow.statistics" : "Thống Kê",
@@ -628,7 +628,7 @@
 	"vcmi.systemOptions.scalingButton.help": "{Phóng đại giao diện}\n\nThay đổi độ phóng đại giao diện trong trò chơi.",
 	"vcmi.systemOptions.scalingMenu.hover": "Chọn độ phóng đại",
 	"vcmi.systemOptions.scalingMenu.help": "Chọn độ phóng đại giao diện.",
-	"vcmi.systemOptions.longTouchButton.hover": "Khoảng thời gian chạm giữ: %d ms", // Ghi chú dịch: "ms" = "mili giây"
+	"vcmi.systemOptions.longTouchButton.hover": "Khoảng thời gian chạm giữ: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help": "{Khoảng thời gian chạm giữ}\n\nKhi dùng màn hình cảm ứng, cửa sổ sẽ bật lên sau khi chạm màn hình trong 1 khoảng thời gian xác định, theo mili giây.",
 	"vcmi.systemOptions.longTouchMenu.hover": "Chọn khoảng thời gian chạm giữ",
 	"vcmi.systemOptions.longTouchMenu.help": "Đổi khoảng thời gian chạm giữ.",
@@ -897,8 +897,8 @@
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d ngày",
 	"vcmi.optionsTab.simturns.days.1" : " %d ngày",
 	"vcmi.optionsTab.simturns.days.2" : " %d ngày",
@@ -920,7 +920,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Dùng mã gian lận}\nCho phép nhập các mã gian lận trong trò chơi.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Xem lại trận đấu}\nKhông giới hạn số lần xem lại trận đấu.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Đối thủ đã xoay xở để sinh tồn đến ngày hôm này. Họ giành chiến thắng!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Chúc mừng! Bạn đã vượt khó để sinh tồn. Chiến thắng thuộc về bạn!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Đối thủ đã tiêu diệt tất cả quái vật gây hại cho vùng đất này và họ giành chiến thắng!",
@@ -930,7 +930,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Đánh bại tất cả đối thủ và hợp nhất Angelic Alliance",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Tiêu rồi, bạn đã để mất một phần của Angelic Alliance! Mọi thứ đã kết thúc!",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» Kinh Nghiệm Của Đạo Quân «\n\nTên loại quân ................... : %s\nXếp hạng kinh nghiệm ................. : %s (%i)\nĐiểm kinh nghiệm ............... : %i\nĐiểm kinh nghiệm để lên hạng .. : %i\nKinh nghiệm tối đa mỗi trận đấu ... : %i%% (%i)\nSố quân hiện tại của đạo .... : %i\nChiêu mộ tối đa mới\n không bị giảm cấp .... : %i\nHệ số kinh nghiệm ........... : %.2f\nHệ số nâng cấp .............. : %.2f\nKinh nghiệm sau hạng 10 ........ : %i\nChiêu mộ mới tối đa còn lại ở hạng 10: %i",
 	"vcmi.stackExperience.rank.0" : "Lính Mới",
 	"vcmi.stackExperience.rank.1" : "Tập Sự",
@@ -944,7 +944,7 @@
 	"vcmi.stackExperience.rank.9" : "Bậc Thầy",
 	"vcmi.stackExperience.rank.10" : "Thiên Tài",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Bạn đúng là %s. Đây là món quà tôi dành cho bạn. Bạn có chấp nhận không?",
 	"core.seerhut.quest.heroClass.complete.1" : "Bạn đúng là %s. Đây là món quà tôi dành cho bạn. Bạn có chấp nhận không?",
 	"core.seerhut.quest.heroClass.complete.2" : "Bạn đúng là %s. Đây là món quà tôi dành cho bạn. Bạn có chấp nhận không?",
@@ -1022,7 +1022,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Xem tướng địch}\nTướng có thể xem các thông tin của tướng địch ",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Xem thành địch}\nTướng có thể xem các thông tin của thành địch",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Tấn công thêm}\nĐơn vị này có thể tấn công thêm ${val} lần", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Tấn công thêm}\nĐơn vị này có thể tấn công thêm ${val} lần", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Phản đòn thêm}\nCó thể phản đòn thêm ${val} lần",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Đánh xung quanh}\nTấn công tất cả kẻ địch xung quanh",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Bắn không phản}\nKẻ địch không thể bắn phản đòn khi đơn vị này bắn xa",

@@ -229,13 +229,13 @@
 	"vcmi.lobby.login.spectator" : "Widz",
 	"vcmi.lobby.header.rooms" : "Pokoje - %d",
 	"vcmi.lobby.header.channels" : "Kanały tekstowe",
-	"vcmi.lobby.header.chat.global" : "Czat globalny - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Czat poprzedniej gry z %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Czat prywatny z %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Czat globalny - %s", 
+	"vcmi.lobby.header.chat.match" : "Czat poprzedniej gry z %s", 
+	"vcmi.lobby.header.chat.player" : "Czat prywatny z %s", 
 	"vcmi.lobby.header.history" : "Twoje poprzednie gry",
 	"vcmi.lobby.header.players" : "Graczy online - %d",
 	"vcmi.lobby.match.solo" : "Gra jednoosobowa",
-	"vcmi.lobby.match.duel" : "vs. %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "vs. %s", 
 	"vcmi.lobby.match.multi" : "%d graczy",
 	"vcmi.lobby.room.create.hover" : "Stwórz nowy pokój",
 	"vcmi.lobby.room.create.help" : "Stwórz nowy pokój w lobby sieciowym, do którego mogą dołączyć inni gracze.",
@@ -248,7 +248,7 @@
 	"vcmi.lobby.invite.header" : "Zaproś graczy",
 	"vcmi.lobby.invite.notification" : "Gracz zaprosił Cię do jego prywatnego pokoju. Możesz teraz do niego dołączyć.",
 	"vcmi.lobby.preview.title" : "Dołącz",
-	"vcmi.lobby.preview.subtitle" : "Scenariusz: %s, pokój stworzył %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Scenariusz: %s, pokój stworzył %s", 
 	"vcmi.lobby.preview.version" : "Wersja gry:",
 	"vcmi.lobby.preview.players" : "Gracze:",
 	"vcmi.lobby.preview.mods" : "Użyte mody:",
@@ -286,7 +286,7 @@
 
 	"vcmi.client.errors.invalidMap" : "{Błędna mapa lub kampania}\n\nNie udało się stworzyć gry! Wybrana mapa lub kampania jest niepoprawna lub uszkodzona. Powód:\n%s",
 	"vcmi.server.errors.disconnected" : "{Błąd sieciowy}\n\nUtracono połączenie z serwerem!",
-	"vcmi.server.errors.playerLeft" : "{Rozłączenie z graczem}\n\n%s opuścił rozgrywkę!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Rozłączenie z graczem}\n\n%s opuścił rozgrywkę!", 
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",
 	"vcmi.server.errors.modsToEnable"    : "{Następujące mody są wymagane do wczytania gry}",
 	"vcmi.server.errors.modsToDisable"   : "{Następujące mody muszą zostać wyłączone}",
@@ -582,7 +582,7 @@
 	
 	"vcmi.systemOptions.videoGroup" : "Ustawienia grafiki",
 	"vcmi.systemOptions.audioGroup" : "Ustawienia audio",
-	"vcmi.systemOptions.otherGroup" : "Inne ustawienia", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Inne ustawienia", 
 	"vcmi.systemOptions.townsGroup" : "Ekran miasta",
 	
 	"vcmi.statisticWindow.statistics" : "Statystyki",
@@ -629,7 +629,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Skalowanie interfejsu}\n\nZmienia skalę interfejsu gry",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Wybierz skalowanie interfejsu",
 	"vcmi.systemOptions.scalingMenu.help"      : "Zmień skalę interfejsu w grze.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Czas długiego dotyku: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Czas długiego dotyku: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Czas długiego dotyku}\n\nPodczas używania ekranu dotykowego, wyskakujące okienka pojawią się po dotknięciu ekranu przez określony czas, w milisekundach",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Wybierz czas długiego dotyku",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Nowy czas aktywacji długiego dotyku.",
@@ -898,8 +898,8 @@
 	"vcmi.campaignSet.chronicles" : "Kroniki herosów",
 	"vcmi.campaignSet.hota" : "Róg Otchłani",
 
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d dni",
 	"vcmi.optionsTab.simturns.days.1" : " %d dzień",
 	"vcmi.optionsTab.simturns.days.2" : " %d dni",
@@ -921,7 +921,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Zezwól na oszustwa}\nPozwala wpisywać kody na oszustwa podczas gry.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Nielimitowane powtórzenia walk}\nBrak limitu na powtórzenia walk.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Wróg dał radę przetrwać do dzisiejszego dnia. Zwycięstwo należy do niego!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Gratulacje! Dałeś radę przetrwać. Zwycięstwo jest twoje!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Wróg zdołał pokonać wszystkie potwory pustoszące te ziemie i odnosi zwycięstwo!",
@@ -931,7 +931,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Pokonaj wszystkich wrogów i stwórz Miecz Anielskiego Sojuszu",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Niestety straciłeś część Sojuszu Anielskiego. Wszystko poszło na marne.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» SZCZEGÓŁY MODUŁU 'STACK EXPERIENCE' «\n\nTyp stworzenia: %s\nRanga: %s (%i)\nDoświadczenie: %i\nPunktów do awansu: %i\nMaks. dośw. na walkę: %i%% (%i)\nIlość stworzeń w grupie: %i\nMaks. ilość nowych rekrutów\n bez utraty rangi: %i\nMnożnik doświadczenia: %.2f\nMnożnik ulepszenia: %.2f\nDoświadczenie po 10 randze: %i\nMaks. ilość nowych rekrutów pozostających na\n 10 Randze, jeśli osiągnęli maksymalne dośw.: %i",
 	"vcmi.stackExperience.rank.0" : "Podstawowy",
 	"vcmi.stackExperience.rank.1" : "Nowicjusz",
@@ -945,7 +945,7 @@
 	"vcmi.stackExperience.rank.9" : "Mistrz",
 	"vcmi.stackExperience.rank.10" : "As",
 
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, ty jesteś %s.  Oto prezent dla ciebie.  Czy go przyjmiesz?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, ty jesteś %s.  Oto prezent dla ciebie.  Czy go przyjmiesz?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, ty jesteś %s.  Oto prezent dla ciebie.  Czy go przyjmiesz?",

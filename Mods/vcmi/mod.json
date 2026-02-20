@@ -17,7 +17,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/belarusian.json"
+			"config/translation/belarusian.json"
 		]
 	},
 
@@ -28,7 +28,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/bulgarian.json"
+			"config/translation/bulgarian.json"
 		]
 	},
 
@@ -39,7 +39,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/czech.json"
+			"config/translation/czech.json"
 		]
 	},
 
@@ -50,7 +50,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/chinese.json"
+			"config/translation/chinese.json"
 		]
 	},
 
@@ -61,7 +61,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/dutch.json"
+			"config/translation/dutch.json"
 		]
 	},
 
@@ -72,7 +72,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/filipino.json"
+			"config/translation/filipino.json"
 		]
 	},
 
@@ -83,7 +83,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/finnish.json"
+			"config/translation/finnish.json"
 		]
 	},
 
@@ -94,7 +94,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/french.json"
+			"config/translation/french.json"
 		]
 	},
 
@@ -105,7 +105,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/german.json"
+			"config/translation/german.json"
 		]
 	},
 
@@ -116,7 +116,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/greek.json"
+			"config/translation/greek.json"
 		]
 	},
 
@@ -126,7 +126,7 @@
 		"author" : "VCMI csapat",
 		"skipValidation" : true,
 		"translations" : [
-			"config/hungarian.json"
+			"config/translation/hungarian.json"
 		]
 	},
 
@@ -137,7 +137,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/italian.json"
+			"config/translation/italian.json"
 		]
 	},
 
@@ -148,7 +148,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/japanese.json"
+			"config/translation/japanese.json"
 		]
 	},
 
@@ -159,7 +159,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/korean.json"
+			"config/translation/korean.json"
 		]
 	},
 
@@ -170,7 +170,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/latvian.json"
+			"config/translation/latvian.json"
 		]
 	},
 
@@ -181,7 +181,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/norwegian.json"
+			"config/translation/norwegian.json"
 		]
 	},
 
@@ -192,7 +192,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/polish.json"
+			"config/translation/polish.json"
 		]
 	},
 
@@ -203,7 +203,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/portuguese.json"
+			"config/translation/portuguese.json"
 		]
 	},
 
@@ -214,7 +214,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/romanian.json"
+			"config/translation/romanian.json"
 		]
 	},
 
@@ -225,7 +225,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/russian.json"
+			"config/translation/russian.json"
 		]
 	},
 
@@ -236,7 +236,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/serbian.json"
+			"config/translation/serbian.json"
 		]
 	},
 
@@ -247,7 +247,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/spanish.json"
+			"config/translation/spanish.json"
 		]
 	},
 
@@ -258,7 +258,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/swedish.json"
+			"config/translation/swedish.json"
 		]
 	},
 
@@ -269,7 +269,7 @@
 
 		"skipValidation" : true,
 		"translations" : [
-			"config/ukrainian.json"
+			"config/translation/ukrainian.json"
 		]
 	},
 
@@ -279,7 +279,7 @@
 		"author": "Hunter8x - Bé Còi",
 		"skipValidation": true,
 		"translations": [
-			"config/vietnamese.json"
+			"config/translation/vietnamese.json"
 		]
 	},
 
@@ -289,12 +289,12 @@
 		"author": "Erthon",
 		"skipValidation": true,
 		"translations": [
-			"config/turkish.json"
+			"config/translation/turkish.json"
 		]
 	},
 
 	"translations" : [
-		"config/english.json"
+		"config/translation/english.json"
 	],
 
 	"templates" : [

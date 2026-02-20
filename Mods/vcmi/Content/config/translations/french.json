@@ -48,7 +48,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Paramètres Vidéo",
 	"vcmi.systemOptions.audioGroup" : "Paramètres Audio",
-	"vcmi.systemOptions.otherGroup" : "Autres Paramètres", // Unused right now
+	"vcmi.systemOptions.otherGroup" : "Autres Paramètres", 
 	"vcmi.systemOptions.townsGroup" : "Écran de la Ville",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Plein écran (sans bord)",
@@ -63,7 +63,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface Scaling}\n\nChanger l'échelle de l'interface dans le jeu",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Sélectionner la mise à l'échelle de l'interface",
 	"vcmi.systemOptions.scalingMenu.help"      : "Changer la mise à l'échelle de l'interface dans le jeu.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalle de touche long : %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalle de touche long : %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Long Touch Interval}\n\nAu moment d'utiliser l'écran tactile, les fenêtres contextuelles apparaîtront après avoir touché l'écran pour une durée spécifiée, en millisecondes",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Sélectionner l'intervalle de touche long",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Changer la durée de l'intervalle de touche long.",
@@ -156,7 +156,7 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Alignements d'équipe",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Types de routes",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "L'ennemi a réussi à survivre jusqu'à ce jour. La victoire est à eux !",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Félicitations ! Vous avez réussi à survivre. La victoire est à vous !",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "L'ennemi a vaincu tous les monstres qui sévissent sur cette terre et revendique la victoire !",
@@ -165,7 +165,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.toSelf" : "Félicitations ! Tous vos ennemis ont été vaincus et vous avez l'alliance angélique ! La victoire est à vous !",
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Vaincre tous les ennemis et créer une alliance angélique",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» D é t a i l s   d e   P i l e   d ' E x p é r i e n c e «\n\nType de créature ................ : %s\nRang d'expérience ............... : %s (%i)\nPoints d'expérience ............. : %i\nPoints d'XP au rang suivant ..... : %i\nExpérience maximum par bataille . : %i%% (%i)\nNb de créatures dans la pile .... : %i\nMaximum de nouvelles recrues\n sans perdre le rang actuel ..... : %i\nMultiplicateur d'expérience ..... : %.2f\nMultiplicateur d'amélioration ... : %.2f\nExpérience après le rang 10 ..... : %i\nMaximum de Nouvelles Recrues pour\n rester au Rang 10 si\n l'Expérience Maximum ........... : %i",
 	"vcmi.stackExperience.rank.0" : "Basique",
 	"vcmi.stackExperience.rank.1" : "Novice",

@@ -226,13 +226,13 @@
 	"vcmi.lobby.login.spectator" : "Зритель",
 	"vcmi.lobby.header.rooms" : "Игровые комнаты - %d",
 	"vcmi.lobby.header.channels" : "Каналы чата",
-	"vcmi.lobby.header.chat.global" : "Общий чат игры - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Чат из предыдущей игры на %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Приватный чат с %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Общий чат игры - %s",
+	"vcmi.lobby.header.chat.match" : "Чат из предыдущей игры на %s", 
+	"vcmi.lobby.header.chat.player" : "Приватный чат с %s",
 	"vcmi.lobby.header.history" : "Ваши предыдущие игры",
 	"vcmi.lobby.header.players" : "Игроки онлайн - %d",
 	"vcmi.lobby.match.solo" : "Одиночная игра",
-	"vcmi.lobby.match.duel" : "Игра с %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Игра с %s",
 	"vcmi.lobby.match.multi" : "%d игроков",
 	"vcmi.lobby.room.create.hover" : "Создать новую комнату",
 	"vcmi.lobby.room.create.help" : "Создать новую комнату в онлайн-лобби, к которой смогут присоединиться другие игроки.",
@@ -245,7 +245,7 @@
 	"vcmi.lobby.invite.header" : "Пригласить игроков",
 	"vcmi.lobby.invite.notification" : "Игрок пригласил вас в свою игровую комнату. Теперь вы можете присоединиться к его личной комнате.",
 	"vcmi.lobby.preview.title" : "Присоединиться к игровой комнате",
-	"vcmi.lobby.preview.subtitle" : "Игра на %s, организатор: %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Игра на %s, организатор: %s",
 	"vcmi.lobby.preview.version" : "Версия игры:",
 	"vcmi.lobby.preview.players" : "Игроков:",
 	"vcmi.lobby.preview.mods" : "Используемые моды:",
@@ -284,7 +284,7 @@
 	"vcmi.client.errors.invalidMap" : "{Недопустимая карта или кампания}\n\nНе удалось запустить игру! Возможно, выбранная карта или кампания недействительны или повреждены. Причина:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Ошибка загрузки модов}\n\nПри загрузке модов обнаружены серьезные проблемы! Игра может работать некорректно или вылетать! Пожалуйста, обновите или отключите следующие моды:\n\n",
 	"vcmi.server.errors.disconnected" : "{Сетевая ошибка}\n\nПодключение к игровому серверу потеряно!",
-	"vcmi.server.errors.playerLeft" : "{Игрок вышел}\n\n%s игрок отключился от игры!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Игрок вышел}\n\n%s игрок отключился от игры!",
 
 	"vcmi.server.errors.existingProcess" : "Запущен другой процесс сервера VCMI. Пожалуйста, завершите его перед запуском новой игры.",
 	"vcmi.server.errors.modsToEnable"    : "{Требуемые моды для загрузки игры}",
@@ -580,7 +580,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Видео",
 	"vcmi.systemOptions.audioGroup" : "Аудио",
-	"vcmi.systemOptions.otherGroup" : "Иное", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Иное", 
 	"vcmi.systemOptions.townsGroup" : "Экран города",
 	"vcmi.statisticWindow.statistics" : "Статистика",
 	"vcmi.statisticWindow.tsvCopy" : "Данные в буфер обмена",
@@ -626,7 +626,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Масштаб интерфейса}\n\nИзменить масштаб игрового интерфейса.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Выбрать масштаб интерфейса",
 	"vcmi.systemOptions.scalingMenu.help"      : "Изменить масштаб игрового интерфейса.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Интервал длительного касания: %d мс", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Интервал длительного касания: %d мс",
 	"vcmi.systemOptions.longTouchButton.help"    : "{Интервал длительного касания}\n\nПри использовании сенсорного экрана, всплывающие окна будут показаны после длительного нажатия указанной продолжительности, в миллисекундах.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Выбрать интервал длительного касания:",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Изменить интервал длительного касания.",
@@ -949,7 +949,6 @@
 	"spellSchool.core.fire.name" : "Огонь",
 	"spellSchool.core.water.name" : "Вода",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Врагу удалось выжить до сегодняшнего дня. Он одержал победу!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Поздравляем! Вам удалось остаться в живых. Победа за вами!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Враг одержал победу над всеми монстрами, заполонившими эту землю, и празднует победу!",
@@ -959,7 +958,6 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Одержите победу над всеми врагами и создайте Альянс Ангелов",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Увы, вы потеряли часть Альянса Ангелов. Все потеряно.",
 
-	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "» О п ы т   с у щ е с т в «\n\nТип существа ................... : %s\nРанг опыта ................. : %s (%i)\nОчки опыта ............... : %i\nДо следующего .. : %i\nМаксимум за битву ... : %i%% (%i)\nЧисло в отряде .... : %i\nМаксимум новичков\n без потери ранга .... : %i\nМножитель опыта ........... : %.2f\nМножитель улучшения .......... : %.2f\nОпыт после 10 ранга ........ : %i\nМаксимум новичков для сохранения\n ранга 10 при максимальном опыте : %i",
 	"vcmi.stackExperience.rank.0" : "Рекрут",
 	"vcmi.stackExperience.rank.1" : "Новичок",
@@ -1048,7 +1046,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Видение героев}\nГерой видит детальную информацию о вражеских героях",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Видение городов}\nГерой видит детальную информацию о вражеских городах",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Дополнительные атаки}\nОтряд может атаковать дополнительно ${val} раз(а)", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Дополнительные атаки}\nОтряд может атаковать дополнительно ${val} раз(а)", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Дополнительные ответные атаки}\nОтвечает на атаку дополнительно ${val} раз",
 	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Соседний Заклинатель}\nОтряд может произнести ${subtype.spell}, стоя рядом с целью",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Максимальный урон}\nЭтот отряд всегда наносит максимально возможный урон",

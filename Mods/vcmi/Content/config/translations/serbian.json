@@ -229,13 +229,13 @@
 	"vcmi.lobby.login.spectator" : "Гледалац",
 	"vcmi.lobby.header.rooms" : "Играонице - %d",
 	"vcmi.lobby.header.channels" : "Канали за ћаскање",
-	"vcmi.lobby.header.chat.global" : "Глобални ћаскање о игри - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Ћаскање из претходне игре на %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Приватни ћаскање са %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Глобални ћаскање о игри - %s", 
+	"vcmi.lobby.header.chat.match" : "Ћаскање из претходне игре на %s", 
+	"vcmi.lobby.header.chat.player" : "Приватни ћаскање са %s", 
 	"vcmi.lobby.header.history" : "Ваше претходне игре",
 	"vcmi.lobby.header.players" : "Играчи на мрежи - %d",
 	"vcmi.lobby.match.solo" : "Игра за једног играча",
-	"vcmi.lobby.match.duel" : "Игра са %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Игра са %s", 
 	"vcmi.lobby.match.multi" : "%d играча",
 	"vcmi.lobby.room.create.hover" : "Направи нову собу",
 	"vcmi.lobby.room.create.help" : "Направите нову собу у онлајн лобију којој се други играчи могу придружити.",
@@ -248,7 +248,7 @@
 	"vcmi.lobby.invite.header" : "Позови играче",
 	"vcmi.lobby.invite.notification" : "Играч вас је позвао у своју собу за игру. Сада можете да се придружите његовој приватној соби.",
 	"vcmi.lobby.preview.title" : "Придружи се играоници",
-	"vcmi.lobby.preview.subtitle" : "Игра на %s, домаћин %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Игра на %s, домаћин %s", 
 	"vcmi.lobby.preview.version" : "Верзија игре:",
 	"vcmi.lobby.preview.players" : "Играчи:",
 	"vcmi.lobby.preview.mods" : "Коришћени модови:",
@@ -288,7 +288,7 @@
 	"vcmi.client.errors.invalidMap" : "{Неважећа мапа или кампања}\n\nПокретање игре није успело! Изабрана мапа или кампања је можда неважећа или оштећена. Разлог:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Грешка при учитавању модова}\n\nПронађени су критични проблеми приликом учитавања модова! Игра можда неће исправно радити или ће се срушити! Молимо вас да ажурирате или онемогућите следеће модове:\n\n",
 	"vcmi.server.errors.disconnected" : "{Мрежна грешка}\n\nВеза са сервером игре је прекинута!",
-	"vcmi.server.errors.playerLeft" : "{Играч је отишао}\n\n%s играч се искључио из игре!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Играч је отишао}\n\n%s играч се искључио из игре!", 
 	"vcmi.server.errors.existingProcess" : "Још један VCMI серверски процес је у току. Молимо вас да га прекинете пре него што започнете нову игру.",
 	"vcmi.server.errors.modsToEnable"    : "{Потребни су следећи модификатори}",
 	"vcmi.server.errors.modsToDisable"   : "{Следећи модови морају бити онемогућени}",
@@ -584,7 +584,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Подешавања видеа",
 	"vcmi.systemOptions.audioGroup" : "Подешавања звука",
-	"vcmi.systemOptions.otherGroup" : "Остала подешавања", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Остала подешавања", 
 	"vcmi.systemOptions.townsGroup" : "Градски екран",
 
 	"vcmi.statisticWindow.statistics" : "Статистика",
@@ -631,7 +631,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Скалирање интерфејса}\n\nМења скалирање интерфејса у игри.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Изаберите скалирање интерфејса",
 	"vcmi.systemOptions.scalingMenu.help"      : "Промена скалирања интерфејса у игри.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Интервал дугог додира: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Интервал дугог додира: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Интервал дугог додира}\n\nКада користите екран осетљив на додир, искачући прозори ће се појавити након додиривања екрана у одређеном трајању, у милисекундама.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Изаберите интервал дугог додира",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Промените трајање интервала дугог додира.",
@@ -903,8 +903,6 @@
 	"vcmi.campaignSet.hota" : "Рог понора",
 	"vcmi.campaignSet.wog" : "У трагу богова",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
 	"vcmi.optionsTab.simturns.days.0" : "%d дана",
 	"vcmi.optionsTab.simturns.days.1" : "%d дан",
 	"vcmi.optionsTab.simturns.days.2" : "%d дана",
@@ -926,7 +924,6 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Дозволи варалице}\nДозвољава унос варалица током игре.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Неограничено понављање битке}\nНема ограничења у понављању битака.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Непријатељ је успео да преживи до данас. Победа је њихова!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Непријатељ је успео да преживи до данас. Победа је њихова!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Непријатељ је победио сва чудовишта која муче ову земљу и прогласио је победу!",
@@ -936,7 +933,6 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Победите све непријатеље и створите Анђеоски савез",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Авај, изгубили сте део Анђеоског савеза. Све је изгубљено.",
 
-	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "\" Детаљи искуства стека \"\n\nТип створења ............................................ : %s\nРанг искуства ........................................... : %s (%i)\nПоени искуства .......................................... : %i\nПоени искуства до следећег ранга ........................ : %i\nМаксимално искуство по бици ............................. : %i%% (%i)\nБрој створења у стеку ................................... : %i\nМаксимални број нових регрута без губитка тренутног ранга : %i\nМножитељ искуства ....................................... : %.2f\nМножитељ надоградње ..................................... : %.2f\nИскуство након ранга 10 ................................. : %i\nМаксимални број нових регрута који остају на рангу 10 ако је на максималном искуству : %i",
 	"vcmi.stackExperience.rank.0" : "Основно",
 	"vcmi.stackExperience.rank.1" : "Почетник",
@@ -950,7 +946,6 @@
 	"vcmi.stackExperience.rank.9" : "Мајстор",
 	"vcmi.stackExperience.rank.10" : "Ас",
 	
-	// Strings for HotA Seer Hut / Quest Guards
 	"core.seerhut.quest.heroClass.complete.0" : "А, ти си %s. Ево поклона за тебе. Да ли прихваташ?",
 	"core.seerhut.quest.heroClass.complete.1" : "А, ти си %s. Ево поклона за тебе. Да ли прихваташ?",
 	"core.seerhut.quest.heroClass.complete.2" : "А, ти си %s. Ево поклона за тебе. Да ли прихваташ?",
@@ -1028,7 +1023,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Визије Хероја}\nХерој може да види детаљне информације о непријатељским херојима",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Визије градова}\nХерој може да види детаљне информације о непријатељским градовима",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Додатни напади}\nЈединица може напасти додатних ${val} пута", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Додатни напади}\nЈединица може напасти додатних ${val} пута", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Додатне одмазде}\nЈединица може да узврати ${val} додатних пута",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Максимална штета}\nОва јединица увек наноси максималну могућу штету",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Напад са свих страна}\nНапада све суседне непријатеље поред примарне мете",

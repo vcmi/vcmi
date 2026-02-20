@@ -229,13 +229,13 @@
 	"vcmi.lobby.login.spectator" : "Manonood",
 	"vcmi.lobby.header.rooms" : "Mga Silid ng Laro - %d",
 	"vcmi.lobby.header.channels" : "Mga Chat Channel",
-	"vcmi.lobby.header.chat.global" : "Pandaigdigang Chat ng Laro - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Makipag-chat mula sa nakaraang laro sa %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Pribadong pakikipag-chat kay %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Pandaigdigang Chat ng Laro - %s", 
+	"vcmi.lobby.header.chat.match" : "Makipag-chat mula sa nakaraang laro sa %s", 
+	"vcmi.lobby.header.chat.player" : "Pribadong pakikipag-chat kay %s", 
 	"vcmi.lobby.header.history" : "Ang Iyong Mga Nakaraang Laro",
 	"vcmi.lobby.header.players" : "Mga Manlalaro Online - %d",
 	"vcmi.lobby.match.solo" : "Larong Pang-isahan",
-	"vcmi.lobby.match.duel" : "Laro na may %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Laro na may %s", 
 	"vcmi.lobby.match.multi" : "%d manlalaro",
 	"vcmi.lobby.room.create.hover" : "Gumawa ng Bagong Kwarto",
 	"vcmi.lobby.room.create.help" : "Gumawa ng bagong silid sa online lobby kung saan maaaring sumali ang ibang mga manlalaro.",
@@ -248,7 +248,7 @@
 	"vcmi.lobby.invite.header" : "Mag-imbita ng mga Manlalaro",
 	"vcmi.lobby.invite.notification" : "Inimbitahan ka ng manlalaro sa kanilang silid-laro. Maaari ka na ngayong sumali sa kanilang pribadong silid.",
 	"vcmi.lobby.preview.title" : "Sumali sa Game Room",
-	"vcmi.lobby.preview.subtitle" : "Laro sa %s, hino-host ni %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Laro sa %s, hino-host ni %s", 
 	"vcmi.lobby.preview.version" : "Bersyon ng laro:",
 	"vcmi.lobby.preview.players" : "Mga Manlalaro:",
 	"vcmi.lobby.preview.mods" : "Mga ginamit na mod:",
@@ -288,7 +288,7 @@
 	"vcmi.client.errors.invalidMap" : "{Hindi wastong mapa o kampanya}\n\nHindi nasimulan ang laro! Ang napiling mapa o kampanya ay maaaring hindi wasto o sira. Dahilan:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Pagkabigo sa paglo-load ng mod}\n\nMay mga kritikal na isyung natagpuan habang naglo-load ng mga mod! Maaaring hindi gumana nang tama ang laro o mag-crash! Paki-update o i-disable ang mga sumusunod na mod:\n\n",
 	"vcmi.server.errors.disconnected" : "{Error sa Network}\n\nNawala ang koneksyon sa server ng laro!",
-	"vcmi.server.errors.playerLeft" : "{Manlalaro na Natira}\n\n%s manlalaro ang nadiskonekta mula sa laro!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Manlalaro na Natira}\n\n%s manlalaro ang nadiskonekta mula sa laro!", 
 	"vcmi.server.errors.existingProcess" : "May isa pang proseso ng VCMI server na tumatakbo. Pakiwakas ito bago magsimula ng bagong laro.",
 	"vcmi.server.errors.modsToEnable"    : "{Kinakailangan ang mga sumusunod na mod}",
 	"vcmi.server.errors.modsToDisable"   : "{Dapat i-disable ang mga sumusunod na mod}",
@@ -584,7 +584,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Mga Setting ng Video",
 	"vcmi.systemOptions.audioGroup" : "Mga Setting ng Tunog",
-	"vcmi.systemOptions.otherGroup" : "Iba pang mga Setting", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Iba pang mga Setting", 
 	"vcmi.systemOptions.townsGroup" : "Tabing Bayan",
 
 	"vcmi.statisticWindow.statistics" : "Mga istatistika",
@@ -631,7 +631,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Pag-scale ng Interface}\n\nBinabago ang pag-scale ng in-game interface.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Piliin ang Pag-scale ng Interface",
 	"vcmi.systemOptions.scalingMenu.help"      : "Baguhin ang scaling ng interface sa laro.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Mahabang Pagitan ng Paghawak: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Mahabang Pagitan ng Paghawak: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Mahabang Pagitan ng Pagpindot}\n\nKapag gumagamit ng touchscreen, lilitaw ang mga popup window pagkatapos hawakan ang screen sa loob ng tinukoy na tagal, sa milliseconds.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Piliin ang Mahabang Pagitan ng Pagpindot",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Baguhin ang tagal ng mahabang pagitan ng pagpindot.",
@@ -903,8 +903,6 @@
 	"vcmi.campaignSet.hota" : "Sungay ng Kailaliman",
 	"vcmi.campaignSet.wog" : "Sa Pagdating ng mga Diyos",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
 	"vcmi.optionsTab.simturns.days.0" : "%d araw",
 	"vcmi.optionsTab.simturns.days.1" : "%d araw",
 	"vcmi.optionsTab.simturns.days.2" : "%d araw",
@@ -926,7 +924,6 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Payagan ang mga cheat}\nPinapayagan ang mga input ng mga cheat habang naglalaro.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Walang limitasyon sa pag-replay ng labanan}\nWalang limitasyon sa pag-replay ng mga labanan.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Nakaligtas ang kalaban hanggang sa araw na ito. Sa kanila na ang tagumpay!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Binabati kita! Nakaligtas ka. Sa iyo na ang tagumpay!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Natalo na ng kalaban ang lahat ng halimaw na sumasalot sa lupaing ito at inangkin ang tagumpay!",
@@ -936,7 +933,6 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Talunin ang Lahat ng Kaaway at lumikha ng Angelic Alliance",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Naku, nawala mo na ang bahagi ng Angelic Alliance. Lahat ay nawala na.",
 
-	// few strings from WoG used by vcmi
 	"vcmi.stackExperience.description" : "\" Mga Detalye ng Karanasan \"\n\nUri ng Nilalang ............................ : %s\nRanggo ng Karanasan ........................ : %s (%i)\nMga Puntos ng Karanasan .................... : %i\nMga Puntos ng Karanasan sa Susunod na Ranggo : %i\nPinakamataas na Karanasan bawat Labanan .... : %i%% (%i)\nBilang ng mga Nilalang sa stack ............ : %i\nPinakamataas na Bagong Rekrut\nnang hindi nawawala ang kasalukuyang Ranggo  : %i\nPamparami ng Karanasan ..................... : %.2f\nPamparami ng Pag-upgrade ................... : %.2f\nKaranasan pagkatapos ng Ranggo 10 .......... : %i\nPinakamataas na Bagong Rekrut na mananatili sa\nRanggo 10 kung nasa Pinakamataas na Karanasan : %i",
 	"vcmi.stackExperience.rank.0" : "Pangunahin",
 	"vcmi.stackExperience.rank.1" : "Baguhan",
@@ -950,7 +946,6 @@
 	"vcmi.stackExperience.rank.9" : "Guro",
 	"vcmi.stackExperience.rank.10" : "Alas",
 	
-	// Strings for HotA Seer Hut / Quest Guards
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, ikaw si %s. Narito ang isang regalo para sa iyo. Tinatanggap mo ba?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, ikaw si %s. Narito ang isang regalo para sa iyo. Tinatanggap mo ba?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, ikaw si %s. Narito ang isang regalo para sa iyo. Tinatanggap mo ba?",
@@ -1028,7 +1023,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Mga Bayani ng Pananaw}\nMakikita ng Bayani ang detalyadong impormasyon tungkol sa mga bayani ng kaaway",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Mga Bayan ng mga Bisyon}\nMakikita ng bayani ang detalyadong impormasyon tungkol sa mga bayan ng kalaban",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Karagdagang mga pag-atake}\nMaaaring umatake ang yunit nang karagdagang ${val} beses", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Karagdagang mga pag-atake}\nMaaaring umatake ang yunit nang karagdagang ${val} beses", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Karagdagang mga paghihiganti}\nMaaaring gumanti ang yunit ng ${val} na dagdag na beses",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Pinakamataas na Pinsala}\nAng yunit na ito ay palaging nagbibigay ng pinakamataas na posibleng pinsala",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Atake sa lahat ng paligid}\nAatake sa lahat ng kalapit na kaaway bukod pa sa pangunahing target",

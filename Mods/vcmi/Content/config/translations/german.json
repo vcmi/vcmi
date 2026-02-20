@@ -234,13 +234,13 @@
 	"vcmi.lobby.login.spectator" : "Beobachter",
 	"vcmi.lobby.header.rooms" : "Spielräume - %d",
 	"vcmi.lobby.header.channels" : "Chat Kanäle",
-	"vcmi.lobby.header.chat.global" : "Globaler Spiele-Chat - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Chat vom vergangenen Spiel am %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Privater Chat mit %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Globaler Spiele-Chat - %s", 
+	"vcmi.lobby.header.chat.match" : "Chat vom vergangenen Spiel am %s", 
+	"vcmi.lobby.header.chat.player" : "Privater Chat mit %s", 
 	"vcmi.lobby.header.history" : "Eure vorherigen Spiele",
 	"vcmi.lobby.header.players" : "Spieler online - %d",
 	"vcmi.lobby.match.solo" : "Einzelspieler-Spiel",
-	"vcmi.lobby.match.duel" : "Spiel mit %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Spiel mit %s", 
 	"vcmi.lobby.match.multi" : "%d Spieler",
 	"vcmi.lobby.room.create.hover" : "Neuen Spiel-Raum erstellen",
 	"vcmi.lobby.room.create.help" : "Erstelle einen neuen Raum in der Online-Lobby, dem andere Spieler beitreten können.",
@@ -253,7 +253,7 @@
 	"vcmi.lobby.invite.header" : "Spieler einladen",
 	"vcmi.lobby.invite.notification" : "Der Spieler hat Euch in seinen Spielraum eingeladen. Ihr könnt nun seinem privaten Raum beitreten.",
 	"vcmi.lobby.preview.title" : "Spiel-Raum beitreten",
-	"vcmi.lobby.preview.subtitle" : "Spiel auf %s, gehostet von %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Spiel auf %s, gehostet von %s", 
 	"vcmi.lobby.preview.version" : "Version des Spiels:",
 	"vcmi.lobby.preview.players" : "Spieler:",
 	"vcmi.lobby.preview.mods" : "Verwendete Mods:",
@@ -293,7 +293,7 @@
 	"vcmi.client.errors.invalidMap" : "{Ungültige Karte oder Kampagne}\n\nDas Spiel konnte nicht gestartet werden! Die ausgewählte Karte oder Kampagne ist möglicherweise ungültig oder beschädigt. Grund:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod Ladefehler}\n\nKritische Probleme beim Laden von Mods gefunden! Das Spiel könnte nicht korrekt funktionieren oder abstürzen! Bitte aktualisiere oder deaktiviere folgende Mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
-	"vcmi.server.errors.playerLeft" : "{Verlassen eines Spielers}\n\n%s Spieler hat die Verbindung zum Spiel unterbrochen!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Verlassen eines Spielers}\n\n%s Spieler hat die Verbindung zum Spiel unterbrochen!", 
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
@@ -589,7 +589,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Video-Einstellungen",
 	"vcmi.systemOptions.audioGroup" : "Audio-Einstellungen",
-	"vcmi.systemOptions.otherGroup" : "Andere Einstellungen", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Andere Einstellungen", 
 	"vcmi.systemOptions.townsGroup" : "Stadt-Bildschirm",
 
 	"vcmi.statisticWindow.statistics" : "Statistik",
@@ -636,7 +636,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface-Skalierung}\n\nÄndern der Interface-Skalierung im Spiel",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Skalierung auswählen",
 	"vcmi.systemOptions.scalingMenu.help"      : "Ändern der Interface-Skalierung im Spiel.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Dauer für langer Touch: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Dauer für langer Touch: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Dauer für langer Touch}\n\nBei Verwendung des Touchscreens erscheinen Popup-Fenster nach Berührung des Bildschirms für die angegebene Dauer (in Millisekunden)",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Wähle Dauer für Touch",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Ändere die Dauer für den langen Touch",
@@ -908,8 +908,8 @@
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
 	"vcmi.campaignSet.wog" : "In The Wake of Gods",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : "%d Tage",
 	"vcmi.optionsTab.simturns.days.1" : "%d Tag",
 	"vcmi.optionsTab.simturns.days.2" : "%d Tage",
@@ -931,7 +931,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats erlauben}\nErlaubt die Eingabe von Cheats während des Spiels.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Unbegrenzte Kampfwiederholung}\nKämpfe lassen sich unbegrenzt wiederholen.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Der Feind hat es geschafft, bis zum heutigen Tag zu überleben. Der Sieg gehört ihm!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Herzlichen Glückwunsch! Ihr habt es geschafft, zu überleben. Der Sieg ist euer!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Der Feind hat alle Monster besiegt, die das Land heimsuchen, und fordert den Sieg!",
@@ -941,7 +941,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Besiege alle Feinde und gründe eine Engelsallianz",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Leider habt Ihr einen Teil der Engelsallianz verloren. Alles ist verloren.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» D e t a i l s   z u r   S t a p e l e r f a h r u n g «\n\nKreatur-Typ ................... : %s\nErfahrungsrang ................. : %s (%i)\nErfahrungspunkte ............... : %i\nErfahrungspunkte für den nächsten Rang .. : %i\nMaximale Erfahrung pro Kampf ... : %i%% (%i)\nAnzahl der Kreaturen im Stapel .... : %i\nMaximale Anzahl neuer Rekruten\n ohne Verlust von aktuellem Rang .... : %i\nErfahrungs-Multiplikator ........... : %.2f\nUpgrade-Multiplikator .............. : %.2f\nErfahrung nach Rang 10 ........ : %i\nMaximale Anzahl der neuen Rekruten, die bei\n Rang 10 bei maximaler Erfahrung übrig sind : %i",
 	"vcmi.stackExperience.rank.0" : "Grundlagen",
 	"vcmi.stackExperience.rank.1" : "Neuling",
@@ -955,7 +955,7 @@
 	"vcmi.stackExperience.rank.9" : "Meister",
 	"vcmi.stackExperience.rank.10" : "Ass",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, Ihr seid %s.  Hier ist ein Geschenk für Euch.  Nehmt Ihr es an?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, Ihr seid %s.  Hier ist ein Geschenk für Euch.  Nehmt Ihr es an?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, Ihr seid %s.  Hier ist ein Geschenk für Euch.  Nehmt Ihr es an?",
@@ -1033,7 +1033,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Visionen Helden}\nDer Held kann detaillierte Informationen über gegnerische Helden sehen",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Visionen Städte}\nDer Held kann detaillierte Informationen über feindliche Städte sehen",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Doppelschlag}\nGreift zweimal an", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Doppelschlag}\nGreift zweimal an", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Zusätzliche Vergeltungsmaßnahmen}\nKann ${val} zusätzliche Male vergelten",
 	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Angrenzender Zauberwirker}\nDie Einheit kann ${subtype.spell} wirken, während sie neben dem Ziel steht.",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximaler Schaden}\nDiese Einheit verursacht immer den maximal möglichen Schaden",

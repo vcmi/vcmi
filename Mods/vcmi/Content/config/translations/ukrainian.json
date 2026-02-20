@@ -234,13 +234,13 @@
 	"vcmi.lobby.login.spectator" : "Спостерігач",
 	"vcmi.lobby.header.rooms" : "Активні кімнати - %d",
 	"vcmi.lobby.header.channels" : "Канали чату",
-	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Чат минулої гри від %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Приватний чат з %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Глобальний ігровий чат - %s", 
+	"vcmi.lobby.header.chat.match" : "Чат минулої гри від %s", 
+	"vcmi.lobby.header.chat.player" : "Приватний чат з %s", 
 	"vcmi.lobby.header.history" : "Ваші попередні ігри",
 	"vcmi.lobby.header.players" : "Гравці в мережі - %d",
 	"vcmi.lobby.match.solo" : "Одиночна гра",
-	"vcmi.lobby.match.duel" : "Гра з %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Гра з %s", 
 	"vcmi.lobby.match.multi" : "%d гравців",
 	"vcmi.lobby.room.create.hover" : "Створити нову кімнату",
 	"vcmi.lobby.room.create.help" : "Створити нову кімнату в онлайн-лобі, до якої зможуть приєднатися інші гравці",
@@ -253,7 +253,7 @@
 	"vcmi.lobby.invite.header" : "Запросити гравців",
 	"vcmi.lobby.invite.notification" : "Гравець запросив вас до своєї ігрової кімнати. Тепер ви можете приєднатися до його приватної кімнати.",
 	"vcmi.lobby.preview.title" : "Приєднатися до кімнати",
-	"vcmi.lobby.preview.subtitle" : "Гра на %s, яку проводить %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Гра на %s, яку проводить %s", 
 	"vcmi.lobby.preview.version" : "Версія гри:",
 	"vcmi.lobby.preview.players" : "Гравці:",
 	"vcmi.lobby.preview.mods" : "Активні модифікації:",
@@ -293,7 +293,7 @@
 	"vcmi.client.errors.invalidMap" : "{Пошкоджена карта або кампанія}\n\nНе вдалося запустити гру! Вибрана карта або кампанія може бути невірною або пошкодженою. Причина:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Помилка завантаження модифікації}\n\nВиявлено критичні проблеми при завантаженні модифікацій! Гра може працювати некоректно або аварійно завершитись! Будь ласка, оновіть або вимкніть наступні моди:\n\n",
 	"vcmi.server.errors.disconnected" : "{Помилка мережі}\n\nВтрачено зв'язок з сервером гри!",
-	"vcmi.server.errors.playerLeft" : "{Гравець покинув гру}\n\n%s гравець від'єднався від гри!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Гравець покинув гру}\n\n%s гравець від'єднався від гри!", 
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
@@ -373,7 +373,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Масштаб інтерфейсу}\n\nЗмінити масштабування ігрового інтерфейсу",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Масштаб Інтерфейсу",
 	"vcmi.systemOptions.scalingMenu.help"      : "Змінити масштаб ігрового інтерфейсу.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Інтервал довгого дотику: %d мс", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Інтервал довгого дотику: %d мс", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Інтервал довгого дотику}\n\nПри використанні сенсорного екрану спливаючі вікна з'являтимуться після дотику до екрану протягом заданої тривалості, в мілісекундах",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Виберіть інтервал довгого дотику",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Змінити тривалість інтервалу довгого дотику.",
@@ -645,8 +645,8 @@
 	"vcmi.campaignSet.hota" : "Ріг Безодні",
 	"vcmi.campaignSet.wog" : "Слідами Богів",
 
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d днів",
 	"vcmi.optionsTab.simturns.days.1" : " %d день",
 	"vcmi.optionsTab.simturns.days.2" : " %d дні",
@@ -668,7 +668,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Дозволити чіт-коди}\nДозволяє вводити чит-коди під час гри.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Необмежена кількість перегравань бою}\nКількість перегравань боїв не обмежена.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Ворогу вдалося вижити до сьогоднішнього дня. Він переміг!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Вітаємо! Вам вдалося залишитися в живих. Перемога за вами!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Ворог переміг усіх звірів, що заполонили цю землю, і святкує перемогу!",
@@ -678,8 +678,8 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Перемогти всіх ворогів і створити Альянс Ангелів",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "На жаль, ви втратили частину Альянсу Ангелів. Все втрачено.",
 
-	// few strings from WoG used by vcmi
-//	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
+	
+
     "vcmi.stackExperience.rank.0" : "Базовий",
 	"vcmi.stackExperience.rank.1" : "Початківець",
 	"vcmi.stackExperience.rank.2" : "Підготовлений",
@@ -692,7 +692,7 @@
 	"vcmi.stackExperience.rank.9" : "Майстер",
 	"vcmi.stackExperience.rank.10" : "Ас",
 
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "А, ти %s. Ось тобі подарунок.  Приймаєш?",
 	"core.seerhut.quest.heroClass.complete.1" : "А, ти %s. Ось тобі подарунок.  Приймаєш?",
 	"core.seerhut.quest.heroClass.complete.2" : "А, ти %s. Ось тобі подарунок.  Приймаєш?",

@@ -188,13 +188,13 @@
 	"vcmi.lobby.login.spectator"          : "Åskådare",
 	"vcmi.lobby.header.rooms"             : "Spelrum - %d",
 	"vcmi.lobby.header.channels"          : "Chattkanaler",
-	"vcmi.lobby.header.chat.global"       : "Global spelchatt - %s", // %s -> språknamn
-	"vcmi.lobby.header.chat.match"        : "Chatt från föregående spel - %s", // %s -> datum och tid för spelstart
-	"vcmi.lobby.header.chat.player"       : "Privat chatt med %s", // %s -> smeknamn på en annan spelare
+	"vcmi.lobby.header.chat.global"       : "Global spelchatt - %s", 
+	"vcmi.lobby.header.chat.match"        : "Chatt från föregående spel - %s", 
+	"vcmi.lobby.header.chat.player"       : "Privat chatt med %s", 
 	"vcmi.lobby.header.history"           : "Dina tidigare spel",
 	"vcmi.lobby.header.players"           : "Spelare online - %d",
 	"vcmi.lobby.match.solo"               : "Spel för en spelare",
-	"vcmi.lobby.match.duel"               : "Spel med %s", // %s -> smeknamn på en annan spelare
+	"vcmi.lobby.match.duel"               : "Spel med %s", 
 	"vcmi.lobby.match.multi"              : "%d spelare",
 	"vcmi.lobby.room.create.hover"        : "Skapa nytt rum",
 	"vcmi.lobby.room.create.help"         : "Skapa ett nytt rum i online-lobbyn som andra spelare kan ansluta sig till.",
@@ -207,7 +207,7 @@
 	"vcmi.lobby.invite.header"            : "Bjud in spelare",
 	"vcmi.lobby.invite.notification"      : "Spelaren har bjudit in dig till sitt spelrum. Du kan nu gå med i deras privata rum.",
 	"vcmi.lobby.preview.title"            : "Gå med i spelrummet",
-	"vcmi.lobby.preview.subtitle"         : "Spel på karta/RMG-mall: %s - Värdens smeknamn: %s", //TL Notering: 1) namn på karta eller RMG-mall 2) smeknamn på spelvärden
+	"vcmi.lobby.preview.subtitle"         : "Spel på karta/RMG-mall: %s - Värdens smeknamn: %s", 
 	"vcmi.lobby.preview.version"          : "Spelversion:",
 	"vcmi.lobby.preview.players"          : "Spelare:",
 	"vcmi.lobby.preview.mods"             : "Moddar som används:",
@@ -246,7 +246,7 @@
 	"vcmi.client.errors.invalidMap"       : "{Ogiltig karta eller kampanj}\n\nMisslyckades med att starta spelet! Vald karta eller kampanj kan vara ogiltig eller skadad. Orsak:\n%s",
 	"vcmi.client.errors.modLoadingFailure": "{Moddladdningsfel}\n\nKritiska fel upptäcktes vid laddning av moddar! Spelet kanske inte fungerar korrekt eller kraschar! Vänligen uppdatera eller inaktivera följande moddar:\n\n",
 	"vcmi.server.errors.disconnected"     : "{Nätverksfel}\n\nAnslutningen till spelservern har förlorats!",
-	"vcmi.server.errors.playerLeft"       : "{Spelare har lämnat}\n\n%s-spelare har kopplat bort sig från spelet!", //%s -> spelarens färg
+	"vcmi.server.errors.playerLeft"       : "{Spelare har lämnat}\n\n%s-spelare har kopplat bort sig från spelet!", 
 	"vcmi.server.errors.existingProcess"  : "En annan VCMI-serverprocess är igång. Vänligen avsluta den innan du startar ett nytt spel.",
 	"vcmi.server.errors.modsToEnable"     : "{Följande modd(ar) krävs}",
 	"vcmi.server.errors.modsToDisable"    : "{Följande modd(ar) måste inaktiveras}",
@@ -535,7 +535,7 @@
 
 	"vcmi.systemOptions.videoGroup": "Bild-inställningar",
 	"vcmi.systemOptions.audioGroup": "Ljud-inställningar",
-	"vcmi.systemOptions.otherGroup": "Andra inställningar", // unused right now
+	"vcmi.systemOptions.otherGroup": "Andra inställningar", 
 	"vcmi.systemOptions.townsGroup": "By-/Stads-skärm",
 
 	"vcmi.statisticWindow.statistics"                   : "Statistik",
@@ -582,7 +582,7 @@
 	"vcmi.systemOptions.scalingButton.help"              : "{Gränssnittsskalning}\n\nÄndrar storleken av de olika gränssnitten som finns i spelet.",
 	"vcmi.systemOptions.scalingMenu.hover"               : "Välj gränssnittsskalning",
 	"vcmi.systemOptions.scalingMenu.help"                : "Förstorar eller förminskar olika gränssnitt i spelet.",
-	"vcmi.systemOptions.longTouchButton.hover"           : "Fördröjt tryckintervall: %d ms", // Översättningsnot: "ms" = "millisekunder"
+	"vcmi.systemOptions.longTouchButton.hover"           : "Fördröjt tryckintervall: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"            : "{Fördröjt tryckintervall}\n\nNär du använder dig av en pekskärm och vill komma åt spelalternativ behöver du göra en fördröjd pekskärmsberöring under en specifikt angiven tid (i millisekunder) för att en popup-meny skall synas.",
 	"vcmi.systemOptions.longTouchMenu.hover"             : "Välj tidsintervall för fördröjd pekskärmsberöringsmeny",
 	"vcmi.systemOptions.longTouchMenu.help"              : "Ändra varaktighetsintervallet för fördröjd beröring.",
@@ -837,8 +837,8 @@
 	"vcmi.optionsTab.simturns.blocked2"      : "Samtur: 2 veckor (närkontakt blockerad)",
 	"vcmi.optionsTab.simturns.blocked4"      : "Samtur: 1 månad (närkontakt blockerad)",
 
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0"  : " %d dagar",
 	"vcmi.optionsTab.simturns.days.1"  : " %d dag",
 	"vcmi.optionsTab.simturns.days.2"  : " %d dagar",
@@ -857,7 +857,7 @@
 	"vcmi.optionsTab.cheatAllowed.help"    : "{Tillåt fusk}\nTillåter inmatning av fuskkoder under spelets gång.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Obegränsade stridsomspelningar}\nIngen begränsning för hur många gånger man kan spela om sina strider.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers"           : "Fienden har lyckats överleva fram till denna dag. Segern är deras!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf"             : "Gratulerar! Du har lyckats överleva. Segern är er!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers"    : "Fienden har besegrat alla monster som plågade detta land och utropar seger!",
@@ -867,7 +867,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message"       : "Besegra alla fiender och sätt ihop 'Änglaalliansen'",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf": "Ack, du har förlorat en del av 'Änglaalliansen'. Allt är förlorat.",
 
-	// few strings from WoG used by VCMI
+	
 	"vcmi.stackExperience.description": "» V a r e l s e f ö r b a n d s d e t a l j e r «\n\nVarelsetyp ................... : %s\nErfarenhetsrank ................. : %s (%i)\nErfarenhetspoäng ............... : %i\nErfarenhetspoäng till nästa rank .. : %i\nMaximal erfarenhet per strid ... : %i%% (%i)\nAntal varelser i förbandet .... : %i\nMaximalt antal nya rekryter\n utan att förlora nuvarande rank .... : %i\nErfarenhetsmultiplikator ........... : %.2f\nUppgradera erfarenhetsmultiplikator .............. : %.2f\nErfarenhet efter rank 10 ........ : %i\nMaximalt antal nyrekryteringar för att stanna kvar på\n rank 10 vid maximal erfarenhet : %i",
 	"vcmi.stackExperience.rank.0"     : "Grundläggande",
 	"vcmi.stackExperience.rank.1"     : "Novis",
@@ -881,7 +881,7 @@
 	"vcmi.stackExperience.rank.9"     : "Mästare",
 	"vcmi.stackExperience.rank.10"    : "Äss",
 
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0"   : "Ah, du är %s.  Här är en gåva till dig.  Tar du emot den?",
 	"core.seerhut.quest.heroClass.complete.1"   : "Ah, du är %s.  Här är en gåva till dig.  Tar du emot den?",
 	"core.seerhut.quest.heroClass.complete.2"   : "Ah, du är %s.  Här är en gåva till dig.  Tar du emot den?",

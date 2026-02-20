@@ -170,13 +170,13 @@
 	"vcmi.lobby.login.spectator" : "Spettatore",
 	"vcmi.lobby.header.rooms" : "Stanze di gioco - %d",
 	"vcmi.lobby.header.channels" : "Canali chat",
-	"vcmi.lobby.header.chat.global" : "Chat globale - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Chat dalla partita precedente su %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Chat privata con %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Chat globale - %s", 
+	"vcmi.lobby.header.chat.match" : "Chat dalla partita precedente su %s", 
+	"vcmi.lobby.header.chat.player" : "Chat privata con %s", 
 	"vcmi.lobby.header.history" : "Le tue partite precedenti",
 	"vcmi.lobby.header.players" : "Giocatori online - %d",
 	"vcmi.lobby.match.solo" : "Partita in singolo",
-	"vcmi.lobby.match.duel" : "Partita con %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Partita con %s", 
 	"vcmi.lobby.match.multi" : "%d giocatori",
 	"vcmi.lobby.room.create.hover" : "Crea nuova stanza",
 	"vcmi.lobby.room.players.limit" : "Limite giocatori",
@@ -188,7 +188,7 @@
 	"vcmi.lobby.invite.header" : "Invita giocatori",
 	"vcmi.lobby.invite.notification" : "Un giocatore ti ha invitato nella sua stanza di gioco. Ora puoi unirti alla sua stanza privata.",
 	"vcmi.lobby.preview.title" : "Unisciti alla stanza di gioco",
-	"vcmi.lobby.preview.subtitle" : "Partita su %s, ospitata da %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Partita su %s, ospitata da %s", 
 	"vcmi.lobby.preview.version" : "Versione di gioco:",
 	"vcmi.lobby.preview.players" : "Giocatori:",
 	"vcmi.lobby.preview.mods" : "Mod utilizzate:",
@@ -224,7 +224,7 @@
 	"vcmi.client.errors.invalidMap" : "{Mappa o campagna non valida}\n\nImpossibile avviare la partita! La mappa o la campagna selezionata potrebbe essere non valida o corrotta. Motivo:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Errore di caricamento delle mod}\n\nSono stati rilevati problemi critici durante il caricamento delle mod! Il gioco potrebbe non funzionare correttamente o bloccarsi! Aggiorna o disattiva le seguenti mod:\n\n",
 	"vcmi.server.errors.disconnected" : "{Errore di rete}\n\nLa connessione al server di gioco è stata persa!",
-	"vcmi.server.errors.playerLeft" : "{Giocatore disconnesso}\n\nIl giocatore %s si è disconnesso dalla partita!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Giocatore disconnesso}\n\nIl giocatore %s si è disconnesso dalla partita!", 
 	"vcmi.server.errors.existingProcess" : "Un altro processo del server VCMI è in esecuzione. Terminarlo prima di avviare una nuova partita.",
 	"vcmi.server.errors.modsToEnable"    : "{Le seguenti mod sono richieste}",
 	"vcmi.server.errors.modsToDisable"   : "{Le seguenti mod devono essere disattivate}",
@@ -243,7 +243,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Impostazioni video",
 	"vcmi.systemOptions.audioGroup" : "Impostazioni audio",
-	"vcmi.systemOptions.otherGroup" : "Altre impostazioni", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Altre impostazioni", 
 	"vcmi.systemOptions.townsGroup" : "Schermata della città",
 
 	"vcmi.statisticWindow.statistics" : "Statistiche",
@@ -497,8 +497,8 @@
 	"vcmi.optionsTab.simturns.blocked2"       : "Turni simultanei: 2 settimane, contatti bloccati",
 	"vcmi.optionsTab.simturns.blocked4"       : "Turni simultanei: 1 mese, contatti bloccati",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d giorni",
 	"vcmi.optionsTab.simturns.days.1" : " %d giorno",
 	"vcmi.optionsTab.simturns.days.2" : " %d giorni",
@@ -517,7 +517,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Permetti trucchi}\nPermette l'inserimento di trucchi durante il gioco.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Replay battaglia illimitato}\nNessun limite di riproduzione delle battaglie.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Il nemico è riuscito a sopravvivere fino a questo giorno. La vittoria è sua!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Congratulazioni! Sei riuscito a sopravvivere. La vittoria è tua!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Il nemico ha sconfitto tutti i mostri che infestavano questa terra e reclama la vittoria!",
@@ -527,7 +527,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Sconfiggi tutti i nemici e crea l'Alleanza Angelica",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Ahimè, hai perso parte dell'Alleanza Angelica. Tutto è perduto.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» Dettagli esperienza truppa «\n\nTipo di creatura ................... : %s\nGrado esperienza ................. : %s (%i)\nPunti esperienza ............... : %i\nPunti esperienza al livello successivo .. : %i\nEsperienza massima per battaglia ... : %i%% (%i)\nNumero di creature nello stack .... : %i\nNumero massimo di nuove reclute\n senza perdere il grado attuale .... : %i\nMoltiplicatore esperienza ........... : %.2f\nMoltiplicatore miglioramento .............. : %.2f\nEsperienza dopo il livello 10 ........ : %i\nNumero massimo di nuove reclute per mantenere il\n grado 10 se a esperienza massima : %i",
 	"vcmi.stackExperience.rank.0" : "Base",
 	"vcmi.stackExperience.rank.1" : "Principiante",
@@ -541,7 +541,7 @@
 	"vcmi.stackExperience.rank.9" : "Campione",
 	"vcmi.stackExperience.rank.10" : "Asso",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, sei %s. Ecco un regalo per te. Lo accetti?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, sei %s. Ecco un regalo per te. Lo accetti?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, sei %s. Ecco un regalo per te. Lo accetti?",

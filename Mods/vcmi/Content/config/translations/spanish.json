@@ -88,7 +88,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Configuración de vídeo",
 	"vcmi.systemOptions.audioGroup" : "Configuración de audio",
-	"vcmi.systemOptions.otherGroup" : "Otras configuraciones", // actualmente no utilizada
+	"vcmi.systemOptions.otherGroup" : "Otras configuraciones", 
 	"vcmi.systemOptions.townsGroup" : "Pantalla de la ciudad",
 
 	"vcmi.systemOptions.fullscreenBorderless.hover" : "Pantalla completa (sin bordes)",
@@ -103,7 +103,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Escalado de interfaz}\n\nCambia el escalado de la interfaz del juego.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Seleccionar Escalado de Interfaz",
 	"vcmi.systemOptions.scalingMenu.help"      : "Cambia el escalado de la interfaz del juego.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalo de toque largo: %d ms", // Nota de traducción: "ms" = "milisegundos"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalo de toque largo: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Intervalo de toque largo}\n\nCuando se utiliza una pantalla táctil, las ventanas emergentes aparecerán después de tocar la pantalla durante la duración especificada, en milisegundos.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Seleccionar Intervalo de Toque Largo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Cambia la duración del intervalo de toque largo.",
@@ -292,8 +292,8 @@
 	"vcmi.optionsTab.simturns.blocked2"       : "Turnos simultáneos: 2 semanas, contactos bloqueados",
 	"vcmi.optionsTab.simturns.blocked4"       : "Turnos simultáneos: 1 mes, contactos bloqueados",
 
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d días",
 	"vcmi.optionsTab.simturns.days.1" : " %d día",
 	"vcmi.optionsTab.simturns.days.2" : " %d días",
@@ -312,7 +312,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Permitir trampas}\nPermite la introducción de trucos durante el juego.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Repetición de batalla ilimitada}\nSin límite de repetición de batallas.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "El enemigo ha logrado sobrevivir hasta hoy. ¡La victoria es suya!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "¡Felicidades! Has logrado sobrevivir. ¡La victoria es tuya!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "El enemigo ha derrotado a todas las criaturas que asolaban esta tierra y reclama la victoria.",
@@ -322,7 +322,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Derrota a todos los enemigos y crea la Alianza Angelical",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Por desgracia, has perdido parte de la Alianza Angélica. Todo se ha perdido.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» D e t a l l e s  d e  E x p e r i e n c i a  d e l  G r u p o «\n\nTipo de Criatura ................ : %s\nRango de Experiencia ............ : %s (%i)\nPuntos de Experiencia ............ : %i\nPuntos de Experiencia para el\nSiguiente Rango ............... : %i\nExperiencia Máxima por Batalla .. : %i%% (%i)\nNúmero de Criaturas en el grupo .. : %i\nMáximo de Nuevos Reclutas sin\nPerder el Rango Actual ......... : %i\nMultiplicador de Experiencia .... : %.2f\nMultiplicador de Actualización .. : %.2f\nExperiencia después del Rango 10 : %i\nMáximo de Nuevos Reclutas para\nMantener el Rango 10 si\nEstá en la Experiencia Máxima : %i",
 	"vcmi.stackExperience.rank.0" : "Básico",
 	"vcmi.stackExperience.rank.1" : "Novato",

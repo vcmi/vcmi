@@ -229,13 +229,13 @@
 	"vcmi.lobby.login.spectator" : "Toeschouwer",
 	"vcmi.lobby.header.rooms" : "Speelkamers - %d",
 	"vcmi.lobby.header.channels" : "Chatkanalen",
-	"vcmi.lobby.header.chat.global" : "Wereldwijde gamechat - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Chat van de vorige game op %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Privéchat met %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Wereldwijde gamechat - %s", 
+	"vcmi.lobby.header.chat.match" : "Chat van de vorige game op %s", 
+	"vcmi.lobby.header.chat.player" : "Privéchat met %s", 
 	"vcmi.lobby.header.history" : "Je vorige spellen",
 	"vcmi.lobby.header.players" : "Spelers online - %d",
 	"vcmi.lobby.match.solo" : "Singleplayer-spel",
-	"vcmi.lobby.match.duel" : "Spel met %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Spel met %s", 
 	"vcmi.lobby.match.multi" : "%d spelers",
 	"vcmi.lobby.room.create.hover" : "Maak een nieuwe kamer aan",
 	"vcmi.lobby.room.create.help" : "Maak een nieuwe kamer aan in de online lobby waar andere spelers zich bij kunnen aansluiten.",
@@ -248,7 +248,7 @@
 	"vcmi.lobby.invite.header" : "Nodig spelers uit",
 	"vcmi.lobby.invite.notification" : "De speler heeft je uitgenodigd in zijn/haar spelkamer. Je kunt nu deelnemen aan zijn/haar privéruimte.",
 	"vcmi.lobby.preview.title" : "Word lid van de spelkamer",
-	"vcmi.lobby.preview.subtitle" : "Spel op %s, gepresenteerd door %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Spel op %s, gepresenteerd door %s", 
 	"vcmi.lobby.preview.version" : "Spelversie:",
 	"vcmi.lobby.preview.players" : "Spelers:",
 	"vcmi.lobby.preview.mods" : "Gebruikte mods:",
@@ -288,7 +288,7 @@
 	"vcmi.client.errors.invalidMap" : "{Ongeldige kaart of campagne}\n\nHet spel kon niet worden gestart! De geselecteerde kaart of campagne is mogelijk ongeldig of beschadigd. Reden:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod laden mislukt}\n\nEr zijn kritieke problemen gevonden tijdens het laden van mods! Het spel werkt mogelijk niet correct of crasht! Update of schakel de volgende mods uit:\n\n",
 	"vcmi.server.errors.disconnected" : "{Netwerkfout}\n\nDe verbinding met de spelserver is verbroken!",
-	"vcmi.server.errors.playerLeft" : "{Speler verlaten}\n\n%s speler heeft de verbinding met het spel verbroken!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Speler verlaten}\n\n%s speler heeft de verbinding met het spel verbroken!", 
 	"vcmi.server.errors.existingProcess" : "Er is nog een ander VCMI-serverproces actief. Beëindig dit proces voordat u een nieuw spel start.",
 	"vcmi.server.errors.modsToEnable"    : "De volgende mods zijn vereist.",
 	"vcmi.server.errors.modsToDisable"   : "{De volgende mods moeten worden uitgeschakeld}",
@@ -584,7 +584,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Video-instellingen",
 	"vcmi.systemOptions.audioGroup" : "Audio-instellingen",
-	"vcmi.systemOptions.otherGroup" : "Overige instellingen", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Overige instellingen", 
 	"vcmi.systemOptions.townsGroup" : "Stadsscherm",
 
 	"vcmi.statisticWindow.statistics" : "Statistieken",
@@ -631,7 +631,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Interface-schaling}\n\nWijzigt de schaling van de in-game interface.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Selecteer Interface Schaling",
 	"vcmi.systemOptions.scalingMenu.help"      : "De schaalvergroting van de interface in het spel aanpassen.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Lang aanraakinterval: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Lang aanraakinterval: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Lange aanraakinterval}\n\nBij gebruik van het touchscreen verschijnen pop-upvensters na een bepaalde tijd (in milliseconden) het scherm aan te raken.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Selecteer Lange aanraakinterval",
 	"vcmi.systemOptions.longTouchMenu.help"      : "De duur van het lange aanraakinterval wijzigen.",
@@ -903,8 +903,8 @@
 	"vcmi.campaignSet.hota" : "Hoorn van de Afgrond",
 	"vcmi.campaignSet.wog" : "In het kielzog van de goden",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : "%d dagen",
 	"vcmi.optionsTab.simturns.days.1" : "%d dag",
 	"vcmi.optionsTab.simturns.days.2" : "%d dagen",
@@ -926,7 +926,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Cheats toestaan}\nMaakt het invoeren van cheats tijdens het spel mogelijk.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Onbeperkt gevechten opnieuw spelen}\nGeen limiet aan het aantal keren dat je gevechten opnieuw kunt spelen.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "De vijand heeft het tot op de dag van vandaag volgehouden. De overwinning is van hen!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Gefeliciteerd! Je hebt het overleefd. De overwinning is van jou!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "De vijand heeft alle monsters die dit land teisterden verslagen en claimt de overwinning!",
@@ -936,7 +936,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Versla alle vijanden en vorm een ​​Engelenalliantie.",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Helaas, je bent een deel van de Engelenalliantie kwijtgeraakt. Alles is verloren.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "\" Stapelervaring Details \"\n\nWezenstype ...................... : %s\nErvaringsrang ................... : %s (%i)\nErvaringspunten ................. : %i\nErvaringspunten tot volgende rang : %i\nMaximale ervaring per gevecht ... : %i%% (%i)\nAantal wezens in stapel ......... : %i\nMaximaal aantal nieuwe rekruten\n\nzonder verlies van huidige rang . : %i\nErvaringsvermenigvuldiger ....... : %.2f\nUpgradevermenigvuldiger ......... : %.2f\nErvaring na rang 10 ............. : %i\nMaximaal aantal nieuwe rekruten dat op\nrang 10 blijft als maximale ervaring is bereikt : %i",
 	"vcmi.stackExperience.rank.0" : "Basis",
 	"vcmi.stackExperience.rank.1" : "Beginner",
@@ -950,7 +950,7 @@
 	"vcmi.stackExperience.rank.9" : "Meester",
 	"vcmi.stackExperience.rank.10" : "Ace",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, u bent %s. Hier is een cadeautje voor u. Neemt u het aan?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, u bent %s. Hier is een cadeautje voor u. Neemt u het aan?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, u bent %s. Hier is een cadeautje voor u. Neemt u het aan?",
@@ -1028,7 +1028,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Visions Heroes}\nDe held kan gedetailleerde informatie over vijandelijke helden zien.",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Visions Towns}\nDe held kan gedetailleerde informatie over vijandelijke steden zien.",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Extra aanvallen}\nDe eenheid kan nog ${val} keer extra aanvallen.", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Extra aanvallen}\nDe eenheid kan nog ${val} keer extra aanvallen.", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Extra vergeldingsmaatregelen}\nEenheid kan ${val} extra keren vergeldingsmaatregelen nemen",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maximale schade}\nDeze eenheid brengt altijd de maximaal mogelijke schade toe",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Aanval rondom}\nValt alle aangrenzende vijanden aan, naast het primaire doelwit.",

@@ -231,13 +231,13 @@
 	"vcmi.lobby.login.spectator" : "Skatītājs",
 	"vcmi.lobby.header.rooms" : "Spēļu istabas — %d",
 	"vcmi.lobby.header.channels" : "Tērzēšanas kanāli",
-	"vcmi.lobby.header.chat.global" : "Globālā spēles tērzēšana — %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Tērzēšana no iepriekšējās spēles vietnē %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Privāta tērzēšana ar %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Globālā spēles tērzēšana — %s", 
+	"vcmi.lobby.header.chat.match" : "Tērzēšana no iepriekšējās spēles vietnē %s", 
+	"vcmi.lobby.header.chat.player" : "Privāta tērzēšana ar %s", 
 	"vcmi.lobby.header.history" : "Jūsu iepriekšējās spēles",
 	"vcmi.lobby.header.players" : "Tiešsaistes spēlētāji — %d",
 	"vcmi.lobby.match.solo" : "Vienspēlētāja spēle",
-	"vcmi.lobby.match.duel" : "Spēle ar %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Spēle ar %s", 
 	"vcmi.lobby.match.multi" : "%d spēlētāji",
 	"vcmi.lobby.room.create.hover" : "Izveidot jaunu telpu",
 	"vcmi.lobby.room.create.help" : "Izveidojiet jaunu istabu tiešsaistes vestibilā, kurai var pievienoties citi spēlētāji.",
@@ -250,7 +250,7 @@
 	"vcmi.lobby.invite.header" : "Uzaicināt spēlētājus",
 	"vcmi.lobby.invite.notification" : "Spēlētājs jūs uzaicināja uz savu spēļu istabu. Tagad varat pievienoties viņa privātajai istabai.",
 	"vcmi.lobby.preview.title" : "Pievienojieties spēļu istabai",
-	"vcmi.lobby.preview.subtitle" : "Spēle vietnē %s, ko rīko %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Spēle vietnē %s, ko rīko %s", 
 	"vcmi.lobby.preview.version" : "Spēles versija:",
 	"vcmi.lobby.preview.players" : "Spēlētāji:",
 	"vcmi.lobby.preview.mods" : "Izmantotie modi:",
@@ -290,7 +290,7 @@
 	"vcmi.client.errors.invalidMap" : "{Nederīga karte vai kampaņa}\n\nNeizdevās sākt spēli! Atlasītā karte vai kampaņa, iespējams, ir nederīga vai bojāta. Iemesls:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Modifikāciju ielādes kļūme}\n\nIelādējot modifikācijas, konstatētas kritiskas problēmas! Spēle var nedarboties pareizi vai avarēt! Lūdzu, atjauniniet vai atspējojiet šādas modifikācijas:\n\n",
 	"vcmi.server.errors.disconnected" : "{Tīkla kļūda}\n\nSavienojums ar spēļu serveri ir pārtraukts!",
-	"vcmi.server.errors.playerLeft" : "{Spēlētājs Left}\n\n%s spēlētājs ir atvienojies no spēles!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Spēlētājs Left}\n\n%s spēlētājs ir atvienojies no spēles!", 
 	"vcmi.server.errors.existingProcess" : "Darbojas cits VCMI servera process. Lūdzu, pārtrauciet to, pirms sākat jaunu spēli.",
 	"vcmi.server.errors.modsToEnable"    : "{Nepieciešami šādi modifikācijas}",
 	"vcmi.server.errors.modsToDisable"   : "{Šeit norādītie modi ir jāatspējo}",
@@ -586,7 +586,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Video iestatījumi",
 	"vcmi.systemOptions.audioGroup" : "Audio iestatījumi",
-	"vcmi.systemOptions.otherGroup" : "Citi iestatījumi", // unused right now
+	"vcmi.systemOptions.otherGroup" : "Citi iestatījumi", 
 	"vcmi.systemOptions.townsGroup" : "Pilsētas ekrāns",
 
 	"vcmi.statisticWindow.statistics" : "Statistika",
@@ -633,7 +633,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Saskarnes mērogošana}\n\nMaina spēles saskarnes mērogošanu.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Atlasiet saskarnes mērogošanu",
 	"vcmi.systemOptions.scalingMenu.help"      : "Mainīt spēles saskarnes mērogošanu.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Ilgs pieskāriena intervāls: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Ilgs pieskāriena intervāls: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Ilgs pieskāriena intervāls}\n\nIzmantojot skārienekrānu, pēc noteikta laika (milisekundēs) pieskaršanās ekrānam parādīsies uznirstošie logi.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Atlasiet garo pieskārienu intervālu",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Mainiet garā pieskāriena intervāla ilgumu.",
@@ -905,8 +905,8 @@
 	"vcmi.campaignSet.hota" : "Bezdibeņa rags",
 	"vcmi.campaignSet.wog" : "Dievu pēdās",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : "%d dienas",
 	"vcmi.optionsTab.simturns.days.1" : "%d diena",
 	"vcmi.optionsTab.simturns.days.2" : "%d dienas",
@@ -928,7 +928,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Atļaut krāpšanās kodus}\nAtļauj ievadīt krāpšanās kodus spēles laikā.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Neierobežota kaujas atkārtošana}\nNav ierobežojumu kaujas atkārtošanai.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Ienaidniekam ir izdevies izdzīvot līdz šai dienai. Uzvara ir viņu!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Apsveicu! Tev ir izdevies izdzīvot. Uzvara ir tava!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Ienaidnieks ir uzvarējis visus monstrus, kas nomoka šo zemi, un pasludina uzvaru!",
@@ -938,7 +938,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Sakauj visus ienaidniekus un izveido Eņģeļu aliansi",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Ak vai, tu esi zaudējis daļu no Eņģeļu alianses. Viss ir zaudēts.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "\" Kaudzītes pieredzes informācija \"\n\nCreature Type ................................................ : %sRadības veids ................................................ : %s\nPieredzes rangs .............................................. : %s (%i)\nPieredzes punkti ............................................. : %i\nPieredzes punkti līdz nākamajai pakāpei ...................... : %i\nMaksimālā pieredze kaujā ..................................... : %i% (%i)\nRadību skaits kaudzē ......................................... : %i\nMaksimālais jauno rekrūšu skaits, nezaudējot pašreizējo pakāpi : %i\nPieredzes reizinātājs ........................................ : %.2f\nUzlabošanas reizinātājs ...................................... : %.2f\nPieredze pēc 10. pakāpes ..................................... : %i\nMaksimālais jauno rekrūšu skaits, kas paliek 10. pakāpē, ja ir sasniegta maksimālā pieredze: %i",
 	"vcmi.stackExperience.rank.0" : "Pamata",
 	"vcmi.stackExperience.rank.1" : "Iesācējs",
@@ -952,7 +952,7 @@
 	"vcmi.stackExperience.rank.9" : "Meistars",
 	"vcmi.stackExperience.rank.10" : "Dūzis",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ā, tu esi %s. Lūk, tev dāvana. Vai pieņemsi?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ā, tu esi %s. Lūk, tev dāvana. Vai pieņemsi?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ā, tu esi %s. Lūk, tev dāvana. Vai pieņemsi?",
@@ -1030,7 +1030,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Visions Heroes}\nVaronis var redzēt detalizētu informāciju par ienaidnieka varoņiem",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Vīzijas pilsētas}\nVaronis var redzēt detalizētu informāciju par ienaidnieka pilsētām",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Papildu uzbrukumi}\nVienība var uzbrukt vēl ${val} reizes", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Papildu uzbrukumi}\nVienība var uzbrukt vēl ${val} reizes", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Papildu atriebības}\nVienība var atriebties ${val} papildu reizes",
 	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Blakus esošais burvestības izteicējs}\nVienība var izspēlēt ${subtype.spell}, stāvot blakus mērķim",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Maksimālais bojājums}\nŠī vienība vienmēr nodara maksimāli iespējamo bojājumu",

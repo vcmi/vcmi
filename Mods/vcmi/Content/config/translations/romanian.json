@@ -197,13 +197,13 @@
 	"vcmi.lobby.login.spectator" : "Spectator",
 	"vcmi.lobby.header.rooms" : "Camere de joc - %d",
 	"vcmi.lobby.header.channels" : "Canale de chat",
-	"vcmi.lobby.header.chat.global" : "Chat global al jocului - %s", // %s -> language name
-	"vcmi.lobby.header.chat.match" : "Chat din jocul anterior pe %s", // %s -> game start date & time
-	"vcmi.lobby.header.chat.player" : "Chat privat cu %s", // %s -> nickname of another player
+	"vcmi.lobby.header.chat.global" : "Chat global al jocului - %s", 
+	"vcmi.lobby.header.chat.match" : "Chat din jocul anterior pe %s", 
+	"vcmi.lobby.header.chat.player" : "Chat privat cu %s", 
 	"vcmi.lobby.header.history" : "Jocurile tale anterioare",
 	"vcmi.lobby.header.players" : "Jucători online - %d",
 	"vcmi.lobby.match.solo" : "Joc singleplayer",
-	"vcmi.lobby.match.duel" : "Joc cu %s", // %s -> nickname of another player
+	"vcmi.lobby.match.duel" : "Joc cu %s", 
 	"vcmi.lobby.match.multi" : "%d jucători",
 	"vcmi.lobby.room.create.hover" : "Creează cameră nouă",
 	"vcmi.lobby.room.create.help" : "Creează o cameră nouă în lobby-ul online la care alți jucători se pot alătura.",
@@ -216,7 +216,7 @@
 	"vcmi.lobby.invite.header" : "Invită jucători",
 	"vcmi.lobby.invite.notification" : "Un jucător te-a invitat în camera sa de joc. Te poți alătura acum camerei private.",
 	"vcmi.lobby.preview.title" : "Alătură-te camerei de joc",
-	"vcmi.lobby.preview.subtitle" : "Joc pe %s, găzduit de %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Joc pe %s, găzduit de %s", 
 	"vcmi.lobby.preview.version" : "Versiunea jocului:",
 	"vcmi.lobby.preview.players" : "Jucători:",
 	"vcmi.lobby.preview.mods" : "Moduri folosite:",
@@ -255,7 +255,7 @@
 	"vcmi.client.errors.invalidMap" : "{Hartă sau campanie invalidă}\n\nEșec la pornirea jocului! Harta sau campania selectată poate fi invalidă sau coruptă. Motiv:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Eroare la încărcarea modurilor}\n\nAu fost găsite probleme critice la încărcarea modurilor! Jocul poate funcționa incorect sau se poate bloca! Actualizează sau dezactivează următoarele moduri:\n\n",
 	"vcmi.server.errors.disconnected" : "{Eroare de rețea}\n\nConexiunea la serverul de joc a fost pierdută!",
-	"vcmi.server.errors.playerLeft" : "{Jucător deconectat}\n\nJucătorul %s s-a deconectat din joc!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Jucător deconectat}\n\nJucătorul %s s-a deconectat din joc!", 
 	"vcmi.server.errors.existingProcess" : "Un alt proces VCMI server rulează deja. Închide-l înainte de a începe un joc nou.",
 	"vcmi.server.errors.modsToEnable" : "{Următoarele moduri sunt necesare}",
 	"vcmi.server.errors.modsToDisable" : "{Următoarele moduri trebuie dezactivate}",
@@ -545,7 +545,7 @@
 	
 	"vcmi.systemOptions.videoGroup" : "Setări video",
 	"vcmi.systemOptions.audioGroup" : "Setări audio",
-	"vcmi.systemOptions.otherGroup" : "Alte setări", // momentan neutilizat
+	"vcmi.systemOptions.otherGroup" : "Alte setări", 
 	"vcmi.systemOptions.townsGroup" : "Ecran cetate",
 	
 	"vcmi.statisticWindow.statistics" : "Statistici",
@@ -592,7 +592,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Scalare interfață}\n\nSchimbă scalarea interfeței din joc.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Selectează scalarea interfeței",
 	"vcmi.systemOptions.scalingMenu.help"      : "Schimbă scalarea interfeței din joc.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Interval atingere lungă: %d ms", // Nota de traducere: "ms" = "milisecunde"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Interval atingere lungă: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Interval atingere lungă}\n\nCând folosești ecranul tactil, feronetele vor apărea după atingerea ecranului pentru durata specificată, în milisecunde.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Selectează intervalul de atingere lungă",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Schimbă durata intervalului de atingere lungă.",
@@ -850,8 +850,8 @@
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d zile",
 	"vcmi.optionsTab.simturns.days.1" : " %d zi",
 	"vcmi.optionsTab.simturns.days.2" : " %d zile",
@@ -873,7 +873,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Permite trucuri}\nPermite introducerea trucurilor în timpul jocului.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Repetare nelimitată a bătăliei}\nFără limită pentru repetarea bătăliilor.",
 	
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "Inamicul a reușit să supraviețuiască până în această zi. Victorie este a lor!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Felicitări! Ai reușit să supraviețuiești. Victorie este a ta!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "Inamicul a învins toate monștrii care bântuie această țară și revendică victoria!",
@@ -883,7 +883,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Înfrânge toți inamicii și creează Alianța Angelică",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Din păcate, ai pierdut o parte din Alianța Angelică. Totul este pierdut.",
 	
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» Detalii despre Experiența Stivă «\n\nTipul de creatură ................... : %s\nRangul experienței ................. : %s (%i)\nPuncte de experiență ............... : %i\nPuncte de experiență pentru următorul rang .. : %i\nExperiență maximă pe bătălie ... : %i%% (%i)\nNumărul de creaturi în stivă .... : %i\nMaxim noi recruți\n fără a pierde rangul actual .... : %i\nMultiplicator de experiență ........... : %.2f\nMultiplicator de upgrade .............. : %.2f\nExperiență după Rangul 10 ........ : %i\nMaxim noi recruți pentru a rămâne la\n Rangul 10 dacă la experiență maximă : %i",
 	"vcmi.stackExperience.rank.0" : "De bază",
 	"vcmi.stackExperience.rank.1" : "Novice",
@@ -897,7 +897,7 @@
 	"vcmi.stackExperience.rank.9" : "Maestru",
 	"vcmi.stackExperience.rank.10" : "As",
 		
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, tu ești %s. Iată un cadou pentru tine. Accepti?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, tu ești %s. Iată un cadou pentru tine. Accepti?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, tu ești %s. Iată un cadou pentru tine. Accepti?",
@@ -975,7 +975,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Viziuni Eroi}\nEroul poate vedea informații detaliate despre eroii inamici",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Viziuni Orașe}\nEroul poate vedea informații detaliate despre orașele inamicilor",
 	
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Atacuri suplimentare}\nUnitatea poate ataca de încă ${val} ori", // TODO: descriere alternativă pentru efectul melee/ranged
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Atacuri suplimentare}\nUnitatea poate ataca de încă ${val} ori", 
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Riposte suplimentare}\nUnitatea poate riposta de ${val} ori suplimentar",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Daune maxime}\nAceastă unitate dă întotdeauna daunele maxime posibile",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Atacuri în jurul unității}\nAtacă toate unitățile adiacente în plus față de ținta principală",

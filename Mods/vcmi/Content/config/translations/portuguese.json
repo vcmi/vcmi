@@ -183,13 +183,13 @@
 	"vcmi.lobby.login.spectator" : "Espectador",
 	"vcmi.lobby.header.rooms" : "Salas de Jogo - %d",
 	"vcmi.lobby.header.channels" : "Canais de Bate-papo",
-	"vcmi.lobby.header.chat.global" : "Bate-papo Global do Jogo - %s", // %s -> nome do idioma
-	"vcmi.lobby.header.chat.match" : "Bate-papo do jogo anterior em %s", // %s -> data e hora de início do jogo
-	"vcmi.lobby.header.chat.player" : "Bate-papo privado com %s", // %s -> apelido de outro jogador
+	"vcmi.lobby.header.chat.global" : "Bate-papo Global do Jogo - %s", 
+	"vcmi.lobby.header.chat.match" : "Bate-papo do jogo anterior em %s", 
+	"vcmi.lobby.header.chat.player" : "Bate-papo privado com %s", 
 	"vcmi.lobby.header.history" : "Seus Jogos Anteriores",
 	"vcmi.lobby.header.players" : "Jogadores Online - %d",
 	"vcmi.lobby.match.solo" : "Jogo para Um Jogador",
-	"vcmi.lobby.match.duel" : "Jogo com %s", // %s -> apelido de outro jogador
+	"vcmi.lobby.match.duel" : "Jogo com %s", 
 	"vcmi.lobby.match.multi" : "%d jogadores",
 	"vcmi.lobby.room.create.hover" : "Criar Nova Sala",
 	"vcmi.lobby.room.create.help" : "Crie uma nova sala de espera on-line na qual outros jogadores possam entrar.",
@@ -202,7 +202,7 @@
 	"vcmi.lobby.invite.header" : "Convidar Jogadores",
 	"vcmi.lobby.invite.notification" : "O jogador te convidou para a sala de jogo dele. Agora você pode entrar na sala privada dele.",
 	"vcmi.lobby.preview.title" : "Entrar na Sala de Jogo",
-	"vcmi.lobby.preview.subtitle" : "Jogo em %s, hospedado por %s", //TL Note: 1) name of map or RMG template 2) nickname of game host
+	"vcmi.lobby.preview.subtitle" : "Jogo em %s, hospedado por %s", 
 	"vcmi.lobby.preview.version" : "Versão do jogo:",
 	"vcmi.lobby.preview.players" : "Jogadores:",
 	"vcmi.lobby.preview.mods" : "Mods usados:",
@@ -241,7 +241,7 @@
 	"vcmi.client.errors.invalidMap" : "{Mapa ou campanha inválida}\n\nFalha ao iniciar o jogo! O mapa ou campanha selecionado pode ser inválido ou corrompido. Motivo:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Falha ao carregar mod}\n\nProblemas críticos encontrados ao carregar mods! O jogo pode não funcionar corretamente ou travar! Por favor, atualize ou desative os seguintes mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Erro de Rede}\n\nA conexão com o servidor do jogo foi perdida!",
-	"vcmi.server.errors.playerLeft" : "{Jogador Saiu}\n\nO jogador %s desconectou-se do jogo!", //%s -> player color
+	"vcmi.server.errors.playerLeft" : "{Jogador Saiu}\n\nO jogador %s desconectou-se do jogo!", 
 	"vcmi.server.errors.existingProcess" : "Outro processo do servidor VCMI está em execução. Por favor, termine-o antes de iniciar um novo jogo.",
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
@@ -260,7 +260,7 @@
 
 	"vcmi.systemOptions.videoGroup" : "Configurações de Vídeo",
 	"vcmi.systemOptions.audioGroup" : "Configurações de Áudio",
-	"vcmi.systemOptions.otherGroup" : "Outras Configurações", // não utilizado no momento
+	"vcmi.systemOptions.otherGroup" : "Outras Configurações", 
 	"vcmi.systemOptions.townsGroup" : "Tela da Cidade",
 
 	"vcmi.statisticWindow.statistics" : "Estatísticas",
@@ -307,7 +307,7 @@
 	"vcmi.systemOptions.scalingButton.help"    : "{Escala da Interface}\n\nAltera a escala da interface do jogo.",
 	"vcmi.systemOptions.scalingMenu.hover"     : "Selecionar Escala da Interface",
 	"vcmi.systemOptions.scalingMenu.help"      : "Altera a escala da interface do jogo.",
-	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalo de Toque Longo: %d ms", // Translation note: "ms" = "milliseconds"
+	"vcmi.systemOptions.longTouchButton.hover"   : "Intervalo de Toque Longo: %d ms", 
 	"vcmi.systemOptions.longTouchButton.help"    : "{Intervalo de Toque Longo}\n\nAo usar a tela sensível ao toque, as janelas pop-up aparecerão após tocar na tela por uma duração especificada, em milissegundos.",
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Selecionar Intervalo de Toque Longo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Muda a duração do intervalo de toque longo.",
@@ -529,8 +529,8 @@
 	"vcmi.optionsTab.simturns.blocked2" : "Por 2 semanas, contatos bloqueados",
 	"vcmi.optionsTab.simturns.blocked4" : "Por 1 mês, contatos bloqueados",
 	
-	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
-	// Using this information, VCMI will automatically select correct plural form for every possible amount
+	
+	
 	"vcmi.optionsTab.simturns.days.0" : " %d dias",
 	"vcmi.optionsTab.simturns.days.1" : " %d dia",
 	"vcmi.optionsTab.simturns.days.2" : " %d dias",
@@ -549,7 +549,7 @@
 	"vcmi.optionsTab.cheatAllowed.help" : "{Permitir trapaças}\nPermite a inserção de códigos de trapaça durante o jogo.",
 	"vcmi.optionsTab.unlimitedReplay.help" : "{Repetição de batalha ilimitada}\nSem limite de repetição de batalhas.",
 
-	// Custom victory conditions for H3 campaigns and HotA maps
+	
 	"vcmi.map.victoryCondition.daysPassed.toOthers" : "O inimigo conseguiu sobreviver até este dia. A vitória é deles!",
 	"vcmi.map.victoryCondition.daysPassed.toSelf" : "Parabéns! Você conseguiu sobreviver. A vitória é sua!",
 	"vcmi.map.victoryCondition.eliminateMonsters.toOthers" : "O inimigo derrotou todos os monstros que assolam esta terra e reivindica a vitória!",
@@ -559,7 +559,7 @@
 	"vcmi.map.victoryCondition.angelicAlliance.message" : "Derrote Todos os Inimigos e crie a Aliança Angelical",
 	"vcmi.map.victoryCondition.angelicAlliancePartLost.toSelf" : "Infelizmente, você perdeu parte da Aliança Angelical. Tudo está perdido.",
 
-	// few strings from WoG used by vcmi
+	
 	"vcmi.stackExperience.description" : "» D e t a l h e s   d e   E x p e r i ê n c i a   d o   G r u p o «\n\nTipo de Criatura ................ : %s\nRanque de Experiência ........... : %s (%i)\nPontos de Experiência ........... : %i\nPontos de Experiência até o\nPróximo Ranque .................. : %i\nExperiência Máxima por Batalha .. : %i%% (%i)\nNúmero de Criaturas no grupo .... : %i\nMáximo de Novos Recrutas sem\nperder o Ranque atual .......... : %i\nMultiplicador de Experiência .... : %.2f\nMultiplicador de Atualização .... : %.2f\nExperiência após o Ranque 10 .... : %i\nMáximos de Novos Recrutas para\npermanecer no Ranque 10 se\nestiver na Experiência Máxima .. : %i",
 	"vcmi.stackExperience.rank.0" : "Básico",
 	"vcmi.stackExperience.rank.1" : "Novato",
@@ -573,7 +573,7 @@
 	"vcmi.stackExperience.rank.9" : "Mestre",
 	"vcmi.stackExperience.rank.10" : "Ás",
 	
-	// Strings for HotA Seer Hut / Quest Guards
+	
 	"core.seerhut.quest.heroClass.complete.0" : "Ah, você é %s. Aqui está um presente para você. Aceita?",
 	"core.seerhut.quest.heroClass.complete.1" : "Ah, você é %s. Aqui está um presente para você. Aceita?",
 	"core.seerhut.quest.heroClass.complete.2" : "Ah, você é %s. Aqui está um presente para você. Aceita?",
@@ -765,5 +765,5 @@
 	"spell.core.deathCloud.description.none" : "{Nuvem Mortal}\n\nAlém do dano normal de ataque à distância no hexágono alvo, a nuvem mortal também afeta todos os 6 hexágonos adjacentes ao redor do hexágono alvo, causando dano a todas as criaturas vivas no raio de efeito.",
 	"spell.core.thunderbolt.description.none" : "{Raio}\n\nQuando o grupo ataca, há uma chance de 20% de que um raio ocorra antes que o inimigo tenha a chance de contra-atacar. Se ocorrer, o raio causa dano igual a dez vezes o número de Pássaros do Trovão atacantes.",
 	"spell.core.dispelHelpful.description.none" : "{Dissipar Feitiços Benéficos}\n\nRemove todos os efeitos de feitiços da unidade alvo.",
-	"spell.core.acidBreath.description.none" : "{Hálito Ácido}\n\nO hálito reduz a defesa do grupo alvo em 3 e tem 20% de chance de causar um dano adicional de 25 pontos por unidade atacante.",
+	"spell.core.acidBreath.description.none" : "{Hálito Ácido}\n\nO hálito reduz a defesa do grupo alvo em 3 e tem 20% de chance de causar um dano adicional de 25 pontos por unidade atacante."
 }
