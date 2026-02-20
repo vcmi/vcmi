@@ -163,7 +163,6 @@ endif()
 
 if(WIN32)
 	set(VCMI_FILE_DESCRIPTION "VCMI Map Editor")
-	set(VCMI_INTERNAL_NAME "VCMI_mapeditor.exe")
 	set(VCMI_ORIGINAL_FILENAME "VCMI_mapeditor.exe")
 	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/mapeditor.ico\"")
 	set(editor_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_mapeditor_versioninfo.rc")
