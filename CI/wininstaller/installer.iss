@@ -1005,5 +1005,4 @@ begin
     if ShowModal = mrAbort then
       Abort;
   end;
-
 end;
