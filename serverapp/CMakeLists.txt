@@ -9,10 +9,11 @@ set(serverapp_HEADERS
 
 assign_source_group(${serverapp_SRCS} ${serverapp_HEADERS})
 add_executable(vcmiserver ${serverapp_SRCS} ${serverapp_HEADERS})
-set(serverapp_LIBS vcmi)
+vcmi_create_exe_shim(vcmiserver)
 
+set(serverapp_LIBS vcmi)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
-	set(serverapp_LIBS execinfo ${serverapp_LIBS})
+	list(APPEND serverapp_LIBS execinfo)
 endif()
 target_link_libraries(vcmiserver PRIVATE ${serverapp_LIBS} minizip::minizip vcmiservercommon)
 
@@ -21,6 +22,7 @@ target_include_directories(vcmiserver
 )
 
 if(WIN32)
+	target_sources(vcmiserver PRIVATE "VCMI_server.rc")
 	set_target_properties(vcmiserver
 		PROPERTIES
 			OUTPUT_NAME "VCMI_server"
