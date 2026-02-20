@@ -123,6 +123,9 @@
 	"vcmi.mainMenu.serverClosing" : "关闭中...",
 	"vcmi.mainMenu.hostTCP" : "创建TCP/IP游戏",
 	"vcmi.mainMenu.joinTCP" : "加入TCP/IP游戏",
+	"vcmi.mainMenu.ipAddress" : "本地IP地址",
+	"vcmi.mainMenu.ipAddressUnknown" : "未知",
+	"vcmi.mainMenu.join" : "加入",
 
 	"vcmi.lobby.filepath" : "文件路径",
 	"vcmi.lobby.creationDate" : "创建时间",
