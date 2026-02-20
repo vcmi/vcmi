@@ -22,7 +22,6 @@ target_include_directories(vcmiserver
 
 if(WIN32)
 	set(VCMI_FILE_DESCRIPTION "VCMI Server")
-	set(VCMI_INTERNAL_NAME "VCMI_server.exe")
 	set(VCMI_ORIGINAL_FILENAME "VCMI_server.exe")
 	set(VCMI_ICON_RESOURCE "")
 	set(server_VERSIONINFO_RC "${CMAKE_CURRENT_BINARY_DIR}/VCMI_server_versioninfo.rc")
