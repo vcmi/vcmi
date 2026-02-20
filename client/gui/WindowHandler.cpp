@@ -10,15 +10,13 @@
 #include "StdInc.h"
 #include "WindowHandler.h"
 
-#include "CGuiHandler.h"
+#include "GameEngine.h"
 #include "CIntObject.h"
 #include "CursorHandler.h"
 
-#include "../CMT.h"
-#include "../CGameInfo.h"
 #include "../render/Canvas.h"
+#include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
 
 void WindowHandler::popWindow(std::shared_ptr<IShowActivatable> top)
 {
@@ -42,13 +40,10 @@ void WindowHandler::pushWindow(std::shared_ptr<IShowActivatable> newInt)
 	if (vstd::contains(windowsStack, newInt))
 		throw std::runtime_error("Attempt to add already existing window to stack!");
 
-	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2;
-
 	if(!windowsStack.empty())
 		windowsStack.back()->deactivate();
 	windowsStack.push_back(newInt);
-	CCS->curh->set(Cursor::Map::POINTER);
+	ENGINE->cursor().set(Cursor::Map::POINTER);
 	newInt->activate();
 	totalRedraw();
 }
@@ -79,7 +74,7 @@ void WindowHandler::popWindows(int howMany)
 		windowsStack.back()->activate();
 		totalRedraw();
 	}
-	GH.fakeMouseMove();
+	ENGINE->fakeMouseMove();
 }
 
 std::shared_ptr<IShowActivatable> WindowHandler::topWindowImpl() const
@@ -111,11 +106,10 @@ void WindowHandler::totalRedrawImpl()
 {
 	logGlobal->debug("totalRedraw requested!");
 
-	Canvas target = Canvas::createFromSurface(screen2, CanvasScalingPolicy::AUTO);
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	for(auto & elem : windowsStack)
 		elem->showAll(target);
-	CSDL_Ext::blitAt(screen2, 0, 0, screen);
 }
 
 void WindowHandler::simpleRedraw()
@@ -130,11 +124,7 @@ void WindowHandler::simpleRedraw()
 
 void WindowHandler::simpleRedrawImpl()
 {
-	//update only top interface and draw background
-	if(windowsStack.size() > 1)
-		CSDL_Ext::blitAt(screen2, 0, 0, screen); //blit background
-
-	Canvas target = Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+	Canvas target = ENGINE->screenHandler().getScreenCanvas();
 
 	if(!windowsStack.empty())
 		windowsStack.back()->show(target); //blit active interface/window

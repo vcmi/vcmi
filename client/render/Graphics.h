@@ -20,7 +20,6 @@ class Graphics
 {
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
-	void loadErmuToPicture();
 
 public:
 	using PlayerPalette = std::array<ColorRGBA, 32>;
@@ -32,8 +31,6 @@ public:
 	PlayerPalette neutralColorPalette;
 	ColorRGBA neutralColor;
 
-	//towns
-	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 

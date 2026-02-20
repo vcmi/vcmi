@@ -134,7 +134,7 @@
 			"imageOrder": [1, 0, 2, 3],
 			"help": "core.help.320",
 			"callback": "returnToMainMenu",
-			"hotkey": "settingsMainMenu"
+			"hotkey": "settingsToMainMenu"
 		},
 		{
 			"name": "quitButton",

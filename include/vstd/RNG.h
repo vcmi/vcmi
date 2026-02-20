@@ -70,32 +70,36 @@ namespace RandomGeneratorUtil
 	}
 
 	template<typename Container>
-	size_t nextItemWeighted(Container & container, vstd::RNG & rand)
+	int64_t nextItemWeighted(Container & container, vstd::RNG & rand)
 	{
 		assert(!container.empty());
 
 		int64_t totalWeight = std::accumulate(container.begin(), container.end(), 0);
-		assert(totalWeight > 0);
+		if(totalWeight == 0)
+			return -1;
 
 		int64_t roll = rand.nextInt64(0, totalWeight - 1);
 
-		for (size_t i = 0; i < container.size(); ++i)
+		for (int64_t i = 0; i < container.size(); ++i)
 		{
-			roll -= container[i];
-			if(roll < 0)
+			int chance = container[i];
+			if(roll < chance)
 				return i;
+
+			roll -= chance;
 		}
 		return container.size() - 1;
 	}
 
-	template<typename T>
-	void randomShuffle(std::vector<T> & container, vstd::RNG & rand)
+	template<typename Container>
+	void randomShuffle(Container & container, vstd::RNG & rand)
 	{
-		int64_t n = (container.end() - container.begin());
+		int64_t n = std::distance(container.begin(), container.end());
 
-		for(int64_t i = n-1; i>0; --i)
+		for(int64_t i = n - 1; i > 0; --i)
 		{
-			std::swap(container.begin()[i],container.begin()[rand.nextInt64(0, i)]);
+			auto randIndex = rand.nextInt64(0, i);
+			std::swap(*(container.begin() + i), *(container.begin() + randIndex));
 		}
 	}
 }

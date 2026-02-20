@@ -15,13 +15,13 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
-#include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusParameters.h"
 #include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -135,11 +135,22 @@ protected:
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
 
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::LEVEL_SPELL_IMMUNITY) << "addInfo_1";
+		if (m->getSpellLevel() <= 0)
+			return true;
 
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
-		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
+		bool hasAbsoluteImmunity = false;
+
+		const auto & levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
+		for (const auto & bonus : *levelImmunities)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				hasAbsoluteImmunity = true;
+
+		if (!hasAbsoluteImmunity)
+			return true;
+
+		return levelImmunities->totalValue() < m->getSpellLevel();
+
+		return true;
 	}
 };
 
@@ -155,9 +166,11 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
+		const auto & bonuses = target->getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
+		for (const auto & bonus : *bonuses)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				return false;
+		return true;
 	}
 };
 
@@ -177,7 +190,10 @@ protected:
 		bool elementalImmune = false;
 		auto bearer = target->getBonusBearer();
 
-		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
+		if(!m->isPositiveSpell() && bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::ANY)))
+			return true;
+
+		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)
 		{
 			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(cnf)))
 			{
@@ -212,7 +228,7 @@ protected:
 	{
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY));
+		TConstBonusListPtr levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
 		m->getSpellLevel() <= 0;
@@ -356,25 +372,15 @@ public:
 	{
 		if(type == "bonus")
 		{
-			//TODO: support custom bonus types
-
-			auto it = bonusNameMap.find(identifier);
-			if(it != bonusNameMap.end())
-				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
-
-			auto params = BonusParams(identifier, "", -1);
-			if(params.isConverted)
-			{
-				if(params.val)
-					return std::make_shared<SelectorCondition>(params.toSelector(), *params.val, *params.val);
-				return std::make_shared<SelectorCondition>(params.toSelector());
-			}
-
-				logMod->error("Invalid bonus type %s in spell target condition.", identifier);
+			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			if (bonusID)
+				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
+			else
+				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}
 		else if(type == "creature")
 		{
-			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -383,7 +389,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = VLC->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
@@ -523,6 +529,9 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 		bool isAbsolute;
 
 		const JsonNode & value = keyValue.second;
+
+		if (!value.isString())
+			continue;
 
 		if(value.String() == "absolute")
 			isAbsolute = true;

@@ -15,7 +15,7 @@
 #include <SDL_video.h>
 
 FramerateManager::FramerateManager(int targetFrameRate)
-	: targetFrameTime(Duration(boost::chrono::seconds(1)) / targetFrameRate)
+	: targetFrameTime(Duration(std::chrono::seconds(1)) / targetFrameRate)
 	, lastFrameIndex(0)
 	, lastFrameTimes({})
 	, lastTimePoint(Clock::now())
@@ -31,15 +31,15 @@ void FramerateManager::framerateDelay()
 	if(!vsyncEnabled && timeSpentBusy < targetFrameTime)
 	{
 		// if FPS is higher than it should be, then wait some time
-		boost::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
+		std::this_thread::sleep_for(targetFrameTime - timeSpentBusy);
 	}
 
 	// compute actual timeElapsed taking into account actual sleep interval
 	// limit it to 100 ms to avoid breaking animation in case of huge lag (e.g. triggered breakpoint)
 	TimePoint currentTicks = Clock::now();
 	Duration timeElapsed = currentTicks - lastTimePoint;
-	if(timeElapsed > boost::chrono::milliseconds(100))
-		timeElapsed = boost::chrono::milliseconds(100);
+	if(timeElapsed > std::chrono::milliseconds(100))
+		timeElapsed = std::chrono::milliseconds(100);
 
 	lastTimePoint = currentTicks;
 	lastFrameIndex = (lastFrameIndex + 1) % lastFrameTimes.size();
@@ -48,7 +48,7 @@ void FramerateManager::framerateDelay()
 
 ui32 FramerateManager::getElapsedMilliseconds() const
 {
-	return lastFrameTimes[lastFrameIndex] / boost::chrono::milliseconds(1);
+	return lastFrameTimes[lastFrameIndex] / std::chrono::milliseconds(1);
 }
 
 ui32 FramerateManager::getFramerate() const
@@ -59,5 +59,5 @@ ui32 FramerateManager::getFramerate() const
 	if(actualFrameTime == actualFrameTime.zero())
 		return 0;
 
-	return std::round(boost::chrono::duration<double>(1) / actualFrameTime);
+	return std::round(std::chrono::duration<double>(1) / actualFrameTime);
 };

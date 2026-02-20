@@ -65,10 +65,10 @@ void CBufferedStream::ensureSize(si64 size)
 	while(static_cast<si64>(buffer.size()) < size && !endOfFileReached)
 	{
 		si64 initialSize = buffer.size();
-		si64 currentStep = std::min<si64>(size, buffer.size());
+		si64 need = size - buffer.size();
 		// to avoid large number of calls at start
 		// this is often used to load h3m map headers, most of which are ~300 bytes in size
-		vstd::amax(currentStep, 512);
+		si64 currentStep = std::min<si64>(need, std::max<si64>(initialSize, si64{512}));
 
 		buffer.resize(initialSize + currentStep);
 
@@ -97,7 +97,7 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool 
 	assert(gzipStream);
 
 	// Allocate inflate state
-	inflateState = new z_stream();
+	inflateState = std::make_unique<z_stream>();
 	inflateState->zalloc = Z_NULL;
 	inflateState->zfree = Z_NULL;
 	inflateState->opaque = Z_NULL;
@@ -108,15 +108,14 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool 
 	if (gzip)
 		wbits += 16;
 
-	int ret = inflateInit2(inflateState, wbits);
+	int ret = inflateInit2(inflateState.get(), wbits);
 	if (ret != Z_OK)
 		throw std::runtime_error("Failed to initialize inflate!\n");
 }
 
 CCompressedStream::~CCompressedStream()
 {
-	inflateEnd(inflateState);
-	vstd::clear_pointer(inflateState);
+	inflateEnd(inflateState.get());
 }
 
 si64 CCompressedStream::readMore(ui8 *data, si64 size)
@@ -149,7 +148,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 			inflateState->next_in  = compressedBuffer.data();
 		}
 
-		int ret = inflate(inflateState, Z_NO_FLUSH);
+		int ret = inflate(inflateState.get(), Z_NO_FLUSH);
 
 		if (inflateState->avail_in == 0 && gzipStream == nullptr)
 			fileEnded = true;
@@ -179,8 +178,8 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 	// Clean up and return
 	if (fileEnded)
 	{
-		inflateEnd(inflateState);
-		vstd::clear_pointer(inflateState);
+		inflateEnd(inflateState.get());
+		inflateState.reset();
 	}
 	return decompressed;
 }
@@ -190,7 +189,7 @@ bool CCompressedStream::getNextBlock()
 	if (!inflateState)
 		return false;
 
-	if (inflateReset(inflateState) < 0)
+	if (inflateReset(inflateState.get()) < 0)
 		return false;
 
 	reset();

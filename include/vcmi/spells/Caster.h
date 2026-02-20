@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../../lib/battle/BattleHex.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
@@ -22,6 +24,7 @@ class SpellSchool;
 namespace battle
 {
 	class Unit;
+	using Units = boost::container::small_vector<const Unit *, 4>;
 }
 
 namespace spells
@@ -59,13 +62,16 @@ public:
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	virtual int64_t getEffectValue(const Spell * spell) const = 0;
 
+	///maximal range of effect
+	virtual int64_t getEffectRange(const Spell * spell) const = 0;
+
 	virtual PlayerColor getCasterOwner() const = 0;
 
 	///only name substitution
 	virtual void getCasterName(MetaString & text) const = 0;
 
 	///full default text
-	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
+	virtual void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(ServerCallback * server, const int32_t spellCost) const = 0;
 

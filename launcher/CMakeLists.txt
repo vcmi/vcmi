@@ -1,6 +1,7 @@
 if(ENABLE_INNOEXTRACT)
+	# libiconv not required for our use case
+	set(WITH_CONV "builtin" CACHE STRING "" FORCE)
 	add_subdirectory("lib/innoextract")
-	add_definitions(-DENABLE_INNOEXTRACT)
 endif()
 
 set(launcher_SRCS
@@ -14,9 +15,12 @@ set(launcher_SRCS
 		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
+		modManager/hdextractor.cpp
 		settingsView/csettingsview_moc.cpp
+		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
+		firstLaunch/progressoverlay.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -25,13 +29,18 @@ set(launcher_SRCS
 		updatedialog_moc.cpp
 		prepare.cpp
 )
-if(APPLE_IOS)
+if(IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
 		ios/revealdirectoryinfiles.h
 		ios/revealdirectoryinfiles.mm
 		ios/selectdirectory.h
 		ios/selectdirectory.mm
+		prepare_ios.mm
+	)
+elseif(ANDROID)
+	list(APPEND launcher_SRCS
+		prepare_android.cpp
 	)
 endif()
 
@@ -46,9 +55,12 @@ set(launcher_HEADERS
 		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
+		modManager/hdextractor.h
+		settingsView/configeditordialog_moc.h
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
+		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
@@ -56,12 +68,14 @@ set(launcher_HEADERS
 		helper.h
 		innoextract.h
 		prepare.h
+		prepare_p.h
 )
 
 set(launcher_FORMS
 		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
+		settingsView/configeditordialog_moc.ui
 		settingsView/csettingsview_moc.ui
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
@@ -75,16 +89,31 @@ set(launcher_RESOURCES
 
 set(translationsDir "translation")
 set(launcher_TS
+	"${translationsDir}/belarusian.ts"
+	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
+	"${translationsDir}/dutch.ts"
 	"${translationsDir}/english.ts"
+	"${translationsDir}/filipino.ts"
+	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
+	"${translationsDir}/greek.ts"
+	"${translationsDir}/hungarian.ts"
+	"${translationsDir}/italian.ts"
+	"${translationsDir}/japanese.ts"
+	"${translationsDir}/korean.ts"
+	"${translationsDir}/latvian.ts"
+	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
+	"${translationsDir}/serbian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"
+	"${translationsDir}/turkish.ts"
 	"${translationsDir}/ukrainian.ts"
 	"${translationsDir}/vietnamese.ts"
 )
@@ -138,6 +167,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
+	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
 if(ENABLE_TRANSLATIONS)
@@ -207,7 +237,7 @@ endif()
 
 if(ANDROID)
 	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
-elseif(NOT APPLE_IOS)
+elseif(NOT IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
@@ -223,19 +253,19 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(ENABLE_INNOEXTRACT)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
-if(APPLE_IOS)
+if(ENABLE_DISCORD)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_DISCORD)
+endif()
+
+if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils
 		"-framework UniformTypeIdentifiers"
 	)
-
-	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
-	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
-		target_link_libraries(vcmilauncher "-framework IOKit")
-	endif()
 
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)

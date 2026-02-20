@@ -18,6 +18,8 @@ namespace test
 class GameStateFake : public CGameState
 {
 public:
+	using CGameState::CGameState;
+
 	MOCK_METHOD3(updateEntity, void(Metatype, int32_t, const JsonNode &));
 };
 

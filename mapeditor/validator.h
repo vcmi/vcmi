@@ -46,4 +46,33 @@ public:
 
 private:
 	Ui::Validator *ui;
+
+	QRect screenGeometry;
+
+	void showValidationResults(const CMap * map);
+	void adjustWindowSize();
+};
+
+class ValidatorItemDelegate : public QStyledItemDelegate
+{
+public:
+	explicit ValidatorItemDelegate(QObject * parent = nullptr) : QStyledItemDelegate(parent) 
+	{
+		screenGeometry = QApplication::primaryScreen()->availableGeometry();
+	}
+
+	int itemPaddingBottom = 14;
+	int iconPadding = 4;
+	int textOffsetForIcon = 30;
+	int textPaddingRight = 10;
+	int minItemWidth = 350;
+	int screenMargin = 350;     // some reserved space from screenWidth; used if text.width > screenWidth - screenMargin 
+	
+	const int offsetForIcon = iconPadding + textOffsetForIcon;
+
+	void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
+	QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const override;
+
+private:
+	QRect screenGeometry;
 };

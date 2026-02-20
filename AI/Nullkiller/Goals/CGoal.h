@@ -94,7 +94,7 @@ namespace Goals
 		bool isObjectAffected(ObjectInstanceID id) const override
 		{
 			return (AbstractGoal::hero && AbstractGoal::hero->id == id)
-				|| AbstractGoal::objid == id
+				|| AbstractGoal::objid == id.getNum()
 				|| (AbstractGoal::town && AbstractGoal::town->id == id);
 		}
 

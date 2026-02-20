@@ -103,8 +103,9 @@ void LoseConditions::initialize(MapController & c)
 							assert(loseValueWidget);
 							loseValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
+						}
 
-						case EventCondition::IS_HUMAN:
+						case EventCondition::IS_HUMAN: {
 							break; //ignore because always applicable for defeat conditions
 						}
 
@@ -289,9 +290,9 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 void LoseConditions::onObjectSelect()
 {
 	int loseCondition = ui->loseComboBox->currentIndex() - 1;
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		switch(loseCondition)
 		{
 			case 0: {  //EventCondition::CONTROL (Obj::TOWN)
@@ -310,16 +311,16 @@ void LoseConditions::onObjectSelect()
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
 	}
 	
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller->settingsDialog->hide();
 }
 
 void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 {
-	dynamic_cast<QWidget*>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller->settingsDialog->show();
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);
@@ -331,7 +332,7 @@ void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 	for(int i = 0; i < loseTypeWidget->count(); ++i)
 	{
 		auto data = controller->map()->objects.at(loseTypeWidget->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			loseTypeWidget->setCurrentIndex(i);
 			break;

@@ -79,14 +79,14 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 	gh->sendAndApply(pack);
 }
 
-const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
+const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
-	return gh;
+	return &gh->gameInfo();
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const
 {
-	return gh->gameState()->map;
+	return &gh->gameState().getMap();
 }
 
 bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode)

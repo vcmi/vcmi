@@ -72,7 +72,6 @@ public:
 	std::string getNameTextID() const override;
 
 	bool isMagicHero() const;
-	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, vstd::RNG & rand) const; //picks secondary skill out from given possibilities
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);

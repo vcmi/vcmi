@@ -12,7 +12,6 @@
 #include "BattleStateInfoForRetreat.h"
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
-#include "../CCreatureSet.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,7 +26,7 @@ BattleStateInfoForRetreat::BattleStateInfoForRetreat():
 {
 }
 
-uint64_t getFightingStrength(const std::vector<const battle::Unit *> & stacks, const CGHeroInstance * hero = nullptr)
+uint64_t getFightingStrength(const battle::Units & stacks, const CGHeroInstance * hero = nullptr)
 {
 	uint64_t result = 0;
 

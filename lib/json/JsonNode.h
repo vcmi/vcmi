@@ -78,6 +78,9 @@ public:
 	explicit JsonNode(const std::byte * data, size_t datasize, const std::string & fileName);
 	explicit JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);
 
+	explicit JsonNode(const char * data, size_t datasize, const std::string & fileName);
+	explicit JsonNode(const char * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);
+
 	/// Create tree from JSON file
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
@@ -98,6 +101,7 @@ public:
 	JsonType getType() const;
 
 	bool isNull() const;
+	bool isBool() const;
 	bool isNumber() const;
 	bool isString() const;
 	bool isVector() const;
@@ -108,9 +112,6 @@ public:
 	bool isCompact() const;
 	/// removes all data from node and sets type to null
 	void clear();
-
-	/// returns bool or bool equivalent of string value if 'success' is true, or false otherwise
-	bool TryBoolFromString(bool & success) const;
 
 	/// non-const accessors, node will change type on type mismatch
 	bool & Bool();

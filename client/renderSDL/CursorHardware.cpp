@@ -12,8 +12,9 @@
 #include "CursorHardware.h"
 
 #include "SDL_Extensions.h"
+#include "SDLImageScaler.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 #include "../render/Colors.h"
 #include "../render/IImage.h"
@@ -37,7 +38,7 @@ CursorHardware::~CursorHardware()
 
 void CursorHardware::setVisible(bool on)
 {
-	GH.dispatchMainThread([on]()
+	ENGINE->dispatchMainThread([on]()
 	{
 		if (on)
 			SDL_ShowCursor(SDL_ENABLE);
@@ -48,19 +49,22 @@ void CursorHardware::setVisible(bool on)
 
 void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivotOffset)
 {
-	int videoScalingSettings = GH.screenHandler().getInterfaceScalingPercentage();
+	int videoScalingSettings = ENGINE->screenHandler().getInterfaceScalingPercentage();
 	float cursorScalingSettings = settings["video"]["cursorScalingFactor"].Float();
 	int cursorScalingPercent = videoScalingSettings * cursorScalingSettings;
-	Point cursorDimensions = image->dimensions() * GH.screenHandler().getScalingFactor();
+	Point cursorDimensions = image->dimensions() * ENGINE->screenHandler().getScalingFactor();
 	Point cursorDimensionsScaled = image->dimensions() * cursorScalingPercent / 100;
-	Point pivotOffsetScaled = pivotOffset * cursorScalingPercent / 100 / GH.screenHandler().getScalingFactor();
+	Point pivotOffsetScaled = pivotOffset * cursorScalingPercent / 100 / ENGINE->screenHandler().getScalingFactor();
 
 	auto cursorSurface = CSDL_Ext::newSurface(cursorDimensions);
 
 	CSDL_Ext::fillSurface(cursorSurface, CSDL_Ext::toSDL(Colors::TRANSPARENCY));
 
-	image->draw(cursorSurface, Point(0,0));
-	auto cursorSurfaceScaled = CSDL_Ext::scaleSurface(cursorSurface, cursorDimensionsScaled.x, cursorDimensionsScaled.y );
+	image->draw(cursorSurface, Point(0,0), nullptr, ENGINE->screenHandler().getScalingFactor());
+
+	SDLImageScaler scaler(cursorSurface);
+	scaler.scaleSurface(cursorDimensionsScaled, EScalingAlgorithm::BILINEAR);
+	SDL_Surface	* cursorSurfaceScaled = scaler.acquireResultSurface();
 
 	auto oldCursor = cursor;
 	cursor = SDL_CreateColorCursor(cursorSurfaceScaled, pivotOffsetScaled.x, pivotOffsetScaled.y);
@@ -71,7 +75,7 @@ void CursorHardware::setImage(std::shared_ptr<IImage> image, const Point & pivot
 	SDL_FreeSurface(cursorSurface);
 	SDL_FreeSurface(cursorSurfaceScaled);
 
-	GH.dispatchMainThread([this, oldCursor](){
+	ENGINE->dispatchMainThread([this, oldCursor](){
 		SDL_SetCursor(cursor);
 
 		if (oldCursor)
@@ -85,6 +89,11 @@ void CursorHardware::setCursorPosition( const Point & newPos )
 }
 
 void CursorHardware::render()
+{
+	//no-op
+}
+
+void CursorHardware::update()
 {
 	//no-op
 }

@@ -14,13 +14,12 @@
 /// Scenario information screen shown during the game
 class CScenarioInfoScreen : public WindowBase, public ISelectionScreenInfo
 {
+	std::unique_ptr<StartInfo> localSi;
+	std::unique_ptr<CMapInfo> localMi;
 public:
 	std::shared_ptr<CButton> buttonBack;
 	std::shared_ptr<InfoCard> card;
 	std::shared_ptr<OptionsTab> opt;
-
-	const StartInfo * localSi;
-	CMapInfo * localMi;
 
 	CScenarioInfoScreen();
 	~CScenarioInfoScreen();

@@ -31,7 +31,7 @@ public:
 	
 	std::pair<bool, bool> verifyCoverage(const int3 & t) const override;
 	
-	void placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances) override;
+	void placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances) override;
 	
 	void postProcess(const rmg::Object & object) override;
 	

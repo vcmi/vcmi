@@ -2,9 +2,22 @@
 
 ## C++ Standard
 
-VCMI implementation bases on C++17 standard. Any feature is acceptable as long as it's will pass build on our CI, but there is list below on what is already being used.
+VCMI implementation bases on C++20 standard. Any feature is acceptable as long as it's will pass build on our CI. At the time of writing, following compilers are supported, and any C++20 feature available across all these compilers can be used:
 
-Any compiler supporting C++17 should work, but this has not been thoroughly tested. You can find information about extensions and compiler support at <http://en.cppreference.com/w/cpp/compiler_support>
+- GCC 10 or newer
+- Clang 13 or newer
+- Visual Studio 2022 (MSVC 19.44)
+- XCode 16.2 (Apple Clang 16.0.0)
+
+You can find information about compiler support at <https://en.cppreference.com/w/cpp/compiler_support/20.html>.
+
+Additionally, features that require macOS 10.15 or newer are not available: <https://developer.apple.com/xcode/cpp/#c++20>
+
+- (C++17) Filesystem library
+- (C++17) Elementary string conversions std::to_chars, std::from_chars
+- (C++20) Synchronization library (<barrier>, <latch>, <semaphore> and notification functions on std::atomic)
+- (C++20) Add max() to latch and barrier
+- (C++20) memory_resource
 
 ## Style Guidelines
 

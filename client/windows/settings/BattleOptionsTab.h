@@ -35,6 +35,7 @@ private:
 	void showQuickSpellChangedCallback(bool value, BattleInterface * parentBattleInterface);
 	void enableAutocombatSpellsChangedCallback(bool value);
 	void endWithAutocombatChangedCallback(bool value);
+	void showHealthBarCallback(bool value, BattleInterface * parentBattleInterface);
 public:
 	BattleOptionsTab(BattleInterface * owner = nullptr);
 };

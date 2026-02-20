@@ -25,21 +25,18 @@ namespace GameConstants
 	constexpr int CREATURES_PER_TOWN = 8; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
-	constexpr int DEFAULT_SCHOOLS = 4;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
 	constexpr int SPELLBOOK_GOLD_COST = 500;
-	constexpr int SKILL_GOLD_COST = 2000;
 	constexpr int BATTLE_SHOOTING_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	constexpr int BATTLE_SHOOTING_RANGE_DISTANCE = std::numeric_limits<uint8_t>::max(); // used when shooting stack has no shooting range limit
 	constexpr int ARMY_SIZE = 7;
-	constexpr int SKILL_PER_HERO = 8;
 	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
 	constexpr int SKILL_QUANTITY=28;
 	constexpr int PRIMARY_SKILLS=4;
-	constexpr int RESOURCE_QUANTITY=8;
+	constexpr int RESOURCE_QUANTITY=7;
 	constexpr int HEROES_PER_TYPE=8; //amount of heroes of each type
 
 	// amounts of OH3 objects. Can be changed by mods, should be used only during H3 loading phase
@@ -49,12 +46,13 @@ namespace GameConstants
 	constexpr int SPELLS_QUANTITY=70;
 	constexpr int CREATURES_COUNT = 197;
 
-	constexpr ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 	constexpr int64_t PLAYER_RESOURCES_CAP = 1000 * 1000 * 1000;
 	constexpr int ALTAR_ARTIFACTS_SLOTS = 22;
 	constexpr int TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD = 144*144*2; //map tiles count threshold for 2 dimension door casts with tournament rules
 	constexpr int KINGDOM_WINDOW_HEROES_SLOTS = 4;
 	constexpr int INFO_WINDOW_ARTIFACTS_MAX_ITEMS = 14;
+
+	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }
 
 VCMI_LIB_NAMESPACE_END

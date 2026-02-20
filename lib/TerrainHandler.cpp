@@ -15,7 +15,7 @@
 #include "modding/IdentifierStorage.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -45,7 +45,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
@@ -71,14 +71,21 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 		const auto & s = node.String();
 		if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
 		if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
-		if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
-		if (s == "SUB") info->passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
+		if (s == "SURFACE") info->allowedLayers.push_back(MapLayerId::SURFACE);
+		if (s == "SUB") info->allowedLayers.push_back(MapLayerId::UNDERGROUND);
+	}
+	for(const auto& node : json["allowedLayers"].Vector())
+	{
+		LIBRARY->identifiers()->requestIdentifier("mapLayer", node, [info](int32_t identifier)
+		{
+			info->allowedLayers.push_back(MapLayerId(identifier));
+		});
 	}
 
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		VLC->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
+		LIBRARY->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -98,7 +105,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
+		LIBRARY->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -106,7 +113,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		VLC->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
+		LIBRARY->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -116,7 +123,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	if(!json["rockTerrain"].isNull())
 	{
-		VLC->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		LIBRARY->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});
@@ -133,7 +140,7 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 
 	objects.resize(dataSize);
 
@@ -149,36 +156,6 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
 	while (terrainParser.endLine());
 
 	return result;
-}
-
-bool TerrainType::isLand() const
-{
-	return !isWater();
-}
-
-bool TerrainType::isWater() const
-{
-	return passabilityType & PassabilityType::WATER;
-}
-
-bool TerrainType::isRock() const
-{
-	return passabilityType & PassabilityType::ROCK;
-}
-
-bool TerrainType::isPassable() const
-{
-	return !isRock();
-}
-
-bool TerrainType::isSurface() const
-{
-	return passabilityType & PassabilityType::SURFACE;
-}
-
-bool TerrainType::isUnderground() const
-{
-	return passabilityType & PassabilityType::SUBTERRANEAN;
 }
 
 bool TerrainType::isTransitionRequired() const
@@ -203,7 +180,7 @@ std::string TerrainType::getNameTextID() const
 
 std::string TerrainType::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 VCMI_LIB_NAMESPACE_END

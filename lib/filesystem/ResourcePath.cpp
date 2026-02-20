@@ -93,6 +93,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 	static const std::map<std::string, EResType> stringToRes =
 	{
 		{".TXT",   EResType::TEXT},
+		{".MD",   EResType::TEXT},
 		{".JSON",  EResType::JSON},
 		{".DEF",   EResType::ANIMATION},
 		{".MSK",   EResType::MASK},
@@ -122,6 +123,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".PAC",   EResType::ARCHIVE_LOD},
 		{".VID",   EResType::ARCHIVE_VID},
 		{".SND",   EResType::ARCHIVE_SND},
+		{".PAK",   EResType::ARCHIVE_PAK},
 		{".PAL",   EResType::PALETTE},
 		{".VSGM1", EResType::SAVEGAME},
 		{".ERM",   EResType::ERM},
@@ -130,7 +132,8 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".VMAP",  EResType::MAP},
 		{".VCMP",  EResType::CAMPAIGN},
 		{".VERM",  EResType::ERM},
-		{".LUA",   EResType::LUA}
+		{".LUA",   EResType::LUA},
+		{".ONNX",  EResType::AI_MODEL}
 	};
 
 	auto iter = stringToRes.find(extension);

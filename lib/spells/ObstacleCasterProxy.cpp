@@ -58,6 +58,14 @@ int64_t ObstacleCasterProxy::getEffectValue(const Spell * spell) const
 		return obs.minimalDamage;
 }
 
+int64_t ObstacleCasterProxy::getEffectRange(const Spell * spell) const
+{
+	if(actualCaster)
+		actualCaster->getEffectRange(spell);
+
+	return 0;
+}
+
 int32_t SilentCaster::manaLimit() const
 {
 	return 0;
@@ -75,7 +83,7 @@ void SilentCaster::getCasterName(MetaString & text) const
 	logGlobal->debug("Unexpected call to SilentCaster::getCasterName");
 }
 
-void SilentCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const
+void SilentCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 		//do nothing
 }

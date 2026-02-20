@@ -14,6 +14,8 @@
 #include "../mapeditorroles.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) : 
 	controller(c),
@@ -37,17 +39,21 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		bool isAffected = playerList.contains(toQString(PlayerColor(i)));
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[i]));
+		MetaString str;
+		str.appendName(PlayerColor(i));
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setCheckState(isAffected ? Qt::Checked : Qt::Unchecked);
 		ui->playersAffected->addItem(item);
 	}
 
-	ui->resources->setRowCount(GameConstants::RESOURCE_QUANTITY);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	ui->resources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto name = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
-		int val = params.value("resources").toMap().value(name).toInt();
+		MetaString str;
+		str.appendName(GameResID(i));
+		auto name = QString::fromStdString(str.toString());
+		int val = params.value("resources").toMap().value(QString::fromStdString(i.toResource()->getJsonKey())).toInt();
 		ui->resources->setItem(i, 0, new QTableWidgetItem(name));
 		auto nval = new QTableWidgetItem(QString::number(val));
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
@@ -59,7 +65,7 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		auto id = ObjectInstanceID(idAsVariant.toInt());
 		auto obj = controller.map()->objects[id];
 		if(obj)
-			insertObjectToDelete(obj);
+			insertObjectToDelete(obj.get());
 	}
 	show();
 }
@@ -90,11 +96,11 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	descriptor["players"] = QVariant::fromValue(players);
 
 	auto res = target->data(Qt::UserRole).toMap().value("resources").toMap();
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto * itemType = ui->resources->item(i, 0);
+		auto itemType = QString::fromStdString(i.toResource()->getJsonKey());
 		auto * itemQty = ui->resources->item(i, 1);
-		res[itemType->text()] = QVariant::fromValue(itemQty->text().toInt());
+		res[itemType] = QVariant::fromValue(itemQty->text().toInt());
 	}
 	descriptor["resources"] = res;
 
@@ -114,15 +120,15 @@ void TimedEvent::on_TimedEvent_finished(int result)
 
 void TimedEvent::on_addObjectToDelete_clicked()
 {
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.highlight<const CGObjectInstance>();
 		l.update();
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);
 	}
 	hide();
-	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->hide();
+	controller.settingsDialog->hide();
 }
 
 void TimedEvent::on_removeObjectToDelete_clicked()
@@ -133,11 +139,11 @@ void TimedEvent::on_removeObjectToDelete_clicked()
 void TimedEvent::onObjectPicked(const CGObjectInstance * obj)
 {
 	show();
-	dynamic_cast<QWidget *>(parent()->parent()->parent()->parent()->parent()->parent()->parent())->show();
+	controller.settingsDialog->show();
 
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &TimedEvent::onObjectPicked);

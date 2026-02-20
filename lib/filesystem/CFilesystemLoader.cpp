@@ -13,6 +13,7 @@
 #include "CFileInputStream.h"
 
 #include "../ExceptionsCommon.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,7 +34,9 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resourceName) const
 {
-	assert(fileList.count(resourceName));
+	std::lock_guard lock(fileListGuard);
+
+	assert(fileList.contains(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
 	logGlobal->trace("loading %s", file.string());
 	return std::make_unique<CFileInputStream>(file);
@@ -41,7 +44,8 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resou
 
 bool CFilesystemLoader::existsResource(const ResourcePath & resourceName) const
 {
-	return fileList.count(resourceName);
+	std::lock_guard lock(fileListGuard);
+	return fileList.contains(resourceName);
 }
 
 std::string CFilesystemLoader::getMountPoint() const
@@ -53,13 +57,15 @@ std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const 
 {
 	assert(existsResource(resourceName));
 
+	std::lock_guard lock(fileListGuard);
 	return baseDirectory / fileList.at(resourceName);
 }
 
-void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
+void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter)
 {
 	if (filter(mountPoint))
 	{
+		std::lock_guard lock(fileListGuard);
 		fileList = listFiles(mountPoint, recursiveDepth, false);
 	}
 }
@@ -67,6 +73,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
 	std::unordered_set<ResourcePath> foundID;
+	std::lock_guard lock(fileListGuard);
 
 	for (auto & file : fileList)
 	{
@@ -80,6 +87,7 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 {
 	std::string filename = requestedFilename;
 	ResourcePath resID(filename);
+	std::lock_guard lock(fileListGuard);
 
 	if (fileList.find(resID) != fileList.end())
 		return true;
@@ -91,20 +99,21 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	}
 
 	filename = filename.substr(mountPoint.size());
+	boost::filesystem::path filePath = TextOperations::Utf8TofilesystemPath(filename);
 
 	if (!update)
 	{
 		// create folders if not exists
-		boost::filesystem::path p((baseDirectory / filename).c_str());
+		boost::filesystem::path p((baseDirectory / filePath).c_str());
 		boost::filesystem::create_directories(p.parent_path());
 
 		// create file, if not exists
-		std::ofstream file((baseDirectory / filename).c_str(), std::ofstream::binary);
+		std::ofstream file((baseDirectory / filePath).c_str(), std::ofstream::binary);
 
 		if (!file.is_open())
 			return false;
 	}
-	fileList[resID] = filename;
+	fileList[resID] = filePath;
 	return true;
 }
 
@@ -119,6 +128,9 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 		EResType::ARCHIVE_ZIP };
 	static const std::set<EResType> initialTypes(initArray, initArray + std::size(initArray));
 	std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
+
+	if(!boost::filesystem::exists(baseDirectory))
+		return fileList;
 
 	if(!boost::filesystem::is_directory(baseDirectory))
 		return fileList;
@@ -173,25 +185,40 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 				filename = it->path().filename();
 
 			std::string resName;
+			std::string filenameUtf8 = TextOperations::filesystemPathToUtf8(filename);
+
 			if (boost::filesystem::path::preferred_separator != '/')
 			{
 				// resource names are using UNIX slashes (/)
 				resName.reserve(resName.size() + filename.native().size());
 				resName = mountPoint;
-				for (const char c : filename.string())
+				for (const char c : filenameUtf8)
 					if (c != boost::filesystem::path::preferred_separator)
 						resName.push_back(c);
 					else
 						resName.push_back('/');
 			}
 			else
-				resName = mountPoint + filename.string();
+				resName = mountPoint + filenameUtf8;
 
 			fileList[ResourcePath(resName, type)] = std::move(filename);
 		}
 	}
 
 	return fileList;
+}
+
+std::string CFilesystemLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	auto filePath = getResourceName(resourceName);
+	auto path = boost::filesystem::canonical(*filePath);
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::time_t CFilesystemLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	auto resourcePath = getResourceName(resourceName);
+	return  boost::filesystem::last_write_time(*resourcePath);
 }
 
 VCMI_LIB_NAMESPACE_END

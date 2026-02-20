@@ -21,6 +21,7 @@ class CLabel;
 class CPicture;
 class IImage;
 class CAnimation;
+class CToggleButton;
 
 enum ESortBy
 {
@@ -74,6 +75,8 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
 	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
+
+	JsonNode campaignSets;
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -124,6 +127,9 @@ private:
 
 	std::shared_ptr<CButton> buttonDeleteMode;
 	bool deleteMode;
+
+	bool enableUiEnhancements;
+	std::shared_ptr<CButton> buttonCampaignSet;
 
 	auto checkSubfolder(std::string path);
 

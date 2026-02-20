@@ -18,6 +18,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleSpellCast;
 
+namespace battle
+{
+	using Units = boost::container::small_vector<const Unit *, 4>;
+}
+
 namespace spells
 {
 
@@ -27,6 +32,8 @@ public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);
 	virtual ~BattleSpellMechanics();
 
+	void forEachEffect(const std::function<bool(const spells::effects::Effect &)> & fn) const override final;
+
 	// TODO: ??? (what's the difference compared to cast?)
 	void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const override;
 
@@ -34,6 +41,7 @@ public:
 	bool canBeCast(Problem & problem) const override;
 
 	/// Returns false if spell can not be cast at specified target
+	bool canBeCastAt(const Target & target) const override;
 	bool canBeCastAt(const Target & target, Problem & problem) const override;
 
 	// TODO: ??? (what's the difference compared to applyEffects?)
@@ -54,9 +62,15 @@ public:
 
 	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;
+	bool isSmart() const override;
+
+	/// Returns true if unit would resist the spell due to magic resistance
+	bool wouldResist(const battle::Unit * unit) const override;
 
 	/// Returns list of hexes that are affected by spell assuming cast at centralHex
-	std::vector<BattleHex> rangeInHexes(BattleHex centralHex) const override;
+	BattleHexArray rangeInHexes(const BattleHex & centralHex) const override;
+
+	Target canonicalizeTarget(const Target & aim) const override;
 
 	const Spell * getSpell() const override;
 
@@ -66,18 +80,24 @@ private:
 	std::shared_ptr<effects::Effects> effects;
 	std::shared_ptr<IReceptiveCheck> targetCondition;
 
-	std::vector<const battle::Unit *> affectedUnits;
+	battle::Units affectedUnits;
+	std::set<uint32_t> resistantUnitIds; // ids of units that would resist the spell (used in chain lightning computation)
 	effects::Effects::EffectsToApply effectsToApply;
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
+	bool isReflected(const battle::Unit * unit, vstd::RNG & rng);
+	void reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit);
+	const battle::Unit * getRandomUnit(vstd::RNG & rng, const BattleSide & side);
 
 	std::set<const battle::Unit *> collectTargets() const;
 
-	void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
+	void doRemoveEffects(ServerCallback * server, const battle::Units & targets, const CSelector & selector);
 
-	std::set<BattleHex> spellRangeInHexes(BattleHex centralHex) const;
+	BattleHexArray spellRangeInHexes(const BattleHex & centralHex) const;
 
 	Target transformSpellTarget(const Target & aimPoint) const;
+
+	bool canCastAtTarget(const battle::Unit * target) const;
 };
 
 }

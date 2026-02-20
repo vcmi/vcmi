@@ -12,6 +12,7 @@
 #include "ui_csettingsview_moc.h"
 
 #include "mainwindow_moc.h"
+#include "configeditordialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
 #include "../helper.h"
@@ -30,6 +31,30 @@
 static QString resolutionToString(const QSize & resolution)
 {
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
+}
+
+static void enableMod(const QString & name)
+{
+	auto * mainWindow = Helper::getMainWindow();
+
+	assert(mainWindow);
+	if (!mainWindow)
+		return;
+
+	auto * view = mainWindow->getModView();
+
+	if (view->isModEnabled(name))
+		return;
+
+	if (view->isModAvailable(name))
+	{
+		mainWindow->switchToModsTab();
+		view->doInstallMod(name);
+	}
+	else
+	{
+		view->enableModByName(name);
+	}
 }
 
 static constexpr std::array cursorTypesList =
@@ -53,14 +78,6 @@ static constexpr std::array downscalingFilterTypes =
 	"linear",
 	"best"
 };
-
-MainWindow * CSettingsView::getMainWindow()
-{
-	foreach(QWidget *w, qApp->allWidgets())
-		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
-			return dynamic_cast<MainWindow *>(mainWin);
-	return nullptr;
-}
 
 void CSettingsView::setDisplayList()
 {
@@ -98,6 +115,68 @@ void CSettingsView::updateCheckbuttonText(QToolButton * button)
 		button->setText(tr("Off"));
 }
 
+void CSettingsView::fillValidCombatAILibraries(QComboBox * comboBox, QString activeAI)
+{
+	comboBox->blockSignals(true);
+	comboBox->clear();
+
+#ifdef ENABLE_STUPID_AI
+	comboBox->addItem(tr("StupidAI (deprecated)"), "StupidAI");
+#endif
+
+#ifdef ENABLE_BATTLE_AI
+	comboBox->addItem(tr("BattleAI (default, recommended)"), "BattleAI");
+#endif
+
+#ifdef ENABLE_MMAI
+	comboBox->addItem(tr("MMAI (experimental)"), "MMAI");
+#endif
+
+	fillValidAnyAILibraries(comboBox, activeAI);
+	comboBox->blockSignals(false);
+}
+
+void CSettingsView::fillValidAdventureAILibraries(QComboBox * comboBox, QString activeAI)
+{
+	comboBox->blockSignals(true);
+	comboBox->clear();
+
+#ifdef ENABLE_NULLKILLER_AI
+	comboBox->addItem(tr("Nullkiller (superseded by Nullkiller2)"), "Nullkiller");
+#endif
+
+#ifdef ENABLE_NULLKILLER2_AI
+	comboBox->addItem(tr("Nullkiller2 (default, recommended)"), "Nullkiller2");
+#endif
+
+	fillValidAnyAILibraries(comboBox, activeAI);
+	comboBox->blockSignals(false);
+}
+
+void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString activeAI)
+{
+	if (comboBox->count() == 0)
+		comboBox->addItem(tr("EmptyAI - No valid AI libraries found!"), "EmptyAI");
+
+	int indexToSelect = comboBox->findData(activeAI);
+
+	if (indexToSelect == -1)
+		comboBox->setCurrentIndex(0);
+	else
+		comboBox->setCurrentIndex(indexToSelect);
+}
+
+void CSettingsView::fillValidAILibraries()
+{
+	const auto & aiSettings = settings["ai"];
+
+	fillValidAdventureAILibraries(ui->comboBoxAlliedPlayerAI,QString::fromStdString(aiSettings["adventureAlliedAI"].String()));
+	fillValidAdventureAILibraries(ui->comboBoxEnemyPlayerAI, QString::fromStdString(aiSettings["adventureEnemyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(aiSettings["combatEnemyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(aiSettings["combatAlliedAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(aiSettings["combatNeutralAI"].String()));
+}
+
 void CSettingsView::loadSettings()
 {
 #ifdef VCMI_MOBILE
@@ -125,7 +204,22 @@ void CSettingsView::loadSettings()
 	else
 		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 #endif
+#ifndef VCMI_ANDROID
+	ui->buttonHandleBackRightMouseButton->hide();
+	ui->labelHandleBackRightMouseButton->hide();
+#endif
+#ifndef VCMI_IOS
+	ui->labelIgnoreMuteSwitch->hide();
+	ui->buttonIgnoreMuteSwitch->hide();
+#endif
+
+#ifndef ENABLE_DISCORD
+	ui->labelDiscordRichPresence->hide();
+	ui->buttonEnableDiscordRichPresence->hide();
+#endif
+
 	fillValidScalingRange();
+	fillValidAILibraries();
 
 	ui->buttonScalingAuto->setChecked(settings["video"]["resolution"]["scaling"].Integer() == 0);
 	if (settings["video"]["resolution"]["scaling"].Integer() == 0)
@@ -136,13 +230,6 @@ void CSettingsView::loadSettings()
 	ui->spinBoxFramerateLimit->setValue(settings["video"]["targetfps"].Float());
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
-
-	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
-	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
-	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
-
-	ui->comboBoxEnemyPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
-	ui->comboBoxAlliedPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["alliedAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
@@ -173,6 +260,7 @@ void CSettingsView::loadSettings()
 	ui->sliderRelativeCursorSpeed->setValue(settings["general"]["relativePointerSpeedMultiplier"].Integer());
 	ui->sliderLongTouchDuration->setValue(settings["general"]["longTouchTimeMilliseconds"].Integer());
 	ui->slideToleranceDistanceMouse->setValue(settings["input"]["mouseToleranceDistance"].Integer());
+	ui->buttonHandleBackRightMouseButton->setChecked(settings["input"]["handleBackRightMouseButton"].Bool());
 	ui->sliderToleranceDistanceTouch->setValue(settings["input"]["touchToleranceDistance"].Integer());
 	ui->sliderToleranceDistanceController->setValue(settings["input"]["shortcutToleranceDistance"].Integer());
 	ui->sliderControllerSticksSensitivity->setValue(settings["input"]["controllerAxisSpeed"].Integer());
@@ -201,6 +289,7 @@ void CSettingsView::loadSettings()
 void CSettingsView::loadToggleButtonSettings()
 {
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
+	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -213,6 +302,14 @@ void CSettingsView::loadToggleButtonSettings()
 
 	setCheckbuttonState(ui->buttonRelativeCursorMode, settings["general"]["userRelativePointer"].Bool());
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
+
+	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
+
+	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
+
+	setCheckbuttonState(ui->buttonEnableDiscordRichPresence, settings["general"]["enableDiscordRichPresence"].Bool());
+
+	setCheckbuttonState(ui->buttonSaveBeforeVisit, settings["general"]["saveBeforeVisit"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -329,9 +426,16 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
+	int resX = settings["video"]["resolution"]["width"].Integer();
+	int resY = settings["video"]["resolution"]["height"].Integer();
+	QSize currentRes(resX, resY);
+
 	if (!fullscreen || realFullscreen)
 	{
 		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+
+		if(!resolutions.contains(currentRes))
+			resolutions.append(currentRes);
 
 		for(const auto & entry : resolutions)
 			ui->comboBoxResolution->addItem(resolutionToString(entry));
@@ -342,8 +446,6 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	}
 	ui->comboBoxResolution->setEnabled(ui->comboBoxResolution->count() > 1);
 
-	int resX = settings["video"]["resolution"]["width"].Integer();
-	int resY = settings["video"]["resolution"]["height"].Integer();
 	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 
@@ -434,22 +536,48 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 	fillValidResolutionsForScreen(index);
 }
 
-void CSettingsView::on_comboBoxFriendlyAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 {
-	Settings node = settings.write["server"]["friendlyAI"];
-	node->String() = arg1.toUtf8().data();
+	QString aiName = ui->comboBoxFriendlyAI->itemData(index).toString();
+	Settings node = settings.write["ai"]["combatAlliedAI"];
+	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
 }
 
-void CSettingsView::on_comboBoxNeutralAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 {
-	Settings node = settings.write["server"]["neutralAI"];
-	node->String() = arg1.toUtf8().data();
+	QString aiName = ui->comboBoxNeutralAI->itemData(index).toString();
+	Settings node = settings.write["ai"]["combatNeutralAI"];
+	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
 }
 
-void CSettingsView::on_comboBoxEnemyAI_currentTextChanged(const QString & arg1)
+void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 {
-	Settings node = settings.write["server"]["enemyAI"];
-	node->String() = arg1.toUtf8().data();
+	QString aiName = ui->comboBoxEnemyAI->itemData(index).toString();
+	Settings node = settings.write["ai"]["combatEnemyAI"];
+	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
+}
+
+void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
+{
+	QString aiName = ui->comboBoxEnemyPlayerAI->itemData(index).toString();
+	Settings node = settings.write["ai"]["adventureEnemyAI"];
+	node->String() = aiName.toUtf8().data();
+}
+
+void CSettingsView::on_comboBoxAlliedPlayerAI_currentIndexChanged(int index)
+{
+	QString aiName = ui->comboBoxAlliedPlayerAI->itemData(index).toString();
+	Settings node = settings.write["ai"]["adventureAlliedAI"];
+	node->String() = aiName.toUtf8().data();
 }
 
 void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
@@ -458,11 +586,25 @@ void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 	node->Float() = arg1;
 }
 
+void CSettingsView::on_buttonSaveBeforeVisit_toggled(bool value)
+{
+	Settings node = settings.write["general"]["saveBeforeVisit"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonSaveBeforeVisit);
+}
+
 void CSettingsView::on_buttonShowIntro_toggled(bool value)
 {
 	Settings node = settings.write["video"]["showIntro"];
 	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonShowIntro);
+}
+
+void CSettingsView::on_buttonAllowPortrait_toggled(bool value)
+{
+	Settings node = settings.write["video"]["allowPortrait"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonAllowPortrait);
 }
 
 void CSettingsView::on_buttonAutoSave_toggled(bool value)
@@ -478,7 +620,7 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 
-	getMainWindow()->updateTranslation();
+	Helper::getMainWindow()->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)
@@ -512,7 +654,7 @@ void CSettingsView::loadTranslation()
 {
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	if (!mainWindow)
 		return;
@@ -545,7 +687,7 @@ void CSettingsView::loadTranslation()
 
 void CSettingsView::on_pushButtonTranslation_clicked()
 {
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -554,19 +696,7 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	QString languageName = QString::fromStdString(settings["general"]["language"].String());
 	QString modName = mainWindow->getModView()->getTranslationModName(languageName);
 
-	assert(!modName.isEmpty());
-	if (modName.isEmpty())
-		return;
-
-	if (mainWindow->getModView()->isModAvailable(modName))
-	{
-		mainWindow->switchToModsTab();
-		mainWindow->getModView()->doInstallMod(modName);
-	}
-	else
-	{
-		mainWindow->getModView()->enableModByName(modName);
-	}
+	enableMod(modName);
 }
 
 void CSettingsView::on_pushButtonResetTutorialTouchscreen_clicked()
@@ -609,13 +739,18 @@ void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
 {
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
 		return;
 
 	mainWindow->getModView()->loadRepositories();
+}
+
+void CSettingsView::on_buttonConfigEditor_clicked()
+{
+	ConfigEditorDialog::showConfigEditorDialog();
 }
 
 void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
@@ -629,18 +764,6 @@ void CSettingsView::on_buttonVSync_toggled(bool value)
 	Settings node = settings.write["video"]["vsync"];
 	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-}
-
-void CSettingsView::on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1)
-{
-	Settings node = settings.write["server"]["playerAI"];
-	node->String() = arg1.toUtf8().data();
-}
-
-void CSettingsView::on_comboBoxAlliedPlayerAI_currentTextChanged(const QString &arg1)
-{
-	Settings node = settings.write["server"]["alliedAI"];
-	node->String() = arg1.toUtf8().data();
 }
 
 void CSettingsView::on_buttonAutoSavePrefix_toggled(bool value)
@@ -842,3 +965,23 @@ void CSettingsView::on_buttonScalingAuto_toggled(bool checked)
 	node->Integer() = checked ? 0 : 100;
 }
 
+void CSettingsView::on_buttonHandleBackRightMouseButton_toggled(bool checked)
+{
+	Settings node = settings.write["input"]["handleBackRightMouseButton"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonHandleBackRightMouseButton);
+}
+
+void CSettingsView::on_buttonIgnoreMuteSwitch_toggled(bool checked)
+{
+	Settings node = settings.write["general"]["ignoreMuteSwitch"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonIgnoreMuteSwitch);
+}
+
+void CSettingsView::on_buttonEnableDiscordRichPresence_toggled(bool checked)
+{
+	Settings node = settings.write["general"]["enableDiscordRichPresence"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonEnableDiscordRichPresence);
+}

@@ -61,8 +61,11 @@ class CModListView : public QWidget
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
+	QString getRepoUrl(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
+
+	auto buttonEnabledState(QString modName, ModState & mod);
 
 public:
 	explicit CModListView(QWidget * parent = nullptr);
@@ -71,7 +74,7 @@ public:
 	void loadScreenshots();
 	void loadRepositories();
 
-	void reload();
+	void reload(const QString& modToSelect = QString());
 
 	void disableModInfo();
 
@@ -82,8 +85,14 @@ public:
 	/// install mod by name
 	void doInstallMod(const QString & modName);
 
+	/// uninstall mod by name
+	void doUninstallMod(const QString & modName, bool silent = false);
+
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
+
+	/// open mod dictionary by name
+	void openModDictionary(const QString & modName);
 
 	/// returns true if mod is available in repository and can be installed
 	bool isModAvailable(const QString & modName);
@@ -93,6 +102,9 @@ public:
 
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
+
+	/// finds imported HD
+	bool isInstalledHd();
 
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();
@@ -123,6 +135,7 @@ public slots:
 	void disableModByName(QString modName);
 
 private slots:
+	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
@@ -138,7 +151,7 @@ private slots:
 	void on_updateButton_clicked();
 	void on_uninstallButton_clicked();
 	void on_installButton_clicked();
-	void on_pushButton_clicked();
+	void on_abortButton_clicked();
 	void on_refreshButton_clicked();
 	void on_allModsView_activated(const QModelIndex & index);
 	void on_tabWidget_currentChanged(int index);

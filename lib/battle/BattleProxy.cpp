@@ -90,6 +90,11 @@ BattleSide BattleProxy::getTacticsSide() const
 	return subject->battleGetTacticsSide();
 }
 
+int32_t BattleProxy::getRound() const
+{
+	return subject->battleGetRound();
+}
+
 const CGTownInstance * BattleProxy::getDefendedTown() const
 {
 	return subject->battleGetDefendedTown();
@@ -105,7 +110,7 @@ EGateState BattleProxy::getGateState() const
 	return subject->battleGetGateState();
 }
 
-uint32_t BattleProxy::getCastSpells(BattleSide side) const
+int32_t BattleProxy::getCastSpells(BattleSide side) const
 {
 	return subject->battleCastSpells(side);
 }

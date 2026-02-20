@@ -16,7 +16,7 @@
 #include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"
@@ -25,6 +25,7 @@
 #include "modificators/ConnectionsPlacer.h"
 #include "modificators/TownPlacer.h"
 #include "modificators/MinePlacer.h"
+#include "modificators/ObjectPlacer.h"
 #include "modificators/ObjectDistributor.h"
 #include "modificators/WaterAdopter.h"
 #include "modificators/WaterProxy.h"
@@ -39,7 +40,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb) :
+RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>(cb);
@@ -92,7 +93,7 @@ void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
 	
 	//init native town count with 0
-	for (auto faction : VLC->townh->getAllowedFactions())
+	for (auto faction : LIBRARY->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
 	getEditManager()->clearTerrain(&rand);
@@ -165,6 +166,7 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<TownPlacer>();
 			zone->addModificator<MinePlacer>();
+			zone->addModificator<ObjectPlacer>();
 			zone->addModificator<QuestArtifactPlacer>();
 			zone->addModificator<ConnectionsPlacer>();
 			zone->addModificator<RoadPlacer>();
@@ -245,7 +247,7 @@ RmgMap::Zones RmgMap::getZonesOnLevel(int level) const
 	Zones zonesOnLevel;
 	for(const auto& zonePair : zones)
 	{
-		if(zonePair.second->isUnderground() == (bool)level)
+		if(zonePair.second->getPos().z == level)
 		{
 			zonesOnLevel.insert(zonePair);
 		}

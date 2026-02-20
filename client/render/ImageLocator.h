@@ -14,35 +14,48 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
-struct ImageLocator
+struct SharedImageLocator
 {
+	enum class ShadowMode
+	{
+		SHADOW_NONE,
+		SHADOW_NORMAL,
+		SHADOW_SHEAR
+	};
+	enum class OverlayMode
+	{
+		OVERLAY_NONE,
+		OVERLAY_OUTLINE,
+		OVERLAY_FLAG
+	};
+
 	std::optional<ImagePath> image;
 	std::optional<AnimationPath> defFile;
 	int defFrame = -1;
 	int defGroup = -1;
+	EImageBlitMode layer = EImageBlitMode::OPAQUE;
 
-	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE; // FIXME: treat as identical to blue to avoid double-loading?
+	std::optional<ShadowMode> generateShadow;
+	std::optional<OverlayMode> generateOverlay;
+
+	SharedImageLocator() = default;
+	SharedImageLocator(const AnimationPath & path, int frame, int group, EImageBlitMode layer);
+	SharedImageLocator(const JsonNode & config, EImageBlitMode layer);
+	SharedImageLocator(const ImagePath & path, EImageBlitMode layer);
+
+	bool operator < (const SharedImageLocator & other) const;
+};
+
+struct ImageLocator : SharedImageLocator
+{
+	PlayerColor playerColored = PlayerColor::CANNOT_DETERMINE;
 
 	bool verticalFlip = false;
 	bool horizontalFlip = false;
 	int8_t scalingFactor = 0; // 0 = auto / use default scaling
-	int8_t preScaledFactor = 1;
-	EImageBlitMode layer = EImageBlitMode::OPAQUE;
 
-	ImageLocator() = default;
-	ImageLocator(const AnimationPath & path, int frame, int group);
-	explicit ImageLocator(const JsonNode & config);
-	explicit ImageLocator(const ImagePath & path);
+	using SharedImageLocator::SharedImageLocator;
+	 ImageLocator(const JsonNode & config, EImageBlitMode layer);
 
-	bool operator < (const ImageLocator & other) const;
 	bool empty() const;
-
-	ImageLocator copyFile() const;
-	ImageLocator copyFileTransform() const;
-	ImageLocator copyFileTransformScale() const;
-
-	// generates string representation of this image locator
-	// guaranteed to be a valid file path with no extension
-	// but may contain '/' if source file is in directory
-	std::string toString() const;
 };

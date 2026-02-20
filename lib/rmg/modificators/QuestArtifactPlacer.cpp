@@ -14,7 +14,8 @@
 #include "../RmgMap.h"
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
+#include "../../entities/artifact/CArtHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h"
@@ -40,33 +41,44 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 	questArtZones.push_back(otherZone);
 }
 
-void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id)
+void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id, ui32 desiredValue)
 {
-	logGlobal->trace("Need to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Need to place quest artifact %s (desired value %u)",
+		LIBRARY->artifacts()->getById(id)->getNameTranslated(),
+		desiredValue);
 	RecursiveLock lock(externalAccessMutex);
-	questArtifactsToPlace.emplace_back(id);
+	questArtifactsToPlace.push_back({id, desiredValue});
 }
 
 void QuestArtifactPlacer::removeQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->trace("Will not try to place quest artifact %s", VLC->artifacts()->getById(id)->getNameTranslated());
+	logGlobal->trace("Will not try to place quest artifact %s", LIBRARY->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
-	vstd::erase_if_present(questArtifactsToPlace, id);
+	vstd::erase_if(questArtifactsToPlace, [&id](const QuestArtifactRequest& request)
+	{
+		return request.id == id;
+	});
 }
 
-void QuestArtifactPlacer::rememberPotentialArtifactToReplace(CGObjectInstance* obj)
+void QuestArtifactPlacer::rememberPotentialArtifactToReplace(CGObjectInstance* obj, ui32 value)
 {
 	RecursiveLock lock(externalAccessMutex);
-	artifactsToReplace.push_back(obj);
+	artifactsToReplace.push_back({obj, value});
 }
 
 std::vector<CGObjectInstance*> QuestArtifactPlacer::getPossibleArtifactsToReplace() const
 {
 	RecursiveLock lock(externalAccessMutex);
-	return artifactsToReplace;
+	std::vector<CGObjectInstance*> result;
+	result.reserve(artifactsToReplace.size());
+	for (const auto& candidate : artifactsToReplace)
+	{
+		result.push_back(candidate.object);
+	}
+	return result;
 }
 
-CGObjectInstance * QuestArtifactPlacer::drawObjectToReplace()
+CGObjectInstance * QuestArtifactPlacer::drawObjectToReplace(ui32 desiredValue)
 {
 	RecursiveLock lock(externalAccessMutex);
 
@@ -74,12 +86,30 @@ CGObjectInstance * QuestArtifactPlacer::drawObjectToReplace()
 	{
 		return nullptr;
 	}
-	else
+
+	auto bestIt = artifactsToReplace.end();
+	ui32 bestDiff = std::numeric_limits<ui32>::max();
+	for (auto it = artifactsToReplace.begin(); it != artifactsToReplace.end(); ++it)
 	{
-		auto ret = *RandomGeneratorUtil::nextItem(artifactsToReplace, zone.getRand());
-		vstd::erase_if_present(artifactsToReplace, ret);
-		return ret;
+		const ui32 value = it->value;
+		auto diff = std::abs(static_cast<int>(value) - static_cast<int>(desiredValue));
+		if (diff < bestDiff)
+		{
+			bestDiff = diff;
+			bestIt = it;
+			if (diff == 0)
+				break;
+		}
 	}
+
+	if (bestIt == artifactsToReplace.end())
+	{
+		return nullptr;
+	}
+
+	auto* ret = bestIt->object;
+	artifactsToReplace.erase(bestIt);
+	return ret;
 }
 
 void QuestArtifactPlacer::findZonesForQuestArts()
@@ -99,27 +129,27 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 
 void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 {
-	for (const auto & artifactToPlace : questArtifactsToPlace)
+	for (const auto & questRequest : questArtifactsToPlace)
 	{
 		RandomGeneratorUtil::randomShuffle(questArtZones, rand);
 		for (auto zone : questArtZones)
 		{
 			auto* qap = zone->getModificator<QuestArtifactPlacer>();
 			
-			auto objectToReplace = qap->drawObjectToReplace();
+			auto objectToReplace = qap->drawObjectToReplace(questRequest.desiredValue);
 			if (!objectToReplace)
 				continue;
 
-			logGlobal->trace("Replacing %s at %s with the quest artifact %s",
+			logGlobal->trace("Replacing %s at %s with the quest artifact %s (desired value %u)",
 				objectToReplace->getObjectName(),
 				objectToReplace->anchorPos().toString(),
-				VLC->artifacts()->getById(artifactToPlace)->getNameTranslated());
+				LIBRARY->artifacts()->getById(questRequest.id)->getNameTranslated(),
+				questRequest.desiredValue);
 
 			//Update appearance. Terrain is irrelevant.
-			auto handler = VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, artifactToPlace);
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, questRequest.id);
 			auto newObj = handler->create(map.mapInstance->cb, nullptr);
 			auto templates = handler->getTemplates();
-			//artifactToReplace->appearance = templates.front();
 			newObj->appearance  = templates.front();
 			newObj->setAnchorPos(objectToReplace->anchorPos());
 			mapProxy->insertObject(newObj);
@@ -130,10 +160,13 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 }
 
 // TODO: Unused?
-void QuestArtifactPlacer::dropReplacedArtifact(CGObjectInstance* obj)
+void QuestArtifactPlacer::dropReplacedArtifact(const CGObjectInstance* obj)
 {
 	RecursiveLock lock(externalAccessMutex);
-	boost::remove(artifactsToReplace, obj);
+	vstd::erase_if(artifactsToReplace, [obj](const ReplacementCandidate& candidate)
+	{
+		return candidate.object == obj;
+	});
 }
 
 size_t QuestArtifactPlacer::getMaxQuestArtifactCount() const

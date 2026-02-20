@@ -13,6 +13,8 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {

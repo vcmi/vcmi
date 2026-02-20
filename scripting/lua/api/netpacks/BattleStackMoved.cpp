@@ -47,7 +47,7 @@ int BattleStackMovedProxy::addTileToMove(lua_State * L)
 	lua_Integer hex = 0;
 	if(!S.tryGetInteger(2, hex))
 		return S.retVoid();
-	object->tilesToMove.emplace_back(hex);
+	object->tilesToMove.insert(hex);
 	return S.retVoid();
 }
 

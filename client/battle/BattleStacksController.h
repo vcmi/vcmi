@@ -9,11 +9,12 @@
  */
 #pragma once
 
-#include "../render/ColorFilter.h"
+#include "../../lib/Color.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct BattleHex;
+class BattleHex;
+class BattleHexArray;
 class BattleAction;
 class CStack;
 class CSpell;
@@ -36,9 +37,10 @@ class IImage;
 
 struct BattleStackFilterEffect
 {
-	ColorFilter effect;
 	const CStack * target;
 	const CSpell * source;
+	ColorRGBA effectColor;
+	uint8_t transparency;
 	bool persistent;
 };
 
@@ -109,8 +111,8 @@ public:
 	void stackAdded(const CStack * stack, bool instant); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
-	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
-	void stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack *stack, const BattleHexArray & destHex, int distance); //stack with id number moved to destHex
+	void stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & info); //called when stack with id ID is attacking something on hex dest
 
@@ -133,7 +135,7 @@ public:
 	/// Adds new color filter effect targeting stack
 	/// Effect will last as long as stack is affected by specified spell (unless effect is persistent)
 	/// If effect from same (target, source) already exists, it will be updated
-	void setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell *source, bool persistent);
+	void setStackColorFilter(const ColorRGBA & effect, uint8_t transparency, const CStack * target, const CSpell *source, bool persistent);
 	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 
 	const CStack* getActiveStack() const;
@@ -142,7 +144,7 @@ public:
 	void tick(uint32_t msPassed);
 
 	/// returns position of animation needed to place stack in specific hex
-	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;
+	Point getStackPositionAtHex(const BattleHex & hexNum, const CStack * creature) const;
 
 	friend class BattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };

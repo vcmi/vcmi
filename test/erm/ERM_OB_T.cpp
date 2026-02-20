@@ -13,8 +13,6 @@
 
 #include "../scripting/ScriptFixture.h"
 
-#include "../../lib/mapObjects/CObjectHandler.h"
-
 namespace test
 {
 namespace scripting

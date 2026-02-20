@@ -16,11 +16,11 @@
 #include "../TurnTimerHandler.h"
 
 #include "../../lib/CStack.h"
-#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/bonuses/BonusParameters.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
-#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/spells/BonusCaster.h"
@@ -36,7 +36,7 @@ BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler *
 {
 }
 
-void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();
@@ -44,31 +44,31 @@ void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & batt
 	const bool targetIsAttacker = side == BattleSide::ATTACKER;
 
 	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false), output);
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false));
 	else
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false), output);
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false));
 
 	//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
 	if (targetIsAttacker && ((y % 2 == 0) || (x > 1)))
 	{
 		if (targetIsTwoHex && (y % 2 == 1) && (x == 2)) //handle exceptional case
 		{
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
+			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
 		}
 		else
 		{	//add back-side guardians for two-hex target, side guardians for one-hex
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false), output);
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false), output);
+			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false));
+			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false));
 
 			if (!targetIsTwoHex && x > 2) //back guard for one-hex
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false), output);
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false));
 			else if (targetIsTwoHex)//front-side guardians for two-hex target
 			{
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
 				if (x > 3) //back guard for two-hex
-					BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false), output);
+					output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::LEFT, false));
 			}
 		}
 
@@ -78,36 +78,36 @@ void BattleFlowProcessor::summonGuardiansHelper(const CBattleInfoCallback & batt
 	{
 		if (targetIsTwoHex && (y % 2 == 0) && (x == GameConstants::BFIELD_WIDTH - 3)) //handle exceptional case... equivalent for above for defender side
 		{
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_LEFT, false), output);
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
+			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
+			output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
 		}
 		else
 		{
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false), output);
-			BattleHex::checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false), output);
+			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false));
+			output.checkAndPush(targetPosition.cloneInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false));
 
 			if (!targetIsTwoHex && x < GameConstants::BFIELD_WIDTH - 3)
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false), output);
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false));
 			else if (targetIsTwoHex)
 			{
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false), output);
-				BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
+				output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
 				if (x < GameConstants::BFIELD_WIDTH - 4)
-					BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false), output);
+					output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false));
 			}
 		}
 	}
 
 	else if (!targetIsAttacker && y % 2 == 0)
 	{
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false), output);
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::TOP_LEFT, false));
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::LEFT, false).cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false));
 	}
 
 	else if (targetIsAttacker && y % 2 == 1)
 	{
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
-		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::TOP_RIGHT, false));
+		output.checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false));
 	}
 }
 
@@ -128,7 +128,7 @@ void BattleFlowProcessor::tryPlaceMoats(const CBattleInfoCallback & battle)
 		auto moatCaster = spells::SilentCaster(battle.sideToPlayer(BattleSide::DEFENDER), actualCaster);
 		auto cast = spells::BattleCast(&battle, &moatCaster, spells::Mode::PASSIVE, fortifications.moatSpell.toSpell());
 		auto target = spells::Target();
-		cast.cast(gameHandler->spellEnv, target);
+		cast.cast(gameHandler->spellcastEnvironment(), target);
 	}
 }
 
@@ -150,7 +150,12 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
 	auto accessibility = battle.getAccessibility();
 	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
-	std::vector<BattleHex> targetHexes;
+	if (!creatureData.hasValue())
+	{
+		logGlobal->error("Unable to summon guardians - bonus SUMMON_GUARDIANS has invalid creature ID!");
+		return;
+	}
+	BattleHexArray targetHexes;
 	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
 
@@ -163,13 +168,13 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	else
 		summonGuardiansHelper(battle, targetHexes, stack->getPosition(), stack->unitSide(), targetIsBig);
 
-	for(auto hex : targetHexes)
+	for(const auto & hex : targetHexes)
 	{
 		if(accessibility.accessible(hex, guardianIsBig, stack->unitSide())) //without this multiple creatures can occupy one hex
 		{
 			battle::UnitInfo info;
 			info.id = battle.battleNextUnitId();
-			info.count =  std::max(1, (int)(stack->getCount() * 0.01 * summonInfo->val));
+			info.count =  std::max(1, stack->getCount() * summonInfo->val / 100);
 			info.type = creatureData;
 			info.side = stack->unitSide();
 			info.position = hex;
@@ -194,23 +199,30 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 {
 	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		auto h = battle.battleGetFightingHero(i);
+		const auto * h = battle.battleGetFightingHero(i);
 		if (!h)
 			continue;
 
-		TConstBonusListPtr bl = h->getBonuses(Selector::type()(BonusType::OPENING_BATTLE_SPELL));
+		TConstBonusListPtr bl = h->getBonusesOfType(BonusType::OPENING_BATTLE_SPELL);
 
-		for (auto b : *bl)
+		for (const auto & b : *bl)
 		{
 			spells::BonusCaster caster(h, b);
 
-			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
+			SpellID spellID = b->subtype.as<SpellID>();
+			if (!spellID.hasValue())
+			{
+				logGlobal->error("unable to cast spell - OPENING_BATTLE_SPELL has invalid spell set!");
+				continue;
+			}
+			const CSpell * spell = spellID.toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			parameters.setSpellLevel(3);
+			int32_t spellLevel = b->parameters ? b->parameters->toNumber() : 3;
+			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
 			parameters.massive = true;
-			parameters.castIfPossible(gameHandler->spellEnv, spells::Target());
+			parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target());
 		}
 	}
 }
@@ -245,14 +257,14 @@ void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, boo
 
 	// operate on copy - removing obstacles will invalidate iterator on 'battle' container
 	auto obstacles = battle.battleGetAllObstacles();
-	for (auto &obstPtr : obstacles)
+	for (const auto & obstPtr : obstacles)
 	{
-		if (const SpellCreatedObstacle *sco = dynamic_cast<const SpellCreatedObstacle *>(obstPtr.get()))
-			if (sco->turnsRemaining == 0)
-				removeObstacle(battle, *obstPtr);
+		const auto * sco = dynamic_cast<const SpellCreatedObstacle *>(obstPtr.get());
+		if (sco && sco->turnsRemaining == 0)
+			removeObstacle(battle, *obstPtr);
 	}
 
-	for(auto stack : battle.battleGetAllStacks(true))
+	for(const auto * stack : battle.battleGetAllStacks(true))
 	{
 		if(stack->alive() && !isFirstRound)
 			stackEnchantedTrigger(battle, stack);
@@ -270,8 +282,8 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 	if(q.front().empty())
 		return nullptr;
 
-	auto next = q.front().front();
-	const auto stack = dynamic_cast<const CStack *>(next);
+	const auto * next = q.front().front();
+	const auto * stack = dynamic_cast<const CStack *>(next);
 
 	// regeneration takes place before everything else but only during first turn attempt in each round
 	// also works under blind and similar effects
@@ -280,7 +292,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 		BattleTriggerEffect bte;
 		bte.battleID = battle.getBattle()->getBattleID();
 		bte.stackID = stack->unitId();
-		bte.effect = vstd::to_underlying(BonusType::HP_REGENERATION);
+		bte.effect = BonusType::HP_REGENERATION;
 
 		const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
 		if(stack->hasBonusOfType(BonusType::HP_REGENERATION))
@@ -323,7 +335,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 			return stack->ghostPending;
 		});
 
-		for(auto stack : pendingGhosts)
+		for(const auto * stack : pendingGhosts)
 			removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
 
 		if(!removeGhosts.changedStacks.empty())
@@ -334,7 +346,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 		if (!tryMakeAutomaticAction(battle, next))
 		{
 			if(next->alive()) {
-				setActiveStack(battle, next);
+				setActiveStack(battle, next, BattleUnitTurnReason::TURN_QUEUE);
 				break;
 			}
 		}
@@ -343,14 +355,34 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * next)
 {
+	if(tryActivateMoralePenalty(battle, next))
+		return true;
+
+	if(tryActivateBerserkPenalty(battle, next))
+		return true;
+
+	if(handleForcedCpuControlledUnit(battle, next))
+		return true;
+
+	stackTurnTrigger(battle, next); //various effects
+
+	if(next->fear)
+	{
+		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
+		return true;
+	}
+
+	return false;
+}
+
+bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * next)
+{
 	// check for bad morale => freeze
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), -nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
@@ -362,83 +394,155 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * next)
+{
 	if (next->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)) //while in berserk
 	{
-		logGlobal->trace("Handle Berserk effect");
-		std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
-		if (attackInfo.first != nullptr)
+		ForcedAction forcedAction = battle.getBerserkForcedAction(next);
+		if (forcedAction.type == EActionType::SHOOT)
 		{
-			BattleAction attack;
-			attack.actionType = EActionType::WALK_AND_ATTACK;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-			attack.aimToHex(attackInfo.second);
-			attack.aimToUnit(attackInfo.first);
-
-			makeAutomaticAction(battle, next, attack);
-			logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
+			BattleAction rangeAttack;
+			rangeAttack.actionType = EActionType::SHOOT;
+			rangeAttack.side = next->unitSide();
+			rangeAttack.stackNumber = next->unitId();
+			rangeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, rangeAttack);
+		}
+		else if (forcedAction.type == EActionType::WALK_AND_ATTACK)
+		{
+			BattleAction meleeAttack;
+			meleeAttack.actionType = EActionType::WALK_AND_ATTACK;
+			meleeAttack.side = next->unitSide();
+			meleeAttack.stackNumber = next->unitId();
+			meleeAttack.aimToHex(forcedAction.position);
+			meleeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, meleeAttack);
+		} else if (forcedAction.type == EActionType::WALK)
+		{
+			BattleAction movement;
+			movement.actionType = EActionType::WALK;
+			movement.stackNumber = next->unitId();
+			movement.aimToHex(forcedAction.position);
+			makeAutomaticAction(battle, next, movement);
 		}
 		else
 		{
 			makeStackDoNothing(battle, next);
-			logGlobal->trace("No target found");
 		}
 		return true;
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::handleForcedCpuControlledUnit(const CBattleInfoCallback & battle, const CStack * next)
+{
+	if (tryMakeAutomaticActionOfRangedUnit(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfMeleeUnit(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfCatapult(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfFirstAidTent(battle, next))
+		return true;
+
+	return false;
+}
+
+bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCallback & battle, const CStack * next) //TODO: optimize readability based on tryMakeAutomaticActionOfMeleeUnit
+{
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
-	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
+	if (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && (battle.battleCanShoot(next) || !next->isMeleeAttacker())
+		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		// TODO: unify logic with AI?
-		// Find best target using logic similar to H3 AI
-
-		const auto & isBetterTarget = [&battle](const battle::Unit * candidate, const battle::Unit * current)
+		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			bool candidateInsideWalls = battle.battleIsInsideWalls(candidate->getPosition());
-			bool currentInsideWalls = battle.battleIsInsideWalls(current->getPosition());
+			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+		});
 
-			if (candidateInsideWalls != currentInsideWalls)
-				return candidateInsideWalls > currentInsideWalls;
-
-			// also check for war machines - shooters are more dangerous than war machines, ballista or catapult
-			bool candidateCanShoot = candidate->canShoot() && candidate->unitType()->warMachine == ArtifactID::NONE;
-			bool currentCanShoot = current->canShoot() && current->unitType()->warMachine == ArtifactID::NONE;
-
-			if (candidateCanShoot != currentCanShoot)
-				return candidateCanShoot > currentCanShoot;
-
-			int64_t candidateTargetValue = static_cast<int64_t>(candidate->unitType()->getAIValue() * candidate->getCount());
-			int64_t currentTargetValue = static_cast<int64_t>(current->unitType()->getAIValue() * current->getCount());
-
-			return candidateTargetValue > currentTargetValue;
+		struct TargetInfo
+		{
+			bool insideTheWalls;
+			bool canAttackNextTurn;
+			bool isParalyzed;
+			bool isMachine;
+			double towerAttackValue;
+			const CStack * stack;
 		};
 
-		const battle::Unit * target = nullptr;
-
-		for(auto & elem : battle.battleGetAllStacks(true))
+		const auto & getCanAttackNextTurn = [&battle] (const battle::Unit * unit)
 		{
-			if (elem->unitOwner() == next->unitOwner())
-				continue;
+			if (battle.battleCanShoot(unit))
+				return true;
 
-			if (!elem->isValidTarget())
-				continue;
+			auto units = battle.battleAliveUnits();
+			auto availableHexes = battle.battleGetAvailableHexes(unit, true);
 
-			if (!battle.battleCanShoot(next, elem->getPosition()))
-				continue;
+			for (const auto * otherUnit : units)
+			{
+				if (battle.battleCanAttackUnit(unit, otherUnit))
+					for (auto position : otherUnit->getHexes())
+					{
+						if (battle.battleCanAttackHex(availableHexes, unit, position))
+							return true;
+					}
+			}
+			return false;
+		};
 
-			if (target && !isBetterTarget(elem, target))
-				continue;
+		std::vector<TargetInfo> targetsInfo;
 
-			target = elem;
+		for (const CStack * possibleTarget : possibleTargets)
+		{
+			bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
+			const TargetInfo targetInfo =
+			{
+				battle.battleIsInsideWalls(possibleTarget->getPosition()),
+				getCanAttackNextTurn(possibleTarget),
+				isParalyzed,
+				isMachine,
+				calculateTowerAttackValue(battle, next, possibleTarget),
+				possibleTarget
+			};
+			targetsInfo.push_back(targetInfo);
+		}
+
+		const auto & isBetterTarget = [](const TargetInfo & candidate, const TargetInfo & current)
+		{
+			if (candidate.isParalyzed != current.isParalyzed)
+				return candidate.isParalyzed < current.isParalyzed;
+
+			if (candidate.isMachine != current.isMachine)
+				return candidate.isMachine < current.isMachine;
+
+			if (candidate.canAttackNextTurn != current.canAttackNextTurn)
+				return candidate.canAttackNextTurn > current.canAttackNextTurn;
+
+			if (candidate.insideTheWalls != current.insideTheWalls)
+				return candidate.insideTheWalls > current.insideTheWalls;
+
+			return candidate.towerAttackValue > current.towerAttackValue;
+		};
+
+		const TargetInfo * target = nullptr;
+
+		for(const auto & elem : targetsInfo)
+		{
+			if (target == nullptr || isBetterTarget(elem, *target))
+				target = &elem;
 		}
 
 		if(target == nullptr)
@@ -447,15 +551,118 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 		}
 		else
 		{
-			attack.aimToUnit(target);
+			attack.aimToUnit(target->stack);
 			makeAutomaticAction(battle, next, attack);
 		}
 		return true;
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCallback & battle, const CStack * actingStack)
+{
+	struct TargetInfo
+	{
+		bool isMachine = false;
+		bool isParalyzed = false;
+		bool isReachable = false;
+		BattleHex attackableFromHex = BattleHex::INVALID;
+		double attackValue = -1.0;
+		const CStack * stack = nullptr;
+
+		bool isBetterThan(const TargetInfo & other) const
+		{
+			if (isParalyzed != other.isParalyzed) return isParalyzed < other.isParalyzed;
+			if (isMachine != other.isMachine) return isMachine < other.isMachine;
+			if (isReachable != other.isReachable) return isReachable > other.isReachable;
+			return attackValue > other.attackValue;
+		}
+	};
+
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(actingStack);
+	const CreatureID stackCreatureId = actingStack->unitType()->getId();
+
+	if (!actingStack->hasBonusOfType(BonusType::CPU_CONTROLLED) || battle.battleCanShoot(actingStack))
+		return false;
+
+	if (curOwner && gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
+		return false;
+
+	ReachabilityInfo reachabilityCache = battle.getReachability(actingStack);
+
+	const TStacks possibleTargets = battle.battleGetStacksIf([&actingStack, &battle](const CStack * s)
+	{
+		return s->unitOwner() != actingStack->unitOwner() && s->isValidTarget()
+		&& (!battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange())
+		|| (battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange()) && !s->getAttackableHexes(actingStack).empty()));
+	});
+
+	TargetInfo bestTarget;
+
+	for (const CStack * possibleTarget : possibleTargets)
+	{
+		bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+		bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
+
+		BattleHexArray attackableHexes = possibleTarget->getAttackableHexes(actingStack);
+		BattleHex closestTargetAdjacentHex = boost::min_element(attackableHexes, [&reachabilityCache](const BattleHex & lhs, const BattleHex & rhs)
+		{
+			return reachabilityCache.distances[lhs.toInt()] < reachabilityCache.distances[rhs.toInt()];
+		})[0];
+
+		bool isReachable = battle.battleGetAvailableHexes(reachabilityCache, actingStack, true).contains(closestTargetAdjacentHex);
+
+		TargetInfo currentTarget =
+		{
+			isMachine,
+			isParalyzed,
+			isReachable,
+			closestTargetAdjacentHex,
+			calculateTowerAttackValue(battle, actingStack, possibleTarget),
+			possibleTarget
+		};
+
+		if (!bestTarget.stack || currentTarget.isBetterThan(bestTarget))
+			bestTarget = currentTarget;
+	}
+
+	if(!bestTarget.stack)
+	{
+		makeStackDoNothing(battle, actingStack);
+	}
+	else
+	{
+		if(bestTarget.isReachable)
+		{
+			BattleAction meleeAttack = BattleAction::makeMeleeAttack(actingStack, bestTarget.stack, bestTarget.attackableFromHex);
+			makeAutomaticAction(battle, actingStack, meleeAttack);
+		}
+		else if(actingStack->getMovementRange() > 0)
+		{
+			BattleHex intermediaryHex = battle.getClosestHexToTargetInRange(reachabilityCache, *actingStack, bestTarget.attackableFromHex);
+			if(intermediaryHex == BattleHex::INVALID)
+			{
+				makeStackDoNothing(battle, actingStack);
+			}
+
+			BattleAction moveAction = BattleAction::makeMove(actingStack, intermediaryHex);
+			makeAutomaticAction(battle, actingStack, moveAction);
+		}
+		else
+		{
+			makeStackDoNothing(battle, actingStack);
+		}
+	}
+
+	return true;
+}
+
+bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next)
+{
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::CATAPULT)
 	{
-		const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
+		const auto & attackableBattleHexes = battle.getAttackableWallParts();
 
 		if (attackableBattleHexes.empty())
 		{
@@ -463,7 +670,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT))))
+		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
 		{
 			BattleAction attack;
 			attack.actionType = EActionType::CATAPULT;
@@ -474,10 +681,15 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next)
+{
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::FIRST_AID_TENT)
 	{
-		TStacks possibleStacks = battle.battleGetStacksIf([=](const CStack * s)
+		TStacks possibleStacks = battle.battleGetStacksIf([&next](const CStack * s)
 		{
 			return s->unitOwner() == next->unitOwner() && s->canBeHealed();
 		});
@@ -488,7 +700,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT))))
+		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT)))))
 		{
 			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
 			const CStack * toBeHealed = possibleStacks.front();
@@ -502,14 +714,6 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			makeAutomaticAction(battle, next, heal);
 			return true;
 		}
-	}
-
-	stackTurnTrigger(battle, next); //various effects
-
-	if(next->fear)
-	{
-		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
-		return true;
 	}
 	return false;
 }
@@ -526,15 +730,13 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollGoodMorale(ownerArmy, nextStackMorale))
 		{
 			BattleTriggerEffect bte;
 			bte.battleID = battle.getBattle()->getBattleID();
 			bte.stackID = next->unitId();
-			bte.effect = vstd::to_underlying(BonusType::MORALE);
+			bte.effect = BonusType::MORALE;
 			bte.val = 1;
 			bte.additionalInfo = 0;
 			gameHandler->sendAndApply(bte); //play animation
@@ -574,7 +776,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		// NOTE: in case of random spellcaster, (e.g. Master Genie) spell has been selected by server and was not present in action received from player
 		if(actedStack->castSpellThisTurn && ba.spell.hasValue() && ba.spell.toSpell()->canCastWithoutSkip())
 		{
-			setActiveStack(battle, actedStack);
+			setActiveStack(battle, actedStack, BattleUnitTurnReason::UNIT_SPELLCAST);
 			return;
 		}
 	}
@@ -587,7 +789,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		if (rollGoodMorale(battle, actedStack))
 		{
 			// Good morale - same stack makes 2nd turn
-			setActiveStack(battle, actedStack);
+			setActiveStack(battle, actedStack, BattleUnitTurnReason::MORALE);
 			return;
 		}
 	}
@@ -595,10 +797,16 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	{
 		if (activeStack && activeStack->alive())
 		{
-			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+			bool activeStackAffectedBySpell = !activeStack->canMove() ||
+				tryActivateBerserkPenalty(battle, battle.battleGetStackByID(battle.getBattle()->getActiveStackID()));
+
+			// this is action made by hero AND unit is neither killed nor affected by reflected spell like blind or berserk
 			// keep current active stack for next action
-			setActiveStack(battle, activeStack);
-			return;
+			if (!activeStackAffectedBySpell)
+			{
+				setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
+				return;
+			}
 		}
 	}
 
@@ -615,12 +823,12 @@ void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle,
 	makeAutomaticAction(battle, next, doNothing);
 }
 
-bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, BattleAction &ba)
+bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, const BattleAction &ba)
 {
 	BattleSetActiveStack bsa;
 	bsa.battleID = battle.getBattle()->getBattleID();
 	bsa.stack = stack->unitId();
-	bsa.askPlayerInterface = false;
+	bsa.reason = BattleUnitTurnReason::AUTOMATIC_ACTION;
 	gameHandler->sendAndApply(bsa);
 
 	bool ret = owner->makeAutomaticBattleAction(battle, ba);
@@ -629,8 +837,8 @@ bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle
 
 void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * st)
 {
-	auto bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTED)));
-	for(auto b : bl)
+	auto bl = *(st->getBonusesOfType(BonusType::ENCHANTED));
+	for(const auto & b : bl)
 	{
 		if (!b->subtype.as<SpellID>().hasValue())
 			continue;
@@ -647,7 +855,7 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 
 		if(val > 3)
 		{
-			for(auto s : battle.battleGetAllStacks())
+			for(const auto * s : battle.battleGetAllStacks())
 				if(battle.battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
 					target.emplace_back(s);
 		}
@@ -655,7 +863,7 @@ void BattleFlowProcessor::stackEnchantedTrigger(const CBattleInfoCallback & batt
 		{
 			target.emplace_back(st);
 		}
-		battleCast.applyEffects(gameHandler->spellEnv, target, false, true);
+		battleCast.applyEffects(gameHandler->spellcastEnvironment(), target, false, true);
 	}
 }
 
@@ -672,28 +880,25 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	BattleTriggerEffect bte;
 	bte.battleID = battle.getBattle()->getBattleID();
 	bte.stackID = st->unitId();
-	bte.effect = -1;
+	bte.effect = BonusType::NONE;
 	bte.val = 0;
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
 		//unbind
-		if (st->hasBonus(Selector::type()(BonusType::BIND_EFFECT)))
+		if (st->hasBonusOfType(BonusType::BIND_EFFECT))
 		{
 			bool unbind = true;
-			BonusList bl = *(st->getBonuses(Selector::type()(BonusType::BIND_EFFECT)));
+			BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
 			auto adjacent = battle.battleAdjacentUnits(st);
 
-			for (auto b : bl)
+			for (const auto & b : bl)
 			{
-				if(b->additionalInfo != CAddInfo::NONE)
+				if(b->parameters)
 				{
-					const CStack * stack = battle.battleGetStackByID(b->additionalInfo[0]); //binding stack must be alive and adjacent
-					if(stack)
-					{
-						if(vstd::contains(adjacent, stack)) //binding stack is still present
-							unbind = false;
-					}
+					const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
+					if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
+						unbind = false;
 				}
 				else
 				{
@@ -718,7 +923,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));
 				if (bte.val < b->val) //(negative) poison effect increases - update it
 				{
-					bte.effect = vstd::to_underlying(BonusType::POISON);
+					bte.effect = BonusType::POISON;
 					gameHandler->sendAndApply(bte);
 				}
 			}
@@ -732,31 +937,22 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				vstd::amin(manaDrained, opponentHero->mana);
 				if(manaDrained)
 				{
-					bte.effect = vstd::to_underlying(BonusType::MANA_DRAIN);
+					bte.effect = BonusType::MANA_DRAIN;
 					bte.val = manaDrained;
 					bte.additionalInfo = opponentHero->id.getNum(); //for sanity
 					gameHandler->sendAndApply(bte);
 				}
 			}
 		}
-		if (st->isLiving() && !st->hasBonusOfType(BonusType::FEARLESS))
+		if (st->hasBonusOfType(BonusType::FEARFUL))
 		{
-			bool fearsomeCreature = false;
-			for (const CStack * stack : battle.battleGetAllStacks(true))
+			int chance = st->valOfBonuses(BonusType::FEARFUL);
+			ObjectInstanceID opponentArmyID = battle.battleGetArmyObject(battle.otherSide(st->unitSide()))->id;
+
+			if (gameHandler->randomizer->rollCombatAbility(opponentArmyID, chance))
 			{
-				if (battle.battleMatchOwner(st, stack) && stack->alive() && stack->hasBonusOfType(BonusType::FEAR))
-				{
-					fearsomeCreature = true;
-					break;
-				}
-			}
-			if (fearsomeCreature)
-			{
-				if (gameHandler->getRandomGenerator().nextInt(99) < 10) //fixed 10%
-				{
-					bte.effect = vstd::to_underlying(BonusType::FEAR);
-					gameHandler->sendAndApply(bte);
-				}
+				bte.effect = BonusType::FEARFUL;
+				gameHandler->sendAndApply(bte);
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTER)));
@@ -766,7 +962,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		});
 
 		BattleSide side = battle.playerToSide(st->unitOwner());
-		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
+		if(st->canCast())
 		{
 			bool cast = false;
 			while(!bl.empty() && !cast)
@@ -778,41 +974,59 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					return b == bonus.get();
 				});
+
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
+					continue; // cooldown
+
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
 
-				auto &levelInfo = spell->getLevelInfo(bonus->val);
-				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
-				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
-				{
-					parameters.massive = true;
-					parameters.smart = true;
-				}
 				//todo: recheck effect level
-				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
+				if(parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target(1, parameters.massive ? spells::Destination() : spells::Destination(st))))
 				{
 					cast = true;
 
-					int cooldown = bonus->additionalInfo[0];
-					BattleSetStackProperty ssp;
-					ssp.battleID = battle.getBattle()->getBattleID();
-					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
-					ssp.absolute = false;
-					ssp.val = cooldown;
-					ssp.stackID = st->unitId();
-					gameHandler->sendAndApply(ssp);
+					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
+					if (cooldown != 0)
+					{
+						BattleSetStackProperty ssp;
+						ssp.battleID = battle.getBattle()->getBattleID();
+						ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
+						ssp.absolute = false;
+						ssp.val = cooldown;
+						ssp.stackID = st->unitId();
+						gameHandler->sendAndApply(ssp);
+					}
 				}
 			}
 		}
 	}
 }
 
-void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack)
+void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason)
 {
 	assert(stack);
 
 	BattleSetActiveStack sas;
 	sas.battleID = battle.getBattle()->getBattleID();
 	sas.stack = stack->unitId();
+	sas.reason = reason;
 	gameHandler->sendAndApply(sas);
+}
+
+double BattleFlowProcessor::calculateTowerAttackValue(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * target) const
+{
+	double unitValue = target->unitType()->getAIValue();
+	double singleHpValue = unitValue / static_cast<double>(target->getMaxHealth());
+	double fullHp = static_cast<double>(target->getTotalHealth());
+
+	int distance = BattleHex::getDistance(attacker->getPosition(), target->getPosition());
+	BattleAttackInfo attackInfo(attacker, target, distance, attacker->isShooter());
+	DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
+
+	double avgDmg = (static_cast<double>(estimation.damage.max) + static_cast<double>(estimation.damage.min)) / 2.0;
+	double realAvgDmg = std::min(fullHp, avgDmg);
+	double avgUnitKilled = (static_cast<double>(estimation.kills.max) + static_cast<double>(estimation.kills.min)) / 2.0;
+
+	return (realAvgDmg * singleHpValue) + (avgUnitKilled * unitValue);
 }

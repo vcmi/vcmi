@@ -289,7 +289,7 @@
 			"items":
 			[
 				{
-					"text": "core.genrltxt.572" // TODO: show move path
+					"text": "core.genrltxt.572" // show move path
 				},
 				{
 					"text": "core.genrltxt.573" // show hero reminder
@@ -302,6 +302,12 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.hideBackground.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
+				},
+				{
+					"text": "vcmi.keyBindings.button.hover"
 				}
 			]
 		},
@@ -312,8 +318,9 @@
 			"items":
 			[
 				{
-					"name": "showMovePathPlaceholder",
-					"type": "checkboxFake"
+					"name": "showMovePathCheckbox",
+					"help": "core.help.360",
+					"callback": "showMovePathChanged"
 				},
 				{
 					"name": "heroReminderCheckbox",
@@ -334,6 +341,17 @@
 					"name": "hideBackgroundCheckbox",
 					"help": "vcmi.adventureOptions.hideBackground",
 					"callback": "hideBackgroundChanged"
+				},
+				{
+					"name": "minimapShowHeroesCheckbox",
+					"help": "vcmi.adventureOptions.minimapShowHeroes",
+					"callback": "minimapShowHeroesChanged"
+				},
+				{
+					"name": "shortcutButton",
+					"type": "buttonGear",
+					"help": "vcmi.keyBindings.button",
+					"callback": "openShortcutMenu"
 				}
 			]
 		},

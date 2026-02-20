@@ -13,6 +13,8 @@
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
+#include "GameLibrary.h"
+#include "IGameSettings.h"
 
 #include "../constants/EntityIdentifiers.h"
 #include "../entities/building/TownFortifications.h"
@@ -42,6 +44,17 @@ int32_t CBattleInfoEssentials::battleGetEnchanterCounter(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(0);
 	return getBattle()->getEnchanterCounter(side);
+}
+
+int32_t CBattleInfoEssentials::nextObstacleId() const
+{
+	int32_t maxId = -1;
+	for (const auto & obstacle : getBattle()->getAllObstacles())
+	{
+		if (obstacle->uniqueID > maxId)
+			maxId = obstacle->uniqueID;
+	}
+	return maxId + 1;
 }
 
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::battleGetAllObstacles(std::optional<BattleSide> perspective) const
@@ -109,6 +122,14 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	return battleGetStacksIf([=](const CStack * s)
 	{
 		return !s->isGhost() && (includeTurrets || !s->isTurret());
+	});
+}
+
+battle::Units CBattleInfoEssentials::battleGetAllUnits(bool includeTurrets) const
+{
+	return battleGetUnitsIf([=](const battle::Unit * unit)
+	{
+		return !unit->isGhost() && (includeTurrets || !unit->isTurret());
 	});
 }
 
@@ -211,6 +232,12 @@ BattleSide CBattleInfoEssentials::battleGetTacticsSide() const
 	return getBattle()->getTacticsSide();
 }
 
+int32_t CBattleInfoEssentials::battleGetRound() const
+{
+	RETURN_IF_NOT_BATTLE(-1);
+	return getBattle()->getRound();
+}
+
 const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
@@ -256,7 +283,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(BattleSide side) const
 	return InfoAboutHero(hero, infoLevel);
 }
 
-uint32_t CBattleInfoEssentials::battleCastSpells(BattleSide side) const
+int32_t CBattleInfoEssentials::battleCastSpells(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	return getBattle()->getCastSpells(side);
@@ -270,18 +297,23 @@ const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	const auto side = playerToSide(player);
+	const BattleSide side = playerToSide(player);
 	if(side == BattleSide::NONE)
 		return false;
 
 	const CGHeroInstance * myHero = battleGetFightingHero(side);
 
-	//current player have no hero
+	//current player has no hero
 	if(!myHero)
 		return false;
 
-	//eg. one of heroes is wearing shakles of war
-	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING))
+	//eg. one of heroes is wearing shackles of war
+	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING) && battleHasHero(otherSide(side)))
+		return false;
+
+	//cannot flee after casting spell in X first turns as attacker
+	if(getBattle()->getRound() <= LIBRARY->engineSettings()->getInteger(EGameSettings::COMBAT_NO_SPELL_HIT_AND_RUN_ROUNDS)
+		&& side == BattleSide::ATTACKER &&  battleHasHero(otherSide(side)) && getBattle()->getCastSpells(side) >= 1)
 		return false;
 
 	//we are besieged defender
@@ -313,7 +345,7 @@ BattleSide CBattleInfoEssentials::playerToSide(const PlayerColor & player) const
 PlayerColor CBattleInfoEssentials::sideToPlayer(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);
-    return getBattle()->getSidePlayer(side);
+	return getBattle()->getSidePlayer(side);
 }
 
 BattleSide CBattleInfoEssentials::otherSide(BattleSide side)
@@ -404,9 +436,7 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) con
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(unit->unitSide());
 
-	static const CSelector selector = Selector::type()(BonusType::HYPNOTIZED);
-
-	if(unit->hasBonus(selector))
+	if(unit->isHypnotized())
 		return otherPlayer(initialOwner);
 	else
 		return initialOwner;

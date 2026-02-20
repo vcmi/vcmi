@@ -1,0 +1,260 @@
+digraph mygraph {
+	fontname="monospace"
+	edge [fontname="Noto Serif"]
+	node [
+		fontname="Noto Serif"
+		style=filled
+		shape=plain
+		fillcolor="#60200080"
+		pencolor="#00000080" // frames color
+	]
+
+	subgraph rankedTop {
+		"Global" [
+			label =<<table>
+					<tr><td><b>Global</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>GLOBAL_EFFECT</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CGameState</b></font></td></tr>
+					<tr><td>Global node to which<br/>all map entities are connected</td></tr>
+					<tr><td>Note: Not recruited heroes (such as in tavern)<br/>are not attached to any node</td></tr>
+					<tr><td>Contains global bonuses, global stack experience and difficulty bonuses</td></tr>
+				</table>>
+		]
+		"Team" [
+			label =<<table>
+					<tr><td><b>Team</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>TEAM</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>TeamState</b></font></td></tr>
+					<tr><td>Per-team node.<br/>Game will put players without team<br/>into a team with a single player</td></tr>
+				</table>>
+		]
+		"Player" [
+			label =<<table>
+					<tr><td><b>Player</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>PLAYER</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CPlayerState</b></font></td></tr>
+					<tr><td>Per-player team.<br/>All objects owned by a player<br/>belong to such node</td></tr>
+				</table>>
+		]
+	};
+
+	subgraph rankedArmies {
+		rank="same"
+		"Hero" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Hero</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>HERO</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CGHeroInstance</b></font></td></tr>
+					<tr><td>Represents a hero, either owned by player or in prison.<br/>Bonuses from specialty and secondary skills<br/>are attached directly to this node</td></tr>
+					<tr><td>Contains per-hero global bonuses, specialty bonuses, <br/>primary and secondary skill bonuses, campaign primary skill bonus</td></tr>
+				</table>>
+		]
+	};
+
+	subgraph rankedHeroes {
+		rank="same"
+		"Visiting Hero" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Visiting Hero</b></td></tr>
+					<tr><td>Hero that is currently<br/>visiting owned or allied town</td></tr>
+				</table>>
+		]
+		"Hero defending town" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Hero defending town</b></td></tr>
+					<tr><td>Hero that is currently<br/>fighting on a defending side in a siege</td></tr>
+				</table>>
+		]
+		"Wandering Hero" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Wandering Hero</b></td></tr>
+					<tr><td>Hero that is currently<br/>moving on map, outside of towns</td></tr>
+				</table>>
+		]
+		"Neutral Army" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Neutral Army</b></td></tr>
+					<tr><td>Any army that is not owned by a player<br/>Wandering monsters, Banks, Events, etc</td></tr>
+				</table>>
+		]
+		"Owned Army" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Owned Army</b></td></tr>
+					<tr><td>Army owned by a player.<br/>Mines, Garrisons, Dwellings</td></tr>
+				</table>>
+		]
+		"Owned Object" [
+			label =<<table>
+					<tr><td><b>Owned Object</b></td></tr>
+					<tr><td>Other objects owned by a player, like Lighthouse</td></tr>
+					<tr><td>Contains Flaggable Objects bonuses</td></tr>
+				</table>>
+		]
+	};
+
+	subgraph rankedTopHero {
+		rank="same"
+		"Town" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Town</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>TOWN</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CGTownInstance</b></font></td></tr>
+					<tr><td>Represents a town on map.</td></tr>
+					<tr><td>Contains town building bonuses</td></tr>
+				</table>>
+		]
+		"Artifact Instance" [
+			fillcolor="#00FFFF80"
+			label =<<table>
+					<tr><td><b>Artifact Instance</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CArtifactInstance</b></font></td></tr>
+					<tr><td>Represents a particular instance of an artifact<br/> that hero can equip or trade</td></tr>
+					<tr><td>Contains bonuses of spell scrolls and growing artifacts</td></tr>
+				</table>>
+		]
+		"Boat" [
+			fillcolor="#00FFFF80"
+			label =<<table>
+					<tr><td><b>Boat</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CGBoat</b></font></td></tr>
+					<tr><td>Represents a boat or other type of transport.</td></tr>
+					<tr><td>Contains bonuses provided to boarded hero</td></tr>
+				</table>>
+		]
+	};
+	
+	subgraph rankedMisc {
+		"Town and visiting hero" [
+			label =<<table>
+					<tr><td><b>Town and Visiting Hero</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>TOWN_AND_VISITOR</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CTownAndVisitingHero</b></font></td></tr>
+					<tr><td>Helper node that exists solely<br/>to propagate bonuses to both town and visiting hero</td></tr>
+					<tr><td>Note: Neutral towns are attached to global node instead</td></tr>
+
+				</table>>
+		]
+		
+		"Combat" [
+			label =<<table>
+					<tr><td><b>Combat</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>BATTLE_WIDE</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>BattleInfo</b></font></td></tr>
+					<tr><td>Node that contains both sides of a combat<br/>Anything propagated to this node will affect both sides in combat</td></tr>
+					<tr><td>Contains battlefield and native terrain bonuses</td></tr>
+				</table>>
+		]
+		
+		"Creature Type" [
+			fillcolor="#00FFFF80"
+			label =<<table>
+					<tr><td><b>Creature Type</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CCreature</b></font></td></tr>
+					<tr><td>Represents a creature type, such as Pikeman or Archer</td></tr>
+					<tr><td>Contains creature abilities bonuses, stack experience bonuses</td></tr>
+				</table>>
+		]
+		
+		"Artifact Type" [
+			fillcolor="#00FFFF80"
+			label =<<table>
+					<tr><td><b>Artifact Type</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CArtifact</b></font></td></tr>
+					<tr><td>Represents an artifact type, for example Ring of Life</td></tr>
+					<tr><td>Contains fixed bonuses of artifacts</td></tr>
+				</table>>
+		]
+		
+		"Artifact Component" [
+			fillcolor="#80808080"
+			label =<<table>
+					<tr><td><b>Artifact Component</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CArtifactInstance</b></font></td></tr>
+					<tr><td>For combined, non-fused artifacts,<br/>instances of components are attached to instance of combined artifact</td></tr>
+				</table>>
+		]
+		
+		"Army" [
+			label =<<table>
+					<tr><td><b>Army</b></td></tr>
+					<tr><td>Propagator: <font face="monospace"><b>ARMY</b></font></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CArmedInstance</b></font></td></tr>
+					<tr><td>Represents any object that can hold army,<br/>such as town, hero, mines, garrisons, wandering monsters</td></tr>
+					<tr><td>Contain anti-magic garrison bonus, faction mixing morale bonus</td></tr>
+				</table>>
+		]
+
+		"Unit in Army" [
+			label =<<table>
+					<tr><td><b>Unit in Army</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CStackInstance</b></font></td></tr>
+					<tr><td>Represents a unit that is part of a army<br/>A unit always has a creature type,<br/>belongs to an army and has stack size</td></tr>
+				</table>>
+		]
+		
+		"Commander" [
+			label =<<table>
+					<tr><td><b>Commander</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CCommanderInstance</b></font></td></tr>
+					<tr><td>Represents a hero commander, WoG feature</td></tr>
+				</table>>
+		]
+		
+		"Unit in Combat" [
+			label =<<table>
+					<tr><td><b>Unit in Combat</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CStack</b></font></td></tr>
+					<tr><td>Represents current state of a unit during combat,<br/>can be affected by spells or receive damage</td></tr>
+				</table>>
+		]
+		
+		"Summon in Combat" [
+			label =<<table>
+					<tr><td><b>Summon in Combat</b></td></tr>
+					<tr><td>C++ Class: <font face="monospace"><b>CStack</b></font></td></tr>
+					<tr><td>Represents any unit that was added in combat,<br/>and may not remain after combat</td></tr>
+				</table>>
+		]
+	};
+
+	"Global" -> "Team"
+	"Global" -> "Neutral Army"
+	"Team" -> "Player"
+	"Player" -> "Town and visiting hero"
+	"Player" -> "Wandering Hero"
+	"Player" -> "Owned Army"
+	"Player" -> "Owned Object"
+	"Town and visiting hero" -> "Town"
+	"Town and visiting hero" -> "Visiting Hero"
+	"Boat" -> "Hero"
+	"Combat" -> "Army"
+	"Army" -> "Commander"
+	"Army" -> "Unit in Army"
+	"Army" -> "Summon in Combat"
+	"Unit in Army" -> "Unit in Combat" 
+	"Commander" -> "Unit in Combat" 
+	"Artifact Type" -> "Artifact Instance"
+	"Artifact Component" -> "Artifact Instance"
+	"Artifact Instance" -> "Hero"
+
+	"Creature Type" -> "Commander" 
+	"Creature Type" -> "Summon in Combat"
+	"Creature Type" -> "Unit in Army"
+
+	"Town" -> "Hero defending town"
+	"Town" -> "Army"
+	"Neutral Army" -> "Army"
+	"Owned Army" -> "Army"
+
+	"Visiting Hero" -> "Hero"
+	"Hero defending town" -> "Hero"
+	"Wandering Hero" -> "Hero"
+	"Hero" -> "Army"
+}

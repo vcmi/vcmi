@@ -22,10 +22,9 @@
 #include "../render/IRenderHandler.h"
 #include "../render/Graphics.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/int3.h"
 
 MapViewCache::~MapViewCache() = default;
@@ -35,7 +34,7 @@ MapViewCache::MapViewCache(const std::shared_ptr<MapViewModel> & model)
 	, cachedLevel(0)
 	, overlayWasVisible(false)
 	, mapRenderer(new MapRenderer())
-	, iconsStorage(GH.renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
+	, iconsStorage(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("VwSymbol"), EImageBlitMode::COLORKEY))
 	, intermediate(new Canvas(Point(32, 32), CanvasScalingPolicy::AUTO))
 	, terrain(new Canvas(model->getCacheDimensionsPixels(), CanvasScalingPolicy::AUTO))
 	, terrainTransition(new Canvas(model->getPixelsVisibleDimensions(), CanvasScalingPolicy::AUTO))
@@ -188,7 +187,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 
 	if(context->showTextOverlay())
 	{
-		const auto & font = GH.renderHandler().loadFont(FONT_TINY);
+		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 
 		for(int y = dimensions.top(); y < dimensions.bottom(); ++y)
 		{

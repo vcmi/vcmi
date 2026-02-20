@@ -11,6 +11,7 @@
 #include "CZipLoader.h"
 
 #include "../ScopeGuard.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -120,6 +121,19 @@ std::unordered_set<ResourcePath> CZipLoader::getFilteredFiles(std::function<bool
 	return foundID;
 }
 
+std::string CZipLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	auto relativePath = TextOperations::Utf8TofilesystemPath(resourceName.getName());
+	auto path = boost::filesystem::canonical(archiveName) / relativePath;
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::time_t CZipLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	auto path = boost::filesystem::canonical(archiveName);
+	return  boost::filesystem::last_write_time(path);
+}
+
 /// extracts currently selected file from zip into stream "where"
 static bool extractCurrent(unzFile file, std::ostream & where)
 {
@@ -224,7 +238,18 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 
 	std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
 	if (!destFile.good())
+	{
+#ifdef VCMI_WINDOWS
+		if (fullName.size() < 260)
+			logGlobal->error("Failed to open file '%s'", fullName.string());
+		else
+			logGlobal->error("Failed to open file with long path '%s' (%d characters)", fullName.string(), fullName.size());
+#else
+		logGlobal->error("Failed to open file '%s'", fullName.c_str());
+#endif
+
 		return false;
+	}
 
 	if (!extractCurrent(archive, destFile))
 		return false;

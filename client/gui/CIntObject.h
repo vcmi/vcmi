@@ -15,20 +15,13 @@
 #include "../../lib/Color.h"
 #include "../../lib/GameConstants.h"
 
-class CGuiHandler;
+class GameEngine;
 class CPicture;
 class Canvas;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CArmedInstance;
 VCMI_LIB_NAMESPACE_END
-
-class IUpdateable
-{
-public:
-	virtual void update()=0;
-	virtual ~IUpdateable() = default;
-};
 
 class IShowActivatable
 {
@@ -80,6 +73,9 @@ public:
 	void disable();
 	/// activates if needed, all activity enabled (Warning: may not be symmetric with disable if recActions was limited!)
 	void enable();
+	/// returns true if element was disabled via disable() call
+	bool isDisabled() const;
+
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);
 
@@ -129,6 +125,8 @@ public:
 	void addChild(CIntObject *child, bool adjustPosition = false);
 	void removeChild(CIntObject *child, bool adjustPosition = false);
 
+protected:
+	Point adjustNegativeCoordinate(int x, int y);
 };
 
 /// Class for binding keys to left mouse button clicks
@@ -164,6 +162,12 @@ public:
 
 	virtual bool holdsGarrison(const CArmedInstance * army) = 0;
 	virtual void updateGarrisons() = 0;
+};
+
+class IArtifactsHolder
+{
+public:
+	virtual void updateArtifacts() = 0;
 };
 
 class IMarketHolder

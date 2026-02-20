@@ -11,14 +11,17 @@
 #include "StartGameTab.h"
 #include "ui_StartGameTab.h"
 
+#include "../helper.h"
 #include "../mainwindow_moc.h"
 #include "../main.h"
 #include "../updatedialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
+#include "../../vcmiqt/MessageBox.h"
 
 void StartGameTab::changeEvent(QEvent *event)
 {
@@ -49,9 +52,11 @@ StartGameTab::StartGameTab(QWidget * parent)
 	ui->buttonGameEditor->hide();
 #endif
 
-	auto clipboard = QGuiApplication::clipboard();
-
-	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	if (settings["launcher"]["trackClipboardState"].Bool())
+	{
+		auto clipboard = QGuiApplication::clipboard();
+		connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	}
 }
 
 void StartGameTab::clipboardDataChanged()
@@ -86,33 +91,26 @@ StartGameTab::~StartGameTab()
 	delete ui;
 }
 
-MainWindow * StartGameTab::getMainWindow()
-{
-	foreach(QWidget *w, qApp->allWidgets())
-		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
-			return dynamic_cast<MainWindow *>(mainWin);
-	return nullptr;
-}
-
 void StartGameTab::refreshState()
 {
 	refreshGameData();
 	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
-	refreshTranslation(getMainWindow()->getTranslationStatus());
+	refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
 	refreshPresets();
 	refreshMods();
 
-	clipboardDataChanged();
+	if (settings["launcher"]["trackClipboardState"].Bool())
+		clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
 {
 	QSignalBlocker blocker(ui->comboBoxModPresets);
 
-	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+	QStringList allPresets = Helper::getMainWindow()->getModView()->getAllPresets();
 	ui->comboBoxModPresets->clear();
 	ui->comboBoxModPresets->addItems(allPresets);
-	ui->comboBoxModPresets->setCurrentText(getMainWindow()->getModView()->getActivePreset());
+	ui->comboBoxModPresets->setCurrentText(Helper::getMainWindow()->getModView()->getActivePreset());
 	ui->buttonPresetDelete->setVisible(allPresets.size() > 1);
 }
 
@@ -177,8 +175,8 @@ void StartGameTab::refreshTranslation(ETranslationStatus status)
 void StartGameTab::refreshMods()
 {
 	constexpr int chroniclesCount = 8;
-	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
-	QStringList chroniclesMods = getMainWindow()->getModView()->getInstalledChronicles();
+	QStringList updateableMods = Helper::getMainWindow()->getModView()->getUpdateableMods();
+	QStringList chroniclesMods = Helper::getMainWindow()->getModView()->getInstalledChronicles();
 
 	ui->buttonUpdateMods->setText(tr("Update %n mods", "", updateableMods.size()));
 	ui->buttonUpdateMods->setVisible(!updateableMods.empty());
@@ -187,6 +185,14 @@ void StartGameTab::refreshMods()
 	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%n/%1 installed", "", chroniclesMods.size()).arg(chroniclesCount));
 	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
+
+#ifdef VCMI_ANDROID
+	bool canInstallHD = false; // TODO: HD import on android
+#else
+	bool canInstallHD = !Helper::getMainWindow()->getModView()->isInstalledHd();
+#endif
+	ui->buttonInstallHdEdition->setVisible(canInstallHD);
+	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
@@ -206,7 +212,7 @@ void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 
 void StartGameTab::on_buttonGameStart_clicked()
 {
-	getMainWindow()->hide();
+	Helper::getMainWindow()->hide();
 	startGame({});
 }
 
@@ -227,7 +233,7 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 
 void StartGameTab::on_buttonGameEditor_clicked()
 {
-	getMainWindow()->hide();
+	Helper::getMainWindow()->hide();
 	startEditor({});
 }
 
@@ -252,40 +258,40 @@ void StartGameTab::on_buttonImportFiles_clicked()
 		for(const auto & file : files)
 		{
 			logGlobal->info("Importing file %s", file.toStdString());
-			getMainWindow()->manualInstallFile(file);
+			Helper::getMainWindow()->manualInstallFile(file);
 		}
 	};
 
 	// iOS can't display modal dialogs when called directly on button press
 	// https://bugreports.qt.io/browse/QTBUG-98651
-	QTimer::singleShot(0, this, importFunctor);
+	MessageBoxCustom::showDialog(this, importFunctor);
 }
 
 void StartGameTab::on_buttonInstallTranslation_clicked()
 {
-	if (getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
+	if (Helper::getMainWindow()->getTranslationStatus() == ETranslationStatus::NOT_INSTALLLED)
 	{
 		QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-		QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
-		getMainWindow()->getModView()->doInstallMod(modName);
+		QString modName = Helper::getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+		Helper::getMainWindow()->getModView()->doInstallMod(modName);
 	}
 }
 
 void StartGameTab::on_buttonActivateTranslation_clicked()
 {
 	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
-	QString modName = getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
-	getMainWindow()->getModView()->enableModByName(modName);
+	QString modName = Helper::getMainWindow()->getModView()->getTranslationModName(preferredlanguage);
+	Helper::getMainWindow()->getModView()->enableModByName(modName);
 }
 
 void StartGameTab::on_buttonUpdateMods_clicked()
 {
-	QStringList updateableMods = getMainWindow()->getModView()->getUpdateableMods();
+	QStringList updateableMods = Helper::getMainWindow()->getModView()->getUpdateableMods();
 
-	getMainWindow()->switchToModsTab();
+	Helper::getMainWindow()->switchToModsTab();
 
 	for (const auto & modName : updateableMods)
-		getMainWindow()->getModView()->doUpdateMod(modName);
+		Helper::getMainWindow()->getModView()->doUpdateMod(modName);
 }
 
 void StartGameTab::on_buttonHelpImportFiles_clicked()
@@ -300,7 +306,7 @@ void StartGameTab::on_buttonHelpImportFiles_clicked()
 		" - VCMI configuration files (.json)\n"
 	);
 
-	QMessageBox::information(this, ui->buttonImportFiles->text(), message);
+	MessageBoxCustom::information(this, ui->buttonImportFiles->text(), message);
 }
 
 void StartGameTab::on_buttonInstallTranslationHelp_clicked()
@@ -310,7 +316,7 @@ void StartGameTab::on_buttonInstallTranslationHelp_clicked()
 		"VCMI provides translations of the game into various languages that you can use. "
 		"Use this option to automatically install such translation to your language."
 	);
-	QMessageBox::information(this, ui->buttonInstallTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonInstallTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonActivateTranslationHelp_clicked()
@@ -320,7 +326,7 @@ void StartGameTab::on_buttonActivateTranslationHelp_clicked()
 		"Use this option to enable it."
 	);
 
-	QMessageBox::information(this, ui->buttonActivateTranslation->text(), message);
+	MessageBoxCustom::information(this, ui->buttonActivateTranslation->text(), message);
 }
 
 void StartGameTab::on_buttonUpdateModsHelp_clicked()
@@ -329,10 +335,10 @@ void StartGameTab::on_buttonUpdateModsHelp_clicked()
 		"A new version of some of the mods that you have installed is now available in mod repository. "
 		"Use this option to automatically update all your mods to latest version.\n\n"
 		"WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. "
-		"You many want to postpone mod update until you finish any of your ongoing games."
+		"You may want to postpone mod update until you finish any of your ongoing games."
 		);
 
-	QMessageBox::information(this, ui->buttonUpdateMods->text(), message);
+	MessageBoxCustom::information(this, ui->buttonUpdateMods->text(), message);
 }
 
 void StartGameTab::on_buttonChroniclesHelp_clicked()
@@ -345,7 +351,7 @@ void StartGameTab::on_buttonChroniclesHelp_clicked()
 		"This will generate and install mod for VCMI that contains imported chronicles"
 	);
 
-	QMessageBox::information(this, ui->labelChronicles->text(), message);
+	MessageBoxCustom::information(this, ui->labelChronicles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
@@ -356,7 +362,7 @@ void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
 		"To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingSoundtrack->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingSoundtrack->text(), message);
 }
 
 void StartGameTab::on_buttonMissingVideoHelp_clicked()
@@ -367,7 +373,7 @@ void StartGameTab::on_buttonMissingVideoHelp_clicked()
 		"To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 		);
-	QMessageBox::information(this, ui->labelMissingVideo->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingVideo->text(), message);
 }
 
 void StartGameTab::on_buttonMissingFilesHelp_clicked()
@@ -378,7 +384,7 @@ void StartGameTab::on_buttonMissingFilesHelp_clicked()
 		"To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. "
 		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com"
 	);
-	QMessageBox::information(this, ui->labelMissingFiles->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingFiles->text(), message);
 }
 
 void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
@@ -389,12 +395,38 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 		"To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually "
 		"or reinstall VCMI and re-import Heroes III data files"
 	);
-	QMessageBox::information(this, ui->labelMissingCampaigns->text(), message);
+	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEditionHelp_clicked()
+{
+	QString message = tr(
+		"To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam."
+		"Select the Heroes HD folder from Steam.\n\n"
+		"After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics."
+	);
+	MessageBoxCustom::information(this, ui->buttonInstallHdEdition->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEdition_clicked()
+{
+	HdExtractor extractor(this);
+	extractor.installHd();
+
+	QString modName = "hd-edition";
+	auto modView = Helper::getMainWindow()->getModView();
+	
+	modView->reload(modName);
+	if (modView->isModInstalled(modName))
+	{
+		modView->enableModByName(modName);
+		refreshState();
+	}
 }
 
 void StartGameTab::on_buttonPresetExport_clicked()
 {
-	JsonNode presetJson = getMainWindow()->getModView()->exportCurrentPreset();
+	JsonNode presetJson = Helper::getMainWindow()->getModView()->exportCurrentPreset();
 	QString presetString = QString::fromStdString(presetJson.toCompactString());
 	QGuiApplication::clipboard()->setText(presetString);
 
@@ -404,69 +436,87 @@ void StartGameTab::on_buttonPresetExport_clicked()
 void StartGameTab::on_buttonPresetImport_clicked()
 {
 	QString presetString = QGuiApplication::clipboard()->text();
+
+	if (!presetString.startsWith("{"))
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
+
 	QByteArray presetBytes(presetString.toUtf8());
 	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
 
-	getMainWindow()->getModView()->importPreset(presetJson);
-	getMainWindow()->switchToModsTab();
+	if (presetJson["name"].String().empty() || presetJson["mods"].Vector().empty())
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
+
+	Helper::getMainWindow()->getModView()->importPreset(presetJson);
+	Helper::getMainWindow()->switchToModsTab();
 	refreshPresets();
 }
 
 void StartGameTab::on_buttonPresetNew_clicked()
 {
-	bool ok;
-	QString presetName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Enter preset name:"),
-		QLineEdit::Normal,
-		QString(),
-		&ok);
+	const auto & functor = [this](){
+		bool ok;
+		QString presetName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Enter preset name:"),
+			QLineEdit::Normal,
+			QString(),
+			&ok);
 
-	if (ok && !presetName.isEmpty())
-	{
-		getMainWindow()->getModView()->createNewPreset(presetName);
-		getMainWindow()->getModView()->activatePreset(presetName);
-		refreshPresets();
-	}
+		if (ok && !presetName.isEmpty())
+		{
+			Helper::getMainWindow()->getModView()->createNewPreset(presetName);
+			Helper::getMainWindow()->getModView()->activatePreset(presetName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
 
 void StartGameTab::on_buttonPresetDelete_clicked()
 {
-	QString activePresetBefore = getMainWindow()->getModView()->getActivePreset();
-	QStringList allPresets = getMainWindow()->getModView()->getAllPresets();
+	QString activePresetBefore = Helper::getMainWindow()->getModView()->getActivePreset();
+	QStringList allPresets = Helper::getMainWindow()->getModView()->getAllPresets();
 
 	allPresets.removeAll(activePresetBefore);
 	if (!allPresets.empty())
 	{
-		getMainWindow()->getModView()->activatePreset(allPresets.front());
-		getMainWindow()->getModView()->deletePreset(activePresetBefore);
+		Helper::getMainWindow()->getModView()->activatePreset(allPresets.front());
+		Helper::getMainWindow()->getModView()->deletePreset(activePresetBefore);
 		refreshPresets();
 	}
 }
 
 void StartGameTab::on_comboBoxModPresets_currentTextChanged(const QString &presetName)
 {
-	getMainWindow()->getModView()->activatePreset(presetName);
+	Helper::getMainWindow()->getModView()->activatePreset(presetName);
 }
 
 void StartGameTab::on_buttonPresetRename_clicked()
 {
-	QString currentName = getMainWindow()->getModView()->getActivePreset();
+	const auto & functor = [this](){
+		QString currentName = Helper::getMainWindow()->getModView()->getActivePreset();
 
-	bool ok;
-	QString newName = QInputDialog::getText(
-		this,
-		ui->buttonPresetNew->text(),
-		tr("Rename preset '%1' to:").arg(currentName),
-		QLineEdit::Normal,
-		currentName,
-		&ok);
+		bool ok;
+		QString newName = QInputDialog::getText(
+			this,
+			ui->buttonPresetNew->text(),
+			tr("Rename preset '%1' to:").arg(currentName),
+			QLineEdit::Normal,
+			currentName,
+			&ok);
 
-	if (ok && !newName.isEmpty())
-	{
-		getMainWindow()->getModView()->renamePreset(currentName, newName);
-		refreshPresets();
-	}
+		if (ok && !newName.isEmpty() && newName != currentName)
+		{
+			Helper::getMainWindow()->getModView()->renamePreset(currentName, newName);
+			refreshPresets();
+		}
+	};
+	MessageBoxCustom::showDialog(this, functor);
 }
-

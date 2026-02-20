@@ -21,11 +21,11 @@ void ArmyFormation::rearrangeArmyForWhirlpool(const CGHeroInstance * hero)
 
 void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 {
-	auto freeSlots = hero->getFreeSlotsQueue();
+	auto freeSlots = hero->getFreeSlots();
 
 	while(!freeSlots.empty())
 	{
-		auto weakestCreature = vstd::minElementByFun(hero->Slots(), [](const std::pair<SlotID, CStackInstance *> & slot) -> int
+		TSlots::const_iterator weakestCreature = vstd::minElementByFun(hero->Slots(), [](const auto & slot) -> int
 			{
 				return slot.second->getCount() == 1
 					? std::numeric_limits<int>::max()
@@ -37,8 +37,8 @@ void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 			break;
 		}
 
-		cb->splitStack(hero, hero, weakestCreature->first, freeSlots.front(), 1);
-		freeSlots.pop();
+		cb->splitStack(hero, hero, weakestCreature->first, freeSlots.back(), 1);
+		freeSlots.pop_back();
 	}
 }
 
@@ -48,14 +48,14 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 
 	if(town->fortLevel() > CGTownInstance::FORT)
 	{
-		std::vector<CStackInstance *> stacks;
+		std::vector<const CStackInstance *> stacks;
 
-		for(auto slot : attacker->Slots())
-			stacks.push_back(slot.second);
+		for(const auto & slot : attacker->Slots())
+			stacks.push_back(slot.second.get());
 
 		boost::sort(
 			stacks,
-			[](CStackInstance * slot1, CStackInstance * slot2) -> bool
+			[](const CStackInstance * slot1, const CStackInstance * slot2) -> bool
 			{
 				auto cre1 = slot1->getCreatureID().toCreature();
 				auto cre2 = slot2->getCreatureID().toCreature();
@@ -67,7 +67,7 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 
 		for(int i = 0; i < stacks.size(); i++)
 		{
-			auto pos = vstd::findKey(attacker->Slots(), stacks[i]);
+			auto pos = stacks[i]->getArmy()->findStack(stacks[i]);
 
 			if(pos.getNum() != i)
 				cb->swapCreatures(attacker, attacker, static_cast<SlotID>(i), pos);

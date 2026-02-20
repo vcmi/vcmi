@@ -11,17 +11,17 @@
 #include "StdInc.h"
 #include "CArtifactsSelling.h"
 
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
-#include "../../../lib/CArtifactInstance.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
@@ -35,9 +35,9 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	OBJECT_CONSTRUCTION;
 
 	labels.emplace_back(std::make_shared<CLabel>(titlePos.x, titlePos.y, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title));
-	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->getNameTranslated())));
+	labels.push_back(std::make_shared<CLabel>(155, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[271]) % hero->getNameTranslated())));
 	deal = std::make_shared<CButton>(dealButtonPos, AnimationPath::builtin("TPMRKB.DEF"),
-		CGI->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();}, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[595], [this](){CArtifactsSelling::makeDeal();}, EShortcut::MARKET_DEAL);
 	bidSelectedSlot = std::make_shared<CTradeableItem>(Rect(Point(123, 470), Point(69, 66)), EType::ARTIFACT_TYPE, 0, 0);
 
 	// Market resources panel
@@ -59,7 +59,7 @@ CArtifactsSelling::CArtifactsSelling(const IMarket * market, const CGHeroInstanc
 	heroArts->onClickNotTradableCallback = []()
 	{
 		// This item can't be traded
-		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[21]);
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[21]);
 	};
 	CArtifactsSelling::updateShowcases();
 	CArtifactsSelling::deselect();
@@ -78,7 +78,7 @@ void CArtifactsSelling::makeDeal()
 {
 	const auto art = hero->getArt(selectedHeroSlot);
 	assert(art);
-	LOCPLINT->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
+	GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::ARTIFACT_RESOURCE, art->getId(),
 		GameResID(offerTradePanel->getHighlightedItemId()), offerQty, hero);
 	CMarketTraderText::makeDeal();
 }
@@ -90,7 +90,7 @@ void CArtifactsSelling::updateShowcases()
 	{
 		bidSelectedSlot->image->enable();
 		bidSelectedSlot->setID(art->getTypeId().num);
-		bidSelectedSlot->image->setFrame(CGI->artifacts()->getByIndex(art->getTypeId())->getIconIndex());
+		bidSelectedSlot->image->setFrame(art->getTypeId().toEntity(LIBRARY)->getIconIndex());
 		bidSelectedSlot->subtitle->setText(std::to_string(bidQty));
 	}
 	else
@@ -148,7 +148,7 @@ void CArtifactsSelling::highlightingChanged()
 	if(art && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(art->getTypeId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::ARTIFACT_RESOURCE);
-		deal->block(!LOCPLINT->makingTurn);
+		deal->block(!GAME->interface()->makingTurn);
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();
@@ -161,13 +161,13 @@ std::string CArtifactsSelling::getTraderText()
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.268");
 		message.replaceNumber(offerQty);
-		message.replaceRawString(offerQty == 1 ? CGI->generaltexth->allTexts[161] : CGI->generaltexth->allTexts[160]);
+		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
 		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceName(art->getTypeId());
 		return message.toString();
 	}
 	else
 	{
-		return madeTransaction ? CGI->generaltexth->allTexts[162] : CGI->generaltexth->allTexts[163];
+		return madeTransaction ? LIBRARY->generaltexth->allTexts[162] : LIBRARY->generaltexth->allTexts[163];
 	}
 }

@@ -35,6 +35,7 @@ public:
 	void setResourcePosition(const GameResID & resource, const Point & position);
 
 	void setPlayerColor(PlayerColor player);
+	void showPopupWindow(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
 };
 

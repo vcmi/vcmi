@@ -52,6 +52,7 @@ enum class EResType
 	ARCHIVE_ZIP,
 	ARCHIVE_SND,
 	ARCHIVE_LOD,
+	ARCHIVE_PAK,
 	PALETTE,
 	SAVEGAME,
 	DIRECTORY,
@@ -59,6 +60,7 @@ enum class EResType
 	ERT,
 	ERS,
 	LUA,
+	AI_MODEL,
 	OTHER,
 	UNDEFINED,
 };

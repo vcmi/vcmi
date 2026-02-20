@@ -97,7 +97,7 @@ public:
 	TResources getDailyIncome() const { return dailyIncome; }
 	float getGoldPressure() const { return goldPressure; }
 	bool isGoldPressureHigh() const;
-	bool hasAnyBuilding(int32_t alignment, BuildingID bid) const;
+	bool hasAnyBuilding(FactionID alignment, BuildingID bid) const;
 
 private:
 	BuildingInfo getBuildingOrPrerequisite(

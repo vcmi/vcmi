@@ -41,13 +41,14 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	std::string modScope;
 	TerrainId id;
 	ui8 passabilityType;
+	std::vector<MapLayerId> allowedLayers;
 
 	enum PassabilityType : ui8
 	{
 		//LAND = 1,
 		WATER = 2,
-		SURFACE = 4,
-		SUBTERRANEAN = 8,
+		//SURFACE = 4,
+		//SUBTERRANEAN = 8,
 		ROCK = 16
 	};
 
@@ -83,14 +84,14 @@ public:
 
 	TerrainType() = default;
 
-	bool isLand() const;
-	bool isWater() const;
-	bool isRock() const;
+	inline bool isLand() const;
+	inline bool isWater() const;
+	inline bool isRock() const;
+	inline bool isPassable() const;
+	inline bool isSurface() const;
+	inline bool isUnderground() const;
+	inline std::vector<MapLayerId> layersAllowed() const;
 
-	bool isPassable() const;
-
-	bool isSurface() const;
-	bool isUnderground() const;
 	bool isTransitionRequired() const;
 };
 
@@ -111,5 +112,40 @@ public:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 };
+
+inline bool TerrainType::isLand() const
+{
+	return !isWater();
+}
+
+inline bool TerrainType::isWater() const
+{
+	return passabilityType & PassabilityType::WATER;
+}
+
+inline bool TerrainType::isRock() const
+{
+	return passabilityType & PassabilityType::ROCK;
+}
+
+inline bool TerrainType::isPassable() const
+{
+	return !isRock();
+}
+
+inline bool TerrainType::isSurface() const
+{
+	return vstd::contains(allowedLayers, MapLayerId::SURFACE);
+}
+
+inline bool TerrainType::isUnderground() const
+{
+	return vstd::contains(allowedLayers, MapLayerId::UNDERGROUND);
+}
+
+inline std::vector<MapLayerId> TerrainType::layersAllowed() const
+{
+	return allowedLayers;
+}
 
 VCMI_LIB_NAMESPACE_END

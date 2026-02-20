@@ -12,10 +12,13 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "bonuses/Bonus.h"
-#include "bonuses/CBonusSystemNode.h"
+#include "callback/GameCallbackHolder.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
+#include "mapObjects/CGObjectInstance.h"
+#include "mapping/MapTilesStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +28,7 @@ class CGTownInstance;
 class CGDwelling;
 struct QuestInfo;
 
-class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
+class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player, public GameCallbackHolder
 {
 	struct VisitedObjectGlobal
 	{
@@ -47,14 +50,14 @@ class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 		}
 	};
 
-	std::vector<CGObjectInstance*> ownedObjects;
+	std::vector<ObjectInstanceID> ownedObjects;
 
 	template<typename T>
 	std::vector<T> getObjectsOfType() const;
 
 public:
 	PlayerColor color;
-	bool human; //true if human controlled player, false for AI
+	bool human = false; //true if human controlled player, false for AI
 	TeamID team;
 	TResources resources;
 
@@ -73,7 +76,7 @@ public:
 	std::optional<ui8> daysWithoutCastle;
 	TurnTimerInfo turnTimer;
 
-	PlayerState();
+	PlayerState(IGameInfoCallback *cb);
 	~PlayerState();
 
 	std::string nodeName() const override;
@@ -115,24 +118,17 @@ public:
 		h & resources;
 		h & status;
 		h & turnTimer;
-
-		if (h.version >= Handler::Version::LOCAL_PLAYER_STATE_DATA)
-			h & *playerLocalSettings;
-
-		if (h.version >= Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
-		{
+		h & *playerLocalSettings;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 			h & ownedObjects;
-		}
 		else
 		{
-			std::vector<const CGObjectInstance* > heroes;
-			std::vector<const CGObjectInstance* > towns;
-			std::vector<const CGObjectInstance* > dwellings;
-
-			h & heroes;
-			h & towns;
-			h & dwellings;
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				ownedObjects.push_back(ptr->id);
 		}
+
 		h & quests;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;
@@ -153,8 +149,8 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
-	//TODO: boost::array, bool if possible
-	boost::multi_array<ui8, 3> fogOfWarMap; //[z][x][y] true - visible, false - hidden
+	//TODO: bool if possible
+	MapTilesStorage<uint8_t> fogOfWarMap; //true - visible, false - hidden
 
 	std::set<ObjectInstanceID> scoutedObjects;
 
@@ -164,23 +160,9 @@ public:
 	{
 		h & id;
 		h & players;
-		if (h.version < Handler::Version::REMOVE_FOG_OF_WAR_POINTER)
-		{
-			struct Helper : public Serializeable
-			{
-				void serialize(Handler &h) const
-				{}
-			};
-			Helper helper;
-			auto ptrHelper = &helper;
-			h & ptrHelper;
-		}
-
 		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
-
-		if (h.version >= Handler::Version::REWARDABLE_BANKS)
-			h & scoutedObjects;
+		h & scoutedObjects;
 	}
 
 };

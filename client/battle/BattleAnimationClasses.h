@@ -9,8 +9,9 @@
  */
 #pragma once
 
-#include "../../lib/battle/BattleHex.h"
+#include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/Color.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -113,8 +114,10 @@ public:
 
 class ColorTransformAnimation : public BattleStackAnimation
 {
-	std::vector<ColorFilter> steps;
+	std::vector<ColorRGBA> effectColors;
+	std::vector<float> transparency;
 	std::vector<float> timePoints;
+
 	const CSpell * spell;
 
 	float totalProgress;
@@ -143,7 +146,7 @@ class MovementAnimation : public StackMoveAnimation
 private:
 	int moveSoundHandler; // sound handler used when moving a unit
 
-	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
+	const BattleHexArray & destTiles; //full path, includes already passed hexes
 	ui32 currentMoveIndex; // index of nextHex in destTiles
 
 	double begX, begY; // starting position
@@ -159,7 +162,7 @@ public:
 	bool init() override;
 	void tick(uint32_t msPassed) override;
 
-	MovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
+	MovementAnimation(BattleInterface & owner, const CStack *_stack, const BattleHexArray & _destTiles, int _distance);
 	~MovementAnimation();
 };
 
@@ -316,7 +319,7 @@ class EffectAnimation : public BattleAnimation
 
 	std::shared_ptr<CAnimation>	animation;
 	std::vector<Point> positions;
-	std::vector<BattleHex> battlehexes;
+	BattleHexArray battlehexes;
 
 	bool alignToBottom() const;
 	bool waitForSound() const;
@@ -339,14 +342,14 @@ public:
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, int effects = 0, float transparencyFactor = 1.f, bool reversed = false);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                 , int effects = 0, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos    , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos                   , int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<Point> pos      , int effects = 0, bool reversed = false);
 
 	/// Create animation positioned at certain hex(es)
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex             , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, std::vector<BattleHex> hex, int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, BattleHex hex               , int effects = 0, float transparencyFactor = 1.0f, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, const BattleHexArray & hexes, int effects = 0, bool reversed = false);
 
-	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,   int effects = 0, bool reversed = false);
+	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,     int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
 	bool init() override;

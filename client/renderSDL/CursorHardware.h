@@ -30,6 +30,7 @@ public:
 	void setImage(std::shared_ptr<IImage> image, const Point & pivotOffset) override;
 	void setCursorPosition( const Point & newPos ) override;
 	void render() override;
+	void update() override;
 	void setVisible( bool on) override;
 };
 

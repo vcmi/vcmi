@@ -282,7 +282,7 @@
       <widget class="QPushButton" name="pushButtonHomepage">
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>180</width>
          <height>0</height>
         </size>
        </property>
@@ -295,12 +295,25 @@
       <widget class="QPushButton" name="pushButtonBugreport">
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>180</width>
          <height>0</height>
         </size>
        </property>
        <property name="text">
         <string>Report a bug</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonExportLogs">
+       <property name="minimumSize">
+        <size>
+         <width>180</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Export logs</string>
        </property>
       </widget>
      </item>

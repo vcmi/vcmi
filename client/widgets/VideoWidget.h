@@ -34,6 +34,8 @@ class VideoWidgetBase : public CIntObject
 	void stopAudio();
 	std::string getSubTitleLine(double timestamp);
 
+	std::function<void()> playBackFinishedCallback;
+
 protected:
 	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio);
 	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor);
@@ -50,7 +52,7 @@ public:
 	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 
-	void setPlaybackFinishedCallback(std::function<void()>);
+	void setPlaybackFinishedCallback(std::function<void()> cb);
 };
 
 class VideoWidget final: public VideoWidgetBase

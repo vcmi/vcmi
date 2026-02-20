@@ -41,8 +41,8 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	std::vector<std::string> names;
 	EStartMode mode = EStartMode::INVALID;
 	// Changed by server before announcing pack
-	int clientId = -1;
-	int hostClientId = -1;
+	GameConnectionID clientId = GameConnectionID::INVALID;
+	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	ESerializationVersion version = ESerializationVersion::CURRENT;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -61,9 +61,8 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 {
-	int clientId;
+	GameConnectionID clientId = GameConnectionID::INVALID;
 	bool shutdownServer = false;
-
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -91,7 +90,7 @@ struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 {
 	enum EAction : ui8 {
-		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS, OPEN_EXTRA_OPTIONS
+		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS, OPEN_EXTRA_OPTIONS, BATTLE_MODE
 	} action = NONE;
 
 
@@ -136,9 +135,8 @@ struct DLL_LINKAGE LobbyPrepareStartGame : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
-	std::shared_ptr<StartInfo> initializedStartInfo = nullptr;
-	CGameState * initializedGameState = nullptr;
-	int clientId = -1; //-1 means to all clients
+	std::shared_ptr<StartInfo> initializedStartInfo;
+	std::shared_ptr<CGameState> initializedGameState;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -146,7 +144,6 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	{
 		if (!h.saving)
 			h.loadingGamestate = true;
-		h & clientId;
 		h & initializedStartInfo;
 		h & initializedGameState;
 		if (!h.saving)
@@ -154,9 +151,21 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyQuickLoadGame : public CLobbyPackToPropagate
+{
+	std::string saveFilePath;  //"Saves/Quicksave"
+
+	void visitTyped(ICPackVisitor & visitor) override;
+	
+	template <typename Handler> void serialize(Handler &h)
+	{
+			h & saveFilePath;
+	}
+};
+
 struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 {
-	int newHostConnectionId = -1;
+	GameConnectionID newHostConnectionId = GameConnectionID::INVALID;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -230,6 +239,18 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bonusId;
+	}
+};
+
+struct DLL_LINKAGE LobbySetBattleOnlyModeStartInfo : public CLobbyPackToPropagate
+{
+	std::shared_ptr<BattleOnlyModeStartInfo> startInfo;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & startInfo;
 	}
 };
 
@@ -340,7 +361,7 @@ struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 {
-	ui8 targetConnectedPlayer = -1;
+	PlayerConnectionID targetConnectedPlayer = PlayerConnectionID::INVALID;
 	PlayerColor targetPlayerColor = PlayerColor::CANNOT_DETERMINE;
 
 	void visitTyped(ICPackVisitor & visitor) override;

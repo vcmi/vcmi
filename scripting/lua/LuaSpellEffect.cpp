@@ -58,7 +58,7 @@ void LuaSpellEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 }
 
-void LuaSpellEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void LuaSpellEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 
 }
@@ -98,7 +98,7 @@ bool LuaSpellEffect::applicable(Problem & problem, const Mechanics * m, const Ef
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().emplace_back(dest.hexValue.hex);
+		targetData.Vector().emplace_back(dest.hexValue.toInt());
 
 		if(dest.unitValue)
 			targetData.Vector().emplace_back(dest.unitValue->unitId());
@@ -141,7 +141,7 @@ void LuaSpellEffect::apply(ServerCallback * server, const Mechanics * m, const E
 	for(const auto & dest : target)
 	{
 		JsonNode targetData;
-		targetData.Vector().emplace_back(dest.hexValue.hex);
+		targetData.Vector().emplace_back(dest.hexValue.toInt());
 
 		if(dest.unitValue)
 			targetData.Vector().emplace_back(dest.unitValue->unitId());

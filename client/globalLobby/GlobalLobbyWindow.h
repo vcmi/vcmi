@@ -45,6 +45,7 @@ public:
 
 	void onGameChatMessage(const std::string & sender, const std::string & message, const std::string & when, const std::string & channelType, const std::string & channelName);
 	void refreshChatText();
+	void refreshActiveChannels();
 	void onActiveAccounts(const std::vector<GlobalLobbyAccount> & accounts) override;
 	void onActiveGameRooms(const std::vector<GlobalLobbyRoom> & rooms) override;
 	void onMatchesHistory(const std::vector<GlobalLobbyRoom> & history);

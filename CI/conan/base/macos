@@ -1,4 +1,0 @@
-include(apple)
-
-[settings]
-os=Macos

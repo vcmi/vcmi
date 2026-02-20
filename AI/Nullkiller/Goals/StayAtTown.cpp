@@ -23,7 +23,7 @@ StayAtTown::StayAtTown(const CGTownInstance * town, AIPath & path)
 {
 	sethero(path.targetHero);
 	settown(town);
-	movementWasted = static_cast<float>(hero->movementPointsRemaining()) / hero->movementPointsLimit(!hero->boat) - path.movementCost();
+	movementWasted = static_cast<float>(hero->movementPointsRemaining()) / hero->movementPointsLimit(!hero->inBoat()) - path.movementCost();
 	vstd::amax(movementWasted, 0);
 }
 

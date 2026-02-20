@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/Graphics.h"
@@ -28,6 +28,7 @@
 #include "../../lib/texts/TextOperations.h"
 
 constexpr int RIGHT_CLICK_POPUP_MIN_SIZE = 100;
+constexpr int RIGHT_CLICK_POPUP_MAX_HEIGHT_TEXTONLY = 450;
 constexpr int SIDE_MARGIN = 11;
 constexpr int TOP_MARGIN = 20;
 constexpr int BOTTOM_MARGIN = 16;
@@ -41,7 +42,7 @@ void CMessage::init()
 {
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = GH.renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::COLORKEY);
+		dialogBorders[i] = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("DIALGBOX"), EImageBlitMode::COLORKEY);
 
 		for(int j = 0; j < dialogBorders[i]->size(0); j++)
 		{
@@ -70,7 +71,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
 
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
 	// each iteration generates one output line
 	while(text.length())
@@ -123,7 +124,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 		// not all line has been processed - it turned out to be too long, so erase everything after last word break
 		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
-		if(currPos < text.length() && (text[currPos] != 0x0a))
+		if(fontPtr->getStringWidth(printableString) > maxLineWidth && (text[currPos] != 0x0a))
 		{
 			if(wordBreak != ui32(-1))
 			{
@@ -163,7 +164,13 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		{
 			// trim only if line does not starts with LF
 			// FIXME: necessary? All lines will be trimmed before returning anyway
-			boost::algorithm::trim_left_if(text, boost::algorithm::is_any_of(std::string(" ")));
+			boost::algorithm::trim_left_if(
+				text,
+				[](char c)
+				{
+					return static_cast<unsigned char>(c) <= static_cast<unsigned char>(' ');
+				}
+			);
 		}
 
 		if(opened)
@@ -194,7 +201,7 @@ std::string CMessage::guessHeader(const std::string & msg)
 
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	const auto lines = CMessage::breakText(txt, width, font);
 	size_t lineHeight = fontPtr->getLineHeight();
 	return lineHeight * lines.size();
@@ -260,9 +267,17 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	if(ret->buttons.empty() && !ret->components)
 	{
 		// use more compact form for right-click popup with no buttons / components
-
-		ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.x + 2 * SIDE_MARGIN);
-		ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.y + TOP_MARGIN + BOTTOM_MARGIN);
+		if(ret->text->slider)
+		{
+			ret->text->resize(Point(ret->text->pos.w, std::min(ret->text->label->textSize.y, RIGHT_CLICK_POPUP_MAX_HEIGHT_TEXTONLY)));
+			ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->pos.w + 2 * SIDE_MARGIN);
+			ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->pos.h + TOP_MARGIN + BOTTOM_MARGIN);
+		}
+		else
+		{
+			ret->pos.w = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.x + 2 * SIDE_MARGIN);
+			ret->pos.h = std::max(RIGHT_CLICK_POPUP_MIN_SIZE, ret->text->label->textSize.y + TOP_MARGIN + BOTTOM_MARGIN);
+		}
 	}
 	else
 	{

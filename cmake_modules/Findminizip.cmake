@@ -33,7 +33,7 @@ else()
   set(VC_LIB_PATH_SUFFIX lib/x86)
 endif()
 
-if (NOT WIN32 AND NOT APPLE_IOS)
+if (NOT WIN32 AND NOT IOS)
     find_package(PkgConfig)
     if (PKG_CONFIG_FOUND)
         pkg_check_modules(_MINIZIP minizip)

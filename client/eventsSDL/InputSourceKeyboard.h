@@ -19,6 +19,8 @@ class InputSourceKeyboard
 	bool wasKeyboardAltDown;
 	bool wasKeyboardShiftDown;
 
+	bool handleBackRightMouseButton; // on some android devices right mouse button is "back"
+
 	std::string getKeyNameWithModifiers(const std::string & keyName, bool keyUp);
 public:
 	InputSourceKeyboard();

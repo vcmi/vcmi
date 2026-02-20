@@ -35,7 +35,7 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 		int3 target = int3(-1);
 		foreach_neighbour(pos, [&](int3 tile)
 			{
-				auto pathInfo = ai->myCb->getPathsInfo(hero)->getPathInfo(tile);
+				auto pathInfo = ai->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
 
 				if(pathInfo->turns > 0)
 					return;
@@ -54,7 +54,7 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 				}
 			});
 
-		if(!target.valid())
+		if(!target.isValid())
 		{
 			return;
 		}

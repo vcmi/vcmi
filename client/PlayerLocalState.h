@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
@@ -17,6 +19,7 @@ class CArmedInstance;
 class JsonNode;
 struct CGPath;
 class int3;
+struct CPathsInfo;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -27,8 +30,8 @@ struct PlayerSpellbookSetting
 	//on which page we left spellbook
 	int spellbookLastPageBattle = 0;
 	int spellbookLastPageAdvmap = 0;
-	int spellbookLastTabBattle = 4;
-	int spellbookLastTabAdvmap = 4;
+	SpellSchool spellbookLastTabBattle = SpellSchool::ANY;
+	SpellSchool spellbookLastTabAdvmap = SpellSchool::ANY;
 };
 
 /// Class that contains potentially serializeable state of a local player
@@ -46,7 +49,9 @@ class PlayerLocalState
 
 	PlayerSpellbookSetting spellbookSettings;
 
-	void syncronizeState();
+	SpellID currentSpell;
+
+	void synchronizeState();
 public:
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
@@ -86,9 +91,15 @@ public:
 	const CGTownInstance * getCurrentTown() const;
 	const CArmedInstance * getCurrentArmy() const;
 
+	// returns currently cast spell, if any
+	SpellID getCurrentSpell() const;
+
+	void setCurrentSpell(SpellID castedSpell);
+
 	void serialize(JsonNode & dest) const;
 	void deserialize(const JsonNode & source);
 
 	/// Changes currently selected object
 	void setSelection(const CArmedInstance *sel);
+	void setSelection(const CArmedInstance *sel, bool force);
 };

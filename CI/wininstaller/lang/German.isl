@@ -1,6 +1,6 @@
-﻿; ******************************************************
+; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.1.0+ German messages      ***
+; *** Inno Setup version 6.5.0+ German messages      ***
 ; ***                                                ***
 ; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
@@ -85,14 +85,14 @@ SetupAppRunningError=Das Setup hat entdeckt, dass %1 zurzeit ausgeführt wird.%n
 UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
-PrivilegesRequiredOverrideInstruction=Bitte wählen Sie den Installationsmodus
-PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer (erfordert Administrationsrechte) oder nur für Sie installiert werden.
-PrivilegesRequiredOverrideText2=%1 kann nur für Sie oder für alle Benutzer (erfordert Administrationsrechte) installiert werden.
-PrivilegesRequiredOverrideAllUsers=Installation für &alle Benutzer
-PrivilegesRequiredOverrideAllUsersRecommended=Installation für &alle Benutzer (empfohlen)
-PrivilegesRequiredOverrideCurrentUser=Installation nur für &Sie
-PrivilegesRequiredOverrideCurrentUserRecommended=Installation nur für &Sie (empfohlen)
+PrivilegesRequiredOverrideTitle=Installationsmodus – Berechtigungen
+PrivilegesRequiredOverrideInstruction=Wählen Sie, wie das Installationsprogramm ausgeführt werden soll
+PrivilegesRequiredOverrideText1=%1 erfordert Administratorrechte, um für alle Benutzer installiert zu werden.%nSie können es auch nur für Ihr Benutzerkonto ohne Administratorrechte installieren.
+PrivilegesRequiredOverrideText2=%1 kann nur für Ihr Benutzerkonto (ohne Administratorrechte) oder für alle Benutzer (erfordert Administratorrechte) installiert werden.
+PrivilegesRequiredOverrideAllUsers=Als &Administrator ausführen (Installation für alle Benutzer)
+PrivilegesRequiredOverrideAllUsersRecommended=Als &Administrator ausführen (empfohlen)
+PrivilegesRequiredOverrideCurrentUser=Als &Standardbenutzer ausführen (Installation nur für mich)
+PrivilegesRequiredOverrideCurrentUserRecommended=Als &Standardbenutzer ausführen (empfohlen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen.
@@ -232,16 +232,26 @@ ReadyMemoGroup=Startmenü-Ordner:
 ReadyMemoTasks=Zusätzliche Aufgaben:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Lade zusätzliche Dateien herunter...
+DownloadingLabel2=Lade Dateien herunter...
 ButtonStopDownload=Download &abbrechen
 StopDownload=Sind Sie sicher, dass Sie den Download abbrechen wollen?
 ErrorDownloadAborted=Download abgebrochen
 ErrorDownloadFailed=Download fehlgeschlagen: %1 %2
 ErrorDownloadSizeFailed=Fehler beim Ermitteln der Größe: %1 %2
-ErrorFileHash1=Fehler beim Ermitteln der Datei-Prüfsumme: %1
-ErrorFileHash2=Ungültige Datei-Prüfsumme: erwartet %1, gefunden %2
 ErrorProgress=Ungültiger Fortschritt: %1 von %2
 ErrorFileSize=Ungültige Dateigröße: erwartet %1, gefunden %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractingLabel=Entpacke Dateien...
+ButtonStopExtraction=Entpacken &abbrechen
+StopExtraction=Sind Sie sicher, dass Sie das Entpacken abbrechen wollen?
+ErrorExtractionAborted=Entpacken abgebrochen
+ErrorExtractionFailed=Entpacken fehlgeschlagen: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Ungültiges Passwort
+ArchiveIsCorrupted=Das Archiv ist defekt
+ArchiveUnsupportedFormat=Das Archivformat wird nicht unterstützt
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Vorbereitung der Installation
@@ -287,11 +297,15 @@ AbortRetryIgnoreSelectAction=Bitte auswählen
 AbortRetryIgnoreRetry=&Nochmals versuchen
 AbortRetryIgnoreIgnore=&Den Fehler ignorieren und fortfahren
 AbortRetryIgnoreCancel=Installation abbrechen
+RetryCancelSelectAction=Bitte auswählen
+RetryCancelRetry=&Wiederholen
+RetryCancelCancel=&Abbrechen
 
 ; *** Installation status messages
 StatusClosingApplications=Anwendungen werden geschlossen ...
 StatusCreateDirs=Ordner werden erstellt ...
 StatusExtractFiles=Dateien werden entpackt ...
+StatusDownloadFiles=Dateien werden herunter geladen...
 StatusCreateIcons=Verknüpfungen werden erstellt ...
 StatusCreateIniEntries=INI-Einträge werden erstellt ...
 StatusCreateRegistryEntries=Registry-Einträge werden erstellt ...
@@ -321,6 +335,14 @@ FileAbortRetryIgnoreSkipNotRecommended=Diese Datei &überspringen (nicht empfohl
 FileAbortRetryIgnoreIgnoreNotRecommended=Den Fehler &ignorieren und fortfahren (nicht empfohlen)
 SourceIsCorrupted=Die Quelldatei ist beschädigt
 SourceDoesntExist=Die Quelldatei "%1" existiert nicht
+SourceVerificationFailed=Überprüfung der Quelldatei fehlgeschlagen: %1
+VerificationSignatureDoesntExist=Die Signaturdatei "%1" existiert nicht
+VerificationSignatureInvalid=Die Signaturdatei "%1" ist ungültig
+VerificationKeyNotFound=Die Signaturdatei "%1" verwendet einen unbekannten Schlüssel
+VerificationFileNameIncorrect=Der Name der Datei ist ungültig
+VerificationFileTagIncorrect=Der Tag der Datei ist ungültig
+VerificationFileSizeIncorrect=Die Größe der Datei ist ungültig
+VerificationFileHashIncorrect=Der Hashwert der Datei ist ungültig
 ExistingFileReadOnly2=Die vorhandene Datei kann nicht ersetzt werden, da sie schreibgeschützt ist.
 ExistingFileReadOnlyRetry=&Den Schreibschutz entfernen und noch einmal versuchen
 ExistingFileReadOnlyKeepExisting=Die &vorhandene Datei behalten
@@ -339,6 +361,8 @@ ErrorChangingAttr=Fehler beim Ändern der Datei-Attribute:
 ErrorCreatingTemp=Fehler beim Erstellen einer Datei im Ziel-Ordner:
 ErrorReadingSource=Fehler beim Lesen der Quelldatei:
 ErrorCopying=Fehler beim Kopieren einer Datei:
+ErrorDownloading=Beim Download der Datei ist ein Fehler aufgetreten:
+ErrorExtracting=Beim Entpacken eines Archivs ist ein Fehler aufgetreten:
 ErrorReplacingExistingFile=Fehler beim Ersetzen einer vorhandenen Datei:
 ErrorRestartReplace="Ersetzen nach Neustart" fehlgeschlagen:
 ErrorRenamingTemp=Fehler beim Umbenennen einer Datei im Ziel-Ordner:

@@ -1,0 +1,20 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = tab
+insert_final_newline = true
+spelling_language = en-US
+trim_trailing_whitespace = true
+
+[{*.py,CMakePresets.json}]
+indent_style = space
+indent_size = 4
+
+[*.{md,yml}]
+indent_style = space
+indent_size = 2
+
+[*.ui]
+indent_style = space
+indent_size = 1

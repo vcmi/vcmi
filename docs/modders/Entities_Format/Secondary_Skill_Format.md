@@ -26,7 +26,14 @@
 		"advanced": {Skill level format},
 		"expert":   {Skill level format},
 		
+		// Names of bonuses of the skill that are affected by default secondary skill specialty of a hero
+		"specialty" : [
+			"main"
+		],
+		
 		// Chance for the skill to be offered on level-up (heroClass may override)
+		/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+		/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 		"gainChance" : {
 			// Chance for hero classes with might affinity
 			"might" : 4,
@@ -36,6 +43,7 @@
 			"knight" : 2,
 			"cleric" : 8,
 			...
+			"modName:heroClassName" : 5
 		},
 		
 		// This skill is major obligatory (like H3 Wisdom) and is guaranteed to be offered once per specific number of levels
@@ -78,6 +86,8 @@ level fields become optional if they equal "base" configuration.
 		"medium" : "",
 		// 82x93 skill icon
 		"large" : "",
+		// 58x64 skill icon for campaign scenario bonus
+		"scenarioBonus" : ""
 	}
 }
 ```

@@ -12,7 +12,7 @@
 #include "OtherOptionsTab.h"
 
 #include "../../../lib/filesystem/ResourcePath.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
 #include "../../widgets/Buttons.h"
 #include "CConfigHandler.h"
 

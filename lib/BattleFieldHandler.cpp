@@ -11,7 +11,12 @@
 
 #include <vcmi/Entity.h>
 #include "BattleFieldHandler.h"
+#include "GameLibrary.h"
 #include "json/JsonBonus.h"
+#include "modding/IdentifierStorage.h"
+#include "CRandomGenerator.h"
+
+#include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,14 +36,22 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 
 		bonus->source = BonusSource::TERRAIN_OVERLAY;
 		bonus->sid = BonusSourceID(info->getId());
-		bonus->duration = BonusDuration::ONE_BATTLE;
+		bonus->duration = BonusDuration::PERMANENT;
 
 		info->bonuses.push_back(bonus);
 	}
 
 	info->isSpecial = json["isSpecial"].Bool();
+	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
+	for(int i = 0; i < info->limitToLayers.size(); i++)
+	{
+		LIBRARY->identifiers()->requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
+		{
+			info->limitToLayers.at(i) = MapLayerId(idx);
+		});
+	}
 	for(auto node : json["impassableHexes"].Vector())
-		info->impassableHexes.emplace_back(node.Integer());
+		info->impassableHexes.insert(node.Integer());
 
 	info->openingSoundFilename = AudioPath::fromJson(json["openingSound"]);
 	info->musicFilename = AudioPath::fromJson(json["music"]);
@@ -96,6 +109,25 @@ void BattleFieldInfo::registerIcons(const IconRegistar & cb) const
 BattleField BattleFieldInfo::getId() const
 {
 	return battlefield;
+}
+
+BattleField BattleFieldHandler::selectRandomBattlefield(const std::vector<BattleField> & battleFields, MapLayerId currentLayer, vstd::RNG & randomGenerator)
+{
+	std::vector<BattleField> filteredBattleFields;
+	for(auto & battleField : battleFields)
+		if(battleField.getInfo()->limitToLayers.empty() || vstd::contains(battleField.getInfo()->limitToLayers, currentLayer))
+			filteredBattleFields.push_back(battleField);
+
+	if (filteredBattleFields.empty() && !battleFields.empty())
+	{
+		logGlobal->warn("No battlefield for layer %s found, fallback", MapLayerId::encode(currentLayer));
+		filteredBattleFields = battleFields;
+	}
+
+	if (filteredBattleFields.empty())
+		return BattleField::NONE;
+
+	return *RandomGeneratorUtil::nextItem(filteredBattleFields, randomGenerator);
 }
 
 VCMI_LIB_NAMESPACE_END

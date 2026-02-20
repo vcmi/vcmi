@@ -14,7 +14,7 @@
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/CConfigHandler.h"
 
 #include <boost/program_options.hpp>
@@ -29,6 +29,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("help,h", "display help and exit")
 	("version,v", "display version information and exit")
 	("run-by-client", "indicate that server launched by client on same machine")
+	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
 	("lobby", "start server in lobby mode in which server connects to a global lobby");
 
@@ -71,19 +72,20 @@ int main(int argc, const char * argv[])
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 
-	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
-	logConfig.configureDefault();
+	CConsoleHandler console;
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", &console);
+	logConfigurator.configureDefault();
 	logGlobal->info(SERVER_NAME);
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console, false);
-	logConfig.configure();
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	logConfigurator.configure();
 
-	loadDLLClasses();
-	std::srand(static_cast<uint32_t>(time(nullptr)));
+	LIBRARY->initializeLibrary();
 
+	if(!opts.count("dummy-run"))
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");
@@ -92,14 +94,14 @@ int main(int argc, const char * argv[])
 			port = opts["port"].as<uint16_t>();
 
 		CVCMIServer server(port, runByClient);
-		server.prepare(connectToLobby);
+		server.prepare(connectToLobby, true);
 		server.run();
 
-		// CVCMIServer destructor must be called here - before VLC cleanup
+		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 
-	logConfig.deconfigure();
-	vstd::clear_pointer(VLC);
+	logConfigurator.deconfigure();
 
+	delete LIBRARY;
 	return 0;
 }

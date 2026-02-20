@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/IScreenHandler.h"
@@ -30,7 +30,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group, bool verbose)
 	if(auto image = getImageImpl(frame, group, false))
 		return true;
 
-	std::shared_ptr<IImage> image = GH.renderHandler().loadImage(getImageLocator(frame, group), mode);
+	std::shared_ptr<IImage> image = ENGINE->renderHandler().loadImage(getImageLocator(frame, group));
 
 	if(image)
 	{
@@ -44,7 +44,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group, bool verbose)
 	{
 		// image is missing
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = GH.renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
+		images[group][frame] = ENGINE->renderHandler().loadImage(ImagePath::builtin("DEFAULT"), EImageBlitMode::OPAQUE);
 		return false;
 	}
 }
@@ -212,10 +212,17 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 
 ImageLocator CAnimation::getImageLocator(size_t frame, size_t group) const
 {
-	const ImageLocator & locator = source.at(group).at(frame);
+	try
+	{
+		const ImageLocator & locator = source.at(group).at(frame);
 
-	if (!locator.empty())
-		return locator;
+		if (!locator.empty())
+			return locator;
+	}
+	catch (std::out_of_range &)
+	{
+		throw std::runtime_error("Frame " + std::to_string(frame) + " of group " + std::to_string(group) + " is missing from animation " + name.getOriginalName() );
+	}
 
-	return ImageLocator(name, frame, group);
+	return ImageLocator(name, frame, group, mode);
 }

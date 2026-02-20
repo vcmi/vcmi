@@ -11,52 +11,44 @@
 #include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NKAI
 {
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
-	auto townInfo = developmentInfo.town->getTown();
-	auto creatures = townInfo->creatures;
-	auto buildings = townInfo->getAllBuildings();
-
-	std::map<BuildingID, BuildingID> parentMap;
-
-	for(auto &pair : townInfo->buildings)
-	{
-		if(pair.second->upgrade != BuildingID::NONE)
-		{
-			parentMap[pair.second->upgrade] = pair.first;
-		}
-	}
-
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Checking dwelling level %d", level);
-		BuildingInfo nextToBuild = BuildingInfo();
+#endif
+		std::vector<BuildingID> dwellingsInTown;
 
-		for(int upgradeIndex : {2, 1, 0})
+		for(BuildingID buildID = BuildingID::getDwellingFromLevel(level, 0); buildID.hasValue(); BuildingID::advanceDwelling(buildID))
+			if(developmentInfo.town->getTown()->buildings.count(buildID) != 0)
+				dwellingsInTown.push_back(buildID);
+
+		// find best, already built dwelling
+		for (const auto & buildID : boost::adaptors::reverse(dwellingsInTown))
 		{
-			BuildingID building = BuildingID(BuildingID::getDwellingFromLevel(level, upgradeIndex));
-			if(!vstd::contains(buildings, building))
-				continue; // no such building in town
+			if (!developmentInfo.town->hasBuilt(buildID))
+				continue;
 
-			auto info = getBuildingOrPrerequisite(developmentInfo.town, building);
-
-			if(info.exists)
-			{
-				developmentInfo.addExistingDwelling(info);
-
-				break;
-			}
-
-			nextToBuild = info;
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			developmentInfo.addExistingDwelling(info);
+			break;
 		}
 
-		if(nextToBuild.id != BuildingID::NONE)
+		// find all non-built dwellings that can be built and add them for consideration
+		for (const auto & buildID : dwellingsInTown)
 		{
-			developmentInfo.addBuildingToBuild(nextToBuild);
+			if (developmentInfo.town->hasBuilt(buildID))
+				continue;
+
+			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID);
+			if (info.canBuild || info.notEnoughRes)
+				developmentInfo.addBuildingToBuild(info);
 		}
 	}
 }
@@ -70,7 +62,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
-	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
+	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > 4)
 	{
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
@@ -151,8 +143,11 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance* town : towns)
 	{
+		if(town->built >= cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+			continue; // Not much point in trying anything - can't built in this town anymore today
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Checking town %s", town->getNameTranslated());
-
+#endif
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & developmentInfo = developmentInfos.back();
 
@@ -168,10 +163,10 @@ void BuildAnalyzer::update()
 		}
 		armyCost += developmentInfo.armyCost;
 
+#if NKAI_TRACE_LEVEL >= 1
 		for(auto bi : developmentInfo.toBuild)
-		{
 			logAi->trace("Building preferences %s", bi.toString());
-		}
+#endif
 	}
 
 	std::sort(developmentInfos.begin(), developmentInfos.end(), [](const TownDevelopmentInfo & t1, const TownDevelopmentInfo & t2) -> bool
@@ -186,7 +181,9 @@ void BuildAnalyzer::update()
 
 	goldPressure = (ai->getLockedResources()[EGameResID::GOLD] + (float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
 
+#if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gold pressure: %f", goldPressure);
+#endif
 }
 
 void BuildAnalyzer::reset()
@@ -205,17 +202,17 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	BuildingID building = toBuild;
 	auto townInfo = town->getTown();
 
-	const CBuilding * buildPtr = townInfo->buildings.at(building);
+	const auto & buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
 	CreatureID baseCreatureID;
 
 	int creatureLevel = -1;
 	int creatureUpgrade = 0;
 
-	if(toBuild.IsDwelling())
+	if(toBuild.isDwelling())
 	{
-		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
-		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
+		creatureLevel = BuildingID::getLevelIndexFromDwelling(toBuild);
+		creatureUpgrade = BuildingID::getUpgradeNoFromDwelling(toBuild);
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{
@@ -237,10 +234,9 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		creature = creatureID.toCreature();
 	}
 
-	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
+	auto info = BuildingInfo(buildPtr.get(), creature, baseCreatureID, town, ai);
 
-	logAi->trace("checking %s", info.name);
-	logAi->trace("buildInfo %s", info.toString());
+	//logAi->trace("checking %s buildInfo %s", info.name, info.toString());
 
 	int highestFort = 0;
 	for (auto twn : ai->cb->getTownsInfo())
@@ -258,7 +254,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
-			logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
+			//logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
 			info.notEnoughRes = true;
 		}
 		else if(canBuild == EBuildingState::PREREQUIRES)
@@ -271,17 +267,20 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 			auto otherDwelling = [](const BuildingID & id) -> bool
 			{
-				return id.IsDwelling();
+				return id.isDwelling();
 			};
 
 			if(vstd::contains_if(missingBuildings, otherDwelling))
 			{
-				logAi->trace("cant build. Need other dwelling");
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("cant build %d. Need other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
+#endif
 			}
 			else if(missingBuildings[0] != toBuild)
 			{
-				logAi->trace("cant build. Need %d", missingBuildings[0].num);
-
+#if NKAI_TRACE_LEVEL >= 1
+				logAi->trace("cant build %d. Need %d", toBuild.getNum(), missingBuildings[0].num);
+#endif
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
 
 				prerequisite.buildCostWithPrerequisites += info.buildCost;
@@ -292,6 +291,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.baseCreatureID = info.baseCreatureID;
 				prerequisite.prerequisitesCount++;
 				prerequisite.armyCost = info.armyCost;
+				prerequisite.armyStrength = info.armyStrength;
 				bool haveSameOrBetterFort = false;
 				if (prerequisite.id == BuildingID::FORT && highestFort >= CGTownInstance::EFortLevel::FORT)
 					haveSameOrBetterFort = true;
@@ -306,15 +306,24 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			}
 			else
 			{
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Cant build. The building requires itself as prerequisite");
-
+#endif
 				return info;
 			}
+		}
+		else
+		{
+#if NKAI_TRACE_LEVEL >= 1
+			logAi->trace("Cant build. Reason: %d", static_cast<int>(canBuild));
+#endif
 		}
 	}
 	else
 	{
-		logAi->trace("exists");
+#if NKAI_TRACE_LEVEL >= 1
+		logAi->trace("Dwelling %d exists", toBuild.getNum());
+#endif
 		info.exists = true;
 	}
 
@@ -342,7 +351,7 @@ void BuildAnalyzer::updateDailyIncome()
 	}
 }
 
-bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
+bool BuildAnalyzer::hasAnyBuilding(FactionID alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{
@@ -420,7 +429,7 @@ BuildingInfo::BuildingInfo(
 		}
 		else
 		{
-			if(id.IsDwelling())
+			if(id.isDwelling())
 			{
 				creatureGrows = creature->getGrowth();
 

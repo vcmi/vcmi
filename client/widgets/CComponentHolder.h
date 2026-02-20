@@ -20,15 +20,18 @@ public:
 
 	ClickFunctor clickPressedCallback;
 	ClickFunctor showPopupCallback;
+	std::function<void()> closePopupWindowCallback;
 	ClickFunctor gestureCallback;
 	std::shared_ptr<CAnimImage> image;
 
 	CComponentHolder(const Rect & area, const Point & selectionOversize);
 	void setClickPressedCallback(const ClickFunctor & callback);
 	void setShowPopupCallback(const ClickFunctor & callback);
+	void setClosePopupWindowCallback(const std::function<void()> & callback);
 	void setGestureCallback(const ClickFunctor & callback);
 	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
+	void closePopupWindow(bool alreadyClosed) override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 };
 
@@ -44,6 +47,7 @@ public:
 	void lockSlot(bool on);
 	bool isLocked() const;
 	void addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts);
+	void addChargedArtInfo(const uint16_t charges);
 
 private:
 	ArtifactID artId;

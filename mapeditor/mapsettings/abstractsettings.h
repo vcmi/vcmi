@@ -44,25 +44,19 @@ public:
 	static std::vector<int> getObjectIndexes(const CMap & map)
 	{
 		std::vector<int> result;
-		for(int i = 0; i < map.objects.size(); ++i)
-		{
-			if(auto obj = dynamic_cast<T*>(map.objects[i].get()))
-				result.push_back(i);
-		}
+		for(const auto & obj : map.getObjects<T>())
+			result.push_back(obj->id.getNum());
+
 		return result;
 	}
 
 	template<class T>
 	static int getObjectByPos(const CMap & map, const int3 & pos)
 	{
-		for(int i = 0; i < map.objects.size(); ++i)
-		{
-			if(auto obj = dynamic_cast<T*>(map.objects[i].get()))
-			{
-				if(obj->pos == pos)
-					return i;
-			}
-		}
+		for(const auto & obj : map.getObjects<T>())
+			if(obj->pos == pos)
+				return obj->id.getNum();
+
 		return -1;
 	}
 

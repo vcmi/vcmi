@@ -58,6 +58,7 @@ public:
 
 	virtual void log(ELogLevel::ELogLevel level, const std::string & message) const = 0;
 	virtual void log(ELogLevel::ELogLevel level, const boost::format & fmt) const = 0;
+	virtual ELogLevel::ELogLevel getEffectiveLevel() const = 0;
 
 	/// Returns true if a debug/trace log message will be logged, false if not.
 	/// Useful if performance is important and concatenating the log message is a expensive task.
@@ -67,16 +68,19 @@ public:
 	template<typename T, typename ... Args>
 	void log(ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args) const
 	{
-		try
+		if (getEffectiveLevel() <= level)
 		{
-			boost::format fmt(format);
-			makeFormat(fmt, t, args...);
-			log(level, fmt);
-		}
-		catch(...)
-		{
-			log(ELogLevel::ERROR, "Log formatting failed, format was:");
-			log(ELogLevel::ERROR, format);
+			try
+			{
+				boost::format fmt(format);
+				makeFormat(fmt, t, args...);
+				log(level, fmt);
+			}
+			catch(...)
+			{
+				log(ELogLevel::ERROR, "Log formatting failed, format was:");
+				log(ELogLevel::ERROR, format);
+			}
 		}
 	}
 

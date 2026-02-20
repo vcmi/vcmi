@@ -14,8 +14,8 @@
 
 class CCampaignInfoScreen : public CBonusSelection, ISelectionScreenInfo
 {
-	const StartInfo * localSi;
-	CMapInfo * localMi;
+	std::unique_ptr<StartInfo> localSi;
+	std::unique_ptr<CMapInfo> localMi;
 
 public:
 	CCampaignInfoScreen();

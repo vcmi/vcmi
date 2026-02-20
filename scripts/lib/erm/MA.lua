@@ -8,7 +8,7 @@ local Bonus = require("Bonus")
 local BonusBearer = require("BonusBearer")
 local BonusList = require("BonusList")
 
-local RES = {[0] = "wood", [1] = "mercury", [2] = "ore", [3] = "sulfur", [4] = "crystal", [5] = "gems", [6] = "gold", [7] = "mithril"}
+local RES = {[0] = "wood", [1] = "mercury", [2] = "ore", [3] = "sulfur", [4] = "crystal", [5] = "gems", [6] = "gold"}
 
 local SERVICES = SERVICES
 local creatures = SERVICES:creatures()

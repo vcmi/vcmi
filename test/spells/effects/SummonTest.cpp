@@ -24,6 +24,7 @@ using namespace ::testing;
 
 static const CreatureID creature1(CreatureID::AIR_ELEMENTAL);
 static const CreatureID creature2(CreatureID::FIRE_ELEMENTAL);
+static const int summonSpellPower = 100; // enough to summon at least 1 unit
 
 class SummonTest : public TestWithParam<::testing::tuple<CreatureID, bool, bool>>, public EffectFixture
 {
@@ -82,7 +83,7 @@ protected:
 	}
 };
 
-TEST_P(SummonTest, DISABLED_Applicable)
+TEST_P(SummonTest, Applicable)
 {
 	const bool expectedApplicable = !exclusive || otherSummoned == CreatureID() || otherSummoned == toSummon;
 
@@ -98,11 +99,14 @@ TEST_P(SummonTest, DISABLED_Applicable)
 		EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(0);
 
 	EXPECT_CALL(mechanicsMock, getCasterColor()).WillRepeatedly(Return(PlayerColor(5)));
+	EXPECT_CALL(mechanicsMock, getEffectPower()).WillRepeatedly(Return(summonSpellPower));
+	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(0, summonSpellPower)).WillRepeatedly(Return(summonSpellPower));
+	EXPECT_CALL(mechanicsMock, applySpecificSpellBonus(summonSpellPower)).WillRepeatedly(Return(summonSpellPower));
 
 	EXPECT_EQ(expectedApplicable, subject->applicable(problemMock, &mechanicsMock));
 }
 
-TEST_P(SummonTest, DISABLED_Transform)
+TEST_P(SummonTest, Transform)
 {
 	if(otherSummoned != CreatureID())
 		addOtherSummoned(true);
@@ -111,6 +115,9 @@ TEST_P(SummonTest, DISABLED_Transform)
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
 	EXPECT_CALL(mechanicsMock, getCasterColor()).WillRepeatedly(Return(PlayerColor(5)));
+	EXPECT_CALL(mechanicsMock, getEffectPower()).WillRepeatedly(Return(summonSpellPower));
+	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(0, summonSpellPower)).WillRepeatedly(Return(summonSpellPower));
+	EXPECT_CALL(mechanicsMock, applySpecificSpellBonus(summonSpellPower)).WillRepeatedly(Return(summonSpellPower));
 
 	EffectTarget transformed = subject->transformTarget(&mechanicsMock, Target(), Target());
 
@@ -168,6 +175,7 @@ public:
 	{
 		EXPECT_CALL(mechanicsMock, creatures()).Times(AnyNumber());
 		EXPECT_CALL(creatureServiceMock, getById(Eq(toSummon))).WillRepeatedly(Return(&toSummonType));
+		EXPECT_CALL(creatureServiceMock, getByIndex(Eq(toSummon.getNum()))).WillRepeatedly(Return(&toSummonType));
 		EXPECT_CALL(toSummonType, getMaxHealth()).WillRepeatedly(Return(unitHealth));
 
 		expectAmountCalculation();
@@ -219,7 +227,7 @@ protected:
 	}
 };
 
-TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
+TEST_P(SummonApplyTest, SpawnsNewUnit)
 {
 	setDefaultExpectations();
 
@@ -240,7 +248,7 @@ TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 	EXPECT_EQ(unitAddInfo->type, toSummon);
 }
 
-TEST_P(SummonApplyTest, DISABLED_UpdatesOldUnit)
+TEST_P(SummonApplyTest, UpdatesOldUnit)
 {
 	setDefaultExpectations();
 

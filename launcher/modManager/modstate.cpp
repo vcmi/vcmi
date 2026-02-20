@@ -71,7 +71,7 @@ QStringList ModState::getConflicts() const
 
 QStringList ModState::getScreenshots() const
 {
-	return stringListStdToQt(impl.getLocalizedValue("screenshots").convertTo<std::vector<std::string>>());
+	return stringListStdToQt(impl.getRepositoryValue("screenshots").convertTo<std::vector<std::string>>());
 }
 
 QString ModState::getBaseLanguage() const
@@ -123,6 +123,11 @@ QString ModState::getRepositoryVersion() const
 QString ModState::getVersion() const
 {
 	return QString::fromStdString(impl.getValue("version").String());
+}
+
+int ModState::getGithubStars() const
+{
+	return impl.getRepositoryValue("githubStars").isNull() ? -1 : impl.getRepositoryValue("githubStars").Integer();
 }
 
 double ModState::getDownloadSizeMegabytes() const

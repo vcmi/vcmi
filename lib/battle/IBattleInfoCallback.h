@@ -11,7 +11,7 @@
 #pragma once
 
 #include "GameConstants.h"
-#include "BattleHex.h"
+#include "BattleHexArray.h"
 
 #include <vcmi/Entity.h>
 
@@ -27,7 +27,7 @@ namespace battle
 {
 	class IUnitInfo;
 	class Unit;
-	using Units = std::vector<const Unit *>;
+	using Units = boost::container::small_vector<const Unit *, 4>;
 	using UnitFilter = std::function<bool(const Unit *)>;
 }
 
@@ -75,13 +75,13 @@ public:
 	virtual battle::Units battleGetUnitsIf(const battle::UnitFilter & predicate) const = 0;
 
 	virtual const battle::Unit * battleGetUnitByID(uint32_t ID) const = 0;
-	virtual const battle::Unit * battleGetUnitByPos(BattleHex pos, bool onlyAlive = true) const = 0;
+	virtual const battle::Unit * battleGetUnitByPos(const BattleHex & pos, bool onlyAlive = true) const = 0;
 
 	virtual const battle::Unit * battleActiveUnit() const = 0;
 
 	//blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
-	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const = 0;
-	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const std::set<BattleHex> & passed) const = 0;
+	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true) const = 0;
+	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const BattleHexArray & passed) const = 0;
 };
 
 

@@ -12,9 +12,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context)
+NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, NetworkContext & context)
 	: socket(socket)
-	, timer(std::make_shared<NetworkTimer>(*context))
+	, timer(std::make_shared<NetworkTimer>(context))
 	, listener(listener)
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
@@ -206,6 +206,59 @@ void NetworkConnection::close()
 #endif
 
 	//NOTE: ignoring error code, intended
+}
+
+InternalConnection::InternalConnection(INetworkConnectionListener & listener, NetworkContext & context)
+	: context(context)
+	, listener(listener)
+{
+}
+
+void InternalConnection::receivePacket(const std::vector<std::byte> & message)
+{
+	boost::asio::post(context, [self = std::static_pointer_cast<InternalConnection>(shared_from_this()), message](){
+		if (self->connectionActive)
+			self->listener.onPacketReceived(self, message);
+	});
+}
+
+void InternalConnection::disconnect()
+{
+	boost::asio::post(context, [self = std::static_pointer_cast<InternalConnection>(shared_from_this())](){
+		self->listener.onDisconnected(self, "Internal connection has been terminated");
+		self->otherSideWeak.reset();
+		self->connectionActive = false;
+	});
+}
+
+void InternalConnection::connectTo(std::shared_ptr<IInternalConnection> connection)
+{
+	otherSideWeak = connection;
+	connectionActive = true;
+}
+
+void InternalConnection::sendPacket(const std::vector<std::byte> & message)
+{
+	auto otherSide = otherSideWeak.lock();
+
+	if (otherSide)
+		otherSide->receivePacket(message);
+}
+
+void InternalConnection::setAsyncWritesEnabled(bool on)
+{
+	// no-op
+}
+
+void InternalConnection::close()
+{
+	auto otherSide = otherSideWeak.lock();
+
+	if (otherSide)
+		otherSide->disconnect();
+
+	otherSideWeak.reset();
+	connectionActive = false;
 }
 
 VCMI_LIB_NAMESPACE_END

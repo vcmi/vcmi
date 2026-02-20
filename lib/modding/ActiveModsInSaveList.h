@@ -19,7 +19,7 @@ class ActiveModsInSaveList
 	std::vector<TModID> getActiveGameplayAffectingMods();
 	ModVerificationInfo getVerificationInfo(TModID mod);
 
-	/// Checks whether provided mod list is compatible with current VLC and throws on failure
+	/// Checks whether provided mod list is compatible with current LIBRARY and throws on failure
 	void verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList);
 public:
 	template <typename Handler> void serialize(Handler &h)

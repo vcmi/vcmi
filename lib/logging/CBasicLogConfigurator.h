@@ -10,12 +10,11 @@
 
 #pragma once
 
-#include "../CConsoleHandler.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CConsoleHandler;
 class JsonNode;
+enum class EConsoleTextColor : int8_t;
 
 /// The class CBasicLogConfigurator reads log properties from settings.json and
 /// sets up the logging system. Make sure that you use the same configurator object to
@@ -42,7 +41,7 @@ private:
 	static ELogLevel::ELogLevel getLogLevel(const std::string & level);
 	// Gets EConsoleTextColor enum from strings. (Should be moved to CLogger as a separate function?)
 	// Throws: std::runtime_error
-	static EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName);
+	static EConsoleTextColor getConsoleColor(const std::string & colorName);
 
 	boost::filesystem::path filePath;
 	CConsoleHandler * console;

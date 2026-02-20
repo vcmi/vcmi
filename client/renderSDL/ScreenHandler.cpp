@@ -11,13 +11,25 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "SDL_Extensions.h"
+
+#include "../CMT.h"
+#include "../eventsSDL/NotificationHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../CServerHandler.h"
+#include "../GameChatHandler.h"
+#include "../gui/CursorHandler.h"
+#include "../gui/WindowHandler.h"
+#include "../render/Canvas.h"
+#include "../renderSDL/SDLImage.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/constants/StringConstants.h"
-#include "../gui/CGuiHandler.h"
-#include "../eventsSDL/NotificationHandler.h"
-#include "../gui/WindowHandler.h"
-#include "CMT.h"
-#include "SDL_Extensions.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/texts/MetaString.h"
+
+#include <vstd/DateUtils.h>
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
@@ -30,14 +42,8 @@
 #include <SDL.h>
 
 // TODO: should be made into a private members of ScreenHandler
-static SDL_Window * mainWindow = nullptr;
 SDL_Renderer * mainRenderer = nullptr;
-SDL_Texture * screenTexture = nullptr;
-SDL_Surface * screen = nullptr; //main screen surface
-SDL_Surface * screen2 = nullptr; //and hlp surface (used to store not-active interfaces layer)
-SDL_Surface * screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
-static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
@@ -50,6 +56,8 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 
 	double maximalScalingWidth = 100.0 * availableResolution.x / minResolution.x;
 	double maximalScalingHeight = 100.0 * availableResolution.y / minResolution.y;
@@ -116,6 +124,8 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 
 	int scaling = getInterfaceScalingPercentage();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 	return logicalResolution;
 }
@@ -210,6 +220,15 @@ ScreenHandler::ScreenHandler()
 	// NOTE: requires SDL 2.24.
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitor");
 #endif
+	if(settings["video"]["allowPortrait"].Bool())
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "Portrait PortraitUpsideDown LandscapeLeft LandscapeRight");
+	else
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+
+#ifdef VCMI_IOS
+	if(!settings["general"]["ignoreMuteSwitch"].Bool())
+		SDL_SetHint(SDL_HINT_AUDIO_CATEGORY, "AVAudioSessionCategoryAmbient");
+#endif
 
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
@@ -291,7 +310,6 @@ void ScreenHandler::updateWindowState()
 			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
 			return;
 		}
 	}
@@ -350,7 +368,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	};
 
 	auto filterName = settings["video"]["upscalingFilter"].String();
-	auto filter = upscalingFilterTypes.at(filterName);
+	auto filter = upscalingFilterTypes.count(filterName) ? upscalingFilterTypes.at(filterName) : EUpscalingFilter::AUTO;
 
 	if (filter != EUpscalingFilter::AUTO)
 		return filter;
@@ -362,15 +380,17 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	float scaleX = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaling = std::min(scaleX, scaleY);
+	int systemMemoryMb = SDL_GetSystemRAM();
 
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
-	if (scaling <= 2.001f)
-		return EUpscalingFilter::XBRZ_2; // resolutions below 1200p (including 1080p / FullHD)
-	if (scaling <= 3.001f)
-		return EUpscalingFilter::XBRZ_3; // resolutions below 2400p (including 1440p and 2160p / 4K)
 
-	return EUpscalingFilter::XBRZ_4; // Only for massive displays, e.g. 8K
+	if (systemMemoryMb <= 4096)
+		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
+
+	// Only using xbrz2 for autoselection.
+	// Higher options may have high system requirements and should be only selected explicitly by player
+	return EUpscalingFilter::XBRZ_2;
 }
 
 void ScreenHandler::selectUpscalingFilter()
@@ -420,18 +440,6 @@ void ScreenHandler::initializeScreenBuffers()
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
-	screen2 = CSDL_Ext::copySurface(screen);
-
-	if(nullptr == screen2)
-	{
-		throw std::runtime_error("Unable to copy surface\n");
-	}
-
-	if (GH.windows().count() > 1)
-		screenBuf = screen2;
-	else
-		screenBuf = screen;
-
 	clearScreen();
 }
 
@@ -440,7 +448,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
-	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	return SDL_CreateWindow(GameConstants::VCMI_VERSION.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
 SDL_Window * ScreenHandler::createWindow()
@@ -479,13 +487,28 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 
 #ifdef VCMI_ANDROID
-	return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
+	return createWindowImpl(Point(), SDL_WINDOW_RESIZABLE, false);
 #endif
 }
 
-void ScreenHandler::onScreenResize()
+bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
+	if(getPreferredWindowMode() == EWindowMode::WINDOWED && keepWindowResolution)
+	{
+		auto res = getRenderResolution();
+
+		if(res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
+			return false;
+
+		Settings video = settings.write["video"];
+		video["resolution"]["width"].Integer() = res.x;
+		video["resolution"]["height"].Integer() = res.y;
+	}
+	else if(keepWindowResolution)
+		return false;
+
 	recreateWindowAndScreenBuffers();
+	return true;
 }
 
 void ScreenHandler::validateSettings()
@@ -576,15 +599,6 @@ int ScreenHandler::getPreferredRenderingDriver() const
 
 void ScreenHandler::destroyScreenBuffers()
 {
-	// screenBuf is not a separate surface, but points to either screen or screen2 - just set to null
-	screenBuf = nullptr;
-
-	if(nullptr != screen2)
-	{
-		SDL_FreeSurface(screen2);
-		screen2 = nullptr;
-	}
-
 	if(nullptr != screen)
 	{
 		SDL_FreeSurface(screen);
@@ -613,7 +627,7 @@ void ScreenHandler::destroyWindow()
 	}
 }
 
-void ScreenHandler::close()
+ScreenHandler::~ScreenHandler()
 {
 	if(settings["general"]["notifications"].Bool())
 		NotificationHandler::destroy();
@@ -627,6 +641,36 @@ void ScreenHandler::clearScreen()
 {
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mainRenderer);
+	SDL_RenderPresent(mainRenderer);
+}
+
+Canvas ScreenHandler::getScreenCanvas() const
+{
+	return Canvas::createFromSurface(screen, CanvasScalingPolicy::AUTO);
+}
+
+void ScreenHandler::updateScreenTexture()
+{
+	if(colorScheme == ColorScheme::NONE)
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		return;
+	}
+
+	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
+	if(colorScheme == ColorScheme::GRAYSCALE)
+		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
+	else if(colorScheme == ColorScheme::H2_SCHEME)
+		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
+	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
+	SDL_FreeSurface(screenScheme);
+}
+
+void ScreenHandler::presentScreenTexture()
+{
+	SDL_RenderClear(mainRenderer);
+	SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
+	ENGINE->cursor().render();
 	SDL_RenderPresent(mainRenderer);
 }
 
@@ -669,4 +713,23 @@ bool ScreenHandler::hasFocus()
 {
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
+}
+
+void ScreenHandler::setColorScheme(ColorScheme scheme)
+{
+	colorScheme = scheme;
+}
+
+void ScreenHandler::screenShot() const
+{
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
+	boost::filesystem::create_directories(outPath);
+	const boost::filesystem::path filePath = outPath / ("screenshot-" + vstd::getDateTimeISO8601Basic(std::time(nullptr)) + ".png");
+	auto img = std::make_shared<SDLImageShared>(screen);
+	img->exportBitmap(filePath, nullptr);
+	MetaString txt;
+	txt.appendTextID("vcmi.client.screenShot");
+	txt.replaceRawString(filePath.string());
+	if(GAME->interface())
+		GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 }

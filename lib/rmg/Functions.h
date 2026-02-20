@@ -34,7 +34,7 @@ public:
 	}
 };
 
-void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight = true);
+void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight = true);
 
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 

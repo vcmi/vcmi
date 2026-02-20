@@ -11,20 +11,24 @@
 
 #include "mock/mock_Services.h"
 #include "mock/mock_MapService.h"
-#include "mock/mock_IGameCallback.h"
+#include "mock/mock_IGameEventCallback.h"
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/json/JsonBonus.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleLayout.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -39,7 +43,7 @@ class CGameStateTest : public ::testing::Test, public SpellCastEnvironment, publ
 {
 public:
 	CGameStateTest()
-		: gameCallback(new GameCallbackMock(this)),
+		: gameEventCallback(std::make_shared<GameEventCallbackMock>(this)),
 		mapService("test/MiniTest/", this),
 		map(nullptr)
 	{
@@ -49,8 +53,7 @@ public:
 	void SetUp() override
 	{
 		gameState = std::make_shared<CGameState>();
-		gameCallback->setGameState(gameState.get());
-		gameState->preInit(&services, gameCallback.get());
+		gameState->preInit(&services);
 	}
 
 	void TearDown() override
@@ -110,14 +113,14 @@ public:
 
 	vstd::RNG * getRNG() override
 	{
-		return &gameState->getRandomGenerator();//todo: mock this
+		return &randomGenerator;//todo: mock this
 	}
 
 	const CMap * getMap() const override
 	{
 		return map;
 	}
-	const CGameInfoCallback * getCb() const override
+	const IGameInfoCallback * getCb() const override
 	{
 		return gameState.get();
 	}
@@ -164,7 +167,7 @@ public:
 
 			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
 			pset.color = PlayerColor(i);
-			pset.connectedPlayerIDs.insert(i);
+			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
 			pset.name = "Player";
 
 			pset.castle = pinfo.defaultCastle();
@@ -178,14 +181,13 @@ public:
 			}
 		}
 
-
+		GameRandomizer randomizer(*gameState);
 		Load::ProgressAccumulator progressTracker;
-		gameState->init(&mapService, &si, progressTracker, false);
+		gameState->init(&mapService, &si, randomizer, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
-		ASSERT_EQ(map->heroesOnMap.size(), 2);
+		ASSERT_EQ(map->getHeroesOnMap().size(), 2);
 	}
-
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
@@ -194,40 +196,45 @@ public:
 
 		int3 tile(4,4,0);
 
-		const auto & t = *gameCallback->getTile(tile);
+		const auto & t = *gameState->getTile(tile);
 
 		auto terrain = t.getTerrainID();
 		BattleField terType(0);
-		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
+		BattleLayout layout = BattleLayout::createDefaultLayout(*gameState, attacker, defender);
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
+		auto battle = BattleInfo::setupBattle(gameState.get(), tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
-		bs.info = battle;
+		bs.info = std::move(battle);
+		bs.battleID = BattleID(0);
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
-		gameCallback->sendAndApply(bs);
+		gameEventCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
 	std::shared_ptr<CGameState> gameState;
 
-	std::shared_ptr<GameCallbackMock> gameCallback;
+	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
 
 	MapServiceMock mapService;
 	ServicesMock services;
 
 	CMap * map;
+	CRandomGenerator randomGenerator;
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
-TEST_F(CGameStateTest, DISABLED_issue2765)
+TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
-	CGHeroInstance * attacker = map->heroesOnMap[0];
-	CGHeroInstance * defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
@@ -236,7 +243,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		na.artHolder = defender->id;
 		na.artId = ArtifactID::BALLISTA;
 		na.pos = ArtifactPosition::MACH1;
-		gameCallback->sendAndApply(na);
+		gameEventCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -251,20 +258,21 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	const CStack * att = nullptr;
 	const CStack * def = nullptr;
 
-	for(const CStack * s : gameState->currentBattles.front()->stacks)
+	for(const auto & s : gameState->currentBattles.front()->stacks)
 	{
 		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
-			def = s;
+			def = s.get();
 		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
-			att = s;
+			att = s.get();
 	}
 	ASSERT_NE(att, nullptr);
 	ASSERT_NE(def, nullptr);
@@ -301,22 +309,24 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 
 		EXPECT_TRUE(def->activeSpells().empty());
 	}
-
 }
 
-TEST_F(CGameStateTest, DISABLED_battleResurrection)
+TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
-	CGHeroInstance * attacker = map->heroesOnMap[0];
-	CGHeroInstance * defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
-	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, true);
+	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
 	attacker->addSpellToSpellbook(SpellID::RESURRECTION);
-	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, true);
-	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, true);
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, ChangeValueMode::ABSOLUTE);
 	attacker->mana = attacker->manaLimit();
 
 	{
@@ -324,7 +334,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		na.artHolder = attacker->id;
 		na.artId = ArtifactID::SPELLBOOK;
 		na.pos = ArtifactPosition::SPELLBOOK;
-		gameCallback->sendAndApply(na);
+		gameEventCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -341,9 +351,10 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	{
@@ -356,9 +367,10 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
+		pack.battleID = BattleID(0);
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
@@ -400,4 +412,67 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
+}
+
+TEST_F(CGameStateTest, battleInterference)
+{
+	static const char skillText[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : -10,
+		"valueType" : "PERCENT_TO_ALL",
+		"propagator" : "BATTLE_WIDE",
+		"sourceType" : "SECONDARY_SKILL",
+		"sourceID" : "wisdom",
+		"propagationUpdater" : "BONUS_OWNER_UPDATER",
+		"limiters" : [ "OPPOSITE_SIDE" ]
+	}
+	)";
+
+	static const char specialtyText[] = R"(
+	{
+		"type" : "PRIMARY_SKILL",
+		"subtype" : "spellpower",
+		"val" : 5,
+		"sourceType" : "HERO_SPECIAL",
+		"sourceID" : "lordHaart",
+		"targetSourceType" : "SECONDARY_SKILL",
+		"valueType" : "PERCENT_TO_TARGET_TYPE",
+		"propagator" : "BATTLE_WIDE",
+		"propagationUpdater" : [ "TIMES_HERO_LEVEL", "BONUS_OWNER_UPDATER" ]
+		"limiters" : [ "OPPOSITE_SIDE" ]
+	}
+	)";
+	JsonNode skillJson(skillText, std::size(skillText), "testBattleInterferenceSkillText");
+	JsonNode specialtyJson(specialtyText, std::size(specialtyText), "testBattleInterferenceSpecialtyTextA");
+
+	skillJson.setModScope(ModScope::scopeGame());
+	specialtyJson.setModScope(ModScope::scopeGame());
+
+	auto skillBonus = JsonUtils::parseBonus(skillJson);
+	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson);
+
+	startTestGame();
+
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
+
+	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
+
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->addNewBonus(skillBonus);
+	attacker->addNewBonus(specialtyBonus);
+	attacker->level = 20;
+
+	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	defender->level = 10;
+
+	startTestBattle(attacker, defender);
+
+	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
+	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 80);
 }

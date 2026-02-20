@@ -85,7 +85,7 @@ protected:
 	}
 };
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
+TEST_F(DamageApplyTest, DoesDamageToAliveUnit)
 {
 	EffectFixture::setupEffect(JsonNode());
 	using namespace ::battle;
@@ -122,7 +122,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
 	EXPECT_EQ(targetUnitState->getCount(), unitAmount - 1);
 }
 
-TEST_F(DamageApplyTest, DISABLED_IgnoresDeadUnit)
+TEST_F(DamageApplyTest, IgnoresDeadUnit)
 {
 	EffectFixture::setupEffect(JsonNode());
 	using namespace ::battle;
@@ -142,7 +142,7 @@ TEST_F(DamageApplyTest, DISABLED_IgnoresDeadUnit)
 	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
+TEST_F(DamageApplyTest, DoesDamageByPercent)
 {
 	using namespace ::battle;
 
@@ -187,7 +187,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	EXPECT_EQ(targetUnitState->getCount(), unitAmount - (unitAmount * effectValue / 100));
 }
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
+TEST_F(DamageApplyTest, DoesDamageByCount)
 {
 	using namespace ::battle;
 

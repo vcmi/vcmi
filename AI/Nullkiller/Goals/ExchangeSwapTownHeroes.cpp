@@ -19,7 +19,7 @@ namespace NKAI
 using namespace Goals;
 
 ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(
-	const CGTownInstance * town, 
+	const CGTownInstance * town,
 	const CGHeroInstance * garrisonHero,
 	HeroLockedReason lockingReason)
 	:ElementarGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero), lockingReason(lockingReason)
@@ -30,11 +30,11 @@ std::vector<ObjectInstanceID> ExchangeSwapTownHeroes::getAffectedObjects() const
 {
 	std::vector<ObjectInstanceID> affectedObjects = { town->id };
 
-	if(town->garrisonHero)
-		affectedObjects.push_back(town->garrisonHero->id);
+	if(town->getGarrisonHero())
+		affectedObjects.push_back(town->getGarrisonHero()->id);
 
-	if(town->visitingHero)
-		affectedObjects.push_back(town->visitingHero->id);
+	if(town->getVisitingHero())
+		affectedObjects.push_back(town->getVisitingHero()->id);
 
 	return affectedObjects;
 }
@@ -42,8 +42,8 @@ std::vector<ObjectInstanceID> ExchangeSwapTownHeroes::getAffectedObjects() const
 bool ExchangeSwapTownHeroes::isObjectAffected(ObjectInstanceID id) const
 {
 	return town->id == id
-		|| (town->visitingHero && town->visitingHero->id == id)
-		|| (town->garrisonHero && town->garrisonHero->id == id);
+		|| (town->getVisitingHero() && town->getVisitingHero()->id == id)
+		|| (town->getGarrisonHero() && town->getGarrisonHero()->id == id);
 }
 
 std::string ExchangeSwapTownHeroes::toString() const
@@ -58,39 +58,39 @@ bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) co
 
 void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 {
-	if(!garrisonHero)
+	if(!getGarrisonHero())
 	{
-		auto currentGarrisonHero = town->garrisonHero;
+		auto currentGarrisonHero = town->getGarrisonHero();
 		
 		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
 		cb->swapGarrisonHero(town);
 
-		if(currentGarrisonHero.get() != town->visitingHero.get())
+		if(currentGarrisonHero != town->getVisitingHero())
 		{
 			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->getNameTranslated());
 			return;
 		}
 
 		ai->buildArmyIn(town);
-		ai->nullkiller->unlockHero(currentGarrisonHero.get());
+		ai->nullkiller->unlockHero(currentGarrisonHero);
 		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTranslated(), town->getNameTranslated());
 
 		return;
 	}
 
-	if(town->visitingHero && town->visitingHero.get() != garrisonHero)
+	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 		cb->swapGarrisonHero(town);
 
 	ai->makePossibleUpgrades(town);
-	ai->moveHeroToTile(town->visitablePos(), garrisonHero);
+	ai->moveHeroToTile(town->visitablePos(), getGarrisonHero());
 
 	auto upperArmy = town->getUpperArmy();
 	
-	if(!town->garrisonHero)
+	if(!town->getGarrisonHero())
 	{
-		if (!garrisonHero->canBeMergedWith(*town))
+		if (!getGarrisonHero()->canBeMergedWith(*town))
 		{
 			while (upperArmy->stacksCount() != 0)
 			{
@@ -103,16 +103,16 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 
 	if(lockingReason != HeroLockedReason::NOT_LOCKED)
 	{
-		ai->nullkiller->lockHero(garrisonHero, lockingReason);
+		ai->nullkiller->lockHero(getGarrisonHero(), lockingReason);
 	}
 
-	if(town->visitingHero && town->visitingHero != garrisonHero)
+	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 	{
-		ai->nullkiller->unlockHero(town->visitingHero.get());
-		ai->makePossibleUpgrades(town->visitingHero);
+		ai->nullkiller->unlockHero(town->getVisitingHero());
+		ai->makePossibleUpgrades(town->getVisitingHero());
 	}
 
-	logAi->debug("Put hero %s to garrison of %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
+	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
 }
 
 }

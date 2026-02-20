@@ -16,6 +16,8 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -24,6 +26,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
 
 
 // TODO: remove
@@ -127,35 +130,55 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
-std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
+std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
+	if(!stack->canCast())
+		return std::nullopt;
+
+	std::vector<SpellID> spellsToCast;
+	TConstBonusListPtr bl = stack->getBonusesOfType(BonusType::SPELLCASTER);
+
 	//TODO: faerie dragon type spell should be selected by server
 	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
 
-	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
+	for(const auto & bonus : *bl)
+		if(!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
+			spellsToCast.push_back(bonus->subtype.as<SpellID>());
+
+	if(creatureSpellToCast.hasValue())
+		spellsToCast.push_back(creatureSpellToCast);
+
+	std::vector<PossibleSpellcast> possibleCasts;
+
+	for(const auto spellID : spellsToCast)
 	{
-		const CSpell * spell = creatureSpellToCast.toSpell();
+		const CSpell * spell = spellID.toSpell();
 
-		if(spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+		if(!spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+			continue;
+
+		spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+		for(auto & target : temp.findPotentialTargets())
 		{
-			std::vector<PossibleSpellcast> possibleCasts;
-			spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
-			for(auto & target : temp.findPotentialTargets())
-			{
-				PossibleSpellcast ps;
-				ps.dest = target;
-				ps.spell = spell;
-				evaluateCreatureSpellcast(stack, ps);
-				possibleCasts.push_back(ps);
-			}
-
-			std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
-			if(!possibleCasts.empty() && possibleCasts.front().value > 0)
-			{
-				return possibleCasts.front();
-			}
+			PossibleSpellcast ps;
+			ps.dest = target;
+			ps.spell = spell;
+			evaluateCreatureSpellcast(stack, ps);
+			possibleCasts.push_back(ps);
 		}
 	}
+
+	std::ranges::sort(
+		possibleCasts,
+		[&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs)
+		{
+			return lhs.value > rhs.value;
+		}
+	);
+
+	if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+		return possibleCasts.front();
+
 	return std::nullopt;
 }
 
@@ -214,8 +237,8 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				bestAttack.attackerState->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->unitType()->getJsonKey(),
 				bestAttack.affectedUnits[0]->getCount(),
-				(int)bestAttack.from,
-				(int)bestAttack.attack.attacker->getPosition().hex,
+				bestAttack.from.toInt(),
+				bestAttack.attack.attacker->getPosition().toInt(),
 				bestAttack.attack.chargeDistance,
 				bestAttack.attack.attacker->getMovementRange(0),
 				bestAttack.defenderDamageReduce,
@@ -252,7 +275,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 					if(siegeDefense)
 					{
-						logAi->trace("Evaluating exchange at %d self-defense", stack->getPosition().hex);
+						logAi->trace("Evaluating exchange at %d self-defense", stack->getPosition());
 
 						BattleAttackInfo bai(stack, stack, 0, false);
 						AttackPossibility apDefend(stack->getPosition(), stack->getPosition(), bai);
@@ -278,7 +301,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		score = moveTarget.score;
 		cachedAttack.ap = moveTarget.cachedAttack;
 		cachedAttack.score = score;
-		cachedAttack.turn = moveTarget.turnsToRich;
+		cachedAttack.turn = moveTarget.turnsToReach;
 
 		if(stack->waited())
 		{
@@ -286,7 +309,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				"Moving %s towards hex %s[%d], score: %2f",
 				stack->getDescription(),
 				moveTarget.cachedAttack->attack.defender->getDescription(),
-				moveTarget.cachedAttack->attack.defender->getPosition().hex,
+				moveTarget.cachedAttack->attack.defender->getPosition(),
 				moveTarget.score);
 
 			return goTowardsNearest(stack, moveTarget.positions, *targets);
@@ -301,6 +324,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 	if(score <= EvaluationResult::INEFFECTIVE_SCORE
 		&& !stack->hasBonusOfType(BonusType::FLYING)
+		&& stack->getMovementRange(0) != 0
 		&& stack->unitSide() == BattleSide::ATTACKER
 	   && cb->getBattle(battleID)->battleGetFortifications().hasMoat)
 	{
@@ -320,14 +344,14 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	return stack->waited() ?  BattleAction::makeDefend(stack) : BattleAction::makeWait(stack);
 }
 
-uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 {
-	auto end = std::chrono::high_resolution_clock::now();
+	auto end = std::chrono::steady_clock::now();
 
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
-BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, const PotentialTargets & targets)
+BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, const BattleHex & hex, const PotentialTargets & targets)
 {
 	auto additionalScore = 0;
 	std::optional<AttackPossibility> attackOnTheWay;
@@ -355,7 +379,7 @@ BattleAction BattleEvaluator::moveOrAttack(const CStack * stack, BattleHex hex, 
 	}
 }
 
-BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes, const PotentialTargets & targets)
+BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, const BattleHexArray & hexes, const PotentialTargets & targets)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -371,37 +395,36 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 	if (siegeDefense)
 	{
-		vstd::erase_if(avHexes, [&](const BattleHex& hex) {
+		avHexes.eraseIf([&](const BattleHex & hex)
+		{
 			return !cb->getBattle(battleID)->battleIsInsideWalls(hex);
 		});
 	}
 
-	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
+	if(avHexes.empty() || hexes.empty()) //we are blocked or dest is blocked
 	{
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::vector<BattleHex> targetHexes = hexes;
+	BattleHexArray targetHexes = hexes;
 
-	vstd::erase_if(targetHexes, [](const BattleHex & hex) { return !hex.isValid(); });
-
-	std::sort(targetHexes.begin(), targetHexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	targetHexes.sort([&reachability](const BattleHex & h1, const BattleHex & h2) -> bool
 		{
-			return reachability.distances[h1] < reachability.distances[h2];
+			return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 		});
 
-	BattleHex bestNeighbor = targetHexes.front();
+	BattleHex bestNeighbour = targetHexes.front();
 
-	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestNeighbour.toInt()] > GameConstants::BFIELD_SIZE)
 	{
-		logAi->trace("No richable hexes.");
+		logAi->trace("No reachable hexes.");
 		return BattleAction::makeDefend(stack);
 	}
 
 	// this turn
-	for(auto hex : targetHexes)
+	for(const auto & hex : targetHexes)
 	{
-		if(vstd::contains(avHexes, hex))
+		if(avHexes.contains(hex))
 		{
 			return moveOrAttack(stack, hex, targets);
 		}
@@ -419,36 +442,31 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 
 	if(stack->hasBonusOfType(BonusType::FLYING))
 	{
-		std::set<BattleHex> obstacleHexes;
-
-		auto insertAffected = [](const CObstacleInstance & spellObst, std::set<BattleHex> & obstacleHexes) {
-			auto affectedHexes = spellObst.getAffectedTiles();
-			obstacleHexes.insert(affectedHexes.cbegin(), affectedHexes.cend());
-		};
+		BattleHexArray obstacleHexes;
 
 		const auto & obstacles = hb->battleGetAllObstacles();
 
-		for (const auto & obst: obstacles) {
-
+		for (const auto & obst : obstacles) 
+		{
 			if(obst->triggersEffects())
 			{
-				auto triggerAbility =  VLC->spells()->getById(obst->getTrigger());
+				auto triggerAbility =  LIBRARY->spells()->getById(obst->getTrigger());
 				auto triggerIsNegative = triggerAbility->isNegative() || triggerAbility->isDamage();
 
 				if(triggerIsNegative)
-					insertAffected(*obst, obstacleHexes);
+					obstacleHexes.insert(obst->getAffectedTiles());
 			}
 		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [this, &bestNeighbour, &stack, &obstacleHexes](const BattleHex & hex) -> int
 		{
 			const int NEGATIVE_OBSTACLE_PENALTY = 100; // avoid landing on negative obstacle (moat, fire wall, etc)
 			const int BLOCKED_STACK_PENALTY = 100; // avoid landing on moat
 
-			auto distance = BattleHex::getDistance(bestNeighbor, hex);
+			auto distance = BattleHex::getDistance(bestNeighbour, hex);
 
-			if(vstd::contains(obstacleHexes, hex))
+			if(obstacleHexes.contains(hex))
 				distance += NEGATIVE_OBSTACLE_PENALTY;
 
 			return scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, hex) ? BLOCKED_STACK_PENALTY + distance : distance;
@@ -458,7 +476,8 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 	}
 	else
 	{
-		BattleHex currentDest = bestNeighbor;
+		BattleHex currentDest = bestNeighbour;
+
 		while(true)
 		{
 			if(!currentDest.isValid())
@@ -466,13 +485,13 @@ BattleAction BattleEvaluator::goTowardsNearest(const CStack * stack, std::vector
 				return BattleAction::makeDefend(stack);
 			}
 
-			if(vstd::contains(avHexes, currentDest)
+			if(avHexes.contains(currentDest)
 				&& !scoreEvaluator.checkPositionBlocksOurStacks(*hb, stack, currentDest))
 			{
 				return moveOrAttack(stack, currentDest, targets);
 			}
 
-			currentDest = reachability.predecessors[currentDest];
+			currentDest = reachability.predecessors[currentDest.toInt()];
 		}
 	}
 	
@@ -499,7 +518,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : VLC->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->objects)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back(s.get());
 
@@ -572,7 +591,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ourTurnSpan++;
 				}
 
-				state->nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId(), BattleUnitTurnReason::TURN_QUEUE);
 
 				PotentialTargets potentialTargets(unit, damageCache, state);
 
@@ -691,7 +710,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				else
 				{
 					auto psFirst = ps.dest.front();
-					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.hex);
+					auto strWhere = psFirst.unitValue ? psFirst.unitValue->getDescription() : std::to_string(psFirst.hexValue.toInt());
 
 					logAi->trace("Evaluating %s at %s", ps.spell->getNameTranslated(), strWhere);
 				}
@@ -702,7 +721,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
-				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(); });
+				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); });
 
 				auto needFullEval = vstd::contains_if(allUnits, [&](const battle::Unit * u) -> bool
 					{
@@ -719,6 +738,10 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				{
 					state->makeWait(activeStack);
 				}
+
+				float stackActionScore = 0;
+				float damageToHostilesScore = 0;
+				float damageToFriendliesScore = 0;
 
 				if(needFullEval || !cachedAttack.ap)
 				{
@@ -737,11 +760,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					{
 						auto newStackAction = innerEvaluator.findBestTarget(activeStack, innerTargets, innerCache, state);
 
-						ps.value = std::max(moveTarget.score, newStackAction.score);
+						stackActionScore = std::max(moveTarget.score, newStackAction.score);
 					}
 					else
 					{
-						ps.value = moveTarget.score;
+						stackActionScore = moveTarget.score;
 					}
 				}
 				else
@@ -756,7 +779,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 					auto updatedAttack = AttackPossibility::evaluate(updatedBai, cachedAttack.ap->from, innerCache, state);
 
-					ps.value = scoreEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
+					BattleExchangeEvaluator innerEvaluator(scoreEvaluator);
+
+					stackActionScore = innerEvaluator.evaluateExchange(updatedAttack, cachedAttack.turn, *targets, innerCache, state);
 				}
 				for(const auto & unit : allUnits)
 				{
@@ -790,11 +815,11 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							if(ourUnit && goodEffect && isMagical)
 								continue;
 
-							ps.value += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
+							damageToHostilesScore += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
 						}
 						else
 							// discourage AI making collateral damage with spells
-							ps.value -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
+							damageToFriendliesScore -= 4 * dpsReduce * scoreEvaluator.getNegativeEffectMultiplier();
 
 #if BATTLE_TRACE_LEVEL >= 1
 						// Ensure ps.dest is not empty before accessing the first element
@@ -803,7 +828,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 							logAi->trace(
 								"Spell %s to %d affects %s (%d), dps: %2f oldHealth: %d newHealth: %d",
 								ps.spell->getNameTranslated(),
-								ps.dest.at(0).hexValue.hex,  // Safe to access .at(0) now
+								ps.dest.at(0).hexValue.toInt(),  // Safe to access .at(0) now
 								unit->creatureId().toCreature()->getNameSingularTranslated(),
 								unit->getCount(),
 								dpsReduce,
@@ -826,8 +851,17 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					}
 				}
 
+				if (vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
+				{
+					ps.value = damageToFriendliesScore + damageToHostilesScore;
+				}
+				else
+				{
+					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
+				}
+
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Total score: %2f", ps.value);
+				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore);
 #endif
 			}
 #if BATTLE_TRACE_LEVEL == 0
@@ -878,6 +912,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 	}
 
+
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
@@ -907,6 +942,17 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		}
 
 		totalGain += healthDiff;
+	}
+
+	// consider the case in which spell summons units
+	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
+		{
+			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
+		});
+
+	for(auto unit : newUnits)
+	{
+		totalGain += unit->getAvailableHealth();
 	}
 
 	ps.value = totalGain;

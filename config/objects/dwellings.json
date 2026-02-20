@@ -377,6 +377,7 @@
 			},
 			"unicornGladeBig": {
 				"index": 51,
+				"bannedForRandomDwelling" : true,
 				"creatures": [["unicorn"]],
 				"sounds": {
 					"ambient": ["LOOPUNIC"]

@@ -33,7 +33,6 @@ Minimalistic version of this file:
 ```json
 {
     "name" : "My test mod",
-    "description" : "My test mod that add a lot of useless stuff into the game",
     "version" : "1.00",
 	"modType" : "Graphical",	
 	"contact" : "http://www.contact.example.com"
@@ -41,6 +40,38 @@ Minimalistic version of this file:
 ```
 
 See [Mod file Format](Mod_File_Format.md) for its full description.
+
+## Creating mod description
+
+For convenience, mod descriptions are located in separate file named `description.md`. This file uses Markdown formatting and allows modder to add mod description of arbitrary length as well as to provide translations.
+
+If mod provides description in both `mod.json` and in `description.md`, Markdown version will take priority and will be used instead of version in `mod.json` for languages that are present in `description.md`
+
+Please do NOT include mod name as title of `description.md`. Mod name will be added automatically on top of your mod description in Launcher
+
+Majority of markdown format is allowed in description.md. Exceptions are:
+
+- top-level headings are reserved for translations and must use form `#(one space)(language ID)`, for example `# english`. Language ID is lower-case name of language in English.
+- embedded images are currently not supported.
+
+Note that due to technical details, if you have added `description.md` for mod that previously did not have one, it will only show up in Launcher for players without your mod on next automatic daily update, and not immediately.
+
+Expected format of `description.md` is:
+
+```md
+# english
+
+(description in English)
+
+# polish
+
+(description in Polish)
+
+# czech
+
+(description in Czech)
+
+```
 
 ## Creation of new objects
 
@@ -74,7 +105,7 @@ Map objects:
 - - [Rewardable](Map_Objects/Rewardable.md)
 - - [Creature Bank](Map_Objects/Creature_Bank.md)
 - - [Dwelling](Map_Objects/Dwelling.md)
-- - [Market](Map_Objects/Markets.md)
+- - [Market](Map_Objects/Market.md)
 - - [Boat](Map_Objects/Boat.md)
 
 Other:
@@ -133,6 +164,70 @@ In order to access and modify existing object you need to specify mod that you w
 Note that modification of existing objects does not requires a dependency on edited mod. Such definitions will only be used by game if corresponding mod is installed and active.
 
 This allows using objects editing not just for rebalancing mods but also to provide compatibility between two different mods or to add interaction between two mods.
+
+### Modifying properties of existing objects
+
+As mentioned above, you can change any properties of existing objects using this form:
+
+```json
+"core:archer" : {
+	"hitPoints" : 10
+},
+```
+
+Note that you only need to specify changed properties. This will make your mod smaller and easier to read or maintain, and will reduce potential conflicts with other mods.
+
+When replacing booleans, numbers, or strings in this way, you only need to specify desired value. When replacing list of values, you can use the same approach, but if you only need to modify some values in the list, in order to reduce potential conflicts with other mods, you may want to consider different approach. Consider this:
+
+```json
+"core:archer" : {
+	"upgrades": ["marksman", "crossbowman" ],
+}
+```
+
+Such form will allow you to make an alternative upgrade of Archer, so it may be upgraded to either Marksman or to your new unit, Crossbowman. This will work, however if there is another mod that also attempts to add upgrade to the same unit, this would result in a mod conflict, and only one value will be used.
+
+To avoid such conflict, you can use following form:
+
+```json
+"core:archer" : {
+	"upgrades": {
+		"append" : "crossbowman"
+	}
+}
+```
+
+This form will preserve all existing upgrades for such unit, and will append new upgrade to Crossbowman to list of potential upgrades. And if there is another mod that also adds new upgrades, both mods will work as intended, without conflict.
+
+More complete description of such syntax:
+
+```json
+"core:archer" : {
+	"upgrades": {
+		// appends a single item to the end of list
+		"append" : "crossbowman"
+
+		// appends multiple items from the provided list to the end of list
+		"appendItems" : [ "crossbowman", "arbalist" ]
+		
+		// insert new item before specified position
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
+		// Following example will insert new item before 0th item - at the very beginning of the list
+		// Item with provided index must exist in the list
+		"insert@0" : "crossbowman"
+		
+		// modify existing item at specified position
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
+		// Following example will modify 0th item
+		// If item is a json object with multiple properties, e.g. { "key" : "value" } 
+		// you only need to provide changed properites, as usually
+		// Item with provided index must exist in the list
+		"modify@0" : "crossbowman"
+	}
+}
+```
+
+Such formatting is not unique to creature upgrades, and can be used in any place that uses json lists (`[ valueA, valueB ]`)
 
 ## Overriding graphical files from Heroes III
 

@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.1.0+ Czech messages        ***
+; *** Inno Setup version 6.5.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -58,14 +58,14 @@ SetupAppRunningError=Průvodce instalací zjistil, že produkt %1 je nyní spuš
 UninstallAppRunningError=Průvodce odinstalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete odinstalaci tlačítkem Zrušit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Výběr režimu průvodce instalací
-PrivilegesRequiredOverrideInstruction=Zvolte režim instalace
-PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uživatele (musíte být přihlášeni s oprávněními správce), nebo pouze pro Vás.
-PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uživatele (musíte být přihlášeni s oprávněními správce).
-PrivilegesRequiredOverrideAllUsers=Nainstalovat pro &všechny uživatele
-PrivilegesRequiredOverrideAllUsersRecommended=Nainstalovat pro &všechny uživatele (doporučuje se)
-PrivilegesRequiredOverrideCurrentUser=Nainstalovat pouze pro &mě
-PrivilegesRequiredOverrideCurrentUserRecommended=Nainstalovat pouze pro &mě (doporučuje se)
+PrivilegesRequiredOverrideTitle=Režim instalace – oprávnění
+PrivilegesRequiredOverrideInstruction=Zvolte, jak spustit instalační program
+PrivilegesRequiredOverrideText1=Produkt %1 vyžaduje oprávnění správce pro instalaci pro všechny uživatele.%nMůžete jej také nainstalovat pouze pro svůj účet bez oprávnění správce.
+PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro váš účet (bez oprávnění správce), nebo pro všechny uživatele (vyžaduje oprávnění správce).
+PrivilegesRequiredOverrideAllUsers=Spustit jako &správce (instalace pro všechny uživatele)
+PrivilegesRequiredOverrideAllUsersRecommended=Spustit jako &správce (doporučeno)
+PrivilegesRequiredOverrideCurrentUser=Spustit jako &běžný uživatel (instalace pouze pro mě)
+PrivilegesRequiredOverrideCurrentUserRecommended=Spustit jako &běžný uživatel (doporučeno)
 
 ; *** Misc. errors
 ErrorCreatingDir=Průvodci instalací se nepodařilo vytvořit složku "%1"
@@ -102,7 +102,7 @@ SelectLanguageLabel=Zvolte jazyk, který se má použít během instalace.
 ; *** Common wizard text
 ClickNext=Pokračujte klepnutím na tlačítko Další, nebo ukončete průvodce instalací tlačítkem Zrušit.
 BeveledLabel=
-BrowseDialogTitle=Vyhledat složku
+BrowseDialogTitle=Zvolte složku
 BrowseDialogLabel=Z níže uvedeného seznamu vyberte složku a klepněte na tlačítko OK.
 NewFolderName=Nová složka
 
@@ -205,16 +205,26 @@ ReadyMemoGroup=Složka v nabídce Start:
 ReadyMemoTasks=Další úlohy:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Stahují se další soubory...
+DownloadingLabel2=Stahují se soubory...
 ButtonStopDownload=&Zastavit stahování
 StopDownload=Určitě chcete stahování zastavit?
 ErrorDownloadAborted=Stahování přerušeno
 ErrorDownloadFailed=Stahování selhalo: %1 %2
 ErrorDownloadSizeFailed=Nepodařilo se zjistit velikost: %1 %2
-ErrorFileHash1=Nepodařilo se určit kontrolní součet souboru: %1
-ErrorFileHash2=Neplatný kontrolní součet souboru: očekáváno %1, nalezeno %2
 ErrorProgress=Neplatný průběh: %1 of %2
 ErrorFileSize=Neplatná velikost souboru: očekáváno %1, nalezeno %2
+
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Extrahují se soubory...
+ButtonStopExtraction=&Zastavit extrahování
+StopExtraction=Určitě chcete extrahování zastavit?
+ErrorExtractionAborted=Extrahování přerušeno
+ErrorExtractionFailed=Extrahování selhalo: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Heslo není správné
+ArchiveIsCorrupted=Archiv je poškozen
+ArchiveUnsupportedFormat=Formát archivu není podporován
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Příprava k instalaci
@@ -260,11 +270,15 @@ AbortRetryIgnoreSelectAction=Zvolte akci
 AbortRetryIgnoreRetry=&Zopakovat akci
 AbortRetryIgnoreIgnore=&Ignorovat chybu a pokračovat
 AbortRetryIgnoreCancel=Zrušit instalaci
+RetryCancelSelectAction=Zvolte akci
+RetryCancelRetry=&Zopakovat akci
+RetryCancelCancel=Zrušit
 
 ; *** Installation status messages
 StatusClosingApplications=Zavírají se aplikace...
 StatusCreateDirs=Vytvářejí se složky...
 StatusExtractFiles=Extrahují se soubory...
+StatusDownloadFiles=Stahují se soubory...
 StatusCreateIcons=Vytvářejí se zástupci...
 StatusCreateIniEntries=Vytvářejí se záznamy v inicializačních souborech...
 StatusCreateRegistryEntries=Vytvářejí se záznamy v systémovém registru...
@@ -294,6 +308,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Přeskočit tento soubor (nedoporučuje 
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorovat chybu a pokračovat (nedoporučuje se)
 SourceIsCorrupted=Zdrojový soubor je poškozen
 SourceDoesntExist=Zdrojový soubor "%1" neexistuje
+SourceVerificationFailed=Nepodařilo se ověřit zdrojový soubor: %1
+VerificationSignatureDoesntExist=Podpisový soubor "%1" neexistuje
+VerificationSignatureInvalid=Podpisový soubor "%1" není platný
+VerificationKeyNotFound=Podpisový soubor "%1" používá neznámý klíč
+VerificationFileNameIncorrect=Název souboru se neshoduje
+VerificationFileTagIncorrect=Značka souboru se neshoduje
+VerificationFileSizeIncorrect=Velikost souboru se neshoduje
+VerificationFileHashIncorrect=Kontrolní součet souboru se neshoduje
 ExistingFileReadOnly2=Nelze nahradit existující soubor, protože je určen pouze pro čtení.
 ExistingFileReadOnlyRetry=&Odstranit atribut "pouze pro čtení" a zopakovat akci
 ExistingFileReadOnlyKeepExisting=&Ponechat existující soubor
@@ -312,6 +334,8 @@ ErrorChangingAttr=Došlo k chybě při pokusu o změnu atributů existujícího 
 ErrorCreatingTemp=Došlo k chybě při pokusu o vytvoření souboru v cílové složce:
 ErrorReadingSource=Došlo k chybě při pokusu o čtení zdrojového souboru:
 ErrorCopying=Došlo k chybě při pokusu o zkopírování souboru:
+ErrorDownloading=Došlo k chybě při pokusu o stažení souboru:
+ErrorExtracting=Došlo k chybě při pokusu o extrahování archivu:
 ErrorReplacingExistingFile=Došlo k chybě při pokusu o nahrazení existujícího souboru:
 ErrorRestartReplace=Funkce "RestartReplace" průvodce instalací selhala:
 ErrorRenamingTemp=Došlo k chybě při pokusu o přejmenování souboru v cílové složce:

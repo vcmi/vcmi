@@ -32,6 +32,12 @@
 		{
 			"type" : "string",
 			"description" : "Version of client, e.g. 1.5.0"
+		},
+		"languageRooms" :
+		{
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "(since 1.6.4) List of language rooms for which player wants to receive chat history"
 		}
 	}
 }

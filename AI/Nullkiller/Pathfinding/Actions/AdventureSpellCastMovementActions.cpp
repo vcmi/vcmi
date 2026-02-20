@@ -28,12 +28,12 @@ namespace AIPathfinding
 		manaCost = hero->getSpellCost(spellToCast.toSpell());
 	}
 
-	WaterWalkingAction::WaterWalkingAction(const CGHeroInstance * hero)
-		:AdventureCastAction(SpellID::WATER_WALK, hero, DayFlags::WATER_WALK_CAST)
+	WaterWalkingAction::WaterWalkingAction(const CGHeroInstance * hero, SpellID spellToCast)
+		:AdventureCastAction(spellToCast, hero, DayFlags::WATER_WALK_CAST)
 	{ }
 
-	AirWalkingAction::AirWalkingAction(const CGHeroInstance * hero)
-		: AdventureCastAction(SpellID::FLY, hero, DayFlags::FLY_CAST)
+	AirWalkingAction::AirWalkingAction(const CGHeroInstance * hero, SpellID spellToCast)
+		: AdventureCastAction(spellToCast, hero, DayFlags::FLY_CAST)
 	{
 	}
 

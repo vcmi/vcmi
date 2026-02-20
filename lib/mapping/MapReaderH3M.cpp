@@ -120,6 +120,14 @@ HeroTypeID MapReaderH3M::readHero()
 	return remapIdentifier(result);
 }
 
+HeroTypeID MapReaderH3M::readHero32()
+{
+	HeroTypeID result(reader->readInt32());
+
+	assert(result.getNum() < features.heroesCount);
+	return remapIdentifier(result);
+}
+
 HeroTypeID MapReaderH3M::readHeroPortrait()
 {
 	HeroTypeID result(reader->readUInt8());
@@ -134,6 +142,27 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 	}
 
 	return remapper.remapPortrait(result);
+}
+
+CreatureID MapReaderH3M::readCreature32()
+{
+	CreatureID result(reader->readUInt32());
+
+	if(result.getNum() == features.creatureIdentifierInvalid)
+		return CreatureID::NONE;
+
+	if(result.getNum() < features.creaturesCount)
+		return remapIdentifier(result);
+
+	// this may be random creature in army/town, to be randomized later
+	CreatureID randomIndex(result.getNum() - features.creatureIdentifierInvalid - 1);
+	assert(randomIndex < CreatureID::NONE);
+
+	if (randomIndex.getNum() > -16)
+		return randomIndex;
+
+	logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+	return CreatureID::NONE;
 }
 
 CreatureID MapReaderH3M::readCreature()
@@ -162,6 +191,13 @@ CreatureID MapReaderH3M::readCreature()
 	return CreatureID::NONE;
 }
 
+FactionID MapReaderH3M::readFaction32()
+{
+	FactionID result(readInt32());
+	assert(result.getNum() < features.factionsCount);
+	return remapIdentifier(result);
+}
+
 TerrainId MapReaderH3M::readTerrain()
 {
 	TerrainId result(readUInt8());
@@ -178,9 +214,11 @@ RoadId MapReaderH3M::readRoad()
 
 RiverId MapReaderH3M::readRiver()
 {
-	RiverId result(readInt8());
-	assert(result.getNum() <= features.riversCount);
-	return result;
+	const uint8_t raw = readInt8();
+	// Keep low 3 bits as river type (0..4); discard high-bit flags set by some editors (HotA ?)
+	const uint8_t type = raw & 0x07;
+	assert(type <= features.riversCount);
+	return RiverId(type);
 }
 
 PrimarySkill MapReaderH3M::readPrimary()
@@ -190,9 +228,23 @@ PrimarySkill MapReaderH3M::readPrimary()
 	return result;
 }
 
+PrimarySkill MapReaderH3M::readPrimary32()
+{
+	PrimarySkill result(readInt32());
+	assert(result <= PrimarySkill::KNOWLEDGE );
+	return result;
+}
+
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
+	assert(result.getNum() < features.skillsCount);
+	return remapIdentifier(result);
+}
+
+SecondarySkill MapReaderH3M::readSkill32()
+{
+	SecondarySkill result(readInt32());
 	assert(result.getNum() < features.skillsCount);
 	return remapIdentifier(result);
 }
@@ -209,6 +261,15 @@ SpellID MapReaderH3M::readSpell()
 	return remapIdentifier(result);
 }
 
+SpellID MapReaderH3M::readSpell16()
+{
+	SpellID result(readInt16());
+	if(result.getNum() == features.spellIdentifierInvalid)
+		return SpellID::NONE;
+	assert(result.getNum() < features.spellsCount);
+	return result;
+}
+
 SpellID MapReaderH3M::readSpell32()
 {
 	SpellID result(readInt32());
@@ -221,6 +282,13 @@ SpellID MapReaderH3M::readSpell32()
 GameResID MapReaderH3M::readGameResID()
 {
 	GameResID result(readInt8());
+	assert(result.getNum() < features.resourcesCount);
+	return result;
+}
+
+GameResID MapReaderH3M::readGameResID32()
+{
+	GameResID result(readInt32());
 	assert(result.getNum() < features.resourcesCount);
 	return result;
 }
@@ -255,6 +323,12 @@ PlayerColor MapReaderH3M::readPlayer32()
 	}
 
 	return PlayerColor(value);
+}
+
+BuildingID MapReaderH3M::readBuilding32(std::optional<FactionID> faction)
+{
+	uint32_t value = readUInt32();
+	return remapper.remapBuilding(faction, value);
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)
@@ -371,8 +445,12 @@ std::shared_ptr<ObjectTemplate> MapReaderH3M::readObjectTemplate()
 {
 	auto tmpl = std::make_shared<ObjectTemplate>();
 	tmpl->readMap(*reader);
-	remapper.remapTemplate(*tmpl);
 	return tmpl;
+}
+
+void MapReaderH3M::remapTemplate(ObjectTemplate & tmpl)
+{
+	remapper.remapTemplate(tmpl);
 }
 
 void MapReaderH3M::skipUnused(size_t amount)
@@ -430,6 +508,11 @@ int8_t MapReaderH3M::readInt8()
 uint16_t MapReaderH3M::readUInt16()
 {
 	return reader->readUInt16();
+}
+
+int16_t MapReaderH3M::readInt16()
+{
+	return reader->readInt16();
 }
 
 uint32_t MapReaderH3M::readUInt32()

@@ -33,7 +33,7 @@ class FontChain final : public IFont
 public:
 	FontChain() = default;
 
-	void addTrueTypeFont(const JsonNode & trueTypeConfig);
+	void addTrueTypeFont(const JsonNode & trueTypeConfig, bool begin);
 	void addBitmapFont(const std::string & bitmapFilename);
 
 	size_t getLineHeightScaled() const override;

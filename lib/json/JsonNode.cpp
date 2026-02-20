@@ -15,6 +15,8 @@
 #include "JsonWriter.h"
 #include "filesystem/Filesystem.h"
 
+#include <boost/lexical_cast.hpp>
+
 // to avoid duplicating const and non-const code
 template<typename Node>
 Node & resolvePointer(Node & in, const std::string & pointer)
@@ -48,7 +50,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 static const JsonNode nullNode;
 
-class LibClasses;
+class GameLibrary;
 class CModHandler;
 
 JsonNode::JsonNode(bool boolean)
@@ -97,6 +99,17 @@ JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string & 
 }
 
 JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+{
+	JsonParser parser(data, datasize, parserSettings);
+	*this = parser.parse(fileName);
+}
+
+JsonNode::JsonNode(const char * data, size_t datasize, const std::string & fileName)
+	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
+{
+}
+
+JsonNode::JsonNode(const char * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
 {
 	JsonParser parser(data, datasize, parserSettings);
 	*this = parser.parse(fileName);
@@ -240,6 +253,11 @@ bool JsonNode::isNull() const
 	return getType() == JsonType::DATA_NULL;
 }
 
+bool JsonNode::isBool() const
+{
+	return getType() == JsonType::DATA_BOOL;
+}
+
 bool JsonNode::isNumber() const
 {
 	return getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT;
@@ -302,28 +320,6 @@ bool JsonNode::isCompact() const
 		default:
 			return true;
 	}
-}
-
-bool JsonNode::TryBoolFromString(bool & success) const
-{
-	success = true;
-	if(getType() == JsonNode::JsonType::DATA_BOOL)
-		return Bool();
-
-	success = getType() == JsonNode::JsonType::DATA_STRING;
-	if(success)
-	{
-		auto boolParamStr = String();
-		boost::algorithm::trim(boolParamStr);
-		boost::algorithm::to_lower(boolParamStr);
-		success = boolParamStr == "true";
-
-		if(success)
-			return true;
-
-		success = boolParamStr == "false";
-	}
-	return false;
 }
 
 void JsonNode::clear()

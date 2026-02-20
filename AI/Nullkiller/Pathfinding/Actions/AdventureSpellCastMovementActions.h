@@ -45,14 +45,16 @@ namespace AIPathfinding
 
 	class WaterWalkingAction : public AdventureCastAction
 	{
+		SpellID spellToCast;
 	public:
-		WaterWalkingAction(const CGHeroInstance * hero);
+		WaterWalkingAction(const CGHeroInstance * hero, SpellID spellToCast);
 	};
 
 	class AirWalkingAction : public AdventureCastAction
 	{
+		SpellID spellToCast;
 	public:
-		AirWalkingAction(const CGHeroInstance * hero);
+		AirWalkingAction(const CGHeroInstance * hero, SpellID spellToCast);
 	};
 }
 

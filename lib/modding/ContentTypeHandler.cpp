@@ -16,13 +16,16 @@
 #include "ModScope.h"
 
 #include "../BattleFieldHandler.h"
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CConfigHandler.h"
+#include "../campaign/CampaignRegionsHandler.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClassHandler.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../CBonusTypeHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
@@ -34,11 +37,13 @@
 #include "../ScriptHandler.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
+#include "../MapLayerHandler.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"
-#include "../VCMI_Lib.h"
+#include "../spells/SpellSchoolHandler.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -80,12 +85,7 @@ bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonN
 				logMod->warn("Redundant namespace definition for %s", objectName);
 
 			logMod->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
-			JsonNode & remoteConf = modData[remoteName].patches[objectName];
-
-			if (!remoteConf.isNull() && settings["mods"]["validation"].String() != "off")
-				JsonUtils::detectConflicts(conflictList, remoteConf, entry.second, objectName);
-
-			JsonUtils::merge(remoteConf, entry.second);
+			modData[remoteName].patches[objectName].push_back(entry.second);
 		}
 	}
 	return result;
@@ -103,8 +103,16 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	};
 
 	// apply patches
-	if (!modInfo.patches.isNull())
-		JsonUtils::merge(modInfo.modData, modInfo.patches);
+	for (auto & [objectName, objectPatches] : modInfo.patches)
+	{
+		for (auto & objectPatch : objectPatches)
+		{
+			if (settings["mods"]["validation"].String() != "off" && !modInfo.modData[objectName].isNull())
+				JsonUtils::detectConflicts(conflictList, modInfo.modData[objectName], objectPatch, objectName);
+
+			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
+		}
+	}
 
 	for(auto & entry : modInfo.modData.Struct())
 	{
@@ -151,7 +159,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		{
 			// normal new object
 			logMod->trace("no index in loadMod(%s)", name);
-			performValidate(data,name);
+			performValidate(data, name);
 			handler->loadObject(modName, name, data);
 		}
 	}
@@ -171,8 +179,9 @@ void ContentTypeHandler::afterLoadFinalization()
 		{
 			if (data.second.modData.isNull())
 			{
-				for (const auto & node : data.second.patches.Struct())
-					logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.second.getModScope(), node.first, data.first);
+				for (auto & [objectName, objectPatches] : data.second.patches)
+					for (auto & node : objectPatches)
+						logMod->warn("Mod '%s' have added patch for object '%s' from mod '%s', but this mod was not loaded or has no new objects.", node.getModScope(), objectName, data.first);
 			}
 
 			for(auto & otherMod : modData)
@@ -204,8 +213,8 @@ void ContentTypeHandler::afterLoadFinalization()
 
 			for (auto const & modID : conflictingMods)
 			{
-				resolvedConflicts.merge(VLC->modh->getModDependencies(modID));
-				resolvedConflicts.merge(VLC->modh->getModEnabledSoftDependencies(modID));
+				resolvedConflicts.merge(LIBRARY->modh->getModDependencies(modID));
+				resolvedConflicts.merge(LIBRARY->modh->getModEnabledSoftDependencies(modID));
 			}
 
 			vstd::erase_if(conflictingMods, [&resolvedConflicts](const std::string & entry){ return resolvedConflicts.count(entry);});
@@ -239,24 +248,29 @@ void ContentTypeHandler::afterLoadFinalization()
 
 void CContentHandler::init()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(VLC->heroclassesh.get(), "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth.get(), "artifact")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh.get(), "creature")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh.get(), "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh.get(), "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh.get(), "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh.get(), "spell")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh.get(), "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(VLC->tplh.get(), "template")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
+	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
+	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
+	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
 #if SCRIPTING_ENABLED
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler.get(), "script")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptHandler.get(), "script")));
 #endif
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler.get(), "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(VLC->terrainTypeHandler.get(), "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(VLC->riverTypeHandler.get(), "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(VLC->roadTypeHandler.get(), "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler.get(), "obstacle")));
-	handlers.insert(std::make_pair("biomes", ContentTypeHandler(VLC->biomeHandler.get(), "biome")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(LIBRARY->battlefieldsHandler.get(), "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(LIBRARY->terrainTypeHandler.get(), "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(LIBRARY->riverTypeHandler.get(), "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
+	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
+	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
+	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
 }
 
 bool CContentHandler::preloadData(const ModDescription & mod, bool validate)

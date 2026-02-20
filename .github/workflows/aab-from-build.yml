@@ -1,0 +1,50 @@
+name: Create AAB from archived android build dir
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_dir_xz_url:
+        description: 'URL to XZ-archived android build dir'
+        required: true
+        type: string
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        sparse-checkout: CI/android
+
+    - name: Install JDK
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: Download & unpack archive
+      run: curl -L '${{ inputs.build_dir_xz_url }}' | tar -xf - --xz
+
+    - name: Build aab
+      run: |
+        set -x
+
+        repoPath="$(pwd)"
+        cd android-build
+
+        sed -iEe "s|qt5AndroidDir=.+|qt5AndroidDir=$(pwd)/qt5AndroidDir|" gradle.properties
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        echo "signingRoot=$repoPath/CI/android" > vcmi-app/gradle.properties
+
+        ./gradlew bundleRelease
+        ANDROID_AAB_PATH="$(ls vcmi-app/build/outputs/bundle/release/*.aab)"
+        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+
+    - name: Artifact
+      uses: actions/upload-artifact@v6
+      with:
+        name: aab
+        compression-level: 0
+        path: |
+          ${{ env.ANDROID_AAB_PATH }}

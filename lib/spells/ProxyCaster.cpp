@@ -92,6 +92,14 @@ int64_t ProxyCaster::getEffectValue(const Spell * spell) const
 	return 0;
 }
 
+int64_t ProxyCaster::getEffectRange(const Spell * spell) const
+{
+	if(actualCaster)
+		return actualCaster->getEffectRange(spell);
+
+	return 0;
+}
+
 PlayerColor ProxyCaster::getCasterOwner() const
 {
 	if(actualCaster)
@@ -106,7 +114,7 @@ void ProxyCaster::getCasterName(MetaString & text) const
 		actualCaster->getCasterName(text);
 }
 
-void ProxyCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
+void ProxyCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	if(actualCaster)
 		actualCaster->getCastDescription(spell, attacked, text);

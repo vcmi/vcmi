@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "VisitQueries.h"
 
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
@@ -18,8 +19,8 @@
 
 VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
 	: CQuery(owner)
-	, visitedObject(Obj)
-	, visitingHero(Hero)
+	, visitedObject(Obj->id)
+	, visitingHero(Hero->id)
 {
 	addPlayer(Hero->tempOwner);
 }
@@ -33,9 +34,12 @@ bool VisitQuery::blocksPack(const CPackForServer * pack) const
 
 void MapObjectVisitQuery::onExposure(QueryPtr topQuery)
 {
+	auto object = gh->gameState().getObjInstance(visitedObject);
+	auto hero = gh->gameState().getHero(visitingHero);
+
 	//Object may have been removed and deleted.
-	if(gh->isValidObject(visitedObject))
-		topQuery->notifyObjectAboutRemoval(visitedObject, visitingHero);
+	if (object)
+		topQuery->notifyObjectAboutRemoval(object, hero);
 
 	owner->popIfTop(*this);
 }
@@ -48,11 +52,13 @@ MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectIns
 
 void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
+	auto object = gh->gameState().getObjInstance(visitedObject);
+
 	gh->objectVisitEnded(visitingHero, players.front());
 
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
-		gh->removeObject(visitedObject, color);
+		gh->removeObject(object, color);
 }
 
 TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
@@ -67,7 +73,10 @@ TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTow
 
 void TownBuildingVisitQuery::onExposure(QueryPtr topQuery)
 {
-	topQuery->notifyObjectAboutRemoval(visitedObject, visitingHero);
+	auto object = gh->gameState().getObjInstance(visitedObject);
+	auto hero = gh->gameState().getHero(visitingHero);
+
+	topQuery->notifyObjectAboutRemoval(object, hero);
 
 	onAdded(players.front());
 }
@@ -76,9 +85,9 @@ void TownBuildingVisitQuery::onAdded(PlayerColor color)
 {
 	while (!visitedBuilding.empty() && owner->topQuery(color).get() == this)
 	{
-		visitingHero = visitedBuilding.back().hero;
-		const auto * building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
-		building->onHeroVisit(visitingHero);
+		visitingHero = visitedBuilding.back().hero->id;
+		const auto & building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
+		building->onHeroVisit(*gh, visitedBuilding.back().hero);
 		visitedBuilding.pop_back();
 	}
 

@@ -3,7 +3,7 @@
 Since VCMI 1.4.0 there are more capabilities to configure difficulty parameters.
 It means, that modders can give different bonuses to AI or human players depending on selected difficulty
 
-Difficulty configuration is located in [config/difficulty.json](../config/difficulty.json) file and can be overridden by mods.
+Difficulty configuration is located in [config/difficulty.json](../../config/difficulty.json) file and can be overridden by mods.
 
 ## Format summary
 
@@ -14,7 +14,7 @@ Difficulty configuration is located in [config/difficulty.json](../config/diffic
 		"pawn": //parameters for specific difficulty
 		{
 			//starting resources
-			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
+			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000 },
 			//bonuses will be given to player globally
 			"globalBonuses": [],
 			//bonuses will be given to player every battle

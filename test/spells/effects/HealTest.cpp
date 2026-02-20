@@ -184,7 +184,7 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
+TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
 {
 	{
 		JsonNode config;
@@ -221,7 +221,7 @@ TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
+TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
 {
 	{
 		JsonNode config;
@@ -325,7 +325,7 @@ protected:
 	}
 };
 
-TEST_P(HealApplyTest, DISABLED_Heals)
+TEST_P(HealApplyTest, Heals)
 {
 	{
 		JsonNode config;
@@ -363,7 +363,7 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 	mechanicsMock.caster = &actualCaster;
 	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
 	EXPECT_CALL(mechanicsMock, applySpellBonus(Eq(effectValue), Eq(&targetUnit))).WillRepeatedly(Return(effectValue));
-	EXPECT_CALL(actualCaster, creatureIndex()).WillRepeatedly(Return(CreatureID(unitId)));
+	EXPECT_CALL(actualCaster, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
 	EXPECT_CALL(actualCaster, getHeroCaster()).WillRepeatedly(Return(nullptr));
 
 	GTEST_ASSERT_EQ(targetUnitState->getAvailableHealth(), unitAmount * unitHP / 2 + 1);
@@ -373,7 +373,7 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
 
-	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
+	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(CreatureID(unitId)));
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));

@@ -95,7 +95,7 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("offsetY", offsetY);
 }
 
-void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void Obstacle::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	EffectTarget effectTarget = transformTarget(m, spellTarget, spellTarget);
 
@@ -180,11 +180,11 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 {
 	if(patchCount > 0)
 	{
-		std::vector<BattleHex> availableTiles;
-		auto insertAvailable = [&m](const BattleHex & hex, std::vector<BattleHex> & availableTiles)
+		BattleHexArray availableTiles;
+		auto insertAvailable = [&m](const BattleHex & hex, BattleHexArray & availableTiles)
 		{
 			if(isHexAvailable(m->battle(), hex, true))
-				availableTiles.push_back(hex);
+				availableTiles.insert(hex);
 		};
 
 		if(m->isMassive())
@@ -194,7 +194,7 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 			for(const auto & destination : target)
 				insertAvailable(destination.hexValue, availableTiles);
 
-		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
+		availableTiles.shuffle(*server->getRNG());
 		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);
@@ -275,12 +275,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	auto all = m->battle()->battleGetAllObstacles(BattleSide::ALL_KNOWING);
-
-	int obstacleIdToGive = 1;
-	for(auto & one : all)
-		if(one->uniqueID >= obstacleIdToGive)
-			obstacleIdToGive = one->uniqueID + 1;
+	int obstacleIdToGive = m->battle()->nextObstacleId();
 
 	for(const Destination & destination : target)
 	{
@@ -309,7 +304,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.animationYOffset = options.offsetY;
 
 		obstacle.customSize.clear();
-		obstacle.customSize.reserve(options.shape.size());
 
 		for(const auto & shape : options.shape)
 		{
@@ -318,7 +312,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 			for(auto direction : shape)
 				hex.moveInDirection(direction, false);
 
-			obstacle.customSize.emplace_back(hex);
+			obstacle.customSize.insert(hex);
 		}
 
 		pack.changes.emplace_back();

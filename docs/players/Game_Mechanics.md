@@ -23,7 +23,7 @@ Some of game features have already been extended in comparison to Shadow of Deat
 - Heroes can have primary stats up to 2^16.
 - Unlimited backpack (by default). This can be toggled off to restore original 64-slot backpack limit.
 
-The list of implemented cheat codes and console commands is [here](Cheat_codes.md).
+The list of implemented cheat codes and console commands is [here](Cheat_Codes.md).
 
 ## New mechanics (Optional)
 
@@ -40,10 +40,6 @@ Stack experience interface has been merged with regular creature window. Among o
 ### Commanders module
 
 VCMI offers native support for Commanders. Commanders are part of WoG mod for VCMI and require it to be enabled. However, once this is done, any new faction can use its own Commander, too.
-
-### Mithril module
-
-VCMI natively supports Mithril resource known from WoG. However, it is not currently used by any mod.
 
 ### Stack Artifact module
 

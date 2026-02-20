@@ -10,17 +10,17 @@
 #pragma once
 
 #include "CGPathNode.h"
-#include "../IGameCallback.h"
-#include "../bonuses/BonusEnum.h"
-
-#include <boost/container/static_vector.hpp>
-#include <boost/container/small_vector.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class IGameInfoCallback;
+class PathfinderConfig;
 class CGWhirlpool;
-struct TurnInfo;
+class TurnInfo;
+class CGTeleport;
 struct PathfinderOptions;
+
+using FowTilesType = std::set<int3>;
 
 // Optimized storage - tile can have 0-8 neighbour tiles
 // static_vector uses fixed, preallocated storage (capacity) and dynamic size
@@ -36,13 +36,13 @@ public:
 	friend class CPathfinderHelper;
 
 	CPathfinder(
-		CGameState * _gs,
+		const IGameInfoCallback & gameInfo,
 		std::shared_ptr<PathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
-	CGameState * gamestate;
+	const IGameInfoCallback & gameInfo;
 
 	using ELayer = EPathfindingLayer;
 
@@ -67,8 +67,12 @@ private:
 	CGPathNode * topAndPop();
 };
 
-class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
+class DLL_LINKAGE CPathfinderHelper : boost::noncopyable
 {
+	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
+	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
+
+	const IGameInfoCallback & gameInfo;
 public:
 	enum EPatrolState
 	{
@@ -76,18 +80,18 @@ public:
 		PATROL_LOCKED = 1,
 		PATROL_RADIUS
 	} patrolState;
-	std::unordered_set<int3> patrolTiles;
+	FowTilesType patrolTiles;
 
 	int turn;
 	PlayerColor owner;
 	const CGHeroInstance * hero;
-	std::vector<TurnInfo *> turnsInfo;
+	std::vector<std::unique_ptr<TurnInfo>> turnsInfo;
 	const PathfinderOptions & options;
 	bool canCastFly;
 	bool canCastWaterWalk;
 	bool whirlpoolProtection;
 
-	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
+	CPathfinderHelper(const IGameInfoCallback & gameInfo, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();
 	void initializePatrol();
 	bool isHeroPatrolLocked() const;
@@ -96,7 +100,6 @@ public:
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	const TurnInfo * getTurnInfo() const;
-	bool hasBonusOfType(BonusType type) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 
 	TeleporterTilesVector getCastleGates(const PathNodeInfo & source) const;

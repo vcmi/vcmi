@@ -11,6 +11,7 @@
 
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/Point.h"
+#include "../../lib/Color.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "BattleConstants.h"
 
@@ -21,12 +22,18 @@ struct BattleTriggerEffect;
 
 VCMI_LIB_NAMESPACE_END
 
-struct ColorMuxerEffect;
 class CAnimation;
 class Canvas;
 class BattleInterface;
 class BattleRenderer;
 class EffectAnimation;
+
+struct ColorMuxerEffect
+{
+	std::vector<ColorRGBA> effectColors;
+	std::vector<float> transparency;
+	std::vector<float> timePoints;
+};
 
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct BattleEffect

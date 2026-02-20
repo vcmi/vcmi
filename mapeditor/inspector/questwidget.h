@@ -10,6 +10,7 @@
 #pragma once
 #include "../StdInc.h"
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../lib/mapObjects/CQuest.h"
 
 namespace Ui {
@@ -46,17 +47,18 @@ private:
 	Ui::QuestWidget *ui;
 };
 
-class QuestDelegate : public QStyledItemDelegate
+class QuestDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	QuestDelegate(MapController &, CQuest &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 protected:
 	bool eventFilter(QObject * object, QEvent * event) override;

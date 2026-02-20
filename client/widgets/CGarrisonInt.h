@@ -134,7 +134,7 @@ public:
 	void bulkMoveArmy(const CGarrisonSlot * selected);
 	void bulkMergeStacks(const CGarrisonSlot * selected); // Gather all creatures of selected type to the selected slot from other hero/garrison slots
 	void bulkSplitStack(const CGarrisonSlot * selected); // Used to separate one-creature troops from main stack
-	void bulkSmartSplitStack(const CGarrisonSlot * selected);
+	void bulkSplitAndRebalanceStack(const CGarrisonSlot * selected);
 
 	/// Constructor
 	/// @param position Relative position to parent element

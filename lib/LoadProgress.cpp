@@ -92,13 +92,13 @@ void Progress::step(int count)
 
 void ProgressAccumulator::include(const Progress & p)
 {
-	boost::unique_lock<boost::mutex> guard(_mx);
+	std::unique_lock<std::mutex> guard(_mx);
 	_progress.emplace_back(p);
 }
 
 void ProgressAccumulator::exclude(const Progress & p)
 {
-	boost::unique_lock<boost::mutex> guard(_mx);
+	std::unique_lock<std::mutex> guard(_mx);
 	for(auto i = _progress.begin(); i != _progress.end(); ++i)
 	{
 		if(&i->get() == &p)
@@ -113,7 +113,7 @@ void ProgressAccumulator::exclude(const Progress & p)
 
 bool ProgressAccumulator::finished() const
 {
-	boost::unique_lock<boost::mutex> guard(_mx);
+	std::unique_lock<std::mutex> guard(_mx);
 	for(auto i : _progress)
 		if(!i.get().finished())
 			return false;
@@ -122,7 +122,7 @@ bool ProgressAccumulator::finished() const
 
 Type ProgressAccumulator::get() const
 {
-	boost::unique_lock<boost::mutex> guard(_mx);
+	std::unique_lock<std::mutex> guard(_mx);
 	auto sum = _accumulated;
 	auto totalSteps = _steps;
 	for(auto p : _progress)

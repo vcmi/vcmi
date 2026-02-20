@@ -49,6 +49,7 @@ class JsonParser
 
 public:
 	JsonParser(const std::byte * inputString, size_t stringSize, const JsonParsingSettings & settings);
+	JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings);
 
 	/// do actual parsing. filename is name of file that will printed to console if any errors were found
 	JsonNode parse(const std::string & fileName);

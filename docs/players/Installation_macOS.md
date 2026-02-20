@@ -6,18 +6,29 @@
   - manually: <https://github.com/vcmi/vcmi/releases/latest>
   - via Homebrew: `brew install --cask --no-quarantine vcmi/vcmi/vcmi`
 - Daily builds (might be unstable)
-  - Intel (x86_64) builds: <https://builds.vcmi.download/branch/develop/macOS/intel>
-  - Apple Silicon (arm64) builds: <https://builds.vcmi.download/branch/develop/macOS/arm>
+  - [Intel (x86_64) builds](https://builds.vcmi.download/branch/develop/macos-intel/)
+  - [Apple Silicon (arm64) builds](https://builds.vcmi.download/branch/develop/macos-arm/)
 
-If the app doesn't open, right-click the app bundle - select *Open* menu item - press *Open* button. You may also need to allow running it in System Settings - Privacy & Security.
+If the app doesn't open, right-click the app bundle - select *Open* menu item - press *Open* button. On macOS 15 Sequoia and later there will be no *Open* button, instead you'll see the following dialog:
 
-Please report about gameplay problem on forums: [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) Make sure to specify what hardware and macOS version you use.
+![open error on macOS 15](images/macos15-open.png)
+
+To fix it, go to System Settings - Privacy & Security tab - scroll down and press the *Open Anyway* button (marked with an arrow on the image below). After that confirm your action and enter your administrator password.
+
+![macOS 15 - Privacy & Security](images/macos15-privacy.png)
 
 ## Step 2: Installing Heroes III data files
 
 ### Step 2.a: Installing data files with GOG offline installer
 
-If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient.
+If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher.
+
+Select the `.exe` file first. The matching `.bin` file will be located automatically if the correct installer is selected.
+
+This may take a few seconds. Please be patient.
+
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
 
 ### Step 2.b: Installing by the classic way
 

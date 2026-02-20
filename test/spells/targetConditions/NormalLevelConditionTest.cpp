@@ -27,7 +27,7 @@ public:
 		isMagicalEffect = GetParam();
 		EXPECT_CALL(mechanicsMock, isMagicalEffect()).WillRepeatedly(Return(isMagicalEffect));
 		if(isMagicalEffect)
-			EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(AtLeast(1));
+			EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 	}
 

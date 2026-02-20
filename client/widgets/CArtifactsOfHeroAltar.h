@@ -11,8 +11,6 @@
 
 #include "CArtifactsOfHeroBase.h"
 
-#include "../../lib/CArtHandler.h"
-
 class CArtifactsOfHeroAltar : public CArtifactsOfHeroBase
 {
 public:

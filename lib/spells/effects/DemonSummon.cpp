@@ -15,6 +15,7 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/BattleInfo.h"
 #include "../../battle/CUnitState.h"
+#include "../../CStack.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
@@ -65,7 +66,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 			continue;
 		}
 
-		auto hex = m->battle()->getAvailableHex(targetStack->creatureId(), m->casterSide, targetStack->getPosition());
+		auto hex = m->battle()->getAvailableHex(targetStack->creatureId(), m->casterSide, targetStack->getPosition().toInt());
 
 		if(!hex.isValid())
 		{
@@ -101,13 +102,32 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 		server->apply(pack);
 }
 
+SpellEffectValue DemonSummon::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result;
+
+	auto targets = m->getAffectedStacks(spellTarget);
+
+	if(targets.empty())
+		return result;
+
+	auto unit = targets.front();
+	if(unit)
+	{
+		result.unitsDelta = raisedCreatureAmount(m, unit);
+		result.unitType = creature;
+	}
+
+	return result;
+}
+
 bool DemonSummon::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
 {
 	if(!unit->isDead())
 		return false;
 
 	//check if alive unit blocks rising
-	for(const BattleHex & hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+	for(const BattleHex & hex : unit->getHexes())
 	{
 		auto blocking = m->battle()->battleGetUnitsIf([hex, unit](const battle::Unit * other)
 		{

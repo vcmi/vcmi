@@ -158,7 +158,7 @@ public:
 		return result;
 	}
 
-	constexpr bool valid() const //Should be named "isValid"?
+	constexpr bool isValid() const //Should be named "isValid"?
 	{
 		return z >= 0; //minimal condition that needs to be fulfilled for tiles in the map
 	}

@@ -9,7 +9,7 @@
 */
 #pragma once
 
-#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/GameLibrary.h"
 #include "../AIUtility.h"
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"

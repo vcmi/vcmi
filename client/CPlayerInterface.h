@@ -10,9 +10,11 @@
 #pragma once
 
 #include "ArtifactsUIController.h"
+#include "GameChatHandler.h"
 
+#include "../lib/callback/CGameInterface.h"
+#include "../lib/gameState/GameStatistics.h"
 #include "../lib/FunctionList.h"
-#include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,6 +29,7 @@ class CGObjectInstance;
 class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
+class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -56,14 +59,17 @@ namespace boost
 }
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public IUpdateable
+class CPlayerInterface : public CGameInterface
 {
 	bool ignoreEvents;
 	int autosaveCount;
 
+	const std::string QUICKSAVE_PATH = "Saves/Quicksave";
+
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::unique_ptr<HeroMovementController> movementController;
+	std::unique_ptr<PathfinderCache> pathfinderCache;
 public: // TODO: make private
 	std::unique_ptr<ArtifactsUIController> artifactController;
 	std::shared_ptr<Environment> env;
@@ -81,6 +87,8 @@ public: // TODO: make private
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
 
+	bool hasQuickSave;
+
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
@@ -88,7 +96,6 @@ public: // TODO: make private
 
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
-	void update() override;
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
@@ -108,6 +115,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
+	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
@@ -124,8 +132,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
-	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
+	void tileHidden(const FowTilesType &pos) override; //called when given tiles become hidden under fog of war
+	void tileRevealed(const FowTilesType &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn(QueryID queryID) override;
@@ -144,6 +152,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active interface
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
+	void setColorScheme(ColorScheme scheme) override;
+	void responseStatistic(StatisticDataSet & statistic) override;
 
 	//for battles
 	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -154,7 +164,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
-	void battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
+	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const BattleID & battleID, const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte) override; //various one-shot effect
@@ -168,9 +178,10 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
 	std::optional<BattleAction> makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
-public: // public interface for use by client via LOCPLINT access
+public: // public interface for use by client via GAME->interface() access
 
 	// part of GameInterface that is also used by client code
+	void update();
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
 	void showQuestLog() override;
@@ -194,13 +205,23 @@ public: // public interface for use by client via LOCPLINT access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	bool checkQuickLoadingGame(bool verbose = false);
+	void proposeQuickLoadingGame();
+	void quickSaveGame();
 	void performAutosave();
 	void gamePause(bool pause);
 	void endNetwork();
 	void closeAllDialogs();
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
+	void invalidatePaths() override;
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
+
+	void registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
+	void unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
+
+	void prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side);
 
 	CPlayerInterface(PlayerColor Player);
 	~CPlayerInterface();
@@ -227,6 +248,3 @@ private:
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 };
-
-/// Provides global access to instance of interface of currently active player
-extern CPlayerInterface * LOCPLINT;

@@ -159,7 +159,8 @@
 			},
 			"17":
 			{
-				"type" : "junction", "size" : 30,
+				"type" : "junction", "size" : 15,
+				"forcedLevel" : "underground",
 				"terrainTypeLikeZone" : 9,
 				"allowedTowns" : ["neutral"],
 				"monsters" : "strong",
@@ -172,7 +173,8 @@
 			},
 			"18":
 			{
-				"type" : "junction", "size" : 30,
+				"type" : "junction", "size" : 15,	
+				"forcedLevel" : "underground",
 				"terrainTypeLikeZone" : 9,
 				"allowedTowns" : ["neutral"],
 				"monsters" : "strong",
@@ -181,7 +183,8 @@
 			},
 			"19":
 			{
-				"type" : "junction", "size" : 30,
+				"type" : "junction", "size" : 15,
+				"forcedLevel" : "underground",
 				"terrainTypeLikeZone" : 9,
 				"allowedTowns" : ["neutral"],
 				"monsters" : "strong",
@@ -190,7 +193,8 @@
 			},
 			"20":
 			{
-				"type" : "junction", "size" : 30,
+				"type" : "junction", "size" : 15,
+				"forcedLevel" : "underground",
 				"terrainTypeLikeZone" : 9,
 				"allowedTowns" : ["neutral"],
 				"monsters" : "strong",

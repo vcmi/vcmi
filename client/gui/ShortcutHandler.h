@@ -28,6 +28,8 @@ class ShortcutHandler
 public:
 	ShortcutHandler();
 
+	void reloadShortcuts();
+
 	/// returns list of shortcuts assigned to provided SDL keycode
 	std::vector<EShortcut> translateKeycode(const std::string & key) const;
 

@@ -9,14 +9,18 @@
  */
 #pragma once
 
-#include "../CConsoleHandler.h"
+
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/posix_time/time_formatters.hpp>
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CLogger;
+class CConsoleHandler;
 struct LogRecord;
 class ILogTarget;
-
+enum class EConsoleTextColor : int8_t;
 
 namespace ELogLevel
 {
@@ -46,7 +50,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger: public vstd::CLoggerBase
+class DLL_LINKAGE CLogger final: public vstd::CLoggerBase
 {
 public:
 	ELogLevel::ELogLevel getLevel() const;
@@ -70,7 +74,7 @@ public:
 
 private:
 	explicit CLogger(const CLoggerDomain & domain);
-	inline ELogLevel::ELogLevel getEffectiveLevel() const; /// Returns the log level applied on this logger whether directly or indirectly.
+	inline ELogLevel::ELogLevel getEffectiveLevel() const override; /// Returns the log level applied on this logger whether directly or indirectly.
 	inline void callTargets(const LogRecord & record) const;
 
 	CLoggerDomain domain;
@@ -157,11 +161,11 @@ class DLL_LINKAGE CColorMapping
 public:
 	CColorMapping();
 
-	void setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor::EConsoleTextColor color);
-	EConsoleTextColor::EConsoleTextColor getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const;
+	void setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor color);
+	EConsoleTextColor getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const;
 
 private:
-	std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor> > map;
+	std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor> > map;
 };
 
 /// This target is a logging target which writes message to the console.

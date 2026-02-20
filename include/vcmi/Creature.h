@@ -23,8 +23,10 @@ class DLL_LINKAGE ACreature: public AFactionMember
 {
 public:
 	bool isLiving() const; //non-undead, non-non living or alive
-	ui32 getMovementRange(int turn = 0) const; //get speed (in moving tiles) of creature with all modificators
+	virtual ui32 getMovementRange(int turn) const; //get speed (in moving tiles) of creature with all modificators
+	virtual ui32 getMovementRange() const; //get speed (in moving tiles) of creature with all modificators
 	virtual ui32 getMaxHealth() const; //get max HP of stack with all modifiers
+	virtual int32_t getInitiative(int turn = 0) const;
 };
 
 template <typename IdType>
@@ -64,7 +66,7 @@ public:
 	virtual int32_t getBaseShots() const = 0;
 
 	virtual int32_t getRecruitCost(GameResID resIndex) const = 0;
-	virtual ResourceSet getFullRecruitCost() const = 0;
+	virtual const ResourceSet & getFullRecruitCost() const = 0;
 	
 	virtual bool hasUpgrades() const = 0;
 

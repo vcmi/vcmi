@@ -32,6 +32,7 @@ public:
 
 	bool getResult() const { return result; }
 
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -59,4 +60,5 @@ public:
 	void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };

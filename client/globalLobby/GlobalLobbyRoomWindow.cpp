@@ -15,9 +15,9 @@
 #include "GlobalLobbyDefines.h"
 #include "GlobalLobbyWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CServerHandler.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../mainmenu/CMainMenu.h"
 #include "../widgets/Buttons.h"
@@ -30,6 +30,7 @@
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
+#include "../../lib/GameLibrary.h"
 
 GlobalLobbyRoomAccountCard::GlobalLobbyRoomAccountCard(const GlobalLobbyAccount & accountDescription)
 {
@@ -63,7 +64,7 @@ GlobalLobbyRoomModCard::GlobalLobbyRoomModCard(const GlobalLobbyRoomModInfo & mo
 		statusColor = ColorRGBA(128, 128, 128);
 	else if(modInfo.status == ModVerificationStatus::VERSION_MISMATCH)
 		statusColor = Colors::YELLOW;
-	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, CGI->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
+	labelStatus = std::make_shared<CLabel>(5, 30, FONT_SMALL, ETextAlignment::CENTERLEFT, statusColor, LIBRARY->generaltexth->translate("vcmi.lobby.mod.state." + statusToString.at(modInfo.status)));
 }
 
 static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescription, const std::vector<GlobalLobbyRoomModInfo> & modVerificationList)
@@ -71,8 +72,8 @@ static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescripti
 	bool publicRoom = roomDescription.statusID == "public";
 	bool privateRoom = roomDescription.statusID == "private";
 	bool gameStarted = !publicRoom && !privateRoom;
-	bool hasInvite = CSH->getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
-	bool alreadyInRoom = CSH->inGame();
+	bool hasInvite = GAME->server().getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+	bool alreadyInRoom = GAME->server().inGame();
 
 	if (alreadyInRoom)
 		return "vcmi.lobby.preview.error.playing";
@@ -122,20 +123,20 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	pos.w = 400;
 	pos.h = 400;
 
-	GlobalLobbyRoom roomDescription = CSH->getGlobalLobby().getActiveRoomByName(roomUUID);
+	GlobalLobbyRoom roomDescription = GAME->server().getGlobalLobby().getActiveRoomByName(roomUUID);
 	for(const auto & modEntry : ModVerificationInfo::verifyListAgainstLocalMods(roomDescription.modList))
 	{
 		GlobalLobbyRoomModInfo modInfo;
 		modInfo.status = modEntry.second;
 		if (modEntry.second == ModVerificationStatus::EXCESSIVE)
-			modInfo.version = CGI->modh->getModInfo(modEntry.first).getVersion().toString();
+			modInfo.version = LIBRARY->modh->getModInfo(modEntry.first).getVersion().toString();
 		else
 			modInfo.version = roomDescription.modList.at(modEntry.first).version.toString();
 
 		if (modEntry.second == ModVerificationStatus::NOT_INSTALLED)
 			modInfo.modName = roomDescription.modList.at(modEntry.first).name;
 		else
-			modInfo.modName = CGI->modh->getModInfo(modEntry.first).getName();
+			modInfo.modName = LIBRARY->modh->getModInfo(modEntry.first).getName();
 
 		modVerificationList.push_back(modInfo);
 	}

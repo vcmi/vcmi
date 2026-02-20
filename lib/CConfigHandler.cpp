@@ -19,6 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 SettingsStorage settings;
 SettingsStorage persistentStorage;
+SettingsStorage keyBindingsConfig;
 
 template<typename Accessor>
 SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):
@@ -53,6 +54,13 @@ SettingsStorage::SettingsStorage():
 	write(NodeAccessor<Settings>(*this, std::vector<std::string>() )),
 	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() ))
 {
+}
+
+SettingsStorage::~SettingsStorage()
+{
+	// hack for possible crash due to static destruction order (setting storage can be destroyed before all listeners have died)
+	for(SettingsListener * listener : listeners)
+		listener->terminate();
 }
 
 void SettingsStorage::init(const std::string & dataFilename, const std::string & schema)
@@ -132,9 +140,15 @@ SettingsListener::SettingsListener(const SettingsListener &sl):
 	parent.listeners.insert(this);
 }
 
+void SettingsListener::terminate()
+{
+	wasTerminated = true;
+}
+
 SettingsListener::~SettingsListener()
 {
-	parent.listeners.erase(this);
+	if (!wasTerminated)
+		parent.listeners.erase(this);
 }
 
 void SettingsListener::nodeInvalidated(const std::vector<std::string> &changedPath)

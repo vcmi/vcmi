@@ -24,6 +24,9 @@ class DemonSummon : public UnitEffect
 {
 public:
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+
+	SpellEffectValue getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const final;
+
 protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * s) const override;
 

@@ -30,8 +30,6 @@ VCMI_REGISTER_SCRIPT_API(SetResourcesProxy, "netpacks.SetResources");
 const std::vector<SetResourcesProxy::CustomRegType> SetResourcesProxy::REGISTER_CUSTOM =
 {
 	{"new", &Wrapper::constructor, true},
-	{"getAbs", &SetResourcesProxy::getAbs, false},
-	{"setAbs", &SetResourcesProxy::setAbs, false},
 	{"getPlayer", &SetResourcesProxy::getPlayer, false},
 	{"setPlayer", &SetResourcesProxy::setPlayer, false},
 	{"setAmount", &SetResourcesProxy::setAmount, false},
@@ -39,32 +37,6 @@ const std::vector<SetResourcesProxy::CustomRegType> SetResourcesProxy::REGISTER_
 	{"clear", &SetResourcesProxy::clear, false},
 	{"toNetpackLight", &PackForClientProxy<SetResourcesProxy>::toNetpackLight, false}
 };
-
-int SetResourcesProxy::getAbs(lua_State * L)
-{
-	LuaStack S(L);
-	std::shared_ptr<SetResources> object;
-	if(!S.tryGet(1, object))
-		return S.retVoid();
-
-	return LuaStack::quickRetBool(L, object->abs);
-}
-
-int SetResourcesProxy::setAbs(lua_State * L)
-{
-	LuaStack S(L);
-
-	std::shared_ptr<SetResources> object;
-	if(!S.tryGet(1, object))
-		return S.retVoid();
-
-
-	bool value = false;
-	if(S.tryGet(2, value))
-		object->abs = value;
-
-	return S.retVoid();
-}
 
 int SetResourcesProxy::getPlayer(lua_State * L)
 {
@@ -110,7 +82,7 @@ int SetResourcesProxy::getAmount(lua_State * L)
 
 	S.clear();
 
-	const TQuantity amount = vstd::atOrDefault(object->res, static_cast<size_t>(type), 0);
+	const TQuantity amount = object->res[type];
 	S.push(amount);
 	return 1;
 }

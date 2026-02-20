@@ -23,13 +23,13 @@ BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
 	: ElementarGoal(Goals::BUILD_STRUCTURE)
 {
 	buildingInfo = BuildingInfo(
-		tid->getTown()->buildings.at(Bid),
+		tid->getTown()->buildings.at(Bid).get(),
 		nullptr,
 		CreatureID::NONE,
 		tid,
 		nullptr);
 
-	bid = Bid;
+	bid = Bid.getNum();
 	town = tid;
 }
 

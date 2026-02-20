@@ -15,10 +15,10 @@
 #include <vcmi/Services.h>
 #include <vcmi/Environment.h>
 
-#include "CGameInterface.h"
 #include "CScriptingModule.h"
 
 #include "VCMIDirs.h"
+#include "callback/CDynLibHandler.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonSerializer.h"
 #include "filesystem/Filesystem.h"
@@ -166,7 +166,7 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 {
 	if(saving)
 	{
-        for(auto & scriptAndContext : cache)
+		for(auto & scriptAndContext : cache)
 		{
 			const auto * script = scriptAndContext.first;
 			auto context = scriptAndContext.second;

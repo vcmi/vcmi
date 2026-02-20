@@ -13,7 +13,7 @@
 #include "texts/CGeneralTextHandler.h"
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
-#include "VCMI_Lib.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +21,7 @@ RiverTypeHandler::RiverTypeHandler()
 {
 	objects.emplace_back(new RiverType());
 
-	VLC->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
+	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
@@ -50,7 +50,7 @@ std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
 		info->paletteAnimation.push_back(element);
 	}
 
-	VLC->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	return info;
 }
@@ -63,7 +63,7 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
 {
-	size_t dataSize = VLC->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
+	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
 	return {};
@@ -86,7 +86,7 @@ std::string RiverType::getNameTextID() const
 
 std::string RiverType::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 RiverType::RiverType():

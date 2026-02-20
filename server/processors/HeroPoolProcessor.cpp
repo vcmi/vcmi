@@ -21,6 +21,7 @@
 #include "../../lib/entities/hero/CHero.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"
@@ -34,12 +35,12 @@ HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 
 TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
 {
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	const auto & heroes = heroesPool->getHeroesFor(player);
 
 	// if tavern has empty slot - use it
-	if (heroes.size() == 0)
+	if (heroes.empty())
 		return TavernHeroSlot::NATIVE;
 
 	if (heroes.size() == 1)
@@ -109,7 +110,9 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.slotID = slot;
 	sah.replenishPoints = true;
 
-	CGHeroInstance *newHero = (nextHero == HeroTypeID::NONE) ? pickHeroFor(needNativeHero, color) : gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero];
+	CGHeroInstance *newHero = nextHero.hasValue()?
+		gameHandler->gameState().heroesPool->unusedHeroesFromPool()[nextHero]:
+		pickHeroFor(needNativeHero, color);
 
 	if (newHero)
 	{
@@ -145,10 +148,10 @@ void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 
 bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player, const HeroTypeID & nextHero)
 {
-	const PlayerState * playerState = gameHandler->getPlayerState(player);
-	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
-	const CGTownInstance * town = gameHandler->getTown(objectID);
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const PlayerState * playerState = gameHandler->gameInfo().getPlayerState(player);
+	const CGObjectInstance * mapObject = gameHandler->gameInfo().getObj(objectID);
+	const CGTownInstance * town = gameHandler->gameInfo().getTown(objectID);
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
 		return false;
@@ -159,15 +162,15 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	if (playerState->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && gameHandler->complain("Not enough gold for buying hero!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, false) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
+	if (gameHandler->gameInfo().getHeroCount(player, false) >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, true) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
+	if (gameHandler->gameInfo().getHeroCount(player, true) >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrisoned and wandering heroes present!"))
 		return false;
 
 	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
 	{
-		if(!gameHandler->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
+		if(!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
 			return false;
 
 		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && gameHandler->complain("Cannot invite specified hero!"))
@@ -179,13 +182,13 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	if(town) //tavern in town
 	{
-		if(gameHandler->getPlayerRelations(mapObject->tempOwner, player) == PlayerRelations::ENEMIES && gameHandler->complain("Can't buy hero in enemy town!"))
+		if(gameHandler->gameInfo().getPlayerRelations(mapObject->tempOwner, player) == PlayerRelations::ENEMIES && gameHandler->complain("Can't buy hero in enemy town!"))
 			return false;
 
 		if(!town->hasBuilt(BuildingID::TAVERN) && gameHandler->complain("No tavern!"))
 			return false;
 
-		if(town->visitingHero && gameHandler->complain("There is visiting hero - no place!"))
+		if(town->getVisitingHero() && gameHandler->complain("There is visiting hero - no place!"))
 			return false;
 	}
 
@@ -199,7 +202,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 		}
 
-		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject && gameHandler->complain("Tavern entry must be unoccupied!"))
+		if(gameHandler->gameInfo().getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject->id && gameHandler->complain("Tavern entry must be unoccupied!"))
 			return false;
 	}
 
@@ -225,11 +228,11 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	hr.hid = recruitedHero->getHeroTypeID();
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
-	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)
+	if(gameHandler->gameInfo().getTile(targetPos)->isWater() && !recruitedHero->inBoat())
 	{
 		//Create a new boat for hero
 		gameHandler->createBoat(targetPos, recruitedHero->getBoatType(), player);
-		hr.boatId = gameHandler->getTopObj(targetPos)->id;
+		hr.boatId = gameHandler->gameInfo().getTopObj(targetPos)->id;
 	}
 
 	// apply netpack -> this will remove hired hero from pool
@@ -254,8 +257,8 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 {
 	std::vector<const CHeroClass *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
-	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
+	FactionID factionID = gameHandler->gameInfo().getPlayerSettings(player)->castle;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
@@ -276,7 +279,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 {
 	std::vector<CGHeroInstance *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
@@ -300,8 +303,8 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		return nullptr;
 	}
 
-	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	FactionID factionID = gameHandler->gameInfo().getPlayerSettings(player)->castle;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	const auto & currentTavern = heroesPool->getHeroesFor(player);
 
 	std::vector<const CHeroClass *> potentialClasses = findAvailableClassesFor(player);
@@ -318,7 +321,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		if (isNative && heroClass->faction != factionID)
 			continue;
 
-		bool hasSameClass = vstd::contains_if(currentTavern, [&](const CGHeroInstance * hero){
+		bool hasSameClass = vstd::contains_if(currentTavern, [&heroClass](const CGHeroInstance * hero){
 			return hero->getHeroClass() == heroClass;
 		});
 
@@ -364,17 +367,6 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 		return nullptr;
 
 	return *RandomGeneratorUtil::nextItem(possibleHeroes, getRandomGenerator(player));
-}
-
-vstd::RNG & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTypeID & hero)
-{
-	if (heroSeed.count(hero) == 0)
-	{
-		int seed = gameHandler->getRandomGenerator().nextInt();
-		heroSeed.emplace(hero, std::make_unique<CRandomGenerator>(seed));
-	}
-
-	return *heroSeed.at(hero);
 }
 
 vstd::RNG & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)

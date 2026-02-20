@@ -89,7 +89,10 @@ public:
 	bool onPlayerEndsTurn(PlayerColor which);
 
 	/// Ends player turn and removes this player from turn order
-	void onPlayerEndsGame(PlayerColor which);
+	void removePlayer(PlayerColor which);
+
+	/// Start turns for next players if possible
+	void resumeTurnOrder();
 
 	/// Start game (or resume from save) and send PlayerStartsTurn pack to player(s)
 	void onGameStarted();
@@ -107,16 +110,7 @@ public:
 		h & awaitingPlayers;
 		h & actingPlayers;
 		h & actedPlayers;
-
-		if (h.version >= Handler::Version::VOTING_SIMTURNS)
-		{
-			h & simturnsMinDurationDays;
-			h & simturnsMaxDurationDays;
-		}
-		else if (!h.saving)
-		{
-			simturnsMinDurationDays.reset();
-			simturnsMaxDurationDays.reset();
-		}
+		h & simturnsMinDurationDays;
+		h & simturnsMaxDurationDays;
 	}
 };

@@ -136,7 +136,7 @@ private:
 		VisibleComponentInfo(const std::vector<Component> & compsToDisplay, std::string message, int textH, bool tiny);
 	};
 
-	enum EState
+	enum class EState
 	{
 		EMPTY, HERO, TOWN, DATE, GAME, AITURN, COMPONENT
 	};

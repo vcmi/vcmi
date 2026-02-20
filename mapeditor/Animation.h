@@ -13,6 +13,7 @@
 #include "../lib/GameConstants.h"
 #include <QRgb>
 #include <QImage>
+#include <QDir>
 
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;

@@ -12,9 +12,9 @@
 
 #include "InterfaceObjectConfigurable.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/ShortcutHandler.h"
 #include "../gui/Shortcut.h"
 #include "../render/Graphics.h"
@@ -35,6 +35,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/GameLibrary.h"
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
 	InterfaceObjectConfigurable(used, offset)
@@ -185,7 +186,7 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 	if(s.empty())
 		return s;
 	logGlobal->debug("Reading text from translations by key: %s", s);
-	return CGI->generaltexth->translate(s);
+	return LIBRARY->generaltexth->translate(s);
 }
 
 Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
@@ -303,8 +304,8 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 		if(config.getType() == JsonNode::JsonType::DATA_STRING)
 		{
 			logGlobal->debug("Reading hint text (help) from generaltext handler:%sd", config.String());
-			result.first  = CGI->generaltexth->translate( config.String(), "hover");
-			result.second = CGI->generaltexth->translate( config.String(), "help");
+			result.first  = LIBRARY->generaltexth->translate( config.String(), "hover");
+			result.second = LIBRARY->generaltexth->translate( config.String(), "help");
 		}
 	}
 	return result;
@@ -320,7 +321,7 @@ EShortcut InterfaceObjectConfigurable::readHotkey(const JsonNode & config) const
 		return EShortcut::NONE;
 	}
 
-	EShortcut result = GH.shortcuts().findShortcut(config.String());
+	EShortcut result = ENGINE->shortcuts().findShortcut(config.String());
 	if (result == EShortcut::NONE)
 		logGlobal->error("Invalid hotkey '%s' in interface configuration!", config.String());
 	return result;
@@ -333,8 +334,8 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 
-	if ( config["playerColored"].Bool() && LOCPLINT)
-		pic->setPlayerColor(LOCPLINT->playerID);
+	if ( config["playerColored"].Bool() && GAME->interface())
+		pic->setPlayerColor(GAME->interface()->playerID);
 	return pic;
 }
 
@@ -358,7 +359,7 @@ std::shared_ptr<CMultiLineLabel> InterfaceObjectConfigurable::buildMultiLineLabe
 	auto color = readColor(config["color"]);
 	auto text = readText(config["text"]);
 	Rect rect = readRect(config["rect"]);
-	const auto & fontPtr = GH.renderHandler().loadFont(font);
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	if(!config["adoptHeight"].isNull() && config["adoptHeight"].Bool())
 		rect.h = fontPtr->getLineHeight() * 2;
 	return std::make_shared<CMultiLineLabel>(rect, font, alignment, color, text);

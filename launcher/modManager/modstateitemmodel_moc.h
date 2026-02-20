@@ -23,6 +23,7 @@ enum EModFields
 	STATUS_ENABLED,
 	STATUS_UPDATE,
 	TYPE,
+	STARS,
 	COUNT
 };
 }
@@ -32,7 +33,7 @@ enum class ModFilterMask : uint8_t
 	ALL,
 	AVAILABLE,
 	INSTALLED,
-	UPDATEABLE,
+	UPDATABLE,
 	ENABLED,
 	DISABLED
 };
@@ -96,6 +97,8 @@ class CModFilterModel final : public QSortFilterProxyModel
 	bool filterMatchesCategory(const QModelIndex & source) const;
 
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
+
+	bool lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const override;
 
 public:
 	void setTypeFilter(ModFilterMask filterMask);

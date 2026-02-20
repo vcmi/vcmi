@@ -176,7 +176,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 58,
-				"description" : "@core.xtrainfo.0",
+				"description" : "@core.xtrainfo.13",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -299,7 +299,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 95,
-				"description" : "@core.xtrainfo.13",
+				"description" : "@core.xtrainfo.26",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -356,7 +356,7 @@
 						},
 						"message" : 138,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ],
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "stacking" : "stables", "duration" : "ONE_WEEK"} ],
 						"changeCreatures" : {
 							"cavalier" : "champion"
 						}
@@ -364,7 +364,7 @@
 					{
 						"message" : 137,
 						"movePoints" : 400,
-						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "duration" : "ONE_WEEK"} ]
+						"bonuses" : [ { "type" : "MOVEMENT", "subtype" : "heroMovementLand",  "val" : 400, "valueType" : "ADDITIVE_VALUE", "stacking" : "stables", "duration" : "ONE_WEEK"} ]
 					}
 				]
 			}
@@ -465,7 +465,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 167,
-				"description" : "@core.xtrainfo.13",
+				"description" : "@core.xtrainfo.27",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
