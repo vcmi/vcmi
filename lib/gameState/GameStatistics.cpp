@@ -151,7 +151,8 @@ void StatisticDataSet::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto eventsHandler = handler.enterStruct("accumulatedValues");
 		for(auto & val : accumulatedValues)
-			eventsHandler->serializeStruct(GameConstants::PLAYER_COLOR_NAMES[val.first], val.second);
+			if(val.first.isValidPlayer())
+				eventsHandler->serializeStruct(GameConstants::PLAYER_COLOR_NAMES[val.first], val.second);
 	}
 }
 
