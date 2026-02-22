@@ -527,7 +527,6 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					std::string abilityDescription;
 					for(size_t i = 0; i < bonuses.size(); i++)
 					{
-						icon->hoverText += stack->bonusToString(bonuses[i]);
 						if(!abilityDescription.empty())
 							abilityDescription += "\n";
 
