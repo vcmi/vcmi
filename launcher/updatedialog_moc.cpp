@@ -113,8 +113,11 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 
 	ui->releaseChangelog->setReadOnly(true);
 	ui->releaseChangelog->setOpenExternalLinks(true);
+	Helper::enableScrollBySwiping(ui->releaseChangelog);
+
 	ui->testingChangelog->setReadOnly(true);
 	ui->testingChangelog->setOpenExternalLinks(true);
+	Helper::enableScrollBySwiping(ui->testingChangelog);
 
 #if defined(VCMI_MOBILE)
 	const QSize originalDialogSize = size();
