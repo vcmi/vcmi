@@ -1064,7 +1064,7 @@
 	"core.bonus.FIRST_STRIKE.description" : "{First Strike}\nThe unit retaliates before being attacked",
 	"core.bonus.FLYING.description.bonusSubtype.movementTeleporting" : "{Teleportation}\nThis unit can teleport to any hex and ignore battlefield obstacles",
 	"core.bonus.FLYING.description" : "{Flying}\nThis unit flies and ignores battlefield obstacles while moving",
-	"core.bonus.FREE_SHOOTING.description" : "{No Melee Penalty}\nAdjacent enemies do not block this unit's ranged attacks",
+	"core.bonus.FREE_SHOOTING.description" : "{Point-Blank Shot}\nAdjacent enemies do not block this unit's ranged attacks",
 	"core.bonus.GARGOYLE.description" : "{Gargoyle}\nThis unit cannot be raised from the dead or healed",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeMelee" : "{Damage Reduction}\nReduces physical damage from melee attacks by ${val}%",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeRanged" : "{Damage Reduction}\nReduces physical damage from ranged attacks by ${val}%",
