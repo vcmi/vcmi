@@ -783,8 +783,7 @@ void UpdateDialog::on_installButton_clicked()
 
 #if defined(VCMI_MOBILE)
 	// Always ask user where to save on mobile
-	Helper::nativeFolderPicker(this, [this, url](QString picked)
-	{
+	Helper::nativeFolderPicker(this, [this, url](QString picked){
 		if(picked.isEmpty())
 			return; // user cancelled
 		startDownloadToCacheAndRun(QUrl(url), picked);
@@ -945,7 +944,7 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
         }
 
 #elif defined(VCMI_MAC)
-        // macOS: open using default handler¨
+        // macOS: open using default handler
         if(progress)
 			progress->setVisible(false);
 
