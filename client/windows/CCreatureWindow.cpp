@@ -530,10 +530,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 						if(!abilityDescription.empty())
 							abilityDescription += "\n";
 
-						auto previewBonus = std::make_shared<Bonus>(*bonuses[i]);
-						CStackInstance previewStack(nullptr, stack->getCreatureID(), 1, true);
-						previewStack.addNewBonus(previewBonus);
-						abilityDescription += previewStack.bonusToString(previewBonus);
+						abilityDescription += LIBRARY->bth->bonusToString(bonuses[i]);
 					}
 
 					icon->hoverText = abilityDescription;
