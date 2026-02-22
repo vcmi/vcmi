@@ -26,7 +26,7 @@ if(WIN32)
 	set(VCMI_ORIGINAL_FILENAME "VCMI_server.exe")
 	set(VCMI_ICON_RESOURCE "")
 	set(server_VERSIONINFO_RC "${CMAKE_CURRENT_BINARY_DIR}/VCMI_server_versioninfo.rc")
-	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/WindowsFileInfo.rc.in" "${server_VERSIONINFO_RC}" @ONLY)
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${server_VERSIONINFO_RC}" @ONLY)
 	target_sources(vcmiserver PRIVATE "${server_VERSIONINFO_RC}")
 	set_target_properties(vcmiserver
 		PROPERTIES
