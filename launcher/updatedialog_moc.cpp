@@ -23,6 +23,7 @@
 #include <QSysInfo>
 #include <QProcess>
 #include <QDesktopServices>
+#include <QGuiApplication>
 #include <QDir>
 #include <QProgressBar>
 #include <QVersionNumber>
@@ -30,6 +31,9 @@
 #include <QFileInfo>
 #include <QSaveFile>
 #include <QSettings>
+#include <QPainter>
+#include <QTimer>
+#include <QScreen>
 
 // Helper to normalize channel key to stable/beta/develop
 static QString normalizeChannel(const QString& text)
@@ -112,11 +116,28 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	ui->testingChangelog->setReadOnly(true);
 	ui->testingChangelog->setOpenExternalLinks(true);
 
-#ifdef VCMI_MOBILE
-    setStyleSheet("QDialog { border: 2px solid rgba(0,0,0,160); border-radius: 6px; }");
-#endif
+#if defined(VCMI_MOBILE)
+	const QSize originalDialogSize = size();
+	setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+	setAutoFillBackground(false);
+	setStyleSheet("QWidget#contentPanel { background: palette(window); border: 2px solid rgba(0,0,0,160); border-radius: 6px; }");
 
+	if(ui->contentPanel && ui->hostLayout)
+	{
+		QSize panelSize = originalDialogSize;
+		if(const QScreen * screen = QGuiApplication::primaryScreen())
+			panelSize = panelSize.boundedTo(screen->availableGeometry().size() - QSize(24, 24));
+
+		ui->contentPanel->setMinimumSize(panelSize);
+		ui->contentPanel->setMaximumSize(panelSize);
+		ui->hostLayout->setAlignment(ui->contentPanel, Qt::AlignCenter);
+	}
+
+	updateMobileHostGeometry();
+	updateMobileBackdrop();
+#else
 	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+#endif
 
 	ui->progressBar->setHidden(true);
 	ui->installButton->setText(actionButtonTextForPlatform());
@@ -134,11 +155,13 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 
 	if(calledManually)
 	{
-		#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-		    setWindowModality(Qt::NonModal);
-		#else
-		    setWindowModality(Qt::ApplicationModal);
-		#endif
+#if defined(VCMI_MOBILE)
+		setWindowModality(Qt::NonModal);
+		ensureMobileBackdropCaptured();
+		updateMobileHostGeometry();
+#else
+		setWindowModality(Qt::ApplicationModal);
+#endif
 		show();
 	}
 
@@ -169,6 +192,76 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 UpdateDialog::~UpdateDialog()
 {
 	delete ui;
+}
+
+void UpdateDialog::resizeEvent(QResizeEvent * event)
+{
+	QDialog::resizeEvent(event);
+#if defined(VCMI_MOBILE)
+	updateMobileBackdrop();
+#endif
+}
+
+void UpdateDialog::updateMobileHostGeometry()
+{
+	if(QWidget * mainWindow = Helper::getMainWindow())
+	{
+		setGeometry(mainWindow->geometry());
+		return;
+	}
+
+	if(const QScreen * screen = QGuiApplication::primaryScreen())
+		setGeometry(screen->availableGeometry());
+}
+
+void UpdateDialog::ensureMobileBackdropCaptured()
+{
+	if(!mobileBackdrop.isNull())
+		return;
+
+	if(QWidget * mainWindow = Helper::getMainWindow())
+		mobileBackdrop = mainWindow->grab();
+}
+
+void UpdateDialog::updateMobileBackdrop()
+{
+	if(!mobileBackdrop.isNull() || mobileBackdropCaptureScheduled || !isVisible())
+		return;
+
+	mobileBackdropCaptureScheduled = true;
+	QTimer::singleShot(0, this, [this]()
+	{
+		mobileBackdropCaptureScheduled = false;
+		if(!isVisible() || !mobileBackdrop.isNull())
+			return;
+
+		ensureMobileBackdropCaptured();
+		if(!mobileBackdrop.isNull())
+			update();
+	});
+}
+
+void UpdateDialog::paintEvent(QPaintEvent * event)
+{
+#if defined(VCMI_MOBILE)
+	Q_UNUSED(event);
+	if(!mobileBackdrop.isNull())
+	{
+		QPainter painter(this);
+		painter.drawPixmap(QPoint(0, 0), mobileBackdrop);
+	}
+	return;
+#else
+	QDialog::paintEvent(event);
+#endif
+}
+
+void UpdateDialog::showEvent(QShowEvent * event)
+{
+	QDialog::showEvent(event);
+#if defined(VCMI_MOBILE)
+	updateMobileBackdrop();
+#endif
 }
 
 void UpdateDialog::showUpdateDialog(bool isManually)
@@ -524,6 +617,10 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing, const QStrin
 	const bool hasTestingOffer = ui->testingBuilds->isChecked() && testingOffer;
 	if((releaseOffer || hasTestingOffer) && !calledManually)
 	{
+#if defined(VCMI_MOBILE)
+		ensureMobileBackdropCaptured();
+		updateMobileHostGeometry();
+#endif
 		this->show();
 		this->raise();
 		this->activateWindow();
@@ -669,7 +766,7 @@ void UpdateDialog::on_installButton_clicked()
 	if(url.isEmpty())
 	{
 		ui->downloadLink->setText(tr("No package to download."));
-	    return;
+		return;
 	}
 
 #if defined(VCMI_ANDROID)
@@ -685,16 +782,17 @@ void UpdateDialog::on_installButton_clicked()
 #endif
 
 #if defined(VCMI_MOBILE)
-	    // Always ask user where to save on mobile
-	    Helper::nativeFolderPicker(this, [this, url](QString picked){
-	        if(picked.isEmpty())
-	            return; // user cancelled
-	        startDownloadToCacheAndRun(QUrl(url), picked);
-	    });
-	    return;
+	// Always ask user where to save on mobile
+	Helper::nativeFolderPicker(this, [this, url](QString picked)
+	{
+		if(picked.isEmpty())
+			return; // user cancelled
+		startDownloadToCacheAndRun(QUrl(url), picked);
+	});
+	return;
 #else
-	    // Desktop: keep current behaviour (or adjust as you wish)
-	    startDownloadToCacheAndRun(QUrl(url));
+	// Desktop: keep current behaviour
+	startDownloadToCacheAndRun(QUrl(url));
 #endif
 }
 
@@ -847,7 +945,7 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
         }
 
 #elif defined(VCMI_MAC)
-        // macOS: open using default handler (.dmg/.pkg)
+        // macOS: open using default handler¨
         if(progress)
 			progress->setVisible(false);
 

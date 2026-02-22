@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <ui version="4.0">
  <class>UpdateDialog</class>
  <widget class="QDialog" name="UpdateDialog">
@@ -23,239 +23,257 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string/>
+   <string />
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="hostLayout">
    <property name="leftMargin">
-    <number>12</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>12</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>12</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>12</number>
+    <number>0</number>
    </property>
-   <item row="2" column="0" colspan="7">
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Release</string>
-      </attribute>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>0</y>
-         <width>501</width>
-         <height>151</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="titleRelease">
-          <property name="text">
-           <string>Latest release build:</string>
+   <item row="0" column="0">
+    <widget class="QWidget" name="contentPanel">
+     <layout class="QGridLayout" name="contentLayout">
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <item row="2" column="0" colspan="7">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Release</string>
+         </attribute>
+         <widget class="QWidget" name="gridLayoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>0</y>
+            <width>501</width>
+            <height>151</height>
+           </rect>
           </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="titleRelease">
+             <property name="text">
+              <string>Latest release build:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="releaseVersion">
+             <property name="text">
+              <string />
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLabel" name="releaseChangelogTitle">
+             <property name="text">
+              <string>Changelog</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QTextBrowser" name="releaseChangelog" />
+           </item>
+          </layout>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="releaseVersion">
-          <property name="text">
-           <string/>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Testing</string>
+         </attribute>
+         <widget class="QWidget" name="gridLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>0</y>
+            <width>501</width>
+            <height>149</height>
+           </rect>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="5" column="1">
+            <widget class="QLabel" name="testingVersion">
+             <property name="text">
+              <string />
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="titleTesting">
+             <property name="text">
+              <string>Latest testing version:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="testingBuilds">
+             <property name="text">
+              <string>Check for testing versions</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="buildChannel">
+             <item>
+              <property name="text">
+               <string notr="true">Develop</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string notr="true">Beta</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QLabel" name="testingChangelogTitle">
+             <property name="text">
+              <string>Changelog</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QTextBrowser" name="testingChangelog" />
+           </item>
+          </layout>
          </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QLabel" name="releaseChangelogTitle">
-          <property name="text">
-           <string>Changelog</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QTextBrowser" name="releaseChangelog"/>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Testing</string>
-      </attribute>
-      <widget class="QWidget" name="gridLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>0</y>
-         <width>501</width>
-         <height>149</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="5" column="1">
-         <widget class="QLabel" name="testingVersion">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="titleTesting">
-          <property name="text">
-           <string>Latest testing version:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QCheckBox" name="testingBuilds">
-          <property name="text">
-           <string>Check for testing versions</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QComboBox" name="buildChannel">
-          <item>
-           <property name="text">
-            <string notr="true">Develop</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string notr="true">Beta</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="6" column="0" colspan="2">
-         <widget class="QLabel" name="testingChangelogTitle">
-          <property name="text">
-           <string>Changelog</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="2">
-         <widget class="QTextBrowser" name="testingChangelog"/>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </widget>
-   </item>
-   <item row="8" column="5">
-    <widget class="QPushButton" name="installButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Install</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="5">
-    <widget class="QLabel" name="downloadLink">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="6" alignment="Qt::AlignmentFlag::AlignRight">
-    <widget class="QToolButton" name="infoButton">
-     <property name="minimumSize">
-      <size>
-       <width>28</width>
-       <height>28</height>
-      </size>
-     </property>
-     <property name="toolTip">
-      <string>Update channels information</string>
-     </property>
-     <property name="text">
-      <string>?</string>
-     </property>
-     <property name="autoRaise">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="7">
-    <widget class="QLabel" name="title">
-     <property name="font">
-      <font>
-       <pointsize>18</pointsize>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>VCMI Updates Center</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignmentFlag::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="6">
-    <widget class="QPushButton" name="closeButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="checkOnStartup">
-     <property name="text">
-      <string>Check for updates on startup</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3" colspan="4">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>24</number>
-     </property>
+        </widget>
+       </widget>
+      </item>
+      <item row="8" column="5">
+       <widget class="QPushButton" name="installButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Install</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="5">
+       <widget class="QLabel" name="downloadLink">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string />
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6" alignment="Qt::AlignmentFlag::AlignRight">
+       <widget class="QToolButton" name="infoButton">
+        <property name="minimumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Update channels information</string>
+        </property>
+        <property name="text">
+         <string>?</string>
+        </property>
+        <property name="autoRaise">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="7">
+       <widget class="QLabel" name="title">
+        <property name="font">
+         <font>
+          <pointsize>18</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>VCMI Updates Center</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="6">
+       <widget class="QPushButton" name="closeButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkOnStartup">
+        <property name="text">
+         <string>Check for updates on startup</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3" colspan="4">
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
- <connections/>
+ <resources />
+ <connections />
 </ui>

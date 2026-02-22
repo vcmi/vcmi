@@ -11,6 +11,11 @@
 #include <QDialog>
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <QPixmap>
+
+class QResizeEvent;
+class QPaintEvent;
+class QShowEvent;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,6 +42,11 @@ public:
 	QString releaseVersion;
 	QString testingVersion;
 
+
+protected:
+	void resizeEvent(QResizeEvent * event) override;
+	void paintEvent(QPaintEvent * event) override;
+	void showEvent(QShowEvent * event) override;
 
 private slots:
     void on_checkOnStartup_stateChanged(int state);
@@ -80,6 +90,8 @@ private:
 	bool testingChannelAutoSelectPending = true;
 
 	bool calledManually;
+	QPixmap mobileBackdrop;
+	bool mobileBackdropCaptureScheduled = false;
 
 	void loadFromJson(const JsonNode & node, bool testing = false, const QString &channel = QString());
 	void fetchChannel(const QString& channel);
@@ -87,4 +99,7 @@ private:
 	void applySelectedTestingChannel();
 	void updateAvailabilityNotice();
 	void startDownloadToCacheAndRun(const QUrl& url, const QString& target = QString());
+	void updateMobileBackdrop();
+	void ensureMobileBackdropCaptured();
+	void updateMobileHostGeometry();
 };
