@@ -1123,7 +1123,7 @@
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Tříhlavý útok}\nÚtočí na tři sousední jednotky",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutace}\nMá ${val}% šanci přeměnit napadenou jednotku na jiný typ",
 	"core.bonus.TRANSMUTATION_IMMUNITY.description" : "{Transmutační imunita}\nTato jednotka nemůže být přeměněna na jiný typ nepřátelským útokem",
-	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Útok dechem}\nÚtok této jednotky zasáhne také jednotku stojící přímo za cílem"",
+	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Útok dechem}\nÚtok této jednotky zasáhne také jednotku stojící přímo za cílem",
 	"core.bonus.UNDEAD.description" : "{Nemrtvý}\nJednotka je nemrtvá a je imunní vůči efektům, které působí pouze na živé",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Neomezené odvetné útoky}\nMůže provést neomezený počet odvetných útoků",
 	"core.bonus.WIDE_BREATH.description" : "{Široký dech}\nTato jednotka zasáhne všechny jednotky kolem svého cíle",
