@@ -48,7 +48,7 @@ if(WIN32)
 	set(VCMI_ORIGINAL_FILENAME "VCMI_client.exe")
 	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/icons/vcmi.ico\"")
 	set(client_VERSIONINFO_RC "${CMAKE_CURRENT_BINARY_DIR}/VCMI_client_versioninfo.rc")
-	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/WindowsFileInfo.rc.in" "${client_VERSIONINFO_RC}" @ONLY)
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${client_VERSIONINFO_RC}" @ONLY)
 	target_sources(vcmiclient PRIVATE "${client_VERSIONINFO_RC}")
 	set_target_properties(vcmiclient
 		PROPERTIES
