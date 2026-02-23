@@ -405,8 +405,25 @@ jobs:
         mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
         mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
 
-    - name: Upload Artifact
+    - name: Prepare Windows artifact payload
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: |
+        unzip "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"
+
+    - name: Upload Artifact (Windows)
+      id: upload_artifact_windows
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
+        compression-level: 9
+        path: |
+          ${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload
+
+    - name: Upload Artifact (non-Windows)
       id: upload_artifact
+      if: ${{ !startsWith(matrix.platform, 'msvc') }}
+
       uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
