@@ -65,15 +65,27 @@ bool extractContentArchives(ModStateController * controller, const QString & mod
 			return false;
 		}
 
-		ZipArchive archive(qstringToPath(archivePath));
-		for(const auto & file : archive.listFiles())
+		auto futureExtract = std::async(std::launch::async, [archivePath, contentDirPath]()
 		{
-			if(!archive.extract(qstringToPath(contentDirPath), file))
+			ZipArchive archive(qstringToPath(archivePath));
+			for(const auto & file : archive.listFiles())
 			{
-				logGlobal->error("Failed to extract '%s' from '%s'", file, archivePath.toStdString().c_str());
-				return false;
+				if(!archive.extract(qstringToPath(contentDirPath), file))
+				{
+					logGlobal->error("Failed to extract '%s' from '%s'", file, archivePath.toStdString().c_str());
+					return false;
+				}
 			}
+			return true;
+		});
+
+		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+		{
+			qApp->processEvents();
 		}
+
+		if(!futureExtract.get())
+			return false;
 
 		if(!QFile::remove(archivePath))
 		{
