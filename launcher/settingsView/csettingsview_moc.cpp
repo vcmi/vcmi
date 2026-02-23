@@ -291,6 +291,7 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
 	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
+	setCheckbuttonState(ui->buttonFullModExtraction, settings["launcher"]["fullModExtraction"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	setCheckbuttonState(ui->buttonRepositoryExtra, settings["launcher"]["extraRepositoryEnabled"].Bool());
@@ -526,6 +527,13 @@ void CSettingsView::on_buttonAutoCheck_toggled(bool value)
 	Settings node = settings.write["launcher"]["autoCheckRepositories"];
 	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonAutoCheck);
+}
+
+void CSettingsView::on_buttonFullModExtraction_toggled(bool value)
+{
+	Settings node = settings.write["launcher"]["fullModExtraction"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonFullModExtraction);
 }
 
 void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)

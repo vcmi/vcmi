@@ -140,6 +140,7 @@ private slots:
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
 	void extractionProgress(qint64 current, qint64 max);
+	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();

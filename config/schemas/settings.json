@@ -716,6 +716,7 @@
 				"extraRepositoryURL",
 				"extraRepositoryEnabled",
 				"autoCheckRepositories",
+				"fullModExtraction",
 				"ignoreSslErrors",
 				"updateOnStartup",
 				"updateConfigUrl",
@@ -749,6 +750,10 @@
 				"autoCheckRepositories" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"fullModExtraction" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"updateOnStartup" : {
 					"type" : "boolean",

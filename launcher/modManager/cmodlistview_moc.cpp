@@ -52,6 +52,12 @@ void CModListView::setupModModel()
 
 	modModel = new ModStateItemModel(modStateModel, this);
 	manager = std::make_unique<ModStateController>(modStateModel);
+
+	connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
+		this, SLOT(extractionProgress(qint64,qint64)));
+
+	connect(manager.get(), SIGNAL(contentExtractionProgress(QString,qint64,qint64)),
+		this, SLOT(contentExtractionProgress(QString,qint64,qint64)));
 }
 
 void CModListView::changeEvent(QEvent *event)
@@ -830,9 +836,6 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 
-		connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
-			this, SLOT(extractionProgress(qint64,qint64)));
-
 		connect(modModel, &ModStateItemModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
 		const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(description);
@@ -855,6 +858,16 @@ void CModListView::extractionProgress(qint64 current, qint64 max)
 {
 	// display progress, in extracted files
 	ui->progressBar->setVisible(true);
+	ui->progressBar->setMaximum(max);
+	ui->progressBar->setValue(current);
+}
+
+void CModListView::contentExtractionProgress(QString modName, qint64 current, qint64 max)
+{
+	const QString modDisplayName = modStateModel->isModExists(modName) ? modStateModel->getMod(modName).getName() : modName;
+
+	ui->progressBar->setVisible(true);
+	ui->progressBar->setFormat(tr("Extracting content.zip (%1/%2) for %3").arg(current).arg(max).arg(modDisplayName));
 	ui->progressBar->setMaximum(max);
 	ui->progressBar->setValue(current);
 }
