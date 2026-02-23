@@ -420,6 +420,31 @@ jobs:
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload
 
+    - name: Sign Windows artifact
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      env:
+        SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+      uses: signpath/github-action-submit-signing-request@v1.1
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '091f52d0-6021-4c04-bbdf-a3736f7730b4'
+        project-slug: 'vcmi'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: '${{ steps.upload_artifact_windows.outputs.artifact-id }}'
+        wait-for-completion: true
+        output-artifact-directory: '${{github.workspace}}/out/signed/'
+
+    - name: Upload signed Windows artifact
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      env:
+        SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-signed
+        compression-level: 9
+        path: |
+          ${{github.workspace}}/out/signed/${{matrix.preset}}/artifact-upload
+
     - name: Upload Artifact
       id: upload_artifact
       if: ${{ !startsWith(matrix.platform, 'msvc') }}
