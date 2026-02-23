@@ -6,10 +6,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,11 +42,46 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         super.onCreate(savedInstanceState);
         justLaunched = savedInstanceState == null;
         SDL.setContext(this);
+
+        applyImmersiveFullscreen();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (hasFocus)
+            applyImmersiveFullscreen();
+    }
+
+    private void applyImmersiveFullscreen()
+    {
+        Window window = getWindow();
+        View decorView = window.getDecorView();
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+
+        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, decorView);
+        if (insetsController != null)
+        {
+            insetsController.hide(WindowInsetsCompat.Type.systemBars());
+            insetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
     }
 
     public void keepScreenOn(boolean isEnabled)
     {
-        if(isEnabled)
+        if (isEnabled)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

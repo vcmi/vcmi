@@ -1342,6 +1342,25 @@ void CCreaInfo::hover(bool on)
 
 void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
+	if(ENGINE->isKeyboardCtrlDown() || ENGINE->isKeyboardAltDown()) // fast buy (HD mod)
+	{
+		for(int i=0; i<town->creatures.size(); i++)
+		{
+			if(level >= 0 && i != level)
+				continue;
+
+			si32 amount = town->creatures[i].first;
+			auto creatureId = ENGINE->isKeyboardCtrlDown() ? town->creatures[i].second.back() : town->creatures[i].second.front();
+			auto creature = creatureId.toCreature();
+			si32 maxAmount = creature->maxAmount(GAME->interface()->cb->getResourceAmount());
+			vstd::amin(maxAmount, amount);
+
+			if(maxAmount > 0)
+				GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), creatureId, maxAmount, level);
+			return;
+		}
+	}
+
 	int offset = GAME->interface()->castleInt? (-87) : 0;
 	auto recruitCb = [this](CreatureID id, int count)
 	{
