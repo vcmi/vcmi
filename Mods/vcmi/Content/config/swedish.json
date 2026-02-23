@@ -1,5 +1,5 @@
 {
-	"vcmi.adventureMap.monsterThreat.title"    : "\n\n Hotgrad: ",
+	"vcmi.adventureMap.monsterThreat.title"    : "\n\nHotgrad: ",
 	"vcmi.adventureMap.monsterThreat.levels.0" : "Utan ansträngning",
 	"vcmi.adventureMap.monsterThreat.levels.1" : "Mycket svag",
 	"vcmi.adventureMap.monsterThreat.levels.2" : "Svag",
@@ -71,12 +71,12 @@
 	"vcmi.quickExchange.moveAllArtifacts": "Flytta alla artefakter",
 	"vcmi.quickExchange.swapAllArtifacts": "Byt alla artefakter",
 
-	"vcmi.radialWheel.mergeSameUnit"   : "Samla enheter av en typ i ett förband",
-	"vcmi.radialWheel.fillSingleUnit"  : "Fyll på en enhet i taget",
+	"vcmi.radialWheel.mergeSameUnit"   : "Gruppera enheter av samma typ till ett förband",
+	"vcmi.radialWheel.fillSingleUnit"  : "Fyll på med en enhet i taget",
 	"vcmi.radialWheel.splitSingleUnit" : "Ta ut en enhet i taget",
-	"vcmi.radialWheel.splitUnitEqually": "Dela upp förband jämnt",
+	"vcmi.radialWheel.splitUnitEqually": "Dela förbandet jämnt",
 	"vcmi.radialWheel.moveUnit"        : "Flytta förband till annan armé",
-	"vcmi.radialWheel.splitUnit"       : "Dela förband till annan plats",
+	"vcmi.radialWheel.splitUnit"       : "Avdela halva förbandet till annan plats",
 
 	"vcmi.radialWheel.heroGetArmy"      : "Ta emot armé från annan hjälte",
 	"vcmi.radialWheel.heroSwapArmy"     : "Byt armé med annan hjälte",
