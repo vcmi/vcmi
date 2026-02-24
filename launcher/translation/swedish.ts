@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Har du en fråga? Hittat en bugg? Vill du hjälpa till? Anslut dig till oss!</translation>
+        <translation>Har ni en fråga? Hittat en bugg? Vill ni hjälpa till? Anslut er till oss!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -89,56 +89,47 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Exportera loggar</translation>
+        <translation>Exportera loggar</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Spara loggar</translation>
+        <translation>Spara loggar</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">ZIP-arkiv (*.zip)</translation>
+        <translation>ZIP-arkiv (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fel</translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Misslyckades med att skapa arkiv: %1</translation>
+        <translation>Misslyckades med att skapa arkiv: %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Skicka loggar</translation>
+        <translation>Skicka loggar</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Arkivet skickas via ett annat program. Dela dina loggar, t.ex. via Discord, med utvecklarna.</translation>
+        <translation>Arkivet kommer att skickas via en annan applikation. Dela dina loggar, t.ex. via Discord, med utvecklarna.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Lyckades</translation>
+        <translation>Åtgärden lyckades</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Loggar sparade i %1, skicka dem till utvecklarna</translation>
+        <translation>Loggar sparades i %1, skicka dem gärna till utvecklarna</translation>
     </message>
 </context>
 <context>
@@ -231,7 +222,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="108"/>
         <source>Reload repositories</source>
-        <translation>Ladda om repositorier</translation>
+        <translation>Ladda om förråd (repon)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="348"/>
@@ -305,19 +296,17 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>mods repository index</source>
-        <translation>moddrepositorieindex</translation>
+        <translation>Index över modd‑förråd (repon)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
         <source>Git-Repository</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Git-repository</translation>
+        <translation>Git‑förråd (repo)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>GitHub-Stars</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">GitHub-stjärnor</translation>
+        <translation>GitHub-stjärnor</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
@@ -382,7 +371,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="565"/>
         <source>Open repository</source>
-        <translation>Öppna repositorie</translation>
+        <translation>Öppna förråd (repo)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="826"/>
@@ -421,7 +410,9 @@ Installation framgångsrikt nedladdad?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades med att installera filen %1.
+Orsak: %2.
+Vänligen rapportera detta problem till utvecklarna</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
@@ -441,7 +432,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1199"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation>Kartan ’%1’ finns redan. Vill du skriva över den?</translation>
+        <translation>Kartan ’%1’ finns redan. Vill ni skriva över den?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1208"/>
@@ -461,10 +452,9 @@ Please report this issue to developers</source>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
         <source>%n map(s) successfully imported.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-            <numerusform>%n karta(or) importerades framgångsrikt.</numerusform>
-            <numerusform>%n karta(or) importerades framgångsrikt.</numerusform>
+        <translation>
+            <numerusform>%n karta importerades framgångsrikt.</numerusform>
+            <numerusform>%n kartaor importerades framgångsrikt.</numerusform>
         </translation>
     </message>
     <message>
@@ -543,7 +533,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="912"/>
         <source>Additional repository</source>
-        <translation>Ytterligare repositorie</translation>
+        <translation>Ytterligare förråd (repo)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="447"/>
@@ -553,17 +543,17 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
         <source>Online Lobby port</source>
-        <translation>Port-numret till online-väntrummet</translation>
+        <translation>Port-numret till onlinelobbyn</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1164"/>
         <source>Autocombat AI in battles</source>
-        <translation>Automatiska AI-strider</translation>
+        <translation>AI:t för automatiska strider</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="348"/>
         <source>Sticks Sensitivity</source>
-        <translation>Styrspak-känslighet</translation>
+        <translation>Styrspakskänslighet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1211"/>
@@ -590,7 +580,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Mods Validation</source>
-        <translation>Validering av moddar</translation>
+        <translation>Moddvalidering</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1349"/>
@@ -640,17 +630,17 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1306"/>
         <source>Online Lobby address</source>
-        <translation>Adressen till online-väntrummet</translation>
+        <translation>Adressen till onlinelobbyn</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="649"/>
         <source>Handle back as right mouse button</source>
-        <translation>Koppla funktionen för bakåtknappen till höger musknapp</translation>
+        <translation>Använd bakåtknappen som höger musknapp</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="259"/>
         <source>Cursor Scaling</source>
-        <translation>Skalning av markör</translation>
+        <translation>Markörskalning</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="925"/>
@@ -682,7 +672,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
         <source>Font Scaling (experimental)</source>
-        <translation>Skalning av teckensnitt (experimentell)</translation>
+        <translation>Teckensnittsskalning (experimentellt)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="984"/>
@@ -692,7 +682,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="694"/>
         <source>Upscaling Filter</source>
-        <translation>Uppskalnings-filter</translation>
+        <translation>Uppskalningsfilter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="141"/>
@@ -707,7 +697,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa status i Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -732,7 +722,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara före besök</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
@@ -742,7 +732,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="362"/>
         <source>Show Tutorial again</source>
-        <translation>Visa handledningen/övningsgenomgången igen</translation>
+        <translation>Visa handledningen igen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="355"/>
@@ -782,7 +772,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="313"/>
         <source>Long Touch Duration</source>
-        <translation>Utökad beröringslängd</translation>
+        <translation>Långtryckets varaktighet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
@@ -822,22 +812,22 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1186"/>
         <source>Autosave limit (0 = off)</source>
-        <translation>Antal platser för automatisk-sparning (0 = inaktiverad)</translation>
+        <translation>Antal platser för automatisk sparning (0 = inaktiverad)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="642"/>
         <source>Downscaling Filter</source>
-        <translation>Nerskalnings-filter</translation>
+        <translation>Nedskalningsfilter</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="320"/>
         <source>Framerate Limit</source>
-        <translation>Gräns ​​för bildhastighet</translation>
+        <translation>Bildfrekvensbegränsning</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="718"/>
         <source>Autosave prefix</source>
-        <translation>Prefix för automatisk-sparning</translation>
+        <translation>Prefix för automatisk sparning</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="711"/>
@@ -862,7 +852,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="454"/>
         <source>Default repository</source>
-        <translation>Standard-repositorie</translation>
+        <translation>Standardförråd (repo)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
@@ -942,38 +932,32 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="124"/>
         <source>StupidAI (deprecated)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">StupidAI (föråldrad)</translation>
+        <translation>StupidAI (föråldrad)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>BattleAI (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">BattleAI (standard, rekommenderas)</translation>
+        <translation>BattleAI (standard, rekommenderas)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="132"/>
         <source>MMAI (experimental)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">MMAI (experimentell)</translation>
+        <translation>MMAI (experimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller (ersatt av Nullkiller2)</translation>
+        <translation>Nullkiller (ersatt av Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="149"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller2 (standard, rekommenderas)</translation>
+        <translation>Nullkiller2 (standard, rekommenderas)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">EmptyAI - Inga giltiga AI-bibliotek hittades!</translation>
+        <translation>EmptyAI - Inga giltiga AI-bibliotek hittades!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="672"/>
@@ -1011,7 +995,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation>Du måste välja en installationsfil för Hjältarnas Krönikor (Heroes Chronicles)!</translation>
+        <translation>Ni måste välja en installationsfil för Hjältarnas Krönikor (Heroes Chronicles)!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
@@ -1065,7 +1049,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation>Vill du avbryta ändringarna?</translation>
+        <translation>Vill ni avbryta ändringarna?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
@@ -1107,7 +1091,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="172"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>Har du en fråga? Hittat en bugg? Vill du hjälpa till? Anslut dig till oss!</translation>
+        <translation>Har ni en fråga? Hittat en bugg? Vill ni hjälpa till? Anslut er till oss!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="251"/>
@@ -1122,7 +1106,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni kan manuellt kopiera mapparna Maps, Data och Mp3 från den ursprungliga spelkatalogen till VCMI-datakatalogen som visas nedan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1141,7 +1125,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="631"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>Installera en översättning av Heroes III på det språk du föredrar</translation>
+        <translation>Installera en översättning av Heroes III på det språk ni föredrar</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="394"/>
@@ -1161,12 +1145,12 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Installera rekommenderade VCMI-moddar</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>Du kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av VCMI-startprogrammet (VCMI Launcher)</translation>
+        <translation>Ni kan välja att installera ytterligare moddar, antingen nu eller vid ett senare tillfälle med hjälp av VCMI-startprogrammet (VCMI Launcher)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="688"/>
@@ -1176,7 +1160,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI‑extramaterial</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
@@ -1186,17 +1170,17 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>En funktionsrik expansion som utökar spelupplevelsen med en alternativ enhet för var och en av de 9 standardstäderna, plus nya neutrala varelser, varelsebanker, färdigheter och trollformler</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Stig ner i underjordens rike och upptäck Casemate – en ny faktion där svampar, sten och runmagi frodas i mörkret, skapad för VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III-demofiler har upptäckts. Denna modd krävs för att använda demotillgångar i VCMI, annars kraschar spelet</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1206,17 +1190,17 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Krigets tidvatten (Tides of War)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Djupets Fallna (Fallen of the Depth)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo stöd</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1242,11 +1226,11 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>Tack för att du installerade VCMI!
+        <translation>Tack för att ni installerade VCMI!
 
-Innan du kan börja spela finns det några steg till att slutföra.
+Innan ni kan börja spela finns det några steg till att slutföra.
 
-Kom ihåg att för att kunna använda VCMI måste du äga de ursprungliga datafilerna för Heroes® of Might and Magic® III: Complete eller The Shadow of Death.
+Kom ihåg att för att kunna använda VCMI måste ni äga de ursprungliga datafilerna för Heroes® of Might and Magic® III: Complete eller The Shadow of Death.
 
 Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
     </message>
@@ -1258,7 +1242,7 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
     </message>
     <message>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="vanished">Du kan manuellt kopiera mapparna Maps, Data och Mp3 från den ursprungliga spelmappen till VCMI-datamappen som du kan se överst på den här sidan</translation>
+        <translation type="vanished">Ni kan manuellt kopiera mapparna Maps, Data och Mp3 från den ursprungliga spelmappen till VCMI-datamappen som ni kan se överst på den här sidan</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="353"/>
@@ -1284,7 +1268,7 @@ Heroes® of Might and Magic® III HD stöds för närvarande inte!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="510"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>Om du äger Heroes III på gog.com så kan du ladda ner en säkerhetskopia (offline backup game installers) av spelet från gog.com som består av två filer (en .exe-och en .bin-fil). 
+        <translation>Om ni äger Heroes III på gog.com så kan ni ladda ner en säkerhetskopia (offline backup game installers) av spelet från gog.com som består av två filer (en .exe-och en .bin-fil). 
 När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga Heroes III-data ifrån dessa två filer.</translation>
     </message>
     <message>
@@ -1330,7 +1314,7 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
     <message>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="vanished">Du behöver välja %1-filen!</translation>
+        <translation type="vanished">Ni behöver välja %1-filen!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
@@ -1346,11 +1330,11 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="613"/>
         <source>GOG installer</source>
-        <translation>Offline Backup Game Installers (gog.com)</translation>
+        <translation>Offline Backup Game Installer (gog.com)</translation>
     </message>
     <message>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="vanished">Du har tillhandahållit en installationsfil av GOG Galaxy! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup game installers)!</translation>
+        <translation type="vanished">Ni har tillhandahållit en installationsfil av GOG Galaxy! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup game installers)!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
@@ -1382,57 +1366,57 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ni måste välja en %1-fil!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni behöver välja en offline backup game installer från GOG.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ni valde ett installationsprogram för GOG Galaxy. Denna fil innehåller inte spelet. Ladda istället ner installationsprogrammet för offline-backupen av spelet.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj installationsprogrammet för offline-backupen (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Ogiltig fil vald</translation>
+        <translation>Ogiltig fil vald</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Välj följande offline backup-fil från GOG: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogiltig datafil</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importerar Heroes III-data...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbereder installationsprogram...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraherar installationsprogrammet...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
@@ -1457,7 +1441,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Söker igenom vald mapp...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
@@ -1465,7 +1449,7 @@ You need to select the offline GOG installer.</source>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Lyckades inte upptäcka giltiga Heroes III-data i vald mapp.
-Vänligen välj mappen där du installerade Heroes III.</translation>
+Vänligen välj mappen där ni installerade Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
@@ -1479,32 +1463,27 @@ Vänligen välj mappen där du installerade Heroes III.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Välj katalog med HD Edition (Steam-mapp)</translation>
+        <translation>Välj katalog med HD Edition (Steam-mapp)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ogiltig mapp</translation>
+        <translation>Ogiltig mapp</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Den valda mappen innehåller inte HOMM3 2.0.exe! Välj installationsmappen för HD Edition.</translation>
+        <translation>Den valda mappen innehåller inte HOMM3 2.0.exe! Välj installationsmappen för HD Edition.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Uppackningsfel</translation>
+        <translation>Uppackningsfel</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ta bort modden och försök igen! Kunde inte kopiera filen %1 till %2</translation>
+        <translation>Vänligen ta bort modden och försök igen! Kunde inte kopiera filen %1 till %2</translation>
     </message>
 </context>
 <context>
@@ -1557,10 +1536,10 @@ Bin (%n bytes):
         <comment>param is hash</comment>
         <translation>
             <numerusform>
-Bin (%n byte):
+Bin-fil (%n byte):
 %1</numerusform>
             <numerusform>
-Bin (%n byte):
+Bin-filer (%n byte):
 %1</numerusform>
         </translation>
     </message>
@@ -1773,12 +1752,12 @@ Bin (%n byte):
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Replace config file?</source>
-        <translation>Vill du ersätta/skriva över konfigurationsfilen?</translation>
+        <translation>Vill ni ersätta/skriva över konfigurationsfilen?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="289"/>
         <source>Do you want to replace %1?</source>
-        <translation>Vill du ersätta/skriva över %1?</translation>
+        <translation>Vill ni ersätta/skriva över %1?</translation>
     </message>
 </context>
 <context>
@@ -1835,7 +1814,7 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att du har de senaste moddrevisionerna</translation>
+        <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att ni har de senaste moddrevisionerna</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="167"/>
@@ -1991,8 +1970,7 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Resurser</translation>
+        <translation>Resurser</translation>
     </message>
 </context>
 <context>
@@ -2104,7 +2082,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="695"/>
         <source>You are using the latest version</source>
-        <translation>Du använder den senaste versionen</translation>
+        <translation>Ni använder den senaste versionen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
@@ -2119,8 +2097,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Installera HD Edition (Steam)</translation>
+        <translation>Installera HD Edition (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2199,7 +2176,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="256"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation>Välj filer (konfigurations-, modd-, kart-, kampanj-och GOG-filer) som du vill installera...</translation>
+        <translation>Välj filer (konfigurations-, modd-, kart-, kampanj-och GOG-filer) som ni vill installera...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="299"/>
@@ -2211,7 +2188,7 @@ Orsak: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation>Med det här alternativet kan du importera ytterligare datafiler till din VCMI-installation. För närvarande stöds följande alternativ:
+        <translation>Med det här alternativet kan ni importera ytterligare datafiler till din VCMI-installation. För närvarande stöds följande alternativ:
 
  - Heroes III kartor (.h3m eller .vmap).
  - Heroes III kampanjer (.h3c eller .vcmp).
@@ -2223,7 +2200,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="314"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation>Din Heroes III-version är på ett annat språk än originalspråket (engelska). VCMI tillhandahåller översättningar av spelet till olika språk som du kan använda. Välj det här alternativet för att automatiskt installera en översättning till ditt valda språk.</translation>
+        <translation>Din Heroes III-version är på ett annat språk än originalspråket (engelska). VCMI tillhandahåller översättningar av spelet till olika språk som ni kan använda. Välj det här alternativet för att automatiskt installera en översättning till ditt valda språk.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="324"/>
@@ -2235,16 +2212,16 @@ Orsak: %2</translation>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation>En ny version av några av de moddar som du har installerat finns nu tillgängliga i moddrepositoriet. Använd det här alternativet för att automatiskt uppdatera alla dina moddar till den senaste versionen.
+        <translation>En ny version av några av de moddar som ni har installerat finns nu tillgängliga i modd-förrådet (repot). Använd det här alternativet för att automatiskt uppdatera alla dina moddar till den senaste versionen.
 
-VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla med dina befintliga spelsparfiler. Du kanske vill skjuta upp modd-uppdateringen tills du har avslutat något av dina pågående spel.</translation>
+VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla med befintliga sparfiler i spelet. Ni kanske vill skjuta upp modd-uppdateringen tills ni har avslutat något av dina pågående spel.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="346"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation>Om du äger Hjältarnas Krönikor (Heroes Chronicles) på gog.com kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
-För att importera Hjältarnas Krönikor (Heroes Chronicles) ska du först ladda ner &quot;offline backup game installers&quot; av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
+        <translation>Om ni äger Hjältarnas Krönikor (Heroes Chronicles) på gog.com kan ni använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
+För att importera Hjältarnas Krönikor (Heroes Chronicles) ska ni först ladda ner &quot;offline backup game installers&quot; av varje krönika som ni vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
@@ -2253,7 +2230,7 @@ För att importera Hjältarnas Krönikor (Heroes Chronicles) ska du först ladda
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
         <translation>VCMI har upptäckt att Heroes III-musikfiler saknas i din installation. VCMI kommer att köras men spelmusiken kommer inte att kunna spelas upp.
 
-För att lösa problemet måste du kopiera saknade mp3-filer från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
+För att lösa problemet måste ni kopiera saknade mp3-filer från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="370"/>
@@ -2262,16 +2239,16 @@ För att lösa problemet måste du kopiera saknade mp3-filer från Heroes III ti
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
         <translation>VCMI har upptäckt att Heroes III-videofiler saknas i din installation. VCMI kommer att köras men spelets videosekvenser kommer inte att kunna spelas upp.
 
-För att lösa problemet måste du kopiera filen VIDEO.VID från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
+För att lösa problemet måste ni kopiera filen VIDEO.VID från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="381"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation>VCMI har upptäckt att några av Heroes III datafiler saknas i din installation. Du kan försöka köra VCMI men spelet kanske inte fungerar som förväntat eller kraschar.
+        <translation>VCMI har upptäckt att några av Heroes III datafiler saknas i din installation. Ni kan försöka köra VCMI men spelet kanske inte fungerar som förväntat eller kraschar.
 
-För att lösa problemet måste du installera om spelet och importera datafilerna på nytt med en version av Heroes III som stöds. VCMI kräver Heroes III: Shadow of Death eller Complete Edition för att köras. Du kan hämta rätt version från exempelvis gog.com</translation>
+För att lösa problemet måste ni installera om spelet och importera datafilerna på nytt med en version av Heroes III som stöds. VCMI kräver Heroes III: Shadow of Death eller Complete Edition för att köras. Ni kan hämta rätt version från exempelvis gog.com</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="392"/>
@@ -2280,23 +2257,25 @@ För att lösa problemet måste du installera om spelet och importera datafilern
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
         <translation>VCMI har upptäckt att några av datafilerna för Heroes III: Harmageddons klinga (Armageddon&apos;s Blade) saknas i din installation. VCMI kommer att fungera men kampanjen Harmageddons klinga kommer inte att vara tillgänglig.
 
-För att lösa problemet måste du kopiera de saknade datafilerna från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
+För att lösa problemet måste ni kopiera de saknade datafilerna från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="403"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>För att förbättra grafikens kvalitet i VCMI kan ni installera filer från den officiella Heroes III HD-versionen på Steam. Välj mappen Heroes HD från Steam.
+
+Efter installationen måste ni ställa in uppskalningsfiltret på x2 eller högre för att kunna se HD-grafiken.</translation>
     </message>
     <message>
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="obsolete">Du kan installera resurser från den officiella Heroes III HD Edition (Steam) för att förbättra grafikens kvalitet i VCMI. Välj din Heroes HD-mapp i Steam.
+        <translation type="obsolete">Ni kan installera resurser från den officiella Heroes III HD Edition (Steam) för att förbättra grafikens kvalitet i VCMI. Välj din Heroes HD-mapp i Steam.
 
-Efter installationen måste du också ställa in en uppskalningsfaktor &gt; 1 för att se HD-grafik.</translation>
+Efter installationen måste ni också ställa in en uppskalningsfaktor &gt; 1 för att se HD-grafik.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>
@@ -2326,7 +2305,7 @@ Efter installationen måste du också ställa in en uppskalningsfaktor &gt; 1 f�
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Du har senaste versionen</translation>
+        <translation>Ni har senaste versionen</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
