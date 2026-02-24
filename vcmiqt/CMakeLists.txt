@@ -27,7 +27,13 @@ else()
 	set(TARGET_IS_SHARED ON)
 endif()
 
-if(WIN32)
+if(WIN32
+	set(VCMI_FILE_DESCRIPTION "VCMI Qt Library")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_vcmiqt.dll")
+	set(VCMI_ICON_RESOURCE "")
+	set(vcmiqt_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_vcmiqt_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${vcmiqt_ICON}" @ONLY)
+	target_sources(vcmiqt PRIVATE ${vcmiqt_ICON})
 	set_target_properties(vcmiqt
 		PROPERTIES
 			OUTPUT_NAME "VCMI_vcmiqt"
