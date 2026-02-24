@@ -6,9 +6,24 @@ on:
       - beta
       - master
       - develop
+  
   pull_request:
   workflow_dispatch:
-
+    inputs:
+      release_mode:
+        description: 'Prepare prerelease assets and upload them to GitHub prerelease. NOTE: This have effect only in vcmi/vcmi'
+        required: false
+        type: boolean
+        default: false
+      package_build_type:
+        description: 'Build type used for packaging jobs'
+        required: false
+        type: choice
+        default: RelWithDebInfo
+        options:
+          - RelWithDebInfo
+          - Release
+  
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
@@ -373,7 +388,7 @@ jobs:
       run: |
         ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
-        cpack -C ${{matrix.pack_type}}
+        cpack -C ${{ matrix.pack_type }}
       shell: pwsh
 
     - name: Notarize macOS dmg
@@ -410,6 +425,12 @@ jobs:
       run: |
         unzip "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"
 
+        # Remove selected MSVC/UCRT runtime binaries before sending artifact for signing
+        rm -f "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"/msvcp1*.dll
+        rm -f "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"/d3dcompiler_47.dll
+        rm -f "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"/concrt140.dll
+        rm -f "${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload"/vcruntime1*.dll
+
     - name: Upload Windows artifact
       id: upload_artifact_windows
       if: ${{ startsWith(matrix.platform, 'msvc') }}
@@ -421,7 +442,7 @@ jobs:
           ${{github.workspace}}/out/build/${{matrix.preset}}/artifact-upload
 
     - name: Sign Windows artifact
-      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') && github.event_name == 'workflow_dispatch' && inputs.release_mode && github.repository == 'vcmi/vcmi' }}
       env:
         SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
       uses: signpath/github-action-submit-signing-request@v1.1
@@ -430,12 +451,13 @@ jobs:
         organization-id: '091f52d0-6021-4c04-bbdf-a3736f7730b4'
         project-slug: 'vcmi'
         signing-policy-slug: 'test-signing'
+        artifact-configuration-slug: 'universal'
         github-artifact-id: '${{ steps.upload_artifact_windows.outputs.artifact-id }}'
         wait-for-completion: true
         output-artifact-directory: '${{github.workspace}}/out/signed/'
 
     - name: Upload signed Windows artifact
-      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') && github.event_name == 'workflow_dispatch' && inputs.release_mode && github.repository == 'vcmi/vcmi' }}
       env:
         SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
       uses: actions/upload-artifact@v6
@@ -455,6 +477,15 @@ jobs:
         compression-level: 9
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+
+    - name: Upload release-candidate artifact
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_mode }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: release-${{ matrix.platform }}
+        compression-level: 0
+        path: |
+          ${{ startsWith(matrix.platform, 'msvc') && format('{0}/out/build/{1}/{2}.zip', github.workspace, matrix.preset, env.VCMI_PACKAGE_FILE_NAME) || format('{0}/out/build/{1}/{2}.{3}', github.workspace, matrix.preset, env.VCMI_PACKAGE_FILE_NAME, matrix.extension) }}
 
     - name: Upload AAB Artifact
       id: upload_aab
@@ -749,16 +780,31 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Download Artifact
+    - name: Download signed artifact
+      if: ${{ env.SIGNPATH_API_TOKEN != '' }}
+      id: download_signed
+      continue-on-error: true
+      uses: actions/download-artifact@v7
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-signed
+        path: ${{github.workspace}}/artifact
+
+    - name: Download unsigned artifact (fallback)
+      if: ${{ steps.download_signed.outcome != 'success' }}
       uses: actions/download-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
 
-    - name: Extract Artifact
+    - name: Prepare extracted artifact for installer
       run: |
-        mkdir artifact/extracted
-        unzip "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d artifact/extracted
+        mkdir -p artifact/extracted
+
+        if [ -f "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" ]; then
+          unzip "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d artifact/extracted
+        else
+          find artifact -mindepth 1 -maxdepth 1 ! -name extracted -exec cp -a {} artifact/extracted/ \;
+        fi
 
     - name: Ensure Inno Setup is installed
       run: |
@@ -787,6 +833,15 @@ jobs:
         path: |
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
+    - name: Upload release-candidate Windows installer
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_mode }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: release-installer-${{ matrix.platform }}
+        compression-level: 0
+        path: |
+          ${{ github.workspace }}/CI/wininstaller/Output/*.exe
+
     - name: Upload Installer
       if: ${{ github.event.number == '' && env.DEPLOY_RSA != '' }}
       run: |
@@ -812,6 +867,112 @@ jobs:
       with:
         name: partial-json-${{ matrix.platform }}-installer
         path: .summary/installer-${{ matrix.platform }}.json
+
+
+  publish-prerelease:
+    name: Publish prerelease assets
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_mode }}
+    needs: [build, windows-installer]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download release-candidate artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: release-assets/raw
+
+      - name: Prepare prerelease assets
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          mkdir -p release-assets/final
+
+          copy_one() {
+            local pattern="$1"
+            local destination="$2"
+            local matches=(release-assets/raw/$pattern)
+            if [ ${#matches[@]} -eq 0 ]; then
+              echo "Missing file for pattern: $pattern"
+              exit 1
+            fi
+            cp "${matches[0]}" "$destination"
+          }
+
+          copy_one "*arm64-v8a*.apk" "release-assets/final/VCMI-Android-arm64-v8a.apk"
+          copy_one "*armeabi-v7a*.apk" "release-assets/final/VCMI-Android-armeabi-v7a.apk"
+          copy_one "*x64*.apk" "release-assets/final/VCMI-Android-x86_64.apk"
+          copy_one "*.ipa" "release-assets/final/VCMI-iOS.ipa"
+          copy_one "*arm*.dmg" "release-assets/final/VCMI-macOS-arm.dmg"
+          copy_one "*intel*.dmg" "release-assets/final/VCMI-macOS-intel.dmg"
+          copy_one "*arm64*.exe" "release-assets/final/VCMI-Windows-arm64.exe"
+          copy_one "*arm64*.zip" "release-assets/final/VCMI-Windows-arm64.zip"
+          copy_one "*x64*.exe" "release-assets/final/VCMI-Windows-x64.exe"
+          copy_one "*x64*.zip" "release-assets/final/VCMI-Windows-x64.zip"
+          copy_one "*x86*.exe" "release-assets/final/VCMI-Windows-x86.exe"
+          copy_one "*x86*.zip" "release-assets/final/VCMI-Windows-x86.zip"
+          copy_one "*x86_64*.AppImage" "release-assets/final/VCMI-Linux-x64.AppImage"
+          copy_one "*arm64*.AppImage" "release-assets/final/VCMI-Linux-arm64.AppImage"
+
+      - name: Generate release description
+        run: |
+          set -euo pipefail
+
+          file_path="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
+
+          major=$(grep -m 1 "VCMI_VERSION_MAJOR" "$file_path" | tr -d -c 0-9)
+          minor=$(grep -m 1 "VCMI_VERSION_MINOR" "$file_path" | tr -d -c 0-9)
+          patch=$(grep -m 1 "VCMI_VERSION_PATCH" "$file_path" | tr -d -c 0-9)
+
+          current_version="${major}.${minor}.${patch}"
+          echo "current_version=${current_version}" >> "$GITHUB_ENV"
+
+          if [ "$patch" -gt 0 ]; then
+            previous_version="${major}.${minor}.$((patch - 1))"
+          elif [ "$minor" -gt 0 ]; then
+            previous_version="${major}.$((minor - 1)).0"
+          elif [ "$major" -gt 0 ]; then
+            previous_version="$((major - 1)).0.0"
+          else
+            previous_version="0.0.0"
+          fi
+
+          changelog_anchor="${previous_version//./}---${current_version//./}"
+
+          current_major_minor="${major}.${minor}"
+
+          if [ "$minor" -gt 0 ]; then
+            previous_major_minor="${major}.$((minor - 1))"
+          elif [ "$major" -gt 0 ]; then
+            previous_major_minor="$((major - 1)).0"
+          else
+            previous_major_minor="0.0"
+          fi
+
+          sed \
+            -e "s/__PREVIOUS_VERSION__/${previous_version}/g" \
+            -e "s/__CURRENT_VERSION__/${current_version}/g" \
+            -e "s/__CHANGELOG_ANCHOR__/${changelog_anchor}/g" \
+            -e "s/__PREVIOUS_MAJOR_MINOR__/${previous_major_minor}/g" \
+            -e "s/__CURRENT_MAJOR_MINOR__/${current_major_minor}/g" \
+            .github/release/description.md > .github/release/release-description.md
+
+      - name: Publish prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.current_version }}
+          name: VCMI ${{ env.current_version }}
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          body_path: .github/release/release-description.md
+          files: |
+            release-assets/final/*
 
   validate-code:
     name: Validate Code
@@ -844,7 +1005,7 @@ jobs:
   final-summary:
     name: Build report
     if: always()
-    needs: [build, windows-installer, validate-code, test, upload-source-package]
+    needs: [build, windows-installer, validate-code, test, upload-source-package, publish-prerelease]
     runs-on: ubuntu-latest
     permissions:
       contents: read
