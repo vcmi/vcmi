@@ -341,8 +341,10 @@ endif()
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
-	# Except for conan which already has this definition in its profile
-	if(NOT USING_CONAN)
+	# Windows on ARM64 is available starting from Windows 10 1709, so bump the target there.
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|AARCH64|aarch64)$")
+		add_definitions(-D_WIN32_WINNT=0x0A00)
+	else()
 		add_definitions(-D_WIN32_WINNT=0x0600)
 	endif()
 
