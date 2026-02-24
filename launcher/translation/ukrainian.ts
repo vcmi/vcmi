@@ -1397,7 +1397,6 @@ Please select the directory with installed Heroes III data.</source>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>Вибрано невідомий інсталятор.
-
 Вам потрібно вибрати офлайн-інсталятор GOG.</translation>
     </message>
     <message>
@@ -2177,7 +2176,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="251"/>
         <source>Gog files</source>
-        <translation>Файл GOG</translation>
+        <translation>Файли Gog</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="254"/>
