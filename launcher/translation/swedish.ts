@@ -454,7 +454,7 @@ Vänligen rapportera detta problem till utvecklarna</translation>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n karta importerades framgångsrikt.</numerusform>
-            <numerusform>%n kartaor importerades framgångsrikt.</numerusform>
+            <numerusform>%n kartor importerades framgångsrikt.</numerusform>
         </translation>
     </message>
     <message>
@@ -1190,7 +1190,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation>Krigets tidvatten (Tides of War)</translation>
+        <translation>Krigets Tidvatten (Tides of War)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
@@ -2047,7 +2047,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation>Kampanjen Harmageddons klinga (Armageddon&apos;s Blade) saknas!</translation>
+        <translation>Kampanjen Harmageddons Klinga (Armageddon&apos;s Blade) saknas!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="331"/>
@@ -2255,7 +2255,7 @@ För att lösa problemet måste ni installera om spelet och importera datafilern
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation>VCMI har upptäckt att några av datafilerna för Heroes III: Harmageddons klinga (Armageddon&apos;s Blade) saknas i din installation. VCMI kommer att fungera men kampanjen Harmageddons klinga kommer inte att vara tillgänglig.
+        <translation>VCMI har upptäckt att några av datafilerna för Heroes III: Harmageddons Klinga (Armageddon&apos;s Blade) saknas i din installation. VCMI kommer att fungera men kampanjen Harmageddons Klinga kommer inte att vara tillgänglig.
 
 För att lösa problemet måste ni kopiera de saknade datafilerna från Heroes III till VCMI:s datafilsmapp manuellt eller installera om VCMI och importera Heroes III-datafiler på nytt</translation>
     </message>
