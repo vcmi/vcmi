@@ -93,7 +93,7 @@
 
 	"vcmi.randomMap.description"               : "Kartan skapades med slumpgeneratorn.\nMallen var %s, storlek %dx%d, nivå %d, spelare %d, dator %d, vatten %s, monster %s, VCMI-karta",
 	"vcmi.randomMap.description.isHuman"       : ", %s är människa",
-	"vcmi.randomMap.description.townChoice"    : ", %s stadsval är %s",
+	"vcmi.randomMap.description.townChoice"    : ", startstaden för %s är %s",
 	"vcmi.randomMap.description.water.none"    : "Inget",
 	"vcmi.randomMap.description.water.normal"  : "Normalt",
 	"vcmi.randomMap.description.water.islands" : "Öar",
@@ -134,7 +134,7 @@
 	"vcmi.lobby.noPreview"                      : "Ingen förhandsvisning",
 	"vcmi.lobby.noUnderground"                  : "Ingen underjord",
 	"vcmi.lobby.sortDate"                       : "Sortera kartor efter ändringsdatum",
-	"vcmi.lobby.backToLobby"                    : "Tillbaka till lobby",
+	"vcmi.lobby.backToLobby"                    : "Tillbaka till onlinelobbyn",
 	"vcmi.lobby.author"                         : "Författare",
 	"vcmi.lobby.handicap"                       : "Handikapp",
 	"vcmi.lobby.handicap.resource"              : "Ger spelarna motsvarande resurser vid start utöver de normala startresurserna. Negativa värden är tillåtna men begränsas totalt till 0 (spelaren börjar aldrig med negativa resurser).",
