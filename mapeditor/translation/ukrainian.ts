@@ -1600,8 +1600,7 @@
 
 Do you want to do that now ?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-
+        <translation>
 
 Бажаєте зробити це зараз?</translation>
     </message>
@@ -2483,7 +2482,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="613"/>
         <source>Cpu trigger</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Тригер ІІ</translation>
+        <translation type="unfinished">Тригер ШІ</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="472"/>
