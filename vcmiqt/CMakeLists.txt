@@ -27,7 +27,7 @@ else()
 	set(TARGET_IS_SHARED ON)
 endif()
 
-if(WIN32
+if(WIN32)
 	set(VCMI_FILE_DESCRIPTION "VCMI Qt Library")
 	set(VCMI_ORIGINAL_FILENAME "VCMI_vcmiqt.dll")
 	set(VCMI_ICON_RESOURCE "")
