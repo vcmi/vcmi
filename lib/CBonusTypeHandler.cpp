@@ -61,7 +61,7 @@ CBonusTypeHandler::~CBonusTypeHandler() = default;
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
 	if(!bearer)
-		return throw std::runtime_error("CBonusTypeHandler::bonusToString: invalid bonus system node!"); 
+		throw std::runtime_error("CBonusTypeHandler::bonusToString: invalid bonus system node!"); 
 
 	return bonusToString(bonus, bearer->valOfBonuses(bonus->type, bonus->subtype));
 }
