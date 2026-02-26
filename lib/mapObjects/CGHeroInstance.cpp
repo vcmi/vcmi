@@ -40,6 +40,7 @@
 #include "../entities/hero/CHeroClass.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../battle/CBattleInfoEssentials.h"
+#include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
 #include "../pathfinder/TurnInfo.h"
@@ -205,6 +206,11 @@ void CGHeroInstance::setMovementPoints(int points)
 		movement = std::max(0, points);
 }
 
+int CGHeroInstance::movementPointsLimit() const
+{
+	return movementPointsLimit(!inBoat());
+}
+
 int CGHeroInstance::movementPointsLimit(bool onLand) const
 {
 	auto ti = getTurnInfo(0);
@@ -247,7 +253,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	: CArmedInstance(cb, BonusNodeType::HERO, false),
 	CArtifactSet(cb),
-	tacticFormationEnabled(false),
+	tacticFormationEnabled(true),
 	inTownGarrison(false),
 	moveDir(4),
 	mana(UNINITIALIZED_MANA),
@@ -994,7 +1000,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->additionalInfo[0] > necromancerPower)
+		if(newPick->parameters && newPick->parameters->toNumber() > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
@@ -1383,47 +1389,6 @@ ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const
-{
-	std::set<SecondarySkill> basicAndAdv;
-	std::set<SecondarySkill> none;
-	std::vector<SecondarySkill>	skills;
-
-	if (canLearnSkill())
-	{
-		for(int i = 0; i < LIBRARY->skillh->size(); i++)
-			if (canLearnSkill(SecondarySkill(i)))
-				none.insert(SecondarySkill(i));
-	}
-
-	for(const auto & elem : secSkills)
-	{
-		if(elem.second < MasteryLevel::EXPERT)
-			basicAndAdv.insert(elem.first);
-		none.erase(elem.first);
-	}
-	
-	int maxUpgradedSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT);
-	int maxTotalSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT);
-	int newSkillsAvailable = none.size();
-	int upgradedSkillsToSelect = std::max(maxUpgradedSkills, maxTotalSkills - newSkillsAvailable);
-
-	while (skills.size() < upgradedSkillsToSelect && !basicAndAdv.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
-	}
-
-	while (skills.size() < maxTotalSkills && !none.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
-	}
-
-	return skills;
-}
-
-
 void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode)
 {
 	auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
@@ -1477,7 +1442,7 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 	while(gainsLevel())
 	{
 		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
-		const auto proposedSecondarySkills = getLevelupSkillCandidates(gameRandomizer);
+		const auto proposedSecondarySkills = gameRandomizer.rollSecondarySkills(this);
 
 		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 		if(!proposedSecondarySkills.empty())
@@ -1774,10 +1739,11 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
-		auto nid = CreatureID(it->additionalInfo[0]);
-		if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+		if (it->parameters)
 		{
-			info.addUpgrade(nid, stack.getType());
+			auto nid = it->parameters->toCreature();
+			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+				info.addUpgrade(nid, stack.getType());
 		}
 	}
 }

@@ -616,6 +616,20 @@ struct DLL_LINKAGE ChangeFormation : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE ChangeTactics : public CPackForClient
+{
+	ObjectInstanceID hid;
+	bool enabled = false;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & hid;
+		h & enabled;
+	}
+};
+
 struct DLL_LINKAGE ChangeTownName : public CPackForClient
 {
 	ObjectInstanceID tid;

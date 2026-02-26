@@ -8,7 +8,9 @@ This is list of all languages that are currently supported by VCMI. If your lang
 - Bulgarian
 - Czech
 - Chinese (Simplified)
+- Dutch
 - English
+- Filipino
 - Finnish
 - French
 - German
@@ -17,11 +19,13 @@ This is list of all languages that are currently supported by VCMI. If your lang
 - Italian
 - Japanese
 - Korean
+- Latvian
 - Norwegian
 - Polish
 - Portuguese (Brazilian)
 - Romanian
 - Russian
+- Serbian
 - Spanish
 - Swedish
 - Turkish
@@ -58,11 +62,11 @@ If you have already existing Heroes III translation you can:
 
 - Install VCMI and select your localized Heroes III data files for VCMI data files
 - Launch VCMI and start any map to get in game
-- Press Tab to activate chat and enter '/translate'
+- Press Tab to activate chat and enter `/translate`
 
 This will export all strings from game into `Documents/My Games/VCMI/extracted/translation/` directory which you can then use to update json files in your translation.
 
-To export maps and campaigns, use '/translate maps' command instead.
+To export maps and campaigns, use `/translate maps` command instead.
 
 ### Video subtitles
 
@@ -160,11 +164,11 @@ If you want to start new translation for a mod or to update existing one you may
 - Launch VCMI and start any map to get in game
 - Press Tab to activate chat and enter '/translate'
 
-After that, start Launcher, switch to Help tab and open "log files directory". You can find exported json's in 'extracted/translation' directory.
+After that, start Launcher, switch to Help tab and open "log files directory". You can find exported json's in `extracted/translation` directory.
 
-If your mod also contains maps or campaigns that you want to translate, then use '/translate maps' command instead.
+If your mod also contains maps or campaigns that you want to translate, then use `/translate maps` command instead.
 
-If you want to update existing translation, you can use '/translate missing' command that will export only strings that were not translated
+If you want to update existing translation, you can use `/translate missing` command that will export only strings that were not translated
 
 ### Translating mod information
 
@@ -195,7 +199,7 @@ Use any text editor (Notepad++ is recommended for Windows) and translate all str
 
 In order to add new language it needs to be added in multiple locations in source code:
 
-- Generate new .ts files for launcher and map editor, either by running `lupdate` with name of new .ts or by copying `english.ts` and editing language tag in the header.
+- Generate new .ts files for launcher and map editor, either by running `lupdate` with name of new `.ts` or by copying `english.ts` and editing language tag in the header.
 - Add new language into `lib/Languages.h` entry. This will trigger static_assert's in places that needs an update in code
 - Add new language into json schemas validation list - settings schema and mod schema
 - Add new language into mod json format - in order to allow translation into new language

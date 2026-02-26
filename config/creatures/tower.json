@@ -3,7 +3,7 @@
 	{
 		"index": 28,
 		"level": 1,
-		"extraNames": [ "apprenticeGremlin" ],
+		"compatibilityIdentifiers": [ "apprenticeGremlin" ],
 		"faction": "tower",
 		"upgrades": ["masterGremlin"],
 		"hasDoubleWeek": true,

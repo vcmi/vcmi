@@ -142,5 +142,5 @@ void GameInstance::pauseAutoSave()
 		return;
 	}
 
-	GAME->interface()->cb->save(autoSaveName);
+	GAME->interface()->cb->save(autoSaveName, false);
 }

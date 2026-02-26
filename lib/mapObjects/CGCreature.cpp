@@ -15,6 +15,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../IGameSettings.h"
+#include "../bonuses/BonusParameters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
@@ -271,23 +272,23 @@ void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
 void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
-	switch(character)
+	switch(initialCharacter)
 	{
-	case 0:
-		character = -4;
-		break;
-	case 1:
-		character = gameRandomizer.getDefault().nextInt(1, 7);
-		break;
-	case 2:
-		character = gameRandomizer.getDefault().nextInt(1, 10);
-		break;
-	case 3:
-		character = gameRandomizer.getDefault().nextInt(4, 10);
-		break;
-	case 4:
-		character = 10;
-		break;
+		case Character::COMPLIANT:
+			agression = -4;
+			break;
+		case Character::FRIENDLY:
+			agression = gameRandomizer.getDefault().nextInt(1, 7);
+			break;
+		case Character::AGGRESSIVE:
+			agression = gameRandomizer.getDefault().nextInt(1, 10);
+			break;
+		case Character::HOSTILE:
+			agression = gameRandomizer.getDefault().nextInt(4, 10);
+			break;
+		case Character::SAVAGE:
+			agression = 10;
+			break;
 	}
 
 	stacks[SlotID(0)]->setType(getCreature());
@@ -382,15 +383,15 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	int diplomacy = h->valOfBonuses(BonusType::WANDERING_CREATURES_JOIN_BONUS);
 	int charisma = powerFactor + diplomacy + sympathy;
 
-	if(charisma < character)
+	if(charisma < agression)
 		return FIGHT;
 
 	if (allowJoin && cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) > 0)
 	{
-		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || character == Character::COMPLIANT) && diplomacy + sympathy + 1 >= character)
+		if((cb->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_JOINING_FOR_FREE) || initialCharacter == Character::COMPLIANT) && diplomacy + sympathy + 1 >= agression && !joinOnlyForMoney)
 			return JOIN_FOR_FREE;
 
-		if(diplomacy * 2 + sympathy + 1 >= character)
+		if(diplomacy * 2 + sympathy + 1 >= agression)
 		{
 			int32_t recruitCost = getCreature()->getRecruitCost(EGameResID::GOLD);
 			int32_t stackCount = getStackCount(SlotID(0));
@@ -400,7 +401,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//we are still here - creatures have not joined hero, flee or fight
 
-	if (charisma > character && !neverFlees)
+	if (charisma > agression && !neverFlees)
 		return FLEE;
 	else
 		return FIGHT;
@@ -573,13 +574,23 @@ bool CGCreature::containsUpgradedStack() const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=830557#focus
 
-	float a = 2992.911117f;
-	float b = 14174.264968f;
-	float c = 5325.181015f;
-	float d = 32788.727920f;
+	static constexpr float a = 2992.911117f;
+	static constexpr float b = 14174.264968f;
+	static constexpr float c = 5325.181015f;
+	static constexpr float d = 32788.727920f;
 
-	int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
-	return ((val % 32768) % 100) < 50;
+	switch (upgradedStackPresence)
+	{
+		case UpgradedStackPresence::ALWAYS:
+			return true;
+		case UpgradedStackPresence::NEVER:
+			return false;
+		default:
+		{
+			int val = static_cast<int>(std::floor(a * visitablePos().x + b * visitablePos().y + c * visitablePos().z + d));
+			return ((val % 32768) % 100) < 50;
+		}
+	}
 }
 
 int CGCreature::getNumberOfStacks(const CGHeroInstance * hero) const
@@ -606,7 +617,10 @@ int CGCreature::getNumberOfStacksFromBonus(const CGHeroInstance * hero) const
 	if(bonus->val > 0)
 		return bonus->val;
 
-	auto addInfo = bonus->additionalInfo;
+	if (!bonus->parameters)
+		return 0;
+
+	auto addInfo = bonus->parameters->toVector();
 	if(addInfo.empty())
 		return 0;
 	const size_t maxEntries = std::min<size_t>(addInfo.size(), 7);
@@ -712,12 +726,12 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 static const std::vector<std::string> CHARACTER_JSON  =
 {
-	"compliant", "friendly", "aggressive", "hostile", "savage"
+	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
 };
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeEnum("character", character, CHARACTER_JSON);
+	handler.serializeEnum("character", initialCharacter, CHARACTER_JSON);
 
 	if(handler.saving)
 	{

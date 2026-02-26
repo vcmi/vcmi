@@ -69,6 +69,15 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		if(modList.count(m))
 			continue;
 
+		// FIXME: for some reason parent mod (e.g. hota) is not present in save mod list even if its submods are
+		// workaround for this and exclude such mods from comparison list if submods are found
+		bool hasSubmod = false;
+		for (const auto & mod : modList)
+			hasSubmod = hasSubmod || boost::starts_with(mod.first, m + '.');
+
+		if (hasSubmod)
+			continue;
+
 		if (m == ModScope::scopeBuiltin())
 			continue;
 

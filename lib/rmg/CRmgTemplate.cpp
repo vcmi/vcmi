@@ -1005,13 +1005,13 @@ void CRmgTemplate::afterLoad()
 							&rmg::ZoneOptions::setTerrainTypes, 
 							&rmg::ZoneOptions::getTerrainTypeLikeZone,
 							"terrain types");
-		
+
 		inheritZoneProperty(zone, 
 							&rmg::ZoneOptions::getMinesInfo, 
 							&rmg::ZoneOptions::setMinesInfo, 
 							&rmg::ZoneOptions::getMinesLikeZone,
 							"mine types");
-		
+
 		inheritZoneProperty(zone, 
 							&rmg::ZoneOptions::getTreasureInfo, 
 							&rmg::ZoneOptions::setTreasureInfo, 
@@ -1043,7 +1043,7 @@ void CRmgTemplate::afterLoad()
 		zone1->addConnection(connection);
 		zone2->addConnection(connection);
 	}
-	
+
 	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::RANDOM))
 	{
 		allowedWaterContent.insert(EWaterContent::NONE);

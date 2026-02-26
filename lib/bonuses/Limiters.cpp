@@ -29,6 +29,7 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(BonusType::SHOOTER)},
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(BonusType::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNDEAD)},
+	{"UNIT_DEFENDING", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNIT_DEFENDING)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<TerrainLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
@@ -170,7 +171,22 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
-		return ILimiter::EDecision::ACCEPT;
+	{
+		if ( minValue == std::numeric_limits<int32_t>::min() &&
+			 maxValue == std::numeric_limits<int32_t>::max())
+			return ILimiter::EDecision::ACCEPT;
+
+		// can't determine final bonus value yet
+		if(context.stillUndecided.getFirst(mySelector))
+			return ILimiter::EDecision::NOT_SURE;
+
+		int bonusValue = context.alreadyAccepted.valOfBonuses(mySelector);
+
+		if (bonusValue >= minValue && bonusValue <= maxValue)
+			return ILimiter::EDecision::ACCEPT;
+		else
+			return ILimiter::EDecision::DISCARD;
+	}
 
 	//if there are no matching bonuses pending, we can (and must) reject right away
 	if(!context.stillUndecided.getFirst(mySelector))
@@ -239,6 +255,35 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 	root["type"].String() = "UNIT_ON_HEXES";
 	for(const auto & hex : applicableHexes)
 		root["parameters"].Vector().emplace_back(hex.toInt());
+
+	return root;
+}
+
+ILimiter::EDecision UnitAdjacentLimiter::limit(const BonusLimitationContext &context) const
+{
+	const auto * stack = retrieveStackBattle(&context.node);
+	if(!stack)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	if (!stack->getPosition().isValid())
+		return ILimiter::EDecision::DISCARD;
+
+	auto battle = stack->getBattle();
+	const auto & adjacentUnits = battle->battleAdjacentUnits(stack);
+
+	for (const auto & unit : adjacentUnits)
+		if (unit->creatureId() == targetUnit)
+			return ILimiter::EDecision::ACCEPT;
+
+	return ILimiter::EDecision::DISCARD;
+}
+
+JsonNode UnitAdjacentLimiter::toJsonNode() const
+{
+	JsonNode root;
+
+	root["type"].String() = "UNIT_ADJACENT";
+	root["creature"].String() = targetUnit.toEntity(LIBRARY)->getJsonKey();
 
 	return root;
 }

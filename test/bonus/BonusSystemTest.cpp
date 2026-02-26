@@ -275,6 +275,8 @@ TEST_F(BonusSystemTest, battlewideSkillPropagationToEnemies)
 	EXPECT_EQ(heroBron.valOfBonuses(BonusType::MORALE), -1);
 	EXPECT_EQ(pikemanAlly.valOfBonuses(BonusType::MORALE), 0);
 	EXPECT_EQ(pikemanEnemy.valOfBonuses(BonusType::MORALE), -1);
+
+	heroAine.detachFromSource(armor);
 }
 
 TEST_F(BonusSystemTest, legionPieces)

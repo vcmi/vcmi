@@ -58,6 +58,7 @@ public:
 	void visitBuyArtifact(BuyArtifact & pack) override;
 	void visitTradeOnMarketplace(TradeOnMarketplace & pack) override;
 	void visitSetFormation(SetFormation & pack) override;
+	void visitSetTactics(SetTactics & pack) override;
 	void visitSetTownName(SetTownName & pack) override;
 	void visitHireHero(HireHero & pack) override;
 	void visitBuildBoat(BuildBoat & pack) override;
@@ -68,4 +69,5 @@ public:
 	void visitRequestStatistic(RequestStatistic & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
 	void visitSaveLocalState(SaveLocalState & pack) override;
+	void visitAdvInterfaceReady(AdvInterfaceReady & pack) override;
 };

@@ -105,7 +105,7 @@
 	"vcmi.spellBook.tab.hover" : "Vrăji %s",
 	"vcmi.spellBook.tab.help" : "Schimbă pentru a vedea vrăjile %s",
 	
-	"vcmi.spellResearch.canNotAfford" : "Nu îți permiți să înlocuiești {%SPELL1} cu {%SPELL2}. Dar poți totuși să renunți la această vrajă și să continui cercetarea.",
+	"vcmi.spellResearch.canNotAfford" : "Nu îți permiți să înlocuiești {%SPELL1} cu {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Cercetarea a fost deja făcută astăzi. Revino mâine.",
 	"vcmi.spellResearch.pay" : "Dorești să înlocuiești {%SPELL1} cu {%SPELL2}? Sau să renunți la această vrajă și să continui cercetarea?",
 	"vcmi.spellResearch.research" : "Cercetează această vrajă",

@@ -153,7 +153,7 @@ ui32 ACreature::getMovementRange() const
 	if (getBonusBearer()->hasBonusOfType(BonusType::BIND_EFFECT))
 		return 0;
 
-	return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+	return std::max(0, getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED));
 }
 
 int32_t ACreature::getInitiative(int turn) const
@@ -185,7 +185,7 @@ ui32 ACreature::getMovementRange(int turn) const
 	if(getBonusBearer()->hasBonus(Selector::type()(BonusType::BIND_EFFECT).And(Selector::turns(turn)), cachingStrBE))
 		return 0;
 
-	return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
+	return std::max(0, getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS));
 }
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation

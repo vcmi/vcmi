@@ -406,7 +406,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		}
 	}
 
-	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
+	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, source, ret->bid.getNum());
 }
 
 void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
@@ -513,7 +513,24 @@ Point JsonToPoint(const JsonNode & node)
 
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 {
-	town.clientInfo.siegePrefix = source["imagePrefix"].String();
+	if(source["imagePrefix"].isString())
+		town.clientInfo.siegePrefix = {
+			{ MapLayerId::SURFACE, source["imagePrefix"].String() },
+			{ MapLayerId::UNDERGROUND, source["imagePrefix"].String() },
+			{ MapLayerId::UNKNOWN, source["imagePrefix"].String() }
+		};
+	else
+	{
+		auto layers = source["imagePrefix"].Struct();
+		for(auto & layer : layers)
+		{
+			auto text = layer.second.String();
+			LIBRARY->identifiers()->requestIdentifier(layer.second.getModScope(), "mapLayer", layer.first, [&town, text](int32_t idx)
+			{
+				town.clientInfo.siegePrefix[MapLayerId(idx)] = text;
+			});
+		}
+	}
 	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
 	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
 
@@ -779,15 +796,10 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	// But allows it to be defined with explicit value of "none" if town should not have native terrain
 	// This is better than allowing such terrain-less towns silently, leading to issues with RMG
 	faction->nativeTerrain = ETerrainId::NONE;
-	if ( !source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
+	if (!source["nativeTerrain"].isNull() && source["nativeTerrain"].String() != "none")
 	{
 		LIBRARY->identifiers()->requestIdentifier("terrain", source["nativeTerrain"], [=](int32_t index){
 			faction->nativeTerrain = TerrainId(index);
-
-			auto const & terrain = LIBRARY->terrainTypeHandler->getById(faction->nativeTerrain);
-
-			if (!terrain->isSurface() && !terrain->isUnderground())
-				logMod->warn("Faction %s has terrain %s as native, but terrain is not suitable for either surface or subterranean layers!", faction->getJsonKey(), terrain->getJsonKey());
 		});
 	}
 
@@ -842,7 +854,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index.getNum());
+	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -873,7 +885,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		});
 	}
 
-	registerObject(scope, "faction", name, object->index.getNum());
+	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadRandomFaction()

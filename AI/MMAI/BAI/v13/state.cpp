@@ -465,7 +465,11 @@ void State::onBattleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 		const auto * cdefender = battle->battleGetStackByID(elem.stackAttacked, false);
 		const auto * cattacker = battle->battleGetStackByID(elem.attackerID, false);
 
-		ASSERT(cdefender, "defender cannot be NULL");
+		if(!cdefender)
+		{
+			logAi->error("MMAI: received BattleStackAttacked with invalid stackAttacked: " + std::to_string(elem.stackAttacked));
+			continue;
+		}
 
 		const auto defender = std::ranges::find_if(
 			stacks,

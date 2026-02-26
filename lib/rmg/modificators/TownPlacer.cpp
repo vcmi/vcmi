@@ -25,6 +25,7 @@
 #include "../Functions.h"
 #include "RoadPlacer.h"
 #include "MinePlacer.h"
+#include "ObjectPlacer.h"
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
 
@@ -69,6 +70,7 @@ void TownPlacer::init()
 		}
 	}
 	POSTFUNCTION(MinePlacer);
+	POSTFUNCTION(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
 

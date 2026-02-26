@@ -245,7 +245,7 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
 {
 	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", int3(-1,-1,-1));
-	return gameState().getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
+	return gameState().getMap().guardingCreaturePositions[pos];
 }
 
 std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (int3 pos) const
@@ -869,8 +869,8 @@ void CGameInfoCallback::getTilesInRange(FowTilesType & tiles,
 				if(distance <= radious)
 				{
 					if(!player
-					   || (mode == ETileVisibility::HIDDEN  && team->fogOfWarMap[pos.z][xd][yd] == 0)
-					   || (mode == ETileVisibility::REVEALED && team->fogOfWarMap[pos.z][xd][yd] == 1)
+					   || (mode == ETileVisibility::HIDDEN  &&  team->fogOfWarMap[int3(xd,yd, pos.z)] == 0)
+					   || (mode == ETileVisibility::REVEALED && team->fogOfWarMap[int3(xd,yd, pos.z)] == 1)
 					   )
 						tiles.insert(int3(xd,yd,pos.z));
 				}

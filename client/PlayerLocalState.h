@@ -51,7 +51,7 @@ class PlayerLocalState
 
 	SpellID currentSpell;
 
-	void syncronizeState();
+	void synchronizeState();
 public:
 
 	explicit PlayerLocalState(CPlayerInterface & owner);
@@ -101,4 +101,5 @@ public:
 
 	/// Changes currently selected object
 	void setSelection(const CArmedInstance *sel);
+	void setSelection(const CArmedInstance *sel, bool force);
 };

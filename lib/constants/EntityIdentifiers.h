@@ -34,6 +34,7 @@ class Skill;
 class RoadType;
 class RiverType;
 class TerrainType;
+class MapLayerType;
 
 namespace spells
 {
@@ -571,6 +572,7 @@ public:
 		PINE_TREES = 137,
 		PLANT = 138,
 		RIVER_DELTA = 143,
+		HOTA_CUSTOM_OBJECT_3 = 144,
 		HOTA_CUSTOM_OBJECT_1 = 145,
 		HOTA_CUSTOM_OBJECT_2 = 146,
 		ROCK = 147,
@@ -673,6 +675,22 @@ public:
 		if (!h.saving)
 			num = decode(primaryID, secondaryStringID);
 	}
+};
+
+class DLL_LINKAGE MapLayerId : public EntityIdentifier<MapLayerId>
+{
+public:
+	using EntityIdentifier<MapLayerId>::EntityIdentifier;
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
+
+	static const MapLayerId NONE;
+	static const MapLayerId SURFACE;
+	static const MapLayerId UNDERGROUND;
+	static const MapLayerId UNKNOWN;
+
+	const MapLayerType * toEntity(const Services * service) const;
 };
 
 class DLL_LINKAGE RoadId : public EntityIdentifier<RoadId>

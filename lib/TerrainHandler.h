@@ -41,13 +41,14 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 	std::string modScope;
 	TerrainId id;
 	ui8 passabilityType;
+	std::vector<MapLayerId> allowedLayers;
 
 	enum PassabilityType : ui8
 	{
 		//LAND = 1,
 		WATER = 2,
-		SURFACE = 4,
-		SUBTERRANEAN = 8,
+		//SURFACE = 4,
+		//SUBTERRANEAN = 8,
 		ROCK = 16
 	};
 
@@ -89,6 +90,7 @@ public:
 	inline bool isPassable() const;
 	inline bool isSurface() const;
 	inline bool isUnderground() const;
+	inline std::vector<MapLayerId> layersAllowed() const;
 
 	bool isTransitionRequired() const;
 };
@@ -133,12 +135,17 @@ inline bool TerrainType::isPassable() const
 
 inline bool TerrainType::isSurface() const
 {
-	return passabilityType & PassabilityType::SURFACE;
+	return vstd::contains(allowedLayers, MapLayerId::SURFACE);
 }
 
 inline bool TerrainType::isUnderground() const
 {
-	return passabilityType & PassabilityType::SUBTERRANEAN;
+	return vstd::contains(allowedLayers, MapLayerId::UNDERGROUND);
+}
+
+inline std::vector<MapLayerId> TerrainType::layersAllowed() const
+{
+	return allowedLayers;
 }
 
 VCMI_LIB_NAMESPACE_END

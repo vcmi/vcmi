@@ -49,13 +49,11 @@ bool ExplorationHelper::scanSector(int scanRadius)
 {
 	int3 tile = int3(0, 0, ourPos.z);
 
-	const auto & slice = ts->fogOfWarMap[ourPos.z];
-
 	for(tile.x = ourPos.x - scanRadius; tile.x <= ourPos.x + scanRadius; tile.x++)
 	{
 		for(tile.y = ourPos.y - scanRadius; tile.y <= ourPos.y + scanRadius; tile.y++)
 		{
-			if(cbp->isInTheMap(tile) && slice[tile.x][tile.y])
+			if(cbp->isInTheMap(tile) && ts->fogOfWarMap[tile])
 			{
 				scanTile(tile);
 			}
@@ -75,13 +73,13 @@ bool ExplorationHelper::scanMap()
 
 	foreach_tile_pos([&](const int3 & pos)
 		{
-			if(ts->fogOfWarMap[pos.z][pos.x][pos.y])
+			if(ts->fogOfWarMap[pos])
 			{
 				bool hasInvisibleNeighbor = false;
 
 				foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
 					{
-						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
+						if(!ts->fogOfWarMap[neighbour])
 						{
 							hasInvisibleNeighbor = true;
 						}
@@ -107,7 +105,7 @@ bool ExplorationHelper::scanMap()
 	allowDeadEndCancellation = false;
 	logAi->debug("Exploration scan all possible tiles for hero %s", hero->getNameTranslated());
 
-	boost::multi_array<ui8, 3> potentialTiles = ts->fogOfWarMap;
+	auto potentialTiles = ts->fogOfWarMap;
 	std::vector<int3> tilesToExploreFrom = edgeTiles;
 
 	// WARNING: POTENTIAL BUG
@@ -122,10 +120,10 @@ bool ExplorationHelper::scanMap()
 		{
 			foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
 			{
-				if(potentialTiles[neighbour.z][neighbour.x][neighbour.y])
+				if(potentialTiles[neighbour])
 				{
 					newTilesToExploreFrom.push_back(neighbour);
-					potentialTiles[neighbour.z][neighbour.x][neighbour.y] = false;
+					potentialTiles[neighbour] = false;
 				}
 			});
 		}
@@ -191,15 +189,13 @@ int ExplorationHelper::howManyTilesWillBeDiscovered(const int3 & pos) const
 	int ret = 0;
 	int3 npos = int3(0, 0, pos.z);
 
-	const auto & slice = ts->fogOfWarMap[pos.z];
-
 	for(npos.x = pos.x - sightRadius; npos.x <= pos.x + sightRadius; npos.x++)
 	{
 		for(npos.y = pos.y - sightRadius; npos.y <= pos.y + sightRadius; npos.y++)
 		{
 			if(cbp->isInTheMap(npos)
 				&& pos.dist2d(npos) - 0.5 < sightRadius
-				&& !slice[npos.x][npos.y])
+				&& !ts->fogOfWarMap[npos])
 			{
 				if(allowDeadEndCancellation
 					&& !hasReachableNeighbor(npos))

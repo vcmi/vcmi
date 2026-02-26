@@ -17,6 +17,7 @@
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
+#include "MapLayerHandler.h"
 #include "spells/CSpellHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "spells/effects/Registry.h"
@@ -198,6 +199,7 @@ void GameLibrary::initializeLibrary()
 #endif
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
+	createHandler(mapLayerHandler);
 
 	modh->load();
 	modh->afterLoad();

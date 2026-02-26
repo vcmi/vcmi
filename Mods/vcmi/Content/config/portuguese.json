@@ -100,7 +100,7 @@
 
 	"vcmi.spellBook.search" : "Procurar...",
 
-	"vcmi.spellResearch.canNotAfford" : "Você não pode se dar ao luxo de substituir {%SPELL1} por {%SPELL2}. Mas você ainda pode descartar este feitiço e continuar a pesquisa de feitiços.",
+	"vcmi.spellResearch.canNotAfford" : "Você não pode se dar ao luxo de substituir {%SPELL1} por {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "A pesquisa já foi realizada hoje. Volte amanhã.",
 	"vcmi.spellResearch.pay" : "Gostaria de substituir {%SPELL1} por {%SPELL2}? Ou descartar este feitiço e continuar a pesquisa de feitiços?",
 	"vcmi.spellResearch.research" : "Pesquisar este Feitiço",

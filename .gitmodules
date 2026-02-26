@@ -13,3 +13,6 @@
 [submodule "dependencies"]
 	path = dependencies
 	url = https://github.com/vcmi/vcmi-dependencies.git
+[submodule "client/lib/discord-presence"]
+	path = client/lib/discord-presence
+	url = https://github.com/EclipseMenu/discord-presence.git

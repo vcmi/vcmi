@@ -36,6 +36,7 @@ class FilledTexturePlayerColored;
 class TransparentFilledRectangle;
 class CMinimapInstance;
 class CLabel;
+class CSlider;
 
 /// text + comp. + ok button
 class CInfoWindow : public WindowBase
@@ -127,17 +128,20 @@ public:
 
 class MinimapWithIcons : public CIntObject
 {
-	std::shared_ptr<TransparentFilledRectangle> backgroundSurface;
-	std::shared_ptr<TransparentFilledRectangle> backgroundUnderground;
+	std::shared_ptr<TransparentFilledRectangle> background1;
+	std::shared_ptr<TransparentFilledRectangle> background2;
 
-	std::shared_ptr<CMinimapInstance> surface;
-	std::shared_ptr<CMinimapInstance> undergroud;
+	std::shared_ptr<CMinimapInstance> map1;
+	std::shared_ptr<CMinimapInstance> map2;
 
 	std::vector<std::shared_ptr<CPicture>> iconsOverlay;
+	std::shared_ptr<CSlider> slider;
 
+	std::vector<std::pair<const int3, const ImagePath>> icons;
 public:
 	MinimapWithIcons(const Point & position);
 
+	void recreate();
 	void addIcon(const int3 & coordinates, const ImagePath & image);
 };
 
@@ -171,4 +175,14 @@ class ObeliskPopup : public AdventureMapPopup
 
 public:
 	ObeliskPopup(const Point & position, const CGObelisk * obelisk);
+};
+
+class SearchPopup : public AdventureMapPopup
+{
+	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
+	std::shared_ptr<MinimapWithIcons> minimap;
+	std::shared_ptr<CLabel> labelTitle;
+
+public:
+	SearchPopup(std::vector<const CGObjectInstance *> objs);
 };

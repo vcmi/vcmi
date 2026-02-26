@@ -37,7 +37,7 @@ namespace Goals
 		}
 
 	private:
-		Goals::TGoalVec decomposeCluster(const Nullkiller * aiNk, std::shared_ptr<ObjectCluster> cluster) const;
+		Goals::TGoalVec decomposeCluster(const Nullkiller * aiNk, const std::shared_ptr<ObjectCluster> & cluster) const;
 	};
 }
 

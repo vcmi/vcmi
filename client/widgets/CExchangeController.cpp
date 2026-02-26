@@ -67,10 +67,12 @@ void CExchangeController::swapArmy()
 	// Move remaining unpaired stacks (if armies size is different)
 	// [A] [ ] => [ ] [A]
 	for(; leftIt != leftSlots.end(); leftIt++)
-		GAME->interface()->cb->swapCreatures(left, right, leftIt->first, leftIt->first);
+		if (!right->hasStackAtSlot(leftIt->first))
+			GAME->interface()->cb->swapCreatures(left, right, leftIt->first, leftIt->first);
 
 	for(; rightIt != rightSlots.end(); rightIt++)
-		GAME->interface()->cb->swapCreatures(left, right, rightIt->first, rightIt->first);
+		if (!left->hasStackAtSlot(rightIt->first))
+			GAME->interface()->cb->swapCreatures(left, right, rightIt->first, rightIt->first);
 }
 
 void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldSlot)

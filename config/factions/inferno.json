@@ -205,7 +205,7 @@
 				},
 				"horde2":         { "upgrades" : "dwellingLvl3" },
 				"horde2Upgr":     { "upgrades" : "dwellingUpLvl3", "requires" : [ "horde2" ] },
-				"grail":          { "type" : "deityOfFire" },
+				"grail":          { "bonuses": [ { "propagator": "GLOBAL_EFFECT", "type": "DEITYOFFIRE", "subtype": "creature.imp", "val": 15 } ] },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },

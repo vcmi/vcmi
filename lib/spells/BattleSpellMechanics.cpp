@@ -264,6 +264,12 @@ bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
 	return true;
 }
 
+bool BattleSpellMechanics::canBeCastAt(const Target & target) const
+{
+	spells::detail::ProblemImpl ignore;
+	return canBeCastAt(target, ignore);
+}
+
 bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
 	if(!canBeCast(problem))
@@ -697,9 +703,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 			Target tmp = current;
 			tmp.emplace_back(stack->getPosition());
 
-			detail::ProblemImpl ignored;
-
-			if(canBeCastAt(tmp, ignored))
+			if(canBeCastAt(tmp))
 				ret.emplace_back(stack->getPosition());
 		}
 
@@ -725,9 +729,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 					Target tmp = current;
 					tmp.emplace_back(hex);
 
-					detail::ProblemImpl ignored;
-
-					if(canBeCastAt(tmp, ignored))
+					if(canBeCastAt(tmp))
 						ret.emplace_back(hex);
 				}
 			}
@@ -742,9 +744,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 					Target tmp = current;
 					tmp.emplace_back(dest);
 
-					detail::ProblemImpl ignored;
-
-					if(canBeCastAt(tmp, ignored))
+					if(canBeCastAt(tmp))
 						ret.emplace_back(dest);
 				}
 			}

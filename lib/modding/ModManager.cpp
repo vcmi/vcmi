@@ -33,9 +33,14 @@ static std::string getModSettingsDirectory(const TModID & modName)
 	return getModDirectory(modName) + "/MODS/";
 }
 
-static JsonPath getModDescriptionFile(const TModID & modName)
+static JsonPath getModDefinitionFile(const TModID & modName)
 {
 	return JsonPath::builtin(getModDirectory(modName) + "/mod");
+}
+
+static TextPath getModDescriptionFile(const TModID & modName)
+{
+	return TextPath::builtin(getModDirectory(modName) + "/description");
 }
 
 ModsState::ModsState()
@@ -69,7 +74,7 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 	// second - add mod.json into checksum because filesystem does not contains this file
 	if (modName != ModScope::scopeBuiltin())
 	{
-		auto modConfFile = getModDescriptionFile(modName);
+		auto modConfFile = getModDefinitionFile(modName);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
 		modChecksum.process_bytes(static_cast<const void *>(&configChecksum), sizeof(configChecksum));
 	}
@@ -440,13 +445,20 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 		if(ModScope::isScopeReserved(modID))
 			continue;
 
-		JsonNode modConfig(getModDescriptionFile(modID));
+		JsonNode modConfig(getModDefinitionFile(modID));
 		modConfig.setModScope(modID);
 
 		if(modConfig["modType"].isNull())
 		{
 			logMod->error("Can not load mod %s - invalid mod config file!", modID);
 			continue;
+		}
+
+		if (CResourceHandler::get()->existsResource(getModDescriptionFile(modID)))
+		{
+			auto data = CResourceHandler::get()->load(getModDescriptionFile(modID))->readAll();
+			std::string modDescriptions(reinterpret_cast<const char *>(data.first.get()), data.second);
+			ModDescription::mergeModDescriptions(modConfig, modDescriptions);
 		}
 
 		mods.try_emplace(modID, modID, modConfig, availableRepositoryMods[modID]);

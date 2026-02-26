@@ -100,6 +100,7 @@ private slots:
 	void on_buttonScalingAuto_toggled(bool checked);
 	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
 	void on_buttonIgnoreMuteSwitch_toggled(bool checked);
+	void on_buttonEnableDiscordRichPresence_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

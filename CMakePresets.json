@@ -63,7 +63,8 @@
             "inherits": "linux-release",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "ENABLE_DISCORD": "OFF"
             }
         },
         {
@@ -72,7 +73,8 @@
             "description": "VCMI Linux Clang with ccache",
             "inherits": "linux-release",
             "cacheVariables": {
-                "ENABLE_CCACHE": "ON"
+                "ENABLE_CCACHE": "ON",
+                "ENABLE_DISCORD": "OFF"
             }
         },
         {
@@ -116,7 +118,8 @@
                 "CMAKE_BUILD_TYPE": "Debug",
                 "ENABLE_LUA" : "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "ENABLE_DISCORD": "OFF"
             }
         },
         {
@@ -126,7 +129,8 @@
             "inherits": "linux-test",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "ENABLE_DISCORD": "OFF"
             }
         },
         {
@@ -481,7 +485,7 @@
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
-            "configuration": "Release",
+            "configuration": "RelWithDebInfo",
             "targets": ["vcmiclient"],
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"

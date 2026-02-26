@@ -51,6 +51,13 @@
 	},
 	"required" : ["name", "basic", "advanced", "expert", "specialty", "gainChance" ],
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"name" : {
 			"type" : "string",
 			"description" : "Mandatory, localizable skill name"

@@ -26,6 +26,14 @@ class CampaignView : public QGraphicsView
 
 public:
 	CampaignView(QWidget * parent);
+
+protected:
+	void dragEnterEvent(QDragEnterEvent *event) override;
+	void dropEvent(QDropEvent *event) override;
+	void dragMoveEvent(QDragMoveEvent *event) override;
+
+signals:
+	void fileDropped(const QString & filename);
 };
 
 class ClickablePixmapItem : public QGraphicsPixmapItem {

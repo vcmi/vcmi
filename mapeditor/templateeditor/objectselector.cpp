@@ -37,6 +37,7 @@ ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	fillBannedObjectCategories();
 	fillBannedObjects();
 	fillCustomObjects();
+	fillRequiredObjects();
 
 	show();
 }
@@ -216,6 +217,92 @@ void ObjectSelector::getBannedObjects()
 	}
 }
 
+void ObjectSelector::fillRequiredObjects()
+{
+	auto reqObjs = obj.getRequiredObjects();
+	
+	ui->tableWidgetRequiredObjects->setColumnCount(4);
+	ui->tableWidgetRequiredObjects->setRowCount(reqObjs.size() + 1);
+	ui->tableWidgetRequiredObjects->setHorizontalHeaderLabels({tr("Object"), tr("Count"), tr("Guard"), tr("Action")});
+
+	auto addRow = [this](CompoundMapObjectID objId, ui16 count, std::optional<ui32> guard, int row){
+		// Column 0: Object selector (QComboBox with searchable dropdown)
+		QComboBox *combo = new QComboBox();
+		for(auto & item : advObjects)
+			combo->addItem(item.second, QVariant::fromValue(item.first));
+
+		int index = combo->findData(QVariant::fromValue(objId));
+		if (index != -1)
+			combo->setCurrentIndex(index);
+		
+		combo->setEditable(true);
+		QCompleter* completer = new QCompleter(combo);
+		completer->setModel(combo->model());
+		completer->setCompletionMode(QCompleter::PopupCompletion);
+		completer->setFilterMode(Qt::MatchContains);
+		combo->setCompleter(completer);
+
+		ui->tableWidgetRequiredObjects->setCellWidget(row, 0, combo);
+
+		// Column 1: Count (QSpinBox, range 1-100)
+		QSpinBox *spinCount = new QSpinBox();
+		spinCount->setRange(1, 100);
+		spinCount->setValue(count);
+		ui->tableWidgetRequiredObjects->setCellWidget(row, 1, spinCount);
+
+		// Column 2: Guard level (QSpinBox, range -1-999999, -1 = no guard)
+		QSpinBox *spinGuard = new QSpinBox();
+		spinGuard->setRange(-1, 999999);
+		spinGuard->setValue(guard.value_or(-1));
+		spinGuard->setSpecialValueText(tr("None")); // Shows "None" when value is -1
+		ui->tableWidgetRequiredObjects->setCellWidget(row, 2, spinGuard);
+
+		// Column 3: Delete button
+		auto deleteButton = new QPushButton(tr("Delete"));
+		ui->tableWidgetRequiredObjects->setCellWidget(row, 3, deleteButton);
+		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
+			for (int r = 0; r < ui->tableWidgetRequiredObjects->rowCount(); ++r) {
+				if (ui->tableWidgetRequiredObjects->cellWidget(r, 3) == deleteButton) {
+					ui->tableWidgetRequiredObjects->removeRow(r);
+					break;
+				}
+			}
+		});
+	};
+
+	int row = 0;
+	for (const auto & [objId, info] : reqObjs)
+		addRow(objId, info.first, info.second, row++);
+
+	// Add "Add" button in last row
+	auto addButton = new QPushButton(tr("Add"));
+	ui->tableWidgetRequiredObjects->setCellWidget(ui->tableWidgetRequiredObjects->rowCount() - 1, 3, addButton);
+	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
+		ui->tableWidgetRequiredObjects->insertRow(ui->tableWidgetRequiredObjects->rowCount() - 1);
+		addRow((*advObjects.begin()).first, 1, std::nullopt, ui->tableWidgetRequiredObjects->rowCount() - 2);
+	});
+
+	ui->tableWidgetRequiredObjects->resizeColumnsToContents();
+	ui->tableWidgetRequiredObjects->setColumnWidth(0, 400);
+}
+
+void ObjectSelector::getRequiredObjects()
+{
+	obj.clearRequiredObjects();
+	for (int row = 0; row < ui->tableWidgetRequiredObjects->rowCount() - 1; ++row)
+	{
+		auto id = static_cast<QComboBox *>(ui->tableWidgetRequiredObjects->cellWidget(row, 0))->currentData().value<CompoundMapObjectID>();
+		auto count = static_cast<QSpinBox *>(ui->tableWidgetRequiredObjects->cellWidget(row, 1))->value();
+		auto guardValue = static_cast<QSpinBox *>(ui->tableWidgetRequiredObjects->cellWidget(row, 2))->value();
+
+		std::optional<ui32> guard = std::nullopt;
+		if (guardValue >= 0)
+			guard = guardValue;
+
+		obj.addRequiredObject(id, count, guard);
+	}
+}
+
 void ObjectSelector::fillCustomObjects()
 {
 	ui->tableWidgetObjects->setColumnCount(5);
@@ -310,11 +397,12 @@ void ObjectSelector::on_buttonBoxResult_accepted()
 	getBannedObjectCategories();
 	getBannedObjects();
 	getCustomObjects();
+	getRequiredObjects();
 
-    close();
+	close();
 }
 
 void ObjectSelector::on_buttonBoxResult_rejected()
 {
-    close();
+	close();
 }

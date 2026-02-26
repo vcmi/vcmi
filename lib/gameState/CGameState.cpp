@@ -25,8 +25,10 @@
 #include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
+#include "../BattleFieldHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
+#include "../bonuses/BonusParameters.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
@@ -66,6 +68,7 @@
 #include "../serializer/CSaveFile.h"
 #include "../spells/CSpellHandler.h"
 #include "UpgradeInfo.h"
+#include "mapObjects/CGPandoraBox.h"
 
 #include <vstd/RNG.h>
 
@@ -285,7 +288,10 @@ void CGameState::updateOnLoad(const StartInfo & si)
 	assert(services);
 	scenarioOps->playerInfos = si.playerInfos;
 	for(auto & i : si.playerInfos)
+	{
 		players.at(i.first).human = i.second.isControlledByHuman();
+		logGlobal->debug("Player %d is controlled by %s, team %d", i.first.getNum(), i.second.isControlledByHuman() ? "human" : "AI", players.at(i.first).team.getNum());
+	}
 	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si.turnTimerInfo;
 	scenarioOps->simturnsInfo = si.simturnsInfo;
@@ -508,6 +514,10 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 			}
 		}
 	}
+
+	for(auto & obj : map->getObjects<CGPandoraBox>())
+		if (!obj->presentOnDifficulties.contains(getStartInfo()->getDifficulty()))
+			map->eraseObject(obj->id);
 }
 
 void CGameState::initOwnedObjects()
@@ -529,6 +539,7 @@ void CGameState::initPlayerStates()
 		p.color=elem.first;
 		p.human = elem.second.isControlledByHuman();
 		p.team = map->players[elem.first.getNum()].team;
+		logGlobal->debug("Player %d is controlled by %s, team %d", elem.first.getNum(), p.human ? "human" : "AI", p.team.getNum());
 		teams[p.team].id = p.team;//init team
 		teams[p.team].players.insert(elem.first);//add player to team
 	}
@@ -669,8 +680,7 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto & fow = elem.second.fogOfWarMap;
-		fow.resize(boost::extents[layers][map->width][map->height]);
-		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
+		fow = MapTilesStorage<uint8_t>(int3(map->width, map->height, layers));
 
 		for(const auto & obj : map->getObjects())
 		{
@@ -681,7 +691,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
+				elem.second.fogOfWarMap[tile] = 1;
 			}
 		}
 	}
@@ -1056,10 +1066,13 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
 	
-	if (t.getTerrain()->battleFields.empty())
+	auto currentLayer = map->mapLayers.at(tile.z);
+	const auto & terrainBattlefields = t.getTerrain()->battleFields;
+
+	if (terrainBattlefields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
+	return BattleFieldHandler::selectRandomBattlefield(terrainBattlefields, currentLayer, randomGenerator);
 }
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
@@ -1099,6 +1112,9 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 	std::vector<const CGObjectInstance*> guards;
 	const int3 originalPos = pos;
 	if (!map->isInTheMap(pos))
+		return guards;
+
+	if (map->guardingCreaturePosition(pos) == int3(-1, -1, -1))
 		return guards;
 
 	const TerrainTile &posTile = map->getTile(pos);
@@ -1153,7 +1169,7 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos];
 }
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
@@ -1411,6 +1427,12 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 	{
 		if(!playerInactive(elem.second.color))
 			tgi.playerColors.push_back(elem.second.color);
+	}
+
+	if (tgi.playerColors.empty())
+	{
+		logGlobal->error("CGameState::obtainPlayersStats: all players are inactive, unable to obtain stats!");
+		return;
 	}
 
 	if(level >= 0) //num of towns & num of heroes

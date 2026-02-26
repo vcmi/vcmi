@@ -15,8 +15,41 @@
 
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
+{
+	std::vector<std::string> sections;
+	boost::algorithm::iter_split(sections, fullDescription, boost::algorithm::first_finder("\n# "));
+
+	for (const auto & section : sections)
+	{
+		size_t endOfFirstLine = section.find('\n', 1);
+		if (endOfFirstLine == std::string::npos)
+			continue;
+
+		std::string firstLine = section.substr(0, endOfFirstLine);
+
+		for (const auto & language : Languages::getLanguageList())
+		{
+			if (firstLine.find(language.identifier) == std::string::npos)
+			   continue;
+
+			bool baseLanguageDescription = language.identifier == "english";
+			if (modConfig.Struct().count("language"))
+				baseLanguageDescription = language.identifier == modConfig["language"].String();
+
+			if (baseLanguageDescription)
+				modConfig["description"].String() = section.substr(endOfFirstLine+1);
+			else
+				modConfig[language.identifier]["description"].String() = section.substr(endOfFirstLine+1);
+
+			break;
+		}
+	}
+}
 
 ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig)
 	: identifier(fullID)
@@ -200,6 +233,7 @@ bool ModDescription::affectsGameplay() const
 		"heroes",
 		"objects",
 		"obstacles",
+		"mapLayers",
 		"rivers",
 		"roads",
 		"settings",

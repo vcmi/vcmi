@@ -367,7 +367,7 @@
 	{
 		"index": 136,
 		"level": 6,
-		"extraNames": [ "enchanters" ],
+		"compatibilityIdentifiers": [ "enchanters" ],
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
 		"shots" : 32,
@@ -457,7 +457,7 @@
 	{
 		"index": 137,
 		"level": 4,
-		"extraNames": [ "sharpshooters" ],
+		"compatibilityIdentifiers": [ "sharpshooters" ],
 		"faction": "neutral",
 		"excludeFromRandomization" : true,
 		"shots" : 32,

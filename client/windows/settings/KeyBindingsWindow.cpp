@@ -15,6 +15,7 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
+#include "../../gui/ShortcutHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/GraphicalPrimitiveCanvas.h"
@@ -39,7 +40,10 @@ KeyBindingsWindow::KeyBindingsWindow()
 	center();
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
-	buttonOk = std::make_shared<CButton>(Point(218, 404), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonOk = std::make_shared<CButton>(Point(218, 404), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){
+		close();
+		ENGINE->shortcuts().reloadShortcuts();
+	}, EShortcut::GLOBAL_ACCEPT);
 	labelTitle = std::make_shared<CLabel>(
 		pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.keyBindings.button.hover").toString()
 	);

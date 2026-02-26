@@ -105,7 +105,7 @@
 	"vcmi.spellBook.tab.hover": "%strollformler",
 	"vcmi.spellBook.tab.help" : "Bläddra till %strollformler",
 
-	"vcmi.spellResearch.canNotAfford": "'{%SPELL2}' forskades fram!\n\nDu har tyvärr inte råd att byta ut '{%SPELL1}' mot den framforskade trollformeln. Om du inte är nöjd med den framforskade trollformeln så kan du alltid forska vidare utan kostnad.",
+	"vcmi.spellResearch.canNotAfford": "'{%SPELL2}' forskades fram!\n\nDu har tyvärr inte råd att byta ut '{%SPELL1}' mot den framforskade trollformeln.",
 	"vcmi.spellResearch.comeAgain"   : "Det går inte att forska mer idag. Kom tillbaka imorgon.",
 	"vcmi.spellResearch.pay"         : "'{%SPELL2}' forskades fram!\n\nVill du verkligen genomföra transaktionen för att byta ut '{%SPELL1}' mot den framforskade trollformeln eller vill du forska vidare utan kostnad?",
 	"vcmi.spellResearch.research"    : "Välj den framforskade trollformeln",

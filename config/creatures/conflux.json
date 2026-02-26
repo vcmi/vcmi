@@ -3,7 +3,7 @@
 	{
 		"index": 118,
 		"level": 1,
-		"extraNames": [ "pixies" ],
+		"compatibilityIdentifiers": [ "pixies" ],
 		"faction": "conflux",
 		"upgrades": ["sprite"],
 		"abilities" :
@@ -63,7 +63,7 @@
 	{
 		"index": 112,
 		"level": 2,
-		"extraNames": [ "airElementals" ],
+		"compatibilityIdentifiers": [ "airElementals" ],
 		"faction": "conflux",
 		"abilities":
 		{
@@ -224,7 +224,7 @@
 	{
 		"index": 115,
 		"level": 3,
-		"extraNames": [ "waterElementals" ],
+		"compatibilityIdentifiers": [ "waterElementals" ],
 		"faction": "conflux",
 		"doubleWide" : true,
 		"abilities":

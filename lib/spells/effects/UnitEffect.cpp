@@ -14,6 +14,8 @@
 #include "../ISpellMechanics.h"
 
 #include "../../bonuses/BonusSelector.h"
+#include "../../bonuses/BonusList.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
@@ -268,9 +270,11 @@ bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) con
 		//ignore all immunities, except specific absolute immunity(VCMI addition)
 
 		//SPELL_IMMUNITY absolute case
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !unit->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
+		const auto & bonuses = unit->getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
+		for (const auto & bonus : *bonuses)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				return false;
+		return true;
 	}
 	else
 	{

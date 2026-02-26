@@ -284,14 +284,20 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 	actingPlayers.insert(which);
 	awaitingPlayers.erase(which);
 
-	auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
-	gameHandler->queries->addQuery(turnQuery);
-
 	PlayerStartsTurn pst;
 	pst.player = which;
-	pst.queryID = turnQuery->queryID;
-	gameHandler->sendAndApply(pst);
 
+	bool timersActive = gameHandler->gameInfo().getStartInfo()->turnTimerInfo.isEnabled();
+	bool isHuman = gameHandler->gameInfo().getPlayerState(which)->isHuman();
+
+	if(timersActive && isHuman)
+	{
+		auto turnQuery = std::make_shared<TimerPauseQuery>(gameHandler, which);
+		gameHandler->queries->addQuery(turnQuery);
+		pst.queryID = turnQuery->queryID;
+	}
+
+	gameHandler->sendAndApply(pst);
 	assert(!actingPlayers.empty());
 }
 
@@ -369,6 +375,9 @@ void TurnOrderProcessor::onGameStarted()
 	{
 		auto towns = gameHandler->gameState().getMap().getObjects<CGTownInstance>();
 		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
+		for (auto hero : heroes)
+			if (auto cmd = hero->getCommander())
+				const_cast<CCommanderInstance*>(cmd)->setAlive(false); // TODO: support commanders in battle mode setup
 		if(!towns.size() && heroes.size() == 2)
 			gameHandler->startBattle(heroes.at(0), heroes.at(1));
 		else

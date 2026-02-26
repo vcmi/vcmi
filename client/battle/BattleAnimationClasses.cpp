@@ -456,14 +456,18 @@ bool MovementEndAnimation::init()
 
 	ENGINE->sound().playSound(stack->unitType()->sounds.endMoving);
 
-	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
+	auto groupID = ECreatureAnimType::MOVE_END;
+	if (stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementTeleporting)) && myAnim->framesInGroup(ECreatureAnimType::TELEPORT_END))
+		groupID = ECreatureAnimType::TELEPORT_END;
+
+	if(!myAnim->framesInGroup(groupID))
 	{
 		delete this;
 		return false;
 	}
 
 
-	myAnim->setType(ECreatureAnimType::MOVE_END);
+	myAnim->setType(groupID);
 	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
@@ -497,13 +501,17 @@ bool MovementStartAnimation::init()
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
 	ENGINE->sound().playSound(stack->unitType()->sounds.startMoving);
 
-	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
+	auto groupID = ECreatureAnimType::MOVE_START;
+	if (stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementTeleporting)) && myAnim->framesInGroup(ECreatureAnimType::TELEPORT_START))
+		groupID = ECreatureAnimType::TELEPORT_START;
+
+	if(!myAnim->framesInGroup(groupID))
 	{
 		delete this;
 		return false;
 	}
 
-	myAnim->setType(ECreatureAnimType::MOVE_START);
+	myAnim->setType(groupID);
 	myAnim->onAnimationReset += [&](){ delete this; };
 	return true;
 }

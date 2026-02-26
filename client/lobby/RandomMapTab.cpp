@@ -274,7 +274,16 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->mapLevels = mapGenOptions->getLevels();
+	mapInfo->mapHeader->mapLayers.clear();
+	for(int i = 0; i < mapGenOptions->getLevels(); i++)
+	{
+		if(i == 0)
+			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			mapInfo->mapHeader->mapLayers.push_back(MapLayerId::UNKNOWN);
+	}
 
 	// Generate player information
 	int playersToGen = mapGenOptions->getMaxPlayersCount();

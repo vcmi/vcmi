@@ -96,6 +96,11 @@ bool StartInfo::restrictedGarrisonsForAI() const
 	return campState && campState->restrictedGarrisonsForAI();
 }
 
+EMapDifficulty StartInfo::getDifficulty() const
+{
+	return static_cast<EMapDifficulty>(difficulty);
+}
+
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)

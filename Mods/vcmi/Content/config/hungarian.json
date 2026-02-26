@@ -85,7 +85,7 @@
 
 	"vcmi.spellBook.search" : "keresés...",
 
-	"vcmi.spellResearch.canNotAfford" : "Nem engedheti meg magának, hogy {%SPELL1}-et lecserélje {%SPELL2}-re. De még mindig elvetheti ezt a varázslatot, és folytathatja a varázskutatást.",
+	"vcmi.spellResearch.canNotAfford" : "Nem engedheti meg magának, hogy {%SPELL1}-et lecserélje {%SPELL2}-re.",
 	"vcmi.spellResearch.comeAgain" : "A mai napra a kutatás már elkészült. Jöjjön vissza holnap.",
 	"vcmi.spellResearch.pay" : "Szeretné lecserélni {%SPELL1}-et {%SPELL2}-re? Vagy elveti ezt a varázslatot, és folytatja a kutatást?",
 	"vcmi.spellResearch.research" : "Ezt a varázslatot kutatja",

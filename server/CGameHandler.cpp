@@ -36,8 +36,10 @@
 #include "../lib/int3.h"
 
 #include "../lib/battle/BattleInfo.h"
+#include "../lib/bonuses/BonusParameters.h"
 #include "../lib/callback/GameRandomizer.h"
 
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/entities/artifact/ArtifactUtils.h"
 #include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/artifact/CArtifactFittingSet.h"
@@ -163,7 +165,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelupSkillCandidates(*randomizer);
+	hlu.skills = randomizer->rollSecondarySkills(hero);
 
 	if (hlu.skills.size() == 0)
 	{
@@ -178,9 +180,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	else if (hlu.skills.size() > 1)
 	{
 		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
-		hlu.queryID = levelUpQuery->queryID;
 		queries->addQuery(levelUpQuery);
-		sendAndApply(hlu);
 		//level up will be called on query reply
 	}
 }
@@ -198,7 +198,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		return;
 	}
 
-	scp.accumulatedBonus.additionalInfo = 0;
+	scp.accumulatedBonus.parameters = 0;
 	scp.accumulatedBonus.duration = BonusDuration::PERMANENT;
 	scp.accumulatedBonus.turnsRemain = 0;
 	scp.accumulatedBonus.source = BonusSource::COMMANDER;
@@ -322,9 +322,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	else if (skillAmount > 1) //apply and ask for secondary skill
 	{
 		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
-		clu.queryID = commanderLevelUp->queryID;
 		queries->addQuery(commanderLevelUp);
-		sendAndApply(clu);
 	}
 }
 
@@ -633,7 +631,28 @@ void CGameHandler::onPlayerTurnStarted(PlayerColor which)
 
 void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 {
+	turnTimerHandler->onEndTurn(which);
 	newTurnProcessor->onPlayerTurnEnded(which);
+}
+
+void CGameHandler::onAdvInterfaceReady(PlayerColor player)
+{
+	if(uiReadyForDialogs.count(player))
+		return;
+
+	uiReadyForDialogs.insert(player);
+
+	logGlobal->trace("AdvInterfaceReady received for player %s", player);
+
+	// Kick top query for this player: if it's a dialog query waiting for UI, it should prompt now.
+	auto top = queries->topQuery(player);
+	if(!top)
+		return;
+
+	// We only want dialog queries to try prompting here.
+	// They should override onExposure() to "prompt when uiReadyForDialogs is true" (next step),
+	// so triggering exposure is enough.
+	top->onExposure(top);
 }
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
@@ -677,9 +696,9 @@ void CGameHandler::onNewTurn()
 
 	const auto & currentDaySelector = [day = gameState().day+1](const Bonus * bonus)
 	{
-		if (bonus->additionalInfo[0] <= 0)
+		if (!bonus->parameters)
 			return true;
-		if ((day % bonus->additionalInfo[0]) == 0)
+		if ((day % bonus->parameters->toNumber()) == 0)
 			return true;
 		return false;
 	};
@@ -1005,7 +1024,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		gameInfo().getPlayerState(h->getOwner())->human &&
 	   (guardian || objectToVisit) &&
 	   movementMode == EMovementMode::STANDARD)
-		save("Saves/BeforeVisitSave");
+		save("Saves/BeforeVisitSave", PlayerColor::CANNOT_DETERMINE);
 
 	if (!transit && embarking)
 	{
@@ -1614,13 +1633,22 @@ bool CGameHandler::responseStatistic(PlayerColor player)
 	return true;
 }
 
-void CGameHandler::save(const std::string & filename)
+void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess)
 {
 	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
 	CResourceHandler::get("local")->createResource(savefname);
+
+	std::string filenameWithoutPath;
+	auto pos = filename.find_last_of("/\\");
+	if (pos != std::string::npos)
+		filenameWithoutPath = filename.substr(pos + 1);
+	else
+		filenameWithoutPath = filename;
+	InfoWindow iw;
+	iw.player = playerToNotifyOnSuccess;
 
 	try
 	{
@@ -1629,12 +1657,25 @@ void CGameHandler::save(const std::string & filename)
 		logGlobal->info("Saving server state");
 		save.save(*this);
 		save.write(*CResourceHandler::get("local")->getResourceName(savePath));
+
+		if(playerToNotifyOnSuccess.isValidPlayer())
+		{
+			iw.text = MetaString::createFromTextID("core.genrltxt.350");
+			iw.text.replaceRawString(filenameWithoutPath);
+			sendAndApply(iw);
+		}
+		logGlobal->info("Game has been successfully saved!");
 	}
 	catch(std::exception &e)
 	{
+		if(playerToNotifyOnSuccess.isValidPlayer())
+		{
+			iw.text = MetaString::createFromTextID("core.genrltxt.9");
+			iw.text.replaceRawString(filenameWithoutPath);
+			sendAndApply(iw);
+		}
 		logGlobal->error("Failed to save game: %s", e.what());
 	}
-	logGlobal->info("Game has been successfully saved!");
 }
 
 void CGameHandler::load(const StartInfo &info)
@@ -2316,34 +2357,33 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 	if(researchLimitExceeded && complain("Already researched today!"))
 		return false;
 
-	if(!accepted)
-	{
-		auto it = spells.begin() + t->spellsAtLevel(level, false);
-		std::rotate(it, it + 1, spells.end()); // move to end
-		setResearchedSpells(t, level, spells, accepted);
-		return true;
-	}
-
 	ResourceSet costBase;
 	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
-	auto costExponent = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
-	auto cost = costBase * std::pow(t->spellResearchAcceptedCounter + 1, costExponent);
+	double pastResearchesCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
+	double pastRerollsCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
+	double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, t->spellResearchAcceptedCounter);
+	double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, t->spellResearchPendingRerollsCounters[level]);
+	ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 	if(!gameInfo().getPlayerState(t->getOwner())->resources.canAfford(cost) && complain("Spell replacement cannot be afforded!"))
 		return false;
 
 	giveResources(t->getOwner(), -cost);
 
-	std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+	if(accepted)
+		std::swap(spells.at(t->spellsAtLevel(level, false)), spells.at(vstd::find_pos(spells, spellAtSlot)));
+
 	auto it = spells.begin() + t->spellsAtLevel(level, false);
 	std::rotate(it, it + 1, spells.end()); // move to end
-
 	setResearchedSpells(t, level, spells, accepted);
 
-	if(t->getVisitingHero())
-		giveSpells(t, t->getVisitingHero());
-	if(t->getGarrisonHero())
-		giveSpells(t, t->getGarrisonHero());
+	if(accepted)
+	{
+		if(t->getVisitingHero())
+			giveSpells(t, t->getVisitingHero());
+		if(t->getGarrisonHero())
+			giveSpells(t, t->getGarrisonHero());
+	}
 
 	return true;
 }
@@ -3277,6 +3317,20 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, Pla
 	return true;
 }
 
+void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColor playerReceiver, const ResourceSet & resources)
+{
+	InfoWindow iw;
+	iw.player = playerReceiver;
+	iw.text = MetaString::createFromTextID("core.genrltxt.358");
+	iw.text.replaceName(player);
+	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	{
+		if(it->resVal > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+	}
+	sendAndApply(iw);
+}
+
 bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 {
 	const CGHeroInstance *h = gameInfo().getHero(hid);
@@ -3290,6 +3344,23 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 	cf.hid = hid;
 	cf.formation = formation;
 	sendAndApply(cf);
+
+	return true;
+}
+
+bool CGameHandler::setTactics(ObjectInstanceID hid, bool enabled)
+{
+	const CGHeroInstance *h = gameInfo().getHero(hid);
+	if (!h)
+	{
+		logGlobal->error("Hero doesn't exist!");
+		return false;
+	}
+
+	ChangeTactics ct;
+	ct.hid = hid;
+	ct.enabled = enabled;
+	sendAndApply(ct);
 
 	return true;
 }
@@ -3664,6 +3735,16 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 			checkVictoryLossConditions(playerColors);
+
+			bool hasAlivePlayers = false;
+			for (auto pc : playerColors)
+				if (gameInfo().getPlayerState(pc)->status == EPlayerStatus::INGAME)
+					hasAlivePlayers = true;
+
+			// everyone lost (e.g. time runs out)
+			if (!hasAlivePlayers)
+				gameServer().setState(EServerState::SHUTDOWN);
+
 			// give turn to next player(s)
 			// FIXME: this may cause multiple calls to resumeTurnOrder if multiple players lose in chain reaction
 			if(gameServer().getState() != EServerState::SHUTDOWN)
@@ -4348,9 +4429,8 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	auto cre = std::dynamic_pointer_cast<CGCreature>(createdObject);
 	assert(cre);
 	cre->notGrowingTeam = cre->neverFlees = false;
-	cre->character = 2;
+	cre->initialCharacter = CGCreature::Character::AGGRESSIVE;
 	cre->gainedArtifact = ArtifactID::NONE;
-	cre->identifier = -1;
 	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
 	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameInfo(), creature, unitSize));
 

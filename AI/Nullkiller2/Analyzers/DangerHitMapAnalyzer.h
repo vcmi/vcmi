@@ -34,7 +34,9 @@ struct HitMapInfo
 
 struct HitMapNode
 {
+	// threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0); danger = path.getHeroStrength()
 	HitMapInfo maximumDanger = HitMapInfo::NoThreat;
+	// threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0); danger = path.getHeroStrength()
 	HitMapInfo fastestDanger = HitMapInfo::NoThreat;
 	const CGTownInstance * closestTown = nullptr;
 

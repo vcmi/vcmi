@@ -409,7 +409,8 @@
 			}
 		},
 		"flags" : {
-			"indifferent": true
+			"indifferent": true,
+			"persistent" : true
 		}
 	},
 	"acidBreathDamage" : {

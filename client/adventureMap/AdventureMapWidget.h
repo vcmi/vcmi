@@ -59,6 +59,8 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 	void updateActiveStateChildren(CIntObject * widget);
+
+	void updateMapLayerButtonsHelp();
 public:
 	explicit AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts );
 

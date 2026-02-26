@@ -71,7 +71,7 @@ public:
 	static const BonusCustomSubtype soulStealPermanent; // 0
 	static const BonusCustomSubtype soulStealBattle; // 1
 
-	static const BonusCustomSubtype movementFlying; // 0
+	static const BonusCustomSubtype movementFlying; // -1
 	static const BonusCustomSubtype movementTeleporting; // 1
 
 	static BonusCustomSubtype spellLevel(int level);

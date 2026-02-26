@@ -9,6 +9,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build (${{ matrix.platform }})
@@ -45,7 +49,7 @@ jobs:
             os: macos-14
             pack: 1
             upload: 1
-            pack_type: Release
+            pack_type: RelWithDebInfo
             extension: ipa
             before_install: macos.sh
             preset: ios-release-conan-ccache
@@ -152,7 +156,38 @@ jobs:
 
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+      run: source '${{ github.workspace }}/CI/before_install/${{ matrix.before_install }}'
+
+    - name: Configure codesigning for macOS
+      if: ${{ startsWith(matrix.platform, 'mac-') }}
+      env: 
+        KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        SIGNING_CERTIFICATE_BASE64: ${{ secrets.MACOS_SIGNING_CERTIFICATE_BASE64 }}
+        SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_SIGNING_CERTIFICATE_PASSWORD }}
+      run: |
+        if [[ -z "$KEYCHAIN_PASSWORD" || -z "$SIGNING_CERTIFICATE_BASE64" || -z "$SIGNING_CERTIFICATE_PASSWORD" ]]; then
+          echo "skip codesigning"
+          exit 0
+        fi
+
+        keychainName=build.keychain
+        security create-keychain -p "$KEYCHAIN_PASSWORD" "$keychainName"
+        security default-keychain -s "$keychainName"
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$keychainName"
+        security set-keychain-settings -u -t 7200 "$keychainName"
+
+        certPath="$RUNNER_TEMP/cert.p12"
+        printf "$SIGNING_CERTIFICATE_BASE64" | base64 -D -o "$certPath"
+
+        security import "$certPath" -f pkcs12 -P "$SIGNING_CERTIFICATE_PASSWORD" -T "$(which codesign)" -k "$keychainName"
+        security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$keychainName" >/dev/null
+
+        # fetch SHA-1 of the p12 cert. Sample output for awk processing:
+        # SHA1 Fingerprint=00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33
+        signingIdentitySHA=$(openssl pkcs12 -in "$certPath" -nodes -passin "pass:$SIGNING_CERTIFICATE_PASSWORD" 2>/dev/null \
+          | openssl x509 -noout -fingerprint -sha1 \
+          | awk -F = '{ gsub(/:/, "", $2); print $2 }')
+        echo MACOS_CODE_SIGN_IDENTITY=$signingIdentitySHA >> $GITHUB_ENV
 
     # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
@@ -316,6 +351,28 @@ jobs:
         cpack -C ${{matrix.pack_type}}
       shell: pwsh
 
+    - name: Notarize macOS dmg
+      if: ${{ startsWith(matrix.platform, 'mac-') }}
+      env: 
+        NOTARIZATION_APPLE_ID: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID }}
+        NOTARIZATION_APPLE_ID_PASSWORD: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID_PASSWORD }}
+        NOTARIZATION_TEAM_ID: ${{ secrets.MACOS_NOTARIZATION_TEAM_ID }}
+      run: |
+        if [[ -z "$NOTARIZATION_APPLE_ID" || -z "$NOTARIZATION_APPLE_ID_PASSWORD" || -z "$NOTARIZATION_TEAM_ID" ]]; then
+          echo "skip notarization"
+          exit 0
+        fi
+
+        dmg='${{ github.workspace }}/out/build/${{ matrix.preset }}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}'
+        codesign --verbose=4 --force --sign "$MACOS_CODE_SIGN_IDENTITY" "$dmg"
+        xcrun notarytool submit \
+          --apple-id "$NOTARIZATION_APPLE_ID" \
+          --password "$NOTARIZATION_APPLE_ID_PASSWORD" \
+          --team-id "$NOTARIZATION_TEAM_ID" \
+          --wait \
+          "$dmg"
+        xcrun stapler staple "$dmg"
+
     - name: Find Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
@@ -342,7 +399,7 @@ jobs:
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
-    - name: Upload debug symbols
+    - name: Upload MSVC debug symbols
       id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v6
@@ -351,6 +408,23 @@ jobs:
         compression-level: 9
         path: |
             ${{github.workspace}}/**/*.pdb
+
+    - name: Create iOS AppStore debug symbols
+      if: ${{ matrix.platform == 'ios' }}
+      run: |
+        IOS_APPSTORE_SYMBOLS_DIR='${{ github.workspace }}/Symbols'
+        mkdir "$IOS_APPSTORE_SYMBOLS_DIR"
+        dsyms=$(find '${{ github.workspace }}/out/build/${{ matrix.preset }}' -name '*.dSYM')
+        xcrun symbols -arch all -symbolsPackageDir "$IOS_APPSTORE_SYMBOLS_DIR" $dsyms
+        echo IOS_APPSTORE_SYMBOLS_DIR="$IOS_APPSTORE_SYMBOLS_DIR" >> $GITHUB_ENV
+    - name: Upload iOS AppStore debug symbols
+      if: ${{ matrix.platform == 'ios' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols
+        compression-level: 9
+        path: |
+            ${{ env.IOS_APPSTORE_SYMBOLS_DIR }}
 
     - name: Upload build to download.vcmi.eu
       if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
@@ -427,10 +501,7 @@ jobs:
             path: .summary/source.json
 
   test:
-    continue-on-error: true
     name: Test (${{ matrix.platform }})
-    env:
-      HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
@@ -489,7 +560,7 @@ jobs:
           ${{ matrix.platform }}-apt-${{ matrix.os }}
 
     - name: Prepare CI
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+      run: source '${{ github.workspace }}/CI/before_install/${{ matrix.before_install }}'
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
@@ -522,18 +593,11 @@ jobs:
         verbose: 2
 
     - name: Prepare Heroes 3 data
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
       run: |
-        if [[ ${{github.repository_owner}} == vcmi ]]
-        then
-            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        else
-            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        fi
-        wget --progress=dot:giga "$data_url" -O h3_assets.zip
-        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
+        data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v2.0/heroes3.7z"
+        wget --progress=dot:giga "$data_url" -O heroes3.7z
         mkdir -p ~/.local/share/vcmi/
-        mv h3_assets/* ~/.local/share/vcmi/
+        7za x -o"$HOME/.local/share/vcmi/" heroes3.7z
 
     - name: Configure
       run: |
@@ -544,9 +608,20 @@ jobs:
         cmake --build --preset ${{matrix.preset}}
 
     - name: Test
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
       run: |
         ctest --preset ${{matrix.preset}}
+
+    - name: Validate library startup
+      run: |
+        cd "${{github.workspace}}/out/build/${{matrix.preset}}/bin"
+        ./vcmiserver --dummy-run 2> >(tee error.log)
+        if [ ! -s error.log ]; then
+            echo "Validation OK!"
+            exit 0
+        else
+            echo "Validation failed!"
+            exit 1
+        fi
 
   windows-installer:
     needs: build

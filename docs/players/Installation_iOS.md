@@ -4,6 +4,8 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 
 ## Step 1: Download and install VCMI
 
+We're on the road to publish VCMI on the AppStore and we have TestFlight now! Please join via [this link](https://testflight.apple.com/join/pJWHSbmu)
+
 The easiest and recommended way to install on a non-jailbroken device is to install the [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/). We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
 
 a) Install AltStore
@@ -38,7 +40,7 @@ gog.com download page:
 
 e) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
 
-f) First, select the **.bin** file, then select the **.exe** file.
+f) First, select the **.exe** file, then select the **.bin** file.
 
 ![image](https://github.com/user-attachments/assets/9a02a76f-bb2e-45ad-b2fe-ffd97112021f)
 
@@ -46,7 +48,7 @@ g) The process may take a few seconds. Please be patient.
 
 ## Step 3: Configuration settings
 
-e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
+h) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
 - Set **Reserved Screen Area** to **0%**.
 - Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" iPad Air).
@@ -79,7 +81,7 @@ Alternatively, use Xcode or Apple Configurator (available for free on the Mac Ap
 
 ## Alternative Step 2: Installing Heroes III Data Files
 
-**Note:** To save space and time, you can skip downloading the `VIDEO.VID` file from the **Data** folder if you don’t need in-game videos. You can also skip the **Mp3** directory.
+**Note:** To save space and time, you can skip downloading the `VIDEO.VID` file from the **Data** folder if you don’t need in-game videos. You may also skip the **Mp3** directory if you don't need music.
 
 ### Step 2.a: Using Finder or Windows Explorer
 
@@ -98,6 +100,8 @@ If the data files are on your iOS device (e.g., in a shared folder), copy them d
 
 1. Place the **Data**, **Maps**, and **Mp3** folders into the VCMI application folder.
 2. The VCMI app folder will appear alongside other app folders in the **Files** app.
+
+**NB**: if you're going to transfer the files via Google Drive, be aware that Google Drive iOS app changes extension of `.snd` files to `.au`! Therefore after downloading the files you must change `.au` extension back to `.snd` on the respective files.
 
 ### Step 2.c: Installing data files with Xcode on macOS
 

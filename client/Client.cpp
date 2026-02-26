@@ -271,6 +271,13 @@ void CClient::initPlayerInterfaces()
 				logNetwork->info("Player %s will be lead by human", color.toString());
 				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
+
+			if(!advInterfaceReadySent.contains(color))
+			{
+				advInterfaceReadySent.insert(color);
+				AdvInterfaceReady air;
+				sendRequest(air, color, /* waitTillRealize = */ false);
+			}
 		}
 	}
 

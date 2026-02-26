@@ -27,6 +27,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/callback/EditorCallback.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
@@ -61,7 +62,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->interface()->cb->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename, false);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -218,6 +219,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleTranslateMapsCommand()
@@ -238,8 +240,9 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		try
 		{
+			EditorCallback cb(nullptr);
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, GAME->interface()->cb.get()));
+			loadedMaps.push_back(mapService.loadMap(mapName, &cb));
 		}
 		catch(std::exception & e)
 		{
@@ -260,7 +263,10 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, GAME->interface()->cb.get());
+			{
+				EditorCallback cb(nullptr);
+				loadedCampaigns.back()->getMap(part, &cb);
+			}
 		}
 		catch(std::exception & e)
 		{
@@ -296,6 +302,8 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+
 }
 
 void ClientCommandManager::handleGetConfigCommand()

@@ -87,7 +87,7 @@
 
 	"vcmi.spellBook.search" : "cerca...",
 
-	"vcmi.spellResearch.canNotAfford" : "Non puoi permetterti di sostituire {%SPELL1} con {%SPELL2}. Ma puoi comunque scartare questo incantesimo e continuare la ricerca.",
+	"vcmi.spellResearch.canNotAfford" : "Non puoi permetterti di sostituire {%SPELL1} con {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "La ricerca è già stata fatta oggi. Torna domani.",
 	"vcmi.spellResearch.pay" : "Vuoi sostituire {%SPELL1} con {%SPELL2}? Oppure scartare questo incantesimo e continuare la ricerca?",
 	"vcmi.spellResearch.research" : "Ricerca questo Incantesimo",

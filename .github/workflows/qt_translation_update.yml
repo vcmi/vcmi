@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Qt tools (lupdate)
         run: |
-          sudo apt install -y --no-install-recommends qttools5-dev-tools
+          sudo apt-get update && sudo apt install -y --no-install-recommends qttools5-dev-tools
 
       - name: Update TS files (Launcher)
         working-directory: launcher

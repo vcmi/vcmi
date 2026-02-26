@@ -28,6 +28,7 @@
 
 #include "MapFormatH3M.h"
 #include "MapFormatJson.h"
+#include "../callback/EditorCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -38,22 +39,34 @@ std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameInfoC
 	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream, name.getName(), modName, encoding)->loadMap(cb);
+	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
+	// If JSON loader, let it know whether this is editor callback
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		jsonLoader->setRunningInMapEditor(dynamic_cast<EditorCallback*>(cb) != nullptr);
+
+	return loader->loadMap(cb);
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name) const
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name, bool isEditor) const
 {
 	std::string modName = LIBRARY->modh->findResourceOrigin(name);
 	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
 
 	auto stream = getStreamFromFS(name);
-	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
+	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
+	// default: not editor; callers may pass explicit overload if needed
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		jsonLoader->setRunningInMapEditor(false);
+	return loader->loadMapHeader();
 }
 
 std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const
 {
 	auto stream = getStreamFromMem(buffer, size);
-	std::unique_ptr<CMap> map(getMapLoader(stream, name, modName, encoding)->loadMap(cb));
+	auto loader = getMapLoader(stream, name, modName, encoding);
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		jsonLoader->setRunningInMapEditor(dynamic_cast<EditorCallback*>(cb) != nullptr);
+	std::unique_ptr<CMap> map(loader->loadMap(cb));
 	std::unique_ptr<CMapHeader> header(map.get());
 
 	//might be original campaign and require patch
@@ -66,7 +79,10 @@ std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, con
 std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const
 {
 	auto stream = getStreamFromMem(buffer, size);
-	std::unique_ptr<CMapHeader> header = getMapLoader(stream, name, modName, encoding)->loadMapHeader();
+	auto loader = getMapLoader(stream, name, modName, encoding);
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		jsonLoader->setRunningInMapEditor(false);
+	std::unique_ptr<CMapHeader> header = loader->loadMapHeader();
 
 	//might be original campaign and require patch
 	getMapPatcher(name)->patchMapHeader(header);
@@ -141,7 +157,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	case 0x06054b50:
 	case 0x04034b50:
 	case 0x02014b50:
-		return std::unique_ptr<IMapLoader>(new CMapLoaderJson(stream.get()));
+		return std::unique_ptr<IMapLoader>(new CMapLoaderJson(stream.get(), mapName));
 		break;
 	default:
 		// Check which map format is used

@@ -54,7 +54,7 @@
     <name>CampaignEditor</name>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="140"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="159"/>
         <source>VCMI Campaign Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI Kampanya Editörü</translation>
@@ -141,91 +141,105 @@
         <translation type="unfinished">Tam arka planı göster</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="105"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="124"/>
         <source>Scenario editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Senaryo editörü</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="147"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Onay</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="128"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="147"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaydedilmemiş değişiklikler kaybolacak, emin misiniz?</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>Fewer Scenarios than regions</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Bölgelerden daha az senaryo</translation>
+        <translation type="obsolete">Bölgelerden daha az senaryo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="184"/>
         <source>You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Bölgelerden daha az senaryonuz var. Bu, yalnızca eksik senaryolar son bölgelerdeyse (ortada veya başta değilse) izin verilir.</translation>
+        <translation type="obsolete">Bölgelerden daha az senaryonuz var. Bu, yalnızca eksik senaryolar son bölgelerdeyse (ortada veya başta değilse) izin verilir.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="214"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
+        <source>Failed to open campaign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
+        <source>Validation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
+        <source>Campaign has no maps defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritayı aç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="216"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="253"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tüm desteklenen kampanyalar (*.vcmp *.h3c);;VCMI kampanyaları (*.vcmp);;HoMM3 kampanyaları (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open Campaign set</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanya setini aç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="259"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Select Campaign set</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanya setini seç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Open Campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanyayı aç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="271"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Select Campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanyayı seç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
         <source>Save campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanyayı kaydet</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="287"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI kampanyaları (*.vcmp)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="373"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="423"/>
         <source>Mods are required</source>
         <translation>Modlar gerekli</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="381"/>
-        <location filename="../campaigneditor/campaigneditor.cpp" line="386"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="431"/>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="436"/>
         <source>Failed to open map</source>
         <translation>Harita açılamadı</translation>
     </message>
@@ -749,7 +763,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="407"/>
+        <location filename="../mainwindow.cpp" line="415"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI harita düzenleyicisi</translation>
     </message>
@@ -761,7 +775,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1040"/>
+        <location filename="../mainwindow.ui" line="1041"/>
         <source>Open Recent</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Son açılanlar</translation>
@@ -773,814 +787,824 @@
         <translation type="unfinished">Harita</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="93"/>
+        <location filename="../mainwindow.ui" line="94"/>
         <source>Edit</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Düzenle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="106"/>
+        <location filename="../mainwindow.ui" line="107"/>
         <source>View</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Görünüm</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="118"/>
+        <location filename="../mainwindow.ui" line="119"/>
         <source>Player</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="138"/>
+        <location filename="../mainwindow.ui" line="139"/>
         <source>Toolbar</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Araç çubuğu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="199"/>
+        <location filename="../mainwindow.ui" line="200"/>
         <source>Minimap</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Mini harita</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="272"/>
+        <location filename="../mainwindow.ui" line="273"/>
         <source>Map Objects View</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita Nesne Görünümü</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="316"/>
+        <location filename="../mainwindow.ui" line="317"/>
         <source>Browser</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tarayıcı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="394"/>
+        <location filename="../mainwindow.ui" line="395"/>
         <source>Inspector</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İnceleyici</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="436"/>
+        <location filename="../mainwindow.ui" line="437"/>
         <source>Property</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Özellik</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="441"/>
+        <location filename="../mainwindow.ui" line="442"/>
         <source>Value</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Değer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="465"/>
+        <location filename="../mainwindow.ui" line="466"/>
         <source>Tools</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Araçlar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="829"/>
+        <location filename="../mainwindow.ui" line="830"/>
         <source>Painting</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Boya</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="881"/>
+        <location filename="../mainwindow.ui" line="882"/>
         <source>Terrains</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Araziler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="924"/>
+        <location filename="../mainwindow.ui" line="925"/>
         <source>Roads</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yollar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="964"/>
+        <location filename="../mainwindow.ui" line="965"/>
         <source>Rivers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nehirler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="998"/>
+        <location filename="../mainwindow.ui" line="999"/>
         <source>Preview</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Önizleme</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1032"/>
+        <location filename="../mainwindow.ui" line="1033"/>
         <source>Open</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Aç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1035"/>
+        <location filename="../mainwindow.ui" line="1036"/>
         <source>Ctrl+O</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1045"/>
+        <location filename="../mainwindow.ui" line="1046"/>
         <source>More...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Daha fazla...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1053"/>
+        <location filename="../mainwindow.ui" line="1054"/>
         <source>Save</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaydet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1056"/>
+        <location filename="../mainwindow.ui" line="1057"/>
         <source>Ctrl+S</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1061"/>
+        <location filename="../mainwindow.ui" line="1062"/>
         <source>New</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yeni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1064"/>
+        <location filename="../mainwindow.ui" line="1065"/>
         <source>Ctrl+N</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1069"/>
+        <location filename="../mainwindow.ui" line="1070"/>
         <source>Save as...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Farklı kaydet...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.ui" line="1073"/>
         <source>Ctrl+Shift+S</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1077"/>
-        <location filename="../mainwindow.ui" line="1080"/>
+        <location filename="../mainwindow.ui" line="1078"/>
+        <location filename="../mainwindow.ui" line="1081"/>
         <source>Campaign editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kampanya editörü</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1085"/>
-        <location filename="../mainwindow.ui" line="1088"/>
+        <location filename="../mainwindow.ui" line="1086"/>
+        <location filename="../mainwindow.ui" line="1089"/>
         <source>Template editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Şablon düzenleyici</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1093"/>
-        <location filename="../mainwindow.ui" line="1096"/>
+        <location filename="../mainwindow.ui" line="1097"/>
+        <location filename="../mainwindow.ui" line="1100"/>
         <source>View underground</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yeraltını göster</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1099"/>
+        <location filename="../mainwindow.ui" line="1103"/>
         <source>Ctrl+U</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1107"/>
+        <location filename="../mainwindow.ui" line="1111"/>
         <source>Pass</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Geçiş</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1110"/>
+        <location filename="../mainwindow.ui" line="1114"/>
         <source>Ctrl+Shift+P</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1115"/>
+        <location filename="../mainwindow.ui" line="1119"/>
         <source>Cut</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1118"/>
+        <location filename="../mainwindow.ui" line="1122"/>
         <source>Ctrl+X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1123"/>
+        <location filename="../mainwindow.ui" line="1127"/>
         <source>Copy</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kopyala</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1126"/>
+        <location filename="../mainwindow.ui" line="1130"/>
         <source>Ctrl+C</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1131"/>
+        <location filename="../mainwindow.ui" line="1135"/>
         <source>Paste</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yapıştır</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1134"/>
+        <location filename="../mainwindow.ui" line="1138"/>
         <source>Ctrl+V</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1139"/>
+        <location filename="../mainwindow.ui" line="1143"/>
         <source>Fill</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Doldur</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1142"/>
+        <location filename="../mainwindow.ui" line="1146"/>
         <source>Fills the selection with obstacles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Seçimi engellerle doldurur</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1153"/>
+        <location filename="../mainwindow.ui" line="1157"/>
         <source>Grid</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Izgara</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1156"/>
+        <location filename="../mainwindow.ui" line="1160"/>
         <source>Ctrl+G</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1164"/>
+        <location filename="../mainwindow.ui" line="1168"/>
         <source>General</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Genel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1167"/>
+        <location filename="../mainwindow.ui" line="1171"/>
         <source>Map title and description</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita başlığı ve açıklaması</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1170"/>
+        <location filename="../mainwindow.ui" line="1174"/>
         <source>Ctrl+Enter</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1178"/>
+        <location filename="../mainwindow.ui" line="1182"/>
         <source>Players settings</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu ayarları</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1181"/>
+        <location filename="../mainwindow.ui" line="1185"/>
         <source>Ctrl+P</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1189"/>
-        <location filename="../mainwindow.ui" line="1192"/>
+        <location filename="../mainwindow.ui" line="1193"/>
+        <location filename="../mainwindow.ui" line="1196"/>
         <source>Undo</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Geri al</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1195"/>
+        <location filename="../mainwindow.ui" line="1199"/>
         <source>Ctrl+Z</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1206"/>
+        <location filename="../mainwindow.ui" line="1210"/>
         <source>Redo</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yinele</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1209"/>
+        <location filename="../mainwindow.ui" line="1213"/>
         <source>Ctrl+Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1220"/>
+        <location filename="../mainwindow.ui" line="1224"/>
         <source>Erase</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sil</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1223"/>
+        <location filename="../mainwindow.ui" line="1227"/>
         <source>Del</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Del</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1231"/>
+        <location filename="../mainwindow.ui" line="1235"/>
         <source>Neutral</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tarafsız</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1234"/>
+        <location filename="../mainwindow.ui" line="1238"/>
         <source>Ctrl+0</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1239"/>
+        <location filename="../mainwindow.ui" line="1243"/>
         <source>Validate</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Doğrula</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1242"/>
+        <location filename="../mainwindow.ui" line="1246"/>
         <source>Ctrl+Shift+V</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1312"/>
-        <location filename="../mainwindow.cpp" line="1316"/>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.ui" line="1254"/>
+        <location filename="../mainwindow.cpp" line="1413"/>
+        <source>Select map layer type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1265"/>
+        <location filename="../mainwindow.cpp" line="1322"/>
+        <location filename="../mainwindow.cpp" line="1326"/>
+        <location filename="../mainwindow.cpp" line="1384"/>
         <source>Update appearance</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Görünümü güncelle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1261"/>
+        <location filename="../mainwindow.ui" line="1276"/>
         <source>Recreate obstacles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Engelleri yeniden oluştur</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1272"/>
+        <location filename="../mainwindow.ui" line="1287"/>
         <source>Player 1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1275"/>
+        <location filename="../mainwindow.ui" line="1290"/>
         <source>Ctrl+1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1283"/>
+        <location filename="../mainwindow.ui" line="1298"/>
         <source>Player 2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1286"/>
+        <location filename="../mainwindow.ui" line="1301"/>
         <source>Ctrl+2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1294"/>
+        <location filename="../mainwindow.ui" line="1309"/>
         <source>Player 3</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1297"/>
+        <location filename="../mainwindow.ui" line="1312"/>
         <source>Ctrl+3</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1305"/>
+        <location filename="../mainwindow.ui" line="1320"/>
         <source>Player 4</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1308"/>
+        <location filename="../mainwindow.ui" line="1323"/>
         <source>Ctrl+4</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1316"/>
+        <location filename="../mainwindow.ui" line="1331"/>
         <source>Player 5</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1319"/>
+        <location filename="../mainwindow.ui" line="1334"/>
         <source>Ctrl+5</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1327"/>
+        <location filename="../mainwindow.ui" line="1342"/>
         <source>Player 6</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1330"/>
+        <location filename="../mainwindow.ui" line="1345"/>
         <source>Ctrl+6</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1338"/>
+        <location filename="../mainwindow.ui" line="1353"/>
         <source>Player 7</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1341"/>
+        <location filename="../mainwindow.ui" line="1356"/>
         <source>Ctrl+7</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1349"/>
+        <location filename="../mainwindow.ui" line="1364"/>
         <source>Player 8</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1352"/>
+        <location filename="../mainwindow.ui" line="1367"/>
         <source>Ctrl+8</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1357"/>
+        <location filename="../mainwindow.ui" line="1372"/>
         <source>Export as...</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dışa aktar...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1360"/>
+        <location filename="../mainwindow.ui" line="1375"/>
         <source>Ctrl+E</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1368"/>
+        <location filename="../mainwindow.ui" line="1383"/>
         <source>Translations</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çeviriler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1371"/>
+        <location filename="../mainwindow.ui" line="1386"/>
         <source>Ctrl+T</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1376"/>
-        <location filename="../mainwindow.ui" line="1379"/>
+        <location filename="../mainwindow.ui" line="1391"/>
+        <location filename="../mainwindow.ui" line="1394"/>
         <source>h3m converter</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">h3m dönüştürücü</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1382"/>
+        <location filename="../mainwindow.ui" line="1397"/>
         <source>Ctrl+Shift+M</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1387"/>
-        <location filename="../mainwindow.ui" line="1390"/>
+        <location filename="../mainwindow.ui" line="1402"/>
+        <location filename="../mainwindow.ui" line="1405"/>
         <source>h3c converter</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">h3c dönüştürücü</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1393"/>
+        <location filename="../mainwindow.ui" line="1408"/>
         <source>Ctrl+Shift+C</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kilitle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1398"/>
+        <location filename="../mainwindow.ui" line="1413"/>
         <source>Lock</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritadaki nesneleri yanlışlıkla değişiklik yapılmasını önlemek için kilitle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1401"/>
+        <location filename="../mainwindow.ui" line="1416"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1404"/>
+        <location filename="../mainwindow.ui" line="1419"/>
         <source>Ctrl+L</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kilidi kaldır</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1409"/>
+        <location filename="../mainwindow.ui" line="1424"/>
         <source>Unlock</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kilidi Aç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1412"/>
+        <location filename="../mainwindow.ui" line="1427"/>
         <source>Unlock all objects on the map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritadaki tüm nesnelerin kilidini aç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1415"/>
+        <location filename="../mainwindow.ui" line="1257"/>
+        <location filename="../mainwindow.ui" line="1430"/>
         <source>Ctrl+Shift+L</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1420"/>
+        <location filename="../mainwindow.ui" line="1435"/>
         <source>Zoom in</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yakınlaştır</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1423"/>
+        <location filename="../mainwindow.ui" line="1438"/>
         <source>Ctrl++</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1428"/>
+        <location filename="../mainwindow.ui" line="1443"/>
         <source>Zoom out</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Uzaklaştır</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1431"/>
+        <location filename="../mainwindow.ui" line="1446"/>
         <source>Ctrl+-</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1436"/>
+        <location filename="../mainwindow.ui" line="1451"/>
         <source>Zoom reset</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yakınlaştırmayı sıfırla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1439"/>
+        <location filename="../mainwindow.ui" line="1454"/>
         <source>Ctrl+Shift+=</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="391"/>
         <source>Confirmation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Onay</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="391"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaydedilmemiş değişiklikler kaybolacak, emin misiniz?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="446"/>
         <source>Surface</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Yüzey</translation>
+        <translation type="obsolete">Yüzey</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
         <source>Underground</source>
-        <translation>Yeraltı</translation>
+        <translation type="vanished">Yeraltı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="450"/>
         <source>Level - %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Seviye - %1</translation>
+        <translation type="obsolete">Seviye - %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="474"/>
+        <location filename="../mainwindow.cpp" line="453"/>
+        <location filename="../mainwindow.cpp" line="1430"/>
+        <source>Level %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="479"/>
         <source>Mods are required</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Modlar gerekli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="482"/>
-        <location filename="../mainwindow.cpp" line="488"/>
+        <location filename="../mainwindow.cpp" line="487"/>
+        <location filename="../mainwindow.cpp" line="493"/>
         <source>Failed to open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita açılamadı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="514"/>
+        <location filename="../mainwindow.cpp" line="524"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita aç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="516"/>
+        <location filename="../mainwindow.cpp" line="526"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tüm desteklenen haritalar (*.vmap *.h3m);;VCMI haritaları(*.vmap);;HoMM3 haritaları(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="580"/>
         <source>Recently Opened Files</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Son açılan dosyalar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="633"/>
         <source>Map validation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita doğrulama</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="625"/>
+        <location filename="../mainwindow.cpp" line="635"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita kritik sorunlar içeriyor ve büyük ihtimalle oynanamaz. Tespit edilen hataları görmek için Harita menüsünden Doğrulayıcıyı açın</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="627"/>
+        <location filename="../mainwindow.cpp" line="637"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritada bazı hatalar var. Tespit edilen hataları görmek için Harita menüsünden Doğrulayıcıyı açın</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="654"/>
+        <location filename="../mainwindow.cpp" line="664"/>
         <source>Failed to save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita kaydedilemedi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>Save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritayı kaydet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="667"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>VCMI maps (*.vmap)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI haritaları (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="875"/>
+        <location filename="../mainwindow.cpp" line="885"/>
         <source>Type</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tür</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Towns</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Şehirler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nesneler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="890"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Heroes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kahramanlar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="891"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Artifacts</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Eşyalar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="892"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Resources</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaynaklar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="893"/>
+        <location filename="../mainwindow.cpp" line="903"/>
         <source>Banks</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bankalar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="894"/>
+        <location filename="../mainwindow.cpp" line="904"/>
         <source>Dwellings</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yerleşimler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="895"/>
+        <location filename="../mainwindow.cpp" line="905"/>
         <source>Grounds</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zeminler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="896"/>
+        <location filename="../mainwindow.cpp" line="906"/>
         <source>Teleports</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Işınlanmalar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="897"/>
+        <location filename="../mainwindow.cpp" line="907"/>
         <source>Mines</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Madenler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="898"/>
+        <location filename="../mainwindow.cpp" line="908"/>
         <source>Triggers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tetikleyiciler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="899"/>
+        <location filename="../mainwindow.cpp" line="909"/>
         <source>Monsters</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Canavarlar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="900"/>
+        <location filename="../mainwindow.cpp" line="910"/>
         <source>Quests</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Görevler</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="901"/>
+        <location filename="../mainwindow.cpp" line="911"/>
         <source>Wog Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Wog Nesneleri</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="912"/>
         <source>Obstacles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Engeller</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="903"/>
+        <location filename="../mainwindow.cpp" line="913"/>
         <source>Other</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Diğer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Mods loading problem</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Mod yükleme hatası</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Modlar yüklenirken kritik bir hata oluştu. Geçersiz modları devre dışı bırakıp yeniden başlatın.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1046"/>
+        <location filename="../mainwindow.cpp" line="1056"/>
         <source>Undo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Geri al tıklandı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Redo clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yinele tıklandı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1068"/>
+        <location filename="../mainwindow.cpp" line="1078"/>
         <source>Passability clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Geçit verilebilirlik tıklandı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
+        <location filename="../mainwindow.cpp" line="1091"/>
         <source>Grid clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Izgara tıklandı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1162"/>
+        <location filename="../mainwindow.cpp" line="1172"/>
         <source>Fill clicked</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Doldur tıklandı</translation>
@@ -1591,85 +1615,90 @@
         <translation type="obsolete">Yüzeyi göster</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1322"/>
         <source>No objects selected</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hiçbir nesne seçilmedi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1316"/>
+        <location filename="../mainwindow.cpp" line="1326"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bu işlem geri alınamaz. Devam etmek istiyor musunuz?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1384"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hatalar oluştu. %1 nesne güncellenemedi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
+        <source>Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1469"/>
         <source>Save to image</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Görüntü olarak kaydet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1433"/>
+        <location filename="../mainwindow.cpp" line="1501"/>
         <source>Select maps to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dönüştürülecek haritaları seç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1435"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3 haritaları (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1439"/>
+        <location filename="../mainwindow.cpp" line="1507"/>
         <source>Choose directory to save converted maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dönüştürülmüş haritaların kaydedileceği dizini seçin</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1521"/>
         <source>Operation completed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İşlem tamamlandı</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1453"/>
+        <location filename="../mainwindow.cpp" line="1521"/>
         <source>Successfully converted %1 maps</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 harita başarıyla dönüştürüldü</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1457"/>
+        <location filename="../mainwindow.cpp" line="1525"/>
         <source>Failed to convert the map. Abort operation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita dönüştürülemedi. İşlem iptal edildi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1463"/>
+        <location filename="../mainwindow.cpp" line="1531"/>
         <source>Select campaign to convert</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dönüştürülecek kampanyayı seç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1533"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3 kampanyaları (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1469"/>
+        <location filename="../mainwindow.cpp" line="1537"/>
         <source>Select destination file</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hedef dosyayı seç</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1471"/>
+        <location filename="../mainwindow.cpp" line="1539"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI kampanyaları (*.vcmp)</translation>
@@ -1678,19 +1707,19 @@
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="602"/>
+        <location filename="../mapcontroller.cpp" line="612"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 kahramanı NEUTRAL olarak oluşturulamaz.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="616"/>
+        <location filename="../mapcontroller.cpp" line="626"/>
         <source>Missing Required Mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Gerekli mod eksik</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="616"/>
+        <location filename="../mapcontroller.cpp" line="626"/>
         <source>
 
 Do you want to do that now ?</source>
@@ -1701,7 +1730,7 @@ Do you want to do that now ?</source>
 Bunu şimdi yapmak ister misiniz?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="626"/>
+        <location filename="../mapcontroller.cpp" line="636"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bu nesnenin mod&apos;u haritanın geçerli kalması için zorunludur.</translation>
@@ -1904,12 +1933,17 @@ Bunu şimdi yapmak ister misiniz?</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
+        <source>Required Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yasaklı Nesneler</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.ui" line="40"/>
+        <location filename="../templateeditor/objectselector.ui" line="50"/>
         <source>Banned Object Categories</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yasaklı Nesne Kategorileri</translation>
@@ -1921,120 +1955,142 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <translation type="unfinished">Nesne Seçici</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <location filename="../templateeditor/objectselector.cpp" line="96"/>
         <source>Category</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kategori</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <location filename="../templateeditor/objectselector.cpp" line="96"/>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Action</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Eylem</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="99"/>
+        <location filename="../templateeditor/objectselector.cpp" line="100"/>
         <source>Other</source>
         <translation>Diğer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="100"/>
+        <location filename="../templateeditor/objectselector.cpp" line="101"/>
         <source>All</source>
         <translation>Tümü</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="101"/>
+        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <location filename="../templateeditor/objectselector.cpp" line="257"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Creature bank</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yaratık bankası</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="103"/>
+        <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>Bonus</source>
         <translation>Bonus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="104"/>
+        <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <source>Dwelling</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yuva</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="105"/>
+        <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Resource</source>
         <translation>Kaynak</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="106"/>
+        <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Resource generator</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaynak üreteci</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="107"/>
+        <location filename="../templateeditor/objectselector.cpp" line="108"/>
         <source>Spell scroll</source>
         <translation>Büyü parşömeni</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="108"/>
+        <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Random artifact</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rastgele eser</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="109"/>
+        <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Pandoras box</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Pandora&apos;nın kutusu</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="110"/>
+        <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Quest artifact</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Görev eseri</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="111"/>
+        <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Seer hut</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kahin kulübesi</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="123"/>
+        <location filename="../templateeditor/objectselector.cpp" line="124"/>
         <location filename="../templateeditor/objectselector.cpp" line="184"/>
-        <location filename="../templateeditor/objectselector.cpp" line="259"/>
+        <location filename="../templateeditor/objectselector.cpp" line="261"/>
+        <location filename="../templateeditor/objectselector.cpp" line="345"/>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sil</translation>
     </message>
     <message>
+        <location filename="../templateeditor/objectselector.cpp" line="139"/>
+        <location filename="../templateeditor/objectselector.cpp" line="199"/>
+        <location filename="../templateeditor/objectselector.cpp" line="278"/>
+        <location filename="../templateeditor/objectselector.cpp" line="360"/>
+        <source>Add</source>
+        <translation type="unfinished">Ekle</translation>
+    </message>
+    <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Object</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nesne</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <source>Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <source>Guard</source>
+        <translation type="unfinished">Muhafız</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Value</source>
         <translation>Değer</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Probability</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Olasılık</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Max per zone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bölge başına en çok</translation>
@@ -2631,25 +2687,25 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <translation type="unfinished">BAYRAKLANAMAZ</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="407"/>
+        <location filename="../mapcontroller.cpp" line="417"/>
         <source>Can&apos;t place object</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nesne yerleştirilemiyor</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="584"/>
+        <location filename="../mapcontroller.cpp" line="594"/>
         <source>There can only be one grail object on the map.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritada yalnızca bir kutsal emanet (grail) nesnesi olabilir.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="639"/>
+        <location filename="../mapcontroller.cpp" line="649"/>
         <source> (submod of %1)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished"> (%1 modunun alt modülü)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="641"/>
+        <location filename="../mapcontroller.cpp" line="651"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2853,6 +2909,11 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
         <source>Possible:</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Olası:</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
+        <source>Failed to open campaign</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3380,7 +3441,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="33"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="35"/>
         <source>Scenario Properties</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Senaryo Özellikleri</translation>
@@ -3610,8 +3671,8 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="526"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="470"/>
         <source>Player position</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu konumu</translation>
@@ -3641,87 +3702,87 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
         <translation type="unfinished">Düzenle...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="119"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
         <source>Strongest</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">En güçlü</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="120"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="122"/>
         <source>Generated</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oluşturulmuş</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="121"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="123"/>
         <source>Random</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rastgele</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="138"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="140"/>
         <source>No map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita yok</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="181"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="183"/>
         <source>Player</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncu</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="391"/>
         <source>Open map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita aç</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="389"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="391"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tüm desteklenen haritalar (*.vmap *.h3m);;VCMI haritaları (*.vmap);;HoMM3 haritaları (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="398"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Error</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hata</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="396"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="429"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="398"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Could not open the file.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dosya açılamadı.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>Save map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Haritayı kaydet</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>VCMI maps (*.vmap);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI haritaları (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="422"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="424"/>
         <source>HoMM3 maps (*.h3m);</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">HoMM3 haritaları (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="458"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="460"/>
         <source>Source scenario</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaynak senaryo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="468"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="470"/>
         <source>Hero</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kahraman</translation>
@@ -5039,6 +5100,11 @@ Muhafız: %3</translation>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sil</translation>
     </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="99"/>
+        <source>Add</source>
+        <translation type="unfinished">Ekle</translation>
+    </message>
 </context>
 <context>
     <name>TownSpellsWidget</name>
@@ -5138,20 +5204,20 @@ Muhafız: %3</translation>
         <translation type="unfinished">Metin</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="162"/>
-        <location filename="../mapsettings/translations.cpp" line="166"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>Remove translation</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çeviriyi kaldır</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="162"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
         <source>Default language cannot be removed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Varsayılan dil kaldırılamaz</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="166"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bu dile ait tüm mevcut metin kayıtları silinecek. Devam edilsin mi?</translation>
@@ -5201,6 +5267,11 @@ Muhafız: %3</translation>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sil</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/treasureselector.cpp" line="65"/>
+        <source>Add</source>
+        <translation type="unfinished">Ekle</translation>
     </message>
 </context>
 <context>
@@ -5485,13 +5556,13 @@ Muhafız: %3</translation>
         <translation type="unfinished">Harita boyutu</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="200"/>
+        <location filename="../windownewmap.ui" line="215"/>
         <source>Height</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yükseklik</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="174"/>
+        <location filename="../windownewmap.ui" line="176"/>
         <source>Width</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Genişlik</translation>
@@ -5503,13 +5574,13 @@ Muhafız: %3</translation>
         <translation type="unfinished">XL (144x144)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="328"/>
+        <location filename="../windownewmap.ui" line="357"/>
         <source>Random map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rastgele harita</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="340"/>
+        <location filename="../windownewmap.ui" line="369"/>
         <source>Players</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyuncular</translation>
@@ -5551,40 +5622,40 @@ Muhafız: %3</translation>
         <translation type="unfinished">G  (252x252)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="286"/>
+        <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Seviyeler</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="368"/>
-        <location filename="../windownewmap.ui" line="499"/>
-        <location filename="../windownewmap.ui" line="590"/>
-        <location filename="../windownewmap.ui" line="730"/>
+        <location filename="../windownewmap.ui" line="397"/>
+        <location filename="../windownewmap.ui" line="528"/>
+        <location filename="../windownewmap.ui" line="619"/>
+        <location filename="../windownewmap.ui" line="759"/>
         <source>Random</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rastgele</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="460"/>
+        <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İnsan takımları</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="447"/>
+        <location filename="../windownewmap.ui" line="476"/>
         <source>Computer teams</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bilgisayar takımları</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="239"/>
+        <location filename="../windownewmap.ui" line="265"/>
         <source>Standard size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Standart boyut</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="264"/>
+        <location filename="../windownewmap.ui" line="290"/>
         <source>Custom size</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Özel boyut</translation>
@@ -5595,147 +5666,147 @@ Muhafız: %3</translation>
         <translation type="obsolete">Yeraltı</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="428"/>
+        <location filename="../windownewmap.ui" line="457"/>
         <source>Humans</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İnsanlar</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="491"/>
+        <location filename="../windownewmap.ui" line="520"/>
         <source>Computers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bilgisayarlar</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="557"/>
+        <location filename="../windownewmap.ui" line="586"/>
         <source>Monster strength</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Canavar gücü</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="618"/>
+        <location filename="../windownewmap.ui" line="647"/>
         <source>Weak</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zayıf</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="643"/>
-        <location filename="../windownewmap.ui" line="783"/>
+        <location filename="../windownewmap.ui" line="672"/>
+        <location filename="../windownewmap.ui" line="812"/>
         <source>Normal</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Normal</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="668"/>
+        <location filename="../windownewmap.ui" line="697"/>
         <source>Strong</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Güçlü</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="697"/>
+        <location filename="../windownewmap.ui" line="726"/>
         <source>Water content</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Su içeriği</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="758"/>
+        <location filename="../windownewmap.ui" line="787"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hiçbiri</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="808"/>
+        <location filename="../windownewmap.ui" line="837"/>
         <source>Islands</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Adalar</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="837"/>
+        <location filename="../windownewmap.ui" line="866"/>
         <source>Roads</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yollar</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="858"/>
+        <location filename="../windownewmap.ui" line="887"/>
         <source>Dirt</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Toprak</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="871"/>
+        <location filename="../windownewmap.ui" line="900"/>
         <source>Gravel</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çakıl</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="884"/>
+        <location filename="../windownewmap.ui" line="913"/>
         <source>Cobblestone</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kaldırım taşı</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="917"/>
-        <location filename="../windownewmap.ui" line="944"/>
+        <location filename="../windownewmap.ui" line="946"/>
+        <location filename="../windownewmap.ui" line="973"/>
         <source>Template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Şablon</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="982"/>
+        <location filename="../windownewmap.ui" line="1011"/>
         <source>Custom seed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Özel tohum</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1013"/>
+        <location filename="../windownewmap.ui" line="1042"/>
         <source>Generate random map</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Rastgele harita oluştur</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1041"/>
+        <location filename="../windownewmap.ui" line="1070"/>
         <source>OK</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tamam</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1060"/>
+        <location filename="../windownewmap.ui" line="1089"/>
         <source>Cancel</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İptal</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="294"/>
         <source>No template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Şablon yok</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="294"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Belirtilen parametreler için şablon yok. Rastgele harita oluşturulamaz.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="307"/>
+        <location filename="../windownewmap.cpp" line="316"/>
         <source>RMG failure</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">RMG hatası</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="334"/>
+        <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çok katmanlı destek</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="334"/>
+        <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çok katmanlı destek hâlâ oldukça deneyseldir. Sorunlar bekleyin.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="455"/>
+        <location filename="../windownewmap.cpp" line="464"/>
         <source>[default]</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">[varsayılan]</translation>
@@ -5744,31 +5815,31 @@ Muhafız: %3</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="108"/>
+        <location filename="../mainwindow.cpp" line="109"/>
         <source>Filepath of the map to open.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Açılacak haritanın dosya yolu.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="111"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Orijinal H3 arşivlerini ayrı bir klasöre çıkar.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="112"/>
+        <location filename="../mainwindow.cpp" line="113"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çıkarılan arşivden, TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 ve Un44&apos;ü ayrı PNG&apos;lere ayırır.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="113"/>
+        <location filename="../mainwindow.cpp" line="114"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Çıkarılan arşivden, Görseller klasöründe bulunan tekli resimleri .pcx&apos;ten png&apos;ye dönüştürür.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="114"/>
+        <location filename="../mainwindow.cpp" line="115"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bölünmüş / dönüştürülmüş dosyaların orijinallerini sil.</translation>

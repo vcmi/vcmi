@@ -41,6 +41,7 @@ public:
 	bool canBeCast(Problem & problem) const override;
 
 	/// Returns false if spell can not be cast at specified target
+	bool canBeCastAt(const Target & target) const override;
 	bool canBeCastAt(const Target & target, Problem & problem) const override;
 
 	// TODO: ??? (what's the difference compared to applyEffects?)

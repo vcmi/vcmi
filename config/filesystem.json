@@ -27,7 +27,8 @@
 		[
 			{"type" : "snd", "path" : "Data/H3ab_ahd.snd"},
 			{"type" : "snd", "path" : "Data/Heroes3.snd"},
-			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"}
+			{"type" : "snd", "path" : "Data/Heroes3-cd2.snd"},
+			{"type" : "dir",  "path" : "Sounds"}
 		],
 		"MUSIC/":
 		[
@@ -37,7 +38,8 @@
 		[
 			{"type" : "vid", "path" : "Data/H3ab_ahd.vid"},
 			{"type" : "vid", "path" : "Data/Heroes3.vid"},
-			{"type" : "vid", "path" : "Data/video.vid"}
+			{"type" : "vid", "path" : "Data/video.vid"},
+			{"type" : "dir",  "path" : "Video"}
 		],
 		"CONFIG/":
 		[

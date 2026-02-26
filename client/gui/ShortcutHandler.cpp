@@ -18,6 +18,11 @@
 
 ShortcutHandler::ShortcutHandler()
 {
+	reloadShortcuts();
+}
+
+void ShortcutHandler::reloadShortcuts()
+{
 	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);

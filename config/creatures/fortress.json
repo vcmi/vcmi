@@ -44,7 +44,7 @@
 	{
 		"index": 100,
 		"level": 2,
-		"extraNames": [ "primitiveLizardman" ],
+		"compatibilityIdentifiers": [ "primitiveLizardman" ],
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
@@ -113,7 +113,7 @@
 	{
 		"index": 104,
 		"level": 3,
-		"extraNames": [ "dragonFly" ],
+		"compatibilityIdentifiers": [ "dragonFly" ],
 		"faction": "fortress",
 		"abilities":
 		{

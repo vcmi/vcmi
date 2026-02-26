@@ -46,6 +46,12 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// percentage of mana points that hero needs to have
 	si32 manaPercentage;
 
+	/// movement points that hero needs to have
+	si32 movePoints;
+
+	/// percentage of movement points that hero needs to have
+	si32 movePercentage;
+
 	/// Number of free secondary slots that hero needs to have
 	bool canLearnSkills;
 
@@ -118,6 +124,11 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & heroLevel;
 		h & manaPoints;
 		h & manaPercentage;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS_2)
+		{
+			h & movePoints;
+			h & movePercentage;
+		}
 		h & canLearnSkills;
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
 		{

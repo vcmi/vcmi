@@ -83,6 +83,7 @@ class BattleActionProcessor : boost::noncopyable
 	bool doWaitAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doDefendAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba);
+	bool doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doShootAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doCatapultAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doUnitSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
@@ -91,6 +92,7 @@ class BattleActionProcessor : boost::noncopyable
 	bool dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
 
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary);
 public:
 	explicit BattleActionProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 

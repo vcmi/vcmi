@@ -41,6 +41,7 @@
 	"vcmi.battle.action.genie" : "Наложить случайное полезное заклинание",
 	
 	"vcmi.adventureMap.confirmQuickLoadGame"             : "Вы уверены, что хотите загрузить быстрый сохраненный файл?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Сохранение игры в %s",
 
 	"vcmi.bonusSource.artifact" : "Артефакт",
 	"vcmi.bonusSource.creature" : "Умение",
@@ -101,8 +102,9 @@
 	"vcmi.spellBook.search" : "поиск...",
 	"vcmi.spellBook.tab.hover" : "Заклинания %s",
 	"vcmi.spellBook.tab.help" : "Показать заклинания %s",
+	"vcmi.spellBook.zero_level.hint" : "0-й ур.",
 	
-	"vcmi.spellResearch.canNotAfford" : "Вы не можете позволить себе заменить {%SPELL1} на {%SPELL2}. Но вы все равно можете пропустить это заклинание и продолжить изучение заклинаний.",
+	"vcmi.spellResearch.canNotAfford" : "Вы не можете позволить себе заменить {%SPELL1} на {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Исследование уже было проведено сегодня. Приходите завтра.",
 	"vcmi.spellResearch.pay" : "Вы бы хотели заменить {%SPELL1} на {%SPELL2}? Или пропустить это заклинание и продолжить изучение заклинаний?",
 	"vcmi.spellResearch.research" : "Исследовать это заклинание",
@@ -138,7 +140,8 @@
 	"vcmi.lobby.deleteFile" : "Вы хотите удалить данный файл?",
 	"vcmi.lobby.deleteFolder" : "Вы хотите удалить данную папку?",
 	"vcmi.lobby.deleteMode" : "Переключение в режим удаления и обратно",
-	"vcmi.lobby.battleOnlyMode" : "Режим \"Только битва\"",
+	"vcmi.lobby.battleOnlyMode" : "Режим \"Битва\"",
+	"vcmi.lobby.battleOnlyMode.help" : "Сыграть в простую битву без карты приключений",
 	"vcmi.lobby.battleOnlyModeSubTitle" : "Выберите героев, армию, навыки, артефакты и поле битвы для простого сражения без карты приключений",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "Поле боя",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Выберите поле боя",
@@ -277,6 +280,7 @@
 	"vcmi.lobby.pvp.randomTownVs.hover" : "Случайный город пр.",
 	"vcmi.lobby.pvp.randomTownVs.help" : "Написать в чате два случайных города",
 	"vcmi.lobby.pvp.versus" : "против",
+	"vcmi.client.screenShot" : "Скриншот сохранён в %s",
 	"vcmi.client.errors.invalidMap" : "{Недопустимая карта или кампания}\n\nНе удалось запустить игру! Возможно, выбранная карта или кампания недействительны или повреждены. Причина:\n%s",
 	"vcmi.client.errors.modLoadingFailure" : "{Ошибка загрузки модов}\n\nПри загрузке модов обнаружены серьезные проблемы! Игра может работать некорректно или вылетать! Пожалуйста, обновите или отключите следующие моды:\n\n",
 	"vcmi.server.errors.disconnected" : "{Сетевая ошибка}\n\nПодключение к игровому серверу потеряно!",
@@ -339,6 +343,8 @@
 	"vcmi.keyBindings.keyBinding.adventureReplayTurn": "Приключение: повтор хода",
 	"vcmi.keyBindings.keyBinding.adventureRestartGame": "Приключение: перезапуск игры",
 	"vcmi.keyBindings.keyBinding.adventureSaveGame": "Приключение: сохранить игру",
+	"vcmi.keyBindings.keyBinding.adventureQuickSave": "Приключение: быстрое сохранение",
+	"vcmi.keyBindings.keyBinding.adventureQuickLoad": "Приключение: быстрая загрузка",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAsleep": "Приключение: усыпить героя",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAwake": "Приключение: разбудить героя",
 	"vcmi.keyBindings.keyBinding.adventureThievesGuild": "Приключение: гильдия воров",
@@ -410,6 +416,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Глобально: назад",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Глобально: отмена",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Глобально: полный экран",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Глобально: скриншот",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Глобально: двигать фокус",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Глобально: настройки",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Глобально: возврат",
@@ -699,6 +706,10 @@
 	"vcmi.battleOptions.showHealthBar.help" : "{Показать полоску здоровья}\n\nПоказать полоску здоровья, отображающую оставшееся здоровье до того, как один из бойцов умрет.",	
 	"vcmi.adventureMap.revisitObject.hover" : "Вернуться к объекту",
 	"vcmi.adventureMap.revisitObject.help" : "{Вернуться к объекту}\n\nЕсли герой в данный момент стоит на объекте карты, он может вернуться к этому месту.",
+	"vcmi.adventureMap.quickLoad.hover" : "Быстрая загрузка",
+	"vcmi.adventureMap.quickLoad.help" : "{Быстрая загрузка}\n\nЗагрузить игру из слота быстрого сохранения.",
+	"vcmi.adventureMap.quickSave.hover" : "Быстрое сохранение",
+	"vcmi.adventureMap.quickSave.help" : "{Быстрое сохранение}\n\nСохранить текущее состояние игры в слот быстрого сохранения.",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Нажмите любую клавишу для пропуска вступительной музыки",
 	"vcmi.battleWindow.damageEstimation.melee" : "Атаковать %CREATURE (%DAMAGE).",
@@ -711,6 +722,12 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d единица урона",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d погибнут",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d погибнет",
+	"vcmi.battleWindow.healValuePreview.0" : "%d здоровья будет восстановлено",
+	"vcmi.battleWindow.healValuePreview.1" : "%d здоровья будет восстановлено",
+	"vcmi.battleWindow.healValuePreview.2" : "%d здоровья будет восстановлено",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.0" : "получает %d здоровья",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.1" : "получает %d здоровья",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.2" : "получает %d здоровья",
 	"vcmi.battleWindow.damageRetaliation.will" : "Будет отвечать ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Может ответить",
 	"vcmi.battleWindow.damageRetaliation.never" : "Не будет отвечать",
@@ -723,6 +740,9 @@
 	"vcmi.battleWindow.endWithAutocombat" : "Вы уверены, что хотите завершить битву авто-боем?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Принять результаты боя",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0" : "Длительность : %d боевых раунда(ов)",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Длительность : %d боевых раунда(ов)",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Длительность : %d боевых раунда(ов)",
 	"vcmi.credits.website" : "Сайт",
 	"vcmi.credits.vcmi" : "VCMI",
 	"vcmi.credits.heroes" : "Герои III",
@@ -812,6 +832,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Настройка...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Распределение команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Виды дорог",
+	"vcmi.randomMapTab.template.minimalSize" : "Минимальный размер: %dx%d, слоёв: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Максимальный размер: %dx%d, слоёв: %d",
 	"vcmi.optionsTab.turnOptions.hover" : "Настройки хода",
 	"vcmi.optionsTab.turnOptions.help" : "Настройки таймера хода и одновременных ходов",
 
@@ -859,6 +881,7 @@
 	"vcmi.optionsTab.simturns.blocked4"       : "Одновременно: 1 мес. блок контакты",
 	"vcmi.campaignSet.chronicles" : "Хроники Героев",
 	"vcmi.campaignSet.hota" : "Рог Бездны",
+	"vcmi.campaignSet.wog" : "Во имя богов",
 	"vcmi.optionsTab.simturns.days.0" : " %d дня",
 	"vcmi.optionsTab.simturns.days.1" : " %d день",
 	"vcmi.optionsTab.simturns.days.2" : " %d дней",
@@ -1027,6 +1050,7 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Дополнительные атаки}\nОтряд может атаковать дополнительно ${val} раз(а)", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Дополнительные ответные атаки}\nОтвечает на атаку дополнительно ${val} раз",
+	"core.bonus.ADJACENT_SPELLCASTER.description" : "{Соседний Заклинатель}\nОтряд может произнести ${subtype.spell}, стоя рядом с целью",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Максимальный урон}\nЭтот отряд всегда наносит максимально возможный урон",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Круговой удар}\nАтакует всех соседних врагов в дополнение к основной цели",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Безответная стрельба}\nВраги не могут ответить на дальнобойную атаку этого отряда",
@@ -1114,5 +1138,6 @@
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Атака дыханием}\nАтаки этого отряда также поражают любой отряд, расположенный непосредственно за целью",
 	"core.bonus.UNDEAD.description" : "{Нежить}\nСущество является нежитью и невосприимчиво к эффектам, воздействующим только на живых",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Неограниченные контратаки}\nЭтот отряд может контратаковать неограниченное число раз",
-	"core.bonus.WIDE_BREATH.description" : "{Мощное дыхание}\nЭтот отряд атакует все отряды вокруг своей цели"
+	"core.bonus.WIDE_BREATH.description" : "{Мощное дыхание}\nЭтот отряд атакует все отряды вокруг своей цели",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Лимит урона (${val}%) }\nНи одна атака не может нанести больше урона, чем ${val}% от максимального здоровья"
 }

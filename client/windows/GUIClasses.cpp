@@ -502,10 +502,26 @@ void CLevelWindow::createSkillBox()
 
 void CLevelWindow::close()
 {
-	//FIXME: call callback if there was nothing to select?
-	if (box && box->selectedIndex() != -1)
+	int idx = -1;
+
+	if(box)
+		idx = box->selectedIndex();
+
+	// If there are skills available, we must not close without producing a valid choice
+	// For a single available option, auto-pick it
+	if(!skills.empty())
 	{
-		auto it = std::find(skills.begin(), skills.end(), sortedSkills[(box->selectedIndex() + skillViewOffset) % skills.size()]);
+		if(idx == -1)
+		{
+			if(skills.size() == 1)
+				idx = 0;
+			else
+				return; // require explicit selection
+		}
+
+		const auto & chosen = sortedSkills[(idx + skillViewOffset) % skills.size()];
+		auto it = std::find(skills.begin(), skills.end(), chosen);
+
 		cb(std::distance(skills.begin(), it));
 	}
 
@@ -1603,11 +1619,11 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 
 	items.reserve(_items.size());
 
-	for(int id : _items)
+	for(size_t i = 0; i < _items.size(); i++)
 	{
-		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
+		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(_items[i]))->getObjectName();
 		trimTextIfTooWide(objectName, false);
-		items.emplace_back(id, objectName);
+		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
 

@@ -33,6 +33,7 @@
 #include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/CModVersion.h"
+#include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
@@ -967,9 +968,15 @@ void CModListView::installFiles(QStringList files)
 				{
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
 					auto modJsonUrl = modJson["mod"];
+					auto modDescriptionUrl = modJson["descriptionURL"];
 					if(!modJsonUrl.isNull())
 					{
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
+						repositoryFilesEnqueued = true;
+					}
+					if(!modDescriptionUrl.isNull())
+					{
+						downloadFile(QString::fromStdString(modName + ".md"), QString::fromStdString(modDescriptionUrl.String()), tr("mods repository index"));
 						repositoryFilesEnqueued = true;
 					}
 
@@ -986,6 +993,22 @@ void CModListView::installFiles(QStringList files)
 		}
 		else if(realFilename.endsWith(".png", Qt::CaseInsensitive))
 			images.push_back(filename);
+		else if(realFilename.endsWith(".md", Qt::CaseInsensitive))
+		{
+			// This is description of a single mod. Extract name of mod and add it to index
+			auto modName = QFileInfo(filename).baseName().toStdString();
+			auto modNameLower = boost::algorithm::to_lower_copy(modName);
+			QFile file(realFilename);
+			if(file.open(QFile::ReadOnly))
+			{
+				const auto data = file.readAll();
+				std::string modDescriptions(data.data(), data.size());
+				ModDescription::mergeModDescriptions(accumulatedRepositoryData[modNameLower], modDescriptions);
+			}
+			else
+				logGlobal->error("Failed to open file %s. Reason: %s", qUtf8Printable(filename), qUtf8Printable(file.errorString()));
+		}
+
 	}
 
 	if (!accumulatedRepositoryData.isNull() && !repositoryFilesEnqueued)

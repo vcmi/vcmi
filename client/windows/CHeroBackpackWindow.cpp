@@ -31,6 +31,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	: CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION;
+	addUsedEvents(KEYBOARD);
 
 	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
 	arts = std::make_shared<CArtifactsOfHeroBackpack>();
@@ -82,6 +83,12 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 void CHeroBackpackWindow::notFocusedClick()
 {
 	close();
+}
+
+void CHeroBackpackWindow::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::GLOBAL_RETURN)
+		close();
 }
 
 void CHeroBackpackWindow::showAll(Canvas & to)
