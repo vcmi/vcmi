@@ -10,12 +10,12 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroMain.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-
-#include "../../CCallback.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)
@@ -42,14 +42,14 @@ void CArtifactsOfHeroMain::keyPressed(EShortcut key)
 		if (saveIdx != -1)
 		{
 			shortcutPressed = true;
-			LOCPLINT->cb->manageHeroCostume(getHero()->id, saveIdx, true);
+			GAME->interface()->cb->manageHeroCostume(getHero()->id, saveIdx, true);
 			return;
 		}
 
 		if (loadIdx != -1)
 		{
 			shortcutPressed = true;
-			LOCPLINT->cb->manageHeroCostume(getHero()->id, loadIdx, false);
+			GAME->interface()->cb->manageHeroCostume(getHero()->id, loadIdx, false);
 			return;
 		}
 	}

@@ -22,14 +22,7 @@ CTown::CTown()
 {
 }
 
-CTown::~CTown()
-{
-	for(auto & build : buildings)
-		build.second.dellNull();
-
-	for(auto & str : clientInfo.structures)
-		str.dellNull();
-}
+CTown::~CTown() = default;
 
 std::string CTown::getRandomNameTextID(size_t index) const
 {
@@ -67,7 +60,7 @@ const CBuilding * CTown::getSpecialBuilding(BuildingSubID::EBuildingSubID subID)
 	for(const auto & kvp : buildings)
 	{
 		if(kvp.second->subId == subID)
-			return buildings.at(kvp.first);
+			return buildings.at(kvp.first).get();
 	}
 	return nullptr;
 }

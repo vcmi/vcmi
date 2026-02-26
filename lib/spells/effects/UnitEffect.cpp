@@ -14,6 +14,8 @@
 #include "../ISpellMechanics.h"
 
 #include "../../bonuses/BonusSelector.h"
+#include "../../bonuses/BonusList.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
@@ -30,7 +32,7 @@ void UnitEffect::adjustTargetTypes(std::vector<TargetType> & types) const
 
 }
 
-void UnitEffect::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const
+void UnitEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	for(const auto & destnation : spellTarget)
 		hexes.insert(destnation.hexValue);
@@ -72,6 +74,11 @@ bool UnitEffect::getStackFilter(const Mechanics * m, bool alwaysSmart, const bat
 bool UnitEffect::eraseByImmunityFilter(const Mechanics * m, const battle::Unit * s) const
 {
 	return !isReceptive(m, s);
+}
+
+SpellEffectValue UnitEffect::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	return {}; // no-op by default
 }
 
 EffectTarget UnitEffect::filterTarget(const Mechanics * m, const EffectTarget & target) const
@@ -193,7 +200,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 		return EffectTarget();
 	}
 
-	std::set<BattleHex> possibleHexes;
+	BattleHexArray possibleHexes;
 
 	auto possibleTargets = m->battle()->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
 	{
@@ -202,7 +209,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	for(const auto *unit : possibleTargets)
 	{
-		for(auto hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+		for(const auto & hex : unit->getHexes())
 			possibleHexes.insert(hex);
 	}
 
@@ -215,15 +222,29 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 		if(!unit)
 			break;
+
+		bool wouldResist = m->wouldResist(unit);
 		if(m->alwaysHitFirstTarget() && targetIndex == 0)
 			effectTarget.emplace_back(unit);
-		else if(isReceptive(m, unit) && isValidTarget(m, unit))
+		if(wouldResist && targetIndex == 0)
+		{
+			// if first target resists, chain ends here, resistance animation played
 			effectTarget.emplace_back(unit);
+			break;
+		}
+		else if(isReceptive(m, unit) && isValidTarget(m, unit) && !wouldResist)
+			effectTarget.emplace_back(unit);
+		else if(isReceptive(m, unit) && isValidTarget(m, unit) && wouldResist)
+		{
+			// target is skipped, no magic resistance animation (Heroes 3 logic)
+			targetIndex--;
+		}
 		else
 			effectTarget.emplace_back();
 
-		for(auto hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
-			possibleHexes.erase(hex);
+		for(const auto & hex : unit->getHexes())
+			if (possibleHexes.contains(hex))
+				possibleHexes.erase(hex);
 
 		if(possibleHexes.empty())
 			break;
@@ -249,9 +270,11 @@ bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) con
 		//ignore all immunities, except specific absolute immunity(VCMI addition)
 
 		//SPELL_IMMUNITY absolute case
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !unit->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
+		const auto & bonuses = unit->getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
+		for (const auto & bonus : *bonuses)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				return false;
+		return true;
 	}
 	else
 	{

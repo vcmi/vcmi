@@ -9,29 +9,29 @@
  */
 
 #include "StdInc.h"
-#include "../lib/battle/BattleHex.h"
+#include "../lib/battle/BattleHexArray.h"
 
 TEST(BattleHexTest, getNeighbouringTiles)
 {
 	BattleHex mainHex;
-	std::vector<BattleHex> neighbouringTiles;
+	BattleHexArray neighbouringTiles;
 	mainHex.setXY(16,0);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 1);
 	mainHex.setXY(0,0);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 2);
 	mainHex.setXY(15,2);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 3);
 	mainHex.setXY(2,0);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 4);
 	mainHex.setXY(1,2);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 5);
 	mainHex.setXY(8,5);
-	neighbouringTiles = mainHex.neighbouringTiles();
+	neighbouringTiles = mainHex.getNeighbouringTiles();
 	EXPECT_EQ(neighbouringTiles.size(), 6);
 
 	ASSERT_TRUE(neighbouringTiles.size()==6 && mainHex==93);
@@ -85,7 +85,7 @@ TEST(BattleHexTest, mutualPositions)
 TEST(BattleHexTest, getClosestTile)
 {
 	BattleHex mainHex(0);
-	std::set<BattleHex> possibilities;
+	BattleHexArray possibilities;
 	possibilities.insert(3);
 	possibilities.insert(170);
 	possibilities.insert(100);

@@ -13,7 +13,7 @@
 #include "Slider.h"
 #include "Images.h"
 #include "TextControls.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "../gui/WindowHandler.h"
 
 ComboBox::DropDown::Item::Item(const JsonNode & config, ComboBox::DropDown & _dropDown, Point position)
@@ -123,8 +123,8 @@ void ComboBox::DropDown::clickPressed(const Point & cursorPosition)
 {
 	if (!pos.isInside(cursorPosition))
 	{
-		assert(GH.windows().isTopWindow(this));
-		GH.windows().popWindows(1);
+		assert(ENGINE->windows().isTopWindow(this));
+		ENGINE->windows().popWindows(1);
 	}
 }
 
@@ -153,8 +153,8 @@ void ComboBox::DropDown::setItem(const void * item)
 {
 	comboBox.setItem(item);
 	
-	assert(GH.windows().isTopWindow(this));
-	GH.windows().popWindows(1);
+	assert(ENGINE->windows().isTopWindow(this));
+	ENGINE->windows().popWindows(1);
 }
 
 ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pair<std::string, std::string> & help, const JsonNode & dropDownDescriptor, Point dropDownPosition, EShortcut key, bool playerColoredButton):
@@ -162,7 +162,7 @@ ComboBox::ComboBox(Point position, const AnimationPath & defName, const std::pai
 {
 	addCallback([this, dropDownDescriptor, dropDownPosition]()
 	{
-		GH.windows().createAndPushWindow<ComboBox::DropDown>(dropDownDescriptor, *this, dropDownPosition);
+		ENGINE->windows().createAndPushWindow<ComboBox::DropDown>(dropDownDescriptor, *this, dropDownPosition);
 	});
 }
 

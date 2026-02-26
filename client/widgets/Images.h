@@ -21,11 +21,13 @@ class CAnimImage;
 class CLabel;
 class CAnimation;
 class IImage;
+enum class EImageBlitMode : uint8_t;
 
 // Image class
 class CPicture : public CIntObject
 {
 	std::shared_ptr<IImage> bg;
+	std::function<void()> lCallback;
 	std::function<void()> rCallback;
 
 public:
@@ -49,6 +51,7 @@ public:
 
 	/// Loads image from specified file name
 	CPicture(const ImagePath & bmpname);
+	CPicture(const ImagePath & bmpname, const Point & position, EImageBlitMode mode);
 	CPicture(const ImagePath & bmpname, const Point & position);
 	CPicture(const ImagePath & bmpname, int x, int y);
 
@@ -58,10 +61,12 @@ public:
 	void scaleTo(Point size);
 	void setPlayerColor(PlayerColor player);
 
+	void addLClickCallback(const std::function<void()> & callback);
 	void addRClickCallback(const std::function<void()> & callback);
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 };
 
@@ -149,7 +154,8 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		CREATURE_MODE=8,   // use alpha channel for images with palette. Required for creatures in battle and map objects
+		CREATURE_MODE=8,   // use alpha channel for images with palette. Required for creatures in battle
+		MAP_OBJECT_MODE=16,   // use alpha channel for images with palette. Required for map objects
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:

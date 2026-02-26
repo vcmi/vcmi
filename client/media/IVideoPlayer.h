@@ -11,7 +11,7 @@
 
 #include "../lib/filesystem/ResourcePath.h"
 
-class Canvas;
+struct SDL_Surface;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
@@ -30,7 +30,7 @@ public:
 	virtual Point size() = 0;
 
 	/// Displays current frame at specified position
-	virtual void show(const Point & position, Canvas & canvas) = 0;
+	virtual void show(const Point & position, SDL_Surface * to) = 0;
 
 	/// Advances video playback by specified duration
 	virtual void tick(uint32_t msPassed) = 0;

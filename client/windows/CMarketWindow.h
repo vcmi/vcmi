@@ -20,7 +20,8 @@ public:
 	void updateArtifacts() override;
 	void updateGarrisons() override;
 	void updateExperience() override;
-	void update() override;
+
+	void update();
 	void close() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 
@@ -36,6 +37,8 @@ private:
 	void createTransferResources(const IMarket * market, const CGHeroInstance * hero);
 	void createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
 	void createAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
+
+	ImagePath getImagePathBasedOnResources(std::string name);
 
 	const int buttonHeightWithMargin = 32 + 3;
 	std::vector<std::shared_ptr<CButton>> changeModeButtons;

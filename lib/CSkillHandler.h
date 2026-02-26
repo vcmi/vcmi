@@ -28,6 +28,7 @@ public:
 		std::string iconSmall;
 		std::string iconMedium;
 		std::string iconLarge;
+		std::string scenarioBonus;
 		std::vector<std::shared_ptr<Bonus>> effects;
 	};
 
@@ -70,6 +71,9 @@ public:
 	bool obligatory(Obligatory val) const { return val == Obligatory::MAJOR ? obligatoryMajor : obligatoryMinor; };
 
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
+
+	/// Bonuses that should be given to hero that specializes in this skill
+	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;
 
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);

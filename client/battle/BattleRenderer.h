@@ -48,6 +48,6 @@ private:
 public:
 	BattleRenderer(BattleInterface & owner);
 
-	void insert(EBattleFieldLayer layer, BattleHex tile, RenderFunctor functor);
+	void insert(EBattleFieldLayer layer, const BattleHex & tile, RenderFunctor functor);
 	void execute(RendererRef targetCanvas);
 };

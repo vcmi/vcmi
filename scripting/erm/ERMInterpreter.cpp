@@ -77,7 +77,7 @@ namespace ERMConverter
 			}
 			else if(isMacro())
 			{
-				return boost::to_string(boost::format("M['%s']") % macro);
+				return (boost::format("M['%s']") % macro).str();
 			}
 			else if(isSpecial() && (name.size() == 1))
 			{
@@ -206,7 +206,7 @@ namespace ERMConverter
 		}
 		std::string operator()(const int & flag) const
 		{
-			return boost::to_string(boost::format("F['%d']") % flag);
+			return (boost::format("F['%d']") % flag).str();
 		}
 	};
 
@@ -801,14 +801,14 @@ namespace ERMConverter
 						fmt % target % v.str() % opt;
 						put(fmt.str());
 					}
-					
+
 					for(int i = paramIndex; i < trig.params->size(); i++)
 					{
 						opt = std::visit(VR_X(), (*trig.params)[i]);
 						if(i > paramIndex) put(",");
 						put(opt);
 					}
-					
+
 					putLine(")");
 				}
 				break;
@@ -1183,7 +1183,7 @@ namespace ERMConverter
 		}
 		void operator()(const boost::recursive_wrapper<VNode> & opt) const;
 
-		void operator()(const VSymbol & opt) const 
+		void operator()(const VSymbol & opt) const
 		{
 			(*out) << "\"" << opt.text << "\"";
 		}
@@ -1589,7 +1589,7 @@ namespace VERMInterpreter
 		struct OptionConverterVisitor
 		{
 			VOption operator()(const boost::recursive_wrapper<ERM::TVExp>& cmd) const
-			{ 
+			{
 				return boost::recursive_wrapper<VNode>(VNode(cmd.get()));
 			}
 			VOption operator()(const ERM::TSymbol & cmd) const
@@ -1599,7 +1599,7 @@ namespace VERMInterpreter
 				else
 					return boost::recursive_wrapper<VNode>(VNode(cmd));
 			}
-			VOption operator()(const char & cmd) const 
+			VOption operator()(const char & cmd) const
 			{
 				return TLiteral(cmd);
 			}
@@ -1732,6 +1732,7 @@ namespace VERMInterpreter
 	}
 	VermTreeIterator & VermTreeIterator::operator=( const VOptionList & opt )
 	{
+		// TODO: warning: all paths through this function will call itself [-Winfinite-recursion]
 		return *this = opt;
 	}
 	VOption & VermTreeIterator::getAsItem()

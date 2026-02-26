@@ -20,12 +20,11 @@
 
 #include "api/Registry.h"
 
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
-#include "../../lib/CGameInfoCallback.h"
 #include "../../lib/modding/ModScope.h"
-
 
 VCMI_LIB_NAMESPACE_BEGIN
 

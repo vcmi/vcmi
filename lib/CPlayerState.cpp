@@ -10,18 +10,21 @@
 #include "StdInc.h"
 
 #include "CPlayerState.h"
-#include "json/JsonNode.h"
-#include "mapObjects/CGDwelling.h"
-#include "mapObjects/CGTownInstance.h"
+#include "GameLibrary.h"
+#include "callback/IGameInfoCallback.h"
 #include "mapObjects/CGHeroInstance.h"
+#include "mapObjects/CGTownInstance.h"
+#include "gameState/CGameState.h"
 #include "gameState/QuestInfo.h"
 #include "texts/CGeneralTextHandler.h"
-#include "VCMI_Lib.h"
+#include "json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-PlayerState::PlayerState()
-	: color(-1)
+PlayerState::PlayerState(IGameInfoCallback *cb)
+	: CBonusSystemNode(BonusNodeType::PLAYER)
+	, GameCallbackHolder(cb)
+	, color(-1)
 	, human(false)
 	, cheated(false)
 	, playerLocalSettings(std::make_unique<JsonNode>())
@@ -29,7 +32,6 @@ PlayerState::PlayerState()
 	, enteredLosingCheatCode(false)
 	, status(EPlayerStatus::INGAME)
 {
-	setNodeType(PLAYER);
 }
 
 PlayerState::~PlayerState() = default;
@@ -66,7 +68,7 @@ std::string PlayerState::getModScope() const
 
 std::string PlayerState::getNameTranslated() const
 {
-	return VLC->generaltexth->translate(getNameTextID());
+	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
 std::string PlayerState::getNameTextID() const
@@ -96,16 +98,17 @@ const IBonusBearer * PlayerState::getBonusBearer() const
 
 int PlayerState::getResourceAmount(int type) const
 {
-	return vstd::atOrDefault(resources, static_cast<size_t>(type), 0);
+	return resources[type];
 }
 
 template<typename T>
 std::vector<T> PlayerState::getObjectsOfType() const
 {
 	std::vector<T> result;
-	for (auto const & object : ownedObjects)
+	for (const ObjectInstanceID & objectID : ownedObjects)
 	{
-		auto casted = dynamic_cast<T>(object);
+		auto objectPtr = cb->gameState().getObjInstance(objectID);
+		auto casted = dynamic_cast<T>(objectPtr);
 		if (casted)
 			result.push_back(casted);
 	}
@@ -119,7 +122,20 @@ std::vector<const CGHeroInstance *> PlayerState::getHeroes() const
 
 std::vector<const CGTownInstance *> PlayerState::getTowns() const
 {
-	return getObjectsOfType<const CGTownInstance *>();
+	// optimized due to numerous AI access
+	using T = const CGTownInstance *;
+	std::vector<T> result;
+	for (const ObjectInstanceID & objectID : ownedObjects)
+	{
+		const auto * objectPtr = cb->gameState().getObjInstance(objectID);
+		if (objectPtr->ID != MapObjectID::TOWN)
+			continue;
+
+		assert(dynamic_cast<T>(objectPtr) != nullptr);
+		auto casted = static_cast<T>(objectPtr);
+		result.push_back(casted);
+	}
+	return result;
 }
 
 std::vector<CGHeroInstance *> PlayerState::getHeroes()
@@ -134,19 +150,18 @@ std::vector<CGTownInstance *> PlayerState::getTowns()
 
 std::vector<const CGObjectInstance *> PlayerState::getOwnedObjects() const
 {
-	return {ownedObjects.begin(), ownedObjects.end()};
+	return getObjectsOfType<const CGObjectInstance *>();
 }
 
 void PlayerState::addOwnedObject(CGObjectInstance * object)
 {
 	assert(object->asOwnable() != nullptr);
-	ownedObjects.push_back(object);
+	ownedObjects.push_back(object->id);
 }
 
 void PlayerState::removeOwnedObject(CGObjectInstance * object)
 {
-	vstd::erase(ownedObjects, object);
+	vstd::erase(ownedObjects, object->id);
 }
-
 
 VCMI_LIB_NAMESPACE_END

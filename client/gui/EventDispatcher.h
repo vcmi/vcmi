@@ -37,6 +37,7 @@ class EventDispatcher
 	EventReceiversList textInterested;
 	EventReceiversList panningInterested;
 	EventReceiversList inputModeChangeInterested;
+	EventReceiversList keyNameInterested;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
@@ -58,6 +59,10 @@ public:
 	/// Shortcut events (e.g. keyboard keys)
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
+
+	/// Key events (to get keyname of pressed key)
+	void dispatchKeyPressed(const std::string & keyName);
+	void dispatchKeyReleased(const std::string & keyName);
 
 	/// Mouse events
 	void dispatchMouseLeftButtonPressed(const Point & position, int tolerance);

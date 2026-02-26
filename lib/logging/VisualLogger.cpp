@@ -81,7 +81,7 @@ void IVisualLogBuilder::addText(int3 tile, const std::string & text, PlayerColor
 {
 	std::optional<ColorRGBA> rgbColor;
 
-	switch(background)
+	switch(background.getNum())
 	{
 	case 0:
 		rgbColor = ColorRGBA(255, 0, 0);

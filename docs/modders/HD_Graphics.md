@@ -20,7 +20,7 @@ For upscaled images you have to use following folders (next to `sprites`, `data`
 
 The sprites should have the same name and folder structure as in `sprites`, `data` and `video` folder. All images that are missing in the upscaled folders are scaled with the selected upscaling filter instead of using prescaled images.
 
-### Shadows / Overlays
+### Shadows / Overlays / Player-colored images
 
 It's also possible (but not necessary) to add high-definition shadows: Just place a image next to the normal upscaled image with the suffix `-shadow`. E.g. `TestImage.png` and `TestImage-shadow.png`.
 In future, such shadows will likely become required to correctly exclude shadow from effects such as Clone spell.
@@ -36,3 +36,11 @@ Currently needed for:
 
 - Flaggable adventure map objects. Overlay must contain a transparent image with white flags on it and will be used to colorize flags to owning player
 - Creature battle animations, idle and mouse hover group. Overlay must contain a transparent image with white outline of creature for highlighting on mouse hover
+
+For images that are used for player-colored interface, it is possible to provide custom images for each player. For example `HeroScr4-red.png` will be used for hero window of red player.
+
+- Currently needed for all UI elements that are player-colored in HoMM3.
+- Can NOT be used for player-owned adventure objects. Use `-overlay` images for such objects.
+- Possible suffixes are `red`, `blue`, `tan`, `green`, `orange`, `purple`, `teal`, `pink`, `neutral` (used only for turn order queue in combat)
+
+It is possible to use such additional images for both upscaled (xbrz) graphics, as well as for original / 1x images. When using this feature for original / 1x image, make sure that your base image (without suffix) is rgb/rgba image, and not indexed / with palette

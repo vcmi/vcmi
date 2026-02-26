@@ -34,8 +34,7 @@ void WaterAdopter::process()
 
 void WaterAdopter::init()
 {
-	//make dependencies
-	DEPENDENCY(TownPlacer);
+	POSTFUNCTION(TownPlacer);
 	POSTFUNCTION(ConnectionsPlacer);
 	POSTFUNCTION(TreasurePlacer);
 }
@@ -230,6 +229,12 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	Zone::Lock lock(zone.areaMutex);
 	zone.area()->subtract(waterArea);
 	zone.areaPossible()->subtract(waterArea);
+	auto centerSet = std::max_element(reverseDistanceMap.begin(), reverseDistanceMap.end(), 
+		[](const auto &a, const auto &b) 
+		{
+			return a.first < b.first;
+		});
+	zone.setPos(rmg::Area(centerSet->second).getCenterOfMass());
 	distanceMap = zone.area()->computeDistanceMap(reverseDistanceMap);
 }
 

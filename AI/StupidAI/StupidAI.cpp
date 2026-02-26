@@ -8,19 +8,18 @@
  *
  */
 #include "StdInc.h"
-#include "../../lib/AI_Base.h"
 #include "StupidAI.h"
 #include "../../lib/CStack.h"
-#include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()
 	: side(BattleSide::NONE)
 	, wasWaitingForRealize(false)
-	, wasUnlockingGs(false)
 {
 	print("created");
 }
@@ -32,7 +31,6 @@ CStupidAI::~CStupidAI()
 	{
 		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
 		cb->waitTillRealize = wasWaitingForRealize;
-		cb->unlockGsWhenWaiting = wasUnlockingGs;
 	}
 }
 
@@ -43,9 +41,7 @@ void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	cb = CB;
 
 	wasWaitingForRealize = CB->waitTillRealize;
-	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
-	CB->unlockGsWhenWaiting = false;
 }
 
 void CStupidAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences autocombatPreferences)
@@ -69,7 +65,7 @@ public:
 	const CStack * s;
 	int adi;
 	int adr;
-	std::vector<BattleHex> attackFrom; //for melee fight
+	BattleHexArray attackFrom; //for melee fight
 	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
 	void calcDmg(std::shared_ptr<CBattleCallback> cb, const BattleID & battleID, const CStack * ourStack)
@@ -107,7 +103,8 @@ static bool willSecondHexBlockMoreEnemyShooters(std::shared_ptr<CBattleCallback>
 
 	for(int i = 0; i < 2; i++)
 	{
-		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
+		BattleHex hex = i ? h2 : h1;
+		for (auto neighbour : hex.getNeighbouringTiles())
 			if(const auto * s = cb->getBattle(battleID)->battleGetUnitByPos(neighbour))
 				if(s->isShooter())
 					shooters[i]++;
@@ -123,12 +120,12 @@ void CStupidAI::yourTacticPhase(const BattleID & battleID, int distance)
 
 void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable;
 	std::vector<EnemyInfo> enemiesReachable;
 	std::vector<EnemyInfo> enemiesUnreachable;
+	std::vector<EnemyInfo> enemiesInvincible;
 
 	if(stack->creatureId() == CreatureID::CATAPULT)
 	{
@@ -151,15 +148,19 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 	for (const CStack *s : cb->getBattle(battleID)->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY))
 	{
-		if(cb->getBattle(battleID)->battleCanShoot(stack, s->getPosition()))
+		if (s->isInvincible())
+		{
+			enemiesInvincible.push_back(s);
+		}
+		else if(cb->getBattle(battleID)->battleCanShoot(stack, s->getPosition()))
 		{
 			enemiesShootable.push_back(s);
 		}
 		else
 		{
-			std::vector<BattleHex> avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
+			BattleHexArray avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
 
-			for (BattleHex hex : avHexes)
+			for (const BattleHex & hex : avHexes)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
 				{
@@ -170,7 +171,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 						i = enemiesReachable.begin() + (enemiesReachable.size() - 1);
 					}
 
-					i->attackFrom.push_back(hex);
+					i->attackFrom.insert(hex);
 				}
 			}
 
@@ -201,20 +202,33 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	}
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
-		auto closestEnemy = vstd::minElementByFun(enemiesUnreachable, [&](const EnemyInfo & ei) -> int
-		{
-			return dists.distToNearestNeighbour(stack, ei.s);
-		});
-
-		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
-		{
-			cb->battleMakeUnitAction(battleID, goTowards(battleID, stack, closestEnemy->s->getAttackableHexes(stack)));
+		if(moveStackToClosestEnemy(battleID, stack, dists, enemiesUnreachable))
 			return;
-		}
+	}
+	else if(enemiesInvincible.size())
+	{
+		if(moveStackToClosestEnemy(battleID, stack, dists, enemiesInvincible))
+			return;
 	}
 
 	cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
 	return;
+}
+
+bool CStupidAI::moveStackToClosestEnemy(const BattleID & battleID, const CStack * stack, const ReachabilityInfo & dists, const std::vector<EnemyInfo> &enemyInfos)
+{
+	auto closestEnemy = vstd::minElementByFun(enemyInfos,[&](const EnemyInfo & ei) -> int
+		{
+			return dists.distToNearestNeighbour(stack, ei.s);
+		}
+	);
+
+	if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
+	{
+		cb->battleMakeUnitAction(battleID, goTowards(battleID, stack, closestEnemy->s->getAttackableHexes(stack)));
+		return true;
+	}
+	return false;
 }
 
 void CStupidAI::battleAttack(const BattleID & battleID, const BattleAttack *ba)
@@ -247,7 +261,7 @@ void CStupidAI::battleNewRound(const BattleID & battleID)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
+void CStupidAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
 {
 	print("battleStackMoved called");
 }
@@ -278,7 +292,7 @@ void CStupidAI::print(const std::string &text) const
 	logAi->trace("CStupidAI  [%p]: %s", this, text);
 }
 
-BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stack, std::vector<BattleHex> hexes) const
+BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stack, BattleHexArray hexes) const
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
 	auto avHexes = cb->getBattle(battleID)->battleGetAvailableHexes(reachability, stack, false);
@@ -288,14 +302,14 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 		return BattleAction::makeDefend(stack);
 	}
 
-	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	hexes.sort([&](const BattleHex & h1, const BattleHex & h2) -> bool
 	{
-		return reachability.distances[h1] < reachability.distances[h2];
+		return reachability.distances[h1.toInt()] < reachability.distances[h2.toInt()];
 	});
 
-	for(auto hex : hexes)
+	for(const auto & hex : hexes)
 	{
-		if(vstd::contains(avHexes, hex))
+		if(avHexes.contains(hex))
 		{
 			if(stack->position == hex)
 				return BattleAction::makeDefend(stack);
@@ -310,9 +324,9 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 		}
 	}
 
-	BattleHex bestNeighbor = hexes.front();
+	BattleHex bestneighbour = hexes.front();
 
-	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
+	if(reachability.distances[bestneighbour.toInt()] > GameConstants::BFIELD_SIZE)
 	{
 		return BattleAction::makeDefend(stack);
 	}
@@ -321,16 +335,16 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](const BattleHex & hex) -> int
 		{
-			return BattleHex::getDistance(bestNeighbor, hex);
+			return BattleHex::getDistance(bestneighbour, hex);
 		});
 
 		return BattleAction::makeMove(stack, *nearestAvailableHex);
 	}
 	else
 	{
-		BattleHex currentDest = bestNeighbor;
+		BattleHex currentDest = bestneighbour;
 		while(1)
 		{
 			if(!currentDest.isValid())
@@ -339,14 +353,14 @@ BattleAction CStupidAI::goTowards(const BattleID & battleID, const CStack * stac
 				return BattleAction::makeDefend(stack);
 			}
 
-			if(vstd::contains(avHexes, currentDest))
+			if(avHexes.contains(currentDest))
 			{
 				if(stack->position == currentDest)
 					return BattleAction::makeDefend(stack);
 				return BattleAction::makeMove(stack, currentDest);
 			}
 
-			currentDest = reachability.predecessors[currentDest];
+			currentDest = reachability.predecessors[currentDest.toInt()];
 		}
 	}
 }

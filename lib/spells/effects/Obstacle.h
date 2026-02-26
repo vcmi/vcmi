@@ -12,7 +12,7 @@
 
 #include "LocationEffect.h"
 #include "../../GameConstants.h"
-#include "../../battle/BattleHex.h"
+#include "../../battle/BattleHexArray.h"
 #include "../../battle/CObstacleInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -42,7 +42,7 @@ public:
 class Obstacle : public LocationEffect
 {
 public:
-	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
+	void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const override;
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
 	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;

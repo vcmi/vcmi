@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ French messages ***
+; *** Inno Setup version 6.5.0+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -26,6 +26,8 @@
 ;     "retry": "Recommencer" au lieu de "Réessayer"
 ; + Added new 6.0.0 messages
 ; + Added new 6.1.0 messages
+; + Added new 6.4.0 messages
+; + Added new 6.5.0 messages
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -83,14 +85,14 @@ SetupAppRunningError=L'assistant d'installation a détecté que %1 est actuellem
 UninstallAppRunningError=La procédure de désinstallation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application  puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner la désinstallation.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Choix du Mode d'Installation
-PrivilegesRequiredOverrideInstruction=Choisissez le mode d'installation
-PrivilegesRequiredOverrideText1=%1 peut être installé pour tous les utilisateurs (nécessite des privilèges administrateur), ou seulement pour vous.
-PrivilegesRequiredOverrideText2=%1 peut-être installé seulement pour vous, ou pour tous les utilisateurs (nécessite des privilèges administrateur).
-PrivilegesRequiredOverrideAllUsers=Installer pour &tous les utilisateurs
-PrivilegesRequiredOverrideAllUsersRecommended=Installer pour &tous les utilisateurs (recommandé)
-PrivilegesRequiredOverrideCurrentUser=Installer seulement pour &moi
-PrivilegesRequiredOverrideCurrentUserRecommended=Installer seulement pour &moi (recommandé)
+PrivilegesRequiredOverrideTitle=Mode d'installation – Autorisations
+PrivilegesRequiredOverrideInstruction=Choisissez comment exécuter le programme d'installation
+PrivilegesRequiredOverrideText1=%1 nécessite des privilèges administrateur pour être installé pour tous les utilisateurs.%nVous pouvez également l'installer uniquement pour votre compte sans privilèges administrateur.
+PrivilegesRequiredOverrideText2=%1 peut être installé uniquement pour votre compte (sans privilèges administrateur), ou pour tous les utilisateurs (nécessite des privilèges administrateur).
+PrivilegesRequiredOverrideAllUsers=Exécuter en tant qu’&administrateur (installation pour tous les utilisateurs)
+PrivilegesRequiredOverrideAllUsersRecommended=Exécuter en tant qu’&administrateur (recommandé)
+PrivilegesRequiredOverrideCurrentUser=Exécuter en tant qu’&utilisateur standard (installation uniquement pour moi)
+PrivilegesRequiredOverrideCurrentUserRecommended=Exécuter en tant qu’&utilisateur standard (recommandé)
 
 ; *** Misc. errors
 ErrorCreatingDir=L'assistant d'installation n'a pas pu créer le dossier "%1"
@@ -230,16 +232,26 @@ ReadyMemoGroup=Dossier du menu Démarrer :
 ReadyMemoTasks=Tâches supplémentaires :
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Téléchargement de fichiers supplémentaires...
+DownloadingLabel2=Téléchargement des fichiers...
 ButtonStopDownload=&Arrêter le téléchargement
 StopDownload=Êtes-vous sûr de vouloir arrêter le téléchargement ?
 ErrorDownloadAborted=Téléchargement annulé
 ErrorDownloadFailed=Le téléchargement a échoué : %1 %2
-ErrorDownloadSizeFailed=La récupération de la taille du fichier a échouée : %1 %2
-ErrorFileHash1=Le calcul de l'empreinte du fichier a échoué : %1
-ErrorFileHash2=Empreinte du fichier invalide : attendue %1, trouvée %2
+ErrorDownloadSizeFailed=La récupération de la taille du fichier a échoué : %1 %2
 ErrorProgress=Progression invalide : %1 sur %2
 ErrorFileSize=Taille du fichier invalide : attendue %1, trouvée %2
+
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Extraction des fichiers...
+ButtonStopExtraction=&Arrêter l'extraction
+StopExtraction=Êtes-vous sûr de vouloir arrêter l'extraction ?
+ErrorExtractionAborted=Extraction annulée
+ErrorExtractionFailed=L'extraction a échoué : %1
+
+; *** Archive extraction failure detailsAdd commentMore actions
+ArchiveIncorrectPassword=Le mot de passe n'est pas correct
+ArchiveIsCorrupted=L'archive est corrompue
+ArchiveUnsupportedFormat=Le format de l'archive n'est pas supporté
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Préparation de l'installation
@@ -285,11 +297,15 @@ AbortRetryIgnoreSelectAction=Choisissez une action
 AbortRetryIgnoreRetry=&Recommencer
 AbortRetryIgnoreIgnore=&Ignorer l'erreur et continuer
 AbortRetryIgnoreCancel=Annuler l'installation
+RetryCancelSelectAction=Choisissez une action
+RetryCancelRetry=&Recommencer
+RetryCancelCancel=Annuler
 
 ; *** Installation status messages
 StatusClosingApplications=Ferme les applications...
 StatusCreateDirs=Création des dossiers...
 StatusExtractFiles=Extraction des fichiers...
+StatusDownloadFiles=Téléchargement des fichiers...
 StatusCreateIcons=Création des raccourcis...
 StatusCreateIniEntries=Création des entrées du fichier INI...
 StatusCreateRegistryEntries=Création des entrées de registre...
@@ -319,6 +335,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Ignorer ce fichier (non recommandé)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer l'erreur et continuer (non recommandé)
 SourceIsCorrupted=Le fichier source est altéré
 SourceDoesntExist=Le fichier source "%1" n'existe pas
+SourceVerificationFailed=La vérification du fichier source a échoué : %1
+VerificationSignatureDoesntExist=Le fichier de signature "%1" n'existe pas
+VerificationSignatureInvalid=Le fichier de signature "%1" est invalide
+VerificationKeyNotFound=Le fichier de signature "%1" utilise une clé inconnue
+VerificationFileNameIncorrect=Le nom du fichier est incorrect
+VerificationFileTagIncorrect=Le tag du fichier est incorrect
+VerificationFileSizeIncorrect=La taille du fichier est incorrecte
+VerificationFileHashIncorrect=L'empreinte du fichier est incorrecte
 ExistingFileReadOnly2=Le fichier existant ne peut pas être remplacé parce qu'il est protégé par l'attribut lecture seule.
 ExistingFileReadOnlyRetry=&Supprimer l'attribut lecture seule et réessayer
 ExistingFileReadOnlyKeepExisting=&Conserver le fichier existant
@@ -337,6 +361,8 @@ ErrorChangingAttr=Une erreur est survenue en essayant de modifier les attributs 
 ErrorCreatingTemp=Une erreur est survenue en essayant de créer un fichier dans le dossier de destination :
 ErrorReadingSource=Une erreur est survenue lors de la lecture du fichier source :
 ErrorCopying=Une erreur est survenue lors de la copie d'un fichier :
+ErrorDownloading=Une erreur s'est produite en essayant de télécharger un fichier :
+ErrorExtracting=Une erreur s'est produite en essayant d'extraire une archive :
 ErrorReplacingExistingFile=Une erreur est survenue lors du remplacement d'un fichier existant :
 ErrorRestartReplace=Le marquage d'un fichier pour remplacement au redémarrage de l'ordinateur a échoué :
 ErrorRenamingTemp=Une erreur est survenue en essayant de renommer un fichier dans le dossier de destination :

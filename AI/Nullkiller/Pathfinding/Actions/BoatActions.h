@@ -24,7 +24,13 @@ namespace AIPathfinding
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
+		SpellID usedSpell;
 	public:
+		SummonBoatAction(SpellID usedSpell)
+			: usedSpell(usedSpell)
+		{
+		}
+
 		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(

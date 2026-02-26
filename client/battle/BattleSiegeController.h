@@ -90,6 +90,8 @@ class BattleSiegeController
 	BattleHex getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const;
 	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
 
+	const std::string & getSiegePrefix() const;
+
 public:
 	BattleSiegeController(BattleInterface & owner, const CGTownInstance *siegeTown);
 
@@ -102,9 +104,9 @@ public:
 	void collectRenderableObjects(BattleRenderer & renderer);
 
 	/// queries from other battle controllers
-	bool isAttackableByCatapult(BattleHex hex) const;
+	bool isAttackableByCatapult(const BattleHex & hex) const;
 	ImagePath getBattleBackgroundName() const;
-	const CCreature *getTurretCreature(BattleHex turretPosition) const;
+	const CCreature *getTurretCreature(const BattleHex & turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 
 	const CGTownInstance *getSiegedTown() const;

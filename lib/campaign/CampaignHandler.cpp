@@ -11,16 +11,17 @@
 #include "CampaignHandler.h"
 
 #include "CampaignState.h"
+#include "CampaignRegionsHandler.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CZipLoader.h"
-#include "../VCMI_Lib.h"
-#include "../constants/StringConstants.h"
+#include "../GameLibrary.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
+#include "../mapping/MapFormatSettings.h"
 #include "../modding/CModHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -29,7 +30,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, std::string filename, std::string modName, std::string encoding)
+void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	if (input.front() < uint8_t(' ')) // binary format
 	{
@@ -62,8 +63,8 @@ void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & inpu
 std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
-	std::string modName = VLC->modh->findResourceOrigin(resourceID);
-	std::string encoding = VLC->modh->findResourceEncoding(resourceID);
+	std::string modName = LIBRARY->modh->findResourceOrigin(resourceID);
+	std::string encoding = LIBRARY->modh->findResourceEncoding(resourceID);
 	
 	auto ret = std::make_unique<Campaign>();
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
@@ -77,8 +78,8 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
-	std::string modName = VLC->modh->findResourceOrigin(resourceID);
-	std::string encoding = VLC->modh->findResourceEncoding(resourceID);
+	const std::string & modName = LIBRARY->modh->findResourceOrigin(resourceID);
+	const std::string & encoding = LIBRARY->modh->findResourceEncoding(resourceID);
 	
 	auto ret = std::make_unique<CampaignState>();
 	
@@ -111,29 +112,16 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	return ret;
 }
 
-static std::string convertMapName(std::string input)
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier)
 {
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-
-	size_t slashPos = input.find_last_of("/");
-
-	if (slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
-
-std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
-{
-	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
+	const std::string & input = TextOperations::toUnicode(reader.readBaseString(), encoding);
 
 	return readLocalizedString(target, input, filename, modName, identifier);
 }
 
-std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier)
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, const std::string & text, const std::string & filename, const std::string & modName, const std::string & identifier)
 {
-	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+	TextIdentifier stringID( "campaign", TextOperations::convertMapName(filename), identifier);
 
 	if (text.empty())
 		return "";
@@ -142,7 +130,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::s
 	return stringID.get();
 }
 
-void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
+void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	ret.version = static_cast<CampaignVersion>(reader["version"].Integer());
 	if(ret.version < CampaignVersion::VCMI_MIN || ret.version > CampaignVersion::VCMI_MAX)
@@ -152,7 +140,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	}
 	
 	ret.version = CampaignVersion::VCMI;
-	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
+	ret.campaignRegions = CampaignRegions(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
 	ret.name.appendTextID(readLocalizedString(ret, reader["name"].String(), filename, modName, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "description"));
@@ -171,6 +159,26 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	ret.outroVideo = VideoPath::fromJson(reader["outroVideo"]);
 }
 
+JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header)
+{
+	JsonNode node;
+	node["version"].Integer() = static_cast<ui64>(CampaignVersion::VCMI);
+	node["regions"] = header.campaignRegions.toJson();
+	node["name"].String() = header.name.toString();
+	node["description"].String() = header.description.toString();
+	node["author"].String() = header.author.toString();
+	node["authorContact"].String() = header.authorContact.toString();
+	node["campaignVersion"].String() = header.campaignVersion.toString();
+	node["creationDateTime"].Integer() = header.creationDateTime;
+	node["allowDifficultySelection"].Bool() = header.difficultyChosenByPlayer;
+	node["music"].String() = header.music.getName();
+	node["loadingBackground"].String() = header.loadingBackground.getName();
+	node["videoRim"].String() = header.videoRim.getName();
+	node["introVideo"].String() = header.introVideo.getName();
+	node["outroVideo"].String() = header.outroVideo.getName();
+	return node;
+}
+
 CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 {
 	auto prologEpilogReader = [](JsonNode & identifier) -> CampaignScenarioPrologEpilog
@@ -179,7 +187,13 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 		ret.hasPrologEpilog = !identifier.isNull();
 		if(ret.hasPrologEpilog)
 		{
-			ret.prologVideo = VideoPath::fromJson(identifier["video"]);
+			auto loadStringOrVector = [](auto & target, auto & node){
+				if(node.isVector())
+					target = {VideoPath::fromJson(node.Vector().at(0)), node.Vector().size() > 1 ? VideoPath::fromJson(node.Vector().at(1)) : VideoPath::builtin("")};
+				else
+					target = {VideoPath::fromJson(node), VideoPath::builtin("")};
+			};
+			loadStringOrVector(ret.prologVideo, identifier["video"]);
 			ret.prologMusic = AudioPath::fromJson(identifier["music"]);
 			ret.prologVoice = AudioPath::fromJson(identifier["voice"]);
 			ret.prologText.jsonDeserialize(identifier["text"]);
@@ -203,56 +217,46 @@ CampaignScenario CampaignHandler::readScenarioFromJson(JsonNode & reader)
 	return ret;
 }
 
+JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
+{
+	auto prologEpilogWriter = [](const CampaignScenarioPrologEpilog & elem) -> JsonNode
+	{
+		JsonNode node;
+		if(elem.hasPrologEpilog)
+		{
+			node["video"].Vector() = JsonVector{ JsonNode(elem.prologVideo.first.getName()), JsonNode(elem.prologVideo.second.getName()) };
+			node["music"].String() = elem.prologMusic.getName();
+			node["voice"].String() = elem.prologVoice.getName();
+			node["text"].String() = elem.prologText.toString();
+		}
+		return node;
+	};
+
+	JsonNode node;
+	node["map"].String() = scenario.mapName;
+	for(auto & g : scenario.preconditionRegions)
+		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
+	node["color"].Integer() = scenario.regionColor;
+	node["difficulty"].Integer() = scenario.difficulty;
+	node["regionText"].String() = scenario.regionText.toString();
+	node["prolog"] = prologEpilogWriter(scenario.prolog);
+	node["epilog"] = prologEpilogWriter(scenario.epilog);
+
+	writeScenarioTravelToJson(node, scenario.travelOptions);
+
+	return node;
+}
+
+static const std::map<std::string, CampaignStartOptions> startOptionsMap = {
+	{"none", CampaignStartOptions::NONE},
+	{"bonus", CampaignStartOptions::START_BONUS},
+	{"crossover", CampaignStartOptions::HERO_CROSSOVER},
+	{"hero", CampaignStartOptions::HERO_OPTIONS}
+};
+
 CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
 	CampaignTravel ret;
-
-	std::map<std::string, CampaignStartOptions> startOptionsMap = {
-		{"none", CampaignStartOptions::NONE},
-		{"bonus", CampaignStartOptions::START_BONUS},
-		{"crossover", CampaignStartOptions::HERO_CROSSOVER},
-		{"hero", CampaignStartOptions::HERO_OPTIONS}
-	};
-	
-	std::map<std::string, CampaignBonusType> bonusTypeMap = {
-		{"spell", CampaignBonusType::SPELL},
-		{"creature", CampaignBonusType::MONSTER},
-		{"building", CampaignBonusType::BUILDING},
-		{"artifact", CampaignBonusType::ARTIFACT},
-		{"scroll", CampaignBonusType::SPELL_SCROLL},
-		{"primarySkill", CampaignBonusType::PRIMARY_SKILL},
-		{"secondarySkill", CampaignBonusType::SECONDARY_SKILL},
-		{"resource", CampaignBonusType::RESOURCE},
-		//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
-		//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
-	};
-	
-	std::map<std::string, ui32> primarySkillsMap = {
-		{"attack", 0},
-		{"defence", 8},
-		{"spellpower", 16},
-		{"knowledge", 24},
-	};
-	
-	std::map<std::string, ui16> heroSpecialMap = {
-		{"strongest", 0xFFFD},
-		{"generated", 0xFFFE},
-		{"random", 0xFFFF}
-	};
-	
-	std::map<std::string, ui8> resourceTypeMap = {
-		//FD - wood+ore
-		//FE - mercury+sulfur+crystal+gem
-		{"wood", 0},
-		{"mercury", 1},
-		{"ore", 2},
-		{"sulfur", 3},
-		{"crystal", 4},
-		{"gems", 5},
-		{"gold", 6},
-		{"common", 0xFD},
-		{"rare", 0xFE}
-	};
 	
 	for(auto & k : reader["heroKeeps"].Vector())
 	{
@@ -265,138 +269,108 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	
 	for(auto & k : reader["keepCreatures"].Vector())
 	{
-		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "creature", k.String()))
+		if(auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "creature", k.String()))
 			ret.monstersKeptByHero.insert(CreatureID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepCreatures contains unresolved identifier %s", k.String());
 	}
 	for(auto & k : reader["keepArtifacts"].Vector())
 	{
-		if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "artifact", k.String()))
+		if(auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "artifact", k.String()))
 			ret.artifactsKeptByHero.insert(ArtifactID(identifier.value()));
 		else
 			logGlobal->warn("VCMP Loading: keepArtifacts contains unresolved identifier %s", k.String());
 	}
 
-	ret.startOptions = startOptionsMap[reader["startOptions"].String()];
-	switch(ret.startOptions)
+	ret.startOptions = startOptionsMap.at(reader["startOptions"].String());
+
+	if (!reader["playerColor"].isNull())
+		ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
+
+	for(auto & bjson : reader["bonuses"].Vector())
 	{
-	case CampaignStartOptions::NONE:
-		//no bonuses. Seems to be OK
-		break;
-	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
-		{
-			ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = bonusTypeMap[bjson["what"].String()];
-				switch (bonus.type)
-				{
-					case CampaignBonusType::RESOURCE:
-						bonus.info1 = resourceTypeMap[bjson["type"].String()];
-						bonus.info2 = bjson["amount"].Integer();
-						break;
-						
-					case CampaignBonusType::BUILDING:
-						bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
-						if(bonus.info1 == -1)
-							logGlobal->warn("VCMP Loading: unresolved building identifier %s", bjson["type"].String());
-						break;
-						
-					default:
-						if(int heroId = heroSpecialMap[bjson["hero"].String()])
-							bonus.info1 = heroId;
-						else
-							if(auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
-								bonus.info1 = identifier.value();
-							else
-								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
-	
-						bonus.info3 = bjson["amount"].Integer();
-						
-						switch(bonus.type)
-						{
-							case CampaignBonusType::SPELL:
-							case CampaignBonusType::MONSTER:
-							case CampaignBonusType::SECONDARY_SKILL:
-							case CampaignBonusType::ARTIFACT:
-								if(auto identifier  = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), bjson["what"].String(), bjson["type"].String()))
-									bonus.info2 = identifier.value();
-								else
-									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
-								break;
-								
-							case CampaignBonusType::SPELL_SCROLL:
-								if(auto Identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "spell", bjson["type"].String()))
-									bonus.info2 = Identifier.value();
-								else
-									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
-								break;
-								
-							case CampaignBonusType::PRIMARY_SKILL:
-								for(auto & ps : primarySkillsMap)
-									bonus.info2 |= bjson[ps.first].Integer() << ps.second;
-								break;
-								
-							default:
-								bonus.info2 = bjson["type"].Integer();
-						}
-						break;
-				}
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
+		try {
+			ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
 		}
-	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
+		catch (const std::exception &)
 		{
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
-				bonus.info1 = bjson["playerColor"].Integer(); //player color
-				bonus.info2 = bjson["scenario"].Integer(); //from what scenario
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
-		{
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HERO;
-				bonus.info1 = bjson["playerColor"].Integer(); //player color
-				
-				if(int heroId = heroSpecialMap[bjson["hero"].String()])
-					bonus.info2 = heroId;
-				else
-					if (auto identifier = VLC->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", bjson["hero"].String()))
-						bonus.info2 = identifier.value();
-					else
-						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", bjson["hero"].String());
-			
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	default:
-		{
-			logGlobal->warn("VCMP Loading: Unsupported start options value");
-			break;
+			logGlobal->error("Failed to parse campaign bonus: %s", bjson.toCompactString());
+			throw;
 		}
 	}
 
 	return ret;
 }
 
+void CampaignHandler::writeScenarioTravelToJson(JsonNode & node, const CampaignTravel & travel)
+{
+	if(travel.whatHeroKeeps.experience)
+		node["heroKeeps"].Vector().push_back(JsonNode("experience"));
+	if(travel.whatHeroKeeps.primarySkills)
+		node["heroKeeps"].Vector().push_back(JsonNode("primarySkills"));
+	if(travel.whatHeroKeeps.secondarySkills)
+		node["heroKeeps"].Vector().push_back(JsonNode("secondarySkills"));
+	if(travel.whatHeroKeeps.spells)
+		node["heroKeeps"].Vector().push_back(JsonNode("spells"));
+	if(travel.whatHeroKeeps.artifacts)
+		node["heroKeeps"].Vector().push_back(JsonNode("artifacts"));
+	for(const auto & c : travel.monstersKeptByHero)
+		node["keepCreatures"].Vector().push_back(JsonNode(CreatureID::encode(c)));
+	for(const auto & a : travel.artifactsKeptByHero)
+		node["keepArtifacts"].Vector().push_back(JsonNode(ArtifactID::encode(a)));
+	
+	node["startOptions"].String() = vstd::reverseMap(startOptionsMap)[travel.startOptions];
 
-void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
+	if (travel.playerColor.isValidPlayer())
+		node["playerColor"].String() = PlayerColor::encode(travel.playerColor.getNum());
+
+	for (const auto & bonus : travel.bonusesToChoose)
+		node["bonuses"].Vector().push_back(bonus.toJson());
+}
+
+void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding )
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
-	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	if(ret.version != CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
-		ret.loadLegacyData(campId);
+
+	if (ret.version == CampaignVersion::HotA)
+	{
+		// Format versions:
+		// 0 - unused?
+		// 1 - 1.7.0
+		// 2 - 1.7.3
+		// 3 - 1.8.0
+		int32_t formatVersion = reader.readInt32();
+
+		if (formatVersion == 2)
+		{
+			int hotaVersionMajor = reader.readUInt32();
+			int hotaVersionMinor = reader.readUInt32();
+			int hotaVersionPatch = reader.readUInt32();
+			logGlobal->trace("Loading HotA campaign, version %d.%d.%d", hotaVersionMajor, hotaVersionMinor, hotaVersionPatch);
+
+			bool forceMatchingVersion = reader.readBool();
+			if (forceMatchingVersion)
+				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", filename);
+		}
+
+		[[maybe_unused]] int32_t unknownB = reader.readInt8();
+		[[maybe_unused]] int32_t unknownC = reader.readInt32();
+		ret.numberOfScenarios = reader.readInt32();
+
+		assert(unknownB == 1);
+		assert(unknownC == 0);
+		assert(ret.numberOfScenarios <= 8);
+	}
+
+	const auto & mapping = LIBRARY->mapFormat->getMapping(ret.version);
+
+	CampaignRegionID campaignMapId(reader.readUInt8());
+	if(ret.version != CampaignVersion::Chr)
+	{
+		ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
+		if(ret.version != CampaignVersion::HotA)
+			ret.numberOfScenarios = ret.campaignRegions.regionsCount();
+	}
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	ret.author.appendRawString("");
@@ -404,11 +378,12 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	ret.campaignVersion.appendRawString("");
 	ret.creationDateTime = 0;
 	if (ret.version > CampaignVersion::RoE)
-		ret.difficultyChosenByPlayer = reader.readInt8();
+		ret.difficultyChosenByPlayer = reader.readBool();
 	else
 		ret.difficultyChosenByPlayer = false;
 
-	ret.music = prologMusicName(reader.readInt8());
+	ret.music = mapping.remapCampaignMusic(reader.readUInt8());
+	logGlobal->trace("Campaign %s: map %d (%d scenarios), music theme: %s", filename, campaignMapId.getNum(), ret.numberOfScenarios, ret.music.getOriginalName());
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -416,18 +391,17 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 
 CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader, CampaignHeader & header)
 {
+	const auto & mapping = LIBRARY->mapFormat->getMapping(header.version);
+
 	auto prologEpilogReader = [&](const std::string & identifier) -> CampaignScenarioPrologEpilog
 	{
 		CampaignScenarioPrologEpilog ret;
-		ret.hasPrologEpilog = reader.readUInt8();
+		ret.hasPrologEpilog = reader.readBool();
 		if(ret.hasPrologEpilog)
 		{
-			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
-
-			ui8 index = reader.readUInt8();
-			ret.prologVideo = CampaignHandler::prologVideoName(index);
-			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
-			ret.prologVoice = isOriginalCampaign ? CampaignHandler::prologVoiceName(index) : AudioPath();
+			ret.prologVideo = mapping.remapCampaignVideo(reader.readUInt8());
+			ret.prologMusic = mapping.remapCampaignMusic(reader.readUInt8());
+			logGlobal->trace("Campaign %s, scenario %s: music theme: %s, video: %s", header.filename, identifier, ret.prologMusic.getOriginalName(), ret.prologVideo.first.getOriginalName());
 			ret.prologText.appendTextID(readLocalizedString(header, reader, header.filename, header.modName, header.encoding, identifier));
 		}
 		return ret;
@@ -446,9 +420,18 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
+	assert(ret.difficulty < 5);
 	ret.regionText.appendTextID(readLocalizedString(header, reader, header.filename, header.modName, header.encoding, ret.mapName + ".region"));
 	ret.prolog = prologEpilogReader(ret.mapName + ".prolog");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".prolog2");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".prolog3");
 	ret.epilog = prologEpilogReader(ret.mapName + ".epilog");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".epilog2");
+	if (header.version == CampaignVersion::HotA)
+		prologEpilogReader(ret.mapName + ".epilog3");
 
 	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
 
@@ -456,14 +439,14 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 }
 
 template<typename Identifier>
-static void readContainer(std::set<Identifier> & container, CBinaryReader & reader, int sizeBytes)
+static void readContainer(std::set<Identifier> & container, CBinaryReader & reader, const MapIdentifiersH3M & remapper, int sizeBytes)
 {
 	for(int iId = 0, byte = 0; iId < sizeBytes * 8; ++iId)
 	{
 		if(iId % 8 == 0)
 			byte = reader.readUInt8();
 		if(byte & (1 << iId % 8))
-			container.insert(Identifier(iId));
+			container.insert(remapper.remap(Identifier(iId)));
 	}
 }
 
@@ -477,120 +460,30 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	ret.whatHeroKeeps.secondarySkills = whatHeroKeeps & 4;
 	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
 	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
+
+	const auto & mapping = LIBRARY->mapFormat->getMapping(version);
 	
-	readContainer(ret.monstersKeptByHero, reader, 19);
-	readContainer(ret.artifactsKeptByHero, reader, version < CampaignVersion::SoD ? 17 : 18);
+	if (version == CampaignVersion::HotA)
+	{
+		readContainer(ret.monstersKeptByHero, reader, mapping, 24);
+		readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
+	}
+	else
+	{
+		readContainer(ret.monstersKeptByHero, reader, mapping, 19);
+		readContainer(ret.artifactsKeptByHero, reader, mapping, version < CampaignVersion::SoD ? 17 : 18);
+	}
 
 	ret.startOptions = static_cast<CampaignStartOptions>(reader.readUInt8());
 
-	switch(ret.startOptions)
+	if (ret.startOptions == CampaignStartOptions::START_BONUS)
+		ret.playerColor.setNum(reader.readUInt8());
+
+	if (ret.startOptions != CampaignStartOptions::NONE)
 	{
-	case CampaignStartOptions::NONE:
-		//no bonuses. Seems to be OK
-		break;
-	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
-		{
-			ret.playerColor.setNum(reader.readUInt8());
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = static_cast<CampaignBonusType>(reader.readUInt8());
-				//hero: FFFD means 'most powerful' and FFFE means 'generated'
-				switch(bonus.type)
-				{
-				case CampaignBonusType::SPELL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //spell ID
-						break;
-					}
-				case CampaignBonusType::MONSTER:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt16(); //monster type
-						bonus.info3 = reader.readUInt16(); //monster count
-						break;
-					}
-				case CampaignBonusType::BUILDING:
-					{
-						bonus.info1 = reader.readUInt8(); //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
-						break;
-					}
-				case CampaignBonusType::ARTIFACT:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt16(); //artifact ID
-						break;
-					}
-				case CampaignBonusType::SPELL_SCROLL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //spell ID
-						break;
-					}
-				case CampaignBonusType::PRIMARY_SKILL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt32(); //bonuses (4 bytes for 4 skills)
-						break;
-					}
-				case CampaignBonusType::SECONDARY_SKILL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //skill ID
-						bonus.info3 = reader.readUInt8(); //skill level
-						break;
-					}
-				case CampaignBonusType::RESOURCE:
-					{
-						bonus.info1 = reader.readUInt8(); //type
-						//FD - wood+ore
-						//FE - mercury+sulfur+crystal+gem
-						bonus.info2 = reader.readUInt32(); //count
-						break;
-					}
-				default:
-					logGlobal->warn("Corrupted h3c file");
-					break;
-				}
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
-		{
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
-				bonus.info1 = reader.readUInt8(); //player color
-				bonus.info2 = reader.readUInt8(); //from what scenario
-
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
-		{
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HERO;
-				bonus.info1 = reader.readUInt8(); //player color
-				bonus.info2 = reader.readUInt16(); //hero, FF FF - random
-
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	default:
-		{
-			logGlobal->warn("Corrupted h3c file");
-			break;
-		}
+		ui8 numOfBonuses = reader.readUInt8();
+		for (int g=0; g<numOfBonuses; ++g)
+			ret.bonusesToChoose.emplace_back(reader, mapping, ret.startOptions);
 	}
 
 	return ret;
@@ -661,30 +554,6 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 
 		return ret;
 	}
-}
-
-VideoPath CampaignHandler::prologVideoName(ui8 index)
-{
-	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
-	auto vids = config["videos"].Vector();
-	if(index < vids.size())
-		return VideoPath::fromJson(vids[index]);
-	return VideoPath();
-}
-
-AudioPath CampaignHandler::prologMusicName(ui8 index)
-{
-	std::vector<std::string> music;
-	return AudioPath::builtinTODO(VLC->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index))));
-}
-
-AudioPath CampaignHandler::prologVoiceName(ui8 index)
-{
-	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
-	auto audio = config["voice"].Vector();
-	if(index < audio.size())
-		return AudioPath::fromJson(audio[index]);
-	return AudioPath();
 }
 
 VCMI_LIB_NAMESPACE_END

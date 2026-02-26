@@ -22,6 +22,7 @@ struct CGPathNode;
 struct ObjectPosInfo;
 struct Component;
 class int3;
+using FowTilesType = std::set<int3>;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -74,9 +75,6 @@ private:
 
 	/// updates active state of game window whenever game state changes
 	void adjustActiveness();
-
-	/// checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const;
 
 	/// check and if necessary reacts on scrolling by moving cursor to screen edge
 	void handleMapScrollingUpdate(uint32_t msPassed);
@@ -134,7 +132,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions);
+	void onMapTilesChanged(boost::optional<FowTilesType> positions);
 
 	/// Called by PlayerInterface when hero starts movement
 	void onHeroMovementStarted(const CGHeroInstance * hero);
@@ -194,6 +192,9 @@ public:
 
 	/// opens world view with specific info, e.g. after View Earth/Air is shown
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
+
+	/// update state of buttons
+	void updateActiveState();
 };
 
 extern std::shared_ptr<AdventureMapInterface> adventureInt;

@@ -10,14 +10,14 @@
 #include "StdInc.h"
 #include "BattleRenderer.h"
 
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
-#include "BattleWindow.h"
-#include "BattleSiegeController.h"
-#include "BattleStacksController.h"
+#include "BattleHero.h"
+#include "BattleInterface.h"
 #include "BattleObstacleController.h"
 #include "BattleOverlayLogVisualizer.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
 void BattleRenderer::collectObjects()
 {
@@ -64,7 +64,7 @@ BattleRenderer::BattleRenderer(BattleInterface & owner):
 {
 }
 
-void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRenderer::RenderFunctor functor)
+void BattleRenderer::insert(EBattleFieldLayer layer, const BattleHex & tile, BattleRenderer::RenderFunctor functor)
 {
 	objects.push_back({functor, layer, tile});
 }

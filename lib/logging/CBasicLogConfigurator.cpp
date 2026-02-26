@@ -12,6 +12,7 @@
 #include "CLogger.h"
 
 #include "../CConfigHandler.h"
+#include "../CConsoleHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -122,9 +123,9 @@ ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & leve
 		throw std::runtime_error("Log level " + level + " unknown.");
 }
 
-EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName)
+EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName)
 {
-	static const std::map<std::string, EConsoleTextColor::EConsoleTextColor> colorMap =
+	static const std::map<std::string, EConsoleTextColor> colorMap =
 	{
 		{"default", EConsoleTextColor::DEFAULT},
 		{"green", EConsoleTextColor::GREEN},

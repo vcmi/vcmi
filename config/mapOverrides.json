@@ -2370,5 +2370,120 @@
 		},
 		"victoryIconIndex" : 11,
 		"victoryString" : "core.vcdesc.0"
+	},
+	
+	"data/gelu:1" : { // Cutthroats
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.2",
+		"triggeredEvents" : {
+			"heroesMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 11, 8, 0 ], "type" : "hero" } ] // Gelu
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [ "haveArtifact", { "type" : "artifact.ringOfVitality" } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
+	},
+	"data/gelu:2" : { // Valley of the Dragon Lords
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.2",
+		"triggeredEvents" : {
+			"heroesMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 62, 12, 0 ], "type" : "hero" } ] // Gelu
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [ "haveArtifact", { "type" : "artifact.ringOfLife" } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
+	},
+	"data/gelu:3" : { // A Thief in the Night
+		"defeatIconIndex" : 1,
+		"defeatString" : "core.lcdesc.2",
+		"triggeredEvents" : {
+			"heroesMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 50, 9, 0 ], "type" : "hero" } ] // Gelu
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
+			"specialVictory" : {
+				"condition" : [ "haveArtifact", { "type" : "artifact.vialOfLifeblood" } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.281",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.280"
+			},
+			"standardDefeat" : {
+				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.8",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.7"
+			}
+		},
+		"victoryIconIndex" : 0,
+		"victoryString" : "core.vcdesc.1"
 	}
 }

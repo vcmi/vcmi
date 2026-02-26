@@ -29,7 +29,6 @@ private:
 	std::shared_ptr<CIntObject> createTab(size_t index);
 	void openTab(size_t index);
 
-	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
 
 	void loadGameButtonCallback();
 	void saveGameButtonCallback();
@@ -40,6 +39,7 @@ private:
 public:
 	SettingsMainWindow(BattleInterface * parentBattleInterface = nullptr);
 
+	void close(); //TODO: copypaste of WindowBase::close(), consider changing Windowbase to IWindowbase with default close() implementation and changing WindowBase inheritance to CIntObject + IWindowBase
 	void showAll(Canvas & to) override;
 	void onScreenResize() override;
 };

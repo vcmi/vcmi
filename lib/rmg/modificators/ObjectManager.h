@@ -32,9 +32,9 @@ struct DistanceMaximizeFunctor
 struct RequiredObjectInfo
 {
 	RequiredObjectInfo();
-	RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength = 0, bool createRoad = false, CGObjectInstance* nearbyTarget = nullptr);
+	RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui32 guardStrength = 0, bool createRoad = false, CGObjectInstance* nearbyTarget = nullptr);
 
-	CGObjectInstance* obj;
+	std::shared_ptr<CGObjectInstance> obj;
 	CGObjectInstance* nearbyTarget;
 	int3 pos;
 	ui32 guardStrength;
@@ -71,7 +71,7 @@ public:
 	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
 	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
 
-	CGCreature * chooseGuard(si32 strength, bool zoneGuard = false);
+	std::shared_ptr<CGCreature> chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad = false);
 

@@ -11,6 +11,7 @@
 
 #include "LobbyServer.h"
 
+#include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -24,10 +25,10 @@ int main(int argc, const char * argv[])
 	CResourceHandler::load("config/filesystem.json"); // FIXME: we actually need only config directory for schemas, can be reduced
 
 #ifndef VCMI_IOS
-	console = new CConsoleHandler();
+	CConsoleHandler console;
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Lobby_log.txt", console);
-	logConfig.configureDefault();
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Lobby_log.txt", &console);
+	logConfigurator.configureDefault();
 
 	auto databasePath = VCMIDirs::get().userDataPath() / "vcmiLobby.db";
 	logGlobal->info("Opening database %s", databasePath.string());

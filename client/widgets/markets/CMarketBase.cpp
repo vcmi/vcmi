@@ -13,20 +13,20 @@
 #include "../MiscWidgets.h"
 
 #include "../Images.h"
-#include "../../gui/CGuiHandler.h"
+#include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/TextControls.h"
 
-#include "../../CGameInfo.h"
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
-#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)
@@ -46,7 +46,8 @@ void CMarketBase::deselect()
 		offerTradePanel->highlightedSlot->selectSlot(false);
 		offerTradePanel->highlightedSlot.reset();
 	}
-	deal->block(true);
+	if(deal)
+		deal->block(true);
 	bidQty = 0;
 	offerQty = 0;
 	updateShowcases();
@@ -54,7 +55,12 @@ void CMarketBase::deselect()
 
 void CMarketBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel)
 {
-	assert(newSlot);
+	if(!newSlot)
+	{
+		deselect();
+		return;
+	}
+
 	assert(curPanel);
 	if(newSlot == curPanel->highlightedSlot)
 		return;
@@ -81,13 +87,14 @@ void CMarketBase::updateSubtitlesForBid(EMarketMode marketMode, int bidId)
 	}
 	else
 	{
-		for(const auto & slot : offerTradePanel->slots)
-		{
-			int slotBidQty = 0;
-			int slotOfferQty = 0;
-			market->getOffer(bidId, slot->id, slotBidQty, slotOfferQty, marketMode);
-			offerTradePanel->updateOffer(*slot, slotBidQty, slotOfferQty);
-		}
+		if(offerTradePanel)
+			for(const auto & slot : offerTradePanel->slots)
+			{
+				int slotBidQty = 0;
+				int slotOfferQty = 0;
+				market->getOffer(bidId, slot->id, slotBidQty, slotOfferQty, marketMode);
+				offerTradePanel->updateOffer(*slot, slotBidQty, slotOfferQty);
+			}
 	}
 };
 
@@ -120,14 +127,19 @@ void CMarketBase::highlightingChanged()
 	updateShowcases();
 }
 
+CMarketBase::MarketShowcasesParams CMarketBase::getShowcasesParams() const
+{
+	return {};
+}
+
 CExperienceAltar::CExperienceAltar()
 {
 	OBJECT_CONSTRUCTION;
 
 	// Experience needed to reach next level
-	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
+	texts.emplace_back(std::make_shared<CTextBox>(LIBRARY->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	// Total experience on the Altar
-	texts.emplace_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
+	texts.emplace_back(std::make_shared<CTextBox>(LIBRARY->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	expToLevel = std::make_shared<CLabel>(76, 477, FONT_SMALL, ETextAlignment::CENTER);
 	expForHero = std::make_shared<CLabel>(76, 545, FONT_SMALL, ETextAlignment::CENTER);
 }
@@ -139,7 +151,7 @@ void CExperienceAltar::deselect()
 
 void CExperienceAltar::update()
 {
-	expToLevel->setText(std::to_string(CGI->heroh->reqExp(CGI->heroh->level(hero->exp) + 1) - hero->exp));
+	expToLevel->setText(std::to_string(LIBRARY->heroh->reqExp(LIBRARY->heroh->level(hero->exp) + 1) - hero->exp));
 }
 
 CCreaturesSelling::CCreaturesSelling()
@@ -164,8 +176,9 @@ bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> 
 
 void CCreaturesSelling::updateSubtitles() const
 {
-	for(const auto & heroSlot : bidTradePanel->slots)
-		heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
+	if(bidTradePanel)
+		for(const auto & heroSlot : bidTradePanel->slots)
+			heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
 }
 
 CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
@@ -175,7 +188,7 @@ CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & c
 
 	offerTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, updSlotsCallback);
 	offerTradePanel->moveTo(pos.topLeft() + Point(327, 182));
-	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
+	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[168]));
 }
 
 CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
@@ -183,13 +196,14 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 	OBJECT_CONSTRUCTION;
 
 	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this));
-	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
+	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[270]));
 }
 
 void CResourcesSelling::updateSubtitles() const
 {
-	for(const auto & slot : bidTradePanel->slots)
-		slot->subtitle->setText(std::to_string(LOCPLINT->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
+	if(bidTradePanel)
+		for(const auto & slot : bidTradePanel->slots)
+			slot->subtitle->setText(std::to_string(GAME->interface()->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
 }
 
 CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)
@@ -197,7 +211,8 @@ CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback
 	OBJECT_CONSTRUCTION;
 
 	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, movingCallback, 0, 0, 0, Orientation::HORIZONTAL);
-	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), CGI->generaltexth->zelp[596],
+	offerSlider->setScrollBounds(Rect(-215, -50, 575, 120));
+	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), LIBRARY->generaltexth->zelp[596],
 		[this]()
 		{
 			offerSlider->scrollToMax();

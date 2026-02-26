@@ -14,37 +14,39 @@
 #include "CGTownInstance.h"
 #include "MiscObjects.h"
 
-#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
+void IObjectInterface::showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	cb->sendAndApply(iw);
+	gameEvents.sendAndApply(iw);
 }
 
 ///IObjectInterface
-void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
+void IObjectInterface::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
+void IObjectInterface::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn(vstd::RNG & rand) const
+void IObjectInterface::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {}
 
-void IObjectInterface::initObj(vstd::RNG & rand)
+void IObjectInterface::initObj(IGameRandomizer & gameRandomizer)
 {}
 
-void IObjectInterface::pickRandomObject(vstd::RNG & rand)
+void IObjectInterface::pickRandomObject(IGameRandomizer & gameRandomizer)
 {}
 
 void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)
@@ -65,16 +67,16 @@ void IObjectInterface::postInit()
 void IObjectInterface::preInit()
 {}
 
-void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void IObjectInterface::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void IObjectInterface::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {}
 
-void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
+void IObjectInterface::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
-void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
+void IObjectInterface::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
 int3 IBoatGenerator::bestLocation() const
@@ -94,11 +96,17 @@ int3 IBoatGenerator::bestLocation() const
 			continue;
 
 		if (tile->blocked())
+			continue;
+
+		if (tile->visitable())
 		{
 			bool hasBoat = false;
-			for (auto const * object : tile->blockingObjects)
+			for (auto const & objectID : tile->visitableObjects)
+			{
+				const auto * object = getObject()->cb->getObj(objectID);
 				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
 					hasBoat = true;
+			}
 
 			if (!hasBoat)
 				continue; // tile is blocked, but not by boat -> check next potential position
@@ -112,7 +120,7 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 {
 	int3 tile = bestLocation();
 
-	if(!tile.valid())
+	if(!tile.isValid())
 		return TILE_BLOCKED; //no available water
 
 	const TerrainTile *t = getObject()->cb->getTile(tile);
@@ -122,7 +130,9 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(t->blockingObjects.empty())
 		return GOOD; //OK
 
-	if(t->blockingObjects.front()->ID == Obj::BOAT || t->blockingObjects.front()->ID == Obj::HERO)
+	auto blockerObject = getObject()->cb->getObjInstance(t->blockingObjects.front());
+
+	if(blockerObject->ID == Obj::BOAT || blockerObject->ID == Obj::HERO)
 		return BOAT_ALREADY_BUILT; //blocked with boat
 
 	return TILE_BLOCKED; //blocked

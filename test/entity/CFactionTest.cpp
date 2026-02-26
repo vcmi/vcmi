@@ -34,9 +34,9 @@ protected:
 TEST_F(CFactionTest, HasTown)
 {
 	EXPECT_FALSE(subject->hasTown());
-	subject->town = new CTown();
+	subject->town = std::make_unique<CTown>();
 	EXPECT_TRUE(subject->hasTown());
-	vstd::clear_pointer(subject->town);
+	subject->town.reset();
 	EXPECT_FALSE(subject->hasTown());
 }
 
@@ -56,7 +56,7 @@ TEST_F(CFactionTest, RegistersIcons)
 		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
 	};
 
-	subject->town = new CTown();
+	subject->town = std::make_unique<CTown>();
 
 	CTown::ClientInfo & info = subject->town->clientInfo;
 

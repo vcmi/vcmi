@@ -36,7 +36,7 @@ template<typename T>
 class ThreadSafeProxy
 {
 public:
-	ThreadSafeProxy(T& resource, boost::recursive_mutex& mutex)
+	ThreadSafeProxy(T& resource, std::recursive_mutex& mutex)
 		: resourceRef(resource), lock(mutex) {}
 
 	T* operator->() { return &resourceRef; }
@@ -66,7 +66,7 @@ public:
 
 private:
 	T& resourceRef;
-	std::lock_guard<boost::recursive_mutex> lock;
+	std::lock_guard<std::recursive_mutex> lock;
 };
 
 class Zone : public rmg::ZoneOptions
@@ -83,6 +83,7 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
+	void moveToCenterOfMass();
 	
 	ThreadSafeProxy<rmg::Area> area(); 
 	ThreadSafeProxy<const rmg::Area> area() const;
@@ -130,8 +131,8 @@ public:
 	
 	vstd::RNG & getRand();
 public:
-	mutable boost::recursive_mutex areaMutex;
-	using Lock = boost::unique_lock<boost::recursive_mutex>;
+	mutable std::recursive_mutex areaMutex;
+	using Lock = std::unique_lock<std::recursive_mutex>;
 	
 protected:
 	CMapGenerator & generator;

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "GameChatHandler.h"
+#include "GameInstance.h"
 #include "CServerHandler.h"
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
@@ -18,12 +19,11 @@
 
 #include "adventureMap/CInGameConsole.h"
 
-#include "../CCallback.h"
-
+#include "../lib/callback/CCallback.h"
 #include "../lib/networkPacks/PacksForLobby.h"
-#include "../lib/mapObjects/CArmedInstance.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/TextOperations.h"
 
@@ -39,8 +39,8 @@ void GameChatHandler::resetMatchState()
 
 void GameChatHandler::sendMessageGameplay(const std::string & messageText)
 {
-	LOCPLINT->cb->sendMessage(messageText, LOCPLINT->localState->getCurrentArmy());
-	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
+	GAME->interface()->cb->sendMessage(messageText, GAME->interface()->localState->getCurrentArmy());
+	GAME->server().getGlobalLobby().sendMatchChatMessage(messageText);
 }
 
 void GameChatHandler::sendMessageLobby(const std::string & senderName, const std::string & messageText)
@@ -50,8 +50,8 @@ void GameChatHandler::sendMessageLobby(const std::string & senderName, const std
 	txt.appendRawString(messageText);
 	lcm.message = txt;
 	lcm.playerName = senderName;
-	CSH->sendLobbyPack(lcm);
-	CSH->getGlobalLobby().sendMatchChatMessage(messageText);
+	GAME->server().sendLobbyPack(lcm);
+	GAME->server().getGlobalLobby().sendMatchChatMessage(messageText);
 }
 
 void GameChatHandler::onNewLobbyMessageReceived(const std::string & senderName, const std::string & messageText)
@@ -90,20 +90,20 @@ void GameChatHandler::onNewGameMessageReceived(PlayerColor sender, const std::st
 	std::string playerName = "<UNKNOWN>";
 
 	if (sender.isValidPlayer())
-		playerName = LOCPLINT->cb->getStartInfo()->playerInfos.at(sender).name;
+		playerName = GAME->interface()->cb->getStartInfo()->playerInfos.at(sender).name;
 
 	if (sender.isSpectator())
-		playerName = VLC->generaltexth->translate("vcmi.lobby.login.spectator");
+		playerName = LIBRARY->generaltexth->translate("vcmi.lobby.login.spectator");
 
 	chatHistory.push_back({playerName, messageText, timeFormatted});
 
-	LOCPLINT->cingconsole->addMessage(timeFormatted, playerName, messageText);
+	GAME->interface()->cingconsole->addMessage(timeFormatted, playerName, messageText);
 }
 
 void GameChatHandler::onNewSystemMessageReceived(const std::string & messageText)
 {
 	chatHistory.push_back({"System", messageText, TextOperations::getCurrentFormattedTimeLocal()});
 
-	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
-		LOCPLINT->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
+	if(GAME->interface() && !settings["session"]["hideSystemMessages"].Bool())
+		GAME->interface()->cingconsole->addMessage(TextOperations::getCurrentFormattedTimeLocal(), "System", messageText);
 }

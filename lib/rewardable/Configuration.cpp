@@ -103,6 +103,7 @@ void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("resetParameters", resetParameters);
 	handler.serializeBool("canRefuse", canRefuse);
 	handler.serializeBool("showScoutedPreview", showScoutedPreview);
+	handler.serializeBool("forceCombat", forceCombat);
 	handler.serializeBool("coastVisitable", coastVisitable);
 	handler.serializeInt("infoWindowType", infoWindowType);
 }

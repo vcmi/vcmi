@@ -14,7 +14,7 @@ class PotentialTargets
 {
 public:
 	std::vector<AttackPossibility> possibleAttacks;
-	std::vector<const battle::Unit *> unreachableEnemies;
+	battle::Units unreachableEnemies;
 
 	PotentialTargets(){};
 	PotentialTargets(

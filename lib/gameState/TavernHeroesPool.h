@@ -11,8 +11,8 @@
 
 #include "../GameConstants.h"
 #include "TavernSlot.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "../serializer/Serializeable.h"
-
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,16 +24,28 @@ class CSimpleArmy;
 
 class DLL_LINKAGE TavernHeroesPool : public Serializeable
 {
+	CGameState * owner;
+
 	struct TavernSlot
 	{
-		CGHeroInstance * hero;
+		HeroTypeID hero;
 		TavernHeroSlot slot;
 		TavernSlotRole role;
 		PlayerColor player;
 
 		template <typename Handler> void serialize(Handler &h)
 		{
-			h & hero;
+			if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			{
+				h & hero;
+			}
+			else
+			{
+				std::shared_ptr<CGObjectInstance> pointer;
+				h & pointer;
+				hero = HeroTypeID(pointer->subID);
+			}
+
 			h & slot;
 			h & role;
 			h & player;
@@ -41,7 +53,7 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 	};
 
 	/// list of all heroes in pool, including those currently present in taverns
-	std::map<HeroTypeID, CGHeroInstance* > heroesPool;
+	std::vector<HeroTypeID> heroesPool;
 
 	/// list of which players are able to purchase specific hero
 	/// if hero is not present in list, he is available for everyone
@@ -51,7 +63,10 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 	std::vector<TavernSlot> currentTavern;
 
 public:
-	~TavernHeroesPool();
+	TavernHeroesPool() = default;
+	TavernHeroesPool(CGameState * owner);
+
+	void setGameState(CGameState * owner);
 
 	/// Returns heroes currently available in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
@@ -64,12 +79,12 @@ public:
 
 	TavernSlotRole getSlotRole(HeroTypeID hero) const;
 
-	CGHeroInstance * takeHeroFromPool(HeroTypeID hero);
+	std::shared_ptr<CGHeroInstance> takeHeroFromPool(HeroTypeID hero);
 
 	/// reset mana and movement points for all heroes in pool
 	void onNewDay();
 
-	void addHeroToPool(CGHeroInstance * hero);
+	void addHeroToPool(HeroTypeID hero);
 
 	/// Marks hero as available to only specific set of players
 	void setAvailability(HeroTypeID hero, std::set<PlayerColor> mask);
@@ -79,7 +94,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & heroesPool;
+		else
+		{
+			std::map<HeroTypeID, std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				heroesPool.push_back(ptr.first);
+		}
 		h & perPlayerAvailability;
 		h & currentTavern;
 	}

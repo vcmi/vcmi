@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
+#include "../constants/Enumerations.h"
+#include "../constants/EntityIdentifiers.h"
 #include "../int3.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
@@ -188,6 +189,8 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
+	/// Bonus tree version for which this information can be considered to be valid
+	int heroBonusTreeVersion = 0;
 	boost::multi_array<CGPathNode, 4> nodes; //[layer][level][w][h]
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
@@ -217,9 +220,9 @@ struct DLL_LINKAGE PathNodeInfo
 
 	PathNodeInfo();
 
-	virtual void setNode(CGameState * gs, CGPathNode * n);
+	virtual void setNode(const IGameInfoCallback & gameInfo, CGPathNode * n);
 
-	void updateInfo(CPathfinderHelper * hlp, CGameState * gs);
+	void updateInfo(CPathfinderHelper * hlp, const IGameInfoCallback & gameInfo);
 
 	bool isNodeObjectVisitable() const;
 };
@@ -235,7 +238,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	CDestinationNodeInfo();
 
-	void setNode(CGameState * gs, CGPathNode * n) override;
+	void setNode(const IGameInfoCallback & gameInfo, CGPathNode * n) override;
 
 	virtual bool isBetterWay() const;
 };

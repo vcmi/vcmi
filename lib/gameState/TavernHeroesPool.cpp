@@ -10,21 +10,31 @@
 #include "StdInc.h"
 #include "TavernHeroesPool.h"
 
+#include "CGameState.h"
+
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapping/CMap.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TavernHeroesPool::~TavernHeroesPool()
+TavernHeroesPool::TavernHeroesPool(CGameState * owner)
+	: owner(owner)
+{}
+
+void TavernHeroesPool::setGameState(CGameState * newOwner)
 {
-	for(const auto & ptr : heroesPool) // clean hero pool
-		delete ptr.second;
+	owner = newOwner;
 }
 
 std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() const
 {
-	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
+	std::map<HeroTypeID, CGHeroInstance*> pool;
+
+	for (const auto & hero : heroesPool)
+		pool[hero] = owner->getMap().tryGetFromHeroPool(hero);
+
 	for(const auto & slot : currentTavern)
-		pool.erase(slot.hero->getHeroTypeID());
+		pool.erase(slot.hero);
 
 	return pool;
 }
@@ -33,7 +43,7 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
 	for (auto const & slot : currentTavern)
 	{
-		if (slot.hero->getHeroTypeID() == hero)
+		if (slot.hero == hero)
 			return slot.role;
 	}
 	return TavernSlotRole::NONE;
@@ -48,19 +58,20 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 	if (hero == HeroTypeID::NONE)
 		return;
 
-	CGHeroInstance * h = heroesPool[hero];
+	auto h = owner->getMap().tryGetFromHeroPool(hero);
+	assert(h != nullptr);
 
-	if (h && army)
+	if (army)
 		h->setToArmy(army);
 
-	if (h && replenishPoints)
+	if (replenishPoints)
 	{
 		h->setMovementPoints(h->movementPointsLimit(true));
 		h->mana = h->manaLimit();
 	}
 
 	TavernSlot newSlot;
-	newSlot.hero = h;
+	newSlot.hero = hero;
 	newSlot.player = player;
 	newSlot.role = role;
 	newSlot.slot = slot;
@@ -90,54 +101,51 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 
 	for(const auto & slot : currentTavern)
 	{
+		assert(slot.hero.hasValue());
 		if (slot.player == color)
-			result.push_back(slot.hero);
+			result.push_back(owner->getMap().tryGetFromHeroPool(slot.hero));
 	}
 
 	return result;
 }
 
-CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
+std::shared_ptr<CGHeroInstance> TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 {
-	assert(heroesPool.count(hero));
-
-	CGHeroInstance * result = heroesPool[hero];
-	heroesPool.erase(hero);
-
+	assert(vstd::contains(heroesPool, hero));
+	vstd::erase(heroesPool, hero);
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
-		return entry.hero->getHeroTypeID() == hero;
+		return entry.hero == hero;
 	});
 
-	assert(result);
-	return result;
+	return owner->getMap().tryTakeFromHeroPool(hero);
 }
 
 void TavernHeroesPool::onNewDay()
 {
 	auto unusedHeroes = unusedHeroesFromPool();
 
-	for(auto & hero : heroesPool)
+	for(auto & heroID : heroesPool)
 	{
-		assert(hero.second);
-		if(!hero.second)
-			continue;
+		auto heroPtr = owner->getMap().tryGetFromHeroPool(heroID);
+		assert(heroPtr);
 
-		hero.second->removeBonusesRecursive(Bonus::OneDay);
-		hero.second->reduceBonusDurations(Bonus::NDays);
-		hero.second->reduceBonusDurations(Bonus::OneWeek);
+		heroPtr->removeBonusesRecursive(Bonus::OneDay);
+		heroPtr->reduceBonusDurations(Bonus::NDays);
+		heroPtr->reduceBonusDurations(Bonus::OneWeek);
 
 		// do not access heroes who are not present in tavern of any players
-		if (vstd::contains(unusedHeroes, hero.first))
+		if (vstd::contains(unusedHeroes, heroID))
 			continue;
 
-		hero.second->setMovementPoints(hero.second->movementPointsLimit(true));
-		hero.second->mana = hero.second->getManaNewTurn();
+		heroPtr->setMovementPoints(heroPtr->movementPointsLimit(true));
+		heroPtr->mana = heroPtr->getManaNewTurn();
 	}
 }
 
-void TavernHeroesPool::addHeroToPool(CGHeroInstance * hero)
+void TavernHeroesPool::addHeroToPool(HeroTypeID hero)
 {
-	heroesPool[hero->getHeroTypeID()] = hero;
+	assert(!vstd::contains(heroesPool, hero));
+	heroesPool.push_back(hero);
 }
 
 void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)

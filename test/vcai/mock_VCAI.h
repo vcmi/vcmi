@@ -78,6 +78,7 @@ public:
 	MOCK_METHOD1(heroManaPointsChanged, void(const CGHeroInstance * hero));
 	MOCK_METHOD3(heroSecondarySkillChanged, void(const CGHeroInstance * hero, int which, int val));
 	MOCK_METHOD0(battleResultsApplied, void());
+	MOCK_METHOD0(battleEnded, void());
 	MOCK_METHOD1(objectPropertyChanged, void(const SetObjectProperty * sop));
 	MOCK_METHOD3(buildChanged, void(const CGTownInstance * town, BuildingID buildingID, int what));
 	MOCK_METHOD3(heroBonusChanged, void(const CGHeroInstance * hero, const Bonus & bonus, bool gain));

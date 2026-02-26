@@ -101,24 +101,49 @@ If you're creating new project part, place `VCMI_LIB_USING_NAMESPACE` in its `St
 
 ## Artificial Intelligence
 
-### StupidAI
+### Combat AI
 
-Stupid AI is recent and used battle AI.
+- Battle AI is recent and used combat AI.
+- Stupid AI is old and deprecated version of combat AI
 
 ### Adventure AI
 
-VCAI module is currently developed agent-based system driven by goals and heroes.
+- NullkillerAI module is currently developed agent-based system driven by goals and heroes.
+- VCAI is old and deprecated version of adventure map AI
 
-### Programming challenge
+## Threading Model
+
+## Long-living threads
+
+Here is list of threads including their name that can be seen in logging or in debugging:
+
+- Main thread (`MainGUI`). This is main thread that is created on app start. This thread is responsible for input processing (including updating screen due to player actions) and for final rendering steps. Note that on some OS'es (like Linux) name of main thread is also name of the application. Because of that, thread name is only set for logging, while debugger will show this thread with default name.
+
+- Network thread (`runNetwork`). Name is semi-historical, since in case of single-player game no longer uses networking, but intra-process communication. In either case, this thread permanently runs boost::asio io_service, and processes any callbacks received through it, whether it is incoming packets from network, or incoming data from another thread. Following actions are also done on this thread, due to being called as part of netpack processing:
+  - combat AI actions
+  - UI feedback on any incoming netpacks. Note that this also includes awaiting for any animation - whether in-combat or adventure map. When animations are playing, network thread will be waiting for animations to finish.
+  - Initial reaction of adventure map AI on netpack. However, AI will usually dispatch this event to AI thread, and perform actual processing in AI thread.
+
+- Server thread (`runServer`). This thread exists for as long as player is in singleplayer game or hosting a multiplayer game, whether on map selection, or already in loaded game. Just like networking thread, this thread also permanently runs own boost::asio io_service, and processes any incoming player (either human or AI) requests, whether through network or through intraprocess communication. When standalone vcmiserver is used, entire server will be represented by this thread.
+
+- Console thread (`consoleHandler`). This thread usually does nothing, and only performs processing of incoming console commands on standard input, which is accessible by running vcmiclient directly.
+
+### Intel TBB
+
+- NullkillerAI parallelizes a lot of its tasks using TBB methods, mostly parallel_for
+- Random map generator actively uses thread pool provided by TBB
+- Client performs image upscaling in background thread to avoid visible freezes
+- AI main task (`NKAI::makeTurn`). This TBB task is created whenever AI stars a new turn, and ends when AI ends its turn. Majority of AI event processing is done in this thread, however some actions are either offloaded entirely as tbb task, or parallelized using methods like parallel_for.
+- AI helper tasks (`NKAI::<various>`). Adventure AI creates such tasks whenever it receives event that requires processing without locking network thread that initiated the call.
+
+## Short-living threads
+
+- Autocombat initiation thread (`autofightingAI`). Combat AI usually runs on network thread, as reaction on unit taking turn netpack event. However initial activation of AI when player presses hotkey or button is done in input processing (`MainGUI`) thread. To avoid freeze when AI selects its first action, this action is done on a temporary thread
+
+- Initializition thread (`initialize`). On game start, to avoid delay in game loading, most of game library initialization is done in separate thread while main thread is playing intro movies.
+
+- Console command processing (`processCommand`). Some console commands that can be entered in game chat either take a long time to process or expect to run without holding any mutexes (like interface mutex). To avoid such problems, all commands entered in game chat are run in separate thread.
 
 ### Fuzzy logic
 
 VCMI includes [FuzzyLite](http://code.google.com/p/fuzzy-lite/) library to make use of fuzzy rule-based algorithms. They are useful to handle uncertainty and resemble human behaviour who takes decisions based on rough observations. FuzzyLite is linked as separate static library in AI/FuzzyLite.lib file.
-
-## Utilities
-
-### Launcher
-
-### Duels
-
-### ERM parser

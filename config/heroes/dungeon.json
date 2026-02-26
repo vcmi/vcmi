@@ -24,7 +24,8 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"dace":
@@ -85,16 +86,7 @@
 			{ "skill" : "tactics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"logistics" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : "heroMovementLand",
-					"type" : "MOVEMENT",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "logistics"
 		}
 	},
 	"synca":
@@ -159,15 +151,7 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"mysticism" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_REGENERATION",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "mysticism"
 		}
 	},
 	"malekith":
@@ -182,16 +166,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"sorcery" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "sorcery"
 		}
 	},
 	"jeddite":
@@ -227,15 +202,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"deemer":

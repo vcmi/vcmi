@@ -10,10 +10,12 @@
 #pragma once
 
 #include "../lib/battle/BattleSide.h"
+#include "../lib/battle/BattleUnitTurnReason.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
-struct BattleHex;
+class BattleHex;
+class BattleHexArray;
 class BattleAction;
 class CBattleInfoCallback;
 struct CObstacleInstance;
@@ -36,8 +38,15 @@ class BattleFlowProcessor : boost::noncopyable
 
 	bool rollGoodMorale(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * stack);
+	bool handleForcedCpuControlledUnit(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCallback& battle, const CStack* actingStack);
+	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
-	void summonGuardiansHelper(const CBattleInfoCallback & battle, std::vector<BattleHex> & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
+	void summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
 	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);
@@ -47,10 +56,11 @@ class BattleFlowProcessor : boost::noncopyable
 	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
-	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack);
+	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
+	double calculateTowerAttackValue(const CBattleInfoCallback& battle, const CStack* attacker, const CStack* target) const;
 
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
-	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
+	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 
 public:
 	explicit BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);

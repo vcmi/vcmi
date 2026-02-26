@@ -9,7 +9,6 @@
  */
 #pragma once
 #include "../../lib/battle/CUnitState.h"
-#include "../../CCallback.h"
 #include "StackWithBonuses.h"
 
 #define BATTLE_TRACE_LEVEL 0
@@ -29,7 +28,7 @@ public:
 
 	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
-	int64_t getObstacleDamage(BattleHex hex, const battle::Unit * defender);
+	int64_t getObstacleDamage(const BattleHex & hex, const battle::Unit * defender);
 	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	void buildDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side);
 };
@@ -55,7 +54,7 @@ public:
 	int64_t shootersBlockedDmg = 0;
 	bool defenderDead = false;
 
-	AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack_);
+	AttackPossibility(const BattleHex & from, const BattleHex & dest, const BattleAttackInfo & attack_);
 
 	float damageDiff() const;
 	float attackValue() const;

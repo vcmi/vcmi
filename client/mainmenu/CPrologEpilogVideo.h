@@ -30,12 +30,17 @@ class CPrologEpilogVideo : public CWindowObject
 	std::shared_ptr<VideoWidget> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
+	void exit();
+
 	bool voiceStopped = false;
+	bool videoFinished = false;
+	int videoFinishedCounter = 0;
 
 public:
 	CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback);
 
 	void tick(uint32_t msPassed) override;
 	void clickPressed(const Point & cursorPosition) override;
+	void keyPressed(EShortcut key) override;
 	void show(Canvas & to) override;
 };

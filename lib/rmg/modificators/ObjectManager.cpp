@@ -19,10 +19,12 @@
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
 #include "MinePlacer.h"
+#include "ObjectPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/army/CStackInstance.h"
 #include "../../mapObjects/CGCreature.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
@@ -47,7 +49,7 @@ void ObjectManager::init()
 	// Consider only connected zones
 	auto id = zone.getId();
 	std::set<TRmgTemplateZoneId> connectedZones;
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	for(const auto & c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
 	{
 		// Only consider connected zones
 		if (c.getZoneA() == id || c.getZoneB() == id)
@@ -68,6 +70,7 @@ void ObjectManager::init()
 
 	DEPENDENCY(TownPlacer); //Only secondary towns
 	DEPENDENCY(MinePlacer);
+	DEPENDENCY(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
 	createDistancesPriorityQueue();
 }
@@ -121,7 +124,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
 	// Workaround to avoid deadlock when accessed from other zone
-	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
+	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		// Unsolvable problem of mutual access
@@ -242,7 +245,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 	}
 	
-	if(result.valid())
+	if(result.isValid())
 		obj.setPosition(result);
 	return result;
 }
@@ -348,7 +351,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
-		if(!pos.valid())
+		if(!pos.isValid())
 		{
 			return rmg::Path::invalid();
 		}
@@ -406,7 +409,7 @@ bool ObjectManager::createMonoliths()
 			continue;
 		}
 
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, true);
 
@@ -418,12 +421,14 @@ bool ObjectManager::createMonoliths()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		// Object must be placed first so that curved path won't go through occupied tiles
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
-		// Once it can be created, replace with curved path
+		// Once it can be created, replace with curved path.
 		replaceWithCurvedPath(path, zone, rmgObject.getVisitablePosition());
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 	}
 
 	vstd::erase_if(requiredObjects, [](const auto & objInfo)
@@ -440,7 +445,7 @@ bool ObjectManager::createRequiredObjects()
 	RecursiveLock lock(externalAccessMutex); //In case someone adds more objects
 	for(const auto & objInfo : requiredObjects)
 	{
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
@@ -452,6 +457,8 @@ bool ObjectManager::createRequiredObjects()
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
+
+		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		if (objInfo.createRoad)
 		{
 			// Once valid path can be created, replace with curved path
@@ -459,14 +466,13 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		zone.connectPath(path);
-		placeObject(rmgObject, guarded, true, objInfo.createRoad);
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.nearbyTarget != nearby.obj)
+			if(nearby.nearbyTarget != nearby.obj.get())
 				continue;
 			
-			rmg::Object rmgNearObject(*nearby.obj);
+			rmg::Object rmgNearObject(nearby.obj);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible().get());
 			if(possibleArea.empty())
@@ -484,7 +490,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		Zone::Lock lock(zone.areaMutex);
 
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject,
@@ -514,7 +520,7 @@ bool ObjectManager::createRequiredObjects()
 			continue;
 		}
 
-		rmg::Object rmgNearObject(*nearby.obj);
+		rmg::Object rmgNearObject(nearby.obj);
 		std::set<int3> blockedArea = targetObject->getBlockedPos();
 		rmg::Area areaForObject(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
 		areaForObject.intersect(zone.areaPossible().get());
@@ -546,7 +552,7 @@ bool ObjectManager::createRequiredObjects()
 	//TODO: implement guards
 	for (const auto &objInfo : instantObjects) //Unused ATM
 	{
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setPosition(objInfo.pos);
 		placeObject(rmgObject, false, false);
 	}
@@ -587,17 +593,22 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		Zone::Lock lock(zone.areaMutex);
 
 		zone.areaPossible()->subtract(object.getArea());
-		bool keepVisitable = zone.freePaths()->contains(object.getVisitablePosition());
+		bool keepVisitable = object.isVisitable() && zone.freePaths()->contains(object.getVisitablePosition());
 		zone.freePaths()->subtract(object.getArea()); //just to avoid areas overlapping
-		if(keepVisitable)
-			zone.freePaths()->add(object.getVisitablePosition());
 		zone.areaUsed()->unite(object.getArea());
-		zone.areaUsed()->erase(object.getVisitablePosition());
+		if (keepVisitable)
+		{
+			zone.freePaths()->add(object.getVisitablePosition());
+			zone.areaUsed()->erase(object.getVisitablePosition());
+		}
 
 		if(guarded) //We assume the monster won't be guarded
 		{
 			auto guardedArea = object.instances().back()->getAccessibleArea();
-			guardedArea.add(object.instances().back()->getVisitablePosition());
+			if (object.isVisitable())
+			{
+				guardedArea.add(object.instances().back()->getVisitablePosition());
+			}
 			auto areaToBlock = object.getAccessibleArea(true);
 			areaToBlock.subtract(guardedArea);
 			zone.areaPossible()->subtract(areaToBlock);
@@ -626,7 +637,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		for (auto id : adjacentZones)
 		{
 			auto otherZone = map.getZones().at(id);
-			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType()	== ETemplateZoneType::WATER))
+			if ((otherZone->getType() == ETemplateZoneType::WATER) == (zone.getType() == ETemplateZoneType::WATER))
 			{
 				// Do not update other zone if only one is water
 				auto manager = otherZone->getModificator<ObjectManager>();
@@ -641,7 +652,10 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	// TODO: Add multiple tiles in one operation to avoid multiple invalidation
 	for(auto * instance : object.instances())
 	{
-		objectsVisitableArea.add(instance->getVisitablePosition());
+		if (instance->object().isVisitable())
+		{
+			objectsVisitableArea.add(instance->getVisitablePosition());
+		}
 		objects.push_back(&instance->object());
 		if(auto * rp = zone.getModificator<RoadPlacer>())
 		{
@@ -664,6 +678,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 
 			if (object.isGuarded())
 			{
+				// Do not route roads through guarded objects
 				rp->areaVisitable().add(instance->getVisitablePosition());
 			}
 		}
@@ -672,11 +687,13 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
-			case Obj::RANDOM_RESOURCE:
+			case Obj::RANDOM_MAJOR_ART:
+			case Obj::RANDOM_RELIC_ART:
+			case Obj::PANDORAS_BOX:
 			{
 				if (auto * qap = zone.getModificator<QuestArtifactPlacer>())
 				{
-					qap->rememberPotentialArtifactToReplace(&instance->object());
+					qap->rememberPotentialArtifactToReplace(&instance->object(), instance->object().rmgValue);
 				}
 				break;
 			}
@@ -710,7 +727,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	}
 }
 
-CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
+std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 {
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
@@ -735,7 +752,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto const & cre : VLC->creh->objects)
+	for(auto const & cre : LIBRARY->creh->objects)
 	{
 		if(cre->special)
 			continue;
@@ -751,29 +768,29 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	if(!possibleCreatures.empty())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, zone.getRand());
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
 		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
-		amount = strength / creId.toEntity(VLC)->getAIValue();
+		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 	}
 	
-	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create(map.mapInstance->cb, nullptr));
-	guard->character = CGCreature::HOSTILE;
-	auto * hlp = new CStackInstance(creId, amount);
+	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
+	guard->initialCharacter = CGCreature::Character::HOSTILE;
+	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
-	guard->putStack(SlotID(0), hlp);
+	guard->putStack(SlotID(0), std::move(hlp));
 	return guard;
 }
 
 bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard)
 {
-	auto * guard = chooseGuard(strength, zoneGuard);
+	auto guard = chooseGuard(strength, zoneGuard);
 	if(!guard)
 		return false;
 	
@@ -793,10 +810,8 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	});
 	
 	if(accessibleArea.empty())
-	{
-		delete guard;
 		return false;
-	}
+
 	auto guardTiles = accessibleArea.getTilesVector();
 	auto guardPos = *std::min_element(guardTiles.begin(), guardTiles.end(), [&object](const int3 & l, const int3 & r)
 	{
@@ -810,7 +825,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	});
 	
-	auto & instance = object.addInstance(*guard);
+	auto & instance = object.addInstance(guard);
 	instance.setAnyTemplate(zone.getRand()); //terrain is irrelevant for monsters, but monsters need some template now
 
 	//Fix HoTA monsters with offset template
@@ -828,7 +843,7 @@ RequiredObjectInfo::RequiredObjectInfo():
 	createRoad(true)
 {}
 
-RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
+RequiredObjectInfo::RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
 	obj(obj),
 	nearbyTarget(nearbyTarget),
 	guardStrength(guardStrength),

@@ -42,6 +42,7 @@ public:
 	MOCK_CONST_METHOD0(isPositive, bool());
 	MOCK_CONST_METHOD0(isNegative, bool());
 	MOCK_CONST_METHOD0(isNeutral, bool());
+	MOCK_CONST_METHOD0(isPersistent, bool());
 	MOCK_CONST_METHOD0(isDamage, bool());
 	MOCK_CONST_METHOD0(isOffensive, bool());
 	MOCK_CONST_METHOD0(isSpecial, bool());

@@ -1,0 +1,29 @@
+name: Cleanup GitHub runner caches on closed PRs
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete caches for closed PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # List caches whose key contains "-PR-<number>-"
+          ids=$(gh cache list --limit 2000 --json id,key --jq ".[] | select(.key | test(\"-PR-${PR_NUMBER}-\")) | .id")
+
+          # Delete them (best effort)
+          set +e
+          for id in $ids; do
+            gh cache delete "$id"
+          done
+          set -e
+
+          echo "Done."

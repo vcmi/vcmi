@@ -152,7 +152,16 @@ class CLevelWindow : public CWindowObject
 	std::shared_ptr<CComponentBox> box; //skills to select
 	std::function<void(ui32)> cb;
 
+	int skillViewOffset = 0;
+	std::shared_ptr<CButton> buttonLeft;
+	std::shared_ptr<CButton> buttonRight;
+
+	std::vector<SecondarySkill> skills;
+	std::vector<SecondarySkill> sortedSkills;
+	const CGHeroInstance * hero;
+
 	void selectionChanged(unsigned to);
+	void createSkillBox();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
@@ -196,7 +205,9 @@ class CObjectListWindow : public CWindowObject
 	std::vector< std::pair<int, std::string> > items; //all items present in list
 	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled, bool blue);
+	void trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const; // trim item's text to fit within window's width
+	void itemsSearchCallback(const std::string & text);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -208,8 +219,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -453,7 +464,7 @@ private:
 
 	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
 	static constexpr std::size_t slotsCount = 7;
-	//todo: mithril support
+	//todo: configurable resource support
 	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;
@@ -498,6 +509,7 @@ class CThievesGuildWindow : public CStatusbarWindow
 	std::vector<std::shared_ptr<CLabel>> rowHeaders;
 	std::vector<std::shared_ptr<CAnimImage>> columnBackgrounds;
 	std::vector<std::shared_ptr<CLabel>> columnHeaders;
+	std::vector<std::shared_ptr<CAnimImage>> columnHeaderIcons;
 	std::vector<std::shared_ptr<CAnimImage>> cells;
 
 	std::vector<std::shared_ptr<CPicture>> banners;
@@ -516,6 +528,7 @@ class VideoWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<VideoWidgetOnce> videoPlayer;
 	std::shared_ptr<CFilledTexture> backgroundAroundWindow;
 	std::shared_ptr<GraphicalPrimitiveCanvas> blackBackground;
+	bool showBackground;
 
 	std::function<void(bool)> closeCb;
 
@@ -527,4 +540,5 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void keyPressed(EShortcut key) override;
 	void notFocusedClick() override;
+	void showAll(Canvas & to) override;
 };

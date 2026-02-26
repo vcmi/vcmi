@@ -25,7 +25,7 @@ void BonusBearerMock::addNewBonus(const std::shared_ptr<Bonus> & b)
 	treeVersion++;
 }
 
-TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
+TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
 	if(cachedLast != treeVersion)
 	{
@@ -34,14 +34,13 @@ TConstBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, co
 	}
 
 	auto ret = std::make_shared<BonusList>();
-	bonuses.getBonuses(*ret, selector, limit);
+	bonuses.getBonuses(*ret, selector);
 	return ret;
 }
 
-int64_t BonusBearerMock::getTreeVersion() const
+int32_t BonusBearerMock::getTreeVersion() const
 {
-	int64_t ret = treeVersion;
-	return ret << 32;
+	return treeVersion;
 }
 
 

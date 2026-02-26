@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../networkPacks/ObjProperty.h"
@@ -28,7 +28,9 @@ class BoatId;
 class CGObjectInstance;
 class CStackInstance;
 class CGHeroInstance;
-class IGameCallback;
+class IGameInfoCallback;
+class IGameEventCallback;
+class IGameRandomizer;
 class ResourceSet;
 class int3;
 class MetaString;
@@ -49,25 +51,25 @@ public:
 	virtual int3 visitablePos() const = 0;
 	virtual int3 anchorPos() const = 0;
 
-	virtual void onHeroVisit(const CGHeroInstance * h) const;
-	virtual void onHeroLeave(const CGHeroInstance * h) const;
+	virtual void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
+	virtual void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 
 	/// Called on new turn by server. This method can not modify object state on its own
 	/// Instead all changes must be propagated via netpacks
-	virtual void newTurn(vstd::RNG & rand) const;
-	virtual void initObj(vstd::RNG & rand); //synchr
-	virtual void pickRandomObject(vstd::RNG & rand);
+	virtual void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const;
+	virtual void initObj(IGameRandomizer & gameRandomizer); //synchr
+	virtual void pickRandomObject(IGameRandomizer & gameRandomizer);
 	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
-	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
-	virtual void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const;
-	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
-	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
+	virtual void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const;
+	virtual void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const;
+	virtual void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
+	virtual void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const;
 
 	//unified helper to show info dialog for object owner
-	virtual void showInfoDialog(const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
+	virtual void showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID = 0, EInfoWindowMode mode = EInfoWindowMode::AUTO) const;
 
 	virtual const IOwnableObject * asOwnable() const = 0;
 

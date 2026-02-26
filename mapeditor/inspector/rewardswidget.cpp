@@ -10,19 +10,24 @@
 #include "StdInc.h"
 #include "rewardswidget.h"
 #include "ui_rewardswidget.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CArtHandler.h"
+#include "../lib/CBonusTypeHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/entities/artifact/CArtifact.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/modding/IdentifierStorage.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/rewardable/Configuration.h"
 #include "../lib/rewardable/Limiter.h"
 #include "../lib/rewardable/Reward.h"
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
 
+#include <vcmi/ArtifactService.h>
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroClassService.h>
@@ -51,14 +56,16 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->rResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
-	ui->lResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; ++i)
+	ui->rResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
+		MetaString str;
+		str.appendName(GameResID(i));
 		for(auto * w : {ui->rResources, ui->lResources})
 		{
-			auto * item = new QTableWidgetItem(QString::fromStdString(GameConstants::RESOURCE_NAMES[i]));
-			item->setData(Qt::UserRole, QVariant::fromValue(i));
+			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
+			item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
 			w->setItem(i, 0, item);
 			auto * spinBox = new QSpinBox;
 			spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
@@ -73,7 +80,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	{
 		for(auto * w : {ui->rArtifacts, ui->lArtifacts})
 		{
-			auto * item = new QListWidgetItem(QString::fromStdString(VLC->artifacts()->getByIndex(i)->getNameTranslated()));
+			auto * item = new QListWidgetItem(QString::fromStdString(LIBRARY->artifacts()->getByIndex(i)->getNameTranslated()));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 			item->setCheckState(Qt::Unchecked);
@@ -88,7 +95,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	{
 		for(auto * w : {ui->rSpells, ui->lSpells})
 		{
-			auto * item = new QListWidgetItem(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
+			auto * item = new QListWidgetItem(QString::fromStdString(LIBRARY->spells()->getByIndex(i)->getNameTranslated()));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 			item->setCheckState(Qt::Unchecked);
@@ -98,9 +105,9 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		}
 		
 		//spell cast
-		if(VLC->spells()->getByIndex(i)->isAdventure())
+		if(LIBRARY->spells()->getByIndex(i)->isAdventure())
 		{
-			ui->castSpell->addItem(QString::fromStdString(VLC->spells()->getByIndex(i)->getNameTranslated()));
+			ui->castSpell->addItem(QString::fromStdString(LIBRARY->spells()->getByIndex(i)->getNameTranslated()));
 			ui->castSpell->setItemData(ui->castSpell->count() - 1, QVariant::fromValue(i));
 		}
 	}
@@ -112,7 +119,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	{
 		for(auto * w : {ui->rSkills, ui->lSkills})
 		{
-			auto * item = new QTableWidgetItem(QString::fromStdString(VLC->skills()->getByIndex(i)->getNameTranslated()));
+			auto * item = new QTableWidgetItem(QString::fromStdString(LIBRARY->skills()->getByIndex(i)->getNameTranslated()));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			
 			auto * widget = new QComboBox;
@@ -131,7 +138,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	}
 	
 	//fill creatures
-	for(auto & creature : VLC->creh->objects)
+	for(auto & creature : LIBRARY->creh->objects)
 	{
 		for(auto * w : {ui->rCreatureId, ui->lCreatureId})
 		{
@@ -141,7 +148,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	}
 	
 	//fill heroes
-	VLC->heroTypes()->forEach([this](const HeroType * hero, bool &)
+	LIBRARY->heroTypes()->forEach([this](const HeroType * hero, bool &)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(hero->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(hero->getId().getNum()));
@@ -151,7 +158,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	});
 	
 	//fill hero classes
-	VLC->heroClasses()->forEach([this](const HeroClass * heroClass, bool &)
+	LIBRARY->heroClasses()->forEach([this](const HeroClass * heroClass, bool &)
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(heroClass->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(heroClass->getId().getNum()));
@@ -163,7 +170,9 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	//fill players
 	for(auto color = PlayerColor(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 	{
-		auto * item = new QListWidgetItem(QString::fromStdString(GameConstants::PLAYER_COLOR_NAMES[color.getNum()]));
+		MetaString str;
+		str.appendName(color);
+		auto * item = new QListWidgetItem(QString::fromStdString(str.toString()));
 		item->setData(Qt::UserRole, QVariant::fromValue(color.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 		item->setCheckState(Qt::Unchecked);
@@ -178,8 +187,8 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	//fill bonuses
 	for(auto & s : bonusDurationMap)
 		ui->bonusDuration->addItem(QString::fromStdString(s.first));
-	for(auto & s : bonusNameMap)
-		ui->bonusType->addItem(QString::fromStdString(s.first));
+	for(auto & s : LIBRARY->bth->getAllObjets())
+		ui->bonusType->addItem(QString::fromStdString(LIBRARY->bth->bonusToString(s)));
 	
 	//set default values
 	if(dynamic_cast<CGPandoraBox*>(&object))
@@ -244,8 +253,8 @@ void RewardsWidget::obtainData()
 bool RewardsWidget::commitChanges()
 {
 	//common parameters
-	object.configuration.visitMode = ui->visitMode->currentIndex();
-	object.configuration.selectMode = ui->selectMode->currentIndex();
+	object.configuration.visitMode = static_cast<Rewardable::EVisitMode>(ui->visitMode->currentIndex());
+	object.configuration.selectMode = static_cast<Rewardable::ESelectMode>(ui->selectMode->currentIndex());
 	object.configuration.infoWindowType = EInfoWindowMode(ui->windowMode->currentIndex());
 	if(ui->onSelectText->text().isEmpty())
 		object.configuration.onSelect.clear();
@@ -292,17 +301,17 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 			vinfo.reward.resources[i] = widget->value();
 	}
 	
-	vinfo.reward.artifacts.clear();
+	vinfo.reward.grantedArtifacts.clear();
 	for(int i = 0; i < ui->rArtifacts->count(); ++i)
 	{
 		if(ui->rArtifacts->item(i)->checkState() == Qt::Checked)
-			vinfo.reward.artifacts.push_back(VLC->artifacts()->getByIndex(i)->getId());
+			vinfo.reward.grantedArtifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
 	}
 	vinfo.reward.spells.clear();
 	for(int i = 0; i < ui->rSpells->count(); ++i)
 	{
 		if(ui->rSpells->item(i)->checkState() == Qt::Checked)
-			vinfo.reward.spells.push_back(VLC->spells()->getByIndex(i)->getId());
+			vinfo.reward.spells.push_back(LIBRARY->spells()->getByIndex(i)->getId());
 	}
 	
 	vinfo.reward.secondary.clear();
@@ -311,7 +320,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		if(auto * widget = qobject_cast<QComboBox*>(ui->rSkills->cellWidget(i, 1)))
 		{
 			if(widget->currentIndex() > 0)
-				vinfo.reward.secondary[VLC->skills()->getByIndex(i)->getId()] = widget->currentIndex();
+				vinfo.reward.secondary[LIBRARY->skills()->getByIndex(i)->getId()] = widget->currentIndex();
 		}
 	}
 	
@@ -321,23 +330,23 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		int index = ui->rCreatures->item(i, 0)->data(Qt::UserRole).toInt();
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->rCreatures->cellWidget(i, 1)))
 			if(widget->value())
-				vinfo.reward.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
+				vinfo.reward.creatures.emplace_back(LIBRARY->creatures()->getByIndex(index)->getId(), widget->value());
 	}
 	
 	vinfo.reward.spellCast.first = SpellID::NONE;
 	if(ui->castSpellCheck->isChecked())
 	{
-		vinfo.reward.spellCast.first = VLC->spells()->getByIndex(ui->castSpell->itemData(ui->castSpell->currentIndex()).toInt())->getId();
+		vinfo.reward.spellCast.first = LIBRARY->spells()->getByIndex(ui->castSpell->itemData(ui->castSpell->currentIndex()).toInt())->getId();
 		vinfo.reward.spellCast.second = ui->castLevel->currentIndex();
 	}
 	
-	vinfo.reward.bonuses.clear();
+	vinfo.reward.heroBonuses.clear();
 	for(int i = 0; i < ui->bonuses->rowCount(); ++i)
 	{
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
-		auto typ = bonusNameMap.at(ui->bonuses->item(i, 1)->text().toStdString());
+		auto typ = static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "bonus", ui->bonuses->item(i, 1)->text().toStdString()));
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
-		vinfo.reward.bonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
+		vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id)));
 	}
 	
 	vinfo.limiter.dayOfWeek = ui->lDayOfWeek->currentIndex();
@@ -361,13 +370,13 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	for(int i = 0; i < ui->lArtifacts->count(); ++i)
 	{
 		if(ui->lArtifacts->item(i)->checkState() == Qt::Checked)
-			vinfo.limiter.artifacts.push_back(VLC->artifacts()->getByIndex(i)->getId());
+			vinfo.limiter.artifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
 	}
 	vinfo.limiter.spells.clear();
 	for(int i = 0; i < ui->lSpells->count(); ++i)
 	{
 		if(ui->lSpells->item(i)->checkState() == Qt::Checked)
-			vinfo.limiter.spells.push_back(VLC->spells()->getByIndex(i)->getId());
+			vinfo.limiter.spells.push_back(LIBRARY->spells()->getByIndex(i)->getId());
 	}
 	
 	vinfo.limiter.secondary.clear();
@@ -376,7 +385,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(i, 1)))
 		{
 			if(widget->currentIndex() > 0)
-				vinfo.limiter.secondary[VLC->skills()->getByIndex(i)->getId()] = widget->currentIndex();
+				vinfo.limiter.secondary[LIBRARY->skills()->getByIndex(i)->getId()] = widget->currentIndex();
 		}
 	}
 	
@@ -386,7 +395,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		int index = ui->lCreatures->item(i, 0)->data(Qt::UserRole).toInt();
 		if(auto * widget = qobject_cast<QSpinBox*>(ui->lCreatures->cellWidget(i, 1)))
 			if(widget->value())
-				vinfo.limiter.creatures.emplace_back(VLC->creatures()->getByIndex(index)->getId(), widget->value());
+				vinfo.limiter.creatures.emplace_back(LIBRARY->creatures()->getByIndex(index)->getId(), widget->value());
 	}
 	
 	vinfo.limiter.heroes.clear();
@@ -447,13 +456,13 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			widget->setValue(vinfo.reward.resources[i]);
 	}
 	
-	for(auto i : vinfo.reward.artifacts)
-		ui->rArtifacts->item(VLC->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+	for(auto i : vinfo.reward.grantedArtifacts)
+		ui->rArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : vinfo.reward.spells)
-		ui->rArtifacts->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->rSpells->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : vinfo.reward.secondary)
 	{
-		int index = VLC->skills()->getById(i.first)->getIndex();
+		int index = LIBRARY->skills()->getById(i.first)->getIndex();
 		if(auto * widget = qobject_cast<QComboBox*>(ui->rSkills->cellWidget(index, 1)))
 			widget->setCurrentIndex(i.second);
 	}
@@ -461,21 +470,21 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	{
 		int index = i.getType()->getIndex();
 		ui->rCreatureId->setCurrentIndex(index);
-		ui->rCreatureAmount->setValue(i.count);
+		ui->rCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
 	}
 	
 	ui->castSpellCheck->setChecked(vinfo.reward.spellCast.first != SpellID::NONE);
 	if(ui->castSpellCheck->isChecked())
 	{
-		int index = VLC->spells()->getById(vinfo.reward.spellCast.first)->getIndex();
+		int index = LIBRARY->spells()->getById(vinfo.reward.spellCast.first)->getIndex();
 		ui->castSpell->setCurrentIndex(index);
 		ui->castLevel->setCurrentIndex(vinfo.reward.spellCast.second);
 	}
 	
-	for(auto & i : vinfo.reward.bonuses)
+	for(auto & i : vinfo.reward.heroBonuses)
 	{
-		auto dur = vstd::findKey(bonusDurationMap, i.duration);
+		auto dur = vstd::findKey(bonusDurationMap, i->duration);
 		for(int i = 0; i < ui->bonusDuration->count(); ++i)
 		{
 			if(ui->bonusDuration->itemText(i) == QString::fromStdString(dur))
@@ -485,7 +494,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			}
 		}
 		
-		auto typ = vstd::findKey(bonusNameMap, i.type);
+		std::string typ = LIBRARY->bth->bonusToString(i->type);
 		for(int i = 0; i < ui->bonusType->count(); ++i)
 		{
 			if(ui->bonusType->itemText(i) == QString::fromStdString(typ))
@@ -495,7 +504,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			}
 		}
 		
-		ui->bonusValue->setValue(i.val);
+		ui->bonusValue->setValue(i->val);
 		on_bonusAdd_clicked();
 	}
 	
@@ -516,12 +525,12 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	}
 	
 	for(auto i : vinfo.limiter.artifacts)
-		ui->lArtifacts->item(VLC->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->lArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : vinfo.limiter.spells)
-		ui->lArtifacts->item(VLC->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
+		ui->lArtifacts->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto & i : vinfo.limiter.secondary)
 	{
-		int index = VLC->skills()->getById(i.first)->getIndex();
+		int index = LIBRARY->skills()->getById(i.first)->getIndex();
 		if(auto * widget = qobject_cast<QComboBox*>(ui->lSkills->cellWidget(index, 1)))
 			widget->setCurrentIndex(i.second);
 	}
@@ -529,7 +538,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	{
 		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
-		ui->lCreatureAmount->setValue(i.count);
+		ui->lCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
 	}
 	
@@ -738,6 +747,7 @@ void RewardsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 	if(auto * ed = qobject_cast<RewardsWidget *>(editor))
 	{
 		ed->commitChanges();
+		updateModelData(model, index);
 	}
 	else
 	{
@@ -752,4 +762,66 @@ RewardsDelegate::RewardsDelegate(CMap & m, CRewardableObject & t): map(m), objec
 QWidget * RewardsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	return new RewardsWidget(map, object, parent);
+}
+
+void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex & index) const
+{
+	QStringList textList(QObject::tr("Rewards:"));
+	for (const auto & vinfo : object.configuration.info)
+	{
+		textList += QObject::tr("Reward Message: %1").arg(QString::fromStdString(vinfo.message.toString()));
+		textList += QObject::tr("Hero Level: %1").arg(vinfo.reward.heroLevel);
+		textList += QObject::tr("Hero Experience: %1").arg(vinfo.reward.heroExperience);
+		textList += QObject::tr("Mana Diff: %1").arg(vinfo.reward.manaDiff);
+		textList += QObject::tr("Mana Percentage: %1").arg(vinfo.reward.manaPercentage);
+		textList += QObject::tr("Move Points: %1").arg(vinfo.reward.movePoints);
+		textList += QObject::tr("Move Percentage: %1").arg(vinfo.reward.movePercentage);
+		textList += QObject::tr("Primary Skills: %1/%2/%3/%4").arg(vinfo.reward.primary[0]).arg(vinfo.reward.primary[1]).arg(vinfo.reward.primary[2]).arg(vinfo.reward.primary[3]);
+		QStringList resourcesList;
+		for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
+		{
+			if(vinfo.reward.resources[resource] == 0)
+				continue;
+			MetaString str;
+			str.appendName(resource);
+			resourcesList += QString("%1: %2").arg(QString::fromStdString(str.toString())).arg(vinfo.reward.resources[resource]);
+		}
+		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
+		QStringList artifactsList;
+		for (auto artifact : vinfo.reward.grantedArtifacts)
+		{
+			artifactsList += QString::fromStdString(LIBRARY->artifacts()->getById(artifact)->getNameTranslated());
+		}
+		textList += QObject::tr("Artifacts: %1").arg(artifactsList.join(", "));
+		QStringList spellsList;
+		for (auto spell : vinfo.reward.spells)
+		{
+			spellsList += QString::fromStdString(LIBRARY->spells()->getById(spell)->getNameTranslated());
+		}
+		textList += QObject::tr("Spells: %1").arg(spellsList.join(", "));
+		QStringList secondarySkillsList;
+		for(auto & [skill, skillLevel] : vinfo.reward.secondary)
+		{
+			secondarySkillsList += QString("%1 (%2)").arg(QString::fromStdString(LIBRARY->skills()->getById(skill)->getNameTranslated())).arg(skillLevel);
+		}
+		textList += QObject::tr("Secondary Skills: %1").arg(secondarySkillsList.join(", "));
+		QStringList creaturesList;
+		for (auto & creature : vinfo.reward.creatures)
+		{
+			creaturesList += QString("%1 %2").arg(creature.getCount()).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+		}
+		textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
+		if (vinfo.reward.spellCast.first != SpellID::NONE)
+		{
+			textList += QObject::tr("Spell Cast: %1 (%2)").arg(QString::fromStdString(LIBRARY->spells()->getById(vinfo.reward.spellCast.first)->getNameTranslated())).arg(vinfo.reward.spellCast.second);
+		}
+		QStringList bonusesList;
+		for (auto & bonus : vinfo.reward.heroBonuses)
+		{
+			std::string bonusName = LIBRARY->bth->bonusToString(bonus->type);
+			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus->duration))).arg(QString::fromStdString(bonusName)).arg(bonus->val);
+		}
+		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
+	}
+	setModelTextData(model, index, textList);
 }

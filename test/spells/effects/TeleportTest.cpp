@@ -52,7 +52,7 @@ protected:
 	}
 };
 
-TEST_F(TeleportApplyTest, DISABLED_MovesUnit)
+TEST_F(TeleportApplyTest, MovesUnit)
 {
 	battleFake->setupEmptyBattlefield();
 

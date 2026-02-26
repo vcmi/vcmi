@@ -65,6 +65,8 @@ public:
 	bool isTranslation() const;
 	bool keepDisabled() const;
 	bool isInstalled() const;
+
+	static void mergeModDescriptions(JsonNode & config, const std::string & fullDescription);
 };
 
 VCMI_LIB_NAMESPACE_END

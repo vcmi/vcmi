@@ -49,7 +49,7 @@ int32_t AbilityCaster::getEffectLevel(const Spell * spell) const
 	return getSpellSchoolLevel(spell);
 }
 
-void AbilityCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
+void AbilityCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	//do nothing
 }

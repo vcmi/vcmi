@@ -11,6 +11,7 @@
 
 #include "../lib/constants/EntityIdentifiers.h"
 #include "../lib/ResourceSet.h"
+#include <boost/container/small_vector.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,9 +26,11 @@ public:
 
 	CreatureID oldID; //creature to be upgraded
 
-	const std::vector<CreatureID> & getAvailableUpgrades() const
+	const boost::container::small_vector<CreatureID, 4> & getAvailableUpgrades() const
 	{
-		return upgradesIDs;
+		static const boost::container::small_vector<CreatureID, 4> emptyUpgrades;
+		
+		return (isAvailable && !upgradesIDs.empty()) ? upgradesIDs : emptyUpgrades;
 	}
 
 	const CreatureID & getUpgrade() const
@@ -44,9 +47,11 @@ public:
 		return upgradesCosts[std::distance(upgradesIDs.begin(), idIt)];
 	}
 
-	const std::vector<ResourceSet> & getAvailableUpgradeCosts() const
+	const boost::container::small_vector<ResourceSet, 4> & getAvailableUpgradeCosts() const
 	{
-		return upgradesCosts;
+		static const boost::container::small_vector<ResourceSet, 4> emptyCosts;
+
+		return (isAvailable && !upgradesCosts.empty()) ? upgradesCosts : emptyCosts;
 	}
 
 	const ResourceSet & getUpgradeCosts() const
@@ -73,8 +78,8 @@ public:
 	}
 
 private:
-	std::vector<CreatureID> upgradesIDs; //possible upgrades
-	std::vector<ResourceSet> upgradesCosts; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
+	boost::container::small_vector<CreatureID, 4> upgradesIDs; //possible upgrades
+	boost::container::small_vector<ResourceSet, 4> upgradesCosts; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	bool isAvailable;		// flag for unavailableUpgrades like in miniHillFort from HoTA
 };
 

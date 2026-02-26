@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/battle/BattleHex.h"
+#include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
@@ -37,9 +37,6 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<CAnimation> rangedFullDamageLimitImages;
 	std::shared_ptr<CAnimation> shootingRangeLimitImages;
 
-	std::shared_ptr<CAnimation> attackCursors;
-	std::shared_ptr<CAnimation> spellCursors;
-
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
 	std::unique_ptr<Canvas> backgroundWithHexes;
 
@@ -49,40 +46,40 @@ class BattleFieldController : public CIntObject
 	/// hex currently under mouse hover
 	BattleHex hoveredHex;
 
-	/// hexes to which currently active stack can move
-	std::vector<BattleHex> occupiableHexes;
+	/// hexes to which the currently active stack can move (for double-wide units only the head is considered)
+	BattleHexArray availableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
 
-	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder);
+	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, const BattleHex & hex, bool darkBorder);
 
-	std::set<BattleHex> getHighlightedHexesForActiveStack();
-	std::set<BattleHex> getMovementRangeForHoveredStack();
-	std::set<BattleHex> getHighlightedHexesForSpellRange();
-	std::set<BattleHex> getHighlightedHexesForMovementTarget();
+	BattleHexArray getHighlightedHexesForActiveStack();
+	BattleHexArray getMovementRangeForHoveredStack();
+	BattleHexArray getHighlightedHexesForSpellRange();
+	BattleHexArray getHighlightedHexesForMovementTarget();
 
 	// Range limit highlight helpers
 
 	/// get all hexes within a certain distance of given hex
-	std::vector<BattleHex> getRangeHexes(BattleHex sourceHex, uint8_t distance);
+	BattleHexArray getRangeHexes(const BattleHex & sourceHex, uint8_t distance) const;
 
 	/// get only hexes at the limit of a range
-	std::vector<BattleHex> getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> hexRange, uint8_t distanceToLimit);
+	BattleHexArray getRangeLimitHexes(const BattleHex & hoveredHex, const BattleHexArray & hexRange, uint8_t distanceToLimit) const;
 
 	/// calculate if a hex is in range limit and return its index in range
-	bool IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit);
+	bool isHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit) const;
 
 	/// get an array that has for each hex in range, an array with all directions where an outside neighbour hex exists
-	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> rangeHexes, std::vector<BattleHex> rangeLimitHexes);
+	std::vector<std::vector<BattleHex::EDir>> getOutsideNeighbourDirectionsForLimitHexes(const BattleHexArray & rangeHexes, const BattleHexArray & rangeLimitHexes) const;
 
-	/// calculates what image to use as range limit, depending on the direction of neighbors
+	/// calculates what image to use as range limit, depending on the direction of neighbours
 	/// a mask is used internally to mark the directions of all neighbours
 	/// based on this mask the corresponding image is selected
 	std::vector<std::shared_ptr<IImage>> calculateRangeLimitHighlightImages(std::vector<std::vector<BattleHex::EDir>> hexesNeighbourDirections, std::shared_ptr<CAnimation> limitImages);
 
 	/// calculates all hexes for a range limit and what images to be shown as highlight for each of the hexes
-	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights);
+	void calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, BattleHexArray & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights);
 
 	void showBackground(Canvas & canvas);
 	void showBackgroundImage(Canvas & canvas);
@@ -94,7 +91,7 @@ class BattleFieldController : public CIntObject
 
 	/// Checks whether selected pixel is transparent, uses local coordinates of a hex
 	bool isPixelInHex(Point const & position);
-	size_t selectBattleCursor(BattleHex myNumber);
+	size_t selectBattleCursor(const BattleHex & myNumber);
 
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
@@ -118,10 +115,10 @@ public:
 	void renderBattlefield(Canvas & canvas);
 
 	/// Returns position of hex relative to owner (BattleInterface)
-	Rect hexPositionLocal(BattleHex hex) const;
+	Rect hexPositionLocal(const BattleHex & hex) const;
 
 	/// Returns position of hex relative to game window
-	Rect hexPositionAbsolute(BattleHex hex) const;
+	Rect hexPositionAbsolute(const BattleHex & hex) const;
 
 	/// Returns ID of currently hovered hex or BattleHex::INVALID if none
 	BattleHex getHoveredHex();
@@ -129,13 +126,8 @@ public:
 	/// Returns the currently hovered stack
 	const CStack* getHoveredStack();
 
-	/// returns true if selected tile can be attacked in melee by current stack
-	bool isTileAttackable(const BattleHex & number) const;
-
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	BattleHex::EDir selectAttackDirection(BattleHex myNumber);
-
-	BattleHex fromWhichHexAttack(BattleHex myNumber);
+	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
 };

@@ -11,8 +11,8 @@
 #include "Actors.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/pathfinder/TurnInfo.h"
 #include "Actions/BuyArmyAction.h"
 
@@ -42,16 +42,15 @@ ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t 
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost(), actorAction()
 {
 	initialPosition = hero->visitablePos();
-	layer = hero->boat ? hero->boat->layer : EPathfindingLayer::LAND;
+	layer = hero->inBoat() ? hero->getBoat()->layer : EPathfindingLayer::LAND;
 	initialMovement = hero->movementPointsRemaining();
 	initialTurn = 0;
 	armyValue = getHeroArmyStrengthWithCommander(hero, hero);
 	heroFightingStrength = hero->getHeroStrength();
-	tiCache.reset(new TurnInfo(hero));
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
-	:hero(carrier->hero), tiCache(carrier->tiCache), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
+	:hero(carrier->hero), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
 	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost), actorAction()
 {
@@ -75,7 +74,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->movementPointsLimitCached(layer, tiCache.get());
+	return hero->movementPointsLimit(layer != EPathfindingLayer::SAIL);
 }
 
 std::string ChainActor::toString() const
@@ -133,7 +132,6 @@ void ChainActor::setBaseActor(HeroActor * base)
 	heroFightingStrength = base->heroFightingStrength;
 	armyCost = base->armyCost;
 	actorAction = base->actorAction;
-	tiCache = base->tiCache;
 	actorExchangeCount = base->actorExchangeCount;
 }
 
@@ -217,7 +215,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	ExchangeResult result;
 
 	{
-		boost::shared_lock lock(sync, boost::try_to_lock);
+		std::shared_lock lock(sync, std::try_to_lock);
 
 		if(!lock.owns_lock())
 		{
@@ -237,7 +235,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 	}
 
 	{
-		boost::unique_lock uniqueLock(sync, boost::try_to_lock);
+		std::unique_lock uniqueLock(sync, std::try_to_lock);
 
 		if(!uniqueLock.owns_lock())
 		{
@@ -359,11 +357,11 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	}
 	else
 	{
-		for(auto slot : army->Slots())
+		for(const auto & slot : army->Slots())
 		{
-			auto targetSlot = target->getSlotFor(slot.second->getCreatureID());
+			const auto & targetSlot = target->getSlotFor(slot.second->getCreatureID());
 
-			target->addToSlot(targetSlot, slot.second->getCreatureID(), slot.second->count);
+			target->addToSlot(targetSlot, slot.second->getCreatureID(), slot.second->getCount());
 		}
 	}
 
@@ -396,7 +394,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
+	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2, ai->cb->getTile(actor->hero->visitablePos())->getTerrainID());
 
 	for(auto & slotInfo : bestArmy)
 	{
@@ -423,7 +421,7 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 {
 	for(auto & slot : creatureSet->Slots())
 	{
-		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->count;
+		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->getCount();
 	}
 }
 

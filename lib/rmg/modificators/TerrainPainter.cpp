@@ -18,7 +18,7 @@
 #include "../Functions.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../../TerrainHandler.h"
 #include "../../entities/faction/CFaction.h"
 #include "../../entities/faction/CTownHandler.h"
@@ -50,7 +50,7 @@ void TerrainPainter::initTerrainType()
 	{
 		//collect all water terrain types
 		std::vector<TerrainId> waterTerrains;
-		for(const auto & terrain : VLC->terrainTypeHandler->objects)
+		for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 			if(terrain->isWater())
 				waterTerrains.push_back(terrain->getId());
 
@@ -60,7 +60,7 @@ void TerrainPainter::initTerrainType()
 	{
 		if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
 		{
-			auto terrainType = (*VLC->townh)[zone.getTownType()]->nativeTerrain;
+			auto terrainType = (*LIBRARY->townh)[zone.getTownType()]->nativeTerrain;
 
 			if (terrainType <= ETerrainId::NONE)
 			{
@@ -79,7 +79,7 @@ void TerrainPainter::initTerrainType()
 			{
 				//Fill with all terain types by default
 				{
-					for (const auto & terrain : VLC->terrainTypeHandler->objects)
+					for (const auto & terrain : LIBRARY->terrainTypeHandler->objects)
 					{
 						if (terrain->isLand() && terrain->isPassable())
 						{
@@ -96,7 +96,7 @@ void TerrainPainter::initTerrainType()
 		}
 
 		//Now, replace disallowed terrains on surface and in the underground
-		const auto & terrainType = VLC->terrainTypeHandler->getById(zone.getTerrainType());
+		const auto & terrainType = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType());
 
 		if(zone.isUnderground())
 		{

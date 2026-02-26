@@ -100,7 +100,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		if (ai->cb->isVisible(node.coord))
 			blockers = ai->cb->getVisitableObjs(node.coord);
 
-		if(guardPos.valid() && ai->cb->isVisible(guardPos))
+		if(guardPos.isValid() && ai->cb->isVisible(guardPos))
 		{
 			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
 
@@ -425,7 +425,7 @@ void ObjectClusterizer::clusterizeObject(
 	for(auto & path : pathCache)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Checking path %s", path.toString());
+		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
 		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
@@ -459,6 +459,8 @@ void ObjectClusterizer::clusterizeObject(
 			continue;
 		}
 
+		float priority = 0;
+
 		if(path.nodes.size() > 1)
 		{
 			auto blocker = getBlocker(path);
@@ -475,7 +477,10 @@ void ObjectClusterizer::clusterizeObject(
 
 				heroesProcessed.insert(path.targetHero);
 
-				float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
+				for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+				{
+					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+				}
 
 				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 					continue;
@@ -498,7 +503,10 @@ void ObjectClusterizer::clusterizeObject(
 
 		heroesProcessed.insert(path.targetHero);
 
-		float priority = priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), PriorityEvaluator::PriorityTier::HUNTER_GATHER);
+		for (int prio = PriorityEvaluator::PriorityTier::BUILDINGS; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
+		{
+			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
+		}
 
 		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 			continue;

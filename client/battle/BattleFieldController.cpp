@@ -10,34 +10,34 @@
 #include "StdInc.h"
 #include "BattleFieldController.h"
 
-#include "BattleInterface.h"
-#include "BattleWindow.h"
 #include "BattleActionsController.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
-#include "BattleSiegeController.h"
-#include "BattleStacksController.h"
+#include "BattleInterface.h"
+#include "BattleHero.h"
 #include "BattleObstacleController.h"
 #include "BattleProjectileController.h"
 #include "BattleRenderer.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../adventureMap/CInGameConsole.h"
+#include "../client/render/CAnimation.h"
+#include "../gui/CursorHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
-#include "../renderSDL/SDL_Extensions.h"
 #include "../render/IRenderHandler.h"
-#include "../gui/CGuiHandler.h"
-#include "../gui/CursorHandler.h"
-#include "../adventureMap/CInGameConsole.h"
-#include "../client/render/CAnimation.h"
 
-#include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/Problem.h"
 
 namespace HexMasks
 {
@@ -113,16 +113,13 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	OBJECT_CONSTRUCTION;
 
 	//preparing cells and hexes
-	cellBorder = GH.renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
-	cellShade = GH.renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
-	cellUnitMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
-	cellUnitMaxMovementHighlight = GH.renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellBorder = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	cellShade = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
+	cellUnitMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
+	cellUnitMaxMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 
-	attackCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
-	spellCursors = GH.renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
-
-	rangedFullDamageLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
-	shootingRangeLimitImages = GH.renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
+	rangedFullDamageLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
+	shootingRangeLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
 
 	if(!owner.siegeController)
 	{
@@ -131,12 +128,12 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
 		else
-			background = GH.renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
+			background = ENGINE->renderHandler().loadImage(bfieldType.getInfo()->graphics, EImageBlitMode::OPAQUE);
 	}
 	else
 	{
 		auto backgroundName = owner.siegeController->getBattleBackgroundName();
-		background = GH.renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
+		background = ENGINE->renderHandler().loadImage(backgroundName, EImageBlitMode::OPAQUE);
 	}
 
 	pos.w = background->width();
@@ -150,7 +147,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 
 void BattleFieldController::activate()
 {
-	LOCPLINT->cingconsole->pos = this->pos;
+	GAME->interface()->cingconsole->pos = this->pos;
 	CIntObject::activate();
 }
 
@@ -267,9 +264,10 @@ void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 void BattleFieldController::redrawBackgroundWithHexes()
 {
 	const CStack *activeStack = owner.stacksController->getActiveStack();
-	std::vector<BattleHex> attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
+		availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
+	else
+		availableHexes.clear();
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -278,13 +276,18 @@ void BattleFieldController::redrawBackgroundWithHexes()
 		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
 	// show shaded hexes for active's stack valid movement and the hexes that it can attack
-	if(settings["battle"]["stackRange"].Bool())
+	if(activeStack && settings["battle"]["stackRange"].Bool())
 	{
-		std::vector<BattleHex> hexesToShade = occupiableHexes;
-		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
-		for(BattleHex hex : hexesToShade)
+		auto occupiableHexes = owner.getBattle()->battleGetOccupiableHexes(availableHexes, activeStack);
+		for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
 		{
-			showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
+			//shade occupiable and attackable hexes
+			if (occupiableHexes.contains(hex) ||
+				(owner.getBattle()->battleCanAttackUnit(activeStack, owner.getBattle()->battleGetStackByPos(hex, true)) &&
+					owner.getBattle()->battleCanAttackHex(availableHexes, activeStack, hex)) ||
+				(owner.getBattle()->battleGetStackByPos(hex, true) &&
+					owner.getBattle()->battleCanShoot(activeStack, hex)))
+				showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
 		}
 	}
 
@@ -303,7 +306,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	}
 }
 
-void BattleFieldController::showHighlightedHex(Canvas & canvas, std::shared_ptr<IImage> highlight, BattleHex hex, bool darkBorder)
+void BattleFieldController::showHighlightedHex(Canvas & canvas, std::shared_ptr<IImage> highlight, const BattleHex & hex, bool darkBorder)
 {
 	Point hexPos = hexPositionLocal(hex).topLeft();
 
@@ -312,48 +315,34 @@ void BattleFieldController::showHighlightedHex(Canvas & canvas, std::shared_ptr<
 		canvas.draw(cellBorder, hexPos);
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesForActiveStack()
+BattleHexArray BattleFieldController::getHighlightedHexesForActiveStack()
 {
-	std::set<BattleHex> result;
-
 	if(!owner.stacksController->getActiveStack())
-		return result;
+		return BattleHexArray();
 
 	if(!settings["battle"]["stackRange"].Bool())
-		return result;
+		return BattleHexArray();
 
 	auto hoveredHex = getHoveredHex();
 
-	std::set<BattleHex> set = owner.getBattle()->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
-	for(BattleHex hex : set)
-		result.insert(hex);
-
-	return result;
+	return owner.getBattle()->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
 }
 
-std::set<BattleHex> BattleFieldController::getMovementRangeForHoveredStack()
+BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 {
-	std::set<BattleHex> result;
-
 	if (!owner.stacksController->getActiveStack())
-		return result;
+		return BattleHexArray();
 
-	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
-		return result;
+	if (!settings["battle"]["movementHighlightOnHover"].Bool() && !ENGINE->isKeyboardShiftDown())
+		return BattleHexArray();
 
 	auto hoveredStack = getHoveredStack();
-	if(hoveredStack)
-	{
-		std::vector<BattleHex> v = owner.getBattle()->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
-		for(BattleHex hex : v)
-			result.insert(hex);
-	}
-	return result;
+	return hoveredStack ? owner.getBattle()->battleGetOccupiableHexes(hoveredStack, true) : BattleHexArray();
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
+BattleHexArray BattleFieldController::getHighlightedHexesForSpellRange()
 {
-	std::set<BattleHex> result;
+	BattleHexArray result;
 	auto hoveredHex = getHoveredHex();
 
 	const spells::Caster *caster = nullptr;
@@ -369,7 +358,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
 		auto shadedHexes = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
 
-		for(BattleHex shadedHex : shadedHexes)
+		for(const BattleHex & shadedHex : shadedHexes)
 		{
 			if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
 				result.insert(shadedHex);
@@ -378,7 +367,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForSpellRange()
 	return result;
 }
 
-std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget()
+BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 {
 	const CStack * stack = owner.stacksController->getActiveStack();
 	auto hoveredHex = getHoveredHex();
@@ -386,49 +375,55 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesForMovementTarget(
 	if(!stack)
 		return {};
 
-	std::vector<BattleHex> availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
+	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 
-	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex))
+	bool canReach = owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex);
+	bool canAttack = canReach && (owner.getBattle()->battleCanAttackUnit(stack, hoveredStack));
+	bool adjacentSpellCaster = stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast();
+	bool canCastAdjacentSpell = false;
+	if (canReach && adjacentSpellCaster && hoveredStack)
 	{
-		if(isTileAttackable(hoveredHex))
+		spells::Mode mode = owner.actionsController->getCurrentCastMode();
+		auto * spell = owner.actionsController->getCurrentSpell(hoveredHex);
+		auto * caster = owner.actionsController->getCurrentSpellcaster();
+		if(caster && spell)
 		{
-			BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
+			spells::Target target;
+			target.emplace_back(hoveredStack);
+			target.emplace_back(hoveredHex);
 
-			if(stack->doubleWide())
-				return {attackFromHex, stack->occupiedHex(attackFromHex)};
-			else
-				return {attackFromHex};
+			spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
+			canCastAdjacentSpell = spell->battleMechanics(&event)->canBeCastAt(target);
 		}
 	}
 
-	if(vstd::contains(availableHexes, hoveredHex))
+	if(canAttack || canCastAdjacentSpell)
 	{
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
+		assert(fromHex.isValid());
 		if(stack->doubleWide())
-			return {hoveredHex, stack->occupiedHex(hoveredHex)};
-		else
-			return {hoveredHex};
+			return {fromHex, stack->occupiedHex(fromHex)};
+
+		return {fromHex};
 	}
 
-	if(stack->doubleWide())
-	{
-		for(auto const & hex : availableHexes)
-		{
-			if(stack->occupiedHex(hex) == hoveredHex)
-				return {hoveredHex, hex};
-		}
-	}
-
-	return {};
+	auto toHex = owner.getBattle()->toWhichHexMove(availableHexes, stack, hoveredHex);
+	if (!toHex.isValid())
+		return {};
+	
+	if (stack->doubleWide())
+		return {toHex, stack->occupiedHex(toHex)};
+	else
+		return {toHex};
 }
 
 // Range limit highlight helpers
 
-std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex, uint8_t distance)
+BattleHexArray BattleFieldController::getRangeHexes(const BattleHex & sourceHex, uint8_t distance) const
 {
-	std::vector<BattleHex> rangeHexes;
+	BattleHexArray rangeHexes;
 
-	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !GH.isKeyboardShiftDown())
+	if (!settings["battle"]["rangeLimitHighlightOnHover"].Bool() && !ENGINE->isKeyboardShiftDown())
 		return rangeHexes;
 
 	// get only battlefield hexes that are within the given distance
@@ -436,27 +431,27 @@ std::vector<BattleHex> BattleFieldController::getRangeHexes(BattleHex sourceHex,
 	{
 		BattleHex hex(i);
 		if(hex.isAvailable() && BattleHex::getDistance(sourceHex, hex) <= distance)
-			rangeHexes.push_back(hex);
+			rangeHexes.insert(hex);
 	}
 
 	return rangeHexes;
 }
 
-std::vector<BattleHex> BattleFieldController::getRangeLimitHexes(BattleHex hoveredHex, std::vector<BattleHex> rangeHexes, uint8_t distanceToLimit)
+BattleHexArray BattleFieldController::getRangeLimitHexes(const BattleHex & sourceHex, const BattleHexArray & rangeHexes, uint8_t distanceToLimit) const
 {
-	std::vector<BattleHex> rangeLimitHexes;
+	BattleHexArray rangeLimitHexes;
 
 	// from range hexes get only the ones at the limit
 	for(auto & hex : rangeHexes)
 	{
-		if(BattleHex::getDistance(hoveredHex, hex) == distanceToLimit)
-			rangeLimitHexes.push_back(hex);
+		if(BattleHex::getDistance(sourceHex, hex) == distanceToLimit)
+			rangeLimitHexes.insert(hex);
 	}
 
 	return rangeLimitHexes;
 }
 
-bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, std::vector<BattleHex> & rangeLimitHexes, int * hexIndexInRangeLimit)
+bool BattleFieldController::isHexInRangeLimit(const BattleHex & hex, const BattleHexArray & rangeLimitHexes, int * hexIndexInRangeLimit) const
 {
 	bool  hexInRangeLimit = false;
 
@@ -470,18 +465,19 @@ bool BattleFieldController::IsHexInRangeLimit(BattleHex hex, std::vector<BattleH
 	return hexInRangeLimit;
 }
 
-std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(std::vector<BattleHex> wholeRangeHexes, std::vector<BattleHex> rangeLimitHexes)
+std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeighbourDirectionsForLimitHexes(
+	const BattleHexArray & wholeRangeHexes, const BattleHexArray & rangeLimitHexes) const
 {
 	std::vector<std::vector<BattleHex::EDir>> output;
 
 	if(wholeRangeHexes.empty())
 		return output;
 
-	for(auto & hex : rangeLimitHexes)
+	for(const auto & hex : rangeLimitHexes)
 	{
 		// get all neighbours and their directions
 		
-		auto neighbouringTiles = hex.allNeighbouringTiles();
+		const BattleHexArray & neighbouringTiles = hex.getAllNeighbouringTiles();
 
 		std::vector<BattleHex::EDir> outsideNeighbourDirections;
 
@@ -491,9 +487,7 @@ std::vector<std::vector<BattleHex::EDir>> BattleFieldController::getOutsideNeigh
 			if(!neighbouringTiles[direction].isAvailable())
 				continue;
 
-			auto it = std::find(wholeRangeHexes.begin(), wholeRangeHexes.end(), neighbouringTiles[direction]);
-
-			if(it == wholeRangeHexes.end())
+			if(!wholeRangeHexes.contains(neighbouringTiles[direction]))
 				outsideNeighbourDirections.push_back(BattleHex::EDir(direction)); // push direction
 		}
 
@@ -525,9 +519,9 @@ std::vector<std::shared_ptr<IImage>> BattleFieldController::calculateRangeLimitH
 	return output;
 }
 
-void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, std::vector<BattleHex> & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights)
+void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distance, std::shared_ptr<CAnimation> rangeLimitImages, BattleHexArray & rangeLimitHexes, std::vector<std::shared_ptr<IImage>> & rangeLimitHexesHighlights)
 {
-		std::vector<BattleHex> rangeHexes = getRangeHexes(hoveredHex, distance);
+		BattleHexArray rangeHexes = getRangeHexes(hoveredHex, distance);
 		rangeLimitHexes = getRangeLimitHexes(hoveredHex, rangeHexes, distance);
 		std::vector<std::vector<BattleHex::EDir>> rangeLimitNeighbourDirections = getOutsideNeighbourDirectionsForLimitHexes(rangeHexes, rangeLimitHexes);
 		rangeLimitHexesHighlights = calculateRangeLimitHighlightImages(rangeLimitNeighbourDirections, rangeLimitImages);
@@ -535,18 +529,18 @@ void BattleFieldController::calculateRangeLimitAndHighlightImages(uint8_t distan
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
-	std::vector<BattleHex> rangedFullDamageLimitHexes;
-	std::vector<BattleHex> shootingRangeLimitHexes;
+	BattleHexArray rangedFullDamageLimitHexes;
+	BattleHexArray shootingRangeLimitHexes;
 
 	std::vector<std::shared_ptr<IImage>> rangedFullDamageLimitHexesHighlights;
 	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighlights;
 
-	std::set<BattleHex> hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
-	std::set<BattleHex> hoveredSpellHexes = getHighlightedHexesForSpellRange();
-	std::set<BattleHex> hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
+	BattleHexArray hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
+	BattleHexArray hoveredSpellHexes = getHighlightedHexesForSpellRange();
+	BattleHexArray hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
-	std::set<BattleHex> hoveredMouseHex = hoveredHex.isValid() ? std::set<BattleHex>({ hoveredHex }) : std::set<BattleHex>();
+	BattleHexArray hoveredMouseHex = hoveredHex.isAvailable() ? BattleHexArray({ hoveredHex }) : BattleHexArray();
 
 	const CStack * hoveredStack = getHoveredStack();
 	if(!hoveredStack && hoveredHex == BattleHex::INVALID)
@@ -569,20 +563,35 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 			|| owner.actionsController->creatureSpellcastingModeActive()); //at least shooting with SPELL_LIKE_ATTACK can operate in spellcasting mode without being actual spellcast
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
 
-	const auto & hoveredMouseHexes = useSpellRangeForMouse ? hoveredSpellHexes : ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
+
+	BattleHexArray hoveredMouseHexes;
+	if(hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionWalkAndCast(getHoveredHex()))
+	{
+		hoveredMouseHexes = hoveredSpellHexes;
+		for(const auto & hex : useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex)
+		{
+			hoveredMouseHexes.insert(hex);
+		}
+	}
+	else
+	{
+		hoveredMouseHexes = useSpellRangeForMouse
+			? hoveredSpellHexes
+			: ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
+	}
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
-		bool stackMovement = hoveredStackMovementRangeHexes.count(hex);
-		bool mouse = hoveredMouseHexes.count(hex);
+		bool stackMovement = hoveredStackMovementRangeHexes.contains(hex);
+		bool mouse = hoveredMouseHexes.contains(hex);
 
 		// calculate if hex is Ranged Full Damage Limit and its position in highlight array
 		int hexIndexInRangedFullDamageLimit = 0;
-		bool hexInRangedFullDamageLimit = IsHexInRangeLimit(hex, rangedFullDamageLimitHexes, &hexIndexInRangedFullDamageLimit);
+		bool hexInRangedFullDamageLimit = isHexInRangeLimit(hex, rangedFullDamageLimitHexes, &hexIndexInRangedFullDamageLimit);
 
 		// calculate if hex is Shooting Range Limit and its position in highlight array
 		int hexIndexInShootingRangeLimit = 0;
-		bool hexInShootingRangeLimit = IsHexInRangeLimit(hex, shootingRangeLimitHexes, &hexIndexInShootingRangeLimit);
+		bool hexInShootingRangeLimit = isHexInRangeLimit(hex, shootingRangeLimitHexes, &hexIndexInShootingRangeLimit);
 
 		if(stackMovement && mouse) // area where hovered stackMovement can move shown with highlight. Because also affected by mouse cursor, shade as well
 		{
@@ -608,7 +617,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	}
 }
 
-Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
+Rect BattleFieldController::hexPositionLocal(const BattleHex & hex) const
 {
 	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX();
 	int y = 86 + 42 *hex.getY();
@@ -617,7 +626,7 @@ Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 	return Rect(x, y, w, h);
 }
 
-Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
+Rect BattleFieldController::hexPositionAbsolute(const BattleHex & hex) const
 {
 	return hexPositionLocal(hex) + pos.topLeft();
 }
@@ -676,155 +685,47 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
-BattleHex::EDir BattleFieldController::selectAttackDirection(BattleHex myNumber)
+BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
 {
-	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
-	auto neighbours = myNumber.allNeighbouringTiles();
-	//   0 1
-	//  5 x 2
-	//   4 3
-
-	// if true - our current stack can move into this hex (and attack)
-	std::array<bool, 8> attackAvailability;
-
-	if (doubleWide)
-	{
-		// For double-hexes we need to ensure that both hexes needed for this direction are occupyable:
-		// |    -0-   |   -1-    |    -2-   |   -3-    |    -4-   |   -5-    |    -6-   |   -7-
-		// |  o o -   |   - o o  |    - -   |   - -    |    - -   |   - -    |    o o   |   - -
-		// |   - x -  |  - x -   |   - x o o|  - x -   |   - x -  |o o x -   |   - x -  |  - x -
-		// |    - -   |   - -    |    - -   |   - o o  |  o o -   |   - -    |    - -   |   o o
-
-		for (size_t i : { 1, 2, 3})
-			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]) && vstd::contains(occupiableHexes, neighbours[i].cloneInDirection(BattleHex::RIGHT, false));
-
-		for (size_t i : { 4, 5, 0})
-			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]) && vstd::contains(occupiableHexes, neighbours[i].cloneInDirection(BattleHex::LEFT, false));
-
-		attackAvailability[6] = vstd::contains(occupiableHexes, neighbours[0]) && vstd::contains(occupiableHexes, neighbours[1]);
-		attackAvailability[7] = vstd::contains(occupiableHexes, neighbours[3]) && vstd::contains(occupiableHexes, neighbours[4]);
-	}
-	else
-	{
-		for (size_t i = 0; i < 6; ++i)
-			attackAvailability[i] = vstd::contains(occupiableHexes, neighbours[i]);
-
-		attackAvailability[6] = false;
-		attackAvailability[7] = false;
-	}
-
-	// Zero available tiles to attack from
-	if ( vstd::find(attackAvailability, true) == attackAvailability.end())
-	{
-		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
-		return BattleHex::NONE;
-	}
-
+	auto attacker = owner.stacksController->getActiveStack();
+	assert(attacker);
+	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
 	// For each valid direction, select position to test against
 	std::array<Point, 8> testPoint;
+	testPoint.fill(Point::makeInvalid());
 
 	for (size_t i = 0; i < 6; ++i)
-		if (attackAvailability[i])
+		if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i)))
 			testPoint[i] = hexPositionAbsolute(neighbours[i]).center();
 
 	// For bottom/top directions select central point, but move it a bit away from true center to reduce zones allocated to them
-	if (attackAvailability[6])
+	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(6)))
 		testPoint[6] = (hexPositionAbsolute(neighbours[0]).center() + hexPositionAbsolute(neighbours[1]).center()) / 2 + Point(0, -5);
 
-	if (attackAvailability[7])
+	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(7)))
 		testPoint[7] = (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0,  5);
 
 	// Compute distance between tested position & cursor position and pick nearest
-	std::array<int, 8> distance2;
-
-	for (size_t i = 0; i < 8; ++i)
-		if (attackAvailability[i])
-			distance2[i] = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
-
+	int nearestDistance = std::numeric_limits<int>::max();
 	size_t nearest = -1;
+
 	for (size_t i = 0; i < 8; ++i)
-		if (attackAvailability[i] && (nearest == -1 || distance2[i] < distance2[nearest]) )
-			nearest = i;
+	{
+		if (testPoint[i].isValid())
+		{
+			int distance = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
+			if (nearest == -1 || distance < nearestDistance)
+			{
+				nearestDistance = distance;
+				nearest = i;
+			}
+		}
+	}
 
-	assert(nearest != -1);
+	if (nearest == -1)
+		// Zero available tiles to attack from
+		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
 	return BattleHex::EDir(nearest);
-}
-
-BattleHex BattleFieldController::fromWhichHexAttack(BattleHex attackTarget)
-{
-	BattleHex::EDir direction = selectAttackDirection(getHoveredHex());
-
-	const CStack * attacker = owner.stacksController->getActiveStack();
-
-	assert(direction != BattleHex::NONE);
-	assert(attacker);
-
-	if (!attacker->doubleWide())
-	{
-		assert(direction != BattleHex::BOTTOM);
-		assert(direction != BattleHex::TOP);
-		return attackTarget.cloneInDirection(direction);
-	}
-	else
-	{
-		// We need to find position of right hex of double-hex creature (or left for defending side)
-		// | TOP_LEFT |TOP_RIGHT |   RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT    |    TOP   |BOTTOM
-		// |  o o -   |   - o o  |    - -   |   - -      |    - -    |   - -    |    o o   |   - -
-		// |   - x -  |  - x -   |   - x o o|  - x -     |   - x -   |o o x -   |   - x -  |  - x -
-		// |    - -   |   - -    |    - -   |   - o o    |  o o -    |   - -    |    - -   |   o o
-
-		switch (direction)
-		{
-		case BattleHex::TOP_LEFT:
-		case BattleHex::LEFT:
-		case BattleHex::BOTTOM_LEFT:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(direction);
-			else
-				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::LEFT);
-		}
-
-		case BattleHex::TOP_RIGHT:
-		case BattleHex::RIGHT:
-		case BattleHex::BOTTOM_RIGHT:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::RIGHT);
-			else
-				return attackTarget.cloneInDirection(direction);
-		}
-
-		case BattleHex::TOP:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(BattleHex::TOP_RIGHT);
-			else
-				return attackTarget.cloneInDirection(BattleHex::TOP_LEFT);
-		}
-
-		case BattleHex::BOTTOM:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(BattleHex::BOTTOM_RIGHT);
-			else
-				return attackTarget.cloneInDirection(BattleHex::BOTTOM_LEFT);
-		}
-		default:
-			assert(0);
-			return BattleHex::INVALID;
-		}
-	}
-}
-
-bool BattleFieldController::isTileAttackable(const BattleHex & number) const
-{
-	for (auto & elem : occupiableHexes)
-	{
-		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)
-			return true;
-	}
-	return false;
 }
 
 void BattleFieldController::updateAccessibleHexes()
@@ -837,7 +738,7 @@ void BattleFieldController::updateAccessibleHexes()
 
 bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 {
-	return stackCountOutsideHexes[number];
+	return stackCountOutsideHexes[number.toInt()];
 }
 
 void BattleFieldController::showAll(Canvas & to)
@@ -855,29 +756,12 @@ void BattleFieldController::tick(uint32_t msPassed)
 
 void BattleFieldController::show(Canvas & to)
 {
-	CSDL_Ext::CClipRectGuard guard(to.getInternalSurface(), pos);
+	CanvasClipRectGuard guard(to, pos);
 
 	renderBattlefield(to);
 
 	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
-	{
-		auto combatCursorIndex = CCS->curh->get<Cursor::Combat>();
-		if (combatCursorIndex)
-		{
-			auto combatImageIndex = static_cast<size_t>(*combatCursorIndex);
-			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetCombat(combatImageIndex));
-			return;
-		}
-
-		auto spellCursorIndex = CCS->curh->get<Cursor::Spellcast>();
-		if (spellCursorIndex)
-		{
-			auto spellImageIndex = static_cast<size_t>(*spellCursorIndex);
-			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - CCS->curh->getPivotOffsetSpellcast());
-			return;
-		}
-
-	}
+		to.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
 }
 
 bool BattleFieldController::receiveEvent(const Point & position, int eventType) const

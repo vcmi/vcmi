@@ -13,7 +13,7 @@
 #include "TextOperations.h"
 #include "Languages.h"
 
-#include "../VCMI_Lib.h"
+#include "../GameLibrary.h"
 #include "filesystem/Filesystem.h"
 #include "../modding/CModHandler.h"
 
@@ -32,7 +32,7 @@ protected:
 CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
 {
 	auto input = CResourceHandler::get()->load(resource);
-	fileEncoding = VLC->modh->findResourceEncoding(resource);
+	fileEncoding = LIBRARY->modh->findResourceEncoding(resource);
 
 	data.reset(new char[input->getSize()]);
 	input->read(reinterpret_cast<uint8_t*>(data.get()), input->getSize());

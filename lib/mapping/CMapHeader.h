@@ -20,6 +20,8 @@
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
+#include "MapDifficulty.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGObjectInstance;
@@ -193,13 +195,22 @@ struct DLL_LINKAGE TriggeredEvent
 	}
 };
 
-enum class EMapDifficulty : uint8_t
+/// The disposed hero struct describes which hero can be hired from which player.
+struct DLL_LINKAGE DisposedHero
 {
-	EASY = 0,
-	NORMAL = 1,
-	HARD = 2,
-	EXPERT = 3,
-	IMPOSSIBLE = 4
+	HeroTypeID heroId;
+	HeroTypeID portrait; /// The portrait id of the hero, -1 is default.
+	std::string name;
+	std::set<PlayerColor> players; /// Who can hire this hero (bitfield).
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		h & heroId;
+		h & portrait;
+		h & name;
+		h & players;
+	}
 };
 
 /// The map header holds information about loss/victory condition,map format, version, players, height, width,...
@@ -221,12 +232,14 @@ public:
 
 	ui8 levels() const;
 
+	void banWaterHeroes(bool isWaterMap);
+
 	EMapFormat version; /// The default value is EMapFormat::SOD.
 	ModCompatibilityInfo mods; /// set of mods required to play a map
 
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
-	bool twoLevel; /// The default value is true.
+	std::vector<MapLayerId> mapLayers;
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;
@@ -248,7 +261,11 @@ public:
 	std::set<HeroTypeID> allowedHeroes;
 	std::set<HeroTypeID> reservedCampaignHeroes; /// Heroes that have placeholders in this map and are reserved for campaign
 
+	std::vector<DisposedHero> disposedHeroes;
+
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
+
+	bool battleOnly; /// Battle only mode
 
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
@@ -267,28 +284,48 @@ public:
 		h & mods;
 		h & name;
 		h & description;
-		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
-		{
-			h & author;
-			h & authorContact;
-			h & mapVersion;
-			h & creationDateTime;
-		}
+		h & author;
+		h & authorContact;
+		h & mapVersion;
+		h & creationDateTime;
 		h & width;
 		h & height;
-		h & twoLevel;
-
-		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
-			h & difficulty;
+		if (h.version >= Handler::Version::NAME_MAP_LAYERS)
+			h & mapLayers;
+		else if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+		{
+			if (!h.saving)
+			{
+				si32 mapLevels;
+				h & mapLevels;
+				mapLayers.clear();
+				for(int i = 0; i < mapLevels; i++)
+				{
+					if(i == 0)
+						mapLayers.push_back(MapLayerId::SURFACE);
+					else if(i == 1)
+						mapLayers.push_back(MapLayerId::UNDERGROUND);
+					else
+						mapLayers.push_back(MapLayerId::UNKNOWN);
+				}
+			}
+		}
 		else
 		{
-			uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
-			h & difficultyInteger;
-			difficulty = static_cast<EMapDifficulty>(difficultyInteger);
+			if (!h.saving)
+			{
+				bool hasTwoLevels;
+				h & hasTwoLevels;
+				mapLayers = hasTwoLevels ? std::vector<MapLayerId>({MapLayerId::SURFACE, MapLayerId::UNDERGROUND}) : std::vector<MapLayerId>({MapLayerId::SURFACE});
+			}
 		}
+
+		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;
+		if (h.version >= Handler::Version::BATTLE_ONLY)
+			h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
@@ -298,6 +335,8 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
+		if (h.version >= Handler::Version::MAP_HEADER_DISPOSED_HEROES)
+			h & disposedHeroes;
 		h & translations;
 		if(!h.saving)
 			registerMapStrings();

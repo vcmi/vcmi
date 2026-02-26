@@ -12,12 +12,13 @@
 
 #include "../eventsSDL/InputHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../ConditionalWait.h"
+#include "../../lib/ConditionalWait.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../CPlayerInterface.h"
-#include "../CGameInfo.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Images.h"
@@ -43,7 +44,7 @@ CTutorialWindow::CTutorialWindow(const TutorialMode & m)
 	if(mode == TutorialMode::TOUCH_ADVENTUREMAP) videos = { "RightClick", "MapPanning", "MapZooming", "RadialWheel" };
 	else if(mode == TutorialMode::TOUCH_BATTLE) videos = { "BattleDirection", "BattleDirectionAbort", "AbortSpell" };
 
-	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->translate("vcmi.tutorialWindow.title"));
+	labelTitle = std::make_shared<CLabel>(190, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.tutorialWindow.title"));
 	labelInformation = std::make_shared<CMultiLineLabel>(Rect(5, 40, 370, 60), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "");
 	buttonOk = std::make_shared<CButton>(Point(159, 367), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CTutorialWindow::exit, this), EShortcut::GLOBAL_RETURN); //62x28
 	buttonLeft = std::make_shared<CButton>(Point(5, 217), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), std::bind(&CTutorialWindow::previous, this), EShortcut::MOVE_LEFT); //22x46
@@ -62,16 +63,16 @@ void CTutorialWindow::setContent()
 	buttonLeft->block(page<1);
 	buttonRight->block(page>videos.size() - 2);
 
-	labelInformation->setText(CGI->generaltexth->translate("vcmi.tutorialWindow.decription." + videos[page]));
+	labelInformation->setText(LIBRARY->generaltexth->translate("vcmi.tutorialWindow.decription." + videos[page]));
 }
 
 void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 {
-	if(GH.input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
+	if(ENGINE->input().getCurrentInputMode() == InputMode::TOUCH && !persistentStorage["gui"]["tutorialCompleted" + std::to_string(m)].Bool())
 	{
-		if(LOCPLINT)
-			LOCPLINT->showingDialog->setBusy();
-		GH.windows().pushWindow(std::make_shared<CTutorialWindow>(m));
+		if(GAME->interface())
+			GAME->interface()->showingDialog->setBusy();
+		ENGINE->windows().pushWindow(std::make_shared<CTutorialWindow>(m));
 
 		Settings s = persistentStorage.write["gui"]["tutorialCompleted" + std::to_string(m)];
 		s->Bool() = true;
@@ -80,8 +81,8 @@ void CTutorialWindow::openWindowFirstTime(const TutorialMode & m)
 
 void CTutorialWindow::exit()
 {
-	if(LOCPLINT)
-		LOCPLINT->showingDialog->setFree();
+	if(GAME->interface())
+		GAME->interface()->showingDialog->setFree();
 
 	close();
 }

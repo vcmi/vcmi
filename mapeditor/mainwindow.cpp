@@ -20,23 +20,26 @@
 #include <QListWidget>
 
 #include "../lib/VCMIDirs.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
+#include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/filesystem/CFilesystemLoader.h"
+#include "../lib/MapLayerHandler.h"
+
+#include "../vcmiqt/launcherdirs.h"
 
 #include "maphandler.h"
 #include "graphics.h"
@@ -45,10 +48,14 @@
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
 #include "mapsettings/translations.h"
-#include "playersettings.h"
+#include "mapsettings/modsettings.h"
+#include "PlayerSettingsDialog.h"
 #include "validator.h"
-
-static CBasicLogConfigurator * logConfig;
+#include "helper.h"
+#include "campaigneditor/campaigneditor.h"
+#ifdef ENABLE_TEMPLATE_EDITOR
+#include "templateeditor/templateeditor.h"
+#endif
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -67,20 +74,10 @@ QPixmap pixmapFromJson(const QJsonValue &val)
   return p;
 }
 
-void init()
-{
-	loadDLLClasses();
-
-	Settings config = settings.write["session"]["editor"];
-	config->Bool() = true;
-
-	logGlobal->info("Initializing VCMI_Lib");
-}
-
 void MainWindow::loadUserSettings()
 {
 	//load window settings
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	auto size = s.value(mainWindowSizeSetting).toSize();
 	if (size.isValid())
@@ -99,7 +96,7 @@ void MainWindow::loadUserSettings()
 
 void MainWindow::saveUserSettings()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	s.setValue(mainWindowSizeSetting, size());
 	s.setValue(mainWindowPositionSetting, pos());
 	s.setValue(lastDirectorySetting, lastSavingDir);
@@ -165,6 +162,34 @@ void MainWindow::loadTranslation()
 #endif
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+	if (!getAnswerAboutUnsavedChanges())
+		return;
+
+	for (const QUrl& url : event->mimeData()->urls())
+	{
+		QString path = url.toLocalFile();
+		if (path.endsWith(".h3m", Qt::CaseInsensitive) || path.endsWith(".vmap", Qt::CaseInsensitive))
+		{
+			openMap(path);
+			break;
+		}
+		else if (path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+		{
+			hide();
+			openCampaign(path);
+			break;
+		}
+	}
+}
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -174,6 +199,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+	setAcceptDrops(true);
+	
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
 
 	ExtractionOptions extractionOptions;
@@ -181,14 +208,15 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-	console = new CConsoleHandler();
-	logConfig = new CBasicLogConfigurator(logPath, console);
+	console = std::make_unique<CConsoleHandler>();
+	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, extractionOptions.extractArchives);
+	LIBRARY = new GameLibrary();
+	LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -228,7 +256,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->menuOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
-	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
 	ui->actionPass->setIcon(QIcon{":/icons/toggle-pass.png"});
 	ui->actionCut->setIcon(QIcon{":/icons/edit-cut.png"});
 	ui->actionCopy->setIcon(QIcon{":/icons/edit-copy.png"});
@@ -244,11 +271,72 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->actionZoom_in->setIcon(QIcon{":/icons/zoom_plus.png"});
 	ui->actionZoom_out->setIcon(QIcon{":/icons/zoom_minus.png"});
 	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
+	ui->actionCampaignEditor->setIcon(QIcon{":/icons/mapeditor.64x64.png"});
+	ui->actionTemplateEditor->setIcon(QIcon{":/icons/dice.png"});
+
+	// Add combobox action
+	for (QWidget* c : QList<QWidget*>{ ui->toolBar, ui->menuView })
+	{
+		QWidget* container = new QWidget;
+		QHBoxLayout* layout = new QHBoxLayout(container);
+		layout->setContentsMargins(6, 2, 4, 2);
+		layout->setSpacing(2);
+
+		if (c == ui->menuView)
+		{
+			// Add icon label only for QMenu
+			QLabel* iconLabel = new QLabel;
+			iconLabel->setPixmap(QIcon(":/icons/toggle-underground.png").pixmap(16, 16));
+			iconLabel->setContentsMargins(0, 2, 0, 0);
+			layout->addWidget(iconLabel);
+		}
+
+		// Add the combo box
+		QComboBox* combo = new QComboBox;
+		combo->setFixedHeight(ui->menuView->fontMetrics().height() + 6);
+		combo->setMinimumWidth(160);
+		connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int index) {
+			for(auto & box : levelComboBoxes)
+				if (box->currentIndex() != index && combo != box)
+        			box->setCurrentIndex(index);
+			
+			if(!controller.map())
+				return;
+			
+			mapLevel = combo->currentIndex();
+			ui->mapView->setScene(controller.scene(mapLevel));
+			ui->mapView->setViewports();
+			ui->minimapView->setScene(controller.miniScene(mapLevel));
+		});
+		layout->addWidget(combo, c == ui->menuView ? 1 : 0);
+
+		// Create the widget action
+		QWidgetAction* comboAction = new QWidgetAction(this);
+		comboAction->setDefaultWidget(container);
+
+		int index = c->actions().indexOf(ui->actionLevel);
+		if (index != -1)
+		{
+			c->removeAction(ui->actionLevel);
+			c->insertAction(c->actions().value(index), comboAction);
+		}
+
+		levelComboBoxes.push_back(combo);
+	}
+
+#ifndef ENABLE_TEMPLATE_EDITOR
+	ui->actionTemplateEditor->setVisible(false);
+#endif
 
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	init();
+	LIBRARY->initializeLibrary();
+
+	Settings config = settings.write["session"]["editor"];
+	config->Bool() = true;
+
+	logGlobal->info("Initializing VCMI_Lib");
 
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
@@ -324,7 +412,7 @@ void MainWindow::setStatusMessage(const QString & status)
 
 void MainWindow::setTitle()
 {
-	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION.c_str());
 	setWindowTitle(title);
 }
 
@@ -350,10 +438,23 @@ void MainWindow::initializeMap(bool isNew)
 	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
 	//enable settings
+	mapSettings = new MapSettings(controller, this);
+	connect(&controller, &MapController::requestModsUpdate,
+		mapSettings->getModSettings(), &ModSettings::updateModWidgetBasedOnMods);
+
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
-	ui->actionLevel->setEnabled(controller.map()->twoLevel);
+	for(auto & box : levelComboBoxes)
+	{
+		box->clear();
+		for(int i = 0; i < controller.map()->levels(); i++)
+		{
+			box->addItems({ tr("Level %1: %2").arg(i + 1).arg(QString::fromStdString(controller.map()->mapLayers.at(i).toEntity(LIBRARY)->getNameTranslated())) });
+		}
+	}
+	ui->actionLevel->setEnabled(true);
+	ui->actionMapLayer->setEnabled(true);
 	
 	//set minimal players count
 	if(isNew)
@@ -361,58 +462,35 @@ void MainWindow::initializeMap(bool isNew)
 		controller.map()->players[0].canComputerPlay = true;
 		controller.map()->players[0].canHumanPlay = true;
 	}
-	
+	ui->inspectorWidget->setRowCount(0);
 	onPlayersChanged();
-}
-
-std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect)
-{
-	QFileInfo fi(filenameSelect);
-	std::string fname = fi.fileName().toStdString();
-	std::string fdir = fi.dir().path().toStdString();
-	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
-	
-	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
-	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
-	
-	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open map from this folder");
-	
-	CMapService mapService;
-	if(auto header = mapService.loadMapHeader(resId))
-	{
-		auto missingMods = CMapService::verifyMapHeaderMods(*header);
-		ModIncompatibility::ModList modList;
-		for(const auto & m : missingMods)
-			modList.push_back(m.second.name);
-		
-		if(!modList.empty())
-			throw ModIncompatibility(modList);
-		
-		return mapService.loadMap(resId, nullptr);
-	}
-	else
-		throw std::runtime_error("Corrupted map");
 }
 
 bool MainWindow::openMap(const QString & filenameSelect)
 {
 	try
 	{
-		controller.setMap(openMapInternal(filenameSelect));
+		controller.setMap(Helper::openMapInternal(filenameSelect, controller.getCallback()));
 	}
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, "Mods are required", QString::fromStdString(e.whatMissing()));
+		auto qstrError = QString::fromStdString(e.getFullErrorMsg()).remove('{').remove('}');
+		QMessageBox::warning(this, tr("Mods are required"), qstrError);
 		return false;
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		return false;
+	}
+
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to open map", tr(e.what()));
+		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
 		return false;
 	}
 	
@@ -424,8 +502,13 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	return true;
 }
 
+void MainWindow::openCampaign(const QString & filenameSelect)
+{
+	CampaignEditor::showCampaignEditor(this, filenameSelect, controller.getCallback());
+}
+
 void MainWindow::updateRecentMenu(const QString & filenameSelect) {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 	recentFiles.removeAll(filenameSelect);
 	recentFiles.prepend(filenameSelect);
@@ -449,7 +532,7 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionOpenRecent_triggered()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 
 	class RecentFileDialog : public QDialog
@@ -459,8 +542,6 @@ void MainWindow::on_actionOpenRecent_triggered()
 		RecentFileDialog(const QStringList& recentFiles, QWidget *parent)
 			: QDialog(parent), layout(new QVBoxLayout(this)), listWidget(new QListWidget(this))
 		{
-
-			setWindowTitle(tr("Recently Opened Files"));
 			setMinimumWidth(600);
 
 			connect(listWidget, &QListWidget::itemActivated, this, [this](QListWidgetItem *item)
@@ -496,6 +577,7 @@ void MainWindow::on_actionOpenRecent_triggered()
 	};
 
 	RecentFileDialog d(recentFiles, this);
+	d.setWindowTitle(tr("Recently Opened Files"));
 	if(d.exec() == QDialog::Accepted && getAnswerAboutUnsavedChanges())
 	{
 		openMap(d.getSelectedFilePath());
@@ -512,7 +594,7 @@ void MainWindow::on_menuOpenRecent_aboutToShow()
 		}
 	}
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
 
 	// Dynamically populate menuOpenRecent with one action per file.
@@ -548,16 +630,20 @@ void MainWindow::saveMap()
 	
 	if(!issues.empty())
 	{
+		auto mapValidationTitle = tr("Map validation");
 		if(critical)
-			QMessageBox::warning(this, "Map validation", "Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found");
+			QMessageBox::warning(this, mapValidationTitle, tr("Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found"));
 		else
-			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
+			QMessageBox::information(this, mapValidationTitle, tr("Map has some errors. Open Validator from the Map menu to see issues found"));
 	}
 	
 	Translations::cleanupRemovedItems(*controller.map());
 
 	for(auto obj : controller.map()->objects)
 	{
+		if(!obj)
+			continue;
+
 		if(obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			auto hero = dynamic_cast<CGHeroPlaceholder *>(obj.get());
@@ -575,7 +661,7 @@ void MainWindow::saveMap()
 	}
 	catch(const std::exception & e)
 	{
-		QMessageBox::critical(this, "Failed to save map", e.what());
+		QMessageBox::critical(this, tr("Failed to save map"), e.what());
 		return;
 	}
 	
@@ -604,6 +690,25 @@ void MainWindow::on_actionSave_as_triggered()
 	saveMap();
 }
 
+void MainWindow::on_actionCampaignEditor_triggered()
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	hide();
+	CampaignEditor::showCampaignEditor(this, controller.getCallback());
+}
+
+void MainWindow::on_actionTemplateEditor_triggered()
+{
+#ifdef ENABLE_TEMPLATE_EDITOR
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	hide();
+	TemplateEditor::showTemplateEditor(this);
+#endif
+}
 
 void MainWindow::on_actionNew_triggered()
 {
@@ -639,7 +744,7 @@ void MainWindow::roadOrRiverButtonClicked(ui8 type, bool isRoad)
 
 void MainWindow::addGroupIntoCatalog(const QString & groupName, bool staticOnly)
 {
-	auto knownObjects = VLC->objtypeh->knownObjects();
+	auto knownObjects = LIBRARY->objtypeh->knownObjects();
 	for(auto ID : knownObjects)
 	{
 		if(catalog.count(ID))
@@ -663,19 +768,19 @@ void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomNa
 		itemGroup = itms.front();
 	}
 
-	if (VLC->objtypeh->knownObjects().count(ID) == 0)
+	if (LIBRARY->objtypeh->knownObjects().count(ID) == 0)
 		return;
 
-	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
+	auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(ID);
 	for(auto secondaryID : knownSubObjects)
 	{
-		auto factory = VLC->objtypeh->getHandlerFor(ID, secondaryID);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(ID, secondaryID);
 		auto templates = factory->getTemplates();
 		bool singleTemplate = templates.size() == 1;
 		if(staticOnly && !factory->isStaticObject())
 			continue;
 
-		auto subGroupName = QString::fromStdString(VLC->objtypeh->getObjectName(ID, secondaryID));
+		auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(ID, secondaryID));
 		
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
@@ -702,7 +807,7 @@ void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomNa
 			}
 			
 			//create object to extract name
-			std::unique_ptr<CGObjectInstance> temporaryObj(factory->create(nullptr, templ));
+			auto temporaryObj(factory->create(controller.getCallback(), templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
 			
@@ -740,7 +845,7 @@ void MainWindow::loadObjectsTree()
 	{
 	ui->terrainFilterCombo->addItem("");
 	//adding terrains
-	for(auto & terrain : VLC->terrainTypeHandler->objects)
+	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
@@ -755,7 +860,7 @@ void MainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : VLC->roadTypeHandler->objects)
+	for(auto & road : LIBRARY->roadTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
@@ -764,7 +869,7 @@ void MainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : VLC->riverTypeHandler->objects)
+	for(auto & river : LIBRARY->riverTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
@@ -942,31 +1047,13 @@ void MainWindow::loadObjectsTree()
 	}
 	catch(const std::exception &)
 	{
-		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
-	}
-}
-
-void MainWindow::on_actionLevel_triggered()
-{
-	if(controller.map() && controller.map()->twoLevel)
-	{
-		mapLevel = mapLevel ? 0 : 1;
-		ui->mapView->setScene(controller.scene(mapLevel));
-		ui->minimapView->setScene(controller.miniScene(mapLevel));
-		if (mapLevel == 0)
-		{
-			ui->actionLevel->setToolTip(tr("View underground"));
-		}
-		else
-		{
-			ui->actionLevel->setToolTip(tr("View surface"));
-		}
+		QMessageBox::critical(this, tr("Mods loading problem"), tr("Critical error during Mods loading. Disable invalid mods and restart."));
 	}
 }
 
 void MainWindow::on_actionUndo_triggered()
 {
-	QString str("Undo clicked");
+	QString str(tr("Undo clicked"));
 	statusBar()->showMessage(str, 1000);
 
 	if (controller.map())
@@ -977,7 +1064,7 @@ void MainWindow::on_actionUndo_triggered()
 
 void MainWindow::on_actionRedo_triggered()
 {
-	QString str("Redo clicked");
+	QString str(tr("Redo clicked"));
 	displayStatus(str);
 
 	if (controller.map())
@@ -988,26 +1075,26 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
-	QString str("Passability clicked");
+	QString str(tr("Passability clicked"));
 	displayStatus(str);
 
 	if(controller.map())
 	{
-		controller.scene(0)->passabilityView.show(checked);
-		controller.scene(1)->passabilityView.show(checked);
+		for(int level = 0; level < controller.map()->levels(); ++level)
+			controller.scene(level)->passabilityView.show(checked);
 	}
 }
 
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
-	QString str("Grid clicked");
+	QString str(tr("Grid clicked"));
 	displayStatus(str);
 
 	if(controller.map())
 	{
-		controller.scene(0)->gridView.show(checked);
-		controller.scene(1)->gridView.show(checked);
+		for(int level = 0; level < controller.map()->levels(); ++level)
+			controller.scene(level)->gridView.show(checked);
 	}
 }
 
@@ -1061,7 +1148,7 @@ void MainWindow::on_terrainFilterCombo_currentIndexChanged(int index)
 	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
 	if (!uniqueName.isEmpty())
 	{
-		for (auto const & terrain : VLC->terrainTypeHandler->objects)
+		for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
 			if (terrain->getJsonKey() == uniqueName.toStdString())
 				objectBrowser->terrain = terrain->getId();
 	}
@@ -1082,7 +1169,7 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
-	QString str("Fill clicked");
+	QString str(tr("Fill clicked"));
 	displayStatus(str);
 
 	if(!controller.map())
@@ -1126,15 +1213,21 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	auto settingsDialog = new MapSettings(controller, this);
-	settingsDialog->setWindowModality(Qt::WindowModal);
-	settingsDialog->setModal(true);
+	if(mapSettings->isVisible())
+	{
+		mapSettings->raise();
+		mapSettings->activateWindow();
+	}
+	else
+	{
+		mapSettings->show();
+	}
 }
 
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto settingsDialog = new PlayerSettings(controller, this);
+	auto settingsDialog = new PlayerSettingsDialog(controller, this);
 	settingsDialog->setWindowModality(Qt::WindowModal);
 	settingsDialog->setModal(true);
 	connect(settingsDialog, &QDialog::finished, this, &MainWindow::onPlayersChanged);
@@ -1157,15 +1250,15 @@ void MainWindow::switchDefaultPlayer(const PlayerColor & player)
 {
 	if(controller.defaultPlayer == player)
 		return;
-	
-	ui->actionNeutral->blockSignals(true);
+
+	QSignalBlocker blockerNeutral(ui->actionNeutral);
 	ui->actionNeutral->setChecked(PlayerColor::NEUTRAL == player);
-	ui->actionNeutral->blockSignals(false);
+
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
-		getActionPlayer(PlayerColor(i))->blockSignals(true);
-		getActionPlayer(PlayerColor(i))->setChecked(PlayerColor(i) == player);
-		getActionPlayer(PlayerColor(i))->blockSignals(false);
+		QAction * playerEntry = getActionPlayer(PlayerColor(i));
+		QSignalBlocker blocker(playerEntry); 
+		playerEntry->setChecked(PlayerColor(i) == player);
 	}
 	controller.defaultPlayer = player;
 }
@@ -1239,7 +1332,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
 	{
-		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto handler = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		if(!controller.map()->isInTheMap(obj->visitablePos()))
 		{
 			++errors;
@@ -1256,9 +1349,10 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
 			}
-			
+			std::vector<int3> selectedTiles;
 			for(auto & offset : obj->appearance->getBlockedOffsets())
-				controller.scene(mapLevel)->selectionTerrainView.select(obj->pos + offset);
+				selectedTiles.push_back(obj->pos + offset);
+			controller.scene(mapLevel)->selectionTerrainView.select(selectedTiles);
 		}
 		else
 		{
@@ -1297,6 +1391,51 @@ void MainWindow::on_actionRecreate_obstacles_triggered()
 }
 
 
+void MainWindow::on_actionMapLayer_triggered()
+{
+	auto & currentType = controller.map()->mapLayers[mapLevel];
+	int currentPos = 0;
+
+	QList<QPair<QString, MapLayerId>> layers;
+	for(const auto & layer : LIBRARY->mapLayerHandler->objects)
+	{
+		if(currentType == layer->getId())
+			currentPos = layers.size();
+		layers.append(qMakePair(QString::fromStdString(layer->getNameTranslated()), layer->getId()));
+	}
+	QStringList layerNames;
+	for (const auto &p : layers)
+		layerNames << p.first;
+
+    bool ok = false;
+    QString selected = QInputDialog::getItem(
+        nullptr,
+        tr("Select map layer type"),
+        tr("Type:"),
+        layerNames,
+        currentPos,
+        false,
+        &ok
+    );
+
+	if(ok)
+	{    
+		for (const auto & p : layers)
+		{
+			if (p.first == selected)
+			{
+				currentType = p.second;
+				
+				for(auto &box : levelComboBoxes)
+					box->setItemText(mapLevel, tr("Level %1: %2")
+										.arg(mapLevel + 1)
+										.arg(QString::fromStdString(currentType.toEntity(LIBRARY)->getNameTranslated())));
+			}
+		}
+	}
+}
+
+
 void MainWindow::on_actionCut_triggered()
 {
 	if(controller.map())
@@ -1330,10 +1469,23 @@ void MainWindow::on_actionExport_triggered()
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
 	if(!fileName.isNull())
 	{
-		QImage image(ui->mapView->scene()->sceneRect().size().toSize(), QImage::Format_RGB888);
+		auto * sc = static_cast<MapScene*>(ui->mapView->scene());
+		if(!sc)
+			return;
+		
+		QRectF sceneRect = sc->sceneRect();
+		
+		// Temporarily set viewport to full map for export
+		for (auto * layer : sc->getDynamicLayers())
+			layer->setViewport(sceneRect);
+		
+		QImage image(sceneRect.size().toSize(), QImage::Format_RGB888);
 		QPainter painter(&image);
-		ui->mapView->scene()->render(&painter);
+		sc->render(&painter, QRectF(), sceneRect);
 		image.save(fileName);
+		
+		// Restore viewport to visible area
+		ui->mapView->setViewports();
 	}
 }
 
@@ -1361,7 +1513,8 @@ void MainWindow::on_actionh3m_converter_triggered()
 		for(auto & m : mapFiles)
 		{
 			CMapService mapService;
-			auto map = openMapInternal(m);
+			auto map = Helper::openMapInternal(m, controller.getCallback());
+			controller.getCallback()->setMap(map.get());
 			controller.repairMap(map.get());
 			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
 		}
@@ -1373,6 +1526,27 @@ void MainWindow::on_actionh3m_converter_triggered()
 	}
 }
 
+void MainWindow::on_actionh3c_converter_triggered()
+{
+	auto campaignFile = QFileDialog::getOpenFileName(this, tr("Select campaign to convert"),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		tr("HoMM3 campaigns (*.h3c)"));
+	if(campaignFile.isEmpty())
+		return;
+	
+	auto campaignFileDest = QFileDialog::getSaveFileName(this, tr("Select destination file"),
+		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
+		tr("VCMI campaigns (*.vcmp)"));
+	if(campaignFileDest.isEmpty())
+		return;
+	
+	QFileInfo fileInfo(campaignFileDest);
+	if(fileInfo.suffix().toLower() != "vcmp")
+		campaignFileDest += ".vcmp";
+	auto campaign = Helper::openCampaignInternal(campaignFile);
+
+	Helper::saveCampaign(campaign, campaignFileDest);
+}
 
 void MainWindow::on_actionLock_triggered()
 {
@@ -1382,8 +1556,8 @@ void MainWindow::on_actionLock_triggered()
 		{
 			for(auto obj : controller.map()->objects)
 			{
-				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj, true);
-				controller.scene(mapLevel)->objectsView.setLockObject(obj, true);
+				controller.scene(mapLevel)->selectionObjectsView.setLockObject(obj.get(), true);
+				controller.scene(mapLevel)->objectsView.setLockObject(obj.get(), true);
 			}
 		}
 		else
@@ -1395,8 +1569,6 @@ void MainWindow::on_actionLock_triggered()
 			}
 			controller.scene(mapLevel)->selectionObjectsView.clear();
 		}
-		controller.scene(mapLevel)->objectsView.update();
-		controller.scene(mapLevel)->selectionObjectsView.update();
 	}
 }
 
@@ -1408,7 +1580,6 @@ void MainWindow::on_actionUnlock_triggered()
 		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
 		controller.scene(mapLevel)->objectsView.unlockAll();
 	}
-	controller.scene(mapLevel)->objectsView.update();
 }
 
 

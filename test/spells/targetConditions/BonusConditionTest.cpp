@@ -21,14 +21,14 @@ class BonusConditionTest : public TargetConditionItemTest
 public:
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(AtLeast(1));
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 	}
 
 	void SetUp() override
 	{
 		TargetConditionItemTest::SetUp();
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("", "bonus", "DIRECT_DAMAGE_IMMUNITY");
+		subject = TargetConditionItemFactory::getDefault()->createConfigurable("game", "bonus", "UNDEAD");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };
@@ -39,10 +39,10 @@ TEST_F(BonusConditionTest, ImmuneByDefault)
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-TEST_F(BonusConditionTest, DISABLED_ReceptiveIfMatchesType)
+TEST_F(BonusConditionTest, ReceptiveIfMatchesType)
 {
 	setDefaultExpectations();
-	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_DAMAGE_REDUCTION, BonusSource::OTHER, 100, BonusSourceID()));
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::UNDEAD, BonusSource::OTHER, 0, BonusSourceID()));
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 

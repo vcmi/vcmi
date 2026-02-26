@@ -19,53 +19,52 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-class DLL_LINKAGE CBonusType
+class DLL_LINKAGE CBonusType : boost::noncopyable
 {
 public:
-	CBonusType();
+	CBonusType() = default;
 
-	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & icon;
-		h & identifier;
-		h & hidden;
-
-	}
 
 private:
 	friend class CBonusTypeHandler;
 
-	std::string icon;
+	ImagePath icon;
+	std::map<int, ImagePath> subtypeIcons;
+	std::map<int, ImagePath> valueIcons;
+	std::map<int, std::string> subtypeDescriptions;
+	std::map<int, std::string> valueDescriptions;
 	std::string identifier;
 
-	bool hidden;
+	bool creatureNature = false;
+	bool hidden = true;
+	bool blockDescriptionPropagation = false;
 };
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
+	std::vector<std::string> builtinBonusNames;
 public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
 
-	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
+	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const override;
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
-	template <typename Handler> void serialize(Handler & h)
-	{
-		//for now always use up to date configuration
-		//once modded bonus type will be implemented, serialize only them
-		std::vector<CBonusType> ignore;
-		h & ignore;
-	}
+	std::vector<JsonNode> loadLegacyData() override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	const std::string & bonusToString(BonusType bonus) const;
+
+	bool isCreatureNatureBonus(BonusType bonus) const;
+	bool shouldPropagateDescription(BonusType bonus) const;
+
+	std::vector<BonusType> getAllObjets() const;
 private:
-	void load();
-	void load(const JsonNode & config);
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
-	std::vector<CBonusType> bonusTypes; //index = BonusType
+	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType
 };
 
 VCMI_LIB_NAMESPACE_END

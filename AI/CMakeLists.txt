@@ -19,10 +19,6 @@ else()
 	set(fuzzylite_FOUND FALSE)
 endif()
 
-if(TARGET fuzzylite::fuzzylite AND MSVC)
-	install_vcpkg_imported_tgt(fuzzylite::fuzzylite)
-endif()
-
 if(NOT fuzzylite_FOUND)
 	set(FL_BUILD_BINARY OFF CACHE BOOL "")
 	set(FL_BUILD_SHARED OFF CACHE BOOL "")
@@ -30,23 +26,35 @@ if(NOT fuzzylite_FOUND)
 	if(ANDROID)
 		set(FL_BACKTRACE OFF CACHE BOOL "" FORCE)
 	endif()
-	#It is for compiling FuzzyLite, it will not compile without it on GCC
-	if("x${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "xGNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-		add_compile_options(-Wno-error=deprecated-declarations)
-	endif()
-	add_subdirectory(FuzzyLite/fuzzylite EXCLUDE_FROM_ALL)
-	add_library(fuzzylite::fuzzylite ALIAS fl-static)
-	target_include_directories(fl-static PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
+
+	add_subdirectory(FuzzyLite EXCLUDE_FROM_ALL)
+	add_library(fuzzylite::fuzzylite ALIAS staticTarget)
 endif()
 
 #######################################
 #        Add subdirectories           #
 #######################################
 
-add_subdirectory(BattleAI)
-add_subdirectory(VCAI)
-add_subdirectory(StupidAI)
+# Combat AI's
+if(ENABLE_STUPID_AI)
+	add_subdirectory(StupidAI)
+endif()
+
+if(ENABLE_BATTLE_AI)
+	add_subdirectory(BattleAI)
+endif()
+
+if(ENABLE_MMAI)
+	add_subdirectory(MMAI)
+endif()
+
+# Adventure AI's
 add_subdirectory(EmptyAI)
+
 if(ENABLE_NULLKILLER_AI)
 	add_subdirectory(Nullkiller)
+endif()
+
+if(ENABLE_NULLKILLER2_AI)
+	add_subdirectory(Nullkiller2)
 endif()

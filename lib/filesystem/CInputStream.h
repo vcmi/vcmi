@@ -11,6 +11,8 @@
 
 #include "CStream.h"
 
+#include <boost/crc.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 /**

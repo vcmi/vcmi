@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/constants/Enumerations.h"
 #include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -69,7 +70,7 @@ public:
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleID & battleID);
 	/// Applies results of a battle after potential levelup
-	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
+	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

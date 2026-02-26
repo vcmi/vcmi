@@ -17,6 +17,7 @@
 
 #include "texts/CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
+#include "GameLibrary.h"
 #include "spells/CSpellHandler.h"
 #include "networkPacks/PacksForClientBattle.h"
 
@@ -25,20 +26,21 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	base(Base),
 	ID(I),
 	typeID(Base->getId()),
-	baseAmount(Base->count),
+	baseAmount(Base->getCount()),
 	owner(O),
 	slot(S),
 	side(Side)
 {
 	health.init(); //???
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 CStack::CStack():
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	owner(PlayerColor::NEUTRAL),
 	slot(SlotID(255)),
 	initialPosition(BattleHex())
@@ -46,15 +48,16 @@ CStack::CStack():
 }
 
 CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	ID(I),
 	typeID(stack->getId()),
-	baseAmount(stack->count),
+	baseAmount(stack->getCount()),
 	owner(O),
 	slot(S),
 	side(Side)
 {
 	health.init(); //???
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 void CStack::localInit(BattleInfo * battleInfo)
@@ -74,7 +77,6 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(*army);
 		attachToSource(*typeID.toCreature());
 	}
-	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
@@ -105,21 +107,6 @@ si32 CStack::magicResistance() const
 	return static_cast<si32>(100 - castChance);
 }
 
-BattleHex::EDir CStack::destShiftDir() const
-{
-	if(doubleWide())
-	{
-		if(side == BattleSide::ATTACKER)
-			return BattleHex::EDir::RIGHT;
-		else
-			return BattleHex::EDir::LEFT;
-	}
-	else
-	{
-		return BattleHex::EDir::NONE;
-	}
-}
-
 std::vector<SpellID> CStack::activeSpells() const
 {
 	std::vector<SpellID> ret;
@@ -132,7 +119,7 @@ std::vector<SpellID> CStack::activeSpells() const
 		return b->type != BonusType::NONE && b->sid.as<SpellID>().toSpell() && !b->sid.as<SpellID>().toSpell()->isAdventure();
 	}));
 
-	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
+	TConstBonusListPtr spellEffects = getBonuses(selector, cachingStr.str());
 	for(const auto & it : *spellEffects)
 	{
 		if(!vstd::contains(ret, it->sid.as<SpellID>()))  //do not duplicate spells with multiple effects
@@ -150,10 +137,10 @@ CStack::~CStack()
 const CGHeroInstance * CStack::getMyHero() const
 {
 	if(base)
-		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
+		return dynamic_cast<const CGHeroInstance *>(base->getArmy());
 	else //we are attached directly?
 		for(const CBonusSystemNode * n : getParentNodes())
-			if(n->getNodeType() == HERO)
+			if(n->getNodeType() == BonusNodeType::HERO)
 				return dynamic_cast<const CGHeroInstance *>(n);
 
 	return nullptr;
@@ -165,13 +152,13 @@ std::string CStack::nodeName() const
 	oss << owner.toString();
 	oss << " battle stack [" << ID << "]: " << getCount() << " of ";
 	if(typeID.hasValue())
-		oss << typeID.toEntity(VLC)->getNamePluralTextID();
+		oss << typeID.toEntity(LIBRARY)->getJsonKey();
 	else
 		oss << "[UNDEFINED TYPE]";
 
 	oss << " from slot " << slot;
-	if(base && base->armyObj)
-		oss << " of armyobj=" << base->armyObj->id.getNum();
+	if(base && base->getArmy())
+		oss << " of armyobj=" << base->getArmy()->id.getNum();
 	return oss.str();
 }
 
@@ -242,53 +229,33 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 	bsa.newState.operation = UnitChanges::EOperation::RESET_STATE;
 }
 
-std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
+BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
-	int mask = 0;
-	std::vector<BattleHex> res;
+	BattleHexArray res;
 
 	if (!attackerPos.isValid())
 		attackerPos = attacker->getPosition();
 	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	BattleHex otherAttackerPos = attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
-	BattleHex otherDefenderPos = defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
+	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
 
-	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
+	for (BattleHex defenderHex : defenderHexes)
 	{
-		if((mask & 1) == 0)
+		if (attackerHexes.contains(defenderHex))
 		{
-			mask |= 1;
-			res.push_back(defenderPos);
+			logGlobal->debug("CStack::meleeAttackHexes: defender and attacker positions overlap");
+			return res;
 		}
 	}
-	if (attacker->doubleWide() //back <=> front
-		&& BattleHex::mutualPosition(otherAttackerPos, defenderPos) >= 0)
+
+	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
 	{
-		if((mask & 1) == 0)
-		{
-			mask |= 1;
-			res.push_back(defenderPos);
-		}
-	}
-	if (defender->doubleWide()//front <=> back
-		&& BattleHex::mutualPosition(attackerPos, otherDefenderPos) >= 0)
-	{
-		if((mask & 2) == 0)
-		{
-			mask |= 2;
-			res.push_back(otherDefenderPos);
-		}
-	}
-	if (defender->doubleWide() && attacker->doubleWide()//back <=> back
-		&& BattleHex::mutualPosition(otherAttackerPos, otherDefenderPos) >= 0)
-	{
-		if((mask & 2) == 0)
-		{
-			mask |= 2;
-			res.push_back(otherDefenderPos);
-		}
+		if (attackableHxs.contains(defenderHex))
+			res.insert(defenderHex);
 	}
 
 	return res;
@@ -296,7 +263,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 
 bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
-	if(defender->hasBonusOfType(BonusType::INVINCIBLE))
+	if(defender->isInvincible())
 		return false;
 		
 	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
@@ -304,7 +271,7 @@ bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::
 
 std::string CStack::getName() const
 {
-	return (getCount() == 1) ? typeID.toEntity(VLC)->getNameSingularTranslated() : typeID.toEntity(VLC)->getNamePluralTranslated(); //War machines can't use base
+	return (getCount() == 1) ? typeID.toEntity(LIBRARY)->getNameSingularTranslated() : typeID.toEntity(LIBRARY)->getNamePluralTranslated(); //War machines can't use base
 }
 
 bool CStack::canBeHealed() const
@@ -314,14 +281,13 @@ bool CStack::canBeHealed() const
 
 bool CStack::isOnNativeTerrain() const
 {
-	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == ETerrainId::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
-	return res;
+	auto nativeTerrain = getNativeTerrain();
+	return nativeTerrain == ETerrainId::ANY_TERRAIN || getCurrentTerrain() == nativeTerrain;
 }
 
-bool CStack::isOnTerrain(TerrainId terrain) const
+TerrainId CStack::getCurrentTerrain() const
 {
-	return battle->getTerrainType() == terrain;
+	return battle->getTerrainType();
 }
 
 const CCreature * CStack::unitType() const
@@ -341,9 +307,9 @@ const IBonusBearer* CStack::getBonusBearer() const
 
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
-	for(const CStack * st : battle->stacks)
+	for(const auto & st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st.get(), unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
 		{
 			return st->alive();
 		}
@@ -352,7 +318,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	const auto * ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->getTypeId() == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).getArt()->getTypeId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}
@@ -402,6 +368,31 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.val = -spellCost;
 	ssp.absolute = false;
 	server->apply(ssp);
+}
+
+void CStack::postDeserialize(const CArmedInstance * army)
+{
+	if(slot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+	{
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
+		assert(hero);
+		base = hero->getCommander();
+	}
+	else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
+	{
+		//no external slot possible, so no base stack
+		base = nullptr;
+	}
+	else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
+	{
+		throw std::runtime_error(typeID.toEntity(LIBRARY)->getNameSingularTranslated() + " doesn't have a base stack!");
+	}
+	else
+	{
+		base = &army->getStack(slot);
+	}
+
+	doubleWideCached = battle::CUnitState::doubleWide();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -15,30 +15,33 @@
 #include "CPlayerInterface.h"
 #include "PlayerLocalState.h"
 #include "CServerHandler.h"
-#include "gui/CGuiHandler.h"
+#include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
-#include "render/AssetGenerator.h"
 #include "ClientNetPackVisitors.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/callback/CGlobalAI.h"
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/callback/EditorCallback.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
-#include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
 #include "../lib/ScriptHandler.h"
@@ -51,7 +54,7 @@ void ClientCommandManager::handleQuitCommand()
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)
 {
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
@@ -59,7 +62,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	CSH->client->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename, false);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -68,16 +71,16 @@ void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffe
 	// TODO: this code should end the running game and manage to call startGame instead
 	//std::string fname;
 	//singleWordBuffer >> fname;
-	//CSH->client->loadGame(fname);
+	//GAME->server().client->loadGame(fname);
 }
 
 void ClientCommandManager::handleGoSoloCommand()
 {
 	Settings session = settings.write["session"];
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
@@ -86,30 +89,30 @@ void ClientCommandManager::handleGoSoloCommand()
 	if(session["aiSolo"].Bool())
 	{
 		// unlikely it will work but just in case to be consistent
-		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
 		}
 	}
 	else
 	{
-		PlayerColor currentColor = LOCPLINT->playerID;
-		CSH->client->removeGUI();
+		PlayerColor currentColor = GAME->interface()->playerID;
+		GAME->server().client->removeGUI();
 		
-		for(auto & color : CSH->getAllClientPlayers(CSH->logicConnection->connectionID))
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && CSH->client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(color), false, false);
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
-				CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
 		}
 
-		GH.windows().totalRedraw();
+		ENGINE->windows().totalRedraw();
 		giveTurn(currentColor);
 	}
 
@@ -128,19 +131,19 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	singleWordBuffer >> colorName;
 	boost::to_lower(colorName);
 
-	boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
-	if(!CSH->client)
+	if(!GAME->server().client)
 	{
 		printCommandMessage("Game is not in playing state");
 		return;
 	}
 
 	PlayerColor color;
-	if(LOCPLINT)
-		color = LOCPLINT->playerID;
+	if(GAME->interface())
+		color = GAME->interface()->playerID;
 
-	for(auto & elem : CSH->client->gameState()->players)
+	for(auto & elem : GAME->server().client->gameState().players)
 	{
 		if(!elem.first.isValidPlayer()
 			|| elem.second.human
@@ -149,11 +152,11 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 			continue;
 		}
 
-		CSH->client->removeGUI();
-		CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+		GAME->server().client->removeGUI();
+		GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 	}
 
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 	if(color != PlayerColor::NEUTRAL)
 		giveTurn(color);
 }
@@ -168,7 +171,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	{
 		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
-			Settings neutralAI = settings.write["server"]["neutralAI"];
+			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;
 			printCommandMessage("Setting changed, from now the battle ai will be " + aiName + "!\n");
 		}
@@ -182,13 +185,13 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 
 void ClientCommandManager::handleRedrawCommand()
 {
-	GH.windows().totalRedraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod, onlyMissing);
+	LIBRARY->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
 	boost::filesystem::create_directories(outPath);
@@ -216,6 +219,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleTranslateMapsCommand()
@@ -236,8 +240,9 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		try
 		{
+			EditorCallback cb(nullptr);
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
+			loadedMaps.push_back(mapService.loadMap(mapName, &cb));
 		}
 		catch(std::exception & e)
 		{
@@ -258,7 +263,10 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, nullptr);
+			{
+				EditorCallback cb(nullptr);
+				loadedCampaigns.back()->getMap(part, &cb);
+			}
 		}
 		catch(std::exception & e)
 		{
@@ -267,7 +275,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	std::map<std::string, std::map<std::string, std::string>> textsByMod;
-	VLC->generaltexth->exportAllTexts(textsByMod, false);
+	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -294,6 +302,8 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -308,7 +318,7 @@ void ClientCommandManager::handleGetConfigCommand()
 
 	for(auto contentName : contentNames)
 	{
-		auto const & handler = *VLC->modh->content;
+		auto const & handler = *LIBRARY->modh->content;
 		auto const & content = handler[contentName];
 
 		auto contentOutPath = outPath / contentName;
@@ -337,6 +347,29 @@ void ClientCommandManager::handleGetConfigCommand()
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
+void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
+{
+	std::string commandName;
+	singleWordBuffer >> commandName;
+
+	if (commandName == "on")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now enabled.\n");
+	}
+	else if (commandName == "off")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now disabled.\n");
+	}
+	else
+	{
+		printCommandMessage("Unexpected syntax. Supported forms:\n");
+		printCommandMessage("'antilag on'\n");
+		printCommandMessage("'antilag off'\n");
+	}
+}
+
 void ClientCommandManager::handleGetScriptsCommand()
 {
 #if SCRIPTING_ENABLED
@@ -346,7 +379,7 @@ void ClientCommandManager::handleGetScriptsCommand()
 
 	boost::filesystem::create_directories(outPath);
 
-	for(const auto & kv : VLC->scriptHandler->objects)
+	for(const auto & kv : LIBRARY->scriptHandler->objects)
 	{
 		std::string name = kv.first;
 		boost::algorithm::replace_all(name,":","_");
@@ -394,7 +427,7 @@ void ClientCommandManager::handleDef2bmpCommand(std::istringstream& singleWordBu
 {
 	std::string URI;
 	singleWordBuffer >> URI;
-	auto anim = GH.renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
+	auto anim = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin(URI), EImageBlitMode::SIMPLE);
 	anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 }
 
@@ -437,15 +470,15 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		ss << b;
 		return ss.str();
 	};
-		printCommandMessage("Bonuses of " + LOCPLINT->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(*LOCPLINT->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
+		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		LOCPLINT->localState->getCurrentArmy()->getParents(parents);
+		GAME->interface()->localState->getCurrentArmy()->getDirectParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
-		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all)) + "\n");
 	}
 }
 
@@ -458,7 +491,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 	if(what == "hs")
 	{
-		for(const CGHeroInstance* h : LOCPLINT->cb->getHeroesInfo())
+		for(const CGHeroInstance* h : GAME->interface()->cb->getHeroesInfo())
 			if(h->getHeroTypeID().getNum() == id1)
 				if(const CArtifactInstance* a = h->getArt(ArtifactPosition(id2)))
 					printCommandMessage(a->nodeName());
@@ -467,7 +500,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 
 void ClientCommandManager::handleMpCommand()
 {
-	if(const CGHeroInstance* h = LOCPLINT->localState->getCurrentHero())
+	if(const CGHeroInstance* h = GAME->interface()->localState->getCurrentHero())
 		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit(true)) + "/" + std::to_string(h->movementPointsLimit(false)) + "\n");
 }
 
@@ -510,7 +543,7 @@ void ClientCommandManager::handleVsLog(std::istringstream & singleWordBuffer)
 
 void ClientCommandManager::handleGenerateAssets()
 {
-	AssetGenerator::generateAll();
+	ENGINE->renderHandler().exportGeneratedAssets();
 	printCommandMessage("All assets generated");
 }
 
@@ -543,10 +576,10 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
-		boost::mutex::scoped_lock interfaceLock(GH.interfaceMutex);
-		if(LOCPLINT && LOCPLINT->cingconsole)
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		if(GAME->interface() && GAME->interface()->cingconsole)
 		{
-			LOCPLINT->cingconsole->addMessage("", "System", commandMessage);
+			GAME->interface()->cingconsole->addMessage("", "System", commandMessage);
 		}
 	}
 }
@@ -557,7 +590,7 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	yt.player = colorIdentifier;
 	yt.queryID = QueryID::NONE;
 
-	ApplyClientNetPackVisitor visitor(*CSH->client, *CSH->client->gameState());
+	ApplyClientNetPackVisitor visitor(*GAME->server().client, GAME->server().client->gameState());
 	yt.visit(visitor);
 }
 
@@ -594,6 +627,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "setBattleAI")
 		handleSetBattleAICommand(singleWordBuffer);
 
+	else if(commandName == "antilag")
+		handleAntilagCommand(singleWordBuffer);
+
 	else if(commandName == "redraw")
 		handleRedrawCommand();
 
@@ -627,7 +663,7 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);
 
-	else if(commandName == "mp" && LOCPLINT)
+	else if(commandName == "mp" && GAME->interface())
 		handleMpCommand();
 
 	else if (commandName == "set")

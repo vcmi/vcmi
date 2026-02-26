@@ -1,5 +1,0 @@
-include(base/macos)
-
-[settings]
-os.version=10.13
-arch=x86_64

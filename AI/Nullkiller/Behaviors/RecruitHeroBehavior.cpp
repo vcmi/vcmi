@@ -58,6 +58,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 
 	ai->dangerHitMap->updateHitMap();
 	int treasureSourcesCount = 0;
+	int bestClosestThreat = UINT8_MAX;
 	
 	for(auto town : towns)
 	{
@@ -67,7 +68,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
 		//Don't hire a hero where there already is one present
-		if (town->visitingHero && town->garrisonHero)
+		if (town->getVisitingHero() && town->getGarrisonHero())
 			continue;
 		float visitability = 0;
 		for (auto checkHero : ourHeroes)
@@ -97,7 +98,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 
 			for(auto hero : availableHeroes)
 			{
-				if ((town->visitingHero || town->garrisonHero) 
+				if ((town->getVisitingHero() || town->getGarrisonHero()) 
 					&& closestThreat < 1
 					&& hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
 					continue;
@@ -118,6 +119,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 					bestScore = score;
 					bestHeroToHire = hero;
 					bestTownToHireFrom = town;
+					bestClosestThreat = closestThreat;
 				}
 			}
 		}
@@ -128,7 +130,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 	{
 		if (ai->cb->getHeroesInfo().size() == 0
 			|| treasureSourcesCount > ai->cb->getHeroesInfo().size() * 5
-			|| bestHeroToHire->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0
+			|| (bestHeroToHire->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0 && (bestClosestThreat < 1 || !ai->buildAnalyzer->isGoldPressureHigh()))
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 10000 && !ai->buildAnalyzer->isGoldPressureHigh() && haveCapitol)
 			|| (ai->getFreeResources()[EGameResID::GOLD] > 30000 && !ai->buildAnalyzer->isGoldPressureHigh()))
 		{

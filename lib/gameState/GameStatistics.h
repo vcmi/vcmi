@@ -18,6 +18,7 @@ class PlayerState;
 class CGameState;
 class CGHeroInstance;
 class CGMine;
+struct TeamState;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
@@ -57,14 +58,15 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	bool eventDefeatedStrongestHero;
 	si64 movementPointsUsed;
 
+	void serializeJson(JsonSerializeFormat & handler);
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & map;
 		h & timestamp;
 		h & day;
 		h & player;
-		if(h.version >= Handler::Version::STATISTICS_SCREEN)
-			h & playerName;
+		h & playerName;
 		h & team;
 		h & isHuman;
 		h & status;
@@ -92,11 +94,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & spentResourcesForArmy;
 		h & spentResourcesForBuildings;
 		h & tradeVolume;
-		if(h.version >= Handler::Version::STATISTICS_SCREEN)
-		{
-			h & eventCapturedTown;
-			h & eventDefeatedStrongestHero;
-		}
+		h & eventCapturedTown;
+		h & eventDefeatedStrongestHero;
 		h & movementPointsUsed;
 	}
 };
@@ -104,10 +103,12 @@ struct DLL_LINKAGE StatisticDataSetEntry
 class DLL_LINKAGE StatisticDataSet
 {
 public:
-    void add(StatisticDataSetEntry entry);
-	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
-    std::string toCsv(std::string sep);
-    std::string writeCsv();
+	void add(StatisticDataSetEntry entry);
+	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData);
+	std::string toCsv(std::string sep) const;
+	std::string writeCsv() const;
+
+	void serializeJson(JsonSerializeFormat & handler);
 
 	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{
@@ -124,6 +125,8 @@ public:
 		int lastCapturedTownDay;
 		int lastDefeatedStrongestHeroDay;
 
+		void serializeJson(JsonSerializeFormat & handler);
+
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & numBattlesNeutral;
@@ -136,16 +139,21 @@ public:
 			h & spentResourcesForBuildings;
 			h & tradeVolume;
 			h & movementPointsUsed;
-			if(h.version >= Handler::Version::STATISTICS_SCREEN)
-			{
-				h & lastCapturedTownDay;
-				h & lastDefeatedStrongestHeroDay;
-			}
+			h & lastCapturedTownDay;
+			h & lastDefeatedStrongestHeroDay;
 		}
 	};
 	std::vector<StatisticDataSetEntry> data;
+
+	PlayerAccumulatedValueStorage & getPlayerAccumulator(PlayerColor player);
+	const PlayerAccumulatedValueStorage & getPlayerAccumulator(PlayerColor player) const;
+
+	void filterByTeam(const TeamState * team);
+
+private:
 	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
+public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & data;
@@ -155,7 +163,6 @@ public:
 
 class DLL_LINKAGE Statistic
 {
-	static std::vector<const CGMine *> getMines(const CGameState * gs, const PlayerState * ps);
 public:
 	static int getNumberOfArts(const PlayerState * ps);
 	static int getNumberOfDwellings(const PlayerState * ps);

@@ -27,12 +27,6 @@ namespace Selector
 		return ssubtype;
 	}
 
-	DLL_LINKAGE const CSelectFieldEqual<CAddInfo> & info()
-	{
-		static const CSelectFieldEqual<CAddInfo> sinfo(&Bonus::additionalInfo);
-		return sinfo;
-	}
-
 	DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType()
 	{
 		static const CSelectFieldEqual<BonusSource> ssourceType(&Bonus::source);
@@ -64,13 +58,6 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype)
 	{
 		return type()(Type).And(subtype()(Subtype));
-	}
-
-	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, BonusSubtypeID subtype, const CAddInfo & info)
-	{
-		return CSelectFieldEqual<BonusType>(&Bonus::type)(type)
-			.And(CSelectFieldEqual<BonusSubtypeID>(&Bonus::subtype)(subtype))
-			.And(CSelectFieldEqual<CAddInfo>(&Bonus::additionalInfo)(info));
 	}
 
 	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID)

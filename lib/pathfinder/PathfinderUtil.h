@@ -9,23 +9,23 @@
  */
 #pragma once
 
-#include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
-#include "../mapping/CMapDefines.h"
-#include "../gameState/CGameState.h"
+#include "../mapping/TerrainTile.h"
+#include "../mapping/MapTilesStorage.h"
+#include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace PathfinderUtil
 {
-	using FoW = boost::multi_array<ui8, 3>;
+	using FoW = MapTilesStorage<uint8_t>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::Type layer>
-	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
+	EPathAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile & tinfo, const FoW & fow, const PlayerColor player, const IGameInfoCallback & gameInfo)
 	{
-		if(!fow[pos.z][pos.x][pos.y])
+		if(!fow[pos])
 			return EPathAccessibility::BLOCKED;
 
 		switch(layer)
@@ -34,28 +34,43 @@ namespace PathfinderUtil
 		case ELayer::SAIL:
 			if(tinfo.visitable())
 			{
-				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
+				if (tinfo.visitableObjects.size() > 1)
 				{
-					return EPathAccessibility::BLOCKED;
+					auto frontVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.front());
+					auto backVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.back());
+					if(frontVisitable->ID == Obj::SANCTUARY && backVisitable->ID == Obj::HERO && backVisitable->getOwner() != player)
+					{
+						return EPathAccessibility::BLOCKED;
+					}
 				}
 				else
 				{
-					for(const CGObjectInstance * obj : tinfo.visitableObjects)
+					bool hasBlockedVisitable = false;
+					bool hasVisitable = false;
+
+					for(const auto objID : tinfo.visitableObjects)
 					{
+						auto obj = gameInfo.getObjInstance(objID);
+
 						if(obj->isBlockedVisitable())
-							return EPathAccessibility::BLOCKVIS;
-						else if(obj->passableFor(player))
-							return EPathAccessibility::ACCESSIBLE;
-						else if(obj->ID != Obj::EVENT)
-							return EPathAccessibility::VISITABLE;
+							hasBlockedVisitable = true;
+						else if(!obj->passableFor(player) && obj->ID != Obj::EVENT)
+							hasVisitable = true;
 					}
+
+					if(hasBlockedVisitable)
+						return EPathAccessibility::BLOCKVIS;
+					if(hasVisitable)
+						return EPathAccessibility::VISITABLE;
+
+					return EPathAccessibility::ACCESSIBLE;
 				}
 			}
 			else if(tinfo.blocked())
 			{
 				return EPathAccessibility::BLOCKED;
 			}
-			else if(gs->guardingCreaturePosition(pos).valid())
+			else if(gameInfo.guardingCreaturePosition(pos).isValid())
 			{
 				// Monster close by; blocked visit for battle
 				return EPathAccessibility::GUARDED;

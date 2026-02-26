@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AdventureSpellCast.h"
 #include "../AIGateway.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 
 namespace NKAI
 {
@@ -39,29 +41,30 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getNameTranslated());
 
+	auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
 
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	if(town && townPortalEffect)
 	{
 		ai->selectedObject = town->id;
 
-		if(town->visitingHero && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
+		if(town->getVisitingHero() && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
 		{
 			ai->myCb->swapGarrisonHero(town);
 		}
 
-		if(town->visitingHero)
-			throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
+		if(town->getVisitingHero())
+			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTranslated());
 	}
 
-	if (hero->inTownGarrison)
-		ai->myCb->swapGarrisonHero(hero->visitedTown);
+	if (hero->isGarrisoned())
+		ai->myCb->swapGarrisonHero(hero->getVisitedTown());
 
 	auto wait = cb->waitTillRealize;
 
 	cb->waitTillRealize = true;
 	cb->castSpell(hero, spellID, tile);
 
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	if(town && townPortalEffect)
 	{
 		// visit town
 		ai->moveHeroToTile(town->visitablePos(), hero);

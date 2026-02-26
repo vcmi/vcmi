@@ -44,6 +44,10 @@ Rewardable object is defined similarly to other objects, with key difference bei
     // see Appear Chance definition section
     "appearChance" : {
     },
+    
+    // If specified, then when loading from h3m map object may load preconfigured set of reward instead of randomizing them via appearChance
+    // Only supported for some objects, such as Scholar (SoD), and several other added in hota map format
+    "mapDice" : 0,
 
     // Conditions to receive reward. Hero can only see this reward if he fulfills limiter
     "limiter" : {
@@ -96,6 +100,9 @@ Rewardable object is defined similarly to other objects, with key difference bei
 
 // Object description that will be shown when player right-clicks object
 "description" : "",
+
+// If set to true, and objects is guarded, then combat will start immediately, without asking player for confirmation on whether to attack guardians
+"forceCombat" : true,
 
 // If set to true, right-clicking previously visited object would show preview of its content. For example, Witch Hut will show icon with provided skill
 "showScoutedPreview" : true,
@@ -152,12 +159,13 @@ Rewardable object is defined similarly to other objects, with key difference bei
 }
 
 // determines who can revisit object before reset
-// "once",     - object can only be visited once. First visitor takes it all.
-// "hero",     - object can be visited if this hero has not visited it before
-// "limiter",  - object can be visited if hero fails to fulfill provided limiter
-// "player",   - object can be visited if this player has not visited it before
-// "bonus"     - object can be visited if hero no longer has bonus from this object (including any other object of the same type)
-// "unlimited" - no restriction on revisiting.
+// "once",         - object can only be visited once. First visitor takes it all.
+// "hero",         - object can be visited if this hero has not visited it before
+// "limiter",      - object can be visited if hero fails to fulfill provided limiter
+// "player",       - object can be visited if this player has not visited it before
+// "playerGlobal", - object can be visited if this player has not visited this object or any other object of this type before
+// "bonus"         - object can be visited if hero no longer has bonus from this object (including any other object of the same type)
+// "unlimited"     - no restriction on revisiting.
 "visitMode" : "unlimited", 
 
 //determines way to select granted rewards if multiple options are available
@@ -194,7 +202,9 @@ Possible variable types:
 
 - number: can be used in any place that expects a number
 - artifact
+- creature
 - spell
+- resource
 - primarySkill
 - secondarySkill
 
@@ -303,7 +313,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ],
 ```
 
-### Experience
+### Hero Experience
 
 - Can be used as limiter
 - Can be used as reward to grant experience to hero
@@ -348,20 +358,35 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 ### Movement Points
 
-- Can NOT be used as limiter
+- Can be used as limiter. Hero must have at least specific movement points amount
 - Can be used as reward, to give movement points to hero. Movement points may go above mana pool limit.
 
 ```json
 "movePoints": 200,
 ```
 
+- If giving move points puts hero above daily movement limit, any overflow will be multiplied by specified percentage. If set to 0, movement will not go above movement limit.
+
+```json
+"moveOverflowFactor" : 50,
+```
+
 ### Movement Percentage
 
-- Can NOT be used as limiter
+- Can NOT be used as limiter. Hero must have at least specific movement points percentage
 - Can be used to set hero movement points level to specified percentage value. Value of 0 will take away any remaining movement points
 
 ```json
 "movePercentage": 50,
+```
+
+### Commander
+
+- Can be used as limiter, hero must have alive commander
+- If hero does not have commander (for example, in games without them), limiter will always fail
+
+```json
+"commanderAlive" : true
 ```
 
 ### Primary Skills
@@ -376,12 +401,12 @@ Keep in mind, that all randomization is performed on map load and on object rese
 "primary": [
     {
         // Specific primary skill
-        "type" : "defence",
+		"type" : "defence",
         "amount" : 1
     },
     {
         // Primary skill will be selected randomly from the list
-        "anyOf" : ["attack", "defence],
+		"anyOf" : ["attack", "defence"],
         "min" : 1,
         "max" : 3
     },
@@ -405,6 +430,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - If hero does not have selected skill and have free skill slots, he will receive skill at specified level
 - Possible values: 1 (basic), 2 (advanced), 3 (expert)
 - Each secondary skill can be explicitly specified or randomly selected
+- Negative values can be used to downgrade or remove secondary skills from hero
 
 ```json
 "secondary": [
@@ -441,7 +467,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 ### Bonus System
 
-- Can be used as reward, to grant bonus to player
+- Can be used as reward, to grant bonus to visiting hero
 - if present, MORALE and LUCK bonus will add corresponding image component to UI.
 - Note that unlike most values, parameter of bonuses can NOT be randomized
 - Description can be string or number of corresponding string from `arraytxt.txt`
@@ -456,6 +482,66 @@ Keep in mind, that all randomization is performed on map load and on object rese
     }
 ]
 ```
+
+- Can be used as a reward, to grant bonuses to commander of a visiting hero
+- This option will have no effect if commander is not present, for example for players without WoG mod
+- Granting bonuses to dead commander is possible. use `commanderAlive` limiter if you want to avoid this
+- Syntax identical to regular `bonuses` field
+
+```json
+"commanderBonuses" : [ ]
+```
+
+- Can be used as a reward, to grant bonuses to player that commands visiting hero
+- Bonuses will remain even if hero is lost or fired. Use `bonuses` with `PLAYER_PROPAGATOR` if you wish for bonus to be removed when hero is lost
+- Syntax identical to regular `bonuses` field
+
+```json
+"playerBonuses" : [ ]
+```
+
+### Artifact Slots
+
+- Can be used as limiter, hero must have listed slots empty to pass the limiter
+- Slots occupied by components of combined artifacts are considered to be full
+
+```json
+"availableSlots": [
+    "LEFT_HAND",
+    "RIGHT_HAND"
+],
+```
+
+- Can be used as a reward, to remove artifact that is present in slot
+- Components of a combined artifact can not be removed in this way
+
+```json
+"takenArtifactSlots" : [
+	"LEFT_HAND"
+],
+```
+
+List of supported slots names:
+
+- `HEAD` - helmet slot
+- `SHOULDERS` - slot used by capes
+- `NECK` - slot used by neclaces artifacts
+- `RIGHT_HAND` - slot for weapons / swords
+- `LEFT_HAND` - slot for shields
+- `TORSO` - chest slot for armors
+- `RIGHT_RING` - ring slot located next to weapon slot
+- `LEFT_RING` - ring slot located next to shield slot
+- `FEET` - slot for boots
+- `MISC1` - top-most miscellaneous slot
+- `MISC2` - 2nd from top miscellaneous slot
+- `MISC3` - 3rd from top miscellaneous slot
+- `MISC4` - bottom-right miscellaneous slot
+- `MISC5` - bottom-left miscellaneous slot
+- `SPELLBOOK` - Hero's spellbook. Its removal is untested and may lead to unintended side effects
+- `MACH1` - Ballista, or alternative war machine from mod
+- `MACH2` - Ammo Cart, or alternative war machine from mod
+- `MACH3` - First Aid tent, or alternative war machine from mod
+- `MACH4` - Catapult slot. Its removal is untested and may lead to unintended side effects
 
 ### Artifacts
 
@@ -480,6 +566,42 @@ Keep in mind, that all randomization is performed on map load and on object rese
         "minValue" : 5000,
         "maxValue" : 10000
     }
+],
+```
+
+### Taking Artifacts
+
+- Can be used as reward, to take artifact from hero
+- Taking part of a combined artifact would disassemble it
+- Artifacts can be taken from either equipment or from backpack slots
+- Format is identical to [Artifacts](#artifacts)
+
+```json
+"takenArtifacts": [
+    "ribCage"
+],
+```
+
+### Scrolls
+
+- Can be used as limiter, hero must have scroll either equipped or in backpack
+- Can be used as reward, to give new scroll to a hero
+- Format is identical to [Spells](#spells)
+
+```json
+"scrolls": [
+    "magicArrow"
+],
+```
+
+### Taking Scrolls
+
+- Can be used as reward, to take scroll from hero
+- Format is identical to [Spells](#spells)
+
+```json
+"takenScrolls": [
+    "magicArrow"
 ],
 ```
 
@@ -525,7 +647,8 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
-- If hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For map objects, if hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For town buildings, hero must either have free slot(s) to take them, or have creatures of this type. Othervice reward would fail to give any creatures
 - It is possible to specify probability to receive upgraded creature
 
 ```json
@@ -533,6 +656,50 @@ Keep in mind, that all randomization is performed on map load and on object rese
     {
         "type" : "archer",
         "upgradeChance" : 30,
+        "amount" : 20,
+    }
+],
+```
+
+- Additionally, it is possible to check whether tested troops can be removed, in other words - whether hero has any creatures other than those specified in `creatures` field using `hasExtraCreatures` key
+- Following check will pass only if hero either has more archers than 20, or has exactly 20 archers and any creatures other than that
+
+```json
+"creatures" : [
+    {
+        "type" : "archer",
+        "amount" : 20,
+    }
+],
+"hasExtraCreatures" : true
+```
+
+### Taking Creatures
+
+- Can be used as reward, to take creatures from a hero
+- Attempting to take more creatures than hero has, or creatures that hero does not have is legal
+- It is not possible to take entire army, however it is possible to replace entire army by providing new creatures.
+- Format is identical to [Creatures](#creatures)
+
+```json
+"takenCreatures" : [
+    {
+        "type" : "archer",
+        "amount" : 20,
+    }
+],
+```
+
+### Creature receiving test
+
+- Can be used as limiter, to test whether hero can accept specified creatures without abandoning any units
+- Check will pass if hero has enough free slots to accept creatures, or if hero already has specified creatures, or if hero has units that can be merged to create space for new troops
+- Note that attempting to give more troops than hero can accept is legal, and will show unit selection dialog on which hero will have to abandon some of his creatures
+
+```json
+"canReceiveCreatures" : [
+    {
+        "type" : "archer",
         "amount" : 20,
     }
 ],
@@ -628,3 +795,110 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ```json
 "heroClasses" : [ "battlemage" ]
 ```
+
+## Variables for objects preconfigured on h3m map
+
+Some of map objects can be configured on map, with more objects available for configuration in HotA map format. Access to this configuration from rewardable object config is done via variables. If object is customized, following variables will be present in object config.
+
+All creature banks:
+
+- active preset of bank is stored in map dice (0 = weakest preset, 3 = strongest preset)
+
+Scholar:
+
+- map dice 0: Scholar grants spell from `gainedSpell` variable
+- map dice 1: Scholar grants secondary skill from `gainedSkill` variable
+- map dice 2: Scholar grants primary skill from `gainedStat` variable
+
+Witch Hut:
+
+- Grants secondary skill from `gainedSkill` variable
+
+Flotsam:
+
+- map dice 0: Nothing
+- map dice 1: 5 wood
+- map dice 2: 5 wood, 200 gold
+- map dice 3: 10 wood, 500 gold
+
+Tree of Knowledge:
+
+- map dice 0: Free levelup
+- map dice 1: Levelup for 2000 gold
+- map dice 2: Levelup for 10 gems
+
+Pyramid:
+
+- Grants spell from `gainedSpell` variable
+
+Treasure Chest:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: 1500 Gold or 1000 Experience
+- map dice 2: 2000 Gold or 1500 Experience
+- map dice 3: Artifact from `gainedArtifact` variable
+
+Sea Chest:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: 1500 Gold or 1000 Experience
+- map dice 2: Artifact from `gainedArtifact` variable
+
+Corpse:
+
+- map dice 0: 1000 Gold or 500 Experience
+- map dice 1: Artifact from `gainedArtifact` variable
+
+Warrior Tomb:
+
+- map dice 0: Artifact from `gainedArtifact` variable
+
+Shipwrech Survivor:
+
+- map dice 0: Artifact from `gainedArtifact` variable
+
+Wagon:
+
+- map dice 0: grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
+- map dice 1: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 2: Nothing
+
+Lean To:
+
+- grants `gainedAmount` of resources of type `gainedResource`
+
+Campfire:
+
+- grants `gainedAmountA` of resources of type `gainedResourceA` and `gainedAmountB` of resources of type `gainedResourceB`
+
+Trapper Lodge (HotA):
+
+- map dice 0: grants `gainedGoldAmount` of gold
+- map dice 1: grants `gainedCreatureAmount` of creatures of type `gainedCreature`
+
+Ancient Lamp (HotA):
+
+- amount of available creatures is stored in `gainedAmount` variable
+
+Grave (HotA)
+
+- grants artifact from `gainedArtifact` variable and `gainedAmount` of resources of type `gainedResource`
+
+Jetsam (HotA)
+
+- map dice 0: Nothing
+- map dice 1: 5 ore
+- map dice 2: 5 ore, 200 gold
+- map dice 3: 10 ore, 500 gold
+
+Vial of Mana (HotA)
+
+- map dice 0: 30 spell points
+- map dice 1: 40 spell points
+- map dice 2: 50 spell points
+- map dice 3: 60 spell points
+
+Sea Barrel (HotA):
+
+- map dice 0: grants `gainedAmount` of resources of type `gainedResource`
+- map dice 1: Nothing

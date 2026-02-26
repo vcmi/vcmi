@@ -12,6 +12,8 @@
 
 #include "../lib/Rect.h"
 
+#include <tbb/concurrent_queue.h>
+
 enum class EUserEvent;
 enum class MouseButton;
 union SDL_Event;
@@ -30,10 +32,24 @@ enum class InputMode
 	CONTROLLER
 };
 
+enum class PowerStateMode
+{
+	UNKNOWN,
+	CHARGING,
+	ON_BATTERY
+};
+
+struct PowerState {
+	PowerStateMode powerState;
+	int seconds;
+	int percent;
+};
+
 class InputHandler
 {
 	std::vector<SDL_Event> eventsQueue;
-	boost::mutex eventsMutex;
+	tbb::concurrent_queue<std::unique_ptr<std::function<void()>>> dispatchedTasks;
+	std::mutex eventsMutex;
 
 	Point cursorPosition;
 
@@ -55,6 +71,13 @@ class InputHandler
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
 	std::unique_ptr<InputSourceGameController> gameControllerHandler;
+
+	// Cached power state updated asynchronously via TBB
+	std::atomic<int> cachedPowerStateMode;
+	std::atomic<int> cachedPowerStateSeconds;
+	std::atomic<int> cachedPowerStatePercent;
+	uint32_t powerStateFrameCounter;
+	void updatePowerState();
 
 public:
 	InputHandler();
@@ -90,6 +113,9 @@ public:
 	/// returns true if system has active touchscreen
 	bool hasTouchInputDevice() const;
 
+	/// returns number of fingers on touchscreen
+	int getNumTouchFingers() const;
+
 	/// Calls provided functor in main thread on next execution frame
 	void dispatchMainThread(const std::function<void()> & functor);
 
@@ -105,4 +131,5 @@ public:
 	InputMode getCurrentInputMode();
 
 	void copyToClipBoard(const std::string & text);
+	PowerState getPowerState();
 };

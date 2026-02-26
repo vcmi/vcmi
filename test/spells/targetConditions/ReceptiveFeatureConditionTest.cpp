@@ -27,7 +27,7 @@ public:
 		isPositive = ::testing::get<0>(GetParam());
 		hasBonus = ::testing::get<1>(GetParam());
 
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(AtLeast(0));
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, isPositiveSpell()).WillRepeatedly(Return(isPositive));
 		if(hasBonus)

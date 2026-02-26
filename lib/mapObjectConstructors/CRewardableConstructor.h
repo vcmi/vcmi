@@ -14,10 +14,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+struct Bonus;
+
 class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 {
 	Rewardable::Info objectInfo;
 
+	void assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses, MapObjectID objectID) const;
 	void initTypeData(const JsonNode & config) override;
 	
 	bool blockVisit = false;
@@ -25,13 +28,13 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 public:
 	bool hasNameTextID() const override;
 
-	CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+	std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
-	void configureObject(CGObjectInstance * object, vstd::RNG & rng) const override;
+	void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 
-	Rewardable::Configuration generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
+	Rewardable::Configuration generateConfiguration(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
 };
 
 VCMI_LIB_NAMESPACE_END

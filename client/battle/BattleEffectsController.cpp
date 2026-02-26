@@ -11,26 +11,26 @@
 #include "BattleEffectsController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleWindow.h"
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleFieldController.h"
-#include "BattleStacksController.h"
+#include "BattleInterface.h"
 #include "BattleRenderer.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/Graphics.h"
 
-#include "../../CCallback.h"
-#include "../../lib/battle/BattleAction.h"
-#include "../../lib/filesystem/ResourcePath.h"
-#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/CStack.h"
-#include "../../lib/IGameEventsReceiver.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/json/JsonUtils.h"
+#include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleEffectsController::BattleEffectsController(BattleInterface & owner):
@@ -50,7 +50,7 @@ void BattleEffectsController::displayEffect(EBattleEffect effect, const AudioPat
 
 	AnimationPath customAnim = AnimationPath::builtinTODO(graphics->battleACToDef[effectID][0]);
 
-	CCS->soundh->playSound( soundFile );
+	ENGINE->sound().playSound( soundFile );
 
 	owner.stacksController->addNewAnim(new EffectAnimation(owner, customAnim, destTile, 0, transparencyFactor));
 }
@@ -66,7 +66,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		return;
 	}
 	//don't show animation when no HP is regenerated
-	switch(static_cast<BonusType>(bte.effect))
+	switch(bte.effect)
 	{
 		case BonusType::HP_REGENERATION:
 			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition(), 0.5);
@@ -77,12 +77,12 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		case BonusType::POISON:
 			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
-		case BonusType::FEAR:
+		case BonusType::FEARFUL:
 			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition(), 0.5);
 			break;
 		case BonusType::MORALE:
 		{
-			std::string hlp = CGI->generaltexth->allTexts[33];
+			std::string hlp = LIBRARY->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(EBattleEffect::GOOD_MORALE, AudioPath::builtin("GOODMRLE"), stack->getPosition());
 			owner.appendBattleLog(hlp);
@@ -133,7 +133,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(JsonPath::builtin("config/battleEffects.json"));
+	const JsonNode config = JsonUtils::assembleFromFiles("config/battleEffects.json");
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{
@@ -143,7 +143,8 @@ void BattleEffectsController::loadColorMuxers()
 		for (const JsonNode & entry : muxer.second.Vector() )
 		{
 			effect.timePoints.push_back(entry["time"].Float());
-			effect.filters.push_back(ColorFilter::genFromJson(entry));
+			effect.effectColors.push_back(ColorRGBA(255*entry["color"][0].Float(), 255*entry["color"][1].Float(), 255*entry["color"][2].Float(), 255*entry["color"][3].Float()));
+			effect.transparency.push_back(entry["alpha"].Float() * 255);
 		}
 		colorMuxerEffects[identifier] = effect;
 	}

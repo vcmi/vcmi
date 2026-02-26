@@ -40,6 +40,9 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 		id textFieldObserver = [NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			removeFocusFromActiveInput();
 		}];
+		auto cleanup = ^{
+			[NSNotificationCenter.defaultCenter removeObserver:textFieldObserver];
+		};
 
 		int result;
 		if (startManually)
@@ -51,9 +54,17 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 			SDL_iOSSetEventPump(SDL_FALSE);
 		}
 		else
+		{
+			// exiting SDL app will destroy main window making it no longer key window
+			[NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidResignKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
+				cleanup();
+				exit(0);
+			}];
+			// calls UIApplicationMain internally, never returns
 			result = SDL_UIKitRunApp(argc, argv, SDL_main);
+		}
 
-		[NSNotificationCenter.defaultCenter removeObserver:textFieldObserver];
+		cleanup();
 		return result;
 	}
 }

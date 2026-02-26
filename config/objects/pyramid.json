@@ -20,7 +20,7 @@
 				
 				"variables" : {
 					"spell" : {
-						"gainedSpell" : {
+						"gainedSpell" : { // Note: this variable name is used by engine for H3M loading
 							"level": 5
 						}
 					}

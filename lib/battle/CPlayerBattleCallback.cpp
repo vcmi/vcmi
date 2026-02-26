@@ -11,7 +11,8 @@
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
 #include "../gameState/InfoAboutArmy.h"
-#include "../CGameInfoCallback.h"
+
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -53,7 +54,7 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 		ASSERT_IF_CALLED_WITH_PLAYER
 	}
 
-	return battleGetStacksIf([=](const CStack * s){
+	return battleGetStacksIf([&](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
 								|| (whose == ONLY_MINE && s->unitOwner() == getPlayerID())
 								|| (whose == ONLY_ENEMY && s->unitOwner() != getPlayerID());

@@ -18,6 +18,8 @@ namespace Ui {
 class MapSettings;
 }
 
+class ModSettings;
+
 class MapSettings : public QDialog
 {
 	Q_OBJECT
@@ -25,6 +27,8 @@ class MapSettings : public QDialog
 public:
 	explicit MapSettings(MapController & controller, QWidget *parent = nullptr);
 	~MapSettings();
+
+	ModSettings * getModSettings();
 
 private slots:
 	void on_pushButton_clicked();

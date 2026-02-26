@@ -25,7 +25,7 @@ class LocationEffect : public Effect
 public:
 	void adjustTargetTypes(std::vector<TargetType> & types) const override;
 
-	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
+	void adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const override;
 
 	EffectTarget filterTarget(const Mechanics * m, const EffectTarget & target) const override;
 

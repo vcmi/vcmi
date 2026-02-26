@@ -19,16 +19,17 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/IScreenHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -79,10 +80,10 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	animation->setDuration(1500);
 
 	std::string labelText;
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
-		labelText = CGI->generaltexth->allTexts[63] + " " + std::to_string(LOCPLINT->cb->getDate(Date::WEEK));
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) == 1 && GAME->interface()->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
+		labelText = LIBRARY->generaltexth->allTexts[63] + " " + std::to_string(GAME->interface()->cb->getDate(Date::WEEK));
 	else
-		labelText = CGI->generaltexth->allTexts[64] + " " + std::to_string(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
+		labelText = LIBRARY->generaltexth->allTexts[64] + " " + std::to_string(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK));
 
 	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
@@ -91,13 +92,13 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 
 AnimationPath CInfoBar::VisibleDateInfo::getNewDayName()
 {
-	if(LOCPLINT->cb->getDate(Date::DAY) == 1)
+	if(GAME->interface()->cb->getDate(Date::DAY) == 1)
 		return AnimationPath::builtin("NEWDAY");
 
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1)
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) != 1)
 		return AnimationPath::builtin("NEWDAY");
 
-	switch(LOCPLINT->cb->getDate(Date::WEEK))
+	switch(GAME->interface()->cb->getDate(Date::WEEK))
 	{
 	case 1:
 		return AnimationPath::builtin("NEWWEEK1");
@@ -126,7 +127,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	OBJECT_CONSTRUCTION;
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
-	for(auto town : LOCPLINT->localState->getOwnedTowns())
+	for(auto town : GAME->interface()->localState->getOwnedTowns())
 	{
 		int hallLevel = town->hallLevel();
 		//negative value means no village hall, unlikely but possible
@@ -140,9 +141,9 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	//generate list of allies and enemies
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
+		if(GAME->interface()->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
 		{
-			if(LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
+			if(GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
 				allies.push_back(PlayerColor(i));
 			else
 				enemies.push_back(PlayerColor(i));
@@ -151,8 +152,8 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 	//generate widgets
 	background = std::make_shared<CPicture>(ImagePath::builtin("ADSTATIN"));
-	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[390] + ":");
+	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
@@ -230,43 +231,43 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const std::vector<Component
 
 void CInfoBar::playNewDaySound()
 {
-	int volume = CCS->soundh->getVolume();
+	int volume = ENGINE->sound().getVolume();
 	int handle = -1;
 	if(volume == 0)
-		CCS->soundh->setVolume(settings["general"]["sound"].Integer());
+		ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
 
-	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
-		handle = CCS->soundh->playSound(soundBase::newDay);
-	else if(LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
-		handle = CCS->soundh->playSound(soundBase::newWeek);
-	else if(LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
-		handle = CCS->soundh->playSound(soundBase::newMonth);
+	if(GAME->interface()->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
+		handle = ENGINE->sound().playSound(soundBase::newDay);
+	else if(GAME->interface()->cb->getDate(Date::WEEK) != 1) // not first week in month
+		handle = ENGINE->sound().playSound(soundBase::newWeek);
+	else if(GAME->interface()->cb->getDate(Date::MONTH) != 1) // not first month
+		handle = ENGINE->sound().playSound(soundBase::newMonth);
 	else
-		handle = CCS->soundh->playSound(soundBase::newDay);
+		handle = ENGINE->sound().playSound(soundBase::newDay);
 
 	if(volume == 0)
-		CCS->soundh->setCallback(handle, [&]() { if(!GH.screenHandler().hasFocus()) CCS->soundh->setVolume(0); });
+		ENGINE->sound().setCallback(handle, [&]() { if(!ENGINE->screenHandler().hasFocus()) ENGINE->sound().setVolume(0); });
 }
 
 void CInfoBar::reset()
 {
 	OBJECT_CONSTRUCTION;
-	state = EMPTY;
+	state = EState::EMPTY;
 	visibleInfo = std::make_shared<EmptyVisibleInfo>();
 }
 
 void CInfoBar::showSelection()
 {
 	OBJECT_CONSTRUCTION;
-	if(LOCPLINT->localState->getCurrentHero())
+	if(GAME->interface()->localState->getCurrentHero())
 	{
-		showHeroSelection(LOCPLINT->localState->getCurrentHero());
+		showHeroSelection(GAME->interface()->localState->getCurrentHero());
 		return;
 	}
 
-	if(LOCPLINT->localState->getCurrentTown())
+	if(GAME->interface()->localState->getCurrentTown())
 	{
-		showTownSelection(LOCPLINT->localState->getCurrentTown());
+		showTownSelection(GAME->interface()->localState->getCurrentTown());
 		return;
 	}
 
@@ -281,7 +282,7 @@ void CInfoBar::tick(uint32_t msPassed)
 	{
 		timerCounter = 0;
 		removeUsedEvents(TIME);
-		if(GH.windows().isTopWindow(adventureInt))
+		if(ENGINE->windows().isTopWindow(adventureInt))
 			popComponents(true);
 	}
 	else
@@ -295,12 +296,12 @@ void CInfoBar::clickReleased(const Point & cursorPosition, bool lastActivated)
 	timerCounter = 0;
 	removeUsedEvents(TIME); //expiration trigger from just clicked element is not valid anymore
 
-	if(state == HERO || state == TOWN)
+	if(state == EState::HERO || state == EState::TOWN)
 	{
 		if(lastActivated)
 			showGameStatus();
 	}
-	else if(state == GAME)
+	else if(state == EState::GAME)
 		showDate();
 	else
 		popComponents(true);
@@ -308,21 +309,21 @@ void CInfoBar::clickReleased(const Point & cursorPosition, bool lastActivated)
 
 void CInfoBar::showPopupWindow(const Point & cursorPosition)
 {
-	CRClickPopup::createAndPush(CGI->generaltexth->allTexts[109]);
+	CRClickPopup::createAndPush(LIBRARY->generaltexth->allTexts[109]);
 }
 
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar()->write(CGI->generaltexth->zelp[292].first);
+		ENGINE->statusbar()->write(LIBRARY->generaltexth->zelp[292].first);
 	else
-		GH.statusbar()->clear();
+		ENGINE->statusbar()->clear();
 }
 
 CInfoBar::CInfoBar(const Rect & position)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER, position.topLeft()),
 	timerCounter(0),
-	state(EMPTY),
+	state(EState::EMPTY),
 	listener(settings.listen["gameTweaks"]["infoBarCreatureManagement"])
 {
 	OBJECT_CONSTRUCTION;
@@ -351,7 +352,7 @@ void CInfoBar::showDate()
 {
 	OBJECT_CONSTRUCTION;
 	playNewDaySound();
-	state = DATE;
+	state = EState::DATE;
 	visibleInfo = std::make_shared<VisibleDateInfo>();
 	setTimer(3000); // confirmed to match H3
 	redraw();
@@ -480,7 +481,7 @@ void CInfoBar::popComponents(bool remove)
 		componentsQueue.pop();
 	if(!componentsQueue.empty())
 	{
-		state = COMPONENT;
+		state = EState::COMPONENT;
 		const auto & extracted = componentsQueue.front();
 		visibleInfo = std::make_shared<VisibleComponentInfo>(extracted.first);
 		setTimer(extracted.second);
@@ -498,13 +499,13 @@ void CInfoBar::pushComponents(const std::vector<Component> & comps, std::string 
 
 bool CInfoBar::showingComponents()
 {
-	return state == COMPONENT;
+	return state == EState::COMPONENT;
 }
 
 void CInfoBar::startEnemyTurn(PlayerColor color)
 {
 	OBJECT_CONSTRUCTION;
-	state = AITURN;
+	state = EState::AITURN;
 	visibleInfo = std::make_shared<VisibleEnemyTurnInfo>(color);
 	redraw();
 }
@@ -518,7 +519,7 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 	}
 	else
 	{
-		state = HERO;
+		state = EState::HERO;
 		visibleInfo = std::make_shared<VisibleHeroInfo>(hero);
 	}
 	redraw();
@@ -533,7 +534,7 @@ void CInfoBar::showTownSelection(const CGTownInstance * town)
 	}
 	else
 	{
-		state = TOWN;
+		state = EState::TOWN;
 		visibleInfo = std::make_shared<VisibleTownInfo>(town);
 	}
 	redraw();
@@ -542,7 +543,7 @@ void CInfoBar::showTownSelection(const CGTownInstance * town)
 void CInfoBar::showGameStatus()
 {
 	OBJECT_CONSTRUCTION;
-	state = GAME;
+	state = EState::GAME;
 	visibleInfo = std::make_shared<VisibleGameStatusInfo>();
 	setTimer(3000);
 	redraw();

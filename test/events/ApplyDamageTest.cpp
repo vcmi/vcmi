@@ -22,9 +22,11 @@ namespace test
 using namespace ::testing;
 using namespace ::events;
 
-class ListenerMock
+class ApplyDamageListenerMock
 {
 public:
+	virtual ~ApplyDamageListenerMock() = default;
+
 	MOCK_METHOD1(beforeEvent, void(ApplyDamage &));
 	MOCK_METHOD1(afterEvent, void(const ApplyDamage &));
 };
@@ -33,7 +35,7 @@ class ApplyDamageTest : public Test
 {
 public:
 	EventBus eventBus;
-	ListenerMock listener;
+	ApplyDamageListenerMock listener;
 	StrictMock<EnvironmentMock> environmentMock;
 
 	std::shared_ptr<StrictMock<UnitMock>> targetMock;
@@ -47,8 +49,8 @@ protected:
 //this should be the only subscription test for events, just in case cross-binary subscription breaks
 TEST_F(ApplyDamageTest, Subscription)
 {
-	auto subscription1 = eventBus.subscribeBefore<ApplyDamage>(std::bind(&ListenerMock::beforeEvent, &listener, _1));
-	auto subscription2 = eventBus.subscribeAfter<ApplyDamage>(std::bind(&ListenerMock::afterEvent, &listener, _1));
+	auto subscription1 = eventBus.subscribeBefore<ApplyDamage>(std::bind(&ApplyDamageListenerMock::beforeEvent, &listener, _1));
+	auto subscription2 = eventBus.subscribeAfter<ApplyDamage>(std::bind(&ApplyDamageListenerMock::afterEvent, &listener, _1));
 
 	EXPECT_CALL(listener, beforeEvent(_)).Times(1);
 	EXPECT_CALL(listener, afterEvent(_)).Times(1);

@@ -66,16 +66,7 @@
 			{ "skill" : "armorer", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"armorer" : {
-					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : "damageTypeAll",
-					"targetSourceType" : "SECONDARY_SKILL",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "armorer"
 		}
 	},
 	"alkin":
@@ -117,7 +108,8 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"broghild":
@@ -166,15 +158,7 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"mysticism" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_REGENERATION",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "mysticism"
 		}
 	},
 	"voy":
@@ -189,16 +173,7 @@
 			{ "skill" : "navigation", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"navigation" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : "heroMovementSea",
-					"type" : "MOVEMENT",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "navigation"
 		}
 	},
 	"verdish":
@@ -213,16 +188,7 @@
 			{ "skill" : "firstAid", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"firstAid" : {
-					"subtype" : "spell.firstAid",
-					"type" : "SPECIFIC_SPELL_POWER",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "firstAid"
 		}
 	},
 	"merist":
@@ -258,16 +224,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"sorcery" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "sorcery"
 		}
 	},
 	"andra":
@@ -282,15 +239,7 @@
 			{ "skill" : "intelligence", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"intelligence" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "intelligence"
 		}
 	},
 	"tiva":
@@ -305,15 +254,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	}
 }

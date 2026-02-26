@@ -70,7 +70,7 @@ public:
 	{
 		selectedItems.erase(item);
 	}
-	std::set<T> getSelectedItems()
+	const std::set<T> & getSelectedItems()
 	{
 		return selectedItems;
 	}

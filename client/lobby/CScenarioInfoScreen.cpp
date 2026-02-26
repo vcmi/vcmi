@@ -12,18 +12,18 @@
 #include "CScenarioInfoScreen.h"
 #include "OptionsTab.h"
 
-#include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 
-#include "../../CCallback.h"
-
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/GameLibrary.h"
 
 CScenarioInfoScreen::CScenarioInfoScreen()
 {
@@ -32,9 +32,9 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	pos.h = 600;
 	pos = center();
 
-	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
-	localMi = new CMapInfo();
-	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
+	localSi = std::make_unique<StartInfo>(*GAME->interface()->cb->getStartInfo());
+	localMi = std::make_unique<CMapInfo>();
+	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	screenType = ESelectionScreen::scenarioInfo;
 
@@ -45,21 +45,17 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	card->changeSelection();
 
 	card->iconDifficulty->setSelected(getCurrentDifficulty());
-	buttonBack = std::make_shared<CButton>(Point(584, 535), AnimationPath::builtin("SCNRBACK.DEF"), CGI->generaltexth->zelp[105], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonBack = std::make_shared<CButton>(Point(584, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CScenarioInfoScreen::~CScenarioInfoScreen()
-{
-	vstd::clear_pointer(localSi);
-	vstd::clear_pointer(localMi);
-}
+CScenarioInfoScreen::~CScenarioInfoScreen() = default;
 
 const CMapInfo * CScenarioInfoScreen::getMapInfo()
 {
-	return localMi;
+	return localMi.get();
 }
 
 const StartInfo * CScenarioInfoScreen::getStartInfo()
 {
-	return localSi;
+	return localSi.get();
 }

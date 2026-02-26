@@ -63,8 +63,26 @@ Stable VCMI version is available in RPM Fusion repository. Learn how to enable i
 
 Latest public release build can be installed via Flatpak.
 
-Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://www.flatpak.org/setup/>
+Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://flatpak.org/setup/>
 Once you have flatpak, you can install VCMI package which can be found here: <https://flathub.org/apps/details/eu.vcmi.VCMI>
+
+### AppImage (distribution-agnostic)
+
+Stable and [nightly](https://builds.vcmi.download/branch/) VCMI is also available as AppImage. It's currently built with Ubuntu 24.04 (should be compatible with distributions with glibc>=2.38).
+
+If you also want to use local files (e.g. to have different configurations on system) you can override paths manually if you launch VCMI over a small shell script:
+
+```sh
+#!/bin/sh
+
+BASE_DIR="$(pwd)"
+
+export XDG_DATA_HOME="$BASE_DIR/vcmi_data/data"
+export XDG_CACHE_HOME="$BASE_DIR/vcmi_data/cache"
+export XDG_CONFIG_HOME="$BASE_DIR/vcmi_data/config"
+
+./*vcmi*.AppImage
+```
 
 ### Other distributions
 
@@ -111,9 +129,12 @@ flatpak run --command=vcmibuilder eu.vcmi.VCMI --data /path/to/h3/data`
 
 ### Install data using gog.com offline installer
 
-Download both files for the "offline backup game installers" and extract them using innoextract tool
+Download both files for the "offline backup game installers" and extract them using innoextract tool.
 
 You can select both downloaded files in launcher to extract automatically.
+
+gog.com download page:
+![GoG-Installer](images/gog_offline_installer.png)
 
 Alternatively you can use the classic way:
 

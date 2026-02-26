@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "IFont.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 
 #include "../render/IScreenHandler.h"
 
@@ -20,7 +20,7 @@
 
 int IFont::getScalingFactor() const
 {
-	return GH.screenHandler().getScalingFactor();
+	return ENGINE->screenHandler().getScalingFactor();
 }
 
 size_t IFont::getLineHeight() const

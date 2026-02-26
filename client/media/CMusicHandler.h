@@ -14,8 +14,7 @@
 
 #include "../lib/CConfigHandler.h"
 
-struct _Mix_Music;
-using Mix_Music = struct _Mix_Music;
+#include <SDL_mixer.h>
 
 class CMusicHandler;
 
@@ -59,7 +58,7 @@ private:
 	std::unique_ptr<MusicEntry> current;
 	std::unique_ptr<MusicEntry> next;
 
-	boost::mutex mutex;
+	std::mutex mutex;
 	int volume = 0; // from 0 (mute) to 100
 
 	void queueNext(CMusicHandler * owner, const std::string & setName, const AudioPath & musicURI, bool looped, bool fromStart);

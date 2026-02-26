@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../StdInc.h"
+#include "baseinspectoritemdelegate.h"
 #include <QDialog>
 
 namespace Ui {
@@ -31,11 +32,11 @@ private:
 };
 
 
-class MessageDelegate : public QStyledItemDelegate
+class MessageDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;

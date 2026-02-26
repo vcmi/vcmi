@@ -19,16 +19,29 @@ struct Mix_Chunk;
 class CSoundHandler final : public CAudioBase, public ISoundPlayer
 {
 private:
+	struct MixChunkDeleter
+	{
+		void operator ()(Mix_Chunk *);
+	};
+	using MixChunkPtr = std::unique_ptr<Mix_Chunk, MixChunkDeleter>;
+
 	//update volume on configuration change
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode & volumeNode);
 
-	using CachedChunk = std::pair<Mix_Chunk *, std::unique_ptr<ui8[]>>;
-	std::map<AudioPath, CachedChunk> soundChunks;
-	std::map<std::vector<ui8>, CachedChunk> soundChunksRaw;
+	using CachedChunk = std::pair<MixChunkPtr, std::unique_ptr<ui8[]>>;
 
-	Mix_Chunk * GetSoundChunk(const AudioPath & sound, bool cache);
-	Mix_Chunk * GetSoundChunk(std::pair<std::unique_ptr<ui8[]>, si64> & data, bool cache);
+	/// List of all permanently cached sound chunks
+	std::map<AudioPath, CachedChunk> soundChunks;
+
+	/// List of all currently playing chunks that are currently playing
+	/// and should be deallocated once channel playback is over
+	/// indexed by channel ID
+	std::map<int, MixChunkPtr> uncachedPlayingChunks;
+
+	MixChunkPtr getSoundChunk(const AudioPath & sound);
+	Mix_Chunk * getSoundChunkCached(const AudioPath & sound);
+	MixChunkPtr getSoundChunk(std::pair<std::unique_ptr<ui8[]>, si64> & data);
 
 	/// have entry for every currently active channel
 	/// vector will be empty if callback was not set
@@ -36,7 +49,7 @@ private:
 
 	/// Protects access to callbacks member to avoid data races:
 	/// SDL calls sound finished callbacks from audio thread
-	boost::mutex mutexCallbacks;
+	std::mutex mutexCallbacks;
 
 	int ambientDistToVolume(int distance) const;
 	void ambientStopSound(const AudioPath & soundId);
@@ -44,13 +57,15 @@ private:
 
 	const JsonNode ambientConfig;
 
-	boost::mutex mutex;
+	std::mutex mutex;
 	std::map<AudioPath, int> ambientChannels;
 	std::map<int, int> channelVolumes;
 	int volume = 0;
 
 	void initCallback(int channel, const std::function<void()> & function);
 	void initCallback(int channel);
+	void storeChunk(int channel, MixChunkPtr chunk);
+	int playSoundImpl(const AudioPath & sound, int repeats, bool useCache);
 
 public:
 	CSoundHandler();
@@ -62,9 +77,10 @@ public:
 
 	// Sounds
 	uint32_t getSoundDurationMilliseconds(const AudioPath & sound) final;
-	int playSound(soundBase::soundID soundID, int repeats = 0) final;
-	int playSound(const AudioPath & sound, int repeats = 0, bool cache = false) final;
-	int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data, int repeats = 0, bool cache = false) final;
+	int playSound(soundBase::soundID soundID) final;
+	int playSound(const AudioPath & sound) final;
+	int playSoundLooped(const AudioPath & sound) final;
+	int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data) final;
 	int playSoundFromSet(std::vector<soundBase::soundID> & sound_vec) final;
 	void stopSound(int handler) final;
 	void pauseSound(int handler) final;

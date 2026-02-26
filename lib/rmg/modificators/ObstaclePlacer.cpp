@@ -137,7 +137,7 @@ bool ObstaclePlacer::isInTheMap(const int3& tile)
 	return map.isOnMap(tile);
 }
 
-void ObstaclePlacer::placeObject(rmg::Object & object, std::set<CGObjectInstance*> &)
+void ObstaclePlacer::placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> &)
 {
 	manager->placeObject(object, false, false);
 }

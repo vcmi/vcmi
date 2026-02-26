@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CArtifactsOfHeroMarket.h"
 
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 CArtifactsOfHeroMarket::CArtifactsOfHeroMarket(const Point & position, const int selectionWidth)

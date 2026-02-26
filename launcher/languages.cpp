@@ -18,20 +18,30 @@
 #include <QListWidget>
 
 // list of language names, for generation of translations. Do not use directly, use Languages namespace instead
-static const std::array<std::string, 17> languageTranslatedNamesGenerator = {
+static const std::array<std::string, 27> languageTranslatedNamesGenerator = {
 	{
+		QT_TRANSLATE_NOOP("Language", "Belarusian"),
+		QT_TRANSLATE_NOOP("Language", "Bulgarian"),
 		QT_TRANSLATE_NOOP("Language", "Czech"),
 		QT_TRANSLATE_NOOP("Language", "Chinese"),
+		QT_TRANSLATE_NOOP("Language", "Dutch"),
 		QT_TRANSLATE_NOOP("Language", "English"),
+		QT_TRANSLATE_NOOP("Language", "Filipino"),
 		QT_TRANSLATE_NOOP("Language", "Finnish"),
 		QT_TRANSLATE_NOOP("Language", "French"),
 		QT_TRANSLATE_NOOP("Language", "German"),
+		QT_TRANSLATE_NOOP("Language", "Greek"),
 		QT_TRANSLATE_NOOP("Language", "Hungarian"),
 		QT_TRANSLATE_NOOP("Language", "Italian"),
+		QT_TRANSLATE_NOOP("Language", "Japanese"),
 		QT_TRANSLATE_NOOP("Language", "Korean"),
+		QT_TRANSLATE_NOOP("Language", "Latvian"),
+		QT_TRANSLATE_NOOP("Language", "Norwegian"),
 		QT_TRANSLATE_NOOP("Language", "Polish"),
 		QT_TRANSLATE_NOOP("Language", "Portuguese"),
+		QT_TRANSLATE_NOOP("Language", "Romanian"),
 		QT_TRANSLATE_NOOP("Language", "Russian"),
+		QT_TRANSLATE_NOOP("Language", "Serbian"),
 		QT_TRANSLATE_NOOP("Language", "Spanish"),
 		QT_TRANSLATE_NOOP("Language", "Swedish"),
 		QT_TRANSLATE_NOOP("Language", "Turkish"),
@@ -99,6 +109,9 @@ void Languages::fillLanguages(QComboBox * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
+		if(!language.selectable && activeLanguage != language.identifier)
+			continue;
+
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 
@@ -132,6 +145,9 @@ void Languages::fillLanguages(QListWidget * widget, bool includeAll)
 
 	for(const auto & language : Languages::getLanguageList())
 	{
+		if(!language.selectable && activeLanguage != language.identifier)
+			continue;
+
 		QString displayName = generateLanguageName(language);
 		QVariant userData = QString::fromStdString(language.identifier);
 

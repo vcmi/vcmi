@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 namespace Ui {
@@ -30,6 +31,7 @@ public:
 
 private slots:
 	void on_customizeSpells_toggled(bool checked);
+	void on_filter_textChanged(const QString & keyword);
 
 private:
 	Ui::HeroSpellWidget * ui;
@@ -37,19 +39,24 @@ private:
 	CGHeroInstance & hero;
 
 	void initSpellLists();
+	void showItemIfMatches(const QString & match);
+	void hideItemIfMatches(const QString & match);
+	void toggleHiddenForItemIfMatches(const QString & match, bool hidden);
+	void hideEmptySpellLists();
 };
 
-class HeroSpellDelegate : public QStyledItemDelegate
+class HeroSpellDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 
 	HeroSpellDelegate(CGHeroInstance &);
 
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex& index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 
 private:
 	CGHeroInstance & hero;

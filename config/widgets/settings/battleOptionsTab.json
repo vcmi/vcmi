@@ -115,6 +115,9 @@
 					"text": "vcmi.battleOptions.rangeLimitHighlightOnHover.hover",
 				},
 				{
+					"text": "vcmi.battleOptions.showHealthBar.hover",
+				},
+				{
 					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
 				},
 				{
@@ -153,6 +156,11 @@
 					"name": "rangeLimitHighlightOnHoverCheckbox",
 					"help": "vcmi.battleOptions.rangeLimitHighlightOnHover",
 					"callback": "rangeLimitHighlightOnHoverChanged"
+				},
+				{
+					"name": "showHealthBarCheckbox",
+					"help": "vcmi.battleOptions.showHealthBar",
+					"callback": "showHealthBarChanged"
 				},
 				{
 					"name": "showStickyHeroInfoWindowsCheckbox",

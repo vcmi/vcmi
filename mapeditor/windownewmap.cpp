@@ -13,7 +13,7 @@
 #include "../lib/rmg/CRmgTemplateStorage.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/rmg/CMapGenerator.h"
-#include "../lib/VCMI_Lib.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -21,6 +21,7 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 
+#include "../vcmiqt/launcherdirs.h"
 #include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
@@ -32,6 +33,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	ui(new Ui::WindowNewMap)
 {
 	ui->setupUi(this);
+
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -55,7 +58,9 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		ui->cpuTeamsCombo->addItem(!i ? randomString : QString::number(cpuPlayers.at(i)));
 		ui->cpuTeamsCombo->setItemData(i, QVariant(cpuPlayers.at(i)));
 	}
-	
+
+	on_sizeStandardRadio_toggled(true);
+	on_checkSeed_toggled(false);
 
 	bool useLoaded = loadUserSettings();
 	if (!useLoaded)
@@ -73,8 +78,7 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		int height = ui->heightTxt->text().toInt();
 		mapGenOptions.setWidth(width ? width : 1);
 		mapGenOptions.setHeight(height ? height : 1);
-		bool twoLevel = ui->twoLevelCheck->isChecked();
-		mapGenOptions.setHasTwoLevels(twoLevel);
+		mapGenOptions.setLevels(ui->spinBoxLevels->value());
 
 		updateTemplateList();
 	}
@@ -88,9 +92,9 @@ WindowNewMap::~WindowNewMap()
 bool WindowNewMap::loadUserSettings()
 {
 	bool ret = false;
-	CRmgTemplate * templ = nullptr;
+	const CRmgTemplate * templ = nullptr;
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	auto generateRandom = s.value(newMapGenerateRandom);
 	if (generateRandom.isValid())
@@ -105,10 +109,10 @@ bool WindowNewMap::loadUserSettings()
 		auto node = JsonUtils::toJson(settings);
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
-		templ = const_cast<CRmgTemplate*>(mapGenOptions.getMapTemplate()); // Remember for later
+		templ = mapGenOptions.getMapTemplate(); // Remember for later
 
-		ui->widthTxt->setText(QString::number(mapGenOptions.getWidth()));
-		ui->heightTxt->setText(QString::number(mapGenOptions.getHeight()));
+		ui->widthTxt->setValue(mapGenOptions.getWidth());
+		ui->heightTxt->setValue(mapGenOptions.getHeight());
 		for(const auto & sz : mapSizes)
 		{
 			if(sz.second.first == mapGenOptions.getWidth() &&
@@ -119,7 +123,7 @@ bool WindowNewMap::loadUserSettings()
 			}
 		}
 
-		ui->twoLevelCheck->setChecked(mapGenOptions.getHasTwoLevels());
+		ui->spinBoxLevels->setValue(mapGenOptions.getLevels());
 
 		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
 		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
@@ -179,7 +183,7 @@ bool WindowNewMap::loadUserSettings()
 
 void WindowNewMap::saveUserSettings()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	JsonNode data;
 	JsonSerializer ser(nullptr, data);
@@ -209,12 +213,32 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
-	map->twoLevel = options.getHasTwoLevels();
+	map->mapLayers.clear();
+	for(int i = 0; i < options.getLevels(); i++)
+	{
+		if(i == 0)
+			map->mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			map->mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			map->mapLayers.push_back(MapLayerId::UNKNOWN);
+	}
 	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
 
 	return map;
+}
+
+std::pair<int, int> getSelectedMapSize(QComboBox* comboBox, const std::map<int, std::pair<int, int>>& mapSizes) {
+	int selectedIndex = comboBox->currentIndex();
+
+	auto it = mapSizes.find(selectedIndex);
+	if (it != mapSizes.end()) {
+		return it->second; // Return the width and height pair
+	}
+
+	return { 0, 0 };
 }
 
 void WindowNewMap::on_okButton_clicked()
@@ -245,9 +269,23 @@ void WindowNewMap::on_okButton_clicked()
 	mapGenOptions.setRoadEnabled(Road::GRAVEL_ROAD, ui->roadGravel->isChecked());
 	mapGenOptions.setRoadEnabled(Road::COBBLESTONE_ROAD, ui->roadCobblestone->isChecked());
 	
+	if(ui->sizeStandardRadio->isChecked())
+	{
+		auto size = getSelectedMapSize(ui->sizeCombo, mapSizes);
+		mapGenOptions.setWidth(size.first);
+		mapGenOptions.setHeight(size.second);
+	}
+	else
+	{
+		mapGenOptions.setWidth(ui->widthTxt->value());
+		mapGenOptions.setHeight(ui->heightTxt->value());
+	}
+	
 	saveUserSettings();
 
 	std::unique_ptr<CMap> nmap;
+	auto & mapController = static_cast<MainWindow *>(parent())->controller;
+
 	if(ui->randomMapCheck->isChecked())
 	{
 		//verify map template
@@ -257,11 +295,13 @@ void WindowNewMap::on_okButton_clicked()
 			return;
 		}
 		
+		hide();
+
 		int seed = std::time(nullptr);
-		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
-			seed = ui->lineSeed->text().toInt();
+		if(ui->checkSeed->isChecked() && ui->lineSeed->value() != 0)
+			seed = ui->lineSeed->value();
 			
-		CMapGenerator generator(mapGenOptions, nullptr, seed);
+		CMapGenerator generator(mapGenOptions, mapController.getCallback(), seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
@@ -282,23 +322,27 @@ void WindowNewMap::on_okButton_clicked()
 		nmap = f.get();
 	}
 	
-	nmap->mods = MapController::modAssessmentAll();
-	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
-	static_cast<MainWindow*>(parent())->initializeMap(true);
+	nmap->mods = MapController::modAssessmentMap(*nmap);
+	mapController.setMap(std::move(nmap));
+	static_cast<MainWindow *>(parent())->initializeMap(true);
 	close();
 }
 
 void WindowNewMap::on_sizeCombo_activated(int index)
 {
-	ui->widthTxt->setText(QString::number(mapSizes.at(index).first));
-	ui->heightTxt->setText(QString::number(mapSizes.at(index).second));
+	auto size = getSelectedMapSize(ui->sizeCombo, mapSizes);
+	mapGenOptions.setWidth(size.first);
+	mapGenOptions.setHeight(size.second);
+	updateTemplateList();
 }
 
 
-void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
+void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	bool twoLevel = ui->twoLevelCheck->isChecked();
-	mapGenOptions.setHasTwoLevels(twoLevel);
+	if(value > 2)
+		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+
+	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
 }
 
@@ -311,8 +355,6 @@ void WindowNewMap::on_humanCombo_activated(int index)
 		humans = PlayerColor::PLAYER_LIMIT_I;
 		ui->humanCombo->setCurrentIndex(humans);
 	}
-
-	mapGenOptions.setHumanOrCpuPlayerCount(humans);
 
 	int teams = mapGenOptions.getTeamCount();
 	if(teams > humans - 1)
@@ -335,6 +377,8 @@ void WindowNewMap::on_humanCombo_activated(int index)
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
 
+	mapGenOptions.setHumanOrCpuPlayerCount(humans);
+
 	updateTemplateList();
 }
 
@@ -350,15 +394,15 @@ void WindowNewMap::on_cpuCombo_activated(int index)
 		cpu = PlayerColor::PLAYER_LIMIT_I - humans;
 		ui->cpuCombo->setCurrentIndex(cpu + 1); //skip one element because first is random
 	}
-	
-	mapGenOptions.setCompOnlyPlayerCount(cpu);
-	
+
 	int cpuTeams = mapGenOptions.getCompOnlyTeamCount(); //comp only players - 1
 	if(cpuTeams > cpu - 1)
 	{
 		cpuTeams = cpu > 0 ? cpu - 1 : CMapGenOptions::RANDOM_SIZE;
 		ui->cpuTeamsCombo->setCurrentIndex(cpuTeams + 1); //skip one element because first is random
 	}
+
+	mapGenOptions.setCompOnlyPlayerCount(cpu);
 
 	updateTemplateList();
 }
@@ -367,7 +411,7 @@ void WindowNewMap::on_cpuCombo_activated(int index)
 void WindowNewMap::on_randomMapCheck_stateChanged(int arg1)
 {
 	randomMap = ui->randomMapCheck->isChecked();
-	ui->templateCombo->setEnabled(randomMap);
+	ui->randomOptions->setEnabled(randomMap);
 	updateTemplateList();
 }
 
@@ -385,23 +429,21 @@ void WindowNewMap::on_templateCombo_activated(int index)
 }
 
 
-void WindowNewMap::on_widthTxt_textChanged(const QString &arg1)
+void WindowNewMap::on_widthTxt_valueChanged(int value)
 {
-	int sz = arg1.toInt();
-	if(sz > 1)
+	if(value > 1)
 	{
-		mapGenOptions.setWidth(arg1.toInt());
+		mapGenOptions.setWidth(value);
 		updateTemplateList();
 	}
 }
 
 
-void WindowNewMap::on_heightTxt_textChanged(const QString &arg1)
+void WindowNewMap::on_heightTxt_valueChanged(int value)
 {
-	int sz = arg1.toInt();
-	if(sz > 1)
+	if(value > 1)
 	{
-		mapGenOptions.setHeight(arg1.toInt());
+		mapGenOptions.setHeight(value);
 		updateTemplateList();
 	}
 }
@@ -419,7 +461,7 @@ void WindowNewMap::updateTemplateList()
 	if(templates.empty())
 		return;
 
-	ui->templateCombo->addItem("[default]", 0);
+	ui->templateCombo->addItem(tr("[default]"), 0);
 
 	for(auto * templ : templates)
 	{
@@ -464,3 +506,23 @@ void WindowNewMap::on_cpuTeamsCombo_activated(int index)
 	updateTemplateList();
 }
 
+
+
+void WindowNewMap::on_sizeStandardRadio_toggled(bool checked) 
+{
+	if (checked) {
+		ui->sizeGroup1->setEnabled(true);
+		ui->sizeGroup2->setEnabled(false);
+	}
+	updateTemplateList();
+}
+
+
+void WindowNewMap::on_sizeCustomRadio_toggled(bool checked) 
+{
+	if (checked) {
+		ui->sizeGroup1->setEnabled(false);
+		ui->sizeGroup2->setEnabled(true);
+	}
+	updateTemplateList();
+}

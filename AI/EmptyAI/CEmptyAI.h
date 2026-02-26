@@ -9,8 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/AI_Base.h"
-#include "../../CCallback.h"
+#include "../../lib/callback/CGlobalAI.h"
 
 struct HeroMoveDetails;
 

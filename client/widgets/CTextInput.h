@@ -45,8 +45,9 @@ public:
 };
 
 /// Text input box where players can enter text
-class CTextInput final : public CFocusable
+class CTextInput : public CFocusable
 {
+protected:
 	using TextEditedCallback = std::function<void(const std::string &)>;
 	using TextFilterCallback = std::function<void(std::string &, const std::string &)>;
 
@@ -65,18 +66,18 @@ class CTextInput final : public CFocusable
 	static void filenameFilter(std::string & text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
 	//min-max should be set via something like std::bind
-	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
+	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue, int metricDigits);
 
 	std::string getVisibleText() const;
 	void createLabel(bool giveFocusToInput);
 	void updateLabel();
 
-	void clickPressed(const Point & cursorPosition) final;
-	void textInputted(const std::string & enteredText) final;
-	void textEdited(const std::string & enteredText) final;
-	void onFocusGot() final;
-	void onFocusLost() final;
-	void showPopupWindow(const Point & cursorPosition) final;
+	void clickPressed(const Point & cursorPosition) override;
+	void textInputted(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
+	void onFocusGot() override;
+	void onFocusLost() override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
 	CTextInput(const Rect & Pos);
 public:
@@ -98,14 +99,34 @@ public:
 	/// Enables filtering entered text that ensures that text is valid filename (existing or not)
 	void setFilterFilename();
 	/// Enable filtering entered text that ensures that text is valid number in provided range [min, max]
-	void setFilterNumber(int minValue, int maxValue);
+	void setFilterNumber(int minValue, int maxValue, int metricDigits=0);
 
 	void setFont(EFonts Font);
 	void setColor(const ColorRGBA & Color);
 	void setAlignment(ETextAlignment alignment);
 
 	// CIntObject interface impl
-	void keyPressed(EShortcut key) final;
-	void activate() final;
-	void deactivate() final;
+	void keyPressed(EShortcut key) override;
+	void activate() override;
+	void deactivate() override;
+};
+
+class CTextInputWithConfirm final : public CTextInput
+{
+	std::string initialText;
+	std::function<void()> confirmCb;
+	bool limitToRect;
+
+	void confirm();
+public:
+	CTextInputWithConfirm(const Rect & Pos, EFonts font, ETextAlignment alignment, std::string text, bool limitToRect, std::function<void()> confirmCallback);
+
+	bool captureThisKey(EShortcut key) override;
+	void keyPressed(EShortcut key) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void onFocusGot() override;
+	void textInputted(const std::string & enteredText) override;
+	void deactivate() override;
 };

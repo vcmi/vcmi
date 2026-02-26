@@ -10,16 +10,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"armorer" : {
-					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : "damageTypeAll",
-					"targetSourceType" : "SECONDARY_SKILL",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "armorer"
 		}
 	},
 	"ufretin":
@@ -79,15 +70,7 @@
 			{ "skill" : "resistance", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"resistance" : {
-					"type" : "MAGIC_RESISTANCE",
-					"targetSourceType" : "SECONDARY_SKILL",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "resistance"
 		}
 	},
 	"ivor":
@@ -129,16 +112,7 @@
 			{ "skill" : "logistics", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"logistics" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : "heroMovementLand",
-					"type" : "MOVEMENT",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "logistics"
 		}
 	},
 	"coronius":
@@ -196,15 +170,7 @@
 			{ "skill" : "intelligence", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"intelligence" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "intelligence"
 		}
 	},
 	"gem":
@@ -219,16 +185,7 @@
 			{ "skill" : "firstAid", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"firstAid" : {
-					"subtype" : "spell.firstAid",
-					"type" : "SPECIFIC_SPELL_POWER",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "firstAid"
 		}
 	},
 	"malcom":
@@ -243,15 +200,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"melodia":

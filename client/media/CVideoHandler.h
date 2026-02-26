@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#ifndef DISABLE_VIDEO
+#ifdef ENABLE_VIDEO
 
 #include "../lib/Point.h"
 #include "IVideoPlayer.h"
@@ -42,7 +42,7 @@ class FFMpegStream : boost::noncopyable
 	AVFrame * frame = nullptr;
 
 protected:
-	void openContext();
+	bool openContext();
 	void openCodec(int streamIndex);
 
 	int findVideoStream() const;
@@ -91,14 +91,14 @@ public:
 	CVideoInstance();
 	~CVideoInstance();
 
-	void openVideo();
+	bool openVideo();
 	bool loadNextFrame();
 
 	double timeStamp() final;
 	bool videoEnded() final;
 	Point size() final;
 
-	void show(const Point & position, Canvas & canvas) final;
+	void show(const Point & position, SDL_Surface * to) final;
 	void tick(uint32_t msPassed) final;
 	void activate() final;
 	void deactivate() final;

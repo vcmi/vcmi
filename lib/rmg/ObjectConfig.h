@@ -16,6 +16,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE ObjectConfig
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ObjectSelector;
+#endif
+
 public:
 
 	enum class EObjectCategory
@@ -36,12 +40,17 @@ public:
 	};
 
 	void addBannedObject(const CompoundMapObjectID & objid);
-	void addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid);
+	void addCustomObject(const ObjectInfo & object);
+	void addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
+	void addRequiredObject(const CompoundMapObjectID & objid, std::pair<ui16, std::optional<ui32>> info);
 	void clearBannedObjects();
 	void clearCustomObjects();
+	void clearRequiredObjects();
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+
+	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
 private:
@@ -52,6 +61,8 @@ private:
 	// TODO: In what format should I store custom objects?
 	// Need to convert map serialization format to ObjectInfo
 	std::vector<ObjectInfo> customObjects;
+	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
+
 };
 
 VCMI_LIB_NAMESPACE_END

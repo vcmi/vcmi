@@ -1,0 +1,33 @@
+{
+	"type": "object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "Highscore Creature format",
+	"description" : "Json format for defining highscore for creatures in VCMI",
+	"properties": {
+		"creatures": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": [
+					"creature"
+				],
+				"properties": {
+					"min": {
+						"type": "integer"
+					},
+					"max": {
+						"type": "integer"
+					},
+					"creature": {
+						"type": "string"
+					}
+				},
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": [
+		"creatures"
+	],
+	"additionalProperties": false
+}

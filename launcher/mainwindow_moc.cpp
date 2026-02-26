@@ -14,11 +14,14 @@
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/texts/Languages.h"
 #include "../lib/ExceptionsCommon.h"
+
+#include "../vcmiqt/launcherdirs.h"
 
 #include "updatedialog_moc.h"
 #include "main.h"
@@ -31,10 +34,13 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 #ifndef VCMI_MOBILE
-	console = new CConsoleHandler();
+	console = std::make_unique<CConsoleHandler>();
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console.get());
+#else
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", nullptr);
 #endif
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
-	logConfig.configureDefault();
+
+	logConfigurator.configureDefault();
 
 	try
 	{
@@ -95,14 +101,14 @@ MainWindow::MainWindow(QWidget * parent)
 
 #ifndef VCMI_MOBILE
 	//load window settings
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
-	auto size = s.value("MainWindow/Size").toSize();
+	auto size = s.value("MainWindow/WindowSize").toSize();
 	if(size.isValid())
 	{
 		resize(size);
 	}
-	auto position = s.value("MainWindow/Position").toPoint();
+	auto position = s.value("MainWindow/WindowPosition").toPoint();
 	if(!position.isNull())
 	{
 		move(position);
@@ -135,7 +141,7 @@ void MainWindow::detectPreferredLanguage()
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
 		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString())
+			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
 				selectedLanguage = vcmiLang.identifier;
 
 		if (!selectedLanguage.empty())
@@ -150,23 +156,20 @@ void MainWindow::detectPreferredLanguage()
 
 void MainWindow::enterSetup()
 {
-	ui->startGameButton->setEnabled(false);
-	ui->settingsButton->setEnabled(false);
-	ui->aboutButton->setEnabled(false);
-	ui->modslistButton->setEnabled(false);
+	ui->sidePanel->setVisible(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
 
-void MainWindow::exitSetup()
+void MainWindow::exitSetup(bool goToMods)
 {
 	Settings writer = settings.write["launcher"]["setupCompleted"];
 	writer->Bool() = true;
 
-	ui->startGameButton->setEnabled(true);
-	ui->settingsButton->setEnabled(true);
-	ui->aboutButton->setEnabled(true);
-	ui->modslistButton->setEnabled(true);
-	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+	ui->sidePanel->setVisible(true);
+	if (goToMods)
+		switchToModsTab();
+	else
+		switchToStartTab();
 }
 
 void MainWindow::switchToStartTab()
@@ -200,9 +203,9 @@ MainWindow::~MainWindow()
 {
 #ifndef VCMI_MOBILE
 	//save window settings
-	QSettings s(Ui::teamName, Ui::appName);
-	s.setValue("MainWindow/Size", size());
-	s.setValue("MainWindow/Position", pos());
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
+	s.setValue("MainWindow/WindowSize", size());
+	s.setValue("MainWindow/WindowPosition", pos());
 #endif
 
 	delete ui;
@@ -261,11 +264,13 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive) || filePath.endsWith(".exe", Qt::CaseInsensitive))
+	QString realFilePath = Helper::getRealPath(filePath);
+
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();
 
 	QString fileName = QFileInfo{filePath}.fileName();
-	if(filePath.endsWith(".zip", Qt::CaseInsensitive))
+	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		QString filenameClean = fileName.toLower()
 			// mod name currently comes from zip file -> remove suffixes from github zip download
@@ -275,7 +280,7 @@ void MainWindow::manualInstallFile(QString filePath)
 
 		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
 	}
-	else if(filePath.endsWith(".json", Qt::CaseInsensitive))
+	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
 		QDir configDir(QString::fromStdString(VCMIDirs::get().userConfigPath().string()));
 		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
@@ -286,15 +291,9 @@ void MainWindow::manualInstallFile(QString filePath)
 			{
 				const auto configFilePath = configDir.filePath(configFile[0]);
 				QFile::remove(configFilePath);
-				QFile::copy(filePath, configFilePath);
+				Helper::performNativeCopy(filePath, configFilePath);
 
-				// reload settings
-				Helper::loadSettings();
-				for(const auto widget : qApp->allWidgets())
-					if(auto settingsView = qobject_cast<CSettingsView *>(widget))
-						settingsView->loadSettings();
-
-				getModView()->reload();
+				Helper::reLoadSettings();
 			}
 		}
 	}

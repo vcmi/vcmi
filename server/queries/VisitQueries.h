@@ -23,8 +23,8 @@ protected:
 	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 
 public:
-	const CGObjectInstance * visitedObject;
-	const CGHeroInstance * visitingHero;
+	ObjectInstanceID visitedObject;
+	ObjectInstanceID visitingHero;
 
 	bool blocksPack(const CPackForServer * pack) const final;
 };

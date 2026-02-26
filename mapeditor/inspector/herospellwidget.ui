@@ -52,6 +52,9 @@
     </widget>
    </item>
    <item>
+    <widget class="QLineEdit" name="filter"/>
+   </item>
+   <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -99,6 +102,9 @@
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -135,6 +141,9 @@
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="sortingEnabled">
           <bool>true</bool>
          </property>
         </widget>
@@ -175,6 +184,9 @@
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -213,6 +225,9 @@
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -249,6 +264,9 @@
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="sortingEnabled">
           <bool>true</bool>
          </property>
         </widget>

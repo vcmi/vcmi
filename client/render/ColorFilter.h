@@ -54,13 +54,4 @@ public:
 
 	/// Scales down strength of a shifter to a specified factor
 	static ColorFilter genInterpolated(const ColorFilter & left, const ColorFilter & right, float power);
-
-	/// Generates object using supplied Json config
-	static ColorFilter genFromJson(const JsonNode & entry);
-};
-
-struct ColorMuxerEffect
-{
-	std::vector<ColorFilter> filters;
-	std::vector<float> timePoints;
 };

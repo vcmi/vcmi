@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QDialog>
+#include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 namespace Ui {
@@ -43,17 +44,18 @@ private:
 	void initSpellLists();
 };
 
-class TownSpellsDelegate : public QStyledItemDelegate
+class TownSpellsDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
-	using QStyledItemDelegate::QStyledItemDelegate;
+	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 
 	TownSpellsDelegate(CGTownInstance&);
 
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex& index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
+	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 
 private:
 	CGTownInstance& town;

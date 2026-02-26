@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ObjectLists.h"
 
-#include "../gui/CGuiHandler.h"
+#include "../GameEngine.h"
 #include "Slider.h"
 
 CObjectList::CObjectList(CreateFunc create)
@@ -122,6 +122,8 @@ void CListBox::updatePositions()
 		moveChildForeground(slider.get());
 	}
 	redraw();
+	if(onScroll)
+		onScroll();
 }
 
 void CListBox::reset()
@@ -166,6 +168,11 @@ std::shared_ptr<CIntObject> CListBox::getItem(size_t which)
 		if( i == which)
 			return *iter;
 	return std::shared_ptr<CIntObject>();
+}
+
+std::shared_ptr<CSlider> CListBox::getSlider()
+{
+	return slider;
 }
 
 size_t CListBox::getIndexOf(std::shared_ptr<CIntObject> item)

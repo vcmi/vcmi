@@ -10,12 +10,8 @@
 				// Note that actual speed of animation is subject to changes from in-game animation speed setting
 				"time" : 0.0,
 
-				// Optional. Transformation filter for red, green and blue components of a color
-				// Applies transformation with specified parameters to each channel. Formula:
-				// result = red * (value 1) + green * (value 2) + blue * (value 3) + (value 4)
-				"red"   : [ 1.0, 0.0, 0.0, 0.0 ],
-				"green" : [ 0.0, 1.0, 0.0, 0.0 ],
-				"blue"  : [ 0.0, 0.0, 1.0, 0.0 ],
+				// Optional. Adds grayscale overlay on top of creature, multiplied by specified color per channel (rgba order)
+				"color"   : [ 1.0, 0.0, 0.0, 1.0 ],
 				
 				/// Optional. Transparency filter, makes stack appear semi-transparent, used mostly for fade-in effects
 				/// Value 0 = full transparency, 1 = fully opaque
@@ -25,23 +21,21 @@
 	
 		"petrification" : [
 			{
-				"time" : 0.0
+				"time" : 0.0,
+				"alpha" : 1.0
 			},
 			{
 				"time"  : 1.0,
-				// Conversion to grayscale, using human eye perception factor for channels
-				"red"   : [ 0.299, 0.587, 0.114, 0.0 ],
-				"green" : [ 0.299, 0.587, 0.114, 0.0 ],
-				"blue"  : [ 0.299, 0.587, 0.114, 0.0 ],
+				"color"  : [ 1.0, 1.0, 1.0, 1.0 ], //grayscale
+				"alpha" : 1.0
 			}
 		],
 		"cloning" : [
 			{ 
 				// No fade in - will be handled by summonFadeIn effect
 				"time" : 0.0, 
-				"red"   : [ 0.5, 0.0, 0.0, 0.0 ],
-				"green" : [ 0.0, 0.5, 0.0, 0.0 ],
-				"blue"  : [ 0.0, 0.0, 0.5, 0.5 ],
+				"color"  : [ 0.0, 0.0, 1.0, 1.0 ], //blue
+				"alpha" : 1.0
 			}
 		],
 		"summonFadeIn" : [
@@ -50,12 +44,14 @@
 				"alpha" : 0.0
 			},
 			{
-				"time" : 1.0
+				"time" : 1.0,
+				"alpha" : 1.0
 			},
 		],
 		"summonFadeOut" : [
 			{
-				"time" : 0.0
+				"time" : 0.0,
+				"alpha" : 1.0
 			},
 			{
 				"time" : 1.0,
@@ -68,12 +64,14 @@
 				"alpha" : 0.0
 			},
 			{
-				"time" : 0.5
+				"time" : 0.5,
+				"alpha" : 1.0
 			},
 		],
 		"teleportFadeOut" : [
 			{
-				"time" : 0.0
+				"time" : 0.0,
+				"alpha" : 1.0
 			},
 			{
 				"time" : 0.5,
@@ -82,31 +80,17 @@
 		],
 		"bloodlust" : [
 			{
-				"time" : 0.0
-			},
-			{
-				"time"  : 0.25, 
-				"red"   : [ 0.5, 0.0, 0.5, 0.4 ],
-				"green" : [ 0.0, 1.0, 0.0, 0.0 ],
-				"blue"  : [ 0.0, 0.0, 1.0, 0.0 ],
+				"time" : 0.0,
 				"alpha" : 1.0
 			},
 			{
-				"time"  : 0.5, 
-				"red"   : [ 0.6, 0.6, 0.6, 0.0 ],
-				"green" : [ 0.0, 0.5, 0.0, 0.0 ],
-				"blue"  : [ 0.0, 0.0, 0.5, 0.0 ],
-				"alpha" : 1.0
-			},
-			{
-				"time"  : 0.75, 
-				"red"   : [ 0.5, 0.0, 0.5, 0.4 ],
-				"green" : [ 0.0, 1.0, 0.0, 0.0 ],
-				"blue"  : [ 0.0, 0.0, 1.0, 0.0 ],
+				"time"  : 0.5,
+				"color"  : [ 1.0, 0.0, 0.0, 1.0 ], //red
 				"alpha" : 1.0
 			},
 			{
 				"time" : 1.0,
+				"alpha" : 1.0
 			},
 		],
 	}

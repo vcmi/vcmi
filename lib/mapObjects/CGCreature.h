@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "army/CArmedInstance.h"
 #include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -23,34 +23,50 @@ public:
 		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
 	};
 
-	enum Character {
-		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
+	enum class Character : int8_t {
+		COMPLIANT = 0,
+		FRIENDLY = 1,
+		AGGRESSIVE = 2,
+		HOSTILE = 3,
+		SAVAGE = 4,
+		CUSTOM = 5
 	};
 
-	ui32 identifier; //unique code for this monster (used in missions)
-	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
+	enum class UpgradedStackPresence : int8_t {
+		RANDOM = -1,
+		NEVER = 0,
+		ALWAYS = 1
+	};
+
+	Character initialCharacter = Character::COMPLIANT;
+	int8_t agression = 0; // h3 range: -4 -> compliant, 10 -> savage, set on init
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
 	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees = false; //if true, the troops will never flee
 	bool notGrowingTeam = false; //if true, number of units won't grow
 	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
+	int64_t stacksCount = -1; // the split stack count specified in a HotA 1.7 map (0 - one more, -1 - default, -2 one less, -3 average)
+	UpgradedStackPresence upgradedStackPresence = UpgradedStackPresence::RANDOM;
+	int8_t joiningPercentage = -1;
+	bool joinOnlyForMoney = false;
 
 	bool refusedJoining = false;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void newTurn(vstd::RNG & rand) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
+	TQuantity getJoiningAmount() const;
 
 	//stack formation depends on position,
 	bool containsUpgradedStack() const;
@@ -59,8 +75,16 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier;
-		h & character;
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+		{
+			h & initialCharacter;
+		}
+		else
+		{
+			int32_t identifier = 0;
+			h & identifier;
+		}
+		h & agression;
 		h & message;
 		h & resources;
 		h & gainedArtifact;
@@ -69,20 +93,34 @@ public:
 		h & temppower;
 		h & refusedJoining;
 		h & formation;
+		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
+			h & stacksCount;
+
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS_2)
+			h & joiningPercentage;
+
+		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
+		{
+			h & upgradedStackPresence;
+			h & joinOnlyForMoney;
+		}
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void fight(const CGHeroInstance *h) const;
-	void flee( const CGHeroInstance * h ) const;
-	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
-	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
+	void fight(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
+	void flee(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
+	void fleeDecision(IGameEventCallback & gameEvents, const CGHeroInstance * h, ui32 pursue) const;
+	void joinDecision(IGameEventCallback & gameEvents, const CGHeroInstance * h, int cost, ui32 accept) const;
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
-	void giveReward(const CGHeroInstance * h) const;
+	void giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 	std::string getMonsterLevelText() const;
+	int getDefaultNumberOfStacks(const CGHeroInstance * hero) const;
+	int getNumberOfStacksFromBonus(const CGHeroInstance * hero) const;
+	ui32 hashByPosition() const;
 };
 
 VCMI_LIB_NAMESPACE_END

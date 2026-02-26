@@ -19,7 +19,7 @@
 #include "../Functions.h"
 #include "../../TerrainHandler.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../VCMI_Lib.h"
+#include "../../GameLibrary.h"
 #include "../TileInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,8 +33,8 @@ void RockPlacer::process()
 
 void RockPlacer::blockRock()
 {
-	rockTerrain = VLC->terrainTypeHandler->getById(zone.getTerrainType())->rockTerrain;
-	assert(!VLC->terrainTypeHandler->getById(rockTerrain)->isPassable());
+	rockTerrain = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType())->rockTerrain;
+	assert(!LIBRARY->terrainTypeHandler->getById(rockTerrain)->isPassable());
 
 	accessibleArea = zone.freePaths() + zone.areaUsed();
 	if(auto * rp = zone.getModificator<RoadPlacer>())
