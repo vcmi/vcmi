@@ -19,8 +19,41 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+
+static std::string normalizeDescriptionMarkup(std::string text)
+{
+	// Keep this normalization in lib layer: launcher/Qt conversion is not available here.
+	// Handle both <br> and self-closing variants (<br/>, <br />).
+	text = std::regex_replace(text, std::regex(R"(<\s*br\s*/?\s*>)", std::regex_constants::icase), "\n");
+
+	// Convert only the most useful inline tags before stripping the remaining HTML.
+	text = std::regex_replace(text, std::regex(R"(<\s*(b|strong)(\s+[^>]*)?>)", std::regex_constants::icase), "**");
+	text = std::regex_replace(text, std::regex(R"(<\s*/\s*(b|strong)\s*>)", std::regex_constants::icase), "**");
+	text = std::regex_replace(text, std::regex(R"(<\s*(i|em)(\s+[^>]*)?>)", std::regex_constants::icase), "*");
+	text = std::regex_replace(text, std::regex(R"(<\s*/\s*(i|em)\s*>)", std::regex_constants::icase), "*");
+
+	// Strip any remaining tags to avoid leaking raw HTML into UI markdown renderer.
+	static const std::regex htmlTagPattern("<[^>]+>");
+	text = std::regex_replace(text, htmlTagPattern, "");
+
+	return text;
+}
+
+
 void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
 {
+	if (modConfig["description"].isString())
+		modConfig["description"].String() = normalizeDescriptionMarkup(modConfig["description"].String());
+
+	for (const auto & language : Languages::getLanguageList())
+	{
+		if (modConfig[language.identifier]["description"].isString())
+			modConfig[language.identifier]["description"].String() = normalizeDescriptionMarkup(modConfig[language.identifier]["description"].String());
+	}
+
+	if (fullDescription.empty())
+		return;
+
 	std::set<std::string> knownLanguages;
 	for (const auto & language : Languages::getLanguageList())
 		knownLanguages.insert(boost::algorithm::to_lower_copy(language.identifier));
@@ -70,22 +103,22 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 
 	if (sections.empty())
 	{
-		modConfig["description"].String() = fullDescription;
+		modConfig["description"].String() = normalizeDescriptionMarkup(fullDescription);
 		return;
 	}
 
 	for (const auto & [languageID, description] : sections)
 	{
 		if (languageID != baseLanguage)
-			modConfig[languageID]["description"].String() = description;
+			modConfig[languageID]["description"].String() = normalizeDescriptionMarkup(description);
 	}
 
 	if (sections.count(baseLanguage) != 0)
-		modConfig["description"].String() = sections[baseLanguage];
+		modConfig["description"].String() = normalizeDescriptionMarkup(sections[baseLanguage]);
 	else if (sections.count("english") != 0)
-		modConfig["description"].String() = sections["english"];
+		modConfig["description"].String() = normalizeDescriptionMarkup(sections["english"]);
 	else
-		modConfig["description"].String() = sections.begin()->second;
+		modConfig["description"].String() = normalizeDescriptionMarkup(sections.begin()->second);
 }
 
 ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig)
