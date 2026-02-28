@@ -17,7 +17,6 @@
 #include "../networkPacks/PacksForServer.h"
 #include "../networkPacks/SaveLocalState.h"
 
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {
@@ -49,7 +48,7 @@ int CCallback::selectionMade(int selection, QuestionID questionID)
 
 int CCallback::sendQuestionAnswer(std::optional<int32_t> reply, QuestionID questionID)
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
+	THROW_IF_CALLED_WITH_PLAYER();
 	if(questionID == QuestionID(-1))
 	{
 		logGlobal->error("Cannot answer question -1!");
@@ -347,7 +346,7 @@ void CCallback::gamePause(bool pause)
 
 void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * currentObject)
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
+	THROW_IF_CALLED_WITH_PLAYER();
 	PlayerMessage pm(mess, currentObject? currentObject->id : ObjectInstanceID(-1));
 	if(getPlayerID())
 		pm.player = *getPlayerID();

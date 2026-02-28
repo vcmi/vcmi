@@ -18,8 +18,6 @@
 #include "../mapObjects/CGTownInstance.h"
 
 //TODO make clean
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
-#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
@@ -110,8 +108,8 @@ int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 
 const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId, bool includeGarrisoned) const
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
-		const PlayerState *p = getPlayerState(*getPlayerID());
+	THROW_IF_CALLED_WITH_PLAYER();
+	const PlayerState *p = getPlayerState(*getPlayerID());
 	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
 
 	if (!includeGarrisoned)
@@ -126,8 +124,8 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId) const
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
-		const PlayerState *p = getPlayerState(*getPlayerID());
+	THROW_IF_CALLED_WITH_PLAYER();
+	const PlayerState *p = getPlayerState(*getPlayerID());
 	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
 	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info", nullptr);
 	return p->getTowns()[serialId];

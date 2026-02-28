@@ -26,7 +26,6 @@
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
@@ -488,7 +487,7 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(in
 
 std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const CGObjectInstance * townOrTavern) const
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
+	THROW_IF_CALLED_WITH_PLAYER();
 	std::vector<const CGHeroInstance *> ret;
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
 	const CGTownInstance * town = getTown(townOrTavern->id);

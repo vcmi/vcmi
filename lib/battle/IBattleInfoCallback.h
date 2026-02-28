@@ -18,7 +18,25 @@
 #include <vcmi/Entity.h>
 #include <vcmi/scripting/ApiTags.h>
 
-#define RETURN_IF_NOT_BATTLE(...) do { if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; } } while (false)
+class BattleCallbackOutsideBattleCalledException : public std::runtime_error
+{
+public:
+	BattleCallbackOutsideBattleCalledException(const std::string & functionName)
+	:std::runtime_error(functionName + "called when no battle!")
+	{}
+};
+
+class BattleCallbackInvalidCallException : public std::runtime_error
+{
+public:
+	BattleCallbackInvalidCallException(const std::string & functionName)
+		:std::runtime_error(functionName + "called with invalid parameters!")
+	{}
+};
+
+#define THROW_IF_NOT_BATTLE() do { if(!duringBattle()) {logGlobal->error("%s called when no battle!", BOOST_CURRENT_FUNCTION); throw BattleCallbackOutsideBattleCalledException( BOOST_CURRENT_FUNCTION ); } } while (false)
+#define THROW_IF_CALLED_WITH_PLAYER() do { if(!getPlayerID()) {logGlobal->error("%s called with invalid player!", BOOST_CURRENT_FUNCTION); throw BattleCallbackInvalidCallException( BOOST_CURRENT_FUNCTION ); } } while (false)
+#define THROW_INVALID_CALL() do { logGlobal->error("%s called with invalid parameters!", BOOST_CURRENT_FUNCTION); throw BattleCallbackInvalidCallException( BOOST_CURRENT_FUNCTION ); } while (false)
 
 struct CObstacleInstance;
 class BattleField;
