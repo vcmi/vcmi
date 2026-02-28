@@ -20,59 +20,26 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-static std::string normalizeDescriptionMarkup(std::string text)
-{
-	// Keep this normalization in lib layer: launcher/Qt conversion is not available here.
-	// Handle both <br> and self-closing variants (<br/>, <br />).
-	text = std::regex_replace(text, std::regex(R"(<\s*br\s*/?\s*>)", std::regex_constants::icase), "\n");
-
-	// Convert only the most useful inline tags before stripping the remaining HTML.
-	text = std::regex_replace(text, std::regex(R"(<\s*(b|strong)(\s+[^>]*)?>)", std::regex_constants::icase), "**");
-	text = std::regex_replace(text, std::regex(R"(<\s*/\s*(b|strong)\s*>)", std::regex_constants::icase), "**");
-	text = std::regex_replace(text, std::regex(R"(<\s*(i|em)(\s+[^>]*)?>)", std::regex_constants::icase), "*");
-	text = std::regex_replace(text, std::regex(R"(<\s*/\s*(i|em)\s*>)", std::regex_constants::icase), "*");
-
-	// Strip any remaining tags to avoid leaking raw HTML into UI markdown renderer.
-	static const std::regex htmlTagPattern("<[^>]+>");
-	text = std::regex_replace(text, htmlTagPattern, "");
-
-	return text;
-}
-
-
 void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
 {
 	if (modConfig["description"].isString())
-		modConfig["description"].String() = normalizeDescriptionMarkup(modConfig["description"].String());
+		modConfig["description"].String() = modConfig["description"].String();
 
 	for (const auto & language : Languages::getLanguageList())
 	{
 		if (modConfig[language.identifier]["description"].isString())
-			modConfig[language.identifier]["description"].String() = normalizeDescriptionMarkup(modConfig[language.identifier]["description"].String());
+			modConfig[language.identifier]["description"].String() = modConfig[language.identifier]["description"].String();
 	}
 
 	if (fullDescription.empty())
 		return;
 
-	// description.md is already markdown/plain text; keep it verbatim.
-	if (fullDescription.find('#') == std::string::npos)
-	{
-		modConfig["description"].String() = fullDescription;
-		return;
-	}
-
-	static const std::set<std::string> knownLanguages = []()
-	{
-		std::set<std::string> result;
-		for (const auto & language : Languages::getLanguageList())
-			result.insert(boost::algorithm::to_lower_copy(language.identifier));
-		return result;
-	}();
-	
+	std::set<std::string> knownLanguages;
+	for (const auto & language : Languages::getLanguageList())
+		knownLanguages.insert(boost::algorithm::to_lower_copy(language.identifier));
 	std::map<std::string, std::string> sections;
 	std::string currentLanguage;
 	std::string currentContent;
-	bool hasKnownLanguageHeader = false;
 	const std::string baseLanguage = boost::algorithm::to_lower_copy(modConfig.Struct().count("language") ? modConfig["language"].String() : "english");
 
 	auto flushCurrentSection = [&]()
@@ -83,34 +50,20 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 		currentContent.clear();
 	};
 
-	std::string_view fullDescriptionView(fullDescription);
+	std::istringstream stream(fullDescription);
 	bool firstLine = true;
-	for (size_t lineStart = 0; lineStart <= fullDescriptionView.size();)
+	for (std::string line; std::getline(stream, line);)
 	{
-		size_t lineEnd = fullDescriptionView.find('\n', lineStart);
-		if (lineEnd == std::string_view::npos)
-			lineEnd = fullDescriptionView.size();
-
-		std::string_view lineView = fullDescriptionView.substr(lineStart, lineEnd - lineStart);
-		if (!lineView.empty() && lineView.back() == '\r')
-			lineView.remove_suffix(1);
-
+		boost::trim_right_if(line, boost::is_any_of("\r"));
 		if (firstLine)
 		{
-			// UTF-8 BOM, if present
-			if (lineView.size() >= 3 &&
-				static_cast<unsigned char>(lineView[0]) == 0xEF &&
-				static_cast<unsigned char>(lineView[1]) == 0xBB &&
-				static_cast<unsigned char>(lineView[2]) == 0xBF)
-			{
-				lineView.remove_prefix(3);
-			}
+			boost::trim_left_if(line, boost::is_any_of("\xEF\xBB\xBF")); // UTF-8 BOM, if present
 			firstLine = false;
 		}
 
-		if (!lineView.empty() && lineView.front() == '#')
+		if (boost::algorithm::starts_with(line, "#"))
 		{
-			std::string languageID(lineView.substr(1));
+			std::string languageID = line.substr(1);
 			boost::trim(languageID);
 			boost::to_lower(languageID);
 
@@ -118,28 +71,17 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 			{
 				flushCurrentSection();
 				currentLanguage = languageID;
-				hasKnownLanguageHeader = true;
-				if (lineEnd == fullDescriptionView.size())
-					break;
-				lineStart = lineEnd + 1;
 				continue;
 			}
 		}
 
 		if (!currentLanguage.empty())
-		{
-			currentContent.append(lineView);
-			currentContent.push_back('\n');
-		}
-
-		if (lineEnd == fullDescriptionView.size())
-			break;
-		lineStart = lineEnd + 1;
+			currentContent += line + "\n";
 	}
 
 	flushCurrentSection();
 
-	if (!hasKnownLanguageHeader)
+	if (sections.empty())
 	{
 		modConfig["description"].String() = fullDescription;
 		return;
