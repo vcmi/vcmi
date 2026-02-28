@@ -54,12 +54,25 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 	if (fullDescription.empty())
 		return;
 
-	std::set<std::string> knownLanguages;
-	for (const auto & language : Languages::getLanguageList())
-		knownLanguages.insert(boost::algorithm::to_lower_copy(language.identifier));
+	// description.md is already markdown/plain text; keep it verbatim.
+	if (fullDescription.find('#') == std::string::npos)
+	{
+		modConfig["description"].String() = fullDescription;
+		return;
+	}
+
+	static const std::set<std::string> knownLanguages = []()
+	{
+		std::set<std::string> result;
+		for (const auto & language : Languages::getLanguageList())
+			result.insert(boost::algorithm::to_lower_copy(language.identifier));
+		return result;
+	}();
+	
 	std::map<std::string, std::string> sections;
 	std::string currentLanguage;
 	std::string currentContent;
+	bool hasKnownLanguageHeader = false;
 	const std::string baseLanguage = boost::algorithm::to_lower_copy(modConfig.Struct().count("language") ? modConfig["language"].String() : "english");
 
 	auto flushCurrentSection = [&]()
@@ -70,20 +83,34 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 		currentContent.clear();
 	};
 
-	std::istringstream stream(fullDescription);
+	std::string_view fullDescriptionView(fullDescription);
 	bool firstLine = true;
-	for (std::string line; std::getline(stream, line);)
+	for (size_t lineStart = 0; lineStart <= fullDescriptionView.size();)
 	{
-		boost::trim_right_if(line, boost::is_any_of("\r"));
+		size_t lineEnd = fullDescriptionView.find('\n', lineStart);
+		if (lineEnd == std::string_view::npos)
+			lineEnd = fullDescriptionView.size();
+
+		std::string_view lineView = fullDescriptionView.substr(lineStart, lineEnd - lineStart);
+		if (!lineView.empty() && lineView.back() == '\r')
+			lineView.remove_suffix(1);
+
 		if (firstLine)
 		{
-			boost::trim_left_if(line, boost::is_any_of("\xEF\xBB\xBF")); // UTF-8 BOM, if present
+			// UTF-8 BOM, if present
+			if (lineView.size() >= 3 &&
+				static_cast<unsigned char>(lineView[0]) == 0xEF &&
+				static_cast<unsigned char>(lineView[1]) == 0xBB &&
+				static_cast<unsigned char>(lineView[2]) == 0xBF)
+			{
+				lineView.remove_prefix(3);
+			}
 			firstLine = false;
 		}
 
-		if (boost::algorithm::starts_with(line, "#"))
+		if (!lineView.empty() && lineView.front() == '#')
 		{
-			std::string languageID = line.substr(1);
+			std::string languageID(lineView.substr(1));
 			boost::trim(languageID);
 			boost::to_lower(languageID);
 
@@ -91,34 +118,45 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 			{
 				flushCurrentSection();
 				currentLanguage = languageID;
+				hasKnownLanguageHeader = true;
+				if (lineEnd == fullDescriptionView.size())
+					break;
+				lineStart = lineEnd + 1;
 				continue;
 			}
 		}
 
 		if (!currentLanguage.empty())
-			currentContent += line + "\n";
+		{
+			currentContent.append(lineView);
+			currentContent.push_back('\n');
+		}
+
+		if (lineEnd == fullDescriptionView.size())
+			break;
+		lineStart = lineEnd + 1;
 	}
 
 	flushCurrentSection();
 
-	if (sections.empty())
+	if (!hasKnownLanguageHeader)
 	{
-		modConfig["description"].String() = normalizeDescriptionMarkup(fullDescription);
+		modConfig["description"].String() = fullDescription;
 		return;
 	}
 
 	for (const auto & [languageID, description] : sections)
 	{
 		if (languageID != baseLanguage)
-			modConfig[languageID]["description"].String() = normalizeDescriptionMarkup(description);
+			modConfig[languageID]["description"].String() = description;
 	}
 
 	if (sections.count(baseLanguage) != 0)
-		modConfig["description"].String() = normalizeDescriptionMarkup(sections[baseLanguage]);
+		modConfig["description"].String() = sections[baseLanguage];
 	else if (sections.count("english") != 0)
-		modConfig["description"].String() = normalizeDescriptionMarkup(sections["english"]);
+		modConfig["description"].String() = sections["english"];
 	else
-		modConfig["description"].String() = normalizeDescriptionMarkup(sections.begin()->second);
+		modConfig["description"].String() = sections.begin()->second;
 }
 
 ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig)
