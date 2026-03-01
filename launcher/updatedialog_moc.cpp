@@ -34,6 +34,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QScreen>
+#include <QProcessEnvironment>
 
 // Helper to normalize channel key to stable/beta/develop
 static QString normalizeChannel(const QString& text)
@@ -400,6 +401,14 @@ static QString platformKeyFromRuntime()
 
 #elif defined(VCMI_UNIX)
 	const auto arch = QSysInfo::buildCpuArchitecture();
+
+	bool isAppImage = !qgetenv("APPIMAGE").isEmpty();
+	if(!isAppImage)
+	{
+		logGlobal->warn("Auto Update on Linux is currently supported only for AppImage builds. Detected non-AppImage environment.");
+		return {};
+	}
+
 	if(arch == "x86_64")
 		return "linux-x86_64";
 
@@ -990,47 +999,31 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
 			progress->setVisible(false);
 
 #elif defined(VCMI_UNIX)
+		QString currentAppImage = qgetenv("APPIMAGE");
 
-//	Code template by Laserlicht
-//
-//        QString newFilePath = "/home/abc/Qt_Hello_World-1.0-x86_64.AppImage.new"; // Has to downloaded first sucessfully
-//
-//        QString currentAppImage = qgetenv("APPIMAGE");
-//
-//        if(currentAppImage.isEmpty()) {
-//            qDebug() << "No Appimage found";
-//            return;
-//        }
-//
-//        QFileInfo fileInfo(currentAppImage);
-//        if (!fileInfo.isWritable()) {
-//            qDebug() << "AppImage file is not writable (Permissions issue).";
-//            return;
-//        }
-//
-//        if(!QFile::exists(newFilePath)) {
-//            qDebug() << "New AppImage does not exist.";
-//            return;
-//        }
-// 
-//        QFile::setPermissions(newFilePath, 
-//            QFileDevice::ExeUser | QFileDevice::ReadUser | QFileDevice::WriteUser |
-//            QFileDevice::ExeGroup | QFileDevice::ReadGroup |
-//            QFileDevice::ExeOther | QFileDevice::ReadOther
-//        );
-//
-//        if (QFile::remove(currentAppImage)) { 
-//            if (QFile::rename(newFilePath, currentAppImage)) {
-//                // application can restarted
-//                QProcess::startDetached(currentAppImage);
-//                QCoreApplication::quit();
-//            } else {
-//                qDebug() << "Failed to rename new AppImage.";
-//            }
-//        } else {
-//            qDebug() << "Failed to remove old AppImage. Check permissions.";
-//        }
+		if(QFile::remove(currentAppImage))
+		{ 
+			if(QFile::rename(fullPath, currentAppImage))
+			{
+				// application can restarted
+				QProcess::startDetached(currentAppImage);
+				QCoreApplication::quit();
+			}
+			else
+			{
+				if(progress)
+					progress->setVisible(false);
 
+				ui->downloadLink->setText(tr("Failed to rename new AppImage."));
+			}
+		}
+		else
+		{
+            if(progress)
+				progress->setVisible(false);
+
+            ui->downloadLink->setText(tr("Failed to remove old AppImage. Check permissions."));
+		}
 
 #else
         // Fallback: just open or inform
