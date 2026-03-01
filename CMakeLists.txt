@@ -478,7 +478,7 @@ endif()
 #        Finding packages                  #
 ############################################
 
-set(BOOST_COMPONENTS date_time filesystem locale program_options)
+set(BOOST_COMPONENTS date_time filesystem program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()
@@ -487,6 +487,8 @@ if(Boost_MAJOR_VERSION EQUAL 1 AND Boost_MINOR_VERSION LESS 69)
 	list(APPEND BOOST_COMPONENTS system)
 	find_package(Boost 1.74.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 endif()
+
+find_package(Iconv REQUIRED)
 
 find_package(ZLIB REQUIRED)
 # Conan compatibility

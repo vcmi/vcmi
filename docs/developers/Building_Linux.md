@@ -15,13 +15,13 @@ To compile, the following packages (and their development counterparts) are need
 - SDL2 with devel packages: mixer, image, ttf
 - minizip or minizip-ng
 - zlib and zlib-devel
-- onnxruntime
-- Boost C++ libraries: program-options, filesystem, system, thread, locale
+- Boost C++ libraries: `date-time`, `iostreams`, `filesystem`, `program-options`
 - Recommended, if you want to build launcher or map editor: Qt (widget and network modules)
-- Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
+- Recommended, FFmpeg libraries, if you want to watch in-game videos: `libavformat` and `libswscale`. Their name could be `libavformat-devel` and `libswscale-devel`, or `ffmpeg-libs-devel` or similar names.
 - Optional:
-  - if you want to build scripting modules: LuaJIT
-  - to speed up recompilation: Ccache
+  - if you want to enable MMAI: `onnxruntime`
+  - if you want to build scripting modules: `LuaJIT`
+  - to speed up recompilation: `Ccache`
 
 ### On Debian-based systems (e.g. Ubuntu)
 
@@ -30,7 +30,7 @@ For Ubuntu and Debian you need to:
 1. Install this list of packages:
 
     ```sh
-    sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-svg-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev libsquish-dev libfmt-dev ninja-build ccache
+    sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-program-options-dev libboost-date-time-dev libboost-iostreams-dev qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qt6-svg-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev libsquish-dev libfmt-dev ninja-build ccache
     ```
 
 2. Optionally, install `onnxruntime`:
