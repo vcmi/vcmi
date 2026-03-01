@@ -36,6 +36,10 @@
 #include <QScreen>
 #include <QProcessEnvironment>
 
+#ifdef VCMI_IOS
+#include "iOS_utils.h"
+#endif
+
 // Helper to normalize channel key to stable/beta/develop
 static QString normalizeChannel(const QString& text)
 {
@@ -66,6 +70,8 @@ static QString actionButtonTextForPlatform()
 
 	return QObject::tr("Install");
 #elif defined(VCMI_MAC)
+	return QObject::tr("Download");
+#elif defined(VCMI_IOS)
 	return QObject::tr("Download");
 #else
 	return QObject::tr("Install");
@@ -773,6 +779,28 @@ void UpdateDialog::on_installButton_clicked()
 	if(testingTabSelected)
 		applySelectedTestingChannel(); // keep URL in sync with current dropdown choice
 
+#if defined(VCMI_IOS)
+	if(iOS_utils::isOsVersionAtLeast(16))
+	{
+		QDesktopServices::openUrl(QUrl(QStringLiteral("https://testflight.apple.com/join/pJWHSbmu")));
+		return;
+	}
+
+	QMessageBox messageBox(this);
+	messageBox.setIcon(QMessageBox::Information);
+	messageBox.setWindowTitle(tr("iOS installation"));
+	messageBox.setText(tr("For iOS versions older than 16, install VCMI via AltStore."));
+	messageBox.setInformativeText(tr("Open the iOS installation guide now?"));
+	QPushButton * openGuideButton = messageBox.addButton(tr("Open guide"), QMessageBox::AcceptRole);
+	messageBox.addButton(QMessageBox::Cancel);
+	messageBox.exec();
+
+	if(messageBox.clickedButton() == openGuideButton)
+		QDesktopServices::openUrl(QUrl(QStringLiteral("https://vcmi.eu/players/Installation_iOS/")));
+
+	return;
+#endif
+	
 	const QString url = testingTabSelected ? testingUrl : releaseUrl;
 
 	if(url.isEmpty())
