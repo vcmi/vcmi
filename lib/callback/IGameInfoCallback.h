@@ -53,6 +53,18 @@ namespace vstd
 class RNG;
 }
 
+class BattleCallbackInvalidCallException : public std::runtime_error
+{
+public:
+	BattleCallbackInvalidCallException(const std::string & functionName)
+		:std::runtime_error(functionName + "called with invalid parameters!")
+	{}
+};
+
+#define THROW_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
+#define THROW_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
+#define THROW_IF_CALLED_WITH_PLAYER() do { if(!getPlayerID()) {logGlobal->error("%s called with invalid player!", BOOST_CURRENT_FUNCTION); throw BattleCallbackInvalidCallException( BOOST_CURRENT_FUNCTION ); } } while (false)
+
 /// Provide interfaces through which map objects can access game state data
 /// TODO: currently it is also used as Environment::GameCb. Consider separating these two interfaces
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable, public scripting::ApiRawPointer<IGameInfoCallback>
