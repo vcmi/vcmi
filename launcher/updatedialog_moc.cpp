@@ -1028,6 +1028,15 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
 
 #elif defined(VCMI_UNIX)
 		QString currentAppImage = qgetenv("APPIMAGE");
+		
+		if(currentAppImage.isEmpty())
+		{
+			if(progress)
+				progress->setVisible(false);
+
+			ui->downloadLink->setText(tr("No AppImage found."));
+			return;
+		}
 
 		if(QFile::remove(currentAppImage))
 		{ 
