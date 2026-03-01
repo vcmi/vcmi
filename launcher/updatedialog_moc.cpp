@@ -1034,7 +1034,7 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
 			if(QFile::rename(fullPath, currentAppImage))
 			{
 				// application can restarted
-				QProcess::startDetached(currentAppImage);
+				QProcess::startDetached(currentAppImage, QStringList());
 				QCoreApplication::quit();
 			}
 			else
