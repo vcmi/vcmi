@@ -186,7 +186,7 @@ bool ExplorationHelper::scanMap()
 	std::vector<int3> edgeTiles;
 	edgeTiles.reserve(perimeter);
 
-	foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
+	foreach_visible_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
 			if(ts->fogOfWarMap[pos])
 			{

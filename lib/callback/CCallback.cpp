@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CCallback.h"
 
+#include "CallbackDefines.h"
+
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"

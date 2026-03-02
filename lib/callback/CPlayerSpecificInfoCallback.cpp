@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CPlayerSpecificInfoCallback.h"
 
+#include "CallbackDefines.h"
+
 #include "../gameState/CGameState.h"
 #include "../gameState/QuestInfo.h"
 #include "../CPlayerState.h"
@@ -21,7 +23,7 @@
 
 int CPlayerSpecificInfoCallback::howManyTowns() const
 {
-	THROW_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
 	return CGameInfoCallback::howManyTowns(*getPlayerID());
 }
 
@@ -100,7 +102,7 @@ std::vector<ScenarioEventJournalEntry> CPlayerSpecificInfoCallback::getMyScenari
 
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
-	THROW_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
 	return getHeroCount(*getPlayerID(), includeGarrisoned);
 }
 
@@ -108,7 +110,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 {
 	THROW_IF_CALLED_WITH_PLAYER();
 	const PlayerState *p = getPlayerState(*getPlayerID());
-	THROW_IF(!p, "No player info", nullptr);
+	THROW_IF(!p, "No player info");
 
 	if (!includeGarrisoned)
 	{
@@ -116,7 +118,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 			if(p->getHeroes()[i]->isGarrisoned())
 				serialId++;
 	}
-	THROW_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info", nullptr);
+	THROW_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info");
 	return p->getHeroes()[serialId];
 }
 
@@ -124,19 +126,19 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 {
 	THROW_IF_CALLED_WITH_PLAYER();
 	const PlayerState *p = getPlayerState(*getPlayerID());
-	THROW_IF(!p, "No player info", nullptr);
-	THROW_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info", nullptr);
+	THROW_IF(!p, "No player info");
+	THROW_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info");
 	return p->getTowns()[serialId];
 }
 
 int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
 {
-	THROW_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
 	return getResource(*getPlayerID(), type);
 }
 
 TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 {
-	THROW_IF(!getPlayerID(), "Applicable only for player callbacks", TResources());
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
 	return gameState().players.at(*getPlayerID()).resources;
 }

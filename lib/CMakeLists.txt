@@ -501,6 +501,7 @@ set(lib_MAIN_HEADERS
 
 	callback/CAdventureAI.h
 	callback/Calendar.h
+	callback/CallbackDefines.h
 	callback/CBattleCallback.h
 	callback/CBattleGameInterface.h
 	callback/AIFactory.h

@@ -1855,7 +1855,7 @@ void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
                                       const PlayerColor & playerID,
                                       const std::shared_ptr<CCallback> & cc)
 {
-	foreach_tile_pos(*cc, [&](const int3 & pos)
+	foreach_visible_tile_pos(*cc, [&](const int3 & pos)
 	{
 		// TODO: Inspect what not visible means when using verbose true
 		for(const CGObjectInstance * obj : cc->getVisitableObjs(pos, false))

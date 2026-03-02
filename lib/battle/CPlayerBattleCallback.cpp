@@ -11,6 +11,7 @@
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
 #include "../gameState/InfoAboutArmy.h"
+#include "../callback/CallbackDefines.h"
 
 
 CPlayerBattleCallback::CPlayerBattleCallback(const IBattleInfo * battle, PlayerColor player):

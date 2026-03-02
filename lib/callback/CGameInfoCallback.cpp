@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
+#include "CallbackDefines.h"
+
 #include "../entities/building/CBuilding.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
@@ -36,8 +38,8 @@ const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
 int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
-	THROW_IF(!p, "No player info!", -1);
-	THROW_IF(p->resources.size() <= which.getNum() || which.getNum() < 0, "No such resource!", -1);
+	THROW_IF(!p, "No player info!");
+	THROW_IF(p->resources.size() <= which.getNum() || which.getNum() < 0, "No such resource!");
 	return p->resources[which];
 }
 
@@ -173,7 +175,7 @@ const scripting::Pool & CGameInfoCallback::getScriptContextPool() const
 
 int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
 {
-	THROW_IF(!canGetFullInfo(caster), "Cannot get info about caster!", -1);
+	THROW_IF(!canGetFullInfo(caster), "Cannot get info about caster!");
 	//if there is a battle
 	auto casterBattle = gameState().getBattle(caster->getOwner());
 
@@ -186,7 +188,7 @@ int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroIn
 
 int64_t CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const
 {
-	THROW_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!", -1);
+	THROW_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!");
 
 	if(hero) //we see hero's spellbook
 		return sp->calculateDamage(hero);
@@ -213,13 +215,13 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 {
-	THROW_IF(!hasAccess(Player), "Access forbidden!", -1);
+	THROW_IF(!hasAccess(Player), "Access forbidden!");
 	return static_cast<int>(gameState().players.at(Player).getTowns().size());
 }
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
 {
-	THROW_IF(getPlayerID().has_value() && !isVisibleFor(town, *getPlayerID()), "Town is not visible!", false);  //it's not a town or it's not visible for layer
+	THROW_IF(getPlayerID().has_value() && !isVisibleFor(town, *getPlayerID()), "Town is not visible!");  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
 	if(town->ID == Obj::TOWN)
@@ -242,13 +244,13 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 
 int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
 {
-	THROW_IF(!isVisible(pos), "Tile is not visible!", int3(-1,-1,-1));
+	THROW_IF(!isVisible(pos), "Tile is not visible!");
 	return gameState().getMap().guardingCreaturePositions[pos];
 }
 
 std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (int3 pos) const
 {
-	THROW_IF(!isVisible(pos), "Tile is not visible!", std::vector<const CGObjectInstance*>());
+	THROW_IF(!isVisible(pos), "Tile is not visible!");
 	std::vector<const CGObjectInstance*> ret;
 	for(auto * cr : gameState().guardingCreatures(pos))
 	{
@@ -266,7 +268,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(hero);
 
-	THROW_IF(!h, "That's not a hero!", false);
+	THROW_IF(!h, "That's not a hero!");
 
 	InfoAboutHero::EInfoLevel infoLevel = InfoAboutHero::EInfoLevel::BASIC;
 
@@ -280,7 +282,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 		if(ourBattle && ourBattle->playerHasAccessToHeroInfo(*getPlayerID(), h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
-			THROW_IF(!isVisible(h->visitablePos()), "That hero is not visible!", false);
+			THROW_IF(!isVisible(h->visitablePos()), "That hero is not visible!");
 	}
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
@@ -426,7 +428,7 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
-	THROW_IF(!t, "Not a valid tile requested!", ret);
+	THROW_IF(!t, "Not a valid tile requested!");
 
 	for(const auto & objID : t->blockingObjects)
 		ret.push_back(getObj(objID));
@@ -437,7 +439,7 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);
-	THROW_IF(!t, pos.toString() + " is not visible!", ret);
+	THROW_IF(!t, pos.toString() + " is not visible!");
 
 	for(const auto & objID : t->visitableObjects)
 	{
@@ -470,7 +472,7 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(in
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
-	THROW_IF(!t, "Not a valid tile requested!", ret);
+	THROW_IF(!t, "Not a valid tile requested!");
 	for(const auto & objectID : t->blockingObjects)
 	{
 		const auto * obj = getObj(objectID);
@@ -524,7 +526,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 
 EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID ) const
 {
-	THROW_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
+	THROW_IF(!canGetFullInfo(t), "Town is not owned!");
 
 	if(!t->getTown()->buildings.count(ID))
 		return EBuildingState::BUILDING_ERROR;
@@ -604,7 +606,8 @@ bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
 {
 	const PlayerState *ps = gameState().getPlayerState(player, verbose);
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!ps, verbose, "No such player!", EPlayerStatus::WRONG);
+	if (verbose)
+		THROW_IF(!ps, "No such player!");
 
 	return ps->status;
 }
@@ -656,7 +659,7 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 {
 	int ret = 0;
 	const PlayerState *p = gameState().getPlayerState(player);
-	THROW_IF(!p, "No such player!", -1);
+	THROW_IF(!p, "No such player!");
 
 	if(includeGarrisoned)
 		return static_cast<int>(p->getHeroes().size());
@@ -671,7 +674,7 @@ std::vector<const CGHeroInstance*> CGameInfoCallback::getHeroes(PlayerColor play
 {
 	std::vector<const CGHeroInstance*> ret;
 	const PlayerState *p = gameState().getPlayerState(player);
-	THROW_IF(!p, "No such player!", ret);
+	THROW_IF(!p, "No such player!");
 
 	for(const auto & hero : p->getHeroes())
 	{

@@ -16,6 +16,7 @@
 #include "GameLibrary.h"
 #include "IGameSettings.h"
 
+#include "../callback/CallbackDefines.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../entities/building/TownFortifications.h"
 #include "../gameState/InfoAboutArmy.h"

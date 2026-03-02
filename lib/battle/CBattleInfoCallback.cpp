@@ -19,6 +19,7 @@
 #include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../bonuses/BonusParameters.h"
+#include "../callback/CallbackDefines.h"
 #include "../entities/building/TownFortifications.h"
 #include "../GameLibrary.h"
 #include "../combatScripts/IDamageCalculatorScript.h"
