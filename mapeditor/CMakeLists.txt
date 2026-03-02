@@ -193,7 +193,6 @@ set(editor_TS
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/dutch.ts"
-	"${translationsDir}/english.ts"
 	"${translationsDir}/filipino.ts"
 	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"

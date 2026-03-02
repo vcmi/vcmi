@@ -1,6 +1,8 @@
 # VCMI Project
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
+[![Translation status](https://hosted.weblate.org/widget/vcmi/language-badge.svg)](https://hosted.weblate.org/engage/vcmi/)
+
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.0/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.0)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.1)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.2/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.2)
@@ -57,6 +59,10 @@ See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md
 ## Documentation and guidelines for translators
 
 - [Translations](translators/Translations.md)
+
+### Current translation status
+
+[![Translation status](https://hosted.weblate.org/widget/vcmi/multi-auto.svg)](https://hosted.weblate.org/engage/vcmi/)
 
 ## Documentation and guidelines for game modders
 
