@@ -4017,37 +4017,37 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="649"/>
         <source>Validation failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>验证失败！</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="654"/>
         <source>No player range defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>未定义玩家范围。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="661"/>
         <source>Invalid range for players.</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家范围无效。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="669"/>
         <source>Invalid range for human players.</source>
-        <translation type="unfinished"></translation>
+        <translation>人类玩家范围无效。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="684"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>连接引用了不存在的区域：%1 - %2</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="696"/>
         <source>Zone %1 has no connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>区域%1没有任何连接。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="720"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家%1必须有且只能有一个玩家起始区域（现有%2）。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="757"/>

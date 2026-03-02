@@ -1056,6 +1056,7 @@
 	"core.bonus.ENCHANTER.description": "{施法者}\n每回合群体施放${subtype.spell}",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{忽略攻击 (${val}%)}\n被攻击时，进攻方${val}%的攻击力将被无视。",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{忽略防御 (${val}%)}\n发动攻击时，防御方${val}%的防御力将被无视。",
+	"core.bonus.FEARFUL.description" : "{恐惧}\n受影响的单位有${val}%的几率因恐惧而无法行动，跳过其回合。",
 	"core.bonus.FEROCITY.description": "{凶猛追击}\n杀死任意生物后额外攻击${val}次",
 	"core.bonus.FIRE_SHIELD.description": "{烈火神盾 (${val}%)}\n反弹部分受到的近战伤害",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{抢先反击}\n该生物的反击将会在被近战攻击前进行",

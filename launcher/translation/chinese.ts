@@ -425,17 +425,17 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">提取错误！</translation>
+        <translation>提取错误！</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">所选的文件无效</translation>
+        <translation>所选的文件无效</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">您必须选择一个历代记安装文件！</translation>
+        <translation>您必须选择一个历代记安装文件！</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
@@ -477,12 +477,12 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>卸载模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>你确定要卸载%1？</translation>
     </message>
     <message>
         <source>%1 map(s) successfully imported.</source>
@@ -1523,17 +1523,17 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="100"/>
         <source>&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;</translation>
     </message>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="138"/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="176"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
 </context>
 <context>
@@ -1655,7 +1655,7 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>荷兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1665,7 +1665,7 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Filipino</source>
-        <translation type="unfinished"></translation>
+        <translation>菲律宾语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
@@ -1710,7 +1710,7 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>拉脱维亚语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
@@ -1740,7 +1740,7 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>塞尔维亚语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
