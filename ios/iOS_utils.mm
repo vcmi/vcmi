@@ -56,6 +56,15 @@ bool isOsVersionAtLeast(unsigned int osMajorVersion)
 	return NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= osMajorVersion;
 }
 
+bool isTestFlightInstalled()
+{
+	NSURL *testFlightUrl = [NSURL URLWithString:@"itms-beta://"];
+	if(testFlightUrl == nil)
+		return false;
+
+	return [UIApplication.sharedApplication canOpenURL:testFlightUrl];
+}
+
 void keepScreenOn(bool isEnabled)
 {
 	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;

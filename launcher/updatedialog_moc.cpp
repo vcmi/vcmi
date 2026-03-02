@@ -780,7 +780,7 @@ void UpdateDialog::on_installButton_clicked()
 		applySelectedTestingChannel(); // keep URL in sync with current dropdown choice
 
 #if defined(VCMI_IOS)
-	if(iOS_utils::isOsVersionAtLeast(16))
+	if(iOS_utils::isTestFlightInstalled() || iOS_utils::isOsVersionAtLeast(16))
 	{
 		QDesktopServices::openUrl(QUrl(QStringLiteral("https://testflight.apple.com/join/pJWHSbmu")));
 		return;
