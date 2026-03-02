@@ -2541,7 +2541,7 @@ Do you want to do that now ?</source>
         <location filename="../mapcontroller.cpp" line="649"/>
         <source> (submod of %1)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">(субмод моду %1)</translation>
+        <translation> -(вкладена модифікація %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="651"/>
@@ -2966,7 +2966,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/rewardswidget.ui" line="148"/>
         <source> days</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">днів</translation>
+        <translation> -днів</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="160"/>
@@ -3395,7 +3395,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="345"/>
         <source>Crossover heroes retain</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Зберігати при перенесенні героя:</translation>
+        <translation>При перенесенні герої зберігають</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="351"/>
@@ -3453,7 +3453,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="481"/>
         <source>Starting options are</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Початкові параметри:</translation>
+        <translation>Початкові параметри це</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="488"/>
