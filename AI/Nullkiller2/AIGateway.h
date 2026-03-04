@@ -31,7 +31,7 @@ namespace NK2AI
 class AIStatus
 {
 	AIGateway * aiGw;
-	std::mutex mx;
+	mutable std::mutex mx;
 	std::condition_variable cv;
 
 	BattleState battle;
@@ -42,6 +42,13 @@ class AIStatus
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
 	bool havingTurn;
+	bool resumeScheduled = false; // true if planning resume is already scheduled, so we do not queue it again from other events
+	std::vector<std::function<void()>> deferredCallbacks;
+
+	bool isReadyToContinueLocked() const;
+
+	// Fires queued callbacks if we're free; runs callbacks outside the lock.
+	void fireDeferredCallbacksIfReadyLocked(std::unique_lock<std::mutex> & lock);
 
 public:
 	AIStatus(AIGateway * aiGw);
@@ -56,7 +63,20 @@ public:
 	int getQueriesCount();
 	void startedTurn();
 	void madeTurn();
-	void waitTillFree();
+	bool isResumeScheduled() const;
+
+	// Returns false if planning resume is already scheduled
+	bool trySchedulePlanningResume();
+
+	// Clears the scheduled flag after makeTurn finishes
+	void markMakeTurnDone();
+
+	// Returns true if AI is currently free of tasks (no need to defer)
+	bool isReadyToContinue() const;
+
+	// Schedules cb to run once the AI becomes "free" (no battle/queries/visits/movement).
+	void whenReadyToContinue(std::function<void()> callback);
+
 	bool haveTurn();
 	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
@@ -157,6 +177,16 @@ public:
 
 	void makeTurn();
 
+	// Defers callback execution until AI is ready to continue again.
+	// The callback is executed first; if AI still has turn afterwards, planning resume is scheduled.
+	void deferUntilReadyToContinue(std::function<void()> callback);
+
+	// Schedules AI planning to resume now if possible or once AI becomes ready to continue.
+	void requestPlanningResume();
+
+	// Schedules AI planning to resume once it is ready to continue
+	void schedulePlanningResume();
+
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
 
@@ -172,7 +202,6 @@ public:
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	void lostHero(const HeroPtr & heroPtr) const; //should remove all references to hero (assigned tasks and so on)
-	void waitTillFree();
 
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
@@ -191,6 +220,9 @@ public:
 	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cc);
 
 	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
+
+private:
+	std::atomic_bool shuttingDown = false;
 };
 
 }

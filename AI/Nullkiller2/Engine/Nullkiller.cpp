@@ -512,13 +512,21 @@ void Nullkiller::makeTurn()
 			}
 			else
 			{
-				if(!executeTask(selectedTask))
+				switch(executeTask(selectedTask))
 				{
-					if(hasAnySuccess)
+					case TaskStatus::Done:
+						hasAnySuccess = true;
 						break;
-					return;
+
+					case TaskStatus::Deferred:
+						throw deferExecutionException();
+						break;
+
+					case TaskStatus::Failed:
+						if(hasAnySuccess)
+							break;
+						return;
 				}
-				hasAnySuccess = true;
 			}
 		}
 
@@ -565,10 +573,20 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 			{
 				logAi->error("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
-			else if(!executeTask(bestPrioPassTask))
+			else
 			{
-				logAi->warn("Task failed to execute");
-				return false;
+				switch(executeTask(bestPrioPassTask))
+				{
+					case TaskStatus::Done:
+						break;
+
+					case TaskStatus::Deferred:
+						throw deferExecutionException();
+
+					case TaskStatus::Failed:
+						logAi->warn("Task failed to execute");
+						return false;
+				}
 			}
 
 			updateState();
@@ -610,7 +628,7 @@ HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 	return heroRole;
 }
 
-bool Nullkiller::executeTask(const Goals::TTask & task) const
+TaskStatus Nullkiller::executeTask(const Goals::TTask & task) const
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
@@ -621,20 +639,27 @@ bool Nullkiller::executeTask(const Goals::TTask & task) const
 	try
 	{
 		task->accept(aiGw);
+		if(!aiGw->status.isReadyToContinue())
+		{
+			logAi->debug("Task %s deferred due to pending blocking state", taskDescr);
+			aiGw->requestPlanningResume();
+			return TaskStatus::Deferred;
+		}
+
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
+		return TaskStatus::Done;
 	}
 	catch(goalFulfilledException &)
 	{
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
+		return TaskStatus::Done;
 	}
 	catch(cannotFulfillGoalException & e)
 	{
 		logAi->error("Failed to realize subgoal of type %s, I will stop.", taskDescr);
 		logAi->error("The error message was: %s", e.what());
-		return false;
+		return TaskStatus::Failed;
 	}
-
-	return true;
 }
 
 TResources Nullkiller::getFreeResources() const
