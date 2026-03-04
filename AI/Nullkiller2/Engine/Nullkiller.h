@@ -78,6 +78,13 @@ enum class TaskFailureAction
 
 TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
 
+enum class TaskStatus : uint8_t
+{
+	Done,
+	Failed,
+	Deferred
+};
+
 class Nullkiller
 {
 private:
@@ -160,7 +167,7 @@ private:
 		Goals::TGoalVec & tasks,
 		const EvaluationContextMap & evaluationContexts,
 		int priorityTier) const;
-	bool executeTask(const Goals::TTask & task);
+	TaskStatus executeTask(const Goals::TTask & task);
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
