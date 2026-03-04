@@ -191,6 +191,15 @@ namespace Goals
 	};
 }
 
+class deferExecutionException : public std::exception
+{
+	public:
+	const char * what() const noexcept override
+	{
+		return "Deferred execution (waiting for queries/battle/movement/visit)";
+	}
+};
+
 class cannotFulfillGoalException : public std::exception
 {
 	std::string msg;

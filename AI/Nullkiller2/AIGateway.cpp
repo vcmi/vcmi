@@ -35,12 +35,12 @@
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
+#include "ScopeGuard.h"
 
 namespace NK2AI
 {
 
 AIGateway::AIGateway()
-	:status(this)
 {
 	LOG_TRACE(logAi);
 	destinationTeleport = ObjectInstanceID();
@@ -531,12 +531,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterruption.reset();
 
-	asyncTasks->run([this]()
-	{
-		ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
-		status.waitTillFree();
-		makeTurn();
-	});
+	schedulePlanningResume();
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -796,6 +791,11 @@ void AIGateway::makeTurn()
 
 		endTurn();
 	}
+	catch (const deferExecutionException &)
+	{
+		logAi->debug("NK2 makeTurn deferred due to pending blocking state; will resume when free.");
+		return;
+	}
 	catch (const InterruptionRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
@@ -1012,12 +1012,6 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	}
 }
 
-void AIGateway::waitTillFree()
-{
-	auto unlock = vstd::makeUnlockSharedGuard(CGameState::mutex);
-	status.waitTillFree();
-}
-
 std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
@@ -1045,7 +1039,25 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 	auto afterMovementCheck = [&]() -> void
 	{
-		waitTillFree(); //movement may cause battle or blocking dialog
+		if(!status.isReadyToContinue())
+		{
+			deferUntilReadyToContinue([this, heroPtr]()
+			{
+				if(!heroPtr.isVerified())
+				{
+					lostHero(heroPtr);
+					teleportChannelProbingList.clear();
+					if(status.channelProbing())
+						status.setChannelProbing(false);
+
+					logAi->warn("Hero was lost after movement (deferred check).");
+				}
+			});
+
+			// ensure planner resumes after dialog/battle
+			throw deferExecutionException();
+		}
+
 		if(!heroPtr.isVerified())
 		{
 			lostHero(heroPtr);
@@ -1348,6 +1360,8 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
+	shuttingDown = true;
+
 	nullkiller->makingTurnInterruption.interruptThread();
 
 	if (asyncTasks)
@@ -1427,8 +1441,7 @@ void AIGateway::validateObject(ObjectIdRef obj)
 	}
 }
 
-AIStatus::AIStatus(AIGateway * aiGw)
-	: aiGw(aiGw)
+AIStatus::AIStatus()
 {
 	battle = NO_BATTLE;
 	havingTurn = false;
@@ -1436,17 +1449,12 @@ AIStatus::AIStatus(AIGateway * aiGw)
 	ongoingChannelProbing = false;
 }
 
-AIStatus::~AIStatus()
-{
-
-}
-
 void AIStatus::setBattle(BattleState BS)
 {
 	std::unique_lock<std::mutex> lock(mx);
 	LOG_TRACE_PARAMS(logAi, "battle state=%d", (int)BS);
 	battle = BS;
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 BattleState AIStatus::getBattle()
@@ -1470,19 +1478,26 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 
 	remainingQueries[ID] = description;
 
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
+
 	logAi->debug("Adding query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
 }
 
 void AIStatus::removeQuery(QueryID ID)
 {
-	assert(vstd::contains(remainingQueries, ID));
+	std::string description;
 
-	std::string description = remainingQueries[ID];
-	remainingQueries.erase(ID);
+	{
+		std::unique_lock<std::mutex> lock(mx);
+		assert(vstd::contains(remainingQueries, ID));
 
-	cv.notify_all();
-	logAi->debug("Removing query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
+		description = remainingQueries[ID];
+		remainingQueries.erase(ID);
+
+		fireDeferredCallbacksIfReadyLocked(lock);
+
+		logAi->debug("Removing query %d - %s. Total queries count: %d", ID.getNum(), description.c_str(), (int)remainingQueries.size());
+	}
 }
 
 int AIStatus::getQueriesCount()
@@ -1495,30 +1510,27 @@ void AIStatus::startedTurn()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = true;
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 void AIStatus::madeTurn()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = false;
-	cv.notify_all();
-}
-
-void AIStatus::waitTillFree()
-{
-	std::unique_lock<std::mutex> lock(mx);
-	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-	{
-		cv.wait_for(lock, std::chrono::milliseconds(10));
-		aiGw->nullkiller->makingTurnInterruption.interruptionPoint();
-	}
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 bool AIStatus::haveTurn()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	return havingTurn;
+}
+
+void AIStatus::markTaskDone()
+{
+	std::unique_lock<std::mutex> lock(mx);
+	taskScheduled = false;
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
@@ -1532,19 +1544,44 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 
 void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 {
-	std::unique_lock<std::mutex> lock(mx);
-	assert(vstd::contains(requestToQueryID, answerRequestID));
-	QueryID query = requestToQueryID[answerRequestID];
-	assert(vstd::contains(remainingQueries, query));
-	requestToQueryID.erase(answerRequestID);
+	QueryID queryID;
+	std::string description;
+
+	{
+		std::unique_lock<std::mutex> lock(mx);
+
+		auto requestIt = requestToQueryID.find(answerRequestID);
+		assert(requestIt != requestToQueryID.end());
+		if(requestIt == requestToQueryID.end())
+		{
+			logGlobal->error("Received answer confirmation for unknown request id=%d, result=%d",
+				answerRequestID, result);
+			return;
+		}
+
+		queryID = requestIt->second;
+		requestToQueryID.erase(requestIt);
+
+		auto queryIt = remainingQueries.find(queryID);
+		assert(queryIt != remainingQueries.end());
+		if(queryIt == remainingQueries.end())
+		{
+			logGlobal->error("Received answer confirmation for request id=%d mapped to unknown query id=%d, result=%d",
+				answerRequestID, queryID.getNum(), result);
+			return;
+		}
+
+		description = queryIt->second;
+	}
 
 	if(result)
 	{
-		removeQuery(query);
+		removeQuery(queryID);
 	}
 	else
 	{
-		logAi->error("Something went really wrong, failed to answer query %d : %s", query.getNum(), remainingQueries[query]);
+		logAi->error("Answer confirmation treated as failure for query %d : %s",
+			queryID.getNum(), description.c_str());
 		//TODO safely retry
 	}
 }
@@ -1564,7 +1601,7 @@ void AIStatus::heroVisit(const CGObjectInstance * obj, bool started)
 		assert(!objectsBeingVisited.empty());
 		objectsBeingVisited.pop_back();
 	}
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 ObjectInstanceID AIStatus::getCurrentVisitedObject()
@@ -1577,18 +1614,19 @@ void AIStatus::setMove(bool ongoing)
 {
 	std::unique_lock<std::mutex> lock(mx);
 	ongoingHeroMovement = ongoing;
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 void AIStatus::setChannelProbing(bool ongoing)
 {
 	std::unique_lock<std::mutex> lock(mx);
 	ongoingChannelProbing = ongoing;
-	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 bool AIStatus::channelProbing()
 {
+	std::unique_lock<std::mutex> lock(mx);
 	return ongoingChannelProbing;
 }
 
@@ -1835,6 +1873,144 @@ void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const C
 
 	if(other)
 		equipBest(h, other, false);
+}
+
+bool AIStatus::isReadyToContinueLocked() const
+{
+	return battle == NO_BATTLE && remainingQueries.empty() && objectsBeingVisited.empty() && !ongoingHeroMovement;
+}
+
+void AIStatus::fireDeferredCallbacksIfReadyLocked(std::unique_lock<std::mutex> & lock)
+{
+	if(!isReadyToContinueLocked() || taskScheduled)
+		return;
+
+	std::function<void()> callback;
+	if(!deferredCallbacks.empty())
+	{
+		logAi->trace("Executing deferred AI continuation; %zu queued", deferredCallbacks.size());
+		callback = std::move(deferredCallbacks.front());
+		deferredCallbacks.erase(deferredCallbacks.begin());
+	}
+	else if(deferredPlanning)
+	{
+		callback = std::move(deferredPlanning);
+		deferredPlanning = {};
+	}
+	else
+		return;
+
+	taskScheduled = true;
+
+	lock.unlock();
+	callback();
+	lock.lock();
+}
+
+void AIStatus::whenReadyToContinue(std::function<void()> callback)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	deferredCallbacks.push_back(std::move(callback));
+	fireDeferredCallbacksIfReadyLocked(lock);
+}
+
+void AIStatus::whenReadyToPlan(std::function<void()> callback)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	if(!deferredPlanning)
+		deferredPlanning = std::move(callback);
+	fireDeferredCallbacksIfReadyLocked(lock);
+}
+
+bool AIStatus::isReadyToContinue() const
+{
+	std::unique_lock<std::mutex> lock(mx);
+	return isReadyToContinueLocked();
+}
+
+void AIGateway::schedulePlanningResume()
+{
+	if(shuttingDown || !status.haveTurn())
+		return;
+
+	status.whenReadyToPlan(
+		[this]()
+		{
+			if(shuttingDown || !status.haveTurn())
+			{
+				status.markTaskDone();
+				return;
+			}
+
+			if(!asyncTasks)
+			{
+				logAi->warn("Unable to resume AI planning: executor is unavailable");
+
+				status.markTaskDone();
+				return;
+			}
+			asyncTasks->run(
+				[this]()
+				{
+					ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
+					auto onExit = vstd::makeScopeGuard([this](){ status.markTaskDone(); });
+					makeTurn();
+				}
+			);
+		}
+	);
+}
+
+void AIGateway::deferUntilReadyToContinue(std::function<void()> callback)
+{
+	status.whenReadyToContinue(
+		[this, callback = std::move(callback)]() mutable
+		{
+			if(shuttingDown || !status.haveTurn() || !asyncTasks)
+			{
+				status.markTaskDone();
+				return;
+			}
+
+			asyncTasks->run([this, callback = std::move(callback)]()
+			{
+				ScopedThreadName guard("NK2AI::AIGateway::deferredContinuation");
+				auto onExit = vstd::makeScopeGuard([this](){ status.markTaskDone(); });
+				std::shared_lock gsLock(CGameState::mutex);
+				try
+				{
+					callback();
+				}
+				catch(const deferExecutionException &)
+				{
+					return;
+				}
+				catch(const InterruptionRequestedException &)
+				{
+					return;
+				}
+				catch(const TerminationRequestedException &)
+				{
+					return;
+				}
+				catch(const std::exception & e)
+				{
+					logAi->error("Deferred continuation failed: %s", e.what());
+				}
+
+				if(status.haveTurn())
+					schedulePlanningResume();
+			});
+		}
+	);
+}
+
+void AIGateway::requestPlanningResume()
+{
+	if(!status.haveTurn())
+		return;
+
+	schedulePlanningResume();
 }
 
 }

@@ -14,6 +14,7 @@
 #include "../../../lib/spells/Problem.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../../../lib/spells/CSpell.h"
+#include "../../../lib/ScopeGuard.h"
 
 namespace NK2AI
 {
@@ -74,15 +75,23 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	const auto wait = aiGw->cc->waitTillRealize;
 	aiGw->cc->waitTillRealize = true;
 	aiGw->cc->castSpell(hero, spellID, tile);
-	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up queries.
 
-	if(town && townPortalEffect)
+	const bool visitTown = town && townPortalEffect;
+	const auto destination = visitTown ? town->visitablePos() : int3(-1);
+	auto continueAfterCast = [aiGw, heroPtr = HeroPtr(hero, aiGw->cc.get()), destination, visitTown, wait]()
 	{
-		// visit town
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		auto restoreWait = vstd::makeScopeGuard([aiGw, wait](){ aiGw->cc->waitTillRealize = wait; });
+		if(visitTown)
+			aiGw->moveHeroToTile(destination, heroPtr);
+	};
+
+	if(!aiGw->status.isReadyToContinue())
+	{
+		aiGw->deferUntilReadyToContinue(continueAfterCast);
+		throw deferExecutionException();
 	}
 
-	aiGw->cc->waitTillRealize = wait;
+	continueAfterCast();
 	throw goalFulfilledException(sptr(*this));
 }
 
