@@ -57,7 +57,7 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="159"/>
         <source>VCMI Campaign Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI Kampanya Editörü</translation>
+        <translation>VCMI Senaryo Editörü</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
