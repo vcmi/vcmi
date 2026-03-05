@@ -90,55 +90,55 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
         <source>Export logs</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Eksportuj logi</translation>
+        <translation>Eksportuj logi</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Save logs</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zapisz logi</translation>
+        <translation>Zapisz logi</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="170"/>
         <source>Zip archives (*.zip)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Archiwa ZIP (*.zip)</translation>
+        <translation>Archiwa ZIP (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Error</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Błąd</translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="272"/>
         <source>Failed to create archive: %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nie udało się utworzyć archiwum: %1</translation>
+        <translation>Nie udało się utworzyć archiwum: %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>Send logs</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wyślij logi</translation>
+        <translation>Wyślij logi</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="277"/>
         <source>The archive will be sent via another application. Share your logs e.g. over discord to developers.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Archiwum zostanie wysłane przez inną aplikację. Udostępnij logi, np. przez Discord, deweloperom.</translation>
+        <translation>Archiwum zostanie wysłane przez inną aplikację. Udostępnij logi, np. przez Discord, deweloperom.</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Success</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Sukces</translation>
+        <translation>Sukces</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="281"/>
         <source>Logs saved to %1, please send them to the developers</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Logi zapisano w %1, proszę wyślij je do deweloperów</translation>
+        <translation>Logi zapisano w %1, proszę wyślij je do deweloperów</translation>
     </message>
 </context>
 <context>
@@ -311,13 +311,13 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="357"/>
         <source>Git-Repository</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Repozytorium Git</translation>
+        <translation>Repozytorium Git</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>GitHub-Stars</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Gwiazdy GitHub</translation>
+        <translation>Gwiazdy GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="379"/>
@@ -421,7 +421,9 @@ Zainstalować pomyślnie pobrane?</translation>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się zainstalować pliku %1.
+Powód: %2.
+Proszę zgłoś ten problem deweloperom</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1055"/>
@@ -431,12 +433,12 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Błąd wypakowywania!</translation>
+        <translation>Błąd wypakowywania!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Wybrano nieprawidłowy plik</translation>
+        <translation>Wybrano nieprawidłowy plik</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
@@ -477,21 +479,21 @@ Please report this issue to developers</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>%n map(s) successfully imported.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-            <numerusform>%n map(y) zaimportowano pomyślnie.</numerusform>
-            <numerusform>%n map(y) zaimportowano pomyślnie.</numerusform>
-            <numerusform>%n map(y) zaimportowano pomyślnie.</numerusform>
+        <translation>
+            <numerusform>%n mapa zaimportowana pomyślnie.</numerusform>
+            <numerusform>%n mapy zaimportowano pomyślnie.</numerusform>
+            <numerusform>%n mapy zaimportowano pomyślnie.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Odinstaluj mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Jesteś pewien, że chcesz odinstalować %1?</translation>
     </message>
     <message>
         <source>%1 map(s) successfully imported.</source>
@@ -738,7 +740,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="564"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż status na Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="656"/>
@@ -763,7 +765,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1514"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapis przed wejściem</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="793"/>
@@ -969,37 +971,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../settingsView/csettingsview_moc.cpp" line="124"/>
         <source>StupidAI (deprecated)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">StupidAI (przestarzałe)</translation>
+        <translation>StupidAI (przestarzałe)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>BattleAI (default, recommended)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">BattleAI (domyślne, zalecane)</translation>
+        <translation>BattleAI (domyślne, zalecane)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="132"/>
         <source>MMAI (experimental)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">MMAI (eksperymentalne)</translation>
+        <translation>MMAI (eksperymentalne)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller (zastąpione przez Nullkiller2)</translation>
+        <translation>Nullkiller (zastąpione przez Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="149"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nullkiller2 (domyślne, zalecane)</translation>
+        <translation>Nullkiller2 (domyślne, zalecane)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">EmptyAI - Nie znaleziono prawidłowych bibliotek AI!</translation>
+        <translation>EmptyAI - Nie znaleziono prawidłowych bibliotek AI!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="672"/>
@@ -1144,7 +1146,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Możesz ręcznie skopiować foldery Maps, Data i Mp3 z katalogu oryginalnej gry, do katalogu danych VCMI, wskazanego poniżej</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1183,7 +1185,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj rekomendowane mody VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
@@ -1198,7 +1200,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
@@ -1208,17 +1210,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozbudowane rozszerzenie, które wzbogaca rozgrywkę o jedną alternatywną jednostkę dla każdego z 9 standardowych miast, a także dodaje nowe neutralne stworzenia, banki stworzeń, umiejętności i zaklęcia</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zejdź do podziemnego królestwa i odkryj Casemate — nową frakcję stworzoną dla VCMI, w której grzyby, kamienna i runiczna magia czyhają w ciemności</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;Wykryto pliki demo Heroes III. Mod jest wymagany do użycia zasobów dema w VCMI, w przeciwnym razie gra przestanie działać.&quot;</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1228,17 +1230,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Teatry Wojny</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Upadli z Głębin</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wsparcie dema</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1428,41 +1430,42 @@ Proszę wybrać folder z zainstalowanymi danymi Heroes III.</translation>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="394"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Musisz wybrać plik %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wybrano nieznany instalator.
+Musisz wybrać instalator GOG offline.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="388"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Wybrałeś instalator GOG Galaxy. Ten plik nie zawiera gry. Zamiast tego pobierz offline backup game installer.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz instalator GOG offline (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="426"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="619"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Wybrano nieprawidłowy plik</translation>
+        <translation>Wybrano nieprawidłowy plik</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="433"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik danych instalatora GOG offline: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="632"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieprawidłowy plik danych</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
@@ -1474,17 +1477,17 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="548"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importowanie danych Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="581"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Przygotowanie instalatora...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="641"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyodrębnianie instalatora...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
@@ -1494,7 +1497,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="698"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skanowanie wybranego folderu...</translation>
     </message>
 </context>
 <context>
@@ -1503,19 +1506,19 @@ You need to select the offline GOG installer.</source>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wybierz katalog z HD Edition (folder Steam)</translation>
+        <translation>Wybierz katalog z HD Edition (folder Steam)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nieprawidłowy folder</translation>
+        <translation>Nieprawidłowy katalog</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wybrany folder nie zawiera HOMM3 2.0.exe! Wybierz folder instalacyjny HD Edition.</translation>
+        <translation>Wybrany folder nie zawiera pliku HOMM3 2.0.exe! Wybierz folder instalacyjny HD Edition.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
@@ -1527,7 +1530,7 @@ You need to select the offline GOG installer.</source>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Usuń moda i spróbuj ponownie! Nie udało się skopiować pliku %1 do %2</translation>
+        <translation>Usuń moda i spróbuj ponownie! Nie udało się skopiować pliku %1 do %2</translation>
     </message>
 </context>
 <context>
