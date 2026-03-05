@@ -422,17 +422,17 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Помилка видобування!</translation>
+        <translation>Помилка видобування!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Обрано невірний файл</translation>
+        <translation>Обрано невірний файл</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">Вам необхідно вибрати інсталяційний файл Heroes Chronicles!</translation>
+        <translation>Вам необхідно вибрати інсталяційний файл Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
@@ -476,12 +476,12 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити модифікацію</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ви впевнені, що ви хочете видалити %1?</translation>
     </message>
     <message>
         <source>%1 map(s) successfully imported.</source>
@@ -1418,7 +1418,6 @@ Please select the directory with installed Heroes III data.</source>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>Вибрано невідомий інсталятор.
-
 Вам потрібно вибрати офлайн-інсталятор GOG.</translation>
     </message>
     <message>
@@ -1664,7 +1663,7 @@ Bin (%n байтів):
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>Нідерландська</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1674,7 +1673,7 @@ Bin (%n байтів):
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Filipino</source>
-        <translation type="unfinished"></translation>
+        <translation>Філіппінки</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
@@ -1719,7 +1718,7 @@ Bin (%n байтів):
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>Латвійська</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
@@ -1749,7 +1748,7 @@ Bin (%n байтів):
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>Сербська</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
