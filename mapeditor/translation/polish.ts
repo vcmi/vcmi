@@ -80,7 +80,7 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
         <source>Open Campaignset</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otwórz zestaw kampanii</translation>
+        <translation>Otwórz zestaw kampanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
@@ -149,17 +149,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się otworzyć kampanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Walidacja nie powiodła się</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampania nie ma zdefiniowanych map.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
@@ -175,25 +175,25 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open Campaign set</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otwórz zestaw kampanii</translation>
+        <translation>Otwórz zestaw kampanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Select Campaign set</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wybierz zestaw kampanii</translation>
+        <translation>Wybierz zestaw kampanii</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Open Campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otwórz kampanię</translation>
+        <translation>Otwórz kampanię</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Select Campaign</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wybierz kampanię</translation>
+        <translation>Wybierz kampanię</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
@@ -967,7 +967,7 @@
         <location filename="../mainwindow.ui" line="1254"/>
         <location filename="../mainwindow.cpp" line="1413"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz typ warstwy mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
@@ -1191,7 +1191,7 @@
         <location filename="../mainwindow.cpp" line="453"/>
         <location filename="../mainwindow.cpp" line="1430"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Poziom %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
@@ -1391,7 +1391,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1469"/>
