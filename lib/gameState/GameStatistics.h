@@ -18,6 +18,7 @@ class PlayerState;
 class CGameState;
 class CGHeroInstance;
 class CGMine;
+struct TeamState;
 
 struct DLL_LINKAGE StatisticDataSetEntry
 {
@@ -143,8 +144,16 @@ public:
 		}
 	};
 	std::vector<StatisticDataSetEntry> data;
+
+	PlayerAccumulatedValueStorage & getPlayerAccumulator(PlayerColor player);
+	const PlayerAccumulatedValueStorage & getPlayerAccumulator(PlayerColor player) const;
+
+	void filterByTeam(const TeamState * team);
+
+private:
 	std::map<PlayerColor, PlayerAccumulatedValueStorage> accumulatedValues;
 
+public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & data;

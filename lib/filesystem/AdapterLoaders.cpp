@@ -121,7 +121,7 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 	return paths;
 }
 
-void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
+void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter)
 {
 	for(const auto & loader : loaders)
 		loader->updateFilteredFiles(filter);

@@ -38,10 +38,11 @@ set(test_SRCS
 		game/CGameStateTest.cpp
 		game/HeroRecruitmentTest.cpp
 
+		json/JsonTests.cpp
+
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/MapComparer.cpp
-
 
 		netpacks/NetPackFixture.cpp
 

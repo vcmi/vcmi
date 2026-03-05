@@ -140,7 +140,10 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 		totalCostValue->set(card->creature->getFullRecruitCost() * maxAmount);
 
 		//Recruit %s
-		title->setText(boost::str(boost::format(LIBRARY->generaltexth->tcommands[21]) % card->creature->getNamePluralTranslated()));
+		MetaString recruitText;
+		recruitText.appendTextID("core.tcommand.21");
+		recruitText.replaceNamePlural(card->creature->getId());
+		title->setText(recruitText.toString());
 
 		maxButton->block(maxAmount == 0);
 		slider->block(maxAmount == 0);

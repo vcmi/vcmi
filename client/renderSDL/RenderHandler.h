@@ -78,7 +78,4 @@ public:
 
 	std::shared_ptr<AssetGenerator> getAssetGenerator() override;
 	void updateGeneratedAssets() override;
-	
-	/// Preload all animation files asynchronously to fill the cache
-	void preloadAnimationsAsync();
 };

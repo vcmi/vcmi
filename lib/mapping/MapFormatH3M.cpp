@@ -45,6 +45,8 @@
 #include "../spells/CSpellHandler.h"
 #include "../texts/TextOperations.h"
 #include "entities/hero/CHeroClass.h"
+#include "modding/CModHandler.h"
+#include "modding/ModDescription.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -178,6 +180,14 @@ void CMapLoaderH3M::readHeader()
 			if(unknown != 0)
 				logGlobal->warn("Map '%s': Unknown value in header was set to %d!", mapName, unknown);
 		}
+
+		if(features.levelHOTA9)
+		{
+			// MOD COMPATIBILITY TODO: should be moved to hota mod for future versions
+			if (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1,8,0))
+				throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
+		}
+
 	}
 	else
 	{

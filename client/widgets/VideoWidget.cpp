@@ -183,10 +183,11 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 		{
 			videoInstance.reset();
 			stopAudio();
-			onPlaybackFinished();
-			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 			if(playBackFinishedCallback)
 				playBackFinishedCallback();
+
+			onPlaybackFinished();
+			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 		}
 	}
 }

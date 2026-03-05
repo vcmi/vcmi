@@ -29,6 +29,8 @@ private:
 
 	BattleInterface & owner;
 
+	static void changeSelectedSpell(int index, SpellID newSpell);
+
 public:
 	static constexpr int QUICKSPELL_SLOTS = 12;
 

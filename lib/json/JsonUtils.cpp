@@ -356,6 +356,9 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 
 void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName)
 {
+	assert(!left.getModScope().empty());
+	assert(!right.getModScope().empty());
+
 	switch (left.getType())
 	{
 		case JsonNode::JsonType::DATA_NULL:
@@ -364,7 +367,7 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 		case JsonNode::JsonType::DATA_INTEGER:
 		case JsonNode::JsonType::DATA_STRING:
 		{
-			result[keyName][left.getModScope()] = left;
+			//result[keyName][left.getModScope()] = left;
 			result[keyName][right.getModScope()] = right;
 			return;
 		}
@@ -377,7 +380,7 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 					if (boost::algorithm::starts_with(node.first, "modify@"))
 					{
 						constexpr int numberPosition = std::char_traits<char>::length("modify@");
-						auto index = getIndexSafe(node.second, node.first.substr(numberPosition));
+						auto index = getIndexSafe(left, node.first.substr(numberPosition));
 						if (index)
 							detectConflicts(result, left[*index], node.second, keyName + "/" + node.first.substr(numberPosition));
 					}
@@ -386,7 +389,7 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 			else
 			{
 				// NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
-				result[keyName][left.getModScope()] = left;
+			//	result[keyName][left.getModScope()] = left;
 				result[keyName][right.getModScope()] = right;
 			}
 			return;

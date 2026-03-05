@@ -4029,7 +4029,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="598"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="637"/>
         <source>VCMI Template Editor</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI Mallieditori</translation>
@@ -4063,7 +4063,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1325"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="226"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="265"/>
         <source>Add</source>
         <translation>Lisää</translation>
     </message>
@@ -4148,15 +4148,15 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="364"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="403"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
         <source>None</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ei mitään</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <source>Normal</source>
         <translation>Normaali</translation>
     </message>
@@ -4227,7 +4227,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Type</source>
         <translation>Tyyppi</translation>
     </message>
@@ -4279,7 +4279,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
         <location filename="../templateeditor/templateeditor.ui" line="785"/>
         <location filename="../templateeditor/templateeditor.ui" line="1229"/>
         <location filename="../templateeditor/templateeditor.ui" line="1235"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
         <source>Treasure</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Aarre</translation>
@@ -4445,7 +4445,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1389"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="466"/>
         <source>Del</source>
         <translation>Del</translation>
     </message>
@@ -4503,172 +4503,172 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Min</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Max</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Maks</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Action</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Toiminto</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="215"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="467"/>
         <source>Delete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Poista</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="293"/>
         <source>ID: %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">ID: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="256"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="295"/>
         <source>Max treasure: %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Maks. aarre: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="376"/>
         <source>Player start</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Pelaajan aloitus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="338"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
         <source>CPU start</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">CPU-aloitus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="340"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
         <source>Junction</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Liittymäkohta</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="341"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Water</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vesi</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="342"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
         <source>Sealed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sinetöity</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Automatic</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Automaattinen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>Surface</source>
         <translation>Pinta</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
         <source>Underground</source>
         <translation>Maanalainen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="415"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
         <source>Random</source>
         <translation>Satunnainen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Weak</source>
         <translation>Heikko</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Strong</source>
         <translation>Vahva</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone A</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vyöhyke A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone B</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vyöhyke B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Guard</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vartio</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Road</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tie</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="449"/>
         <source>Guarded</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vartioitu</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="411"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="450"/>
         <source>Fictive</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Fiktiivinen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="412"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="451"/>
         <source>Repulsive</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Hylkivä</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="413"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="452"/>
         <source>Wide</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Leveä</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="414"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Force portal</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Pakota portaali</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Yes</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Kyllä</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="456"/>
         <source>No</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ei</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="526"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="565"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
@@ -4678,73 +4678,108 @@ Vyöhyke B: %2
 Vartio: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Confirmation</source>
         <translation>Vahvistus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Tallentamattomat muutokset menetetään,oletko varma?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="630"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="649"/>
+        <source>Validation failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="654"/>
+        <source>No player range defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="661"/>
+        <source>Invalid range for players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="669"/>
+        <source>Invalid range for human players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="684"/>
+        <source>Connection references non-existing zone(s): %1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="696"/>
+        <source>Zone %1 has no connections.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="720"/>
+        <source>Player %1 must have exactly one player start zone (found %2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="757"/>
         <source>Open template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Avaa malli</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="632"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="759"/>
         <source>VCMI templates(*.json)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-mallit (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>Save template</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tallenna malli</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>VCMI templates (*.json)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI-mallit (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Enter Name</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Anna nimi</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Name:</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Nimi:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>Already existing!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">On jo olemassa!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>A template with this name is already existing.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tämänniminen malli on jo olemassa.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>To few templates!</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Liian vähän malleja!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>At least one template should remain after removing.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Poistamisen jälkeen tulee jäädä vähintään yksi malli.</translation>

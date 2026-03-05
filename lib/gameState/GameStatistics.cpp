@@ -34,6 +34,36 @@ void StatisticDataSet::add(StatisticDataSetEntry entry)
 	data.push_back(entry);
 }
 
+StatisticDataSet::PlayerAccumulatedValueStorage & StatisticDataSet::getPlayerAccumulator(PlayerColor player)
+{
+	if(!player.isValidPlayer())
+		throw std::runtime_error("Invalid player color " + std::to_string(player.getNum()) + " for statistics accumulator");
+	return accumulatedValues[player];
+}
+
+const StatisticDataSet::PlayerAccumulatedValueStorage & StatisticDataSet::getPlayerAccumulator(PlayerColor player) const
+{
+	if(!player.isValidPlayer())
+		throw std::runtime_error("Invalid player color " + std::to_string(player.getNum()) + " for statistics accumulator");
+	auto it = accumulatedValues.find(player);
+	if(it == accumulatedValues.end())
+		throw std::runtime_error("No statistics accumulator found for player " + std::to_string(player.getNum()));
+	return it->second;
+}
+
+void StatisticDataSet::filterByTeam(const TeamState * team)
+{
+	for(auto it = accumulatedValues.begin(); it != accumulatedValues.end();) {
+		if (std::find(team->players.begin(), team->players.end(), it->first) == team->players.end())
+			it = accumulatedValues.erase(it);
+		else
+			++it;
+	}
+	data.erase(std::remove_if(data.begin(), data.end(), [&team](const StatisticDataSetEntry& entry) {
+		return std::find(team->players.begin(), team->players.end(), entry.player) == team->players.end();
+	}), data.end());
+}
+
 StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData)
 {
 	StatisticDataSetEntry data;

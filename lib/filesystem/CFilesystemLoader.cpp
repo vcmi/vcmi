@@ -34,7 +34,9 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem:
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resourceName) const
 {
-	assert(fileList.count(resourceName));
+	std::lock_guard lock(fileListGuard);
+
+	assert(fileList.contains(resourceName));
 	boost::filesystem::path file = baseDirectory / fileList.at(resourceName);
 	logGlobal->trace("loading %s", file.string());
 	return std::make_unique<CFileInputStream>(file);
@@ -42,7 +44,8 @@ std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourcePath & resou
 
 bool CFilesystemLoader::existsResource(const ResourcePath & resourceName) const
 {
-	return fileList.count(resourceName);
+	std::lock_guard lock(fileListGuard);
+	return fileList.contains(resourceName);
 }
 
 std::string CFilesystemLoader::getMountPoint() const
@@ -54,13 +57,15 @@ std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const 
 {
 	assert(existsResource(resourceName));
 
+	std::lock_guard lock(fileListGuard);
 	return baseDirectory / fileList.at(resourceName);
 }
 
-void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
+void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter)
 {
 	if (filter(mountPoint))
 	{
+		std::lock_guard lock(fileListGuard);
 		fileList = listFiles(mountPoint, recursiveDepth, false);
 	}
 }
@@ -68,6 +73,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
 {
 	std::unordered_set<ResourcePath> foundID;
+	std::lock_guard lock(fileListGuard);
 
 	for (auto & file : fileList)
 	{
@@ -81,6 +87,7 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 {
 	std::string filename = requestedFilename;
 	ResourcePath resID(filename);
+	std::lock_guard lock(fileListGuard);
 
 	if (fileList.find(resID) != fileList.end())
 		return true;

@@ -241,7 +241,11 @@ ${rccQmFiles}
 endif()
 
 if(WIN32)
-	set(editor_ICON mapeditor.rc)
+	set(VCMI_FILE_DESCRIPTION "VCMI Map Editor")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_mapeditor.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/mapeditor.ico\"")
+	set(editor_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_mapeditor_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${editor_ICON}" @ONLY)
 endif()
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})

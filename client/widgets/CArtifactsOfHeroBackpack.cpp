@@ -15,6 +15,7 @@
 
 #include "Images.h"
 #include "IGameSettings.h"
+#include "Slider.h"
 #include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
@@ -103,6 +104,7 @@ void CArtifactsOfHeroBackpack::initAOHbackpack(size_t slots, bool slider)
 		backpackListBox = std::make_shared<CListBoxWithCallback>(
 			posMoved, onCreate, Point(0, 0), Point(0, 0), slotsRowsMax, 0, 0, 1,
 			Rect(slotsColumnsMax * slotSizeWithMargin + sliderPosOffsetX, 0, slotsRowsMax * slotSizeWithMargin - 2, 0));
+		backpackListBox->getSlider()->setPanningStep(46);
 	}
 
 	pos.w = slots > slotsColumnsMax ? slotsColumnsMax : slots;

@@ -185,25 +185,25 @@
         <translation>Snímky obrazovky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translation>Odinstalovat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translation>Povolit</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translation>Zakázat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translation>Aktualizovat</translation>
@@ -293,8 +293,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="986"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="991"/>
         <source>mods repository index</source>
         <translation>index repozitáře modifikací</translation>
     </message>
@@ -374,17 +374,17 @@
         <translation>Otevřít repozitář</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="826"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="838"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Stahování %1. %p% (%v MB z %m MB) dokončeno</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="864"/>
         <source>Download failed</source>
         <translation>Stahování selhalo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -397,7 +397,7 @@ Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="854"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="866"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -406,7 +406,7 @@ Install successfully downloaded?</source>
 Nainstalovat úspěšně stažené?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -415,42 +415,57 @@ Důvod: %2.
 Nahlaste prosím tento problém vývojářům</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1055"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Instalování Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
+        <source>Extracting error!</source>
+        <translation>Chyba při extrakci!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>Invalid file selected</source>
+        <translation>Vybrán neplatný soubor</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>You have to select a Heroes Chronicles installer file!</source>
+        <translation>Musíte vybrat instalační soubor Heroes Chronicles!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
         <source>Installing mod %1</source>
         <translation>Instalování modifikace %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1198"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1211"/>
         <source>Map exists</source>
         <translation>Mapa již existuje</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1199"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1212"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Mapa &apos;%1&apos; již existuje. Chcete ji přepsat?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1208"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1221"/>
         <source>Yes to All</source>
         <translation>Ano pro všechny</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1209"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1222"/>
         <source>No to All</source>
         <translation>Ne pro všechny</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>Import complete</source>
         <translation>Import dokončen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n mapa byla úspěšně importována.</numerusform>
@@ -459,42 +474,52 @@ Nahlaste prosím tento problém vývojářům</translation>
         </translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Uninstall mod</source>
+        <translation>Odinstalování modifikace</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Are you sure you want to uninstall %1?</source>
+        <translation>Opravdu chcete odinstalovat modifikaci %1?</translation>
+    </message>
+    <message>
         <source>%1 map(s) successfully imported.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="obsolete">Úspěšně importováno %1 map.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Import failed</source>
         <translation>Import se nezdařil</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Nepodařilo se importovat následující mapy:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1340"/>
         <source>Operation failed</source>
         <translation>Operace selhala</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1328"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1341"/>
         <source>Encountered errors:
 </source>
         <translation>Vyskytly se chyby:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
         <source>screenshots</source>
         <translation>snímky obrazovky</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1399"/>
         <source>Screenshot %1</source>
         <translation>Snímek obrazovky %1</translation>
     </message>
@@ -990,33 +1015,29 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translation>Vybrán neplatný soubor</translation>
+        <translation type="vanished">Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation>Musíte vybrat instalační soubor Heroes Chronicles!</translation>
+        <translation type="vanished">Musíte vybrat instalační soubor Heroes Chronicles!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translation>Chyb při rozbalování!</translation>
+        <translation type="vanished">Chyb při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translation>Nesouhlasí kontrolní součet!</translation>
+        <translation type="vanished">Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
         <translation>Heroes Chronicles %1 - %2</translation>
     </message>
@@ -1318,18 +1339,18 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="vanished">Musíte vybrat soubor %1!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="404"/>
         <source>GOG file (*.*)</source>
         <translation>GOG soubor (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="402"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="405"/>
         <source>File selection</source>
         <translation>Výběr souboru</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="613"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="416"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>GOG installer</source>
         <translation>Instalátor GOG</translation>
     </message>
@@ -1338,22 +1359,22 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="vanished">Poskytli jste instalátor GOG Galaxy! Tento soubor neobsahuje hru. Prosím, stáhněte si záložní offline instalátor hry!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Soubory z Heroes III: HD Edition nejsou ve VCMI  podporovány.
 Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="508"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Byla nalezena neznámá nebo nepodporovaná verze Heroes III.
 Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="429"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="626"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>GOG data</source>
         <translation>Data GOG</translation>
     </message>
@@ -1363,99 +1384,99 @@ Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow o
         <translation>Nepodařilo se otevřít soubor: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="366"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="368"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="394"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Musíte vybrat soubor %1!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>Byl vybrán neznámý instalátor.
 Je nutné vybrat offline instalátor z GOGu.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="388"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation>Vybrali jste instalátor GOG Galaxy. Tento soubor neobsahuje hru. Stáhněte si prosím místo něj offline instalátor hry.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation>Vyberte offline instalátor z GOGu (.exe)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="426"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="619"/>
         <source>Invalid file selected</source>
         <translation>Vybrán neplatný soubor</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="433"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation>Vyberte datový soubor offline instalátoru z GOGu: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="632"/>
         <source>Invalid data file</source>
         <translation>Neplatný datový soubor</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="548"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Importing Heroes III data...</source>
         <translation>Importují se Heroes III data...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="581"/>
         <source>Preparing installer...</source>
         <translation>Připravování instalátoru...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="641"/>
         <source>Extracting installer...</source>
         <translation>Rozbalování instalátoru...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>Extracting error!</source>
         <translation>Chyba při rozbalování!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="669"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="672"/>
         <source>Hash error!</source>
         <translation>Nesouhlasí kontrolní součet!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>No Heroes III data!</source>
         <translation>Chybí data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Vybrané soubory neobsahují data Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="698"/>
         <source>Scanning selected folder...</source>
         <translation>Prohledávání vybrané složky...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="503"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Nepodařilo se detekovat platná data Heroes III ve vybrané složce.
 Vyberte prosím složku s nainstalovanými daty Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="514"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="517"/>
         <source>Heroes III data not found!</source>
         <translation>Data Heroes III nenalezena!</translation>
     </message>
@@ -1494,6 +1515,21 @@ Vyberte prosím složku s nainstalovanými daty Heroes III.</translation>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
         <translation>Prohlížeč obrázků</translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="100"/>
+        <source>&lt;</source>
+        <translation>&lt;</translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="138"/>
+        <source>&gt;</source>
+        <translation>&gt;</translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="176"/>
+        <source>X</source>
+        <translation>X</translation>
     </message>
 </context>
 <context>
@@ -1626,101 +1662,121 @@ Bin (%n bajtů):
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
+        <source>Dutch</source>
+        <translation>Holandština</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="28"/>
         <source>English</source>
         <translation>Angličtina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="28"/>
+        <location filename="../languages.cpp" line="29"/>
+        <source>Filipino</source>
+        <translation>Filipínština</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="30"/>
         <source>Finnish</source>
         <translation>Finština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="29"/>
+        <location filename="../languages.cpp" line="31"/>
         <source>French</source>
         <translation>Francouzština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="30"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>German</source>
         <translation>Němčina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>Greek</source>
         <translation>Řečtina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>Hungarian</source>
         <translation>Maďarština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="35"/>
         <source>Italian</source>
         <translation>Italština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="34"/>
+        <location filename="../languages.cpp" line="36"/>
         <source>Japanese</source>
         <translation>Japonština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="35"/>
+        <location filename="../languages.cpp" line="37"/>
         <source>Korean</source>
         <translation>Korejština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="36"/>
+        <location filename="../languages.cpp" line="38"/>
+        <source>Latvian</source>
+        <translation>Lotyština</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="39"/>
         <source>Norwegian</source>
         <translation>Norština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="37"/>
+        <location filename="../languages.cpp" line="40"/>
         <source>Polish</source>
         <translation>Polština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="38"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Portuguese</source>
         <translation>Portugalština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="39"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Romanian</source>
         <translation>Rumunština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Russian</source>
         <translation>Ruština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="44"/>
+        <source>Serbian</source>
+        <translation>Srbština</translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="45"/>
         <source>Spanish</source>
         <translation>Španělština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Swedish</source>
         <translation>Švédština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Turkish</source>
         <translation>Turečtina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Ukrainian</source>
         <translation>Ukrajinština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Vietnamese</source>
         <translation>Vietnamština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="67"/>
+        <location filename="../languages.cpp" line="71"/>
         <source>Auto (%1)</source>
         <translation>Automaticky (%1)</translation>
     </message>

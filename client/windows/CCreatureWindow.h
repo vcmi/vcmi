@@ -193,6 +193,7 @@ class CStackWindow : public CWindowObject
 	void initBonusesList();
 
 	void init();
+	void close() override;
 
 	std::string generateStackExpDescription();
 	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);

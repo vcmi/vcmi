@@ -48,6 +48,10 @@ namespace
 		if(!json.isStruct())
 		{
 			logAi->error("Could not load MMAI config. Is MMAI mod enabled?");
+			std::string fallback = "BattleAI";
+			logAi->debug("MMAI: preparing fallback model: %s", fallback);
+			repo->fallbackModel = std::make_unique<ScriptedModel>(fallback);
+			repo->fallbackName = fallback;
 			return repo;
 		}
 
@@ -98,7 +102,7 @@ namespace
 			}
 		}
 
-		auto fallback = json["fallback"].String();
+		auto fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
 		logAi->debug("MMAI: preparing fallback model: %s", fallback);
 		repo->fallbackModel = std::make_unique<ScriptedModel>(fallback);
 		repo->fallbackName = fallback;

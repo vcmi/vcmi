@@ -232,7 +232,10 @@ void CGameStateCampaign::placeCampaignHeroes(vstd::RNG & randomGenerator)
 				heroTypeId = gameState->pickUnusedHeroTypeRandomly(randomGenerator, playerColor);
 			}
 
-			gameState->placeStartingHero(playerColor, HeroTypeID(heroTypeId), gameState->map->players[playerColor.getNum()].posOfMainTown);
+			int3 posOfMainTown = gameState->map->players[playerColor.getNum()].posOfMainTown;
+
+			if (posOfMainTown.isValid())
+				gameState->placeStartingHero(playerColor, HeroTypeID(heroTypeId), posOfMainTown);
 		}
 	}
 
@@ -301,7 +304,9 @@ void CGameStateCampaign::placeCampaignHeroes(vstd::RNG & randomGenerator)
 		}
 
 		hero->setHeroType(heroTypeId);
-		gameState->map->getEditManager()->insertObject(object);
+		gameState->map->generateUniqueInstanceName(object.get());
+		gameState->map->addNewObject(object);
+		assert(hero->pos.isValid());
 	}
 }
 

@@ -490,6 +490,7 @@ void Nullkiller::makeTurn()
 				{
 					logAi->info(
 						"Pass %d: Heroes can still move but goal %s has too low priority %f. Increasing to ScanDepth::ALL_FULL",
+						pass,
 						taskDescription,
 						selectedTask->priority);
 

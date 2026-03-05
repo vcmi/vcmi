@@ -450,6 +450,7 @@
 												"properties" : {
 													"action" : { "enum" : [ "spell" ] },
 													"targetEnemy" : { "type" : "boolean" },
+													"mastery" : { "type" : "number" },
 													"spell" : { "type" : "string" }
 												}
 											}

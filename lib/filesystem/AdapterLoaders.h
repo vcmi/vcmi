@@ -42,7 +42,7 @@ public:
 	bool existsResource(const ResourcePath & resourceName) const override;
 	std::string getMountPoint() const override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
+	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override {}
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
@@ -75,7 +75,7 @@ public:
 	std::string getMountPoint() const override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	std::set<boost::filesystem::path> getResourceNames(const ResourcePath & resourceName) const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
+	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(const std::string & filename, bool update = false) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;

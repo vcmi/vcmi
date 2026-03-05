@@ -3426,7 +3426,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="598"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="637"/>
         <source>VCMI Template Editor</source>
         <translation>VCMI Template-Editor</translation>
     </message>
@@ -3458,7 +3458,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1325"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="226"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="265"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
@@ -3536,14 +3536,14 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="364"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="403"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
@@ -3605,7 +3605,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
@@ -3653,7 +3653,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../templateeditor/templateeditor.ui" line="785"/>
         <location filename="../templateeditor/templateeditor.ui" line="1229"/>
         <location filename="../templateeditor/templateeditor.ui" line="1235"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
         <source>Treasure</source>
         <translation>Schatz</translation>
     </message>
@@ -3800,7 +3800,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1389"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="466"/>
         <source>Del</source>
         <translation>Entf</translation>
     </message>
@@ -3855,149 +3855,149 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <translation>Strg+Umschalt+=</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Max</source>
         <translation>Max</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Action</source>
         <translation>Aktion</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="215"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="467"/>
         <source>Delete</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="293"/>
         <source>ID: %1</source>
         <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="256"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="295"/>
         <source>Max treasure: %1</source>
         <translation>Max Schatz: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="376"/>
         <source>Player start</source>
         <translation>Spieler-Start</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="338"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
         <source>CPU start</source>
         <translation>CPU-Start</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="340"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
         <source>Junction</source>
         <translation>Kreuzung</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="341"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Water</source>
         <translation>Wasser</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="342"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
         <source>Sealed</source>
         <translation>Versiegelt</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Automatic</source>
         <translation>Automatisch</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>Surface</source>
         <translation>Oberfläche</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
         <source>Underground</source>
         <translation>Untergrund</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="415"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
         <source>Random</source>
         <translation>Zufall</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Weak</source>
         <translation>Schwach</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Strong</source>
         <translation>Stark</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone A</source>
         <translation>Zone A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone B</source>
         <translation>Zone B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Guard</source>
         <translation>Wächter</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Road</source>
         <translation>Straße</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="449"/>
         <source>Guarded</source>
         <translation>Bewacht</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="411"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="450"/>
         <source>Fictive</source>
         <translation>Fiktiv</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="412"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="451"/>
         <source>Repulsive</source>
         <translation>Abstoßend</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="413"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="452"/>
         <source>Wide</source>
         <translation>Weit</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="414"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Force portal</source>
         <translation>Portal erzwingen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="456"/>
         <source>No</source>
         <translation>Nein</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="526"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="565"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
@@ -4006,64 +4006,99 @@ Zone B: %2
 Wächter: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Confirmation</source>
         <translation>Bestätigung</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Nicht gespeicherte Änderungen gehen verloren, seid Ihr sicher?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="630"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="649"/>
+        <source>Validation failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="654"/>
+        <source>No player range defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="661"/>
+        <source>Invalid range for players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="669"/>
+        <source>Invalid range for human players.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="684"/>
+        <source>Connection references non-existing zone(s): %1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="696"/>
+        <source>Zone %1 has no connections.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="720"/>
+        <source>Player %1 must have exactly one player start zone (found %2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="757"/>
         <source>Open template</source>
         <translation>Template öffnen</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="632"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="759"/>
         <source>VCMI templates(*.json)</source>
         <translation>VCMI-Templates(*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>Save template</source>
         <translation>Template speichern</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>VCMI templates (*.json)</source>
         <translation>VCMI-Templates (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Enter Name</source>
         <translation>Namen eingeben</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>Already existing!</source>
         <translation>Bereits vorhanden!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>A template with this name is already existing.</source>
         <translation>Ein Template mit diesem Namen ist bereits vorhanden.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>To few templates!</source>
         <translation>Zu wenig Templates!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>At least one template should remain after removing.</source>
         <translation>Nach dem Entfernen sollte mindestens ein Template übrig bleiben.</translation>
     </message>

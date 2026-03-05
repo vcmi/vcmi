@@ -17,6 +17,8 @@
 	"vcmi.adventureMap.monsterRangedType"       : "dystansowa",
 	"vcmi.adventureMap.search.hover"            : "Wyszukiwarka obiektów",
 	"vcmi.adventureMap.search.help"             : "Wybierz obiekt który chcesz znaleźć na mapie.",
+	"vcmi.adventureMap.layer.hover"             : "Zmień warstwę  -  %s (%d) na %s (%d)",
+	"vcmi.adventureMap.layer.help"              : "{Zmiana warstwy}\n\nPrzełącza mapę przygody między warstwami\n\nZmiana %s (%d) na %s (%d)",
 
 	"vcmi.adventureMap.confirmRestartGame"     : "Czy na pewno chcesz zrestartować grę?",
 	"vcmi.adventureMap.noTownWithMarket"       : "Brak dostępnego targowiska!",
@@ -121,6 +123,9 @@
 	"vcmi.mainMenu.serverClosing" : "Zamykanie...",
 	"vcmi.mainMenu.hostTCP" : "Stwórz grę TCP/IP",
 	"vcmi.mainMenu.joinTCP" : "Dołącz do gry TCP/IP",
+	"vcmi.mainMenu.ipAddress" : "Lokalny adres IP",
+	"vcmi.mainMenu.ipAddressUnknown" : "Nieznany",
+	"vcmi.mainMenu.join" : "Dołącz",
 
 	"vcmi.lobby.filepath" : "Nazwa pliku",
 	"vcmi.lobby.creationDate" : "Data utworzenia",
@@ -284,6 +289,7 @@
 	"vcmi.lobby.pvp.randomTownVs.help" : "Wyświetli nazwę 2 wylosowanych miast na czacie, które nie zostały zablokowane na liście",
 	"vcmi.lobby.pvp.versus" : "vs.",
 
+	"vcmi.client.screenShot" : "Zrzut ekranu zapisany do %s",
 	"vcmi.client.errors.invalidMap" : "{Błędna mapa lub kampania}\n\nNie udało się stworzyć gry! Wybrana mapa lub kampania jest niepoprawna lub uszkodzona. Powód:\n%s",
 	"vcmi.server.errors.disconnected" : "{Błąd sieciowy}\n\nUtracono połączenie z serwerem!",
 	"vcmi.server.errors.playerLeft" : "{Rozłączenie z graczem}\n\n%s opuścił rozgrywkę!", //%s -> player color
@@ -419,6 +425,7 @@
 	"vcmi.keyBindings.keyBinding.globalBackspace": "Cofnij",
 	"vcmi.keyBindings.keyBinding.globalCancel": "Anuluj",
 	"vcmi.keyBindings.keyBinding.globalFullscreen": "Pełny ekran",
+	"vcmi.keyBindings.keyBinding.globalScreenshot": "Zrzut ekranu",
 	"vcmi.keyBindings.keyBinding.globalMoveFocus": "Przenieś fokus",
 	"vcmi.keyBindings.keyBinding.globalOptions": "Ustawienia",
 	"vcmi.keyBindings.keyBinding.globalReturn": "Powrót",
@@ -845,6 +852,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Ustaw...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Sojusze",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Typy dróg",
+	"vcmi.randomMapTab.template.minimalSize" : "Minimalny rozmiar: %dx%d, warstw: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Maksymalny rozmiar: %dx%d, warstw: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Ustawienia tur",
 	"vcmi.optionsTab.turnOptions.help" : "Ustaw limity czasu oraz tury symultaniczne",
@@ -895,8 +904,9 @@
 	"vcmi.optionsTab.simturns.blocked2"       : "Tury sym.: 2 tyg., kontakt: wył.",
 	"vcmi.optionsTab.simturns.blocked4"       : "Tury sym.: 1 mies., kontakt: wył.",
 
-	"vcmi.campaignSet.chronicles" : "Kroniki herosów",
+	"vcmi.campaignSet.chronicles" : "Kroniki Herosów",
 	"vcmi.campaignSet.hota" : "Róg Otchłani",
+	"vcmi.campaignSet.wog" : "W Ślad Bogów",
 
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -1153,5 +1163,9 @@
 	"spellSchool.core.air.name" : "Powietrze",
 	"spellSchool.core.earth.name" : "Ziemia",
 	"spellSchool.core.fire.name" : "Ogień",
-	"spellSchool.core.water.name" : "Woda"
+	"spellSchool.core.water.name" : "Woda",
+
+	"mapLayer.core.surface.name" : "Powierzchnia",
+	"mapLayer.core.underground.name" : "Podziemie",
+	"mapLayer.core.unknown.name" : "Nieznany"
 }

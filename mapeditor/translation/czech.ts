@@ -79,8 +79,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
         <source>Open Campaignset</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otevřít sadu kampaní</translation>
+        <translation>Otevřít sadu kampaní</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
@@ -149,17 +148,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampaň se nepodařilo otevřít</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrola selhala</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampaň neobsahuje žádné mapy.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
@@ -174,26 +173,22 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open Campaign set</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otevřít sadu kampaní</translation>
+        <translation>Otevřít sadu kampaní</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Select Campaign set</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat sadu kampaní</translation>
+        <translation>Vybrat sadu kampaní</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Open Campaign</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otevřít kampaň</translation>
+        <translation>Otevřít kampaň</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="292"/>
         <source>Select Campaign</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat kampaň</translation>
+        <translation>Vybrat kampaň</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="308"/>
@@ -329,8 +324,7 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Povolit obrázek rámečku</translation>
+        <translation>Povolit okraje videa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
@@ -389,8 +383,7 @@
         <location filename="../templateeditor/entitiesselector.ui" line="14"/>
         <location filename="../templateeditor/entitiesselector.ui" line="20"/>
         <source>Select Entities</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat entity</translation>
+        <translation>Vybrat entity</translation>
     </message>
 </context>
 <context>
@@ -427,14 +420,12 @@
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat frakce</translation>
+        <translation>Vybrat frakce</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="25"/>
         <source>Faction Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr frakcí</translation>
+        <translation>Výběr frakcí</translation>
     </message>
 </context>
 <context>
@@ -544,8 +535,7 @@
         <location filename="../inspector/heroskillswidget.ui" line="48"/>
         <location filename="../inspector/heroskillswidget.ui" line="58"/>
         <source>TextLabel</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Textový štítek</translation>
+        <translation>Textový štítek</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
@@ -818,8 +808,7 @@
         <location filename="../mainwindow.ui" line="1086"/>
         <location filename="../mainwindow.ui" line="1089"/>
         <source>Template editor</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Editor šablon</translation>
+        <translation>Editor šablon</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1097"/>
@@ -972,7 +961,7 @@
         <location filename="../mainwindow.ui" line="1254"/>
         <location filename="../mainwindow.cpp" line="1413"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte typ vrstvy mapy</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
@@ -1198,7 +1187,7 @@
         <location filename="../mainwindow.cpp" line="453"/>
         <location filename="../mainwindow.cpp" line="1430"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Úroveň %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
@@ -1354,32 +1343,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="1056"/>
         <source>Undo clicked</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kliknuto na Zpět</translation>
+        <translation>Kliknuto na Zpět</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1067"/>
         <source>Redo clicked</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kliknuto na Znovu</translation>
+        <translation>Kliknuto na Znovu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1078"/>
         <source>Passability clicked</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kliknuto na Průchodnost</translation>
+        <translation>Kliknuto na Průchodnost</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1091"/>
         <source>Grid clicked</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kliknuto na Mřížku</translation>
+        <translation>Kliknuto na Mřížku</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1172"/>
         <source>Fill clicked</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kliknuto na Výplň</translation>
+        <translation>Kliknuto na Výplň</translation>
     </message>
     <message>
         <source>View surface</source>
@@ -1403,7 +1387,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1469"/>
@@ -1471,8 +1455,7 @@
     <message>
         <location filename="../mapcontroller.cpp" line="626"/>
         <source>Missing Required Mod</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Chybějící povinný mod</translation>
+        <translation>Chybějící povinná modifikace</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="626"/>
@@ -1480,16 +1463,14 @@
 
 Do you want to do that now ?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-
+        <translation>
 
 Chcete to udělat nyní?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="636"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mod tohoto objektu je povinný, aby mapa zůstala platná.</translation>
+        <translation>Modifikace tohoto objektu je povinná, aby mapa zůstala platná.</translation>
     </message>
 </context>
 <context>
@@ -1582,14 +1563,12 @@ Chcete to udělat nyní?</translation>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat doly</translation>
+        <translation>Vybrat doly</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="29"/>
         <source>Mine Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr dolů</translation>
+        <translation>Výběr dolů</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="35"/>
@@ -1655,8 +1634,7 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="14"/>
         <source>Select Objects</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat objekty</translation>
+        <translation>Vybrat objekty</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="20"/>
@@ -1666,31 +1644,27 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyžadované objekty</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Objects</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázané objekty</translation>
+        <translation>Zakázané objekty</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="50"/>
         <source>Banned Object Categories</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázané kategorie objektů</translation>
+        <translation>Zakázané kategorie objektů</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="33"/>
         <source>Object Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr objektu</translation>
+        <translation>Výběr objektu</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="96"/>
         <source>Category</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Kategorie</translation>
+        <translation>Kategorie</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="96"/>
@@ -1698,8 +1672,7 @@ Chcete to udělat nyní?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Action</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Akce</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="100"/>
@@ -1715,14 +1688,12 @@ Chcete to udělat nyní?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="102"/>
         <location filename="../templateeditor/objectselector.cpp" line="257"/>
         <source>None</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Žádné</translation>
+        <translation>Žádné</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Creature bank</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Banka tvorů</translation>
+        <translation>Banka tvorů</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="104"/>
@@ -1732,8 +1703,7 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <source>Dwelling</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Obydlí</translation>
+        <translation>Obydlí</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="106"/>
@@ -1743,8 +1713,7 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Resource generator</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Generátor surovin</translation>
+        <translation>Generátor surovin</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="108"/>
@@ -1754,26 +1723,22 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Random artifact</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Náhodný artefakt</translation>
+        <translation>Náhodný artefakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Pandoras box</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Pandořina skříňka</translation>
+        <translation>Pandořina skříňka</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Quest artifact</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Úkolový artefakt</translation>
+        <translation>Úkolový artefakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Seer hut</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Chýše věštce</translation>
+        <translation>Chata věštce</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="124"/>
@@ -1781,8 +1746,7 @@ Chcete to udělat nyní?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="261"/>
         <location filename="../templateeditor/objectselector.cpp" line="345"/>
         <source>Delete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="139"/>
@@ -1790,25 +1754,24 @@ Chcete to udělat nyní?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="278"/>
         <location filename="../templateeditor/objectselector.cpp" line="360"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Object</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Počet</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Guard</source>
-        <translation type="unfinished">Stráž</translation>
+        <translation>Stráž</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
@@ -1818,14 +1781,12 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Probability</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Pravděpodobnost</translation>
+        <translation>Pravděpodobnost</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="310"/>
         <source>Max per zone</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Max na zónu</translation>
+        <translation>Max na zónu</translation>
     </message>
 </context>
 <context>
@@ -1891,26 +1852,22 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vyberte hráče</translation>
+        <translation>Vyberte hráče</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hrdina nemůže být vytvořen jako NEUTRÁLNÍ</translation>
+        <translation>Hrdina nemůže být vytvořen jako NEUTRÁLNÍ</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Přepněte na jednoho z dostupných hráčů:</translation>
+        <translation>Přepněte na jednoho z dostupných hráčů:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zkratka: %1</translation>
+        <translation>Zkratka: %1</translation>
     </message>
 </context>
 <context>
@@ -1980,8 +1937,7 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="175"/>
         <source>Random hero secondary skills</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Náhodné vedlejší dovednosti hrdiny</translation>
+        <translation>Náhodné vedlejší dovednosti hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="181"/>
@@ -2355,17 +2311,15 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="649"/>
         <source> (submod of %1)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished"> (submodul %1)</translation>
+        <translation> (podmodifikace z %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="651"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mod &apos;%1&apos;%2 je vyžadován objektem na mapě.
-Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</translation>
+        <translation>Modifikace &apos;%1&apos;%2 je vyžadována objektem na mapě.
+Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastavení.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="217"/>
@@ -2536,7 +2490,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampěň se nepodařilo otevřít</translation>
     </message>
 </context>
 <context>
@@ -3069,8 +3023,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Video 2</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Video 2</translation>
+        <translation>Video 2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
@@ -3417,14 +3370,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
         <source>Main town is of random faction</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hlavní město je náhodné frakce</translation>
+        <translation>Výchozí město je náhodné frakce</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
         <source>Player does not have a main town!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hráč nemá hlavní město!</translation>
+        <translation>Hráč nemá výchozí město!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
@@ -3481,10 +3432,9 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="598"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="637"/>
         <source>VCMI Template Editor</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Editor šablon VCMI</translation>
+        <translation>Editor šablon VCMI</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
@@ -3509,13 +3459,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="114"/>
         <source>Selected Template:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybraná šablona:</translation>
+        <translation>Vybraná šablona:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1325"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="226"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="265"/>
         <source>Add</source>
         <translation>Přidat</translation>
     </message>
@@ -3527,14 +3476,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="151"/>
         <source>Rename</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Přejmenovat</translation>
+        <translation>Přejmenovat</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="215"/>
         <source>General</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Obecné</translation>
+        <translation>Obecné</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="221"/>
@@ -3544,14 +3491,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="233"/>
         <source>Description</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Popis</translation>
+        <translation>Popis</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="245"/>
         <source>Min Size</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Min. velikost</translation>
+        <translation>Min. velikost</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="264"/>
@@ -3572,14 +3517,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
         <location filename="../templateeditor/templateeditor.ui" line="1378"/>
         <source>Z</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="344"/>
         <source>Max Size</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Max. velikost</translation>
+        <translation>Max. velikost</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
@@ -3590,26 +3533,23 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
         <source>Human</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Člověk</translation>
+        <translation>Člověk</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="472"/>
         <source>Allowed water content</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Povolený obsah vody</translation>
+        <translation>Povolený obsah vody</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="364"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="403"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
         <source>None</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Žádné</translation>
+        <translation>Žádné</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <source>Normal</source>
         <translation>Normální</translation>
     </message>
@@ -3621,57 +3561,48 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="502"/>
         <source>Entities</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Entity</translation>
+        <translation>Entity</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="508"/>
         <source>Banned Spells</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázaná kouzla</translation>
+        <translation>Zakázaná kouzla</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="515"/>
         <source>Banned Artifacts</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázané artefakty</translation>
+        <translation>Zakázané artefakty</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="522"/>
         <source>Banned Skills</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázané dovednosti</translation>
+        <translation>Zakázané dovednosti</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="529"/>
         <source>Banned Heroes</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázaní hrdinové</translation>
+        <translation>Zakázaní hrdinové</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="561"/>
         <source>Zone</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zóna</translation>
+        <translation>Zóna</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="567"/>
         <source>Visualisation</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vizualizace</translation>
+        <translation>Vizualizace</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="573"/>
         <source>Position</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Pozice</translation>
+        <translation>Pozice</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="645"/>
         <location filename="../templateeditor/templateeditor.ui" line="701"/>
         <source>Size</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Velikost</translation>
+        <translation>Velikost</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="673"/>
@@ -3680,10 +3611,9 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Type</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="717"/>
@@ -3693,14 +3623,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Forced level</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vynucená úroveň</translation>
+        <translation>Vynucená úroveň</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="741"/>
         <source>Zone link</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Propojení zón</translation>
+        <translation>Propojení zón</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="747"/>
@@ -3713,8 +3641,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <location filename="../templateeditor/templateeditor.ui" line="754"/>
         <location filename="../templateeditor/templateeditor.ui" line="1267"/>
         <source>Custom objects</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vlastní objekty</translation>
+        <translation>Vlastní objekty</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="761"/>
@@ -3726,29 +3653,25 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <location filename="../templateeditor/templateeditor.ui" line="768"/>
         <location filename="../templateeditor/templateeditor.ui" line="1109"/>
         <source>Terrain</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Terén</translation>
+        <translation>Terén</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="785"/>
         <location filename="../templateeditor/templateeditor.ui" line="1229"/>
         <location filename="../templateeditor/templateeditor.ui" line="1235"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
         <source>Treasure</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Poklad</translation>
+        <translation>Poklad</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="848"/>
         <source>Town info</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Informace o městě</translation>
+        <translation>Informace o městě</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="854"/>
         <source>Town count</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Počet měst</translation>
+        <translation>Počet měst</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="866"/>
@@ -3769,62 +3692,52 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="917"/>
         <source>Castle count</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Počet hradů</translation>
+        <translation>Počet hradů</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="980"/>
         <source>Town density</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hustota měst</translation>
+        <translation>Hustota měst</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1043"/>
         <source>Castle density</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hustota hradů</translation>
+        <translation>Hustota hradů</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1115"/>
         <source>Match terrain to town</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Přiřadit terén k městu</translation>
+        <translation>Přiřadit terén k městu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1122"/>
         <source>Terrain types</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Typy terénu</translation>
+        <translation>Typy terénu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1129"/>
         <source>Banned terrain types</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázané typy terénu</translation>
+        <translation>Zakázané typy terénu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1145"/>
         <source>Towns are same type</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Města jsou stejného typu</translation>
+        <translation>Města jsou stejného typu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1152"/>
         <source>Allowed towns</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Povolená města</translation>
+        <translation>Povolená města</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1159"/>
         <source>Banned towns</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázaná města</translation>
+        <translation>Zakázaná města</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1166"/>
         <source>Town hints</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nápovědy k městům</translation>
+        <translation>Nápovědy k městům</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1176"/>
@@ -3834,20 +3747,17 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1182"/>
         <source>Allowed monsters</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Povoleni tvorové</translation>
+        <translation>Povoleni tvorové</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1189"/>
         <source>Banned monsters</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zakázaní tvorové</translation>
+        <translation>Zakázaní tvorové</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1207"/>
         <source>Strength</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Síla</translation>
+        <translation>Síla</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1261"/>
@@ -3857,8 +3767,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1299"/>
         <source>Connections</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Spojení</translation>
+        <translation>Spojení</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1343"/>
@@ -3873,8 +3782,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1359"/>
         <source>New</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nové</translation>
+        <translation>Nové</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1367"/>
@@ -3889,26 +3797,23 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1375"/>
         <source>Add zone</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Přidat zónu</translation>
+        <translation>Přidat zónu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1386"/>
         <source>Remove zone</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Odebrat zónu</translation>
+        <translation>Odebrat zónu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1389"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="427"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="466"/>
         <source>Del</source>
         <translation>Del</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1394"/>
         <source>Auto position</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Automaticky umístit</translation>
+        <translation>Automaticky umístit</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1397"/>
@@ -3938,14 +3843,12 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1418"/>
         <source>Zoom auto</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Automatické přiblížení</translation>
+        <translation>Automatické přiblížení</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1421"/>
         <source>Ctrl+Shift+:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ctrl+Shift+:</translation>
+        <translation>Ctrl+Shift+:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1426"/>
@@ -3958,252 +3861,252 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Min</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Max</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="236"/>
         <source>Action</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Akce</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="215"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="428"/>
-        <source>Delete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="467"/>
+        <source>Delete</source>
+        <translation>Smazat</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="293"/>
         <source>ID: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">ID: %1</translation>
+        <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="256"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="295"/>
         <source>Max treasure: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Max. poklad: %1</translation>
+        <translation>Max. poklad: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="376"/>
         <source>Player start</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Start hráče</translation>
+        <translation>Start hráče</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="338"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="377"/>
         <source>CPU start</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Start CPU</translation>
+        <translation>Start CPU</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="340"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
         <source>Junction</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Křižovatka</translation>
+        <translation>Křižovatka</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="341"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="380"/>
         <source>Water</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Voda</translation>
+        <translation>Voda</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="342"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
         <source>Sealed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zapečetěno</translation>
+        <translation>Zapečetěno</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Automatic</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Automaticky</translation>
+        <translation>Automaticky</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>Surface</source>
         <translation>Povrch</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
         <source>Underground</source>
         <translation>Podzemí</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="378"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="415"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="454"/>
         <source>Random</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Náhodně</translation>
+        <translation>Náhodně</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="379"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Weak</source>
         <translation>Slabá</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="381"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Strong</source>
         <translation>Silná</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone A</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zóna A</translation>
+        <translation>Zóna A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Zone B</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zóna B</translation>
+        <translation>Zóna B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Guard</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Stráž</translation>
+        <translation>Stráž</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="396"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Road</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Cesta</translation>
+        <translation>Cesta</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="410"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="449"/>
         <source>Guarded</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Střežené</translation>
+        <translation>Střeženo</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="411"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="450"/>
         <source>Fictive</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Fiktivní</translation>
+        <translation>Fiktivní</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="412"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="451"/>
         <source>Repulsive</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Odpudivé</translation>
+        <translation>Odpudivé</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="413"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="452"/>
         <source>Wide</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Široké</translation>
+        <translation>Široké</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="414"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Force portal</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vynutit portál</translation>
+        <translation>Vynutit portál</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="416"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Yes</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ano</translation>
+        <translation>Ano</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="456"/>
         <source>No</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ne</translation>
+        <translation>Ne</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="526"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="565"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zóna A: %1
+        <translation>Zóna A: %1
 Zóna B: %2
 Stráž: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Confirmation</source>
         <translation>Potvrzení</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="625"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Neuložené změny budou ztraceny, jste si jisti?</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="630"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="649"/>
+        <source>Validation failed!</source>
+        <translation>Ověření selhalo!</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="654"/>
+        <source>No player range defined.</source>
+        <translation>Není definován rozsah hráčů.</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="661"/>
+        <source>Invalid range for players.</source>
+        <translation>Neplatný rozsah hráčů.</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="669"/>
+        <source>Invalid range for human players.</source>
+        <translation>Rozsah lidských hráčů je neplatný.</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="684"/>
+        <source>Connection references non-existing zone(s): %1 - %2</source>
+        <translation>Spojení odkazuje na neexistující zóny: %1 – %2</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="696"/>
+        <source>Zone %1 has no connections.</source>
+        <translation>Zóna %1 nemá žádná spojení.</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="720"/>
+        <source>Player %1 must have exactly one player start zone (found %2).</source>
+        <translation>Hráč %1 musí mít jen jednu startovní zónu - nalezeno %2.</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="757"/>
         <source>Open template</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Otevřít šablonu</translation>
+        <translation>Otevřít šablonu</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="632"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="759"/>
         <source>VCMI templates(*.json)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Šablony VCMI (*.json)</translation>
+        <translation>Šablony VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>Save template</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Uložit šablonu</translation>
+        <translation>Uložit šablonu</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="645"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="775"/>
         <source>VCMI templates (*.json)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Šablony VCMI (*.json)</translation>
+        <translation>Šablony VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Enter Name</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Zadejte jméno</translation>
+        <translation>Zadejte jméno</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="758"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="798"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="891"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="932"/>
         <source>Name:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Jméno:</translation>
+        <translation>Jméno:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>Already existing!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Již existuje!</translation>
+        <translation>Již existuje!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="765"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="898"/>
         <source>A template with this name is already existing.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Šablona s tímto názvem již existuje.</translation>
+        <translation>Šablona s tímto názvem již existuje.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>To few templates!</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Příliš málo šablon!</translation>
+        <translation>Příliš málo šablon!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="781"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>At least one template should remain after removing.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Po odebrání by měla zůstat alespoň jedna šablona.</translation>
+        <translation>Po odebrání by měla zůstat alespoň jedna šablona.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -4455,26 +4358,22 @@ Stráž: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="14"/>
         <source>Select Town hints</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat nápovědy k městům</translation>
+        <translation>Vybrat nápovědy k městům</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="20"/>
         <source>Town hints</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nápovědy k městům</translation>
+        <translation>Nápovědy k městům</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="24"/>
         <source>Town hint Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr nápověd k městům</translation>
+        <translation>Výběr nápověd k městům</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
         <source>Type</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
@@ -4484,37 +4383,32 @@ Stráž: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
         <source>Action</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Akce</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="33"/>
         <source>Like Zone</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Jako zóna</translation>
+        <translation>Jako zóna</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="34"/>
         <source>Not like zone (comma separated)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ne jako zóna (oddělené čárkami)</translation>
+        <translation>Ne jako zóna (oddělené čárkami)</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="35"/>
         <source>Related to zone terrain</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Související s terénem zóny</translation>
+        <translation>Související s terénem zóny</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="60"/>
         <source>Delete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="99"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
 </context>
 <context>
@@ -4623,49 +4517,42 @@ Stráž: %3</translation>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Vybrat poklady</translation>
+        <translation>Vybrat poklady</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="26"/>
         <source>Treasure Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr pokladů</translation>
+        <translation>Výběr pokladů</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Min</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Max</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Density</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Hustota</translation>
+        <translation>Hustota</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Action</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Akce</translation>
+        <translation>Akce</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="50"/>
         <source>Delete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="65"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
 </context>
 <context>
@@ -4673,32 +4560,27 @@ Stráž: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="75"/>
         <source>Terrain Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr terénu</translation>
+        <translation>Výběr terénu</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="79"/>
         <source>Spell Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr kouzel</translation>
+        <translation>Výběr kouzel</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="83"/>
         <source>Artifact Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr artefaktů</translation>
+        <translation>Výběr artefaktů</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="87"/>
         <source>Skill Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr dovedností</translation>
+        <translation>Výběr dovedností</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="91"/>
         <source>Hero Type Selector</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Výběr typu hrdiny</translation>
+        <translation>Výběr typu hrdiny</translation>
     </message>
 </context>
 <context>
@@ -4761,8 +4643,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="89"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Objekt %1 je UNFLAGGABLE, ale musí mít vlastníka – NEUTRÁLNÍHO nebo hráče</translation>
+        <translation>Objekt %1 je NEOZNAČITELNÝ, ale musí mít vlastníka – NEUTRÁLNÍHO nebo hráče</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="113"/>
@@ -4807,8 +4688,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="208"/>
         <source>The map is valid and has no issues.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mapa je platná a nemá žádné problémy.</translation>
+        <translation>Mapa je platná a nemá žádné problémy.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="181"/>
@@ -4969,8 +4849,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Úrovně</translation>
+        <translation>Úrovně</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="397"/>
@@ -5114,14 +4993,12 @@ Stráž: %3</translation>
     <message>
         <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Podpora více úrovní</translation>
+        <translation>Podpora více úrovní</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="343"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Podpora více úrovní je zatím velmi experimentální. Očekávejte problémy.</translation>
+        <translation>Podpora více úrovní je zatím velmi experimentální. Očekávejte problémy.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="464"/>

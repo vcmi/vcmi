@@ -884,6 +884,12 @@ target_include_directories(vcmi
 )
 
 if(WIN32)
+	set(VCMI_FILE_DESCRIPTION "VCMI Core Library")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_lib.dll")
+	set(VCMI_ICON_RESOURCE "")
+	set(vcmi_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_lib_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${vcmi_ICON}" @ONLY)
+	target_sources(vcmi PRIVATE ${vcmi_ICON})
 	set_target_properties(vcmi
 		PROPERTIES
 			OUTPUT_NAME "VCMI_lib"

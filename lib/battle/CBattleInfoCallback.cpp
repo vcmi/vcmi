@@ -2157,34 +2157,33 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 	}
 }
 
-SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack * caster, bool includeAllowed) const
+SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
 	TConstBonusListPtr bl = caster->getBonusesOfType(BonusType::SPELLCASTER);
-	if (!bl->size())
+
+	if(bl->empty())
 		return SpellID::NONE;
 
-	int totalWeight = 0;
+	std::vector<int> weights;
+
+	//spells with 0 weight are non-random, exclude them
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
+		if(b->parameters && b->parameters->toNumber() > 0)
+			weights.push_back(b->parameters->toNumber());
+		else
+			weights.push_back(0);
 	}
 
-	if (totalWeight == 0)
+	int64_t itemIndex = RandomGeneratorUtil::nextItemWeighted(weights, rand);
+
+	if(itemIndex < 0)
 		return SpellID::NONE;
 
-	int randomPos = rand.nextInt(totalWeight - 1);
-	for(const auto & b : *bl)
-	{
-		randomPos -= std::max(b->parameters ? b->parameters->toNumber() : 0, includeAllowed ? 1 : 0);
-		if(randomPos < 0)
-		{
-			return b->subtype.as<SpellID>();
-		}
-	}
-
-	return SpellID::NONE;
+	auto result = *(bl->begin() + itemIndex);
+	return result->subtype.as<SpellID>();
 }
 
 int CBattleInfoCallback::battleGetSurrenderCost(const PlayerColor & Player) const

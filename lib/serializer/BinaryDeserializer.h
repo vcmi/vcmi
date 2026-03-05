@@ -324,7 +324,8 @@ private:
 		T * internalPtr;
 		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
-		loadedUniquePointers.insert(internalPtr);
+		if (internalPtr != nullptr)
+			loadedUniquePointers.insert(internalPtr);
 	}
 
 	template<typename T, size_t N>

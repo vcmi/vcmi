@@ -47,7 +47,10 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			ENGINE->sound().soundFinishedCallback(channel);
+			// It is possible for this code to be executed during ENGINE destruction.
+			// In this scenario, ENGINE is already nullptr, but ~CSoundHandler is still running
+			if (ENGINE)
+				ENGINE->sound().soundFinishedCallback(channel);
 		});
 	}
 }

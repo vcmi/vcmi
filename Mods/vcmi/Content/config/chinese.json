@@ -16,7 +16,8 @@
 	"vcmi.adventureMap.monsterMeleeType"        : "近战",
 	"vcmi.adventureMap.monsterRangedType"       : "远程",
 	"vcmi.adventureMap.search.hover"            : "搜索地图物体",
-	"vcmi.adventureMap.search.help"             : "选择要再地图上搜索的物体。",
+	"vcmi.adventureMap.search.help"             : "{搜索地图物体}\n\n允许你在冒险地图上搜索物体并显示它的位置。",
+	"vcmi.adventureMap.search.tip"              : "选择要再地图上搜索的物体。",
 	"vcmi.adventureMap.layer.hover"             : "切换层级  -  %s (%d)至%s (%d)",
 	"vcmi.adventureMap.layer.help"              : "{切换层级}\n\n在多个地图层级间切换冒险地图\n\n从%s (%d)切换到%s (%d)",
 
@@ -123,6 +124,9 @@
 	"vcmi.mainMenu.serverClosing" : "关闭中...",
 	"vcmi.mainMenu.hostTCP" : "创建TCP/IP游戏",
 	"vcmi.mainMenu.joinTCP" : "加入TCP/IP游戏",
+	"vcmi.mainMenu.ipAddress" : "本地IP地址",
+	"vcmi.mainMenu.ipAddressUnknown" : "未知",
+	"vcmi.mainMenu.join" : "加入",
 
 	"vcmi.lobby.filepath" : "文件路径",
 	"vcmi.lobby.creationDate" : "创建时间",

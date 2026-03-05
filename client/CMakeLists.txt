@@ -545,13 +545,24 @@ if(VCMI_PORTMASTER)
 endif()
 
 if (ENABLE_DISCORD)
-	if(NOT APPLE) # TODO: system-provided libfmt and/or glaze cause crash on start on macOS
-		find_package(fmt QUIET)
-		find_package(glaze QUIET)
+	if(USING_CONAN)
+		# don't search for libs in system locations
+		set(findOptions NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+	endif()
+	find_package(fmt ${findOptions})
+	find_package(glaze ${findOptions})
+
+	if(MSVC AND ENABLE_STRICT_COMPILATION)
+		# fmt built via CPM has compile warning which becomes an error
+		set(OLD_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
 	endif()
 	add_subdirectory(lib/discord-presence)
 	target_link_libraries(vcmiclientcommon PRIVATE discord-rpc)
 	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_DISCORD)
+	if(OLD_CMAKE_CXX_FLAGS)
+		set(CMAKE_CXX_FLAGS ${OLD_CMAKE_CXX_FLAGS})
+	endif()
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

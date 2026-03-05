@@ -977,12 +977,16 @@ std::vector<HeroTypeID> CMap::getHeroesInPool() const
 
 CGObjectInstance * CMap::getObject(ObjectInstanceID obj)
 {
-	return objects.at(obj).get();
+	if (static_cast<size_t>(obj.getNum()) < objects.size())
+		return objects.at(obj).get();
+	return nullptr;
 }
 
 const CGObjectInstance * CMap::getObject(ObjectInstanceID obj) const
 {
-	return objects.at(obj).get();
+	if (static_cast<size_t>(obj.getNum()) < objects.size())
+		return objects.at(obj).get();
+	return nullptr;
 }
 
 void CMap::saveCompatibilityStoreAllocatedArtifactID()

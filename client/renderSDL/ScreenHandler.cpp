@@ -493,21 +493,31 @@ SDL_Window * ScreenHandler::createWindow()
 
 bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
-	if(getPreferredWindowMode() == EWindowMode::WINDOWED && keepWindowResolution)
+	if (keepWindowResolution)
 	{
+		// Only allowed in windowed mode
+		if (getPreferredWindowMode() != EWindowMode::WINDOWED)
+			return false;
+
 		auto res = getRenderResolution();
 
-		if(res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
+		if (res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
 			return false;
 
 		Settings video = settings.write["video"];
 		video["resolution"]["width"].Integer() = res.x;
 		video["resolution"]["height"].Integer() = res.y;
-	}
-	else if(keepWindowResolution)
-		return false;
 
-	recreateWindowAndScreenBuffers();
+		// Only recreate buffers (no window changes!)
+		destroyScreenBuffers();
+		initializeScreenBuffers();
+	}
+	else
+	{
+		// Apply settings change (may resize window / change fullscreen)
+		recreateWindowAndScreenBuffers();
+	}
+
 	return true;
 }
 

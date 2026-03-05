@@ -524,15 +524,20 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					{
 						parent->setSelection(skillID, icon);
 					};
-					for(int i = 0; i < bonuses.size(); i++) 
+					std::string abilityDescription;
+					for(size_t i = 0; i < bonuses.size(); i++)
 					{
-						icon->hoverText += stack->bonusToString(bonuses[i]);
+						if(!abilityDescription.empty())
+							abilityDescription += "\n";
+
+						abilityDescription += LIBRARY->bth->bonusToString(bonuses[i]);
 					}
+
+					icon->hoverText = abilityDescription;
+					icon->text = abilityDescription;
 
 					return icon;
 				}
-				if(skillID >= 100)
-					index--;
 			}
 			return nullptr;
 		};
@@ -825,10 +830,14 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	init();
 }
 
-CStackWindow::~CStackWindow()
+CStackWindow::~CStackWindow() = default;
+
+void CStackWindow::close()
 {
 	if(info->levelupInfo && !info->levelupInfo->skills.empty())
 		info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
+
+	CWindowObject::close();
 }
 
 void CStackWindow::init()

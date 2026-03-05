@@ -1,5 +1,63 @@
 # VCMI Project Changelog
 
+## 1.7.2 -> 1.7.3
+
+### Stability
+
+* Fixed crash on Master Genie spellcasting attempts
+* Fixed random crash on startup due to preloading of .def assets
+* Fixed crash when attempting to start HotA 1.8 map while having older version of HotA mod active
+* Fixed crash on switching to or from fullscreen mode while rebinding spell for quick spell panel in combat
+* Fixed crash on invalid string in creature recruitment title
+* Fixed crash on Heroes Chronicles import failure on iOS
+* Fixed crash on starting Deus Ex Machina scenario of Forged of Fire campaign from HotA
+* Fixed crash on removing boat of a hero that starts map on water in HotA maps
+* Fixed crash on Linux on attempt to use middle mouse in the backpack
+* Fixed rare crash on opening custom campaigns map list while player has multiple mods active
+* Fixed rare crash on mod conflict detection testing
+* Fixed rare crash on closing of video playback
+* Fixed rare crash on updating minimap view
+* Fixed possible crash caused by gamestate corruption after losing battle against neutral
+* Fixed freeze on AI turn on systems with small number of CPU cores
+* Fixed rare freeze on finishing scenario in a campaign during AI turn
+* Fixed inability to proceed in "Long Live the King" campaign if Unearthed Graves are selected as starting bonus in second scenario
+* Fixed inability to load 1.6 saves that were made when player has active quests
+* Fix possible crash on shutdown if game is closed with sounds still playing
+* Fix crash on closing game window while there is commander levelup dialog open
+* Fix crash on entering into combat with MMAI library selected but without MMAI mod
+
+### Mechanics
+
+* Advanced Town Portal now costs 300 movement points, in line with H3
+* Cursed Ground now only cancels positive morale and does not affectes negative morale
+* Fixed regression of SPELLCASTER bonus, such as Archangel Resurrection ability not working properly
+* Reduced chance of Wyvern Monarch Poison from 50% to 30%, in line with H3
+
+### Interface
+
+* Fixed right-click popup descriptions for Fountain of Youth, Oasis, and Watering Hole
+* Fixed right-click popup and tooltip for "Search Map Object" button
+* Touch scrolling now works correctly in artifacts backpack
+* Added Ctrl+Alt+mouse click as recruitment shortcut for creature dwelling icons in town screen
+* Starting creatures, starting resources and primary skill bonuses in campaigns now show granted amount on icon in bonus selection menu
+* Luna Fire Wall tooltip now correctly accounts for her specialty
+* Commander abilities on levelup now correctly show their descriptions
+
+### Launcher
+
+* Added new mod screenshot viewer
+* Fixed regression that caused importing of offline backup installer to fail on some Android systems
+* Mod description and changelog will no longer automatically scroll to the very end on loading
+* Added mod uninstall confirmation to prevent unintentional mod uninstalling
+* On Android Launcher now uses immersive fullscreen mode to use all available screen space
+
+### Modding
+
+* Game will no longer report adventure map animation as missing if only .json for that animation exists
+* Game will no longer report files that are present in parent mod as missing when validation submod of a submod
+* It is now possibly to define mines for mod resources in RMG zone configuration without dependency on mod that provides the resource
+* Spell mastery is now correctly loaded from config for ON_COMBAT_EVENT bonus
+
 ## 1.7.1 -> 1.7.2
 
 ### Key Changes

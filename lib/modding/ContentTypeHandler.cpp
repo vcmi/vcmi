@@ -107,8 +107,8 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	{
 		for (auto & objectPatch : objectPatches)
 		{
-			if (settings["mods"]["validation"].String() != "off")
-				JsonUtils::detectConflicts(conflictList, modInfo.modData, objectPatch, objectName);
+			if (settings["mods"]["validation"].String() != "off" && !modInfo.modData[objectName].isNull())
+				JsonUtils::detectConflicts(conflictList, modInfo.modData[objectName], objectPatch, objectName);
 
 			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
 		}

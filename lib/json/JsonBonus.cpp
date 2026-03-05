@@ -323,7 +323,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 				}
 				if (effect["action"].String() == "spell")
 				{
-					int mastery = effect["mastery"].Bool();
+					int mastery = effect["mastery"].Integer();
 					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
 						SpellID(), mastery, targetEnemy

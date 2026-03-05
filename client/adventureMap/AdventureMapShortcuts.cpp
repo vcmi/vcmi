@@ -555,7 +555,7 @@ void AdventureMapShortcuts::search(bool next)
 		selectObjOnMap(lastSel);
 	else
 	{
-		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.tip"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
 		window->onPopup = [openObjMap](int index){ openObjMap(index); };
 		ENGINE->windows().pushWindow(window);
 	}

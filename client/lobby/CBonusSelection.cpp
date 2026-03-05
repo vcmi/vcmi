@@ -61,6 +61,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
@@ -486,9 +487,41 @@ void CBonusSelection::createBonusesIcons()
 			}
 		}
 
+		Point iconSize(58, 64);
+		auto bonusButtonLabel = std::make_shared<CLabel>(473 + iconSize.x + i * 68, 455 + iconSize.y, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+		if(settings["general"]["enableUiEnhancements"].Bool())
+		{
+			switch(bonusType)
+			{
+				case CampaignBonusType::MONSTER:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
+					bonusButtonLabel->setText(TextOperations::formatMetric(bonusValue.amount, 4));
+					break;
+				}
+				case CampaignBonusType::RESOURCE:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusStartingResources>();
+					bonusButtonLabel->setText(TextOperations::formatMetric(bonusValue.amount, 4));
+					break;
+				}
+				case CampaignBonusType::PRIMARY_SKILL:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusPrimarySkill>();
+					if(std::count_if(std::begin(bonusValue.amounts), std::end(bonusValue.amounts), [](int x){ return x != 0; }) == 1) // only show if unambiguously
+						for(auto & val : bonusValue.amounts)
+							if(val != 0)
+								bonusButtonLabel->setText(std::to_string(val));
+				}
+				default:
+					break;
+			}
+		}
+
 		if(GAME->server().campaignBonus == i)
 			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);
+		groupBonusesLabels.push_back(bonusButtonLabel);
 	}
 
 	if(getCampaign()->getBonusID(GAME->server().campaignMap))

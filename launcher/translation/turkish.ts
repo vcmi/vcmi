@@ -185,25 +185,25 @@
         <translation type="unfinished">Ekran görüntüleri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translation type="unfinished">Kaldır</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translation type="unfinished">Etkinleştir</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translation type="unfinished">Devre dışı bırak</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translation type="unfinished">Güncelle</translation>
@@ -293,8 +293,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="986"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="991"/>
         <source>mods repository index</source>
         <translation type="unfinished">mod deposu dizini</translation>
     </message>
@@ -374,17 +374,17 @@
         <translation type="unfinished">Depoyu aç</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="826"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="838"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished">%1 indiriliyor. %p% (%v MB / %m MB) tamamlandı</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="864"/>
         <source>Download failed</source>
         <translation type="unfinished">İndirme başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -397,7 +397,7 @@ Karşılaşılan hatalar:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="854"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="866"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -406,90 +406,115 @@ Install successfully downloaded?</source>
 İndirme işlemi başarıyla tamamlandı mı?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1055"/>
         <source>Installing Heroes Chronicles</source>
         <translation type="unfinished">Heroes Chronicles yükleniyor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
+        <source>Extracting error!</source>
+        <translation type="unfinished">Çıkarma sırasında hata oluştu!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>Invalid file selected</source>
+        <translation type="unfinished">Geçersiz dosya seçildi</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>You have to select a Heroes Chronicles installer file!</source>
+        <translation type="unfinished">Bir Heroes Chronicles yükleyici dosyası seçmelisiniz!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
         <source>Installing mod %1</source>
         <translation type="unfinished">%1 modu yükleniyor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1198"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1211"/>
         <source>Map exists</source>
         <translation type="unfinished">Harita mevcut</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1199"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1212"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">Harita &apos;%1&apos; zaten mevcut. Üzerine yazmak ister misiniz?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1208"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1221"/>
         <source>Yes to All</source>
         <translation type="unfinished">Tümüne Evet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1209"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1222"/>
         <source>No to All</source>
         <translation type="unfinished">Tümüne Hayır</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>Import complete</source>
         <translation type="unfinished">İçe aktarma tamamlandı</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n harita başarıyla içe aktarıldı.</numerusform>
         </translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Uninstall mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Are you sure you want to uninstall %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 map(s) successfully imported.</source>
         <translation type="obsolete">%1 harita başarıyla içe aktarıldı.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Import failed</source>
         <translation type="unfinished">İçe aktarma başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation type="unfinished">Şu haritalar içe aktarılamadı:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1340"/>
         <source>Operation failed</source>
         <translation type="unfinished">İşlem başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1328"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1341"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished">Karşılaşılan hatalar:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
         <source>screenshots</source>
         <translation type="unfinished">ekran görüntüleri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1399"/>
         <source>Screenshot %1</source>
         <translation type="unfinished">Ekran görüntüsü %1</translation>
     </message>
@@ -987,33 +1012,29 @@ Pencereli - oyun, ekranınızın bir kısmını kaplayan bir pencerede çalış�
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Geçersiz dosya seçildi</translation>
+        <translation type="obsolete">Geçersiz dosya seçildi</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">Bir Heroes Chronicles yükleyici dosyası seçmelisiniz!</translation>
+        <translation type="obsolete">Bir Heroes Chronicles yükleyici dosyası seçmelisiniz!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Çıkarma sırasında hata oluştu!</translation>
+        <translation type="obsolete">Çıkarma sırasında hata oluştu!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translation type="unfinished">Doğrulama (hash) hatası!</translation>
+        <translation type="obsolete">Doğrulama (hash) hatası!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
         <translation type="unfinished">Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
         <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
     </message>
@@ -1316,18 +1337,18 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="obsolete">%1 dosyasını seçmelisiniz!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="404"/>
         <source>GOG file (*.*)</source>
         <translation type="unfinished">GOG dosyası (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="402"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="405"/>
         <source>File selection</source>
         <translation type="unfinished">Dosya seçimi</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="613"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="416"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>GOG installer</source>
         <translation type="unfinished">GOG yükleyicisi</translation>
     </message>
@@ -1336,22 +1357,22 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation type="obsolete">Bir GOG Galaxy yükleyicisi sağladınız! Bu dosya oyunu içermez. Lütfen çevrimdışı yedek oyun yükleyicisini indirin!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">Heroes III: HD Edition dosyaları VCMI tarafından desteklenmez.
 Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini seçin.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="508"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation type="unfinished">Bilinmeyen veya desteklenmeyen bir Heroes III sürümü bulundu.
 Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini seçin.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="429"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="626"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>GOG data</source>
         <translation type="unfinished">GOG verileri</translation>
     </message>
@@ -1361,98 +1382,98 @@ Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini s
         <translation type="unfinished">Dosya açılamadı: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="366"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="368"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="394"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="388"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="426"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="619"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">Geçersiz dosya seçildi</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="433"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="632"/>
         <source>Invalid data file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="548"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Importing Heroes III data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="581"/>
         <source>Preparing installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="641"/>
         <source>Extracting installer...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>Extracting error!</source>
         <translation type="unfinished">Çıkarma sırasında hata oluştu!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="669"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="672"/>
         <source>Hash error!</source>
         <translation type="unfinished">Doğrulama (hash) hatası!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>No Heroes III data!</source>
         <translation type="unfinished">Heroes III verisi yok!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation type="unfinished">Seçilen dosyalar Heroes III verilerini içermiyor!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="698"/>
         <source>Scanning selected folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="503"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation type="unfinished">Seçilen dizinde geçerli Heroes III verileri tespit edilemedi.
 Lütfen kurulu Heroes III verilerinin bulunduğu dizini seçin.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="514"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="517"/>
         <source>Heroes III data not found!</source>
         <translation type="unfinished">Heroes III verileri bulunamadı!</translation>
     </message>
@@ -1491,6 +1512,21 @@ Lütfen kurulu Heroes III verilerinin bulunduğu dizini seçin.</translation>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
         <translation type="unfinished">Resim Görüntüleyici</translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="100"/>
+        <source>&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="138"/>
+        <source>&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="176"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1611,101 +1647,121 @@ Bin (%n Bayt):
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
+        <source>Dutch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="28"/>
         <source>English</source>
         <translation type="unfinished">İngilizce</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="28"/>
+        <location filename="../languages.cpp" line="29"/>
+        <source>Filipino</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="30"/>
         <source>Finnish</source>
         <translation type="unfinished">Fince</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="29"/>
+        <location filename="../languages.cpp" line="31"/>
         <source>French</source>
         <translation type="unfinished">Fransızca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="30"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>German</source>
         <translation type="unfinished">Almanca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>Greek</source>
         <translation type="unfinished">Yunanca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>Hungarian</source>
         <translation type="unfinished">Macarca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="35"/>
         <source>Italian</source>
         <translation type="unfinished">İtalyanca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="34"/>
+        <location filename="../languages.cpp" line="36"/>
         <source>Japanese</source>
         <translation type="unfinished">Japonca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="35"/>
+        <location filename="../languages.cpp" line="37"/>
         <source>Korean</source>
         <translation type="unfinished">Korece</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="36"/>
+        <location filename="../languages.cpp" line="38"/>
+        <source>Latvian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="39"/>
         <source>Norwegian</source>
         <translation type="unfinished">Norveççe</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="37"/>
+        <location filename="../languages.cpp" line="40"/>
         <source>Polish</source>
         <translation type="unfinished">Lehçe</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="38"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Portuguese</source>
         <translation type="unfinished">Portekizce</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="39"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Romanian</source>
         <translation type="unfinished">Rumence</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Russian</source>
         <translation type="unfinished">Rusça</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="44"/>
+        <source>Serbian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="45"/>
         <source>Spanish</source>
         <translation type="unfinished">İspanyolca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Swedish</source>
         <translation type="unfinished">İsveççe</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Turkish</source>
         <translation type="unfinished">Türkçe</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Ukrainian</source>
         <translation type="unfinished">Ukraynaca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Vietnamese</source>
         <translation type="unfinished">Vietnamca</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="67"/>
+        <location filename="../languages.cpp" line="71"/>
         <source>Auto (%1)</source>
         <translation type="unfinished">Otomatik (%1)</translation>
     </message>

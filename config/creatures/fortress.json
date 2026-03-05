@@ -343,7 +343,7 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.poison",
-				"val" : 50
+				"val" : 30
 			}
 		},
 		"graphics" :

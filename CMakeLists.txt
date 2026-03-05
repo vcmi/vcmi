@@ -100,7 +100,15 @@ else()
 	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
 
 	include(CheckCXXCompilerFlag)
-	check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
+	if(MSVC)
+		check_cxx_compiler_flag("/std:c++23" COMPILER_SUPPORTS_CXX23)
+		if(NOT COMPILER_SUPPORTS_CXX23)
+			check_cxx_compiler_flag("/std:c++23preview" COMPILER_SUPPORTS_CXX23_PREVIEW)
+			set(COMPILER_SUPPORTS_CXX23 ${COMPILER_SUPPORTS_CXX23_PREVIEW})
+		endif()
+	else()
+		check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
+	endif()
 	if(COMPILER_SUPPORTS_CXX23 # C++23 features needed
 		AND (MACOS
 			AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64" # skip intel for apple (compile issue)

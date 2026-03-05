@@ -1087,7 +1087,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
-		statistics->accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
+		statistics->getPlayerAccumulator(asker).movementPointsUsed += tmh.movePoints;
 		return true;
 	}
 }
@@ -1131,7 +1131,8 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
-		statistics->accumulatedValues[owner].lastCapturedTownDay = gameState().getDate(Date::DAY);
+		if(owner.isValidPlayer())
+			statistics->getPlayerAccumulator(owner).lastCapturedTownDay = gameState().getDate(Date::DAY);
 
 		if (owner.isValidPlayer() && town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 			setPortalDwelling(town, true, false);
@@ -1615,18 +1616,8 @@ bool CGameHandler::responseStatistic(PlayerColor player)
 	rs.statistic = *statistics;
 	rs.player = player;
 
-	// Keep only team statistics, no enemy
 	const TeamState * team = gameState().getPlayerTeam(player);
-
-	for(auto it = rs.statistic.accumulatedValues.begin(); it != rs.statistic.accumulatedValues.end();) {
-		if (std::find(team->players.begin(), team->players.end(), it->first) == team->players.end())
-			it = rs.statistic.accumulatedValues.erase(it);
-		else
-			++it;
-	}
-	rs.statistic.data.erase(std::remove_if(rs.statistic.data.begin(), rs.statistic.data.end(), [&team](const StatisticDataSetEntry& entry) {
-        return std::find(team->players.begin(), team->players.end(), entry.player) == team->players.end();
-    }), rs.statistic.data.end());
+	rs.statistic.filterByTeam(team);
 
 	sendAndApply(rs);
 
@@ -2245,7 +2236,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!force)
 	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-		statistics->accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
+		statistics->getPlayerAccumulator(t->tempOwner).spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
@@ -2448,7 +2439,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	//recruit
 	TResources cost = (c->getFullRecruitCost() * cram);
 	giveResources(army->tempOwner, -cost);
-	statistics->accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
+	statistics->getPlayerAccumulator(army->tempOwner).spentResourcesForArmy += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2511,7 +2502,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
-	statistics->accumulatedValues[player].spentResourcesForArmy += totalCost;
+	statistics->getPlayerAccumulator(player).spentResourcesForArmy += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj->id, pos), upgID.toCreature());
@@ -3232,8 +3223,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	giveResource(player, toSell, -b1 * amountToBuy);
 	giveResource(player, toBuy, b2 * amountToBuy);
 
-	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBuy;
-	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBuy;
+	statistics->getPlayerAccumulator(player).tradeVolume[toSell] += -b1 * amountToBuy;
+	statistics->getPlayerAccumulator(player).tradeVolume[toBuy] += b2 * amountToBuy;
 
 	return true;
 }

@@ -86,7 +86,7 @@ public:
 	void doInstallMod(const QString & modName);
 
 	/// uninstall mod by name
-	void doUninstallMod(const QString & modName);
+	void doUninstallMod(const QString & modName, bool silent = false);
 
 	/// update mod by name
 	void doUpdateMod(const QString & modName);

@@ -130,35 +130,55 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
-std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
+std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
+	if(!stack->canCast())
+		return std::nullopt;
+
+	std::vector<SpellID> spellsToCast;
+	TConstBonusListPtr bl = stack->getBonusesOfType(BonusType::SPELLCASTER);
+
 	//TODO: faerie dragon type spell should be selected by server
-	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack, true);
+	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
 
-	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
+	for(const auto & bonus : *bl)
+		if(!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
+			spellsToCast.push_back(bonus->subtype.as<SpellID>());
+
+	if(creatureSpellToCast.hasValue())
+		spellsToCast.push_back(creatureSpellToCast);
+
+	std::vector<PossibleSpellcast> possibleCasts;
+
+	for(const auto spellID : spellsToCast)
 	{
-		const CSpell * spell = creatureSpellToCast.toSpell();
+		const CSpell * spell = spellID.toSpell();
 
-		if(spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+		if(!spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+			continue;
+
+		spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+		for(auto & target : temp.findPotentialTargets())
 		{
-			std::vector<PossibleSpellcast> possibleCasts;
-			spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
-			for(auto & target : temp.findPotentialTargets())
-			{
-				PossibleSpellcast ps;
-				ps.dest = target;
-				ps.spell = spell;
-				evaluateCreatureSpellcast(stack, ps);
-				possibleCasts.push_back(ps);
-			}
-
-			std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
-			if(!possibleCasts.empty() && possibleCasts.front().value > 0)
-			{
-				return possibleCasts.front();
-			}
+			PossibleSpellcast ps;
+			ps.dest = target;
+			ps.spell = spell;
+			evaluateCreatureSpellcast(stack, ps);
+			possibleCasts.push_back(ps);
 		}
 	}
+
+	std::ranges::sort(
+		possibleCasts,
+		[&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs)
+		{
+			return lhs.value > rhs.value;
+		}
+	);
+
+	if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+		return possibleCasts.front();
+
 	return std::nullopt;
 }
 

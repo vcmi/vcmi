@@ -142,7 +142,11 @@ ${rccQmFiles}
 endif()
 
 if(WIN32)
-	set(launcher_ICON VCMI_launcher.rc)
+	set(VCMI_FILE_DESCRIPTION "VCMI Launcher")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_launcher.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/VCMI_launcher.ico\"")
+	set(launcher_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_launcher_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${launcher_ICON}" @ONLY)
 endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})

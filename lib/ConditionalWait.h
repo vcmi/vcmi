@@ -24,6 +24,17 @@ public:
 	}
 };
 
+class InterruptionRequestedException : public std::exception
+{
+public:
+	using exception::exception;
+
+	const char* what() const noexcept override
+	{
+		return "Thread termination requested";
+	}
+};
+
 class ThreadInterruption
 {
 	std::atomic<bool> interruptionRequested = false;
@@ -34,7 +45,7 @@ public:
 		bool result = interruptionRequested.exchange(false);
 
 		if (result)
-			throw TerminationRequestedException();
+			throw InterruptionRequestedException();
 	}
 
 	void interruptThread()

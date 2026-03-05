@@ -641,6 +641,7 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 			boat->appearance = handler->getTemplates().front();
 			map->generateUniqueInstanceName(boat.get());
 			map->addNewObject(boat);
+			map->hideObject(boat.get());
 			hero->setBoat(boat.get());
 		}
 	}

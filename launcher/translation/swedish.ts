@@ -185,25 +185,25 @@
         <translation>Skärmbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="550"/>
         <source>Uninstall</source>
         <translation>Avinstallera</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="535"/>
         <source>Disable</source>
         <translation>Inaktivera</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
+        <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="555"/>
         <source>Update</source>
         <translation>Uppdatera</translation>
@@ -293,8 +293,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="193"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="986"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="991"/>
         <source>mods repository index</source>
         <translation>Index över modd‑förråd (repon)</translation>
     </message>
@@ -374,17 +374,17 @@
         <translation>Öppna förråd (repo)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="826"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="838"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Laddar ner %1. %p% (%v MB utav %m MB) slutfört</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="852"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="864"/>
         <source>Download failed</source>
         <translation>Nedladdning misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="853"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="865"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -397,7 +397,7 @@ Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="854"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="866"/>
         <source>
 
 Install successfully downloaded?</source>
@@ -406,7 +406,7 @@ Install successfully downloaded?</source>
 Installation framgångsrikt nedladdad?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -415,42 +415,57 @@ Orsak: %2.
 Vänligen rapportera detta problem till utvecklarna</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1043"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1055"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Installerar Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1087"/>
+        <source>Extracting error!</source>
+        <translation type="unfinished">Extraheringsfel!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>Invalid file selected</source>
+        <translation type="unfinished">Ogiltig fil vald</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1089"/>
+        <source>You have to select a Heroes Chronicles installer file!</source>
+        <translation type="unfinished">Du måste välja en installationsfil för Hjältarnas Krönikor (Heroes Chronicles)!</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
         <source>Installing mod %1</source>
         <translation>Installerar modd %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1198"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1211"/>
         <source>Map exists</source>
         <translation>Kartan existerar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1199"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1212"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Kartan ’%1’ finns redan. Vill ni skriva över den?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1208"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1221"/>
         <source>Yes to All</source>
         <translation>Ja till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1209"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1222"/>
         <source>No to All</source>
         <translation>Nej till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>Import complete</source>
         <translation>Importen är klar</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1311"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n karta importerades framgångsrikt.</numerusform>
@@ -458,41 +473,51 @@ Vänligen rapportera detta problem till utvecklarna</translation>
         </translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Uninstall mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1443"/>
+        <source>Are you sure you want to uninstall %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 map(s) successfully imported.</source>
         <translation type="vanished">%1 karta/kartor importerades utan problem.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="949"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="961"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Import failed</source>
         <translation>Importen misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1301"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1314"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Det gick inte att importera följande kartor:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1327"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1340"/>
         <source>Operation failed</source>
         <translation>Åtgärden misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1328"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1341"/>
         <source>Encountered errors:
 </source>
         <translation>Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
         <source>screenshots</source>
         <translation>skärmbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1399"/>
         <source>Screenshot %1</source>
         <translation>Skärmbild %1</translation>
     </message>
@@ -988,33 +1013,29 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
 <context>
     <name>ChroniclesExtractor</name>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translation>Ogiltig fil vald</translation>
+        <translation type="vanished">Ogiltig fil vald</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>Ni måste välja en installationsfil för Hjältarnas Krönikor (Heroes Chronicles)!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translation>Extraheringsfel!</translation>
+        <translation type="vanished">Extraheringsfel!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translation>Hashfel!</translation>
+        <translation type="vanished">Hashfel!</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
-        <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
         <translation>Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
+        <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
         <translation>Heroes Chronicles %1 - %2</translation>
     </message>
@@ -1317,18 +1338,18 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
         <translation type="vanished">Ni behöver välja %1-filen!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="401"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="404"/>
         <source>GOG file (*.*)</source>
         <translation>GOG-fil (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="402"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="405"/>
         <source>File selection</source>
         <translation>Filval</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="413"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="613"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="416"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
         <source>GOG installer</source>
         <translation>Offline Backup Game Installer (gog.com)</translation>
     </message>
@@ -1337,22 +1358,22 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
         <translation type="vanished">Ni har tillhandahållit en installationsfil av GOG Galaxy! Den här filen innehåller inte spelet. Vänligen ladda ner säkerhetskopian av spelet (offline backup game installers)!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Heroes III: HD Edition-filer stöds inte av VCMI.
 Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="508"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="511"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Okänd eller ej stödd Heroes III-version hittades.
 Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="429"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="626"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
         <source>GOG data</source>
         <translation>GOG-data</translation>
     </message>
@@ -1362,98 +1383,98 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
         <translation>Kunde inte öppna filen: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="366"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="391"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="368"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="394"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Ni måste välja en %1-fil!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="373"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
         <translation>Ni behöver välja en offline backup game installer från GOG.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="388"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
         <translation>Ni valde ett installationsprogram för GOG Galaxy. Denna fil innehåller inte spelet. Ladda istället ner installationsprogrammet för offline-backupen av spelet.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="414"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="417"/>
         <source>Select the offline GOG installer (.exe)</source>
         <translation>Välj installationsprogrammet för offline-backupen (.exe)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="423"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="616"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="426"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="619"/>
         <source>Invalid file selected</source>
         <translation>Ogiltig fil vald</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="430"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="433"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
         <translation>Välj följande offline backup-fil från GOG: %1</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="629"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="453"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="632"/>
         <source>Invalid data file</source>
         <translation>Ogiltig datafil</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="548"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Importing Heroes III data...</source>
         <translation>Importerar Heroes III-data...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="578"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="581"/>
         <source>Preparing installer...</source>
         <translation>Förbereder installationsprogram...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="638"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="641"/>
         <source>Extracting installer...</source>
         <translation>Extraherar installationsprogrammet...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="665"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="668"/>
         <source>Extracting error!</source>
         <translation>Extraheringsfel!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="669"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="672"/>
         <source>Hash error!</source>
         <translation>Hashfel!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>No Heroes III data!</source>
         <translation>Inga Heroes III-data!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="673"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="676"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>De valda filerna innehåller inte Heroes III-data!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="695"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="698"/>
         <source>Scanning selected folder...</source>
         <translation>Söker igenom vald mapp...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="503"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="506"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Lyckades inte upptäcka giltiga Heroes III-data i vald mapp.
 Vänligen välj mappen där ni installerade Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="514"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="517"/>
         <source>Heroes III data not found!</source>
         <translation>Heroes III-data hittades inte!</translation>
     </message>
@@ -1492,6 +1513,21 @@ Vänligen välj mappen där ni installerade Heroes III.</translation>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
         <translation>Bildvisare</translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="100"/>
+        <source>&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="138"/>
+        <source>&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/imageviewer_moc.ui" line="176"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1618,101 +1654,121 @@ Bin-filer (%n byte):
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
+        <source>Dutch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="28"/>
         <source>English</source>
         <translation>Engelska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="28"/>
+        <location filename="../languages.cpp" line="29"/>
+        <source>Filipino</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="30"/>
         <source>Finnish</source>
         <translation>Finska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="29"/>
+        <location filename="../languages.cpp" line="31"/>
         <source>French</source>
         <translation>Franska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="30"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>German</source>
         <translation>Tyska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>Greek</source>
         <translation>Grekiska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>Hungarian</source>
         <translation>Ungerska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="35"/>
         <source>Italian</source>
         <translation>Italienska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="34"/>
+        <location filename="../languages.cpp" line="36"/>
         <source>Japanese</source>
         <translation>Japanska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="35"/>
+        <location filename="../languages.cpp" line="37"/>
         <source>Korean</source>
         <translation>Koreanska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="36"/>
+        <location filename="../languages.cpp" line="38"/>
+        <source>Latvian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="39"/>
         <source>Norwegian</source>
         <translation>Norska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="37"/>
+        <location filename="../languages.cpp" line="40"/>
         <source>Polish</source>
         <translation>Polska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="38"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Portuguese</source>
         <translation>Portugisiska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="39"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Romanian</source>
         <translation>Rumänska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Russian</source>
         <translation>Ryska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="44"/>
+        <source>Serbian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="45"/>
         <source>Spanish</source>
         <translation>Spanska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Swedish</source>
         <translation>Svenska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Turkish</source>
         <translation>Turkiska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Ukrainian</source>
         <translation>Ukrainska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Vietnamese</source>
         <translation>Vietnamesiska</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="67"/>
+        <location filename="../languages.cpp" line="71"/>
         <source>Auto (%1)</source>
         <translation>Automatiskt (%1)</translation>
     </message>

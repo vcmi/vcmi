@@ -176,7 +176,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 58,
-				"description" : "@core.xtrainfo.0",
+				"description" : "@core.xtrainfo.13",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -299,7 +299,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 95,
-				"description" : "@core.xtrainfo.13",
+				"description" : "@core.xtrainfo.26",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
@@ -465,7 +465,7 @@
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onVisitedMessage" : 167,
-				"description" : "@core.xtrainfo.13",
+				"description" : "@core.xtrainfo.27",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [

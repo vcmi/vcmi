@@ -591,8 +591,6 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 			detectOverlappingBuildings(this, factionBase);
 		});
 	}
-	
-	preloadAnimationsAsync();
 }
 
 std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
@@ -639,35 +637,6 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 
 void RenderHandler::updateGeneratedAssets()
 {
-	for (const auto& [key, value] : assetGenerator->generateAllAnimations())
-        animationLayouts[key] = value;
-}
-
-void RenderHandler::preloadAnimationsAsync()
-{
-	auto animationFiles = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & path) {
-		return path.getType() == EResType::ANIMATION;
-	});
-	
-	logGlobal->info("Starting async preload of %d animation files", animationFiles.size());
-	
-	const auto preloadTask = [this, animationFiles]()
-	{
-		for (const auto & path : animationFiles)
-		{
-			try
-			{
-				AnimationPath animPath = AnimationPath::fromResource(path);
-				getAnimationFile(animPath);
-			}
-			catch (const std::exception & e)
-			{
-				logGlobal->warn("Failed to preload animation %s: %s", path.getName(), e.what());
-			}
-		}
-		
-		logGlobal->info("Animation preload completed");
-	};
-	
-	preloadTask();
+	for(const auto & [key, value] : assetGenerator->generateAllAnimations())
+		animationLayouts[key] = value;
 }

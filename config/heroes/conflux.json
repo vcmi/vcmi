@@ -281,6 +281,12 @@
 					"type" : "SPECIFIC_SPELL_DAMAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
+				},
+				"fireWallTooltip" : {
+					"subtype" : "spell.fireWall",
+					"type" : "SPECIFIC_SPELL_DAMAGE",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
 				}
 			}
 		}

@@ -45,15 +45,19 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 	for (const ObjectInstanceID objectID : tile->blockingObjects)
 	{
 		const auto * obj = GAME->interface()->cb->getObj(objectID);
-		PlayerColor player = obj->getOwner();
-		if(player == PlayerColor::NEUTRAL)
-			return graphics->neutralColor;
 
-		if (settings["adventure"]["minimapShowHeroes"].Bool() && obj->ID == MapObjectID::HERO)
-			continue;
+		if (obj)
+		{
+			PlayerColor player = obj->getOwner();
+			if(player == PlayerColor::NEUTRAL)
+				return graphics->neutralColor;
 
-		if (player.isValidPlayer())
-			return graphics->playerColors[player.getNum()];
+			if (settings["adventure"]["minimapShowHeroes"].Bool() && obj->ID == MapObjectID::HERO)
+				continue;
+
+			if (player.isValidPlayer())
+				return graphics->playerColors[player.getNum()];
+		}
 	}
 
 	if (tile->blocked() && !tile->visitable())
