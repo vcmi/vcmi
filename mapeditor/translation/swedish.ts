@@ -1724,10 +1724,9 @@
 
 Do you want to do that now ?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
+        <translation>
 
-
-Vill du göra det nu?</translation>
+Vill du göra det nu ?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="636"/>
