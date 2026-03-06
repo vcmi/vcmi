@@ -89,7 +89,7 @@ static QString updateDialogPlatformInfo()
 #elif defined(VCMI_IOS)
 	return QObject::tr("You are running iOS. Usually only one VCMI app installation is active at a time, and installing another build typically replaces the previous app.");
 #elif defined(VCMI_UNIX)
-	return QObject::tr("You are running Linux. Updates are currently supported only for AppImage builds.");
+	return QObject::tr("You are running Linux. Updates are currently supported only for AppImage builds. Please use your system package manager to update VCMI");
 #else
 	return QObject::tr("You are running an unsupported or unknown operating system. Platform-specific coexistence details are currently unavailable.");
 #endif
