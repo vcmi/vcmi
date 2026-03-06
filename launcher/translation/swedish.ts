@@ -1393,7 +1393,8 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation>Ni behöver välja en offline backup game installer från GOG.</translation>
+        <translation>Ett okänt installationsprogram har valts.
+Du måste välja det offlinebaserade GOG-installationsprogrammet.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="388"/>
