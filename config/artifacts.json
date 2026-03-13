@@ -2232,7 +2232,7 @@
 	},
 	"cornucopia":
 	{
-		"instanceBonuses" : {
+		"bonuses" : {
 			"crystal" : {
 				"subtype" : "resource.crystal",
 				"type" : "GENERATE_RESOURCE",
