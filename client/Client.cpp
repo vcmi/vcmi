@@ -226,7 +226,7 @@ void CClient::initPlayerEnvironments()
 		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
 		
-		if(color.isValidPlayer() && !hasHumanPlayer && gameState().players.at(color).isHuman())
+		if(color.isValidPlayer() && !hasHumanPlayer && gameState().players.count(color) && gameState().players.at(color).isHuman())
 			hasHumanPlayer = true;
 	}
 

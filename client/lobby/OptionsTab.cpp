@@ -950,7 +950,14 @@ void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
 
 	if(SEL->screenType != ESelectionScreen::newGame)
 		return;
-	
+
+	auto mapInfo = SEL->getMapInfo();
+	if (!mapInfo || !mapInfo->mapHeader)
+		return;
+
+	if (playerSettings.color.getNum() >= mapInfo->mapHeader->players.size())
+		return;
+
 	PlayerInfo pi = SEL->getPlayerInfo(playerSettings.color);
 	const bool foreignPlayer = GAME->server().isGuest() && !GAME->server().isMyColor(playerSettings.color);
 

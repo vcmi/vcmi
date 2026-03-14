@@ -493,6 +493,9 @@ void RenderHandler::addImageListEntries(const EntityService * service)
 {
 	service->forEachBase([this](const Entity * entity, bool & stop)
 	{
+		if (!entity)
+			return;
+
 		entity->registerIcons([this](size_t index, size_t group, const std::string & listName, const std::string & imageName)
 		{
 			if (imageName.empty())

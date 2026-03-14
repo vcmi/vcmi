@@ -432,6 +432,11 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
+	if (!networkConnection)
+	{
+		logGlobal->warn("GlobalLobbyClient::sendMessage called without active connection, ignoring message of type '%s'", data["type"].String());
+		return;
+	}
 	assert(JsonUtils::validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
 	networkConnection->sendPacket(data.toBytes());
 }

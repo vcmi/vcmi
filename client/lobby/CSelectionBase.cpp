@@ -80,6 +80,9 @@ PlayerInfo ISelectionScreenInfo::getPlayerInfo(PlayerColor color)
 	if (!mapInfo->mapHeader)
 		throw std::runtime_error("Attempt to get player info for invalid map header!");
 
+	if (color.getNum() >= mapInfo->mapHeader->players.size())
+		throw std::runtime_error("Attempt to get player info for out-of-range player color " + std::to_string(color.getNum()) + " (map has " + std::to_string(mapInfo->mapHeader->players.size()) + " player slots)!");
+
 	return mapInfo->mapHeader->players.at(color.getNum());
 }
 
