@@ -2239,7 +2239,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!force)
 	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-		statistics->getPlayerAccumulator(t->tempOwner).spentResourcesForBuildings += requestedBuilding->resources;
+		if(t->tempOwner.isValidPlayer())
+			statistics->getPlayerAccumulator(t->tempOwner).spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window

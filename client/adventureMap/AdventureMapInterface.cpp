@@ -442,7 +442,7 @@ void AdventureMapInterface::onPlayerTurnStarted(PlayerColor playerID)
 	{
 		GAME->interface()->localState->setSelection(GAME->interface()->localState->getOwnedTown(0));
 	}
-	else
+	else if(!GAME->interface()->localState->getWanderingHeroes().empty())
 	{
 		GAME->interface()->localState->setSelection(GAME->interface()->localState->getWanderingHero(0));
 	}

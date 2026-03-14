@@ -400,8 +400,11 @@ void CServerHandler::sendClientDisconnecting()
 	{
 		logNetwork->info("Sent leaving signal to the server");
 	}
-	sendLobbyPack(lcd);
-	networkConnection->close();
+	if(networkConnection)
+	{
+		sendLobbyPack(lcd);
+		networkConnection->close();
+	}
 	networkConnection.reset();
 	logicConnection.reset();
 	waitForServerShutdown();
