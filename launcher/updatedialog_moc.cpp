@@ -110,6 +110,20 @@ static QString availabilityLine(int comparisonResult, const QString &version)
 	return QObject::tr("You are using latest version");
 }
 
+static QString noDownloadHelpText()
+{
+	return QObject::tr("Automatic updates are not supported for this platform/channel combination. Please install the updated version manually.");
+}
+
+static QString appendNoDownloadHelpText(const QString &existingMarkdown)
+{
+	if(existingMarkdown.trimmed().isEmpty())
+		return noDownloadHelpText();
+
+	return existingMarkdown + "\n\n" + noDownloadHelpText();
+}
+
+
 UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	QDialog(parent),
 	ui(new Ui::UpdateDialog),
@@ -578,7 +592,7 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing, const QStrin
 	const std::string changeLog = node["changeLog"].getType() == JsonNode::JsonType::DATA_STRING ? node["changeLog"].String() : "";
 
 	// Decide if update is offered, but never early-return or close the dialog
-	const bool offer = compareWithInstalled(currentVersion, currentCommit, QString::fromStdString(newVersion), QString::fromStdString(newCommit), testing) > 0;
+	//const bool offer = compareWithInstalled(currentVersion, currentCommit, QString::fromStdString(newVersion), QString::fromStdString(newCommit), testing) > 0;
 
 	// Populate UI
 	if(versionLabel)
@@ -605,12 +619,13 @@ void UpdateDialog::loadFromJson(const JsonNode& node, bool testing, const QStrin
 
 	// Download link
 	const QString link = pickDownloadUrl(node);
-
+	const bool offer = !link.isEmpty() && compareWithInstalled(currentVersion, currentCommit, QString::fromStdString(newVersion), QString::fromStdString(newCommit), testing) > 0;
+	
 	downloadURL = link;
 	version = QString::fromStdString(newVersion);
 
 	if(link.isEmpty())
-		changelogBox->setMarkdown(tr("No download available for this platform."));
+		changelogBox->setMarkdown(appendNoDownloadHelpText(logText));
 
 	if(testing)
 	{
@@ -673,7 +688,20 @@ void UpdateDialog::refreshTestingBuildFromNewest()
 	}
 
 	if(!newest)
+	{
+		testingVersion.clear();
+		testingUrl.clear();
+		selectedTestingCommit.clear();
+		selectedTestingBuildDate.clear();
+		selectedTestingChannel.clear();
+		testingOffer = false;
+		if(ui->testingVersion)
+			ui->testingVersion->clear();
+		if(ui->testingChangelog)
+			ui->testingChangelog->setMarkdown(noDownloadHelpText());
+		updateAvailabilityNotice();
 		return;
+	}
 
 	const QString preferredTestingChannel = preferredTestingChannelFromBranch(currentBranch);
 	const TestingBuildState *autoSelected = nullptr;
@@ -737,11 +765,20 @@ void UpdateDialog::applySelectedTestingChannel()
 	if(!headerLines.isEmpty())
 		logText = headerLines.join("\n\n");
 
-	logText += "<br/><br/>";
-	logText += selected->changelog;
-
 	if(ui->testingChangelog)
-		ui->testingChangelog->setMarkdown(logText);
+	{
+		if(selected->downloadUrl.isEmpty())
+			ui->testingChangelog->setMarkdown(appendNoDownloadHelpText(logText));
+		else
+		{
+			logText += "<br/><br/>";
+			logText += selected->changelog;
+			ui->testingChangelog->setMarkdown(logText);
+		}
+	}
+
+	testingOffer = !testingUrl.isEmpty() && compareWithInstalled(currentVersion, currentCommit, testingVersion, selected->commit, true) > 0;
+	updateAvailabilityNotice();
 
 	testingOffer = compareWithInstalled(currentVersion, currentCommit, testingVersion, selected->commit, true) > 0;
 	updateAvailabilityNotice();
@@ -749,8 +786,8 @@ void UpdateDialog::applySelectedTestingChannel()
 
 void UpdateDialog::updateAvailabilityNotice()
 {
-	const bool testingTabSelected = ui->tabWidget && ui->tabWidget->currentIndex() == 1 && ui->testingBuilds->isChecked();
-	const bool selectedTesting = testingTabSelected && !testingVersion.isEmpty();
+	const bool testingTabSelected = ui->tabWidget->currentIndex() == 1 && ui->testingBuilds->isChecked();
+	const bool selectedTesting = testingTabSelected && !testingVersion.isEmpty() && !testingUrl.isEmpty();
 
 	QString version = selectedTesting ? testingVersion : releaseVersion;
 	if(!version.isEmpty())
@@ -774,17 +811,13 @@ void UpdateDialog::on_infoButton_clicked()
 	QMessageBox::information(this, tr("Update channels information"), details + "\n\n" + common);
 }
 
-void UpdateDialog::on_installButton_clicked()
+bool UpdateDialog::handleIosInstallFlow()
 {
-	const bool testingTabSelected = ui->tabWidget->currentIndex() == 1 && ui->testingBuilds->isChecked();
-	if(testingTabSelected)
-		applySelectedTestingChannel(); // keep URL in sync with current dropdown choice
-
 #if defined(VCMI_IOS)
 	if(iOS_utils::isTestFlightInstalled() || iOS_utils::isOsVersionAtLeast(16))
 	{
 		QDesktopServices::openUrl(QUrl(QStringLiteral("https://testflight.apple.com/join/pJWHSbmu")));
-		return;
+		return true;
 	}
 
 	QMessageBox messageBox(this);
@@ -799,14 +832,66 @@ void UpdateDialog::on_installButton_clicked()
 	if(messageBox.clickedButton() == openGuideButton)
 		QDesktopServices::openUrl(QUrl(QStringLiteral("https://vcmi.eu/players/Installation_iOS/")));
 
-	return;
+	return true;
+#else
+	return false;
 #endif
-	
-	const QString url = testingTabSelected ? testingUrl : releaseUrl;
+}
+
+bool UpdateDialog::selectedChannelIsTesting() const
+{
+	return ui->tabWidget->currentIndex() == 1 && ui->testingBuilds->isChecked();
+}
+
+QString UpdateDialog::selectedChannelDownloadUrl()
+{
+	if(selectedChannelIsTesting())
+	{
+		applySelectedTestingChannel(); // keep URL in sync with current dropdown choice
+		return testingUrl;
+	}
+
+	return releaseUrl;
+}
+
+void UpdateDialog::startSelectedDownload(const QString &url)
+{
+	const QUrl parsedUrl(url);
+
+#if defined(VCMI_MOBILE)
+	// Always ask user where to save on mobile
+	if(Helper::canUseFolderPicker())
+	{
+		Helper::nativeFolderPicker(this, [this, parsedUrl](QString picked){
+			if(picked.isEmpty())
+				return; // user cancelled
+			startDownloadToCacheAndRun(parsedUrl, picked);
+		});
+	}
+	else
+	{
+		QMessageBox::information(this, tr("Manual filename required"), tr("This fallback picker may not prefill a filename on some devices. If no filename is shown, create one manually (for example: vcmi.apk)."));
+		const QString pickedPath = QFileDialog::getOpenFileName(this, tr("Select destination file"), QDir::homePath(), tr("All files (*.*)"));
+		if(pickedPath.isEmpty())
+			return;
+
+		startDownloadToCacheAndRun(parsedUrl, pickedPath, true);
+	}
+#else
+	startDownloadToCacheAndRun(parsedUrl);
+#endif
+}
+
+void UpdateDialog::on_installButton_clicked()
+{
+	if(handleIosInstallFlow())
+		return;
+
+	const QString url = selectedChannelDownloadUrl();
 
 	if(url.isEmpty())
 	{
-		ui->downloadLink->setText(tr("No package to download."));
+		ui->downloadLink->setText(noDownloadHelpText());
 		return;
 	}
 
@@ -821,31 +906,7 @@ void UpdateDialog::on_installButton_clicked()
 		return;
 	}
 #endif
-
-#if defined(VCMI_MOBILE)
-	// Always ask user where to save on mobile
-	if(Helper::canUseFolderPicker())
-	{
-		Helper::nativeFolderPicker(this, [this, url](QString picked){
-			if(picked.isEmpty())
-				return; // user cancelled
-			startDownloadToCacheAndRun(QUrl(url), picked);
-		});
-	}
-	else
-	{
-		QMessageBox::information(this, tr("Manual filename required"), tr("This fallback picker may not prefill a filename on some devices. If no filename is shown, create one manually (for example: vcmi.apk)."));
-		const QString pickedPath = QFileDialog::getOpenFileName(this, tr("Select destination file"), QDir::homePath(), tr("All files (*.*)"));
-		if(pickedPath.isEmpty())
-			return;
-
-		startDownloadToCacheAndRun(QUrl(url), pickedPath, true);
-	}
-	return;
-#else
-	// Desktop: keep current behaviour
-	startDownloadToCacheAndRun(QUrl(url));
-#endif
+	startSelectedDownload(url);
 }
 
 void UpdateDialog::on_closeButton_clicked()

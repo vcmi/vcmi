@@ -98,6 +98,10 @@ private:
 	void refreshTestingBuildFromNewest();
 	void applySelectedTestingChannel();
 	void updateAvailabilityNotice();
+	bool handleIosInstallFlow();
+	QString selectedChannelDownloadUrl();
+	bool selectedChannelIsTesting() const;
+	void startSelectedDownload(const QString &url);
 	void startDownloadToCacheAndRun(const QUrl& url, const QString& target = QString(), bool targetIsFile = false);
 	void updateMobileBackdrop();
 	void ensureMobileBackdropCaptured();
