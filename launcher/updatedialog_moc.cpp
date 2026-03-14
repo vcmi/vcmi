@@ -35,6 +35,7 @@
 #include <QTimer>
 #include <QScreen>
 #include <QProcessEnvironment>
+#include <QFileDialog>
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
@@ -89,7 +90,7 @@ static QString updateDialogPlatformInfo()
 #elif defined(VCMI_IOS)
 	return QObject::tr("You are running iOS. Usually only one VCMI app installation is active at a time, and installing another build typically replaces the previous app.");
 #elif defined(VCMI_UNIX)
-	return QObject::tr("You are running Linux. Updates are currently supported only for AppImage builds. Please use your system package manager to update VCMI");
+	return QObject::tr("You are running Linux. Updates are currently supported only for AppImage builds.");
 #else
 	return QObject::tr("You are running an unsupported or unknown operating system. Platform-specific coexistence details are currently unavailable.");
 #endif
@@ -823,11 +824,23 @@ void UpdateDialog::on_installButton_clicked()
 
 #if defined(VCMI_MOBILE)
 	// Always ask user where to save on mobile
-	Helper::nativeFolderPicker(this, [this, url](QString picked){
-		if(picked.isEmpty())
-			return; // user cancelled
-		startDownloadToCacheAndRun(QUrl(url), picked);
-	});
+	if(Helper::canUseFolderPicker())
+	{
+		Helper::nativeFolderPicker(this, [this, url](QString picked){
+			if(picked.isEmpty())
+				return; // user cancelled
+			startDownloadToCacheAndRun(QUrl(url), picked);
+		});
+	}
+	else
+	{
+		QMessageBox::information(this, tr("Manual filename required"), tr("This fallback picker may not prefill a filename on some devices. If no filename is shown, create one manually (for example: vcmi.apk)."));
+		const QString pickedPath = QFileDialog::getOpenFileName(this, tr("Select destination file"), QDir::homePath(), tr("All files (*.*)"));
+		if(pickedPath.isEmpty())
+			return;
+
+		startDownloadToCacheAndRun(QUrl(url), pickedPath, true);
+	}
 	return;
 #else
 	// Desktop: keep current behaviour
@@ -840,8 +853,12 @@ void UpdateDialog::on_closeButton_clicked()
 	close();
 }
 
-void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& target)
+void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& target, bool targetIsFile)
 {
+#if !defined(VCMI_ANDROID)
+	Q_UNUSED(targetIsFile);
+#endif
+
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     QNetworkReply* reply = networkManager.get(request);
@@ -863,7 +880,11 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
         });
     }
 
+#if defined(VCMI_ANDROID)
+    connect(reply, &QNetworkReply::finished, this, [this, reply, progress, target, targetIsFile, requestedUrl = url] {
+#else
     connect(reply, &QNetworkReply::finished, this, [this, reply, progress, target, requestedUrl = url] {
+#endif
         reply->deleteLater();
         if(reply->error() != QNetworkReply::NoError)
 		{
@@ -993,13 +1014,15 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
 
 #elif defined(VCMI_ANDROID)
         const bool targetIsContent = target.startsWith("content://", Qt::CaseInsensitive);
-        const QString dstPath = Helper::createFile(target, fileName, QStringLiteral("application/octet-stream"));
+        const QString dstPath = targetIsFile ? target : Helper::createFile(target, fileName, QStringLiteral("application/octet-stream"));
         const bool copyOk = !dstPath.isEmpty() && Helper::performNativeCopy(fullPath, dstPath);
 
         if(copyOk)
         {
-            if(targetIsContent)
+            if(targetIsContent && !targetIsFile)
                 ui->downloadLink->setText(tr("Saved to selected folder, install it manually."));
+            else if(targetIsContent)
+                ui->downloadLink->setText(tr("Saved to selected file, install it manually."));
             else
                 ui->downloadLink->setText(tr("Saved to: %1 — install it manually.").arg(target));
         }
@@ -1009,7 +1032,8 @@ void UpdateDialog::startDownloadToCacheAndRun(const QUrl& url, const QString& ta
         }
         else
         {
-            ui->downloadLink->setText(tr("Saved to: %1 — install it manually.").arg(target));
+            const QString shownPath = targetIsFile ? dstPath : target;
+            ui->downloadLink->setText(tr("Saved to: %1 — install it manually.").arg(shownPath));
         }
 
         if(progress)

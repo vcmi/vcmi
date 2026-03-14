@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QScroller>
+#include <QFileDialog>
 
 #ifdef VCMI_ANDROID
 #include <QAndroidJniObject>
@@ -191,21 +192,23 @@ void keepScreenOn(bool isEnabled)
 bool canUseFolderPicker()
 {
 #if defined(VCMI_ANDROID)
-	// Folder picker is available on API >= 21.
-	// Android/Google TV usually lacks DocumentsUI — hide this option.
+	// Use runtime capability check instead of device-type heuristics (Google TV, etc.).
+	const QAndroidJniObject context = QtAndroid::androidContext();
+	if(!context.isValid())
+		return false;
 
-	QAndroidJniObject context = QtAndroid::androidContext();
-	QAndroidJniObject uiModeMgr = context.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;", QAndroidJniObject::fromString("uimode").object<jstring>());
+	const QAndroidJniObject packageManager = context.callObjectMethod("getPackageManager", "()Landroid/content/pm/PackageManager;");
+	if(!packageManager.isValid())
+		return false;
 
-	if(uiModeMgr.isValid())
-	{
-		jint mode = uiModeMgr.callMethod<jint>("getCurrentModeType", "()I");
-		jint TV = QAndroidJniObject::getStaticField<jint>("android/content/res/Configuration", "UI_MODE_TYPE_TELEVISION");
-		if(mode == TV)
-			return false;
-	}
+	QAndroidJniObject intent("android/content/Intent", "()V");
+	if(!intent.isValid())
+		return false;
 
-	return true;
+	intent.callObjectMethod("setAction", "(Ljava/lang/String;)Landroid/content/Intent;", QAndroidJniObject::fromString("android.intent.action.OPEN_DOCUMENT_TREE").object<jstring>());
+
+	const QAndroidJniObject resolver = intent.callObjectMethod("resolveActivity", "(Landroid/content/pm/PackageManager;)Landroid/content/ComponentName;", packageManager.object<jobject>());
+	return resolver.isValid();
 #elif defined(VCMI_IOS)
 	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
 	return iOS_utils::isOsVersionAtLeast(13);
@@ -263,6 +266,7 @@ public:
 };
 
 static FolderPickReceiver g_receiver;
+
 #endif
 
 void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb)
