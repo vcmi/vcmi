@@ -744,9 +744,12 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 	if (misplacedZones.empty())
 		return;
 
-	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
+	boost::sort(misplacedZones, [](const Misplacement & lhs, const Misplacement & rhs)
 	{
-		return lhs.first > rhs.first; //Largest displacement first
+		if(lhs.first != rhs.first)
+			return lhs.first > rhs.first; //Largest displacement first
+
+		return lhs.second->getId() < rhs.second->getId();
 	});
 
 #ifdef ZONE_PLACEMENT_LOG
@@ -907,13 +910,22 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	auto compareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
 	{
 		//bigger zones have smaller distance
-		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
+		const float lhsScore = lhs.second / lhs.first->getSize();
+		const float rhsScore = rhs.second / rhs.first->getSize();
+
+		if(lhsScore != rhsScore)
+			return lhsScore < rhsScore;
+
+		return lhs.first->getId() < rhs.first->getId();
 	};
 
 	auto simpleCompareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
 	{
 		//bigger zones have smaller distance
-		return lhs.second < rhs.second;
+		if(lhs.second != rhs.second)
+			return lhs.second < rhs.second;
+
+		return lhs.first->getId() < rhs.first->getId();
 	};
 
 	int levels = map.levels();

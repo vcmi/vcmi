@@ -817,7 +817,24 @@ void CMap::reindexObjects()
 		if (lhs->isRemovable() && !rhs->isRemovable())
 			return false;
 
-		return lhs->anchorPos().y < rhs->anchorPos().y;
+		const auto lhsAnchor = lhs->anchorPos();
+		const auto rhsAnchor = rhs->anchorPos();
+
+		if(lhsAnchor.y != rhsAnchor.y)
+			return lhsAnchor.y < rhsAnchor.y;
+		if(lhsAnchor.x != rhsAnchor.x)
+			return lhsAnchor.x < rhsAnchor.x;
+		if(lhsAnchor.z != rhsAnchor.z)
+			return lhsAnchor.z < rhsAnchor.z;
+
+		if(lhs->ID.getNum() != rhs->ID.getNum())
+			return lhs->ID.getNum() < rhs->ID.getNum();
+		if(lhs->subID.getNum() != rhs->subID.getNum())
+			return lhs->subID.getNum() < rhs->subID.getNum();
+		if(lhs->tempOwner.getNum() != rhs->tempOwner.getNum())
+			return lhs->tempOwner.getNum() < rhs->tempOwner.getNum();
+
+		return lhs->instanceName < rhs->instanceName;
 	});
 
 	// instanceNames don't change
