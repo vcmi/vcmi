@@ -480,8 +480,8 @@ bool ObjectManager::createRequiredObjects()
 				rmgNearObject.clear();
 				continue;
 			}
-			
-			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), zone.getRand()));
+
+			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTilesVector(), zone.getRand()));
 			placeObject(rmgNearObject, false, false, nearby.createRoad);
 		}
 	}
@@ -530,7 +530,7 @@ bool ObjectManager::createRequiredObjects()
 			continue;
 		}
 
-		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(areaForObject.getTiles(), zone.getRand()));
+		rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(areaForObject.getTilesVector(), zone.getRand()));
 		placeObject(rmgNearObject, false, false);
 		auto path = zone.searchPath(rmgNearObject.getVisitablePosition(), false);
 		if (path.valid())
@@ -851,5 +851,3 @@ RequiredObjectInfo::RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui
 {}
 
 VCMI_LIB_NAMESPACE_END
-
-

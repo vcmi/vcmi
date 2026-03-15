@@ -66,7 +66,7 @@ void Area::invalidate()
 
 bool Area::connected(bool noDiagonals) const
 {
-	std::list<int3> queue({*dTiles.begin()});
+	std::list<int3> queue({*std::min_element(dTiles.begin(), dTiles.end())});
 	Tileset connected = dTiles; //use invalidated cache - ok
 
 	while(!queue.empty())
@@ -111,9 +111,10 @@ std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnection
 	Tileset connected = area.getTiles();
 	while(!connected.empty())
 	{
+		auto first = *std::min_element(connected.begin(), connected.end());
 		result.emplace_back();
-		std::list<int3> queue({*connected.begin()});
-		std::set<int3> queueSet({*connected.begin()});
+		std::list<int3> queue({first});
+		std::set<int3> queueSet({first});
 		while(!queue.empty())
 		{
 			auto t = queue.front();
@@ -151,6 +152,7 @@ const std::vector<int3> & Area::getTilesVector() const
 	{
 		getTiles();
 		dTilesVectorCache.assign(dTiles.begin(), dTiles.end());
+		std::sort(dTilesVectorCache.begin(), dTilesVectorCache.end());
 	}
 	return dTilesVectorCache;
 }
