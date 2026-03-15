@@ -19,6 +19,39 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace
+{
+bool compareObjectInsertionOrder(const std::shared_ptr<CGObjectInstance> & lhs, const std::shared_ptr<CGObjectInstance> & rhs)
+{
+	const auto lhsAnchor = lhs->anchorPos();
+	const auto rhsAnchor = rhs->anchorPos();
+	if(lhsAnchor.z != rhsAnchor.z)
+		return lhsAnchor.z < rhsAnchor.z;
+	if(lhsAnchor.y != rhsAnchor.y)
+		return lhsAnchor.y < rhsAnchor.y;
+	if(lhsAnchor.x != rhsAnchor.x)
+		return lhsAnchor.x < rhsAnchor.x;
+
+	const auto lhsVisitable = lhs->visitablePos();
+	const auto rhsVisitable = rhs->visitablePos();
+	if(lhsVisitable.z != rhsVisitable.z)
+		return lhsVisitable.z < rhsVisitable.z;
+	if(lhsVisitable.y != rhsVisitable.y)
+		return lhsVisitable.y < rhsVisitable.y;
+	if(lhsVisitable.x != rhsVisitable.x)
+		return lhsVisitable.x < rhsVisitable.x;
+
+	if(lhs->ID.getNum() != rhs->ID.getNum())
+		return lhs->ID.getNum() < rhs->ID.getNum();
+	if(lhs->subID.getNum() != rhs->subID.getNum())
+		return lhs->subID.getNum() < rhs->subID.getNum();
+	if(lhs->tempOwner.getNum() != rhs->tempOwner.getNum())
+		return lhs->tempOwner.getNum() < rhs->tempOwner.getNum();
+
+	return lhs->instanceName < rhs->instanceName;
+}
+}
+
 CMapUndoManager::CMapUndoManager() :
 	undoRedoLimit(100000), //not sure if we ever need to bother about undo limit
 	undoCallback([](bool, bool) {})
@@ -154,8 +187,11 @@ void CMapEditManager::insertObject(std::shared_ptr<CGObjectInstance> obj)
 
 void CMapEditManager::insertObjects(const std::set<std::shared_ptr<CGObjectInstance>>& objects)
 {
+	std::vector<std::shared_ptr<CGObjectInstance>> orderedObjects(objects.begin(), objects.end());
+	std::sort(orderedObjects.begin(), orderedObjects.end(), compareObjectInsertionOrder);
+
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
-	for(auto obj : objects)
+	for(const auto & obj : orderedObjects)
 	{
 		composedOperation->addOperation(std::make_unique<CInsertObjectOperation>(map, obj));
 	}
