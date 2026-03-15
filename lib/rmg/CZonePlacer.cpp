@@ -925,6 +925,20 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		zonesOnLevel.push_back(map.getZonesOnLevel(level));
 	}
 
+	const auto reserveLevelTiles = [width, height](const RmgMap::Zones & zonesForLevel)
+	{
+		if(zonesForLevel.empty())
+			return;
+
+		const size_t levelTileCount = static_cast<size_t>(width) * static_cast<size_t>(height);
+		const size_t perZoneCapacity = levelTileCount / zonesForLevel.size() + 32;
+		for(const auto & zone : zonesForLevel)
+			zone.second->area()->reserve(perZoneCapacity);
+	};
+
+	for(const auto & zonesForLevel : zonesOnLevel)
+		reserveLevelTiles(zonesForLevel);
+
 	int3 pos;
 
 	for(pos.z = 0; pos.z < levels; pos.z++)
@@ -953,6 +967,9 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 
 	for(const auto & zone : zones)
 		zone.second->clearTiles(); //now populate them again
+
+	for(const auto & zonesForLevel : zonesOnLevel)
+		reserveLevelTiles(zonesForLevel);
 
 	PenroseTiling penrose;
 	for (int level = 0; level < levels; level++)

@@ -16,6 +16,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace rmg
 {
+namespace
+{
+constexpr size_t kIncrementalSortedCacheLimit = 256;
+}
+
 
 void toAbsolute(Tileset & tiles, const int3 & position)
 {
@@ -60,13 +65,14 @@ void Area::invalidate()
 {
 	getTiles();
 	dTilesVectorCache.clear();
-	dBorderCache.clear();
-	dBorderOutsideCache.clear();
+	dTilesVectorShiftCache = int3();
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
 }
 
 bool Area::connected(bool noDiagonals) const
 {
-	std::list<int3> queue({*dTiles.begin()});
+	std::list<int3> queue({*std::min_element(dTiles.begin(), dTiles.end())});
 	Tileset connected = dTiles; //use invalidated cache - ok
 
 	while(!queue.empty())
@@ -111,9 +117,10 @@ std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnection
 	Tileset connected = area.getTiles();
 	while(!connected.empty())
 	{
+		auto first = *std::min_element(connected.begin(), connected.end());
 		result.emplace_back();
-		std::list<int3> queue({*connected.begin()});
-		std::set<int3> queueSet({*connected.begin()});
+		std::list<int3> queue({first});
+		std::set<int3> queueSet({first});
 		while(!queue.empty())
 		{
 			auto t = queue.front();
@@ -151,16 +158,27 @@ const std::vector<int3> & Area::getTilesVector() const
 	{
 		getTiles();
 		dTilesVectorCache.assign(dTiles.begin(), dTiles.end());
+		std::sort(dTilesVectorCache.begin(), dTilesVectorCache.end());
+		dTilesVectorShiftCache = int3();
+	}
+	else if(dTilesVectorShiftCache != int3())
+	{
+		for(auto & t : dTilesVectorCache)
+		{
+			t += dTilesVectorShiftCache;
+		}
+		dTilesVectorShiftCache = int3();
 	}
 	return dTilesVectorCache;
 }
 
 const Tileset & Area::getBorder() const
 {
-	if(!dBorderCache.empty())
+	if(dBorderCacheValid)
 		return dBorderCache;
 	
 	//compute border cache
+	dBorderCache.clear();
 	dBorderCache.reserve(dTiles.bucket_count());
 	for(const auto & t : dTiles)
 	{
@@ -173,16 +191,19 @@ const Tileset & Area::getBorder() const
 			}
 		}
 	}
+	dBorderCacheValid = true;
+	dBorderOutsideCacheValid = false;
 	
 	return dBorderCache;
 }
 
 const Tileset & Area::getBorderOutside() const
 {
-	if(!dBorderOutsideCache.empty())
+	if(dBorderOutsideCacheValid)
 		return dBorderOutsideCache;
 	
 	//compute outside border cache
+	dBorderOutsideCache.clear();
 	dBorderOutsideCache.reserve(dBorderCache.bucket_count() * 2);
 	for(const auto & t : dTiles)
 	{
@@ -192,6 +213,7 @@ const Tileset & Area::getBorderOutside() const
 				dBorderOutsideCache.insert(t + i + dTotalShiftCache);
 		}
 	}
+	dBorderOutsideCacheValid = true;
 	
 	return dBorderOutsideCache;
 }
@@ -248,7 +270,12 @@ bool Area::contains(const std::vector<int3> & tiles) const
 
 bool Area::contains(const Area & area) const
 {
-	return contains(area.getTilesVector());
+	for(const auto & t : area.getTiles())
+	{
+		if(!contains(t))
+			return false;
+	}
+	return true;
 }
 
 bool Area::overlap(const std::vector<int3> & tiles) const
@@ -264,7 +291,12 @@ bool Area::overlap(const std::vector<int3> & tiles) const
 
 bool Area::overlap(const Area & area) const
 {
-	return overlap(area.getTilesVector());
+	for(const auto & t : area.getTiles())
+	{
+		if(contains(t))
+			return true;
+	}
+	return false;
 }
 
 int Area::distance(const int3 & tile) const
@@ -317,8 +349,9 @@ int3 Area::nearest(const Area & area) const
 Area Area::getSubarea(const std::function<bool(const int3 &)> & filter) const
 {
 	Area subset;
-	subset.dTiles.reserve(getTilesVector().size());
-	vstd::copy_if(getTilesVector(), vstd::set_inserter(subset.dTiles), filter);
+	const auto & tiles = getTiles();
+	subset.dTiles.reserve(tiles.size());
+	vstd::copy_if(tiles, vstd::set_inserter(subset.dTiles), filter);
 	return subset;
 }
 
@@ -326,8 +359,12 @@ void Area::clear()
 {
 	dTiles.clear();
 	dTilesVectorCache.clear();
+	dTilesVectorShiftCache = int3();
+	dBorderCache.clear();
+	dBorderCacheValid = false;
+	dBorderOutsideCache.clear();
+	dBorderOutsideCacheValid = false;
 	dTotalShiftCache = int3();
-	invalidate();
 }
 
 void Area::assign(const Tileset tiles)
@@ -336,33 +373,126 @@ void Area::assign(const Tileset tiles)
 	dTiles = tiles;
 }
 
+void Area::reserve(size_t capacity)
+{
+	getTiles();
+	dTiles.reserve(capacity);
+}
+
 void Area::add(const int3 & tile)
 {
-	invalidate();
-	dTiles.insert(tile);
+	getTiles();
+	const auto [it, inserted] = dTiles.insert(tile);
+	(void)it;
+	if(!inserted)
+		return;
+
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
+
+	if(!dTilesVectorCache.empty())
+	{
+		if(dTilesVectorShiftCache != int3())
+		{
+			for(auto & t : dTilesVectorCache)
+			{
+				t += dTilesVectorShiftCache;
+			}
+			dTilesVectorShiftCache = int3();
+		}
+		const auto position = std::lower_bound(dTilesVectorCache.begin(), dTilesVectorCache.end(), tile);
+		dTilesVectorCache.insert(position, tile);
+	}
 }
 
 void Area::erase(const int3 & tile)
 {
-	invalidate();
-	dTiles.erase(tile);
+	getTiles();
+	const size_t erased = dTiles.erase(tile);
+	if(!erased)
+		return;
+
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
+
+	if(!dTilesVectorCache.empty())
+	{
+		if(dTilesVectorShiftCache != int3())
+		{
+			for(auto & t : dTilesVectorCache)
+			{
+				t += dTilesVectorShiftCache;
+			}
+			dTilesVectorShiftCache = int3();
+		}
+		const auto position = std::lower_bound(dTilesVectorCache.begin(), dTilesVectorCache.end(), tile);
+		if(position == dTilesVectorCache.end() || *position != tile)
+		{
+			dTilesVectorCache.clear();
+			dTilesVectorShiftCache = int3();
+		}
+		else
+		{
+			dTilesVectorCache.erase(position);
+		}
+	}
 }
 void Area::unite(const Area & area)
 {
-	invalidate();
-	const auto & vec = area.getTilesVector();
-	dTiles.reserve(dTiles.size() + vec.size());
-	dTiles.insert(vec.begin(), vec.end());
+	getTiles();
+	const auto & tiles = area.getTiles();
+	if(tiles.empty())
+		return;
+
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
+
+	// For larger unions, rebuilding the sorted cache once is cheaper than
+	// maintaining it tile-by-tile.
+	const bool keepSortedCache = !dTilesVectorCache.empty() && tiles.size() <= kIncrementalSortedCacheLimit;
+	if(!keepSortedCache)
+	{
+		dTilesVectorCache.clear();
+		dTilesVectorShiftCache = int3();
+		dTiles.reserve(dTiles.size() + tiles.size());
+		dTiles.insert(tiles.begin(), tiles.end());
+		return;
+	}
+	if(dTilesVectorShiftCache != int3())
+	{
+		for(auto & t : dTilesVectorCache)
+		{
+			t += dTilesVectorShiftCache;
+		}
+		dTilesVectorShiftCache = int3();
+	}
+
+	for(const auto & t : tiles)
+	{
+		const auto [it, inserted] = dTiles.insert(t);
+		(void)it;
+		if(!inserted)
+			continue;
+
+		const auto position = std::lower_bound(dTilesVectorCache.begin(), dTilesVectorCache.end(), t);
+		dTilesVectorCache.insert(position, t);
+	}
 }
 
 void Area::intersect(const Area & area)
 {
 	invalidate();
 	Tileset result;
-	result.reserve(std::max(dTiles.size(), area.getTilesVector().size()));
-	for(const auto & t : area.getTilesVector())
+	const auto & tiles = area.getTiles();
+	const Tileset * smaller = &dTiles;
+	const Tileset * larger = &tiles;
+	if(smaller->size() > larger->size())
+		std::swap(smaller, larger);
+
+	result.reserve(smaller->size());
+	for(const auto & t : *smaller)
 	{
-		if(dTiles.count(t))
+		if(larger->count(t))
 			result.insert(t);
 	}
 	dTiles = result;
@@ -370,30 +500,58 @@ void Area::intersect(const Area & area)
 
 void Area::subtract(const Area & area)
 {
-	invalidate();
-	for(const auto & t : area.getTilesVector())
+	getTiles();
+	const auto & tiles = area.getTiles();
+	if(tiles.empty())
+		return;
+
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
+
+	const bool keepSortedCache = !dTilesVectorCache.empty() && tiles.size() <= kIncrementalSortedCacheLimit;
+	if(!keepSortedCache)
 	{
-		dTiles.erase(t);
+		dTilesVectorCache.clear();
+		dTilesVectorShiftCache = int3();
+		for(const auto & t : tiles)
+			dTiles.erase(t);
+		return;
+	}
+	if(dTilesVectorShiftCache != int3())
+	{
+		for(auto & t : dTilesVectorCache)
+		{
+			t += dTilesVectorShiftCache;
+		}
+		dTilesVectorShiftCache = int3();
+	}
+
+	for(const auto & t : tiles)
+	{
+		if(!dTiles.erase(t))
+			continue;
+
+		const auto position = std::lower_bound(dTilesVectorCache.begin(), dTilesVectorCache.end(), t);
+		if(position == dTilesVectorCache.end() || *position != t)
+		{
+			dTilesVectorCache.clear();
+			dTilesVectorShiftCache = int3();
+			continue;
+		}
+		dTilesVectorCache.erase(position);
 	}
 }
 
 void Area::translate(const int3 & shift)
 {
-	dBorderCache.clear();
-	dBorderOutsideCache.clear();
-
-	if(dTilesVectorCache.empty())
-	{
-		getTilesVector();
-	}
+	dBorderCacheValid = false;
+	dBorderOutsideCacheValid = false;
 	
 	//avoid recomputation within std::set, use vector instead
 	dTotalShiftCache += shift;
-	
-	for(auto & t : dTilesVectorCache)
-	{
-		t += shift;
-	}
+
+	if(!dTilesVectorCache.empty())
+		dTilesVectorShiftCache += shift;
 }
 
 void Area::erase_if(std::function<bool(const int3&)> predicate)
@@ -419,8 +577,8 @@ Area operator+ (const Area & l, const int3 & r)
 Area operator+ (const Area & l, const Area & r)
 {
 	Area result;
-	const auto & lTiles = l.getTilesVector();
-	const auto & rTiles = r.getTilesVector();
+	const auto & lTiles = l.getTiles();
+	const auto & rTiles = r.getTiles();
 	result.dTiles.reserve(lTiles.size() + rTiles.size());
 	result.dTiles.insert(lTiles.begin(), lTiles.end());
 	result.dTiles.insert(rTiles.begin(), rTiles.end());
@@ -443,7 +601,7 @@ Area operator* (const Area & l, const Area & r)
 
 bool operator== (const Area & l, const Area & r)
 {
-	return l.getTilesVector() == r.getTilesVector();
+	return l.getTiles() == r.getTiles();
 }
 
 }

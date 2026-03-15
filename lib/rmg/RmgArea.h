@@ -60,6 +60,7 @@ namespace rmg
 		
 		void clear();
 		void assign(const Tileset tiles); //do not use reference to allow assignment of cached data
+		void reserve(size_t capacity);
 		void add(const int3 & tile);
 		void erase(const int3 & tile);
 		void unite(const Area & area);
@@ -84,8 +85,11 @@ namespace rmg
 		
 		mutable Tileset dTiles;
 		mutable std::vector<int3> dTilesVectorCache;
+		mutable int3 dTilesVectorShiftCache;
 		mutable Tileset dBorderCache;
+		mutable bool dBorderCacheValid = false;
 		mutable Tileset dBorderOutsideCache;
+		mutable bool dBorderOutsideCacheValid = false;
 		mutable int3 dTotalShiftCache;
 	};
 }
