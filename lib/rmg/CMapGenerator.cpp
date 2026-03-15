@@ -118,7 +118,7 @@ void CMapGenerator::initQuestArtsRemaining()
 	}
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate()
+std::unique_ptr<CMap> CMapGenerator::generate(std::optional<std::time_t> creationDateTime)
 {
 	Load::Progress::reset();
 	Load::Progress::setupStepsTill(5, 30);
@@ -147,7 +147,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	}
 	Load::Progress::finish();
 
-	map->mapInstance->creationDateTime = std::time(nullptr);
+	map->mapInstance->creationDateTime = creationDateTime.value_or(std::time(nullptr));
 	map->mapInstance->author = MetaString::createFromTextID("core.genrltxt.740");
 	const auto * mapTemplate = mapGenOptions.getMapTemplate();
 	if(mapTemplate)

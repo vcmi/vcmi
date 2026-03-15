@@ -303,9 +303,8 @@ RunResult runSingleGeneration(const BenchmarkOptions & benchmark, int seed, cons
 
 	const auto * selectedTemplate = options.getMapTemplate();
 	const auto started = std::chrono::steady_clock::now();
-	auto generatedMap = generator.generate();
+	auto generatedMap = generator.generate(benchmark.creationDateTime);
 	const auto finished = std::chrono::steady_clock::now();
-	generatedMap->creationDateTime = benchmark.creationDateTime;
 
 	RunResult result;
 	result.seed = seed;
