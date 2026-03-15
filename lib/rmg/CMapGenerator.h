@@ -10,6 +10,9 @@
 
 #pragma once
 
+#include <ctime>
+#include <optional>
+
 #include "CMapGenOptions.h"
 #include "../LoadProgress.h"
 
@@ -62,7 +65,7 @@ public:
 	
 	const CMapGenOptions& getMapGenOptions() const;
 	
-	std::unique_ptr<CMap> generate();
+	std::unique_ptr<CMap> generate(std::optional<std::time_t> creationDateTime = std::nullopt);
 
 	int getNextMonlithIndex();
 	int getPrisonsRemaining() const;
