@@ -744,9 +744,12 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 	if (misplacedZones.empty())
 		return;
 
-	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
+	boost::sort(misplacedZones, [](const Misplacement & lhs, const Misplacement & rhs)
 	{
-		return lhs.first > rhs.first; //Largest displacement first
+		if(!vstd::isAlmostEqual(lhs.first, rhs.first))
+			return lhs.first > rhs.first; //Largest displacement first
+
+		return lhs.second->getId() < rhs.second->getId();
 	});
 
 #ifdef ZONE_PLACEMENT_LOG
@@ -898,23 +901,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		return pr.second->getType() == ETemplateZoneType::WATER;
 	});
 
-	using Dpair = std::pair<std::shared_ptr<Zone>, float>;
-	std::vector <Dpair> distances;
-	distances.reserve(zones.size());
-
 	//now place zones correctly and assign tiles to each zone
-
-	auto compareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
-	{
-		//bigger zones have smaller distance
-		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
-	};
-
-	auto simpleCompareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
-	{
-		//bigger zones have smaller distance
-		return lhs.second < rhs.second;
-	};
 
 	int levels = map.levels();
 
@@ -947,12 +934,21 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		{
 			for(pos.y = 0; pos.y < height; pos.y++)
 			{
-				distances.clear();
+				Zone * closestZone = nullptr;
+				float closestScore = std::numeric_limits<float>::max();
 				for(const auto & zone : zonesOnLevel[pos.z])
 				{
-					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
+					const float distance = static_cast<float>(pos.dist2dSQ(zone.second->getPos()));
+					const float score = distance / zone.second->getSize();
+					if(!closestZone
+						|| score < closestScore
+						|| (vstd::isAlmostEqual(score, closestScore) && zone.second->getId() < closestZone->getId()))
+					{
+						closestZone = zone.second.get();
+						closestScore = score;
+					}
 				}
-				boost::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
+				closestZone->area()->add(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -978,19 +974,37 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 
 		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
 
-		// Assign zones to closest Penrose vertex
-		std::map<std::shared_ptr<Zone>, std::set<int3>> vertexMapping;
+		std::vector<std::shared_ptr<Zone>> levelZones;
+		levelZones.reserve(zonesOnLevel[level].size());
+		for(const auto & zone : zonesOnLevel[level])
+			levelZones.push_back(zone.second);
 
+		std::vector<std::vector<int3>> zoneVertices(levelZones.size());
+		const size_t perZoneVertexCapacity = vertices.size() / std::max<size_t>(1, levelZones.size()) + 1;
+		for(auto & zoneVertexList : zoneVertices)
+			zoneVertexList.reserve(perZoneVertexCapacity);
+
+		// Assign zones to closest Penrose vertex
 		for (const auto & vertex : vertices)
 		{
-			distances.clear();
-			for(const auto & zone : zonesOnLevel[level])
+			size_t closestZoneIndex = 0;
+			bool hasClosestZone = false;
+			float closestScore = std::numeric_limits<float>::max();
+			for(size_t zoneIndex = 0; zoneIndex < levelZones.size(); zoneIndex++)
 			{
-				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
+				const auto & zone = levelZones[zoneIndex];
+				const float distance = zone->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level));
+				const float score = distance / zone->getSize();
+				if(!hasClosestZone
+					|| score < closestScore
+					|| (vstd::isAlmostEqual(score, closestScore) && zone->getId() < levelZones[closestZoneIndex]->getId()))
+				{
+					closestZoneIndex = zoneIndex;
+					closestScore = score;
+					hasClosestZone = true;
+				}
 			}
-			auto closestZone = boost::min_element(distances, compareByDistance)->first;
-
-			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
+			zoneVertices[closestZoneIndex].emplace_back(vertex.x() * width, vertex.y() * height, level); //Closest vertex belongs to zone
 		}
 
 		//Assign actual tiles to each zone
@@ -999,18 +1013,25 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 		{
 			for (pos.y = 0; pos.y < height; pos.y++)
 			{
-				distances.clear();
-				for(const auto & zoneVertex : vertexMapping)
+				Zone * closestZone = nullptr;
+				float closestDistance = std::numeric_limits<float>::max();
+				for(size_t zoneIndex = 0; zoneIndex < levelZones.size(); zoneIndex++)
 				{
-					auto zone = zoneVertex.first;
-					for (const auto & vertex : zoneVertex.second)
+					const auto & zone = levelZones[zoneIndex];
+					for (const auto & vertex : zoneVertices[zoneIndex])
 					{
-						distances.emplace_back(zone, metric(pos, vertex));
+						const float distance = metric(pos, vertex);
+						if(!closestZone
+							|| distance < closestDistance
+							|| (vstd::isAlmostEqual(distance, closestDistance) && zone->getId() < closestZone->getId()))
+						{
+							closestZone = zone.get();
+							closestDistance = distance;
+						}
 					}
 				}
 
 				//Tile closest to vertex belongs to zone
-				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
 				closestZone->area()->add(pos);
 				map.setZoneID(pos, closestZone->getId());
 			}
