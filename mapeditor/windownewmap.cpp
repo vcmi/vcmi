@@ -298,12 +298,19 @@ void WindowNewMap::on_okButton_clicked()
 			return;
 		}
 		
+		int seed = std::time(nullptr);
+		if(ui->checkSeed->isChecked())
+		{
+			if(ui->lineSeed->value() == 0)
+			{
+				QMessageBox::warning(this, tr("Invalid seed"), tr("Custom seed must be non-zero."));
+				return;
+			}
+			seed = ui->lineSeed->value();
+		}
+
 		hide();
 
-		int seed = std::time(nullptr);
-		if(ui->checkSeed->isChecked() && ui->lineSeed->value() != 0)
-			seed = ui->lineSeed->value();
-			
 		CMapGenerator generator(mapGenOptions, mapController.getCallback(), seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
