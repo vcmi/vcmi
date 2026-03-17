@@ -63,6 +63,7 @@ public:
 	~CMapGenerator(); // required due to std::unique_ptr
 	
 	const Config & getConfig() const;
+	void setSingleThread(bool value);
 	
 	const CMapGenOptions& getMapGenOptions() const;
 	

@@ -130,6 +130,11 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 	return config;
 }
 
+void CMapGenerator::setSingleThread(bool value)
+{
+	config.singleThread = value;
+}
+
 //must be instantiated in .cpp file for access to complete types of all member fields
 CMapGenerator::~CMapGenerator() = default;
 
@@ -416,6 +421,7 @@ void CMapGenerator::fillZones()
 	{
 		while (!allJobs.empty())
 		{
+			bool progress = false;
 			for (auto it = allJobs.begin(); it != allJobs.end();)
 			{
 				if ((*it)->isReady())
@@ -424,6 +430,7 @@ void CMapGenerator::fillZones()
 					jobCopy->run();
 					Progress::Progress::step(); //Update progress bar
 					allJobs.erase(it);
+					progress = true;
 					break; //Restart from the first job
 				}
 				else
@@ -431,30 +438,23 @@ void CMapGenerator::fillZones()
 					++it;
 				}
 			}
+
+			if(!progress)
+				throw rmgException("No ready modificator in single-thread RMG scheduling");
 		}
 	}
 	else
 	{
-		tbb::task_group pool;
-
+		// Keep deterministic execution while still allowing parallelism:
+		// run all currently-ready jobs in a stable wave, wait, then continue.
 		while (!allJobs.empty())
 		{
+			std::vector<TModificators::value_type> readyJobs;
 			for (auto it = allJobs.begin(); it != allJobs.end();)
 			{
-				if ((*it)->isFinished())
+				if ((*it)->isReady())
 				{
-					it = allJobs.erase(it);
-					Progress::Progress::step();
-				}
-				else if ((*it)->isReady())
-				{
-					auto jobCopy = *it;
-					pool.run([this, jobCopy]() -> void
-						{
-							jobCopy->run();
-							Progress::Progress::step(); //Update progress bar
-						}
-					);
+					readyJobs.push_back(*it);
 					it = allJobs.erase(it);
 				}
 				else
@@ -462,10 +462,18 @@ void CMapGenerator::fillZones()
 					++it;
 				}
 			}
-		}
 
-		//Wait for all the tasks
-		pool.wait();
+			if(readyJobs.empty())
+				throw rmgException("No ready modificator in parallel RMG scheduling");
+
+			tbb::task_group pool;
+			for(const auto & job : readyJobs)
+				pool.run([job]() { job->run(); });
+			pool.wait();
+
+			for(size_t i = 0; i < readyJobs.size(); ++i)
+				Progress::Progress::step();
+		}
 	}
 
 	for (const auto& it : map->getZones())

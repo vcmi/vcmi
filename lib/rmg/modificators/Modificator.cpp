@@ -33,45 +33,34 @@ const std::string & Modificator::getName() const
 	return name;
 }
 
+int Modificator::getZoneId() const
+{
+	return zone.getId();
+}
+
+bool Modificator::requiresExclusiveExecution() const
+{
+	return false;
+}
+
 bool Modificator::isReady()
 {
-	Lock lock(mx, std::try_to_lock);
-	if (!lock.owns_lock())
+	Lock lock(mx);
+	//Check prerequisites
+	for(auto * preceeder : preceeders)
 	{
-		return false;
+		if(!preceeder->isFinished())
+			return false;
 	}
-	else
-	{
-		//Check prerequisites
-		for (auto it = preceeders.begin(); it != preceeders.end();)
-		{
-			if ((*it)->isFinished()) //OK
-			{
-				//This preceeder won't be checked in the future
-				it = preceeders.erase(it);
-			}
-			else
-			{
-				return false;
-			}
-		}
 
-		//If a job is finished, it should be already erased from a queue
-		return !finished;
-	}
+	//If a job is finished, it should be already erased from a queue
+	return !finished;
 }
 
 bool Modificator::isFinished()
 {
-	Lock lock(mx, std::try_to_lock);
-	if (!lock.owns_lock())
-	{
-		return false;
-	}
-	else
-	{
-		return finished;
-	}
+	Lock lock(mx);
+	return finished;
 }
 
 void Modificator::run()

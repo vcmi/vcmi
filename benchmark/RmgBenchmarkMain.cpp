@@ -300,6 +300,7 @@ RunResult runSingleGeneration(const BenchmarkOptions & benchmark, int seed, cons
 	CMap callbackMap(nullptr);
 	EditorCallback callback(&callbackMap);
 	CMapGenerator generator(options, &callback, seed);
+	generator.setSingleThread(benchmark.scheduler == SchedulerMode::SINGLE);
 
 	const auto * selectedTemplate = options.getMapTemplate();
 	const auto started = std::chrono::steady_clock::now();

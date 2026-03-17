@@ -90,6 +90,7 @@ std::unique_ptr<CMap> generateMap(int randomSeed, std::time_t creationDateTime, 
 	options.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
 	auto & callback = getDummyCallback();
 	CMapGenerator generator(options, &callback, randomSeed);
+	generator.setSingleThread(singleThread);
 
 	auto map = generator.generate(creationDateTime);
 	gMapForCallbackLookup = map.get();

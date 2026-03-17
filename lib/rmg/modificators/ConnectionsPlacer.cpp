@@ -35,72 +35,47 @@ std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Z
 	if (zone.getId() == otherZone->getId())
 		return {};
 
-	while (true)
-	{
-		auto lock1 = Zone::Lock(zone.areaMutex, std::try_to_lock);
-		auto lock2 = Zone::Lock(otherZone->areaMutex, std::try_to_lock);
+	Zone::Lock lockThisZone(zone.areaMutex, std::defer_lock);
+	Zone::Lock lockOtherZone(otherZone->areaMutex, std::defer_lock);
 
-		if (lock1.owns_lock() && lock2.owns_lock())
-		{
-			return { std::move(lock1), std::move(lock2) };
-		}
-	}
+	if(zone.getId() < otherZone->getId())
+		std::lock(lockThisZone, lockOtherZone);
+	else
+		std::lock(lockOtherZone, lockThisZone);
+
+	return {std::move(lockThisZone), std::move(lockOtherZone)};
 }
 
 void ConnectionsPlacer::process()
 {
 	collectNeighbourZones();
 
-	auto diningPhilosophers = [this](std::function<void(const rmg::ZoneConnection&)> f)
+	for(const auto & c : dConnections)
 	{
-		for (auto& c : dConnections)
+		if(c.getZoneA() == c.getZoneB())
 		{
-			if (c.getZoneA() == c.getZoneB())
-			{
-				// Zone can always be connected to itself, but only by monolith pair
-				RecursiveLock lock(externalAccessMutex);
-				if (!vstd::contains(dCompleted, c))
-				{
-					placeMonolithConnection(c);
-					continue;
-				}
-			}
-
-			auto otherZone = map.getZones().at(c.getZoneB());
-			auto* cp = otherZone->getModificator<ConnectionsPlacer>();
-
-			while (cp)
-			{
-				RecursiveLock lock1(externalAccessMutex, std::try_to_lock);
-				RecursiveLock lock2(cp->externalAccessMutex, std::try_to_lock);
-				if (lock1.owns_lock() && lock2.owns_lock())
-				{
-					if (!vstd::contains(dCompleted, c))
-					{
-						f(c);
-					}
-					break;
-				}
-			}
+			if(!vstd::contains(dCompleted, c))
+				placeMonolithConnection(c);
+			continue;
 		}
-	};
 
-	diningPhilosophers([this](const rmg::ZoneConnection& c)
-	{
-		forcePortalConnection(c);
-	});
+		if(!vstd::contains(dCompleted, c))
+			forcePortalConnection(c);
+	}
 
-	diningPhilosophers([this](const rmg::ZoneConnection& c)
+	for(const auto & c : dConnections)
 	{
-		selfSideDirectConnection(c);
-	});
+		if(!vstd::contains(dCompleted, c))
+			selfSideDirectConnection(c);
+	}
 
 	createBorder();
 
-	diningPhilosophers([this](const rmg::ZoneConnection& c)
+	for(const auto & c : dConnections)
 	{
-		selfSideIndirectConnection(c);
-	});
+		if(!vstd::contains(dCompleted, c))
+			selfSideIndirectConnection(c);
+	}
 }
 
 void ConnectionsPlacer::init()
@@ -112,18 +87,16 @@ void ConnectionsPlacer::init()
 	
 	for (auto c : zone.getConnections())
 	{
-		addConnection(c);
+		if(c.getZoneA() == c.getZoneB() || zone.getId() == std::min(c.getZoneA(), c.getZoneB()))
+			addConnection(c);
 	}
+
+	std::sort(dConnections.begin(), dConnections.end());
 }
 
 void ConnectionsPlacer::addConnection(const rmg::ZoneConnection& connection)
 {
 	dConnections.push_back(connection);
-}
-
-void ConnectionsPlacer::otherSideConnection(const rmg::ZoneConnection & connection)
-{
-	dCompleted.push_back(connection);
 }
 
 void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connection)
@@ -321,9 +294,6 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					assert(otherZone->getModificator<RoadPlacer>());
 					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
 				}
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-
 				success = true;
 			}
 		}
@@ -332,17 +302,15 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	//2. connect via water
 	bool waterMode = map.getMapGenOptions().getWaterContent() != EWaterContent::NONE;
 	if(waterMode && zone.isUnderground() == otherZone->isUnderground())
-	{
-		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 		{
-			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection, createRoad))
+			if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 			{
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-				success = true;
+				if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection, createRoad))
+				{
+					success = true;
+				}
 			}
 		}
-	}
 	
 	if(success)
 		dCompleted.push_back(connection);
@@ -418,10 +386,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 
 				zone.connectPath(path1);
 				otherZone->connectPath(path2);
-				
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-				
+
 				success = true;
 			}
 		}
@@ -451,9 +416,6 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 	otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
 
 	dCompleted.push_back(connection);
-	
-	assert(otherZone->getModificator<ConnectionsPlacer>());
-	otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 }
 
 void ConnectionsPlacer::collectNeighbourZones()

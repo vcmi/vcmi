@@ -21,13 +21,13 @@ public:
 	
 	void process() override;
 	void init() override;
+	bool requiresExclusiveExecution() const override { return true; }
 	
 	void addConnection(const rmg::ZoneConnection& connection);
 	void placeMonolithConnection(const rmg::ZoneConnection& connection);
 	void forcePortalConnection(const rmg::ZoneConnection & connection);
 	void selfSideDirectConnection(const rmg::ZoneConnection & connection);
 	void selfSideIndirectConnection(const rmg::ZoneConnection & connection);
-	void otherSideConnection(const rmg::ZoneConnection & connection);
 	void createBorder();
 
 	bool shouldGenerateRoad(const rmg::ZoneConnection& connection) const;
