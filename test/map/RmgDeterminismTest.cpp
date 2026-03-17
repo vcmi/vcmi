@@ -178,6 +178,27 @@ TEST(RmgDeterminism, AreaTilesVectorIsSorted)
 	EXPECT_EQ(vectorView.back(), int3(2, 3, 0));
 }
 
+TEST(RmgDeterminism, DeterministicSeedDerivationIsStable)
+{
+	auto mapTemplate = loadTemplate();
+	CMapGenOptions options;
+	options.setMapTemplate(mapTemplate.get());
+	options.setWidth(CMapHeader::MAP_SIZE_SMALL);
+	options.setHeight(CMapHeader::MAP_SIZE_SMALL);
+	options.setLevels(1);
+	options.setHumanOrCpuPlayerCount(2);
+	options.setCompOnlyPlayerCount(0);
+	options.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
+	options.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
+	CMapGenerator generator(options, nullptr, TEST_RANDOM_SEED);
+
+	const int reference = generator.deriveDeterministicSeed(7, "MinePlacer", "objects");
+	EXPECT_EQ(reference, generator.deriveDeterministicSeed(7, "MinePlacer", "objects"));
+	EXPECT_NE(reference, generator.deriveDeterministicSeed(8, "MinePlacer", "objects"));
+	EXPECT_NE(reference, generator.deriveDeterministicSeed(7, "MinePlacer", "extra"));
+	EXPECT_NE(reference, 0);
+}
+
 TEST(RmgDeterminism, DISABLED_ParallelSameSeedProducesSameSerializedMap)
 {
 	const auto first = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, TEST_PARALLEL_PARALLELISM));

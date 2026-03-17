@@ -41,6 +41,20 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+namespace
+{
+uint64_t fnv1a64(std::string_view value, uint64_t hash)
+{
+	constexpr uint64_t fnvPrime = 1099511628211ULL;
+	for(const unsigned char c : value)
+	{
+		hash ^= c;
+		hash *= fnvPrime;
+	}
+	return hash;
+}
+}
+
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
@@ -55,6 +69,24 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * 
 int CMapGenerator::getRandomSeed() const
 {
 	return randomSeed;
+}
+
+int CMapGenerator::deriveDeterministicSeed(int zoneId, std::string_view unitName, std::string_view streamTag) const
+{
+	constexpr uint64_t seedBasis = 1469598103934665603ULL;
+	uint64_t hash = seedBasis;
+
+	hash = fnv1a64(std::to_string(randomSeed), hash);
+	hash = fnv1a64(":", hash);
+	hash = fnv1a64(std::to_string(zoneId), hash);
+	hash = fnv1a64(":", hash);
+	hash = fnv1a64(unitName, hash);
+	hash = fnv1a64(":", hash);
+	hash = fnv1a64(streamTag, hash);
+
+	const auto mixed = static_cast<uint32_t>(hash ^ (hash >> 32));
+	const auto deterministicSeed = static_cast<int>(mixed & 0x7fffffff);
+	return deterministicSeed == 0 ? 1 : deterministicSeed;
 }
 
 void CMapGenerator::loadConfig()
