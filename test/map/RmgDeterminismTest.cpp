@@ -24,7 +24,8 @@
 namespace
 {
 constexpr int TEST_RANDOM_SEED = 1337;
-constexpr int TEST_PARALLELISM = 1;
+constexpr int TEST_SINGLE_THREAD_PARALLELISM = 1;
+constexpr int TEST_PARALLEL_PARALLELISM = 8;
 constexpr std::time_t TEST_CREATION_TIME = 1'725'897'600;
 const std::string TEST_TEMPLATE_ID = "2SM2a";
 const std::string TEST_TEMPLATE_DATA_PATH = "test/rmg/1.json";
@@ -41,9 +42,9 @@ std::shared_ptr<CRmgTemplate> loadTemplate()
 	return result;
 }
 
-std::unique_ptr<CMap> generateMap(int randomSeed, std::time_t creationDateTime)
+std::unique_ptr<CMap> generateMap(int randomSeed, std::time_t creationDateTime, bool singleThread, int parallelism)
 {
-	tbb::global_control limitParallelism(tbb::global_control::max_allowed_parallelism, TEST_PARALLELISM);
+	tbb::global_control limitParallelism(tbb::global_control::max_allowed_parallelism, parallelism);
 
 	auto mapTemplate = loadTemplate();
 	CMapGenOptions options;
@@ -57,10 +58,9 @@ std::unique_ptr<CMap> generateMap(int randomSeed, std::time_t creationDateTime)
 	options.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
 	CMapGenerator generator(options, nullptr, randomSeed);
 
-	// Force deterministic execution mode in this test suite so map comparison
-	// checks focus on ordering behavior, not known parallel scheduling races.
+	// Tests select scheduler mode explicitly per scenario.
 	auto & mutableConfig = const_cast<CMapGenerator::Config &>(generator.getConfig());
-	mutableConfig.singleThread = true;
+	mutableConfig.singleThread = singleThread;
 
 	return generator.generate(creationDateTime);
 }
@@ -76,8 +76,8 @@ std::vector<ui8> serializeMap(const std::unique_ptr<CMap> & map)
 
 TEST(RmgDeterminism, SameSeedProducesSameSerializedMap)
 {
-	const auto first = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME));
-	const auto second = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME));
+	const auto first = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, true, TEST_SINGLE_THREAD_PARALLELISM));
+	const auto second = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, true, TEST_SINGLE_THREAD_PARALLELISM));
 	EXPECT_EQ(first, second);
 }
 
@@ -86,8 +86,8 @@ TEST(RmgDeterminism, CreationTimestampCanBeOverridden)
 	constexpr std::time_t timestampA = TEST_CREATION_TIME;
 	constexpr std::time_t timestampB = TEST_CREATION_TIME + 86400;
 
-	auto mapA = generateMap(TEST_RANDOM_SEED, timestampA);
-	auto mapB = generateMap(TEST_RANDOM_SEED, timestampB);
+	auto mapA = generateMap(TEST_RANDOM_SEED, timestampA, true, TEST_SINGLE_THREAD_PARALLELISM);
+	auto mapB = generateMap(TEST_RANDOM_SEED, timestampB, true, TEST_SINGLE_THREAD_PARALLELISM);
 	EXPECT_EQ(mapA->creationDateTime, timestampA);
 	EXPECT_EQ(mapB->creationDateTime, timestampB);
 
@@ -109,4 +109,22 @@ TEST(RmgDeterminism, AreaTilesVectorIsSorted)
 	EXPECT_TRUE(std::is_sorted(vectorView.begin(), vectorView.end()));
 	EXPECT_EQ(vectorView.front(), int3(4, 1, 0));
 	EXPECT_EQ(vectorView.back(), int3(2, 3, 0));
+}
+
+TEST(RmgDeterminism, DISABLED_ParallelSameSeedProducesSameSerializedMap)
+{
+	const auto first = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, TEST_PARALLEL_PARALLELISM));
+	const auto second = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, TEST_PARALLEL_PARALLELISM));
+	EXPECT_EQ(first, second);
+}
+
+TEST(RmgDeterminism, DISABLED_ParallelResultIsThreadCountInvariant)
+{
+	const auto baseline = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, 1));
+
+	for(const int parallelism : {2, 4, 8})
+	{
+		const auto candidate = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, parallelism));
+		EXPECT_EQ(baseline, candidate);
+	}
 }
