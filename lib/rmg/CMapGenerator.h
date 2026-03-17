@@ -12,6 +12,7 @@
 
 #include <ctime>
 #include <optional>
+#include <set>
 #include <string_view>
 
 #include "CMapGenOptions.h"
@@ -93,6 +94,7 @@ private:
 	
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
+	std::set<ArtifactID> temporarilyBannedQuestArtifacts;
 
 	/// Generation methods
 	void loadConfig();

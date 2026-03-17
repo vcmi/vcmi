@@ -180,6 +180,10 @@ std::unique_ptr<CMap> CMapGenerator::generate(std::optional<std::time_t> creatio
 	}
 	Load::Progress::finish();
 
+	for (const auto & artifact : temporarilyBannedQuestArtifacts)
+		map->mapInstance->allowedArtifact.insert(artifact);
+	temporarilyBannedQuestArtifacts.clear();
+
 	map->mapInstance->creationDateTime = creationDateTime.value_or(std::time(nullptr));
 	map->mapInstance->author = MetaString::createFromTextID("core.genrltxt.740");
 	const auto * mapTemplate = mapGenOptions.getMapTemplate();
@@ -607,12 +611,15 @@ const std::vector<HeroTypeID> CMapGenerator::getAllPossibleHeroes() const
 
 void CMapGenerator::banQuestArt(const ArtifactID & id)
 {
-	map->getMap(this).allowedArtifact.erase(id);
+	auto & allowedArtifacts = map->getMap(this).allowedArtifact;
+	if (allowedArtifacts.erase(id))
+		temporarilyBannedQuestArtifacts.insert(id);
 }
 
 void CMapGenerator::unbanQuestArt(const ArtifactID & id)
 {
-	map->getMap(this).allowedArtifact.insert(id);
+	if (temporarilyBannedQuestArtifacts.erase(id))
+		map->getMap(this).allowedArtifact.insert(id);
 }
 
 Zone * CMapGenerator::getZoneWater() const
