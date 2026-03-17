@@ -46,6 +46,8 @@ public:
 
 	void setName(const std::string & n);
 	const std::string & getName() const;
+	int getZoneId() const;
+	virtual bool requiresExclusiveExecution() const;
 
 	bool isReady();
 	bool isFinished();

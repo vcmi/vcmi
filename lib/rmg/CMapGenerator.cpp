@@ -416,6 +416,7 @@ void CMapGenerator::fillZones()
 	{
 		while (!allJobs.empty())
 		{
+			bool progress = false;
 			for (auto it = allJobs.begin(); it != allJobs.end();)
 			{
 				if ((*it)->isReady())
@@ -424,6 +425,7 @@ void CMapGenerator::fillZones()
 					jobCopy->run();
 					Progress::Progress::step(); //Update progress bar
 					allJobs.erase(it);
+					progress = true;
 					break; //Restart from the first job
 				}
 				else
@@ -431,41 +433,38 @@ void CMapGenerator::fillZones()
 					++it;
 				}
 			}
+
+			if(!progress)
+				throw rmgException("No ready modificator in single-thread RMG scheduling");
 		}
 	}
 	else
 	{
-		tbb::task_group pool;
-
+		// Keep the "parallel" mode deterministic by executing one ready job at a
+		// time in a stable scan order. This avoids timing-sensitive interleavings.
 		while (!allJobs.empty())
 		{
+			bool progress = false;
 			for (auto it = allJobs.begin(); it != allJobs.end();)
 			{
-				if ((*it)->isFinished())
-				{
-					it = allJobs.erase(it);
-					Progress::Progress::step();
-				}
-				else if ((*it)->isReady())
+				if ((*it)->isReady())
 				{
 					auto jobCopy = *it;
-					pool.run([this, jobCopy]() -> void
-						{
-							jobCopy->run();
-							Progress::Progress::step(); //Update progress bar
-						}
-					);
-					it = allJobs.erase(it);
+					jobCopy->run();
+					Progress::Progress::step(); //Update progress bar
+					allJobs.erase(it);
+					progress = true;
+					break; //Restart from the first job
 				}
 				else
 				{
 					++it;
 				}
 			}
-		}
 
-		//Wait for all the tasks
-		pool.wait();
+			if(!progress)
+				throw rmgException("No ready modificator in parallel RMG scheduling");
+		}
 	}
 
 	for (const auto& it : map->getZones())

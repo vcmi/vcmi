@@ -22,6 +22,7 @@ public:
 
 	void process() override;
 	void init() override;
+	bool requiresExclusiveExecution() const override { return true; }
 
 	void addQuestArtZone(std::shared_ptr<Zone> otherZone);
 	void findZonesForQuestArts();
