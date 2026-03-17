@@ -12,6 +12,7 @@
 
 #include <ctime>
 #include <optional>
+#include <string_view>
 
 #include "CMapGenOptions.h"
 #include "../LoadProgress.h"
@@ -78,6 +79,7 @@ public:
 	void addWaterTreasuresInfo();
 
 	int getRandomSeed() const;
+	int deriveDeterministicSeed(int zoneId, std::string_view unitName, std::string_view streamTag = {}) const;
 	
 private:
 	std::unique_ptr<vstd::RNG> rand;
