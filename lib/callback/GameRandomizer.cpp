@@ -158,6 +158,9 @@ ArtifactID GameRandomizer::rollArtifact()
 		if(!LIBRARY->arth->legalArtifact(artifactID))
 			continue;
 
+		if(!gameInfo.isAllowed(artifactID))
+			continue;
+
 		potentialPicks.insert(artifactID);
 	}
 
