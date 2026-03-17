@@ -11,11 +11,13 @@
 
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/CMemoryBuffer.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/MapFormatJson.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/rmg/CMapGenerator.h"
 #include "../../lib/rmg/RmgArea.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
 #include <algorithm>
@@ -71,6 +73,42 @@ std::vector<ui8> serializeMap(const std::unique_ptr<CMap> & map)
 	CMapSaverJson saver(&output);
 	saver.saveMap(map);
 	return output.getBuffer();
+}
+
+std::unique_ptr<CMap> generateEditorLikeMap(int randomSeed, std::time_t creationDateTime)
+{
+	CMapGenOptions options;
+	options.setWidth(CMapHeader::MAP_SIZE_XLARGE);
+	options.setHeight(CMapHeader::MAP_SIZE_XLARGE);
+	options.setLevels(2);
+	options.setHumanOrCpuPlayerCount(8);
+	options.setCompOnlyPlayerCount(0);
+	options.setTeamCount(0);
+	options.setCompOnlyTeamCount(CMapGenOptions::RANDOM_SIZE);
+	options.setWaterContent(EWaterContent::NONE);
+	options.setMonsterStrength(EMonsterStrength::RANDOM);
+	options.setRoadEnabled(Road::DIRT_ROAD, true);
+	options.setRoadEnabled(Road::GRAVEL_ROAD, true);
+	options.setRoadEnabled(Road::COBBLESTONE_ROAD, true);
+
+	CMapGenerator generator(options, nullptr, randomSeed);
+	return generator.generate(creationDateTime);
+}
+
+std::vector<std::string> collectProhibitedArtifacts(const CMap & map)
+{
+	std::vector<std::string> result;
+
+	for(const auto & obj : map.objects)
+	{
+		if(auto * artifact = dynamic_cast<CGArtifact *>(obj.get()))
+		{
+			if(artifact->ID == Obj::ARTIFACT && map.allowedArtifact.count(artifact->getArtifactType()) == 0)
+				result.push_back(artifact->getArtifactType().toEntity(LIBRARY)->getNameTranslated());
+		}
+	}
+
+	return result;
 }
 }
 
@@ -148,4 +186,12 @@ TEST(RmgDeterminism, DISABLED_ParallelResultIsThreadCountInvariant)
 		const auto candidate = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, parallelism));
 		EXPECT_EQ(baseline, candidate);
 	}
+}
+
+TEST(RmgDeterminism, EditorDefaultsDoNotPlaceProhibitedArtifacts)
+{
+	const auto map = generateEditorLikeMap(1, TEST_CREATION_TIME);
+	const auto prohibited = collectProhibitedArtifacts(*map);
+
+	EXPECT_TRUE(prohibited.empty()) << testing::PrintToString(prohibited);
 }
