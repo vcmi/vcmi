@@ -132,14 +132,14 @@ TEST(RmgDeterminism, DeterministicSeedDerivationIsStable)
 	EXPECT_NE(reference, 0);
 }
 
-TEST(RmgDeterminism, DISABLED_ParallelSameSeedProducesSameSerializedMap)
+TEST(RmgDeterminism, ParallelSameSeedProducesSameSerializedMap)
 {
 	const auto first = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, TEST_PARALLEL_PARALLELISM));
 	const auto second = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, TEST_PARALLEL_PARALLELISM));
 	EXPECT_EQ(first, second);
 }
 
-TEST(RmgDeterminism, DISABLED_ParallelResultIsThreadCountInvariant)
+TEST(RmgDeterminism, ParallelResultIsThreadCountInvariant)
 {
 	const auto baseline = serializeMap(generateMap(TEST_RANDOM_SEED, TEST_CREATION_TIME, false, 1));
 

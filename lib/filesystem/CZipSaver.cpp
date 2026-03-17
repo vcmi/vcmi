@@ -20,7 +20,7 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 {
 	zip_fileinfo fileInfo;
 
-	std::time_t t = time(nullptr);
+	const std::time_t t = owner->fileTimestamp.value_or(time(nullptr));
 	fileInfo.dosDate = 0;
 
 	struct tm * localTime = std::localtime(&t);
@@ -117,6 +117,11 @@ std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFil
 
 	std::unique_ptr<COutputStream> stream(new CZipOutputStream(this, handle, archiveFilename));
 	return stream;
+}
+
+void CZipSaver::setFileTimestamp(std::optional<std::time_t> timestamp)
+{
+	fileTimestamp = timestamp;
 }
 
 

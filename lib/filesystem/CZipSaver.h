@@ -12,6 +12,8 @@
 #include "COutputStream.h"
 
 #include "MinizipExtensions.h"
+#include <ctime>
+#include <optional>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -46,11 +48,13 @@ public:
 	virtual ~CZipSaver();
 
 	std::unique_ptr<COutputStream> addFile(const std::string & archiveFilename);
+	void setFileTimestamp(std::optional<std::time_t> timestamp);
 private:
 	std::shared_ptr<CIOApi> ioApi;
 	zlib_filefunc64_def zipApi;
 
 	zipFile handle;
+	std::optional<std::time_t> fileTimestamp;
 
 	///due to minizip design only one file stream may opened at a time
 	COutputStream * activeStream;

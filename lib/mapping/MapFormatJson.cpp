@@ -1396,6 +1396,10 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
 	this->map = map.get();
 	this->mapHeader = this->map;
+	if(map->creationDateTime > 0)
+		saver.setFileTimestamp(map->creationDateTime);
+	else
+		saver.setFileTimestamp(std::nullopt);
 	writeHeader();
 	writeTerrain();
 	writeObjects();
