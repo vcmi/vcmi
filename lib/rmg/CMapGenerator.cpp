@@ -141,7 +141,8 @@ const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 void CMapGenerator::initQuestArtsRemaining()
 {
 	//TODO: Move to QuestArtifactPlacer?
-	for (auto artID : LIBRARY->arth->getDefaultAllowed())
+	const auto & allowedArtifacts = map->getMap(this).allowedArtifact;
+	for (auto artID : allowedArtifacts)
 	{
 		auto art = artID.toArtifact();
 		//Don't use parts of combined artifacts
