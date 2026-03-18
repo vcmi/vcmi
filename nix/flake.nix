@@ -36,6 +36,15 @@
           generator = pkgs.ninja;
           inherit src;
         };
+        devShells.fuzzing = pkgs.mkShell {
+          inputsFrom = [self'.devShells.default];
+          packages = with pkgs; [
+            clang
+            lld
+            llvm
+            llvmPackages.compiler-rt
+          ];
+        };
         packages.default = import ./default.nix {
           inherit pkgs;
           generator = pkgs.ninja;

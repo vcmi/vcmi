@@ -85,6 +85,7 @@ Development environment setup instructions:
 - [Building VCMI for macOS](developers/Building_macOS.md)
 - [Building VCMI for Windows](developers/Building_Windows.md)
 - [Conan](developers/Conan.md)
+- [Fuzzing](developers/Fuzzing.md)
 
 Engine documentation: (NOTE: may be outdated)
 
