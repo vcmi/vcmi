@@ -15,10 +15,46 @@
 #include "../lib/GameLibrary.h"
 
 #include <algorithm>
+#include <fstream>
 #include <mutex>
+
+#include <boost/dll/runtime_symbol_info.hpp>
 
 namespace fuzzing
 {
+namespace
+{
+void ensureDevelopmentModeMarker()
+{
+	const bool hasDataDirectories = boost::filesystem::exists("config") && boost::filesystem::exists("Mods");
+	const bool hasAnyBinary = boost::filesystem::exists("vcmiclient")
+		|| boost::filesystem::exists("vcmiserver")
+		|| boost::filesystem::exists("vcmilobby");
+
+	if(hasDataDirectories && !hasAnyBinary)
+	{
+		std::ofstream marker("vcmiserver", std::ios::app);
+	}
+}
+
+void ensureResourceWorkingDirectory()
+{
+	const auto executableDirectory = boost::dll::program_location().parent_path();
+	const auto initialDirectory = boost::filesystem::current_path();
+
+	for(const auto & candidate : {executableDirectory, executableDirectory.parent_path(), initialDirectory})
+	{
+		if(boost::filesystem::exists(candidate / "config/filesystem.json") && boost::filesystem::exists(candidate / "Mods"))
+		{
+			boost::filesystem::current_path(candidate);
+			break;
+		}
+	}
+
+	ensureDevelopmentModeMarker();
+}
+}
+
 ByteReader::ByteReader(const uint8_t * data_, size_t size_)
 	: data(data_)
 	, size(size_)
@@ -78,6 +114,7 @@ void initializeEngine()
 
 	std::call_once(once, []()
 	{
+		ensureResourceWorkingDirectory();
 		LIBRARY = new GameLibrary;
 		LIBRARY->initializeFilesystem(false);
 		LIBRARY->initializeLibrary();
