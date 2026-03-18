@@ -15,16 +15,61 @@
 #include "../lib/GameLibrary.h"
 
 #include <algorithm>
+#include <fstream>
 #include <memory>
 #include <mutex>
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
 namespace fuzzing
 {
-std::once_flag engineInitOnce;
-std::unique_ptr<GameLibrary> gameLibraryHolder;
+namespace
+{
+std::once_flag & engineInitOnce()
+{
+	static std::once_flag flag;
+	return flag;
+}
+
+std::unique_ptr<GameLibrary> & gameLibraryHolder()
+{
+	static std::unique_ptr<GameLibrary> holder;
+	return holder;
+}
+
+void ensureDevelopmentModeMarker()
+{
+	const bool hasDataDirectories = boost::filesystem::exists("config") && boost::filesystem::exists("Mods");
+	const bool hasAnyBinary = boost::filesystem::exists("vcmiclient")
+		|| boost::filesystem::exists("vcmiserver")
+		|| boost::filesystem::exists("vcmilobby");
+
+	if(hasDataDirectories && !hasAnyBinary)
+	{
+		std::ofstream marker("vcmiserver", std::ios::app);
+	}
+}
+
+void ensureResourceWorkingDirectory()
+{
+	const auto executableDirectory = boost::dll::program_location().parent_path();
+	const auto initialDirectory = boost::filesystem::current_path();
+
+	for(const auto & candidate : {executableDirectory, executableDirectory.parent_path(), initialDirectory})
+	{
+		if(boost::filesystem::exists(candidate / "config/filesystem.json") && boost::filesystem::exists(candidate / "Mods"))
+		{
+			boost::filesystem::current_path(candidate);
+			break;
+		}
+	}
+
+	ensureDevelopmentModeMarker();
+}
+}
 
 ByteReader::ByteReader(const uint8_t * data_, size_t size_)
-	: data(reinterpret_cast<const std::byte *>(data_))
+	: data(data_)
 	, size(size_)
 	, offset(0)
 {
@@ -45,7 +90,7 @@ std::byte ByteReader::readByte()
 	if(offset >= size)
 		return std::byte{0};
 
-	return data[offset++];
+	return std::byte{data[offset++]};
 }
 
 bool ByteReader::readBool()
@@ -57,7 +102,7 @@ uint32_t ByteReader::readU32()
 {
 	uint32_t value = 0;
 	for(int i = 0; i < 4; ++i)
-		value |= static_cast<uint32_t>(std::to_integer<unsigned int>(readByte())) << (i * 8);
+		value |= std::to_integer<uint32_t>(readByte()) << (i * 8);
 	return value;
 }
 
@@ -78,10 +123,12 @@ int ByteReader::readInRange(int minValue, int maxValue)
 
 void initializeEngine()
 {
-	std::call_once(engineInitOnce, []()
+	std::call_once(engineInitOnce(), []()
 	{
-		gameLibraryHolder = std::make_unique<GameLibrary>();
-		LIBRARY = gameLibraryHolder.get();
+		ensureResourceWorkingDirectory();
+		auto & libraryHolder = gameLibraryHolder();
+		libraryHolder = std::make_unique<GameLibrary>();
+		LIBRARY = libraryHolder.get();
 		LIBRARY->initializeFilesystem(false);
 		LIBRARY->initializeLibrary();
 	});

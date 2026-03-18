@@ -24,3 +24,14 @@ function(vcmi_add_fuzzer target)
 	target_compile_definitions(${target} PRIVATE FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1)
 	vcmi_set_output_dir(${target} "")
 endfunction()
+
+set(rmg_fuzz_common_sources
+	RmgFuzzSpec.cpp
+)
+
+set(rmg_repro_fuzz_sources
+	RmgReproFuzzer.cpp
+	${rmg_fuzz_common_sources}
+)
+
+vcmi_add_fuzzer(vcmi-fuzz-rmg-repro ${rmg_repro_fuzz_sources})

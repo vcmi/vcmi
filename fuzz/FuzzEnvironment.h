@@ -40,7 +40,7 @@ public:
 	}
 
 private:
-	const std::byte * data;
+	const uint8_t * data;
 	size_t size;
 	size_t offset;
 };
