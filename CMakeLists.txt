@@ -60,6 +60,7 @@ option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 option(ENABLE_BENCHMARK "Enable compilation of benchmark tools" OFF)
+option(ENABLE_FUZZING "Enable compilation of fuzzing targets" OFF)
 
 # Platform-specific options
 
@@ -674,6 +675,10 @@ if (ENABLE_CLIENT)
 endif()
 
 add_subdirectory(lib)
+
+if(ENABLE_FUZZING)
+	add_subdirectory(fuzz)
+endif()
 
 if(ENABLE_BENCHMARK)
 	add_subdirectory(benchmark)

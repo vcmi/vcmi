@@ -86,6 +86,7 @@ Development environment setup instructions:
 - [Building VCMI for Windows](developers/Building_Windows.md)
 - [Conan](developers/Conan.md)
 - [RMG Benchmark](developers/RmgBenchmark.md)
+- [Fuzzing](developers/Fuzzing.md)
 
 Engine documentation: (NOTE: may be outdated)
 

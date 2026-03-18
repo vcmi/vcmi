@@ -153,6 +153,21 @@
             }
         },
         {
+            "name": "linux-clang-fuzz",
+            "displayName": "Clang x86_64-pc-linux-gnu with fuzzing",
+            "description": "VCMI Linux Clang with fuzzing targets",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "ENABLE_DISCORD": "OFF",
+                "ENABLE_TEST": "OFF",
+                "ENABLE_STRICT_COMPILATION": "OFF",
+                "ENABLE_FUZZING": "ON"
+            }
+        },
+        {
             "name": "linux-gcc-bench",
             "displayName": "GCC x86_64-pc-linux-gnu with benchmarks",
             "description": "VCMI Linux GCC with benchmark tools",
@@ -415,6 +430,11 @@
         {
             "name": "linux-clang-test",
             "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-clang-fuzz",
+            "configurePreset": "linux-clang-fuzz",
             "inherits": "default-release"
         },
         {
