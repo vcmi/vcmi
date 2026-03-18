@@ -381,7 +381,16 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		ret->upgrade = BuildingID::NONE;
 
 	if (ret->town->buildings[ret->bid] != nullptr)
-		logMod->error("Mod %s, faction %s: detected multiple town buildings with ID %d", source.getModScope(), stringID, ret->bid.getNum());
+	{
+		logMod->error("Mod %s, faction %s: detected multiple town buildings with ID %d - second definition will be ignored", source.getModScope(), stringID, ret->bid.getNum());
+		// Do NOT overwrite the existing building: the first CBuilding already has
+		// identifier-resolution callbacks registered against its ResourceSet members
+		// (via resolveFromJson). Destroying it now would leave dangling 'this' pointers
+		// inside those pending lambdas, causing a use-after-free when
+		// CIdentifierStorage::finalize() later executes them.
+		delete ret;
+		return;
+	}
 
 	ret->town->buildings[ret->bid].reset(ret);
 	for(const auto & element : source["marketModes"].Vector())
