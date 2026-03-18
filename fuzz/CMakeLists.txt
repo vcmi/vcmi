@@ -35,3 +35,10 @@ set(rmg_repro_fuzz_sources
 )
 
 vcmi_add_fuzzer(vcmi-fuzz-rmg-repro ${rmg_repro_fuzz_sources})
+
+set(rmg_validity_fuzz_sources
+	RmgValidityFuzzer.cpp
+	${rmg_fuzz_common_sources}
+)
+
+vcmi_add_fuzzer(vcmi-fuzz-rmg-validity ${rmg_validity_fuzz_sources})

@@ -38,8 +38,9 @@ out/build/linux-clang-fuzz/bin/<fuzzer-name> \
 Use `-runs=<N>` for deterministic smoke runs or `-max_total_time=<seconds>` for
 time-bounded fuzzing.
 
-The reproducibility fuzzer target currently available is:
+RMG fuzzers currently available are:
 
 ```text
 vcmi-fuzz-rmg-repro
+vcmi-fuzz-rmg-validity
 ```
