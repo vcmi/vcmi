@@ -421,6 +421,18 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 	networkConnection.reset();
 	accountLoggedIn = false;
 
+	// GlobalLobbyInviteWindow can be present on the window stack independently of
+	// GlobalLobbyWindow (it is opened via "Invite Players" in CSelectionBase, i.e.
+	// when the user is already in a pre-game room setup screen).
+	// If the connection drops while this window is open, networkConnection is already
+	// null -- but the window remains active and interactive, causing a null-pointer
+	// dereference crash when the user taps an invite card (issue #7071).
+	// Close it explicitly before handling GlobalLobbyWindow.
+	while (!ENGINE->windows().findWindows<GlobalLobbyInviteWindow>().empty())
+	{
+		ENGINE->windows().popWindows(1);
+	}
+
 	while (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
 	{
 		// if global lobby is open, pop all dialogs on top of it as well as lobby itself
@@ -432,6 +444,11 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
+	if (!networkConnection)
+	{
+		logGlobal->warn("GlobalLobbyClient::sendMessage called without active connection, ignoring message of type '%s'", data["type"].String());
+		return;
+	}
 	assert(JsonUtils::validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
 	networkConnection->sendPacket(data.toBytes());
 }
