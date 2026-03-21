@@ -153,6 +153,15 @@
             }
         },
         {
+            "name": "linux-gcc-bench",
+            "displayName": "GCC x86_64-pc-linux-gnu with benchmarks",
+            "description": "VCMI Linux GCC with benchmark tools",
+            "inherits": "linux-gcc-release",
+            "cacheVariables": {
+                "ENABLE_BENCHMARK": "ON"
+            }
+        },
+        {
             "name": "linux-gcc-test",
             "displayName": "GCC x86_64-pc-linux-gnu with unit testing",
             "description": "VCMI Linux GCC",
@@ -407,6 +416,11 @@
             "name": "linux-clang-test",
             "configurePreset": "linux-clang-test",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-bench",
+            "configurePreset": "linux-gcc-bench",
+            "inherits": "linux-gcc-release"
         },
         {
             "name": "linux-gcc-test",

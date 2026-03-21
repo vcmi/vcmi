@@ -59,6 +59,7 @@ option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
+option(ENABLE_BENCHMARK "Enable compilation of benchmark tools" OFF)
 
 # Platform-specific options
 
@@ -674,6 +675,9 @@ endif()
 
 add_subdirectory(lib)
 
+if(ENABLE_BENCHMARK)
+	add_subdirectory(benchmark)
+endif()
 if (ENABLE_CLIENT OR ENABLE_SERVER)
 	add_subdirectory(server)
 endif()
