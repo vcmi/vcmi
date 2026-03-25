@@ -181,6 +181,11 @@
 						"type" : "GROWS_WITH_LEVEL",
 						"valPer20" : 1500,
 						"stepSize" : 1
+					},
+					"limiters" : {
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "navigation"
 					}
 				}
 			}
