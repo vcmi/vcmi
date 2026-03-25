@@ -1,0 +1,287 @@
+{
+	"orrin":
+	{
+		"index": 0,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "archery"
+		}
+	},
+	"valeska":
+	{
+		"index": 1,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "archer"
+		}
+	},
+	"edric":
+	{
+		"index": 2,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "armorer", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "griffin"
+		}
+	},
+	"sylvia":
+	{
+		"index": 3,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "navigation", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"navigationSpecialty" : {
+					"type" : "MOVEMENT",
+					"subtype" : "heroMovementSea",
+					"updater" : {
+						"type" : "GROWS_WITH_LEVEL",
+						"valPer20" : 1500,
+						"stepSize" : 1
+					},
+					"limiters" : {
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "navigation"
+					}
+				}
+			}
+		}
+	},
+	"lordHaart":
+	{
+		"index": 4,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "estates", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "estates"
+		}
+	},
+	"sorsha":
+	{
+		"index": 5,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "swordsman"
+		}
+	},
+	"christian":
+	{
+		"index": 6,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "artillery", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "ballista",
+			"creatureLevel" : 5
+		}
+	},
+	"tyris":
+	{
+		"index": 7,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "tactics", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "cavalier"
+		}
+	},
+	"rion":
+	{
+		"index": 8,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "firstAid", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "firstAid"
+		}
+	},
+	"adela":
+	{
+		"index": 9,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "bless" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "diplomacy", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"bless" : {
+					"type" : "GENERAL_DAMAGE_PREMY",
+					"limiters" : [
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusSourceType" : "SPELL_EFFECT",
+							"bonusSourceID" : "spell.bless"
+						}
+					],
+					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",
+					"val" : 3
+				}
+			}
+		}
+	},
+	"cuthbert":
+	{
+		"index": 10,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "weakness" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "estates", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
+	},
+	"adelaide":
+	{
+		"index": 11,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "frostRing" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"frostRing" : {
+					"subtype" : "spell.frostRing",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
+	},
+	"ingham":
+	{
+		"index": 12,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "curse" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "monk"
+		}
+	},
+	"sanya":
+	{
+		"index": 13,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "dispel" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "eagleEye"
+		}
+	},
+	"loynis":
+	{
+		"index": 14,
+		"class" : "cleric",
+		"spellbook": [ "prayer" ],
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"prayer" : {
+					"addInfo" : 0,
+					"subtype" : "spell.prayer",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
+	},
+	"caitlin":
+	{
+		"index": 15,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "cure" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
+	}
+}

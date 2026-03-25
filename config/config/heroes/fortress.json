@@ -1,0 +1,275 @@
+{
+	"bron":
+	{
+		"index": 112,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "basilisk"
+		},
+		"army" :
+		[
+			{
+				"min" : 10, "max" : 20,
+				"creature" : "gnoll"
+			},
+			{
+				"min" : 4, "max" : 7,
+				"creature" : "basilisk"
+			},
+			{
+				"min" : 2, "max" : 4,
+				"creature" : "serpentFly"
+			}
+		]
+	},
+	"drakon":
+	{
+		"index": 113,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "leadership", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "gnoll"
+		}
+	},
+	"wystan":
+	{
+		"index": 114,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "lizardman"
+		}
+	},
+	"tazar":
+	{
+		"index": 115,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "advanced" }
+		],
+		"specialty" : {
+			"secondary" : "armorer"
+		}
+	},
+	"alkin":
+	{
+		"index": 116,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "gorgon"
+		}
+	},
+	"korbac":
+	{
+		"index": 117,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "pathfinding", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "serpentFly"
+		}
+	},
+	"gerwulf":
+	{
+		"index": 118,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "artillery", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "ballista",
+			"creatureLevel" : 5
+		}
+	},
+	"broghild":
+	{
+		"index": 119,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "scouting", "level": "basic" }
+		],
+		"specialty" : {
+			"creature" : "wyvern"
+		}
+	},
+	"mirlanda":
+	{
+		"index": 120,
+		"class" : "witch",
+		"spellbook": [ "weakness" ],
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
+	},
+	"rosic":
+	{
+		"index": 121,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "mysticism"
+		}
+	},
+	"voy":
+	{
+		"index": 122,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "slow" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "navigation", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"navigationSpecialty" : {
+					"type" : "MOVEMENT",
+					"subtype" : "heroMovementSea",
+					"updater" : {
+						"type" : "GROWS_WITH_LEVEL",
+						"valPer20" : 1500,
+						"stepSize" : 1
+					},
+					"limiters" : {
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "navigation"
+					}
+				}
+			}
+		}
+	},
+	"verdish":
+	{
+		"index": 123,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "protectFire" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "firstAid", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "firstAid"
+		}
+	},
+	"merist":
+	{
+		"index": 124,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
+	},
+	"styg":
+	{
+		"index": 125,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "sorcery"
+		}
+	},
+	"andra":
+	{
+		"index": 126,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "dispel" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "intelligence"
+		}
+	},
+	"tiva":
+	{
+		"index": 127,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialty" : {
+			"secondary" : "eagleEye"
+		}
+	}
+}
