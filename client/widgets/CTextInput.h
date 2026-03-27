@@ -54,6 +54,7 @@ protected:
 	std::string currentText;
 	std::string composedText;
 	ETextAlignment originalAlignment;
+	bool passwordMode = false;
 
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CLabel> label;
@@ -104,6 +105,7 @@ public:
 	void setFont(EFonts Font);
 	void setColor(const ColorRGBA & Color);
 	void setAlignment(ETextAlignment alignment);
+	void setPasswordMode(bool on); ///< When enabled, display text as asterisks
 
 	// CIntObject interface impl
 	void keyPressed(EShortcut key) override;

@@ -53,6 +53,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	labelPasswordTitle = std::make_shared<CLabel>( 10, 115, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.login.password"));
 	backgroundPassword = std::make_shared<TransparentFilledRectangle>(Rect(10, 135, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputPassword = std::make_shared<CTextInput>(Rect(15, 138, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
+	inputPassword->setPasswordMode(true);
 
 	buttonLogin = std::make_shared<CButton>(Point(10, 218), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); }, EShortcut::GLOBAL_ACCEPT);
 	buttonClose = std::make_shared<CButton>(Point(210, 218), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);

@@ -205,9 +205,26 @@ void CTextInput::setFilterNumber(int minValue, int maxValue, int metricDigits)
 	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue, metricDigits);
 }
 
+void CTextInput::setPasswordMode(bool on)
+{
+	passwordMode = on;
+	updateLabel();
+}
+
 std::string CTextInput::getVisibleText() const
 {
-	return hasFocus() ? currentText + composedText + "_" : currentText;
+	const std::string visible = currentText + (hasFocus() ? composedText : "");
+	const std::string cursor  = hasFocus() ? "_" : "";
+	if(passwordMode)
+	{
+		// Count UTF-8 characters (each star replaces one code point)
+		size_t count = 0;
+		for(unsigned char c : visible)
+			if((c & 0xC0) != 0x80) // skip continuation bytes
+				++count;
+		return std::string(count, '*') + cursor;
+	}
+	return visible + cursor;
 }
 
 void CTextInput::showPopupWindow(const Point & cursorPosition)
