@@ -35,7 +35,7 @@ class GlobalLobbyLoginWindow : public CWindowObject
 
 	std::shared_ptr<CButton> buttonLogin;
 	std::shared_ptr<CButton> buttonClose;
-	std::shared_ptr<CToggleGroup> toggleMode; // create account or use existing
+	std::shared_ptr<CToggleGroup> toggleMode; // create account or use existing (classic mode only)
 
 	void onLoginModeChanged(int value);
 	void onClose();

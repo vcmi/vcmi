@@ -99,7 +99,7 @@ void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const 
 	JsonNode reply;
 	reply["type"].String() = "accountCreated";
 	reply["accountID"].String() = accountID;
-	reply["accountCookie"].String() = LobbyEncryption::encrypt(accountCookie, clientPublicKey);
+	reply["accountCookie"].String() = clientPublicKey.empty() ? accountCookie : LobbyEncryption::encrypt(accountCookie, clientPublicKey);
 	sendMessage(target, reply);
 }
 
@@ -124,7 +124,7 @@ void LobbyServer::sendClientLoginSuccess(const NetworkConnectionPtr & target, co
 {
 	JsonNode reply;
 	reply["type"].String() = "clientLoginSuccess";
-	reply["accountCookie"].String() = LobbyEncryption::encrypt(accountCookie, clientPublicKey);
+	reply["accountCookie"].String() = clientPublicKey.empty() ? accountCookie : LobbyEncryption::encrypt(accountCookie, clientPublicKey);
 	reply["displayName"].String() = displayName;
 	sendMessage(target, reply);
 }
@@ -451,13 +451,21 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 		return receiveClientLogin(connection, json);
 
 	if(messageType == "clientRegister")
+	{
+		if(allowedAuthMethod != "classic")
+			return sendOperationFailed(connection, "This server requires forum authentication. Please use your " + forumHost + " credentials.");
 		return receiveClientRegister(connection, json);
+	}
 
 	if(messageType == "serverLogin")
 		return receiveServerLogin(connection, json);
 
 	if(messageType == "forumLogin")
+	{
+		if(!isAuthMethodAllowed("forum"))
+			return sendOperationFailed(connection, "This server does not support forum authentication. Please use classic login.");
 		return receiveForumLogin(connection, json);
+	}
 
 	if(messageType == "clientProxyLogin")
 		return receiveClientProxyLogin(connection, json);
@@ -593,7 +601,7 @@ void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, con
 
 	std::thread([this, username, password, clientPublicKey, weakConn, &ioc]() mutable
 	{
-		auto result = ForumLogin::verifyCredentials(username, password);
+		auto result = ForumLogin::verifyCredentials(username, password, this->forumHost);
 
 		boost::asio::post(ioc, [this, result, username, clientPublicKey, weakConn]()
 		{
@@ -653,14 +661,21 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string version = json["version"].String();
 	std::string clientPublicKey = json["clientPublicKey"].String();
 
-	try
+	if(allowedAuthMethod == "forum")
 	{
-		accountCookie = decryptField(json["accountCookie"].String());
+		try
+		{
+			accountCookie = decryptField(json["accountCookie"].String());
+		}
+		catch(const std::exception & e)
+		{
+			logGlobal->warn("receiveClientLogin: decryption failed: %s", e.what());
+			return sendOperationFailed(connection, "Encryption error");
+		}
 	}
-	catch(const std::exception & e)
+	else
 	{
-		logGlobal->warn("receiveClientLogin: decryption failed: %s", e.what());
-		return sendOperationFailed(connection, "Encryption error");
+		accountCookie = json["accountCookie"].String();
 	}
 
 	std::vector<std::string> languageRooms;
@@ -689,7 +704,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 		std::thread([this, accountID, accountCookie, language, version, languageRooms, clientPublicKey, forumCookie, weakConn, &ioc]() mutable
 		{
-			bool valid = ForumLogin::isSessionValid(forumCookie);
+			bool valid = ForumLogin::isSessionValid(forumCookie, this->forumHost);
 
 			boost::asio::post(ioc, [this, valid, accountID, accountCookie, language, version, languageRooms, clientPublicKey, weakConn]()
 			{
@@ -950,10 +965,12 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 LobbyServer::~LobbyServer() = default;
 
-LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
+LobbyServer::LobbyServer(const boost::filesystem::path & databasePath, const std::string & authMethod, const std::string & forumHost)
 	: database(std::make_unique<LobbyDatabase>(databasePath))
 	, networkHandler(INetworkHandler::createHandler())
 	, networkServer(networkHandler->createServerTCP(*this))
+	, allowedAuthMethod(authMethod)
+	, forumHost(forumHost)
 {
 	auto privateKeyPath = VCMIDirs::get().userDataPath() / "lobbyPrivateKey.pem";
 	if(boost::filesystem::exists(privateKeyPath))
@@ -964,13 +981,19 @@ LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
 	}
 	else
 	{
-		logGlobal->error("LobbyServer: private key not found at %s – all connections will be rejected!", privateKeyPath.string());
+		logGlobal->warn("LobbyServer: private key not found at %s – forum login will require it", privateKeyPath.string());
 	}
+	logGlobal->info("LobbyServer: authMethod = %s, forumHost = %s", allowedAuthMethod, this->forumHost);
 }
 
 std::string LobbyServer::decryptField(const std::string & value) const
 {
 	return LobbyEncryption::decrypt(value, encryptionPrivateKey);
+}
+
+bool LobbyServer::isAuthMethodAllowed(const std::string & method) const
+{
+	return allowedAuthMethod == method;
 }
 
 LobbyDatabase * LobbyServer::getDatabase() const

@@ -34,9 +34,14 @@
 
 GlobalLobbyClient::GlobalLobbyClient()
 {
-	auto [pub, priv] = LobbyEncryption::generateKeyPair();
-	ephemeralPublicKey = std::move(pub);
-	ephemeralPrivateKey = std::move(priv);
+	useEncryption = settings["lobby"]["authMethod"].String() == "forum";
+
+	if(useEncryption)
+	{
+		auto [pub, priv] = LobbyEncryption::generateKeyPair();
+		ephemeralPublicKey = std::move(pub);
+		ephemeralPrivateKey = std::move(priv);
+	}
 
 	auto customChannels = settings["lobby"]["languageRooms"].convertTo<std::vector<std::string>>();
 
@@ -139,7 +144,10 @@ void GlobalLobbyClient::receiveAccountCreated(const JsonNode & json)
 	{
 		setAccountID(json["accountID"].String());
 		setAccountDisplayName(json["displayName"].String());
-		setAccountCookie(LobbyEncryption::decrypt(json["accountCookie"].String(), ephemeralPrivateKey));
+		if(useEncryption)
+			setAccountCookie(LobbyEncryption::decrypt(json["accountCookie"].String(), ephemeralPrivateKey));
+		else
+			setAccountCookie(json["accountCookie"].String());
 	}
 
 	sendClientLogin();
@@ -160,7 +168,10 @@ void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 {
 	accountLoggedIn = true;
 	setAccountDisplayName(json["displayName"].String());
-	setAccountCookie(LobbyEncryption::decrypt(json["accountCookie"].String(), ephemeralPrivateKey));
+	if(useEncryption)
+		setAccountCookie(LobbyEncryption::decrypt(json["accountCookie"].String(), ephemeralPrivateKey));
+	else
+		setAccountCookie(json["accountCookie"].String());
 
 	auto loginWindowPtr = loginWindow.lock();
 
@@ -385,7 +396,8 @@ void GlobalLobbyClient::sendClientRegister(const std::string & accountName)
 	JsonNode toSend;
 	toSend["type"].String() = "clientRegister";
 	toSend["displayName"].String() = accountName;
-	toSend["clientPublicKey"].String() = ephemeralPublicKey;
+	if(useEncryption)
+		toSend["clientPublicKey"].String() = ephemeralPublicKey;
 	toSend["language"].String() = LIBRARY->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 	sendMessage(toSend);
@@ -398,8 +410,9 @@ void GlobalLobbyClient::sendClientLogin()
 	JsonNode toSend;
 	toSend["type"].String() = "clientLogin";
 	toSend["accountID"].String() = getAccountID();
-	toSend["accountCookie"].String() = LobbyEncryption::encrypt(getAccountCookie(), pubKey);
-	toSend["clientPublicKey"].String() = ephemeralPublicKey;
+	toSend["accountCookie"].String() = useEncryption ? LobbyEncryption::encrypt(getAccountCookie(), pubKey) : getAccountCookie();
+	if(useEncryption)
+		toSend["clientPublicKey"].String() = ephemeralPublicKey;
 	toSend["language"].String() = LIBRARY->generaltexth->getPreferredLanguage();
 	toSend["version"].String() = VCMI_VERSION_STRING;
 

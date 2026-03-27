@@ -23,7 +23,6 @@ namespace net   = boost::asio;
 namespace ssl   = boost::asio::ssl;
 using tcp = net::ip::tcp;
 
-static const std::string FORUM_HOST = "forum.vcmi.eu";
 static const std::string FORUM_PORT = "443";
 
 static std::string urlEncode(const std::string & input)
@@ -46,7 +45,7 @@ static std::string urlEncode(const std::string & input)
 	return encoded;
 }
 
-std::optional<ForumLogin::Result> ForumLogin::verifyCredentials(const std::string & username, const std::string & password)
+std::optional<ForumLogin::Result> ForumLogin::verifyCredentials(const std::string & username, const std::string & password, const std::string & forumHost)
 {
 	try
 	{
@@ -59,20 +58,20 @@ std::optional<ForumLogin::Result> ForumLogin::verifyCredentials(const std::strin
 		beast::ssl_stream<beast::tcp_stream> stream(ioc, sslCtx);
 
 		// Set SNI hostname for proper TLS handshake
-		if (!SSL_set_tlsext_host_name(stream.native_handle(), FORUM_HOST.c_str()))
+		if (!SSL_set_tlsext_host_name(stream.native_handle(), forumHost.c_str()))
 		{
 			logGlobal->warn("ForumLogin: failed to set SNI hostname");
 			return std::nullopt;
 		}
 
-		auto const endpoints = resolver.resolve(FORUM_HOST, FORUM_PORT);
+		auto const endpoints = resolver.resolve(forumHost, FORUM_PORT);
 		beast::get_lowest_layer(stream).connect(endpoints);
 		stream.handshake(ssl::stream_base::client);
 
 		// Step 1 – obtain CSRF token
 		{
 			http::request<http::empty_body> req(http::verb::get, "/session/csrf.json", 11);
-			req.set(http::field::host, FORUM_HOST);
+			req.set(http::field::host, forumHost);
 			req.set(http::field::user_agent, "VCMI-LobbyServer/1.0");
 			req.set(http::field::accept, "application/json");
 			http::write(stream, req);
@@ -122,7 +121,7 @@ std::optional<ForumLogin::Result> ForumLogin::verifyCredentials(const std::strin
 
 		{
 			http::request<http::string_body> req(http::verb::post, "/session", 11);
-			req.set(http::field::host, FORUM_HOST);
+			req.set(http::field::host, forumHost);
 			req.set(http::field::user_agent, "VCMI-LobbyServer/1.0");
 			req.set(http::field::accept, "application/json");
 			req.set(http::field::content_type, "application/x-www-form-urlencoded");
@@ -189,7 +188,7 @@ std::optional<ForumLogin::Result> ForumLogin::verifyCredentials(const std::strin
 	}
 }
 
-bool ForumLogin::isSessionValid(const std::string & sessionCookie)
+bool ForumLogin::isSessionValid(const std::string & sessionCookie, const std::string & forumHost)
 {
 	try
 	{
@@ -201,14 +200,14 @@ bool ForumLogin::isSessionValid(const std::string & sessionCookie)
 		tcp::resolver resolver(ioc);
 		beast::ssl_stream<beast::tcp_stream> stream(ioc, sslCtx);
 
-		if (!SSL_set_tlsext_host_name(stream.native_handle(), FORUM_HOST.c_str()))
+		if (!SSL_set_tlsext_host_name(stream.native_handle(), forumHost.c_str()))
 			return false;
 
-		beast::get_lowest_layer(stream).connect(resolver.resolve(FORUM_HOST, FORUM_PORT));
+		beast::get_lowest_layer(stream).connect(resolver.resolve(forumHost, FORUM_PORT));
 		stream.handshake(ssl::stream_base::client);
 
 		http::request<http::empty_body> req(http::verb::get, "/session/current.json", 11);
-		req.set(http::field::host, FORUM_HOST);
+		req.set(http::field::host, forumHost);
 		req.set(http::field::user_agent, "VCMI-LobbyServer/1.0");
 		req.set(http::field::accept, "application/json");
 		req.set(http::field::cookie, sessionCookie);

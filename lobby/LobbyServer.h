@@ -47,6 +47,17 @@ class LobbyServer final : public INetworkServerListener
 	/// RSA private key (PEM) loaded from userDataPath/lobbyPrivateKey.pem at startup
 	std::string encryptionPrivateKey;
 
+	/// Accepted authentication method: "classic" or "forum".
+	/// Set from EntryPoint.cpp AUTH_METHOD constant.
+	std::string allowedAuthMethod;
+
+	/// Forum hostname used for credential verification (e.g. "forum.vcmi.eu").
+	/// Set from EntryPoint.cpp FORUM_HOST constant.
+	std::string forumHost;
+
+	/// Returns true if the given auth method ("classic" or "forum") is accepted by server config.
+	bool isAuthMethodAllowed(const std::string & method) const;
+
 	/// Decrypt a field that was encrypted by the client with the public key.
 	/// Throws on failure (bad key, corrupt ciphertext).
 	std::string decryptField(const std::string & value) const;
@@ -106,7 +117,7 @@ class LobbyServer final : public INetworkServerListener
 	void receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 public:
-	explicit LobbyServer(const boost::filesystem::path & databasePath);
+	explicit LobbyServer(const boost::filesystem::path & databasePath, const std::string & authMethod, const std::string & forumHost);
 	~LobbyServer();
 
 	void start(uint16_t port);

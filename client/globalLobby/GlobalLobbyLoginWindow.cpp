@@ -37,6 +37,8 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	pos.w = 284;
 	pos.h = 260;
 
+	const std::string authMethod = settings["lobby"]["authMethod"].String();
+
 	MetaString loginAs;
 	loginAs.appendTextID("vcmi.lobby.login.as");
 	loginAs.replaceRawString(GAME->server().getGlobalLobby().getAccountDisplayName());
@@ -56,38 +58,85 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	buttonClose = std::make_shared<CButton>(Point(210, 218), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
 	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 163, 255, 50), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	auto buttonLoginToggle = std::make_shared<CToggleButton>(Point(100, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	auto buttonForum = std::make_shared<CToggleButton>(Point(190, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	buttonRegister->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLoginToggle->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonForum->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.forum"), EFonts::FONT_SMALL, Colors::YELLOW);
-
-	toggleMode = std::make_shared<CToggleGroup>(nullptr);
-	toggleMode->addToggle(0, buttonRegister);
-	toggleMode->addToggle(1, buttonLoginToggle);
-	toggleMode->addToggle(2, buttonForum);
-	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
-	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
-
-	if (GAME->server().getGlobalLobby().getAccountID().empty())
+	if(authMethod == "forum")
 	{
-		buttonLoginToggle->block(true);
-		toggleMode->setSelected(0);
-		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currently selected option
+		labelUsername->disable(); // hide "logged in as X"
+
+		const std::string savedName = GAME->server().getGlobalLobby().getAccountDisplayName();
+		const bool hasCookie = !GAME->server().getGlobalLobby().getAccountCookie().empty();
+
+		if(!savedName.empty())
+			inputUsername->setText(savedName);
+
+		// Hide password field when a cookie is available (no credentials needed initially)
+		if(hasCookie)
+		{
+			labelPasswordTitle->disable();
+			backgroundPassword->disable();
+			inputPassword->disable();
+		}
+
+		auto updateLoginButton = [this]()
+		{
+			if(inputPassword->isDisabled())
+			{
+				// Cookie mode: cookie is present (field is only hidden when cookie exists)
+				buttonLogin->block(false);
+			}
+			else
+			{
+				// Credentials mode: need both username and password
+				buttonLogin->block(inputUsername->getText().empty() || inputPassword->getText().empty());
+			}
+		};
+
+		inputUsername->setCallback([this, savedName, updateLoginButton](const std::string & text)
+		{
+			if(text != savedName && inputPassword->isDisabled())
+			{
+				// Username changed — must enter credentials manually
+				labelPasswordTitle->enable();
+				backgroundPassword->enable();
+				inputPassword->enable();
+				redraw();
+			}
+			updateLoginButton();
+		});
+		inputPassword->setCallback([updateLoginButton](const std::string &){ updateLoginButton(); });
+		updateLoginButton();
 	}
 	else
 	{
-		toggleMode->setSelected(1);
-		onLoginModeChanged(1);
+		// Classic mode: toggle between "create account" and "login with stored account"
+		auto buttonRegister    = std::make_shared<CToggleButton>(Point(10,  40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+		auto buttonLoginToggle = std::make_shared<CToggleButton>(Point(150, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+		buttonRegister->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
+		buttonLoginToggle->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+
+		toggleMode = std::make_shared<CToggleGroup>(nullptr);
+		toggleMode->addToggle(0, buttonRegister);
+		toggleMode->addToggle(1, buttonLoginToggle);
+		toggleMode->addCallback([this](int index){ onLoginModeChanged(index); });
+
+		if(GAME->server().getGlobalLobby().getAccountID().empty())
+		{
+			buttonLoginToggle->block(true);
+			toggleMode->setSelected(0);
+			onLoginModeChanged(0);
+		}
+		else
+		{
+			toggleMode->setSelected(1);
+			onLoginModeChanged(1);
+		}
+
+		inputUsername->setCallback([this](const std::string & text)
+		{
+			buttonLogin->block(text.empty());
+		});
 	}
 
 	filledBackground->setPlayerColor(PlayerColor(1));
-	inputUsername->setCallback([this](const std::string & text)
-	{
-		this->buttonLogin->block(text.empty());
-	});
-
 	center();
 }
 
@@ -103,7 +152,7 @@ void GlobalLobbyLoginWindow::onLoginModeChanged(int value)
 		backgroundPassword->disable();
 		labelPasswordTitle->disable();
 	}
-	else if (value == 1) // Login with stored account
+	else // value == 1: Login with stored account
 	{
 		inputUsername->disable();
 		backgroundUsername->disable();
@@ -112,16 +161,6 @@ void GlobalLobbyLoginWindow::onLoginModeChanged(int value)
 		inputPassword->disable();
 		backgroundPassword->disable();
 		labelPasswordTitle->disable();
-	}
-	else // value == 2: Forum login
-	{
-		inputUsername->enable();
-		backgroundUsername->enable();
-		labelUsernameTitle->enable();
-		labelUsername->disable();
-		inputPassword->enable();
-		backgroundPassword->enable();
-		labelPasswordTitle->enable();
 	}
 	redraw();
 }
@@ -146,12 +185,19 @@ void GlobalLobbyLoginWindow::onLogin()
 
 void GlobalLobbyLoginWindow::onConnectionSuccess()
 {
-	std::string accountID = GAME->server().getGlobalLobby().getAccountID();
+	const std::string authMethod = settings["lobby"]["authMethod"].String();
+	if(authMethod == "forum")
+	{
+		if(inputPassword->getText().empty())
+			GAME->server().getGlobalLobby().sendClientLogin();   // saved cookie
+		else
+			GAME->server().getGlobalLobby().sendForumLogin(inputUsername->getText(), inputPassword->getText());
+		return;
+	}
 
+	// Classic mode
 	if(toggleMode->getSelected() == 0)
 		GAME->server().getGlobalLobby().sendClientRegister(inputUsername->getText());
-	else if(toggleMode->getSelected() == 2)
-		GAME->server().getGlobalLobby().sendForumLogin(inputUsername->getText(), inputPassword->getText());
 	else
 		GAME->server().getGlobalLobby().sendClientLogin();
 }
@@ -170,5 +216,22 @@ void GlobalLobbyLoginWindow::onConnectionFailed(const std::string & reason)
 
 	labelStatus->setText(formatter.toString());
 	buttonClose->block(false);
-	buttonLogin->block(false);
+
+	const std::string authMethod = settings["lobby"]["authMethod"].String();
+	if(authMethod == "forum")
+	{
+		// Show password field so user can enter credentials (cookie login failed)
+		labelPasswordTitle->enable();
+		backgroundPassword->enable();
+		inputPassword->enable();
+
+		const bool hasUsername = !inputUsername->getText().empty();
+		const bool hasPassword = !inputPassword->getText().empty();
+		buttonLogin->block(!hasUsername || !hasPassword);
+		redraw();
+	}
+	else
+	{
+		buttonLogin->block(false);
+	}
 }

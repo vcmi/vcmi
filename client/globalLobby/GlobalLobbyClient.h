@@ -38,6 +38,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	std::string ephemeralPublicKey;
 	std::string ephemeralPrivateKey;
+	bool useEncryption = false;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;

@@ -4,7 +4,7 @@
 	"title" : "Lobby protocol: clientLogin",
 	"description" : "Sent by client when player requests lobby login",
 
-	"required" : [ "type", "accountID", "accountCookie", "clientPublicKey", "language", "version" ],
+	"required" : [ "type", "accountID", "accountCookie", "language", "version" ],
 	"additionalProperties" : false,
 
 	"properties" : {

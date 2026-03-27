@@ -22,6 +22,8 @@
 static const int LISTENING_PORT = 3031;
 static const int HTTP_API_PORT = 3032;
 static const bool HTTP_API_LOCALHOST_ONLY = true;
+static const std::string AUTH_METHOD = "forum";   // "classic" or "forum"
+static const std::string FORUM_HOST = "forum.vcmi.eu";
 
 int main(int argc, const char * argv[])
 {
@@ -37,7 +39,7 @@ int main(int argc, const char * argv[])
 	auto databasePath = VCMIDirs::get().userDataPath() / "vcmiLobby.db";
 	logGlobal->info("Opening database %s", databasePath.string());
 
-	LobbyServer server(databasePath);
+	LobbyServer server(databasePath, AUTH_METHOD, FORUM_HOST);
 	logGlobal->info("Starting server on port %d", LISTENING_PORT);
 
 	try
