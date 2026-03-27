@@ -11,6 +11,7 @@
 #include "LobbyServer.h"
 
 #include "LobbyDatabase.h"
+#include "ForumLogin.h"
 
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
@@ -20,6 +21,8 @@
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/asio/post.hpp>
+#include <thread>
 
 bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 {
@@ -449,6 +452,9 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 	if(messageType == "serverLogin")
 		return receiveServerLogin(connection, json);
 
+	if(messageType == "forumLogin")
+		return receiveForumLogin(connection, json);
+
 	if(messageType == "clientProxyLogin")
 		return receiveClientProxyLogin(connection, json);
 
@@ -561,6 +567,47 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 	}
 }
 
+void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, const JsonNode & json)
+{
+	std::string username = json["username"].String();
+	std::string password = json["password"].String();
+
+	NetworkConnectionWeakPtr weakConn = connection;
+	NetworkContext & ioc = networkHandler->getContext();
+
+	std::thread([this, username, password, weakConn, &ioc]() mutable
+	{
+		auto result = ForumLogin::verifyCredentials(username, password);
+
+		boost::asio::post(ioc, [this, result, username, weakConn]()
+		{
+			auto conn = weakConn.lock();
+			if(!conn)
+				return;
+
+			if(!result)
+				return sendOperationFailed(conn, "Invalid forum credentials");
+
+			const std::string & forumUsername = result->username;
+			std::string accountID = database->getAccountIDByForumUsername(forumUsername);
+
+			if(accountID.empty())
+			{
+				accountID = boost::uuids::to_string(boost::uuids::random_generator()());
+				database->insertAccount(accountID, forumUsername);
+				database->linkForumAccount(forumUsername, accountID);
+			}
+
+			database->setForumSessionCookie(accountID, result->sessionCookie);
+
+			std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
+			database->insertAccessCookie(accountID, accountCookie);
+			logGlobal->info("Forum login: '%s' authenticated, accountID=%s", forumUsername, accountID);
+			sendAccountCreated(conn, accountID, accountCookie);
+		});
+	}).detach();
+}
+
 void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string displayName = json["displayName"].String();
@@ -587,7 +634,10 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string accountCookie = json["accountCookie"].String();
 	std::string language = json["language"].String();
 	std::string version = json["version"].String();
-	const auto & languageRooms = json["languageRooms"].Vector();
+
+	std::vector<std::string> languageRooms;
+	for (const auto & entry : json["languageRooms"].Vector())
+		languageRooms.push_back(entry.String());
 
 	if(!database->isAccountIDExists(accountID))
 		return sendOperationFailed(connection, "Account not found");
@@ -597,6 +647,46 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	if(clientCookieStatus == LobbyCookieStatus::INVALID)
 		return sendOperationFailed(connection, "Authentication failure");
 
+	// For forum-linked accounts, verify the Discourse session is still active
+	if(database->isForumLinkedAccount(accountID))
+	{
+		std::string forumCookie = database->getForumSessionCookie(accountID);
+		if(forumCookie.empty())
+		{
+			database->deleteAccountCookies(accountID);
+			return sendOperationFailed(connection, "Forum session expired. Please log in with your forum credentials again.");
+		}
+		NetworkConnectionWeakPtr weakConn = connection;
+		NetworkContext & ioc = networkHandler->getContext();
+
+		std::thread([this, accountID, accountCookie, language, version, languageRooms, forumCookie, weakConn, &ioc]() mutable
+		{
+			bool valid = ForumLogin::isSessionValid(forumCookie);
+
+			boost::asio::post(ioc, [this, valid, accountID, accountCookie, language, version, languageRooms, weakConn]()
+			{
+				auto conn = weakConn.lock();
+				if(!conn)
+					return;
+
+				if(!valid)
+				{
+					logGlobal->info("%s: Forum session expired, revoking VCMI cookies", accountID);
+					database->deleteAccountCookies(accountID);
+					return sendOperationFailed(conn, "Forum session expired. Please log in with your forum credentials again.");
+				}
+
+				finishClientLogin(conn, accountID, accountCookie, language, version, languageRooms);
+			});
+		}).detach();
+		return;
+	}
+
+	finishClientLogin(connection, accountID, accountCookie, language, version, languageRooms);
+}
+
+void LobbyServer::finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms)
+{
 	database->updateAccountLoginTime(accountID);
 	database->setAccountOnline(accountID, true);
 
@@ -610,7 +700,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	if (!languageRooms.empty())
 	{
 		for (const auto & entry : languageRooms)
-			sendRecentChatHistory(connection, "global", entry.String());
+			sendRecentChatHistory(connection, "global", entry);
 	}
 	else
 	{
@@ -619,8 +709,6 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 			sendRecentChatHistory(connection, "global", language);
 	}
 
-	// send active game rooms list to new account
-	// and update account list to everybody else including new account
 	broadcastActiveAccounts();
 	sendMessage(connection, prepareActiveGameRooms());
 	sendMatchesHistory(connection);

@@ -35,7 +35,7 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	OBJECT_CONSTRUCTION;
 
 	pos.w = 284;
-	pos.h = 220;
+	pos.h = 260;
 
 	MetaString loginAs;
 	loginAs.appendTextID("vcmi.lobby.login.as");
@@ -47,24 +47,32 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 	labelUsername = std::make_shared<CLabel>( 10, 65, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, loginAs.toString(), 265);
 	backgroundUsername = std::make_shared<TransparentFilledRectangle>(Rect(10, 90, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
 	inputUsername = std::make_shared<CTextInput>(Rect(15, 93, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
-	buttonLogin = std::make_shared<CButton>(Point(10, 180), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); }, EShortcut::GLOBAL_ACCEPT);
-	buttonClose = std::make_shared<CButton>(Point(210, 180), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
-	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 115, 255, 60), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+
+	labelPasswordTitle = std::make_shared<CLabel>( 10, 115, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.login.password"));
+	backgroundPassword = std::make_shared<TransparentFilledRectangle>(Rect(10, 135, 264, 20), ColorRGBA(0,0,0,128), ColorRGBA(64,64,64,64));
+	inputPassword = std::make_shared<CTextInput>(Rect(15, 138, 260, 16), FONT_SMALL, ETextAlignment::CENTERLEFT, true);
+
+	buttonLogin = std::make_shared<CButton>(Point(10, 218), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onLogin(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonClose = std::make_shared<CButton>(Point(210, 218), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
+	labelStatus = std::make_shared<CTextBox>( "", Rect(15, 163, 255, 50), 1, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
 	auto buttonRegister = std::make_shared<CToggleButton>(Point(10, 40),  AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
-	auto buttonLogin = std::make_shared<CToggleButton>(Point(146, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+	auto buttonLoginToggle = std::make_shared<CToggleButton>(Point(100, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
+	auto buttonForum = std::make_shared<CToggleButton>(Point(190, 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), 0);
 	buttonRegister->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.create"), EFonts::FONT_SMALL, Colors::YELLOW);
-	buttonLogin->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonLoginToggle->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.login"), EFonts::FONT_SMALL, Colors::YELLOW);
+	buttonForum->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.login.forum"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	toggleMode = std::make_shared<CToggleGroup>(nullptr);
 	toggleMode->addToggle(0, buttonRegister);
-	toggleMode->addToggle(1, buttonLogin);
+	toggleMode->addToggle(1, buttonLoginToggle);
+	toggleMode->addToggle(2, buttonForum);
 	toggleMode->setSelected(settings["lobby"]["roomType"].Integer());
 	toggleMode->addCallback([this](int index){onLoginModeChanged(index);});
 
 	if (GAME->server().getGlobalLobby().getAccountID().empty())
 	{
-		buttonLogin->block(true);
+		buttonLoginToggle->block(true);
 		toggleMode->setSelected(0);
 		onLoginModeChanged(0); // call it manually to disable widgets - toggleMode will not emit this call if this is currently selected option
 	}
@@ -85,19 +93,35 @@ GlobalLobbyLoginWindow::GlobalLobbyLoginWindow()
 
 void GlobalLobbyLoginWindow::onLoginModeChanged(int value)
 {
-	if (value == 0)
+	if (value == 0) // Create account
 	{
 		inputUsername->enable();
 		backgroundUsername->enable();
 		labelUsernameTitle->enable();
 		labelUsername->disable();
+		inputPassword->disable();
+		backgroundPassword->disable();
+		labelPasswordTitle->disable();
 	}
-	else
+	else if (value == 1) // Login with stored account
 	{
 		inputUsername->disable();
 		backgroundUsername->disable();
 		labelUsernameTitle->disable();
 		labelUsername->enable();
+		inputPassword->disable();
+		backgroundPassword->disable();
+		labelPasswordTitle->disable();
+	}
+	else // value == 2: Forum login
+	{
+		inputUsername->enable();
+		backgroundUsername->enable();
+		labelUsernameTitle->enable();
+		labelUsername->disable();
+		inputPassword->enable();
+		backgroundPassword->enable();
+		labelPasswordTitle->enable();
 	}
 	redraw();
 }
@@ -126,6 +150,8 @@ void GlobalLobbyLoginWindow::onConnectionSuccess()
 
 	if(toggleMode->getSelected() == 0)
 		GAME->server().getGlobalLobby().sendClientRegister(inputUsername->getText());
+	else if(toggleMode->getSelected() == 2)
+		GAME->server().getGlobalLobby().sendForumLogin(inputUsername->getText(), inputPassword->getText());
 	else
 		GAME->server().getGlobalLobby().sendClientLogin();
 }

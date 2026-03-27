@@ -29,6 +29,10 @@ class GlobalLobbyLoginWindow : public CWindowObject
 	std::shared_ptr<TransparentFilledRectangle> backgroundUsername;
 	std::shared_ptr<CTextInput> inputUsername;
 
+	std::shared_ptr<CLabel> labelPasswordTitle;
+	std::shared_ptr<TransparentFilledRectangle> backgroundPassword;
+	std::shared_ptr<CTextInput> inputPassword;
+
 	std::shared_ptr<CButton> buttonLogin;
 	std::shared_ptr<CButton> buttonClose;
 	std::shared_ptr<CToggleGroup> toggleMode; // create account or use existing

@@ -2,6 +2,7 @@ set(lobby_SRCS
 		StdInc.cpp
 
 		EntryPoint.cpp
+		ForumLogin.cpp
 		HttpServer.cpp
 		LobbyDatabase.cpp
 		LobbyHttpApi.cpp
@@ -12,6 +13,7 @@ set(lobby_SRCS
 set(lobby_HEADERS
 		StdInc.h
 
+		ForumLogin.h
 		HttpServer.h
 		LobbyDatabase.h
 		LobbyDefines.h
@@ -47,11 +49,13 @@ assign_source_group(${lobby_SRCS} ${lobby_HEADERS})
 add_executable(vcmilobby ${lobby_SRCS} ${lobby_HEADERS})
 set(lobby_LIBS vcmi)
 
+find_package(OpenSSL REQUIRED)
+
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)
 	set(lobby_LIBS execinfo ${lobby_LIBS})
 endif()
 
-target_link_libraries(vcmilobby PRIVATE ${lobby_LIBS} ${SQLite3_LIBRARIES})
+target_link_libraries(vcmilobby PRIVATE ${lobby_LIBS} ${SQLite3_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto)
 
 target_include_directories(vcmilobby PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_include_directories(vcmilobby PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

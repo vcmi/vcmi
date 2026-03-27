@@ -63,6 +63,13 @@ class LobbyDatabase
 	SQLiteStatementPtr isAccountIDExistsStatement;
 	SQLiteStatementPtr isAccountNameExistsStatement;
 
+	SQLiteStatementPtr insertForumLinkStatement;
+	SQLiteStatementPtr getAccountIDByForumUsernameStatement;
+	SQLiteStatementPtr updateForumSessionCookieStatement;
+	SQLiteStatementPtr getForumSessionCookieStatement;
+	SQLiteStatementPtr isForumLinkedAccountStatement;
+	SQLiteStatementPtr deleteAccountCookiesStatement;
+
 	void prepareStatements();
 	void createTables();
 	void upgradeDatabase();
@@ -121,4 +128,22 @@ public:
 	bool isPlayerInGameRoom(const std::string & accountID, const std::string & roomID);
 	bool isAccountNameExists(const std::string & displayName);
 	bool isAccountIDExists(const std::string & accountID);
+
+	/// Links a forum username to an internal accountID.
+	void linkForumAccount(const std::string & forumUsername, const std::string & accountID);
+
+	/// Returns accountID linked to the given forum username, or empty string if not found.
+	std::string getAccountIDByForumUsername(const std::string & forumUsername);
+
+	/// Stores the Discourse session cookie string for a forum-linked account.
+	void setForumSessionCookie(const std::string & accountID, const std::string & sessionCookie);
+
+	/// Returns the stored Discourse session cookie for a forum-linked account, or empty if none.
+	std::string getForumSessionCookie(const std::string & accountID);
+
+	/// Returns true if the account was created via forum login.
+	bool isForumLinkedAccount(const std::string & accountID);
+
+	/// Deletes all VCMI access cookies for an account (forces re-login).
+	void deleteAccountCookies(const std::string & accountID);
 };

@@ -83,7 +83,10 @@ class LobbyServer final : public INetworkServerListener
 	void receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveClientLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveServerLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
+	void receiveForumLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveClientProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
+
+	void finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms);
 	void receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 	void receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json);

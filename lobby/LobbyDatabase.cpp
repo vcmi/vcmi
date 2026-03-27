@@ -73,12 +73,23 @@ void LobbyDatabase::createTables()
 		);
 	)";
 
+	static const std::string createTableForumLinks = R"(
+		CREATE TABLE IF NOT EXISTS forumLinks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			forumUsername TEXT UNIQUE NOT NULL,
+			accountID TEXT NOT NULL,
+			forumSessionCookie TEXT,
+			creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+		);
+	)";
+
 	database->prepare(createChatMessages)->execute();
 	database->prepare(createTableGameRoomPlayers)->execute();
 	database->prepare(createTableGameRooms)->execute();
 	database->prepare(createTableAccounts)->execute();
 	database->prepare(createTableAccountCookies)->execute();
 	database->prepare(createTableGameRoomInvites)->execute();
+	database->prepare(createTableForumLinks)->execute();
 }
 
 void LobbyDatabase::upgradeDatabase()
@@ -110,6 +121,40 @@ void LobbyDatabase::upgradeDatabase()
 
 		upgradeDatabaseVersionStatement->execute();
 		upgradeDatabaseVersionStatement->reset();
+	}
+
+	auto upgradeTo10502 = database->prepare(R"(
+		PRAGMA user_version = 10502
+	)");
+
+	if (databaseVersion < 10502)
+	{
+		database->prepare(R"(
+			CREATE TABLE IF NOT EXISTS forumLinks (
+				id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+				forumUsername TEXT UNIQUE NOT NULL,
+				accountID TEXT NOT NULL,
+				creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+			);
+		)")->execute();
+
+		upgradeTo10502->execute();
+		upgradeTo10502->reset();
+	}
+
+	auto upgradeTo10503 = database->prepare(R"(
+		PRAGMA user_version = 10503
+	)");
+
+	if (databaseVersion < 10503)
+	{
+		database->prepare(R"(
+			ALTER TABLE forumLinks
+			ADD COLUMN forumSessionCookie TEXT
+		)")->execute();
+
+		upgradeTo10503->execute();
+		upgradeTo10503->reset();
 	}
 }
 
@@ -373,6 +418,30 @@ void LobbyDatabase::prepareStatements()
 		SELECT COUNT(displayName)
 		FROM accounts
 		WHERE displayName = ? COLLATE NOCASE
+	)");
+
+	insertForumLinkStatement = database->prepare(R"(
+		INSERT OR IGNORE INTO forumLinks(forumUsername, accountID) VALUES(?,?);
+	)");
+
+	getAccountIDByForumUsernameStatement = database->prepare(R"(
+		SELECT accountID FROM forumLinks WHERE forumUsername = ?
+	)");
+
+	updateForumSessionCookieStatement = database->prepare(R"(
+		UPDATE forumLinks SET forumSessionCookie = ? WHERE accountID = ?
+	)");
+
+	getForumSessionCookieStatement = database->prepare(R"(
+		SELECT forumSessionCookie FROM forumLinks WHERE accountID = ?
+	)");
+
+	isForumLinkedAccountStatement = database->prepare(R"(
+		SELECT COUNT(*) FROM forumLinks WHERE accountID = ?
+	)");
+
+	deleteAccountCookiesStatement = database->prepare(R"(
+		DELETE FROM accountCookies WHERE accountID = ?
 	)");
 }
 
@@ -787,4 +856,61 @@ std::string LobbyDatabase::getAccountGameRoom(const std::string & accountID)
 
 	getAccountGameRoomStatement->reset();
 	return result;
+}
+
+void LobbyDatabase::linkForumAccount(const std::string & forumUsername, const std::string & accountID)
+{
+	insertForumLinkStatement->setBinds(forumUsername, accountID);
+	insertForumLinkStatement->execute();
+	insertForumLinkStatement->reset();
+}
+
+std::string LobbyDatabase::getAccountIDByForumUsername(const std::string & forumUsername)
+{
+	std::string result;
+
+	getAccountIDByForumUsernameStatement->setBinds(forumUsername);
+	if(getAccountIDByForumUsernameStatement->execute())
+		getAccountIDByForumUsernameStatement->getColumns(result);
+	getAccountIDByForumUsernameStatement->reset();
+
+	return result;
+}
+
+void LobbyDatabase::setForumSessionCookie(const std::string & accountID, const std::string & sessionCookie)
+{
+	updateForumSessionCookieStatement->setBinds(sessionCookie, accountID);
+	updateForumSessionCookieStatement->execute();
+	updateForumSessionCookieStatement->reset();
+}
+
+std::string LobbyDatabase::getForumSessionCookie(const std::string & accountID)
+{
+	std::string result;
+
+	getForumSessionCookieStatement->setBinds(accountID);
+	if(getForumSessionCookieStatement->execute())
+		getForumSessionCookieStatement->getColumns(result);
+	getForumSessionCookieStatement->reset();
+
+	return result;
+}
+
+bool LobbyDatabase::isForumLinkedAccount(const std::string & accountID)
+{
+	bool result = false;
+
+	isForumLinkedAccountStatement->setBinds(accountID);
+	if(isForumLinkedAccountStatement->execute())
+		isForumLinkedAccountStatement->getColumns(result);
+	isForumLinkedAccountStatement->reset();
+
+	return result;
+}
+
+void LobbyDatabase::deleteAccountCookies(const std::string & accountID)
+{
+	deleteAccountCookiesStatement->setBinds(accountID);
+	deleteAccountCookiesStatement->execute();
+	deleteAccountCookiesStatement->reset();
 }

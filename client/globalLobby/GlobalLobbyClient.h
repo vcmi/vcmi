@@ -91,6 +91,7 @@ public:
 	void sendMessage(const JsonNode & data);
 	void sendClientRegister(const std::string & accountName);
 	void sendClientLogin();
+	void sendForumLogin(const std::string & username, const std::string & password);
 	void sendOpenRoom(const std::string & mode, int playerLimit);
 	void addChannel(const std::string & channel);
 	void closeChannel(const std::string & channel);

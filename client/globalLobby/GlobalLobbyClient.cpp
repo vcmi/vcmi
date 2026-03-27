@@ -400,6 +400,17 @@ void GlobalLobbyClient::sendClientLogin()
 	sendMessage(toSend);
 }
 
+void GlobalLobbyClient::sendForumLogin(const std::string & username, const std::string & password)
+{
+	JsonNode toSend;
+	toSend["type"].String() = "forumLogin";
+	toSend["username"].String() = username;
+	toSend["password"].String() = password;
+	toSend["language"].String() = LIBRARY->generaltexth->getPreferredLanguage();
+	toSend["version"].String() = VCMI_VERSION_STRING;
+	sendMessage(toSend);
+}
+
 void GlobalLobbyClient::onConnectionFailed(const std::string & errorMessage)
 {
 	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
