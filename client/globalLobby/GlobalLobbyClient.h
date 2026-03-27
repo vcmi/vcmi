@@ -36,6 +36,9 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	std::string currentGameRoomUUID;
 	bool accountLoggedIn = false;
 
+	std::string ephemeralPublicKey;
+	std::string ephemeralPrivateKey;
+
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
 	std::shared_ptr<GlobalLobbyWindow> lobbyWindowLock; // helper strong reference to prevent window destruction on closing

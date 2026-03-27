@@ -16,8 +16,12 @@
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/json/JsonUtils.h"
+#include "../lib/network/LobbyEncryption.h"
 #include "../lib/texts/Languages.h"
 #include "../lib/texts/TextOperations.h"
+#include "../lib/VCMIDirs.h"
+
+#include <fstream>
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -90,12 +94,12 @@ void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNod
 	target->sendPacket(json.toBytes());
 }
 
-void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie)
+void LobbyServer::sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie, const std::string & clientPublicKey)
 {
 	JsonNode reply;
 	reply["type"].String() = "accountCreated";
 	reply["accountID"].String() = accountID;
-	reply["accountCookie"].String() = accountCookie;
+	reply["accountCookie"].String() = LobbyEncryption::encrypt(accountCookie, clientPublicKey);
 	sendMessage(target, reply);
 }
 
@@ -116,11 +120,11 @@ void LobbyServer::sendOperationFailed(const NetworkConnectionPtr & target, const
 	sendMessage(target, reply);
 }
 
-void LobbyServer::sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName)
+void LobbyServer::sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName, const std::string & clientPublicKey)
 {
 	JsonNode reply;
 	reply["type"].String() = "clientLoginSuccess";
-	reply["accountCookie"].String() = accountCookie;
+	reply["accountCookie"].String() = LobbyEncryption::encrypt(accountCookie, clientPublicKey);
 	reply["displayName"].String() = displayName;
 	sendMessage(target, reply);
 }
@@ -569,17 +573,29 @@ void LobbyServer::receiveSendChatMessage(const NetworkConnectionPtr & connection
 
 void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
-	std::string username = json["username"].String();
-	std::string password = json["password"].String();
+	std::string username;
+	std::string password;
+	std::string clientPublicKey = json["clientPublicKey"].String();
+
+	try
+	{
+		username = decryptField(json["username"].String());
+		password = decryptField(json["password"].String());
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->warn("receiveForumLogin: decryption failed: %s", e.what());
+		return sendOperationFailed(connection, "Encryption error");
+	}
 
 	NetworkConnectionWeakPtr weakConn = connection;
 	NetworkContext & ioc = networkHandler->getContext();
 
-	std::thread([this, username, password, weakConn, &ioc]() mutable
+	std::thread([this, username, password, clientPublicKey, weakConn, &ioc]() mutable
 	{
 		auto result = ForumLogin::verifyCredentials(username, password);
 
-		boost::asio::post(ioc, [this, result, username, weakConn]()
+		boost::asio::post(ioc, [this, result, username, clientPublicKey, weakConn]()
 		{
 			auto conn = weakConn.lock();
 			if(!conn)
@@ -603,7 +619,7 @@ void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, con
 			std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
 			database->insertAccessCookie(accountID, accountCookie);
 			logGlobal->info("Forum login: '%s' authenticated, accountID=%s", forumUsername, accountID);
-			sendAccountCreated(conn, accountID, accountCookie);
+			sendAccountCreated(conn, accountID, accountCookie, clientPublicKey);
 		});
 	}).detach();
 }
@@ -612,6 +628,7 @@ void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection,
 {
 	std::string displayName = json["displayName"].String();
 	std::string language = json["language"].String();
+	std::string clientPublicKey = json["clientPublicKey"].String();
 
 	if(!isAccountNameValid(displayName))
 		return sendOperationFailed(connection, "Illegal account name");
@@ -625,15 +642,26 @@ void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection,
 	database->insertAccount(accountID, displayName);
 	database->insertAccessCookie(accountID, accountCookie);
 
-	sendAccountCreated(connection, accountID, accountCookie);
+	sendAccountCreated(connection, accountID, accountCookie, clientPublicKey);
 }
 
 void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, const JsonNode & json)
 {
 	std::string accountID = json["accountID"].String();
-	std::string accountCookie = json["accountCookie"].String();
+	std::string accountCookie;
 	std::string language = json["language"].String();
 	std::string version = json["version"].String();
+	std::string clientPublicKey = json["clientPublicKey"].String();
+
+	try
+	{
+		accountCookie = decryptField(json["accountCookie"].String());
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->warn("receiveClientLogin: decryption failed: %s", e.what());
+		return sendOperationFailed(connection, "Encryption error");
+	}
 
 	std::vector<std::string> languageRooms;
 	for (const auto & entry : json["languageRooms"].Vector())
@@ -659,11 +687,11 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 		NetworkConnectionWeakPtr weakConn = connection;
 		NetworkContext & ioc = networkHandler->getContext();
 
-		std::thread([this, accountID, accountCookie, language, version, languageRooms, forumCookie, weakConn, &ioc]() mutable
+		std::thread([this, accountID, accountCookie, language, version, languageRooms, clientPublicKey, forumCookie, weakConn, &ioc]() mutable
 		{
 			bool valid = ForumLogin::isSessionValid(forumCookie);
 
-			boost::asio::post(ioc, [this, valid, accountID, accountCookie, language, version, languageRooms, weakConn]()
+			boost::asio::post(ioc, [this, valid, accountID, accountCookie, language, version, languageRooms, clientPublicKey, weakConn]()
 			{
 				auto conn = weakConn.lock();
 				if(!conn)
@@ -676,16 +704,16 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 					return sendOperationFailed(conn, "Forum session expired. Please log in with your forum credentials again.");
 				}
 
-				finishClientLogin(conn, accountID, accountCookie, language, version, languageRooms);
+				finishClientLogin(conn, accountID, accountCookie, language, version, languageRooms, clientPublicKey);
 			});
 		}).detach();
 		return;
 	}
 
-	finishClientLogin(connection, accountID, accountCookie, language, version, languageRooms);
+	finishClientLogin(connection, accountID, accountCookie, language, version, languageRooms, clientPublicKey);
 }
 
-void LobbyServer::finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms)
+void LobbyServer::finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms, const std::string & clientPublicKey)
 {
 	database->updateAccountLoginTime(accountID);
 	database->setAccountOnline(accountID, true);
@@ -695,7 +723,7 @@ void LobbyServer::finishClientLogin(const NetworkConnectionPtr & connection, con
 	activeAccounts[connection] = accountID;
 
 	logGlobal->info("%s: Logged in as %s", accountID, displayName);
-	sendClientLoginSuccess(connection, accountCookie, displayName);
+	sendClientLoginSuccess(connection, accountCookie, displayName, clientPublicKey);
 
 	if (!languageRooms.empty())
 	{
@@ -927,6 +955,22 @@ LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
 	, networkHandler(INetworkHandler::createHandler())
 	, networkServer(networkHandler->createServerTCP(*this))
 {
+	auto privateKeyPath = VCMIDirs::get().userDataPath() / "lobbyPrivateKey.pem";
+	if(boost::filesystem::exists(privateKeyPath))
+	{
+		std::ifstream f(privateKeyPath.string());
+		encryptionPrivateKey = std::string(std::istreambuf_iterator<char>(f), {});
+		logGlobal->info("LobbyServer: encryption private key loaded from %s", privateKeyPath.string());
+	}
+	else
+	{
+		logGlobal->error("LobbyServer: private key not found at %s – all connections will be rejected!", privateKeyPath.string());
+	}
+}
+
+std::string LobbyServer::decryptField(const std::string & value) const
+{
+	return LobbyEncryption::decrypt(value, encryptionPrivateKey);
 }
 
 LobbyDatabase * LobbyServer::getDatabase() const

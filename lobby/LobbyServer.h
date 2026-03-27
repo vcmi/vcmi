@@ -44,6 +44,13 @@ class LobbyServer final : public INetworkServerListener
 	std::unique_ptr<INetworkHandler> networkHandler;
 	std::unique_ptr<INetworkServer> networkServer;
 
+	/// RSA private key (PEM) loaded from userDataPath/lobbyPrivateKey.pem at startup
+	std::string encryptionPrivateKey;
+
+	/// Decrypt a field that was encrypted by the client with the public key.
+	/// Throws on failure (bad key, corrupt ciphertext).
+	std::string decryptField(const std::string & value) const;
+
 	/// removes any "weird" symbols from chat message that might break UI
 	std::string sanitizeChatMessage(const std::string & inputString) const;
 
@@ -68,10 +75,10 @@ class LobbyServer final : public INetworkServerListener
 	JsonNode parseAndValidateMessage(const std::vector<std::byte> & message) const;
 
 	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
-	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);
+	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie, const std::string & clientPublicKey);
 	void sendOperationFailed(const NetworkConnectionPtr & target, const std::string & reason);
 	void sendServerLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie);
-	void sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName);
+	void sendClientLoginSuccess(const NetworkConnectionPtr & target, const std::string & accountCookie, const std::string & displayName, const std::string & clientPublicKey);
 	void sendFullChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & channelNameForClient);
 	void sendRecentChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName);
 	void sendChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::vector<LobbyChatMessage> & history);
@@ -86,7 +93,7 @@ class LobbyServer final : public INetworkServerListener
 	void receiveForumLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 	void receiveClientProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
-	void finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms);
+	void finishClientLogin(const NetworkConnectionPtr & connection, const std::string & accountID, const std::string & accountCookie, const std::string & language, const std::string & version, const std::vector<std::string> & languageRooms, const std::string & clientPublicKey);
 	void receiveServerProxyLogin(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 	void receiveSendChatMessage(const NetworkConnectionPtr & connection, const JsonNode & json);

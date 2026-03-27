@@ -27,6 +27,7 @@ set(lib_SRCS
 	logging/CLogger.cpp
 	logging/VisualLogger.cpp
 
+	network/LobbyEncryption.cpp
 	network/NetworkConnection.cpp
 	network/NetworkDiscovery.cpp
 	network/NetworkHandler.cpp
@@ -387,6 +388,7 @@ set(lib_HEADERS
 	logging/CLogger.h
 	logging/VisualLogger.h
 
+	network/LobbyEncryption.h
 	network/NetworkConnection.h
 	network/NetworkDefines.h
 	network/NetworkDiscovery.h
@@ -844,7 +846,7 @@ endif()
 
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
-	minizip::minizip ZLIB::ZLIB
+	minizip::minizip ZLIB::ZLIB OpenSSL::SSL OpenSSL::Crypto
 	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 

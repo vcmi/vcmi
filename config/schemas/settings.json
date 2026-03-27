@@ -777,7 +777,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "languageRooms" ],
+			"required" : [ "mapPreview", "hostname", "port", "roomPlayerLimit", "roomType", "roomMode", "languageRooms", "encryptionPublicKey" ],
 			"properties" : {
 				"mapPreview" : {
 					"type" : "boolean",
@@ -806,6 +806,10 @@
 				"languageRooms" : {
 					"type" : "array",
 					"default" : []
+				},
+				"encryptionPublicKey" : {
+					"type" : "string",
+					"default" : "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuxLJAn6efmK09AXe+Mv2\nnHNm8iltXA1fNcHWkWPedT4Jen8eF54dIrAIxq2BKNqcCEeybEnIeLIKOfFGWsPh\nUxQ7mLyLXJx8eDrHvS35Nkc0sPxICJVB3DfSbNUlgaQQLb8rSwNmksYVaiDJEFiT\nsIeswbgs4GTD/aXYVOFp9tDN1/GtA3krD0sT82qmqpy8dhEMXG5CdPq0gS29DjQQ\nzc/P3En02d7hzQ4MVuSbLUMckctt8ydsagN5kUsVaEiMx9YwACNP087RjTK9kK0c\ndv6EzvI4eBs4vn8tRaqY5tYtJn4kFq7os1CpHyimCL4UblqPLSjI9v3WaTpSYmSn\nfGV0eWVwOvHoyjPuVMc+jc8Klv7VE7v6n+07tUxu6yPQHFWjZwKiUI21OQNpbxRv\nsanoyHHAlMSVqFY89clqnpJ10VpYke7J2UqApwVbn20f0TPfTD8Q3zz8ANTIMTeP\nFmO6kKmpSqwXB1VpdC3J8K/aQpARN5Q3faFh/jY51qNRCh6ovpDYbEArw6NZgvQm\n76A/pk0aHXF48nNcDrc/jO+thwxsyHkkIMNTpzot70ADuoRmekBn/KY1npQFJJtH\nsXuFWWiDim9KMgXIGR5+CT4aTjJz1PhHr2M6reYa1+aukDWOdqr5DY7j1WeMXc8H\nG1Sm7zQAuVz9fgTXUrMP/8ECAwEAAQ==\n-----END PUBLIC KEY-----\n"
 				}
 			}
 		},

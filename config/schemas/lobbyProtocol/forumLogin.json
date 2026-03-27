@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: forumLogin",
 	"description" : "Sent by client when player attempts to authenticate using forum.vcmi.eu credentials",
-	"required" : [ "type", "username", "password", "language", "version" ],
+	"required" : [ "type", "username", "password", "clientPublicKey", "language", "version" ],
 	"additionalProperties" : false,
 
 	"properties" : {
@@ -20,7 +20,12 @@
 		"password" :
 		{
 			"type" : "string",
-			"description" : "Forum password"
+			"description" : "Forum password, RSA-encrypted with server public key"
+		},
+		"clientPublicKey" :
+		{
+			"type" : "string",
+			"description" : "Ephemeral RSA-2048 public key (PEM) for encrypting server reply cookies"
 		},
 		"language" :
 		{

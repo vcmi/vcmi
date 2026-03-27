@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-06/schema",
 	"title" : "Lobby protocol: clientRegister",
 	"description" : "Sent by client when player attempts to create a new account",
-	"required" : [ "type", "displayName", "language", "version" ],
+	"required" : [ "type", "displayName", "clientPublicKey", "language", "version" ],
 	"additionalProperties" : false,
 
 	"properties" : {
@@ -16,6 +16,11 @@
 		{
 			"type" : "string",
 			"description" : "Desired name of a new account"
+		},
+		"clientPublicKey" :
+		{
+			"type" : "string",
+			"description" : "Ephemeral RSA-2048 public key (PEM) for encrypting server reply cookies"
 		},
 		"language" :
 		{

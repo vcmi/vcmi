@@ -4,7 +4,7 @@
 	"title" : "Lobby protocol: clientLogin",
 	"description" : "Sent by client when player requests lobby login",
 
-	"required" : [ "type", "accountID", "accountCookie", "language", "version" ],
+	"required" : [ "type", "accountID", "accountCookie", "clientPublicKey", "language", "version" ],
 	"additionalProperties" : false,
 
 	"properties" : {
@@ -21,7 +21,12 @@
 		"accountCookie" :
 		{
 			"type" : "string",
-			"description" : "Secret UUID for identification"
+			"description" : "Secret UUID for identification, RSA-encrypted with server public key"
+		},
+		"clientPublicKey" :
+		{
+			"type" : "string",
+			"description" : "Ephemeral RSA-2048 public key (PEM) for encrypting server reply cookies"
 		},
 		"language" :
 		{

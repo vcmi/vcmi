@@ -517,6 +517,8 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
+find_package(OpenSSL REQUIRED)
+
 find_package(minizip)
 if(NOT minizip_FOUND)
 	find_package(minizip-ng REQUIRED)

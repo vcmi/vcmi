@@ -53,16 +53,21 @@ Notes:
 
 #### New Account Creation
 
-- client -> lobby: `clientRegister`
-- lobby -> client: `accountCreated`
+- client -> lobby: `clientRegister` (contains `clientPublicKey`)
+- lobby -> client: `accountCreated` (`accountCookie` encrypted with `clientPublicKey`)
 
-#### Login
+#### Login with existing account
 
-- client -> lobby: `clientLogin`
-- lobby -> client: `loginSuccess`
+- client -> lobby: `clientLogin` (contains encrypted `accountCookie` and `clientPublicKey`)
+- lobby -> client: `clientLoginSuccess` (`accountCookie` encrypted with `clientPublicKey`)
 - lobby -> client: `chatHistory`
 - lobby -> client: `activeAccounts`
 - lobby -> client: `activeGameRooms`
+
+#### Login via forum account (forum.vcmi.eu)
+
+- client -> lobby: `forumLogin` (contains encrypted `username` + `password` and `clientPublicKey`)
+- lobby -> client: `accountCreated` (`accountCookie` encrypted with `clientPublicKey`)
 
 #### Chat Message
 
@@ -115,3 +120,36 @@ Currently, process to establish connection using proxy mode is:
 - Lobby server accepts new connection and moves it into a proxy mode - all packages that will be received by one side of this connection will be re-sent to another side without any processing.
 
 Once the game is over (or if one side disconnects) lobby server will close another side of the connection and erase proxy connection
+
+## Lobby encryption
+
+All sensitive fields transmitted between client and lobby server are encrypted using RSA asymmetric encryption (OAEP-SHA256 padding). Implementation is in `lib/network/LobbyEncryption.h`.
+
+### Server → Client (accountCookie)
+
+The client generates an ephemeral RSA-2048 key pair in memory at startup (`LobbyEncryption::generateKeyPair()`). The public key is sent with every login packet (`clientPublicKey` field). The server encrypts the `accountCookie` in its reply with this key. No key files are needed on the client side.
+
+### Client → Server (credentials)
+
+The server holds a persistent RSA-4096 private key. The matching public key is distributed to clients via `settings["lobby"]["encryptionPublicKey"]` (PEM string in `config/schemas/settings.json`). The client encrypts `accountCookie` (on `clientLogin`), and `username` + `password` (on `forumLogin`) before sending.
+
+### Server key setup
+
+Run the following once on the server to generate and deploy the key pair:
+
+```bash
+# 1. Generate private key
+openssl genrsa -out lobbyPrivateKey.pem 4096
+
+# 2. Extract public key
+openssl rsa -in lobbyPrivateKey.pem -pubout -out lobbyPublicKey.pem
+
+# 3. Deploy private key
+cp lobbyPrivateKey.pem ~/.local/share/vcmi/lobbyPrivateKey.pem
+chmod 600 ~/.local/share/vcmi/lobbyPrivateKey.pem
+
+# 4. Print public key as JSON-compatible string (for settings.json)
+awk 'NF{printf "%s\\n", $0}' lobbyPublicKey.pem
+```
+
+The output of step 4 is the value for the `"default"` of the `encryptionPublicKey` field in `config/schemas/settings.json`.
