@@ -25,8 +25,8 @@
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <boost/asio/post.hpp>
-#include <thread>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/use_awaitable.hpp>
 
 bool LobbyServer::isAccountNameValid(const std::string & accountName) const
 {
@@ -607,39 +607,38 @@ void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, con
 	}
 
 	NetworkConnectionWeakPtr weakConn = connection;
-	NetworkContext & ioc = networkHandler->getContext();
 
-	std::thread([this, username, password, clientPublicKey, weakConn, &ioc]() mutable
+	boost::asio::co_spawn(networkHandler->getContext(), [this, username, password, clientPublicKey, weakConn]() -> boost::asio::awaitable<void>
 	{
-		auto result = ForumLogin::verifyCredentials(username, password, this->forumHost);
+		auto result = co_await ForumLogin::verifyCredentialsAsync(username, password, forumHost);
 
-		boost::asio::post(ioc, [this, result, username, clientPublicKey, weakConn]()
+		auto conn = weakConn.lock();
+		if(!conn)
+			co_return;
+
+		if(!result)
 		{
-			auto conn = weakConn.lock();
-			if(!conn)
-				return;
+			sendOperationFailed(conn, "Invalid forum credentials");
+			co_return;
+		}
 
-			if(!result)
-				return sendOperationFailed(conn, "Invalid forum credentials");
+		const std::string & forumUsername = result->username;
+		std::string accountID = database->getAccountIDByForumUsername(forumUsername);
 
-			const std::string & forumUsername = result->username;
-			std::string accountID = database->getAccountIDByForumUsername(forumUsername);
+		if(accountID.empty())
+		{
+			accountID = boost::uuids::to_string(boost::uuids::random_generator()());
+			database->insertAccount(accountID, forumUsername);
+			database->linkForumAccount(forumUsername, accountID);
+		}
 
-			if(accountID.empty())
-			{
-				accountID = boost::uuids::to_string(boost::uuids::random_generator()());
-				database->insertAccount(accountID, forumUsername);
-				database->linkForumAccount(forumUsername, accountID);
-			}
+		database->setForumSessionCookie(accountID, result->sessionCookie);
 
-			database->setForumSessionCookie(accountID, result->sessionCookie);
-
-			std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
-			database->insertAccessCookie(accountID, accountCookie);
-			logGlobal->info("Forum login: '%s' authenticated, accountID=%s", forumUsername, accountID);
-			sendAccountCreated(conn, accountID, accountCookie, clientPublicKey);
-		});
-	}).detach();
+		std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
+		database->insertAccessCookie(accountID, accountCookie);
+		logGlobal->info("Forum login: '%s' authenticated, accountID=%s", forumUsername, accountID);
+		sendAccountCreated(conn, accountID, accountCookie, clientPublicKey);
+	}, boost::asio::detached);
 }
 
 void LobbyServer::receiveClientRegister(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -710,28 +709,25 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 			return sendOperationFailed(connection, "Forum session expired. Please log in with your forum credentials again.");
 		}
 		NetworkConnectionWeakPtr weakConn = connection;
-		NetworkContext & ioc = networkHandler->getContext();
 
-		std::thread([this, accountID, accountCookie, language, version, languageRooms, clientPublicKey, forumCookie, weakConn, &ioc]() mutable
+		boost::asio::co_spawn(networkHandler->getContext(), [this, accountID, accountCookie, language, version, languageRooms, clientPublicKey, forumCookie, weakConn]() -> boost::asio::awaitable<void>
 		{
-			bool valid = ForumLogin::isSessionValid(forumCookie, this->forumHost);
+			bool valid = co_await ForumLogin::isSessionValidAsync(forumCookie, forumHost);
 
-			boost::asio::post(ioc, [this, valid, accountID, accountCookie, language, version, languageRooms, clientPublicKey, weakConn]()
+			auto conn = weakConn.lock();
+			if(!conn)
+				co_return;
+
+			if(!valid)
 			{
-				auto conn = weakConn.lock();
-				if(!conn)
-					return;
+				logGlobal->info("%s: Forum session expired, revoking VCMI cookies", accountID);
+				database->deleteAccountCookies(accountID);
+				sendOperationFailed(conn, "Forum session expired. Please log in with your forum credentials again.");
+				co_return;
+			}
 
-				if(!valid)
-				{
-					logGlobal->info("%s: Forum session expired, revoking VCMI cookies", accountID);
-					database->deleteAccountCookies(accountID);
-					return sendOperationFailed(conn, "Forum session expired. Please log in with your forum credentials again.");
-				}
-
-				finishClientLogin(conn, accountID, accountCookie, language, version, languageRooms, clientPublicKey);
-			});
-		}).detach();
+			finishClientLogin(conn, accountID, accountCookie, language, version, languageRooms, clientPublicKey);
+		}, boost::asio::detached);
 		return;
 	}
 
