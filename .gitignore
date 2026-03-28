@@ -25,6 +25,12 @@ out/
 *.h.gch
 *~
 *.autosave.*
+*.lib
+*.obj
+*.log
+*.tlog
+*.pch
+*.pdb
 /CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -63,6 +69,8 @@ compile_commands.json
 /VCMI_VS11.VC.opendb
 /deps
 .vs/
+*.vcxproj
+*.vcxproj.*
 
 # Visual Studio Code
 /.vscode/
