@@ -122,40 +122,6 @@ void LobbyDatabase::upgradeDatabase()
 		upgradeDatabaseVersionStatement->execute();
 		upgradeDatabaseVersionStatement->reset();
 	}
-
-	auto upgradeTo10502 = database->prepare(R"(
-		PRAGMA user_version = 10502
-	)");
-
-	if (databaseVersion < 10502)
-	{
-		database->prepare(R"(
-			CREATE TABLE IF NOT EXISTS forumLinks (
-				id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-				forumUsername TEXT UNIQUE NOT NULL,
-				accountID TEXT NOT NULL,
-				creationTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-			);
-		)")->execute();
-
-		upgradeTo10502->execute();
-		upgradeTo10502->reset();
-	}
-
-	auto upgradeTo10503 = database->prepare(R"(
-		PRAGMA user_version = 10503
-	)");
-
-	if (databaseVersion < 10503)
-	{
-		database->prepare(R"(
-			ALTER TABLE forumLinks
-			ADD COLUMN forumSessionCookie TEXT
-		)")->execute();
-
-		upgradeTo10503->execute();
-		upgradeTo10503->reset();
-	}
 }
 
 void LobbyDatabase::clearOldData()
