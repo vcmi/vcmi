@@ -792,6 +792,7 @@
 	"vcmi.lobby.invite.header": "Invite Players",
 	"vcmi.lobby.invite.notification": "Player has invited you to their game room. You can now join their private room.",
 	"vcmi.lobby.login.as": "Login as %s",
+	"vcmi.lobby.login.classic": "Classic Login",
 	"vcmi.lobby.login.connecting": "Connecting...",
 	"vcmi.lobby.login.create": "New Account",
 	"vcmi.lobby.login.error": "Connection error: %s",

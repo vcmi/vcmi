@@ -47,9 +47,8 @@ class LobbyServer final : public INetworkServerListener
 	/// RSA private key (PEM) loaded from userDataPath/lobbyPrivateKey.pem at startup
 	std::string encryptionPrivateKey;
 
-	/// Accepted authentication method: "classic" or "forum".
-	/// Set from EntryPoint.cpp AUTH_METHOD constant.
-	std::string allowedAuthMethod;
+	/// Set of accepted authentication methods. Defaults to {"classic", "forum"}.
+	std::set<std::string> allowedAuthMethods;
 
 	/// Forum hostname used for credential verification (e.g. "forum.vcmi.eu").
 	/// Set from EntryPoint.cpp FORUM_HOST constant.
@@ -93,6 +92,7 @@ class LobbyServer final : public INetworkServerListener
 	void sendFullChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & channelNameForClient);
 	void sendRecentChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName);
 	void sendChatHistory(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::vector<LobbyChatMessage> & history);
+	void sendServerCapabilities(const NetworkConnectionPtr & target);
 	void sendAccountJoinsRoom(const NetworkConnectionPtr & target, const std::string & accountID);
 	void sendJoinRoomSuccess(const NetworkConnectionPtr & target, const std::string & gameRoomID, bool proxyMode);
 	void sendInviteReceived(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & gameRoomID);
@@ -117,7 +117,7 @@ class LobbyServer final : public INetworkServerListener
 	void receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json);
 
 public:
-	explicit LobbyServer(const boost::filesystem::path & databasePath, const std::string & authMethod, const std::string & forumHost);
+	explicit LobbyServer(const boost::filesystem::path & databasePath, const std::set<std::string> & authMethods, const std::string & forumHost);
 	~LobbyServer();
 
 	void start(uint16_t port);

@@ -1,0 +1,26 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-06/schema",
+	"title" : "Lobby protocol: serverCapabilities",
+	"description" : "Sent by server immediately on connection, announcing supported capabilities",
+
+	"required" : [ "type", "authMethods" ],
+	"additionalProperties" : false,
+
+	"properties" : {
+		"type" :
+		{
+			"type" : "string",
+			"const" : "serverCapabilities"
+		},
+		"authMethods" :
+		{
+			"type" : "array",
+			"description" : "List of supported authentication methods, e.g. 'classic', 'forum'",
+			"items" :
+			{
+				"type" : "string"
+			}
+		}
+	}
+}

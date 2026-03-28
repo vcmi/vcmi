@@ -38,7 +38,10 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 
 	std::string ephemeralPublicKey;
 	std::string ephemeralPrivateKey;
-	bool useEncryption = false;
+	bool encryptionEnabled = false;
+
+	/// Auth methods reported by server in its serverCapabilities packet
+	std::set<std::string> serverAuthMethods;
 
 	std::weak_ptr<GlobalLobbyLoginWindow> loginWindow;
 	std::weak_ptr<GlobalLobbyWindow> lobbyWindow;
@@ -49,6 +52,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	void onConnectionEstablished(const std::shared_ptr<INetworkConnection> &) override;
 	void onDisconnected(const std::shared_ptr<INetworkConnection> &, const std::string & errorMessage) override;
 
+	void receiveServerCapabilities(const JsonNode & json);
 	void receiveAccountCreated(const JsonNode & json);
 	void receiveOperationFailed(const JsonNode & json);
 	void receiveClientLoginSuccess(const JsonNode & json);
@@ -76,6 +80,8 @@ public:
 	const std::vector<std::string> & getActiveChannels() const;
 	const std::vector<GlobalLobbyRoom> & getMatchesHistory() const;
 	const std::vector<GlobalLobbyChannelMessage> & getChannelHistory(const std::string & channelType, const std::string & channelName) const;
+
+	const std::set<std::string> & getServerAuthMethods() const;
 
 	/// Returns active room by ID. Throws out-of-range on failure
 	const GlobalLobbyRoom & getActiveRoomByName(const std::string & roomUUID) const;

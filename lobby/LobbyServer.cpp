@@ -297,10 +297,20 @@ void LobbyServer::sendChatMessage(const NetworkConnectionPtr & target, const std
 	sendMessage(target, reply);
 }
 
+void LobbyServer::sendServerCapabilities(const NetworkConnectionPtr & target)
+{
+	JsonNode reply;
+	reply["type"].String() = "serverCapabilities";
+	reply["authMethods"].Vector(); // force creation of empty vector
+	for(const auto & method : allowedAuthMethods)
+		reply["authMethods"].Vector().push_back(JsonNode(std::string(method)));
+	sendMessage(target, reply);
+}
+
 void LobbyServer::onNewConnection(const NetworkConnectionPtr & connection)
 {
 	connection->setAsyncWritesEnabled(true);
-	// no-op - waiting for incoming data
+	sendServerCapabilities(connection);
 }
 
 void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage)
@@ -452,8 +462,8 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 
 	if(messageType == "clientRegister")
 	{
-		if(allowedAuthMethod != "classic")
-			return sendOperationFailed(connection, "This server requires forum authentication. Please use your " + forumHost + " credentials.");
+		if(!isAuthMethodAllowed("classic"))
+			return sendOperationFailed(connection, "This server does not support classic registration. Please use forum login.");
 		return receiveClientRegister(connection, json);
 	}
 
@@ -661,7 +671,7 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 	std::string version = json["version"].String();
 	std::string clientPublicKey = json["clientPublicKey"].String();
 
-	if(allowedAuthMethod == "forum")
+	if(!encryptionPrivateKey.empty())
 	{
 		try
 		{
@@ -965,11 +975,11 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 LobbyServer::~LobbyServer() = default;
 
-LobbyServer::LobbyServer(const boost::filesystem::path & databasePath, const std::string & authMethod, const std::string & forumHost)
+LobbyServer::LobbyServer(const boost::filesystem::path & databasePath, const std::set<std::string> & authMethods, const std::string & forumHost)
 	: database(std::make_unique<LobbyDatabase>(databasePath))
 	, networkHandler(INetworkHandler::createHandler())
 	, networkServer(networkHandler->createServerTCP(*this))
-	, allowedAuthMethod(authMethod)
+	, allowedAuthMethods(authMethods)
 	, forumHost(forumHost)
 {
 	auto privateKeyPath = VCMIDirs::get().userDataPath() / "lobbyPrivateKey.pem";
@@ -983,7 +993,9 @@ LobbyServer::LobbyServer(const boost::filesystem::path & databasePath, const std
 	{
 		logGlobal->warn("LobbyServer: private key not found at %s – forum login will require it", privateKeyPath.string());
 	}
-	logGlobal->info("LobbyServer: authMethod = %s, forumHost = %s", allowedAuthMethod, this->forumHost);
+	logGlobal->info("LobbyServer: forumHost = %s", this->forumHost);
+	for(const auto & m : allowedAuthMethods)
+		logGlobal->info("LobbyServer: allowed authMethod = %s", m);
 }
 
 std::string LobbyServer::decryptField(const std::string & value) const
@@ -993,7 +1005,7 @@ std::string LobbyServer::decryptField(const std::string & value) const
 
 bool LobbyServer::isAuthMethodAllowed(const std::string & method) const
 {
-	return allowedAuthMethod == method;
+	return allowedAuthMethods.count(method) > 0;
 }
 
 LobbyDatabase * LobbyServer::getDatabase() const
