@@ -130,13 +130,13 @@ public:
 	bool isAccountIDExists(const std::string & accountID);
 
 	/// Links a forum username to an internal accountID.
-	void linkForumAccount(const std::string & forumUsername, const std::string & accountID);
+	void insertForumAccountLink(const std::string & forumUsername, const std::string & accountID);
 
 	/// Returns accountID linked to the given forum username, or empty string if not found.
 	std::string getAccountIDByForumUsername(const std::string & forumUsername);
 
 	/// Stores the Discourse session cookie string for a forum-linked account.
-	void setForumSessionCookie(const std::string & accountID, const std::string & sessionCookie);
+	void updateForumSessionCookie(const std::string & accountID, const std::string & sessionCookie);
 
 	/// Returns the stored Discourse session cookie for a forum-linked account, or empty if none.
 	std::string getForumSessionCookie(const std::string & accountID);

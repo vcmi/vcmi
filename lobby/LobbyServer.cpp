@@ -629,10 +629,10 @@ void LobbyServer::receiveForumLogin(const NetworkConnectionPtr & connection, con
 		{
 			accountID = boost::uuids::to_string(boost::uuids::random_generator()());
 			database->insertAccount(accountID, forumUsername);
-			database->linkForumAccount(forumUsername, accountID);
+			database->insertForumAccountLink(forumUsername, accountID);
 		}
 
-		database->setForumSessionCookie(accountID, result->sessionCookie);
+		database->updateForumSessionCookie(accountID, result->sessionCookie);
 
 		std::string accountCookie = boost::uuids::to_string(boost::uuids::random_generator()());
 		database->insertAccessCookie(accountID, accountCookie);
@@ -987,7 +987,8 @@ LobbyServer::LobbyServer(const boost::filesystem::path & databasePath, const std
 	}
 	else
 	{
-		logGlobal->warn("LobbyServer: private key not found at %s – forum login will require it", privateKeyPath.string());
+		logGlobal->error("LobbyServer: private key not found at %s – forum login will require it", privateKeyPath.string());
+		throw std::runtime_error("LobbyServer: private key not found at " + privateKeyPath.string());
 	}
 	logGlobal->info("LobbyServer: forumHost = %s", this->forumHost);
 	for(const auto & m : allowedAuthMethods)

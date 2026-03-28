@@ -154,7 +154,7 @@ void SQLiteStatement::getColumnSingle(size_t index, int64_t & value)
 void SQLiteStatement::getColumnSingle(size_t index, std::string & value)
 {
 	const auto * value_raw = sqlite3_column_text(m_statement, static_cast<int>(index));
-	value = value_raw ? reinterpret_cast<const char *>(value_raw) : "";
+	value = reinterpret_cast<const char *>(value_raw);
 }
 
 SQLiteInstancePtr SQLiteInstance::open(const boost::filesystem::path & db_path, bool allow_write)

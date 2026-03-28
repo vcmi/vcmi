@@ -824,7 +824,7 @@ std::string LobbyDatabase::getAccountGameRoom(const std::string & accountID)
 	return result;
 }
 
-void LobbyDatabase::linkForumAccount(const std::string & forumUsername, const std::string & accountID)
+void LobbyDatabase::insertForumAccountLink(const std::string & forumUsername, const std::string & accountID)
 {
 	insertForumLinkStatement->setBinds(forumUsername, accountID);
 	insertForumLinkStatement->execute();
@@ -843,7 +843,7 @@ std::string LobbyDatabase::getAccountIDByForumUsername(const std::string & forum
 	return result;
 }
 
-void LobbyDatabase::setForumSessionCookie(const std::string & accountID, const std::string & sessionCookie)
+void LobbyDatabase::updateForumSessionCookie(const std::string & accountID, const std::string & sessionCookie)
 {
 	updateForumSessionCookieStatement->setBinds(sessionCookie, accountID);
 	updateForumSessionCookieStatement->execute();
