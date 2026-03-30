@@ -602,14 +602,11 @@
 			"luckBias" : 8,
 			
 
-			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
-			"attackPointDamageFactor": 0.05, 
-			// limit of damage increase that can be achieved by overpowering attack points
-			"attackPointDamageFactorCap": 4.0, 
-			// every 1 defense point damage influence in battle when defense points > attack points during creature attack
-			"defensePointDamageFactor": 0.025, 
-			// limit of damage reduction that can be achieved by overpowering defense points
-			"defensePointDamageFactorCap": 0.7,
+			// Formula for damage increase based on attack and defense during a creature's attack
+			"attackPointDamageFormula": "return clamp((attack - defense) * 0.05, 0, 3)",
+			// Formula for damage reduction based on attack and defense during a creature's attack
+			"defensePointDamageFormula": "return clamp((defense - attack) * 0.025, 0, 0.7)",
+
 			// If set to true, double-wide creatures will trigger obstacle effect when moving one tile forward or backwards
 			"oneHexTriggersObstacles": false,
 			// Allow area shooters with SPELL_LIKE_ATTACK bonus such as liches or magogs to target empty hexes
