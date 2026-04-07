@@ -49,6 +49,66 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/json/JsonNode.h"
+
+namespace
+{
+struct MapSizeFilterButtonConfig
+{
+	int mapSize = 0;
+	Point position;
+	std::string image;
+	std::pair<std::string, std::string> tooltip;
+	EShortcut shortcut = {};
+};
+
+EShortcut mapSizeFilterShortcut(int mapSize)
+{
+	switch(mapSize)
+	{
+	case CMapHeader::MAP_SIZE_SMALL:
+		return EShortcut::MAPS_SIZE_S;
+	case CMapHeader::MAP_SIZE_MIDDLE:
+		return EShortcut::MAPS_SIZE_M;
+	case CMapHeader::MAP_SIZE_LARGE:
+		return EShortcut::MAPS_SIZE_L;
+	case CMapHeader::MAP_SIZE_XLARGE:
+		return EShortcut::MAPS_SIZE_XL;
+	case CMapHeader::MAP_SIZE_HUGE:
+		return EShortcut::MAPS_SIZE_H;
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return EShortcut::MAPS_SIZE_XH;
+	case CMapHeader::MAP_SIZE_GIANT:
+		return EShortcut::MAPS_SIZE_G;
+	case 0:
+		return EShortcut::MAPS_SIZE_ALL;
+	default:
+		return {};
+	}
+}
+
+std::vector<MapSizeFilterButtonConfig> loadMapSizeFilterButtons()
+{
+	const JsonNode config(JsonPath::builtin("config/widgets/scenarioTab.json"));
+
+	std::vector<MapSizeFilterButtonConfig> result;
+	for(const auto & item : config["mapSizeFilterButtons"].Vector())
+	{
+		if(item["position"].isNull() || item["image"].isNull() || item["size"].isNull())
+			continue;
+
+		MapSizeFilterButtonConfig buttonConfig;
+		buttonConfig.mapSize = item["size"].Integer();
+		buttonConfig.position = Point(item["position"]["x"].Integer(), item["position"]["y"].Integer());
+		buttonConfig.image = item["image"].String();
+		buttonConfig.shortcut = mapSizeFilterShortcut(buttonConfig.mapSize);
+		buttonConfig.tooltip = CButton::tooltip(LIBRARY->generaltexth->translate(item["help"].String(), "hover"), LIBRARY->generaltexth->translate(item["help"].String(), "help"));
+
+		result.push_back(buttonConfig);
+	}
+	return result;
+}
+}
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -184,13 +244,15 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		inputName->setFilterFilename();
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[510]);
 
-		// TODO: Global constants?
-		constexpr std::array sizes = {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, 0};
-		constexpr std::array filterIconNmes = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
-		constexpr std::array filterShortcuts = { EShortcut::MAPS_SIZE_S, EShortcut::MAPS_SIZE_M, EShortcut::MAPS_SIZE_L, EShortcut::MAPS_SIZE_XL, EShortcut::MAPS_SIZE_ALL };
-
-		for(int i = 0; i < 5; i++)
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), LIBRARY->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true), filterShortcuts[i]));
+		for(const auto & mapSizeButton : loadMapSizeFilterButtons())
+		{
+			buttonsSortBy.push_back(std::make_shared<CButton>(
+				mapSizeButton.position,
+				AnimationPath::builtin(mapSizeButton.image),
+				mapSizeButton.tooltip,
+				std::bind(&SelectionTab::filter, this, mapSizeButton.mapSize, true),
+				mapSizeButton.shortcut));
+		}
 
 		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
