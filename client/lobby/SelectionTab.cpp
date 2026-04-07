@@ -108,6 +108,20 @@ std::vector<MapSizeFilterButtonConfig> loadMapSizeFilterButtons()
 	}
 	return result;
 }
+
+std::string loadMapSizeLabel()
+{
+	const JsonNode config(JsonPath::builtin("config/widgets/scenarioTab.json"));
+
+	if(config["mapSizeLabel"].isNull())
+		return "";
+
+	const std::string mapSizeLabelId = config["mapSizeLabel"].String();
+	if(mapSizeLabelId.empty())
+		return "";
+
+	return LIBRARY->generaltexth->translate(mapSizeLabelId);
+}
 }
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
@@ -242,9 +256,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
-		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[510]);
-		if(CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT")))
-			labelMapSizes->disable();
+		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, loadMapSizeLabel());
 
 		for(const auto & mapSizeButton : loadMapSizeFilterButtons())
 		{
