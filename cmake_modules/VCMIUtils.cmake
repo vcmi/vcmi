@@ -159,8 +159,35 @@ function(vcmi_deploy_qt deployQtToolName deployQtOptions)
 	endif()
 endfunction()
 
+function(vcmi_deploy_qt_runtime targetBinary)
+	if(NOT WIN32)
+		return()
+	endif()
+
+	find_program(TOOL_WINDEPLOYQT NAMES windeployqt PATHS "${qtBinDir}")
+	if(TOOL_WINDEPLOYQT)
+		add_custom_command(TARGET ${targetBinary} POST_BUILD
+			COMMAND "${TOOL_WINDEPLOYQT}" --no-compiler-runtime "$<TARGET_FILE:${targetBinary}>"
+			VERBATIM
+		)
+	else()
+		message(WARNING "windeployqt not found, target ${targetBinary} may miss Qt runtime files")
+	endif()
+endfunction()
+
 # generate .bat for .exe with proper PATH
 function(vcmi_create_exe_shim tgt)
+	if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
+		file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
+		if(runtimeLibs)
+			add_custom_command(TARGET ${tgt} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${runtimeLibs} "$<TARGET_FILE_DIR:${tgt}>"
+				COMMAND_EXPAND_LISTS
+				VERBATIM
+			)
+		endif()
+	endif()
+
 	if(NOT CONAN_RUNENV_SCRIPT)
 		return()
 	endif()
