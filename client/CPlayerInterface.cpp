@@ -1742,12 +1742,14 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
+	garrisonsChanged(al.artHolder, ObjectInstanceID());
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
+	garrisonsChanged(al.artHolder, ObjectInstanceID());
 	artifactController->artifactRemoved();
 }
 
@@ -1755,6 +1757,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
+	garrisonsChanged(src.artHolder, dst.artHolder);
 	artifactController->artifactMoved();
 }
 
