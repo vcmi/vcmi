@@ -192,23 +192,28 @@ void keepScreenOn(bool isEnabled)
 bool canUseFolderPicker()
 {
 #if defined(VCMI_ANDROID)
-	// Use runtime capability check instead of device-type heuristics (Google TV, etc.).
+	// Folder picker is available on API >= 21.
+	// Android/Google TV usually lacks DocumentsUI — hide this option.
 	const QAndroidJniObject context = QtAndroid::androidContext();
 	if(!context.isValid())
 		return false;
 
-	const QAndroidJniObject packageManager = context.callObjectMethod("getPackageManager", "()Landroid/content/pm/PackageManager;");
-	if(!packageManager.isValid())
-		return false;
+	const QAndroidJniObject uiModeMgr = context.callObjectMethod(
+		"getSystemService",
+		"(Ljava/lang/String;)Ljava/lang/Object;",
+		QAndroidJniObject::fromString("uimode").object<jstring>());
 
-	QAndroidJniObject intent("android/content/Intent", "()V");
-	if(!intent.isValid())
-		return false;
+	if(uiModeMgr.isValid())
+	{
+		const jint mode = uiModeMgr.callMethod<jint>("getCurrentModeType", "()I");
+		const jint tvMode = QAndroidJniObject::getStaticField<jint>(
+			"android/content/res/Configuration",
+			"UI_MODE_TYPE_TELEVISION");
+		if(mode == tvMode)
+			return false;
+	}
 
-	intent.callObjectMethod("setAction", "(Ljava/lang/String;)Landroid/content/Intent;", QAndroidJniObject::fromString("android.intent.action.OPEN_DOCUMENT_TREE").object<jstring>());
-
-	const QAndroidJniObject resolver = intent.callObjectMethod("resolveActivity", "(Landroid/content/pm/PackageManager;)Landroid/content/ComponentName;", packageManager.object<jobject>());
-	return resolver.isValid();
+	return true;
 #elif defined(VCMI_IOS)
 	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
 	return iOS_utils::isOsVersionAtLeast(13);
