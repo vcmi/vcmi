@@ -463,6 +463,19 @@ TEST_F(CGameStateTest, battleInterference)
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
+	// Ensure deterministic baseline for this test - randomly selected heroes may
+	// have specialties / skills that affect SPELL_POWER in battle.
+	const auto resetHeroBattleBonuses = [](CGHeroInstance * hero)
+	{
+		hero->removeBonusesRecursive(
+			Selector::sourceTypeSel(BonusSource::HERO_SPECIAL)
+			.Or(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL))
+		);
+	};
+
+	resetHeroBattleBonuses(attacker);
+	resetHeroBattleBonuses(defender);
+
 	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
 	attacker->addNewBonus(skillBonus);
 	attacker->addNewBonus(specialtyBonus);
