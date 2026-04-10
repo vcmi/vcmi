@@ -56,7 +56,7 @@ public:
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(true));
 	}
 
-	void makeDead()
+	const void makeDead()
 	{
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(false));
 		EXPECT_CALL(*this, isGhost()).WillRepeatedly(Return(false));
