@@ -533,6 +533,10 @@
 	{
 	},
 
+	"LONG_WEAPON":
+	{
+	},
+
 	"PRISM_HEX_ATTACK_BREATH":
 	{
 	},
@@ -616,4 +620,3 @@
 		"blockDescriptionPropagation": true
 	}
 }
-

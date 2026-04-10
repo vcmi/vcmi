@@ -296,7 +296,30 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, defendingStack->occupiedHex());
 	}
 
-	assert(mutPos >= 0 && mutPos <=5);
+	if(mutPos == -1 && attackingStack->hasBonusOfType(BonusType::LONG_WEAPON) && !attackingStack->doubleWide())
+	{
+		for(int direction = 0; direction < 6; ++direction)
+		{
+			try
+			{
+				auto firstHex = BattleHex(attackingStackPosBeforeReturn).cloneInDirection(static_cast<BattleHex::EDir>(direction), false);
+				auto secondHex = firstHex.cloneInDirection(static_cast<BattleHex::EDir>(direction), false);
+
+				if(secondHex == dest || defendingStack->coversPos(secondHex))
+				{
+					mutPos = direction;
+					break;
+				}
+			}
+			catch(const std::out_of_range &)
+			{
+				continue;
+			}
+		}
+	}
+
+	if(mutPos < 0 || mutPos > 5)
+		return getForwardGroup(multiAttack);
 
 	return mutPosToGroup[mutPos];
 }

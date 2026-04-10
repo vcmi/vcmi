@@ -249,6 +249,13 @@ public:
 		return unit;
 	}
 
+	UnitFake & addLongWeaponUnit(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addRegularMelee(hex, side);
+		unit.addCreatureAbility(BonusType::LONG_WEAPON);
+		return unit;
+	}
+
 	Units getAttackedUnits(UnitFake & attacker, UnitFake & defender, BattleHex defenderHex)
 	{
 		startBattle();
@@ -350,6 +357,51 @@ TEST_F(AttackableHexesTest, getAttackableHexes_DoubleWideAttacker_DoubleWideDefe
 	auto attackable = defender.getAttackableHexes(&attacker);
 	attackable.sort([](const auto & l, const auto & r) { return l < r; });
 	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanAttackWithOneEmptyHexGap)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponRequiresEmptyMiddleHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	const BattleHex middleHex = attacker.getPosition().cloneInDirection(BattleHex::RIGHT);
+	UnitFake & blocker = addRegularMelee(middleHex, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(middleHex.cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	(void)blocker;
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_FALSE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponAttackableTilesRangeDoesNotThrow)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	EXPECT_NO_THROW({
+		auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+		EXPECT_TRUE(attacked.empty());
+	});
 }
 
 //// CERBERI 3-HEADED ATTACKS

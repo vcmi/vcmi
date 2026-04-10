@@ -119,6 +119,7 @@ public:
 	bool battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const; //determines if attacker can attack target (no spatial reasoning)
 	bool battleCanShoot(const battle::Unit * attacker, const BattleHex & dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
+	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const;
 	bool battleIsUnitBlocked(const battle::Unit * unit) const; //returns true if there is neighboring enemy stack
 	battle::Units battleAdjacentUnits(const battle::Unit * unit) const;
 

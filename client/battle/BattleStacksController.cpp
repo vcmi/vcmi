@@ -577,7 +577,9 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto spellEffect = info.spellEffect;
 	bool needsReverse = false;
 
-	if (info.indirectAttack)
+	const bool longWeaponMelee = attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !CStack::isMeleeAttackPossible(attacker, defender);
+
+	if (info.indirectAttack || longWeaponMelee)
 	{
 		needsReverse = shouldRotate(attacker, attacker->position, info.tile);
 	}
