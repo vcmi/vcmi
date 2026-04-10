@@ -741,10 +741,9 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 		if(isLongWeaponMiddleHexClear(*this, middleHex))
 		{
 			const auto availableHexes = battleGetAvailableHexes(attacker, false);
-			const bool adjacentReachable = availableHexes.contains(adjacentAttackFrom);
 			const bool longReachable = availableHexes.contains(longAttackFrom);
 
-			if(longReachable && (!adjacentReachable || attacker->getPosition() == longAttackFrom))
+			if(longReachable)
 				return longAttackFrom;
 		}
 	}
