@@ -55,6 +55,18 @@ static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(con
 	}
 }
 
+static bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
+{
+	if(!middleHex.isValid())
+		return false;
+
+	if(callback.battleGetUnitByPos(middleHex, true) != nullptr) // corpses are allowed for LONG_WEAPON
+		return false;
+
+	const auto accessibility = callback.getAccessibility();
+	return accessibility[middleHex.toInt()] == EAccessibility::ACCESSIBLE;
+}
+
 static bool sameSideOfWall(const BattleHex & pos1, const BattleHex & pos2)
 {
 	const bool stackLeft = pos1 < lineToWallHex(pos1.getY());
@@ -669,6 +681,17 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	if (!target.isValid() || direction == BattleHex::NONE)
 		return BattleHex::INVALID;
 
+	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+	{
+		const auto longLine = getLongWeaponLineHexes(target, direction);
+		if(longLine)
+		{
+			const auto [middleHex, longAttackFrom] = *longLine;
+			if(attacker->coversPos(longAttackFrom) && isLongWeaponMiddleHexClear(*this, middleHex))
+				return attacker->getPosition();
+		}
+	}
+
 	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
 	if (attacker->doubleWide())
 	{
@@ -715,7 +738,7 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 
 		const auto [middleHex, longAttackFrom] = *longLine;
 
-		if(battleGetUnitByPos(middleHex, false) == nullptr)
+		if(isLongWeaponMiddleHexClear(*this, middleHex))
 		{
 			const auto availableHexes = battleGetAvailableHexes(attacker, false);
 			const bool adjacentReachable = availableHexes.contains(adjacentAttackFrom);
@@ -820,7 +843,7 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 
 		const auto [middleHex, longAttackFrom] = *longLine;
 
-		if (battleGetUnitByPos(middleHex, false) == nullptr && canAttackFrom(longAttackFrom))
+		if (isLongWeaponMiddleHexClear(*this, middleHex) && canAttackFrom(longAttackFrom))
 			return true;
 	}
 
@@ -914,7 +937,7 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 				continue;
 
 			const auto [middleHex, attackerHex] = *longLine;
-			if(attacker->coversPos(attackerHex) && battleGetUnitByPos(middleHex, false) == nullptr)
+			if(attacker->coversPos(attackerHex) && isLongWeaponMiddleHexClear(*this, middleHex))
 				return true;
 		}
 	}
