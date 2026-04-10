@@ -41,6 +41,20 @@ static BattleHex lineToWallHex(int line) //returns hex with wall in given line (
 	return lineToHex[line];
 }
 
+static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+{
+	try
+	{
+		BattleHex middleHex = defenderHex.cloneInDirection(direction, false);
+		BattleHex attackerHex = middleHex.cloneInDirection(direction, false);
+		return std::make_pair(middleHex, attackerHex);
+	}
+	catch(const std::out_of_range &)
+	{
+		return std::nullopt;
+	}
+}
+
 static bool sameSideOfWall(const BattleHex & pos1, const BattleHex & pos2)
 {
 	const bool stackLeft = pos1 < lineToWallHex(pos1.getY());
@@ -695,16 +709,11 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 
 	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !attacker->doubleWide())
 	{
-		BattleHex middleHex = adjacentAttackFrom;
-		BattleHex longAttackFrom;
-		try
-		{
-			longAttackFrom = middleHex.cloneInDirection(direction, false);
-		}
-		catch(const std::out_of_range &)
-		{
+		const auto longLine = getLongWeaponLineHexes(target, direction);
+		if(!longLine)
 			return adjacentAttackFrom;
-		}
+
+		const auto [middleHex, longAttackFrom] = *longLine;
 
 		if(battleGetUnitByPos(middleHex, false) == nullptr)
 		{
@@ -805,17 +814,11 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 
 	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !attacker->doubleWide() && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
 	{
-		BattleHex middleHex;
-		BattleHex longAttackFrom;
-		try
-		{
-			middleHex = position.cloneInDirection(direction, false);
-			longAttackFrom = middleHex.cloneInDirection(direction, false);
-		}
-		catch(const std::out_of_range &)
-		{
+		const auto longLine = getLongWeaponLineHexes(position, direction);
+		if(!longLine)
 			return false;
-		}
+
+		const auto [middleHex, longAttackFrom] = *longLine;
 
 		if (battleGetUnitByPos(middleHex, false) == nullptr && canAttackFrom(longAttackFrom))
 			return true;
@@ -891,8 +894,10 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	if(!attacker || !defender || attacker->doubleWide())
-		return false;
+	if(!attacker)
+		throw std::runtime_error("Undefined attacker in isLongWeaponAttack!");
+	if(!defender)
+		throw std::runtime_error("Undefined defender in isLongWeaponAttack!");
 
 	if(!attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 		return false;
@@ -904,18 +909,11 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 	{
 		for(int direction = 0; direction < 6; ++direction)
 		{
-			BattleHex middleHex;
-			BattleHex attackerHex;
-			try
-			{
-				middleHex = defenderHex.cloneInDirection(static_cast<BattleHex::EDir>(direction), false);
-				attackerHex = middleHex.cloneInDirection(static_cast<BattleHex::EDir>(direction), false);
-			}
-			catch(const std::out_of_range &)
-			{
+			const auto longLine = getLongWeaponLineHexes(defenderHex, static_cast<BattleHex::EDir>(direction));
+			if(!longLine)
 				continue;
-			}
 
+			const auto [middleHex, attackerHex] = *longLine;
 			if(attacker->coversPos(attackerHex) && battleGetUnitByPos(middleHex, false) == nullptr)
 				return true;
 		}
