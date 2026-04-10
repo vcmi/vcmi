@@ -56,6 +56,12 @@ public:
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(true));
 	}
 
+	void makeDead()
+	{
+		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, isGhost()).WillRepeatedly(Return(false));
+	}
+
 	void setupPoisition(BattleHex pos)
 	{
 		EXPECT_CALL(*this, getPosition()).WillRepeatedly(Return(pos));
@@ -391,6 +397,24 @@ TEST_F(AttackableHexesTest, LongWeaponRequiresEmptyMiddleHex)
 	availableHexes.insert(attacker.getPosition());
 
 	EXPECT_FALSE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanAttackOverCorpseInMiddleHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	const BattleHex middleHex = attacker.getPosition().cloneInDirection(BattleHex::RIGHT);
+	UnitFake & corpse = addRegularMelee(middleHex, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(middleHex.cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	corpse.makeDead();
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
 TEST_F(AttackableHexesTest, LongWeaponAttackableTilesRangeDoesNotThrow)
