@@ -417,7 +417,9 @@ void CGarrisonSlot::update()
 		creatureImage->enable();
 		creatureImage->setFrame(creature->getIconIndex());
 
-		if(const auto * equippedArtifact = myStack->getArt(ArtifactPosition::CREATURE_SLOT))
+		const bool stackArtifactIndicationEnabled = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT_INDICATION);
+		const auto * equippedArtifact = myStack->getArt(ArtifactPosition::CREATURE_SLOT);
+		if(stackArtifactIndicationEnabled && equippedArtifact)
 		{
 			artifactImage->enable();
 			artifactImage->setFrame(equippedArtifact->getTypeId().toArtifact()->getIconIndex());

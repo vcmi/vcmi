@@ -170,6 +170,7 @@
 			"properties" : {
 				"stackExperience" : { "type" : "boolean" },
 				"stackArtifact" : { "type" : "boolean" },
+				"stackArtifactIndication" : { "type" : "boolean" },
 				"commanders" : { "type" : "boolean" }
 			}
 		},
