@@ -41,7 +41,7 @@ static BattleHex lineToWallHex(int line) //returns hex with wall in given line (
 	return lineToHex[line];
 }
 
-static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
 {
 	try
 	{
@@ -55,7 +55,7 @@ static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(con
 	}
 }
 
-static bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
+bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
 {
 	if(!middleHex.isValid())
 		return false;
