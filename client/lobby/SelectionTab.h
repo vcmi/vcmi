@@ -22,6 +22,7 @@ class CPicture;
 class IImage;
 class CAnimation;
 class CToggleButton;
+class CToggleGroup;
 
 enum ESortBy
 {
@@ -126,6 +127,7 @@ private:
 	Rect inputNameRect;
 
 	std::shared_ptr<CButton> buttonDeleteMode;
+	std::shared_ptr<CToggleGroup> mapSizeFilterButtons;
 	bool deleteMode;
 
 	bool enableUiEnhancements;
