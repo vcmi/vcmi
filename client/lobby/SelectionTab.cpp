@@ -19,6 +19,7 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -53,75 +54,30 @@
 
 namespace
 {
-struct MapSizeFilterButtonConfig
+class ScenarioTabConfigurable : public InterfaceObjectConfigurable
 {
-	int mapSize = 0;
-	Point position;
-	std::string image;
-	std::pair<std::string, std::string> tooltip;
-	EShortcut shortcut = {};
+public:
+	explicit ScenarioTabConfigurable(SelectionTab & owner)
+		: InterfaceObjectConfigurable()
+	{
+		addCallback("filterMapSize", [&owner](int filterIndex)
+		{
+			owner.filter(filterIndex, true);
+		});
+
+		build(JsonNode(JsonPath::builtin("config/widgets/scenarioTab.json")));
+	}
+
+	std::shared_ptr<CToggleGroup> mapSizeFilterGroup() const
+	{
+		return widget<CToggleGroup>("groupMapSizeFilters");
+	}
+
+	std::shared_ptr<CLabel> mapSizeFilterLabel() const
+	{
+		return widget<CLabel>("labelMapSizes");
+	}
 };
-
-EShortcut mapSizeFilterShortcut(int mapSize)
-{
-	switch(mapSize)
-	{
-	case CMapHeader::MAP_SIZE_SMALL:
-		return EShortcut::MAPS_SIZE_S;
-	case CMapHeader::MAP_SIZE_MIDDLE:
-		return EShortcut::MAPS_SIZE_M;
-	case CMapHeader::MAP_SIZE_LARGE:
-		return EShortcut::MAPS_SIZE_L;
-	case CMapHeader::MAP_SIZE_XLARGE:
-		return EShortcut::MAPS_SIZE_XL;
-	case CMapHeader::MAP_SIZE_HUGE:
-		return EShortcut::MAPS_SIZE_H;
-	case CMapHeader::MAP_SIZE_XHUGE:
-		return EShortcut::MAPS_SIZE_XH;
-	case CMapHeader::MAP_SIZE_GIANT:
-		return EShortcut::MAPS_SIZE_G;
-	case 0:
-		return EShortcut::MAPS_SIZE_ALL;
-	default:
-		return {};
-	}
-}
-
-std::vector<MapSizeFilterButtonConfig> loadMapSizeFilterButtons()
-{
-	const JsonNode config(JsonPath::builtin("config/widgets/scenarioTab.json"));
-
-	std::vector<MapSizeFilterButtonConfig> result;
-	for(const auto & item : config["mapSizeFilterButtons"].Vector())
-	{
-		if(item["position"].isNull() || item["image"].isNull() || item["size"].isNull())
-			continue;
-
-		MapSizeFilterButtonConfig buttonConfig;
-		buttonConfig.mapSize = item["size"].Integer();
-		buttonConfig.position = Point(item["position"]["x"].Integer(), item["position"]["y"].Integer());
-		buttonConfig.image = item["image"].String();
-		buttonConfig.shortcut = mapSizeFilterShortcut(buttonConfig.mapSize);
-		buttonConfig.tooltip = CButton::tooltip(LIBRARY->generaltexth->translate(item["help"].String(), "hover"), LIBRARY->generaltexth->translate(item["help"].String(), "help"));
-
-		result.push_back(buttonConfig);
-	}
-	return result;
-}
-
-std::string loadMapSizeLabel()
-{
-	const JsonNode config(JsonPath::builtin("config/widgets/scenarioTab.json"));
-
-	if(config["mapSizeLabel"].isNull())
-		return "";
-
-	const std::string mapSizeLabelId = config["mapSizeLabel"].String();
-	if(mapSizeLabelId.empty())
-		return "";
-
-	return LIBRARY->generaltexth->translate(mapSizeLabelId);
-}
 }
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
@@ -256,16 +212,27 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
-		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, loadMapSizeLabel());
 
-		for(const auto & mapSizeButton : loadMapSizeFilterButtons())
+		const auto scenarioTabConfigurable = std::make_shared<ScenarioTabConfigurable>(*this);
+		mapSizeFilterButtons = scenarioTabConfigurable->mapSizeFilterGroup();
+
+		if(mapSizeFilterButtons)
 		{
-			buttonsSortBy.push_back(std::make_shared<CButton>(
-				mapSizeButton.position,
-				AnimationPath::builtin(mapSizeButton.image),
-				mapSizeButton.tooltip,
-				std::bind(&SelectionTab::filter, this, mapSizeButton.mapSize, true),
-				mapSizeButton.shortcut));
+			for(const auto & mapSizeButton : mapSizeFilterButtons->buttons)
+			{
+				if(auto button = std::dynamic_pointer_cast<CButton>(mapSizeButton.second))
+				{
+					buttonsSortBy.push_back(button);
+					addChild(button.get(), false);
+				}
+			}
+		}
+
+		if(!CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT.DEF")))
+		{
+			labelMapSizes = scenarioTabConfigurable->mapSizeFilterLabel();
+			if(labelMapSizes)
+				addChild(labelMapSizes.get(), false);
 		}
 
 		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
