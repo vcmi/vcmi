@@ -16,6 +16,7 @@ import android.view.WindowManager;
 
 import org.libsdl.app.SDLActivity;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import eu.vcmi.vcmi.util.LibsLoader;
@@ -121,6 +122,7 @@ public class VcmiSDLActivity extends SDLActivity
     protected void onDestroy()
     {
         unbindServer();
+        detachSdlThreadForFastShutdown();
 
         super.onDestroy();
 
@@ -181,6 +183,30 @@ public class VcmiSDLActivity extends SDLActivity
         catch (ReflectiveOperationException ignored)
         {
             // Older/newer SDL Java wrappers may not expose onNativeFocusChanged.
+        }
+    }
+
+    private void detachSdlThreadForFastShutdown()
+    {
+        try
+        {
+            final Field sdlThreadField = SDLActivity.class.getDeclaredField("mSDLThread");
+            sdlThreadField.setAccessible(true);
+
+            final Object value = sdlThreadField.get(null);
+            if (value instanceof Thread sdlThread)
+            {
+                if (sdlThread.isAlive())
+                {
+                    Log.w(this, "Detaching running SDL thread during onDestroy to avoid ANR");
+                    sdlThread.interrupt();
+                }
+                sdlThreadField.set(null, null);
+            }
+        }
+        catch (ReflectiveOperationException ignored)
+        {
+            // SDL internals can vary by version; fallback to default shutdown path.
         }
     }
 
