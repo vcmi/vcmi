@@ -1139,7 +1139,13 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
 	{
-		titleText = LIBRARY->generaltexth->allTexts[709];
+		const auto * town = dynamic_cast<const CGTownInstance *>(up);
+		const bool isReinforcementsDialog = town != nullptr && down->getVisitedTown() != town;
+
+		if(isReinforcementsDialog)
+			titleText = LIBRARY->generaltexth->translate("vcmi.spells.reinforcements.garrison.title");
+		else
+			titleText = LIBRARY->generaltexth->allTexts[709];
 	}
 	else
 	{

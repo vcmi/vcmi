@@ -14,6 +14,7 @@
 #include "AdventureSpellEffect.h"
 #include "DimensionDoorEffect.h"
 #include "RemoveObjectEffect.h"
+#include "ReinforcementsEffect.h"
 #include "SummonBoatEffect.h"
 #include "TownPortalEffect.h"
 #include "ViewWorldEffect.h"
@@ -42,6 +43,8 @@ std::unique_ptr<IAdventureSpellEffect> AdventureSpellMechanics::createAdventureE
 		return std::make_unique<SummonBoatEffect>(s, node);
 	if(typeID == "townPortal")
 		return std::make_unique<TownPortalEffect>(s, node);
+	if(typeID == "reinforcements")
+		return std::make_unique<ReinforcementsEffect>(s, node);
 	if(typeID == "viewWorld")
 		return std::make_unique<ViewWorldEffect>(s, node);
 
