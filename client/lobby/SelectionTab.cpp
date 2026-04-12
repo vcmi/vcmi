@@ -52,8 +52,6 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
 
-namespace
-{
 class ScenarioTabConfigurable : public InterfaceObjectConfigurable
 {
 public:
@@ -68,17 +66,22 @@ public:
 		build(JsonNode(JsonPath::builtin("config/widgets/scenarioTab.json")));
 	}
 
-	std::shared_ptr<CToggleGroup> mapSizeFilterGroup() const
-	{
-		return widget<CToggleGroup>("groupMapSizeFilters");
-	}
-
 	std::shared_ptr<CLabel> mapSizeFilterLabel() const
 	{
 		return widget<CLabel>("labelMapSizes");
 	}
+
+	void setMapSizeLabelVisible(bool visible) const
+	{
+		if(auto label = mapSizeFilterLabel())
+		{
+			if(visible)
+				label->enable();
+			else
+				label->disable();
+		}
+	}
 };
-}
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -213,27 +216,9 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
 
-		const auto scenarioTabConfigurable = std::make_shared<ScenarioTabConfigurable>(*this);
-		mapSizeFilterButtons = scenarioTabConfigurable->mapSizeFilterGroup();
-
-		if(mapSizeFilterButtons)
-		{
-			for(const auto & mapSizeButton : mapSizeFilterButtons->buttons)
-			{
-				if(auto button = std::dynamic_pointer_cast<CButton>(mapSizeButton.second))
-				{
-					buttonsSortBy.push_back(button);
-					addChild(button.get(), false);
-				}
-			}
-		}
-
-		if(!CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT.DEF")))
-		{
-			labelMapSizes = scenarioTabConfigurable->mapSizeFilterLabel();
-			if(labelMapSizes)
-				addChild(labelMapSizes.get(), false);
-		}
+		scenarioTabConfigurable = std::make_shared<ScenarioTabConfigurable>(*this);
+		addChild(scenarioTabConfigurable.get(), false);
+		scenarioTabConfigurable->setMapSizeLabelVisible(!CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT.DEF")));
 
 		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
