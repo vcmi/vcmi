@@ -341,43 +341,48 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		const CGHeroInstance * loserHero = battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
 		const CGHeroInstance * strongestHero = nullptr;
 
-		if (loserHero != nullptr)
+		// Loser may be NEUTRAL (-1) etc.; only real players have PlayerState / statistics accumulators.
+		if (loserHero != nullptr && finishingBattle->loser.isValidPlayer())
 		{
-			for(auto & hero : gameHandler->gameState().getPlayerState(finishingBattle->loser)->getHeroes())
-				if(!strongestHero || hero->exp > strongestHero->exp)
-					strongestHero = hero;
-			if(strongestHero->id == finishingBattle->loserId && strongestHero->level > 5 && finishingBattle->victor.isValidPlayer())
-				gameHandler->statistics->getPlayerAccumulator(finishingBattle->victor).lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
+			if (const PlayerState * loserState = gameHandler->gameState().getPlayerState(finishingBattle->loser))
+			{
+				for (const auto & hero : loserState->getHeroes())
+					if (!strongestHero || hero->exp > strongestHero->exp)
+						strongestHero = hero;
+				if (strongestHero && strongestHero->id == finishingBattle->loserId && strongestHero->level > 5 && finishingBattle->victor.isValidPlayer())
+					gameHandler->statistics->getPlayerAccumulator(finishingBattle->victor).lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
+			}
 		}
 	}
 
-	auto attackerPlayer = battle.sideToPlayer(BattleSide::ATTACKER);
-	auto defenderPlayer = battle.sideToPlayer(BattleSide::DEFENDER);
-	auto isAttackerNeutral = attackerPlayer == PlayerColor::NEUTRAL;
-	auto isDefenderNeutral = defenderPlayer == PlayerColor::NEUTRAL;
+	const auto attackerPlayer = battle.sideToPlayer(BattleSide::ATTACKER);
+	const auto defenderPlayer = battle.sideToPlayer(BattleSide::DEFENDER);
+	const bool attackerIsPlayer = attackerPlayer.isValidPlayer();
+	const bool defenderIsPlayer = defenderPlayer.isValidPlayer();
 
-	if(isAttackerNeutral || isDefenderNeutral)
+	// getPlayerAccumulator only accepts real map players (0 .. PLAYER_LIMIT-1), not NEUTRAL / sentinel colors.
+	if (attackerIsPlayer && defenderIsPlayer)
 	{
-		if(!isAttackerNeutral)
-			gameHandler->statistics->getPlayerAccumulator(attackerPlayer).numBattlesNeutral++;
-		if(!isDefenderNeutral)
-			gameHandler->statistics->getPlayerAccumulator(defenderPlayer).numBattlesNeutral++;
-		if(!finishingBattle->isDraw())
+		gameHandler->statistics->getPlayerAccumulator(attackerPlayer).numBattlesPlayer++;
+		gameHandler->statistics->getPlayerAccumulator(defenderPlayer).numBattlesPlayer++;
+		if (!finishingBattle->isDraw())
 		{
-			auto winnerPlayer = battle.sideToPlayer(finishingBattle->winnerSide);
-			auto isWinnerNeutral = winnerPlayer == PlayerColor::NEUTRAL;
-			if (!isWinnerNeutral)
-				gameHandler->statistics->getPlayerAccumulator(winnerPlayer).numWinBattlesNeutral++;
+			const auto winnerPlayer = battle.sideToPlayer(finishingBattle->winnerSide);
+			if (winnerPlayer.isValidPlayer())
+				gameHandler->statistics->getPlayerAccumulator(winnerPlayer).numWinBattlesPlayer++;
 		}
 	}
 	else
 	{
-		gameHandler->statistics->getPlayerAccumulator(attackerPlayer).numBattlesPlayer++;
-		gameHandler->statistics->getPlayerAccumulator(defenderPlayer).numBattlesPlayer++;
-		if(!finishingBattle->isDraw())
+		if (attackerIsPlayer)
+			gameHandler->statistics->getPlayerAccumulator(attackerPlayer).numBattlesNeutral++;
+		if (defenderIsPlayer)
+			gameHandler->statistics->getPlayerAccumulator(defenderPlayer).numBattlesNeutral++;
+		if (!finishingBattle->isDraw())
 		{
-			auto winnerPlayer = battle.sideToPlayer(finishingBattle->winnerSide);
-			gameHandler->statistics->getPlayerAccumulator(winnerPlayer).numWinBattlesPlayer++;
+			const auto winnerPlayer = battle.sideToPlayer(finishingBattle->winnerSide);
+			if (winnerPlayer.isValidPlayer())
+				gameHandler->statistics->getPlayerAccumulator(winnerPlayer).numWinBattlesNeutral++;
 		}
 	}
 
@@ -633,13 +638,15 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
-		gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroSurrendered++;
+		if (finishingBattle->loser.isValidPlayer())
+			gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
 	}
 
 	if (result.result == EBattleResult::ESCAPE)
 	{
-		gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroEscaped++;
+		if (finishingBattle->loser.isValidPlayer())
+			gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
 
