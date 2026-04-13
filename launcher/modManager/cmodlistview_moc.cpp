@@ -830,28 +830,46 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 	{
 		dlManager = new CDownloadManager();
 		ui->progressWidget->setVisible(true);
-		connect(dlManager, SIGNAL(downloadProgress(qint64,qint64)),
-			this, SLOT(downloadProgress(qint64,qint64)));
+		connect(dlManager, SIGNAL(downloadProgress(QString,qint64,qint64)),
+			this, SLOT(downloadProgress(QString,qint64,qint64)));
+		connect(dlManager, SIGNAL(downloadFileFinished(QString)),
+			this, SLOT(onDownloadFileFinished(QString)));
 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 
 		connect(modModel, &ModStateItemModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
-
-		const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(description);
-		ui->progressBar->setFormat(progressBarFormat);
 	}
+
+	enqueuedDownloadDescriptions[file] = description;
+	enqueuedDownloadFiles.push_back(file);
+	if(activeDownloadFile.isEmpty())
+		activeDownloadFile = file;
 
 	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
-void CModListView::downloadProgress(qint64 current, qint64 max)
+void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 max)
 {
+	Q_UNUSED(currentFile);
+
 	// display progress, in megabytes
+	const auto currentDescription = enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile);
+	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(currentDescription);
+	ui->progressBar->setFormat(progressBarFormat);
+
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
 	ui->progressBar->setValue(current / (1024 * 1024));
+}
+
+void CModListView::onDownloadFileFinished(QString fileName)
+{
+	enqueuedDownloadFiles.removeAll(fileName);
+
+	if(activeDownloadFile == fileName)
+		activeDownloadFile = enqueuedDownloadFiles.empty() ? QString() : enqueuedDownloadFiles.front();
 }
 
 void CModListView::extractionProgress(qint64 current, qint64 max)
@@ -876,7 +894,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 {
 	QString title = tr("Download failed");
 	QString firstLine = tr("Unable to download all files.\n\nEncountered errors:\n\n");
-	QString lastLine = tr("\n\nInstall successfully downloaded?");
+	QString lastLine = tr("\n\nProcess successfully downloaded files?");
 	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
@@ -903,6 +921,9 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	}
 
 	enqueuedModDownloads.clear();
+	enqueuedDownloadFiles.clear();
+	enqueuedDownloadDescriptions.clear();
+	activeDownloadFile.clear();
 	dlManager->deleteLater();
 	dlManager = nullptr;
 
@@ -1363,6 +1384,10 @@ void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
+	enqueuedModDownloads.clear();
+	enqueuedDownloadFiles.clear();
+	enqueuedDownloadDescriptions.clear();
+	activeDownloadFile.clear();
 	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
