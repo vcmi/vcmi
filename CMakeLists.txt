@@ -595,10 +595,15 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
 	endif()
 
-	if(MSVC AND USING_CONAN)
+	# Conan Qt packages often provide host tools (uic/rcc/lrelease) only in Release-like
+	# configurations. Map missing build-type configs to an available one to avoid generating
+	# *-NOTFOUND tool dependencies in Visual Studio custom build rules.
+	if(MSVC)
 		foreach(qtTool IN ITEMS Qt5::lrelease Qt5::uic Qt5::rcc Qt6::lrelease Qt6::uic Qt6::rcc)
 			if(TARGET ${qtTool})
-				set_property(TARGET ${qtTool} PROPERTY MAP_IMPORTED_CONFIG_DEBUG "RelWithDebInfo;Release")
+				set_property(TARGET ${qtTool} PROPERTY MAP_IMPORTED_CONFIG_DEBUG "RelWithDebInfo;Release;MinSizeRel")
+				set_property(TARGET ${qtTool} PROPERTY MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RelWithDebInfo;Release;MinSizeRel")
+				set_property(TARGET ${qtTool} PROPERTY MAP_IMPORTED_CONFIG_MINSIZEREL "MinSizeRel;Release;RelWithDebInfo")
 			endif()
 		endforeach()
 	endif()
