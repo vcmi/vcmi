@@ -1136,12 +1136,16 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	}
 	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[8], ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
+	const auto * sourceHero = dynamic_cast<const CGHeroInstance *>(up);
+	const auto * sourceTown = dynamic_cast<const CGTownInstance *>(up);
+	if(sourceTown == nullptr && sourceHero != nullptr)
+		sourceTown = sourceHero->getVisitedTown();
+
+	const bool isReinforcementsDialog = sourceTown != nullptr && down->getVisitedTown() != sourceTown;
+
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
 	{
-		const auto * town = dynamic_cast<const CGTownInstance *>(up);
-		const bool isReinforcementsDialog = town != nullptr && down->getVisitedTown() != town;
-
 		if(isReinforcementsDialog)
 			titleText = LIBRARY->generaltexth->translate("vcmi.spells.reinforcements.garrison.title");
 		else
@@ -1162,7 +1166,11 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	}
 	title = std::make_shared<CLabel>(275, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleText);
 
-	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 28, 124);
+	if(isReinforcementsDialog && sourceHero != nullptr)
+		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), sourceHero->getIconIndex(), 0, 29, 124);
+	else
+		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 28, 124);
+
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), down->getIconIndex(), 0, 29, 222);
 }
 
