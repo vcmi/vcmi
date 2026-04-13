@@ -59,7 +59,8 @@ public slots:
 
 signals:
 	// for status bar updates. Merges all queued downloads into one
-	void downloadProgress(qint64 currentAmount, qint64 maxAmount);
+	void downloadProgress(QString currentFile, qint64 currentAmount, qint64 maxAmount);
+	void downloadFileFinished(QString fileName);
 
 	// called when all files were downloaded and manager goes to idle state
 	// Lists contains files that were successfully downloaded / failed to download
