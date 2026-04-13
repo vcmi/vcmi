@@ -20,6 +20,12 @@ endif()
 if(POLICY CMP0142)
   cmake_policy(SET CMP0142 NEW)
 endif()
+if(POLICY CMP0111)
+  # Conan's Qt tool imported targets may not provide Debug locations when
+  # only optimized binaries are available; keep legacy behavior to avoid
+  # noisy dev warnings in this setup.
+  cmake_policy(SET CMP0111 OLD)
+endif()
 if(POLICY CMP0167)
   cmake_policy(SET CMP0167 NEW)
 endif()
@@ -64,7 +70,7 @@ option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
-option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" OFF)
+option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
 
 # Platform-specific options
 
@@ -502,6 +508,16 @@ endif()
 #        Finding packages                  #
 ############################################
 
+# Must be set before find_package(...) so imported Conan targets/configs can
+# resolve Debug to optimized configs in multi-config generators (Visual Studio).
+if(MSVC AND USING_CONAN)
+	set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG RelWithDebInfo Release)
+	# Conan Windows binaries in our setup use dynamic MSVC runtime (/MD),
+	# so Debug VCMI targets must use the same runtime when linked against
+	# mapped optimized dependencies.
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:RelWithDebInfo>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreadedDLL>$<$<CONFIG:MinSizeRel>:MultiThreadedDLL>")
+endif()
+
 set(BOOST_COMPONENTS date_time filesystem locale program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
@@ -577,6 +593,14 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	if(ENABLE_TRANSLATIONS)
 		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
+	endif()
+
+	if(MSVC AND USING_CONAN)
+		foreach(qtTool IN ITEMS Qt5::lrelease Qt5::uic Qt5::rcc Qt6::lrelease Qt6::uic Qt6::rcc)
+			if(TARGET ${qtTool})
+				set_property(TARGET ${qtTool} PROPERTY MAP_IMPORTED_CONFIG_DEBUG "RelWithDebInfo;Release")
+			endif()
+		endforeach()
 	endif()
 endif()
 
