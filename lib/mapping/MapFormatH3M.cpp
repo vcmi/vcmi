@@ -1359,10 +1359,9 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 		HERO_OWNED_ARTIFACTS = 17,
 	};
 
-	int unknown = reader->readBool();
-	assert(unknown==true);
-	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, unknown);
-
+	const bool unknown = reader->readBool();
+	assert(unknown);
+	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, static_cast<int>(unknown));
 
 	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
 	switch(expressionCode)
