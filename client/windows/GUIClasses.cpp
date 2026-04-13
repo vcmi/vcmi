@@ -1169,7 +1169,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	if(isReinforcementsDialog && sourceHero != nullptr)
 		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), sourceHero->getIconIndex(), 0, 27, 127);
 	else
-		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 28, 124);
+		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 27, 127);
 
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), down->getIconIndex(), 0, 27, 223);
 }
