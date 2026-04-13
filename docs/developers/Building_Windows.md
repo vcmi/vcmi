@@ -98,8 +98,9 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv
     - Specify the following CMake variable: `ENABLE_CCACHE=ON`
     - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
 4. Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer. You can also build individual targets if you want.
-5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. To launch the built executables from a file manager, use respective `bat` files, e.g. `VCMI_launcher.bat`.
-6. Optional: set CMake variable `VCMI_COPY_CONAN_RUNTIME_DLLS=ON` if you want standalone build output. In this mode, required Conan runtime DLLs are copied to the executable output directory during build. For Qt applications (`VCMI_launcher`, `VCMI_mapeditor`) `windeployqt` is also executed to deploy Qt runtime files/plugins.
+5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`.
+6. By default (`ENABLE_COPY_CONAN_RUNTIME_DLLS=ON`), required Conan runtime DLLs are copied to the executable output directory during build. For Qt applications (`VCMI_launcher`, `VCMI_mapeditor`) `windeployqt` is also executed to deploy Qt runtime files/plugins.
+7. If you disable this behavior (`ENABLE_COPY_CONAN_RUNTIME_DLLS=OFF`), use generated `bat` launchers (e.g. `VCMI_launcher.bat`) to run binaries with proper environment.
 
 ### Compile VCMI with MinGW64 or UCRT64 via MSYS2
 
