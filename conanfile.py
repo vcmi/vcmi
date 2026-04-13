@@ -51,4 +51,8 @@ class VCMIApp(VCMI):
             tc.variables["SDL_JAVA_SRC_DIR"] = os.path.join(self.dependencies.host["sdl"].package_folder, "share", "java", "SDL2")
         elif self.settings.os == "Windows":
             tc.variables["CONAN_RUNENV_SCRIPT"] = self._pathForCmake(os.path.join(self.build_folder, "conanrun"))
+            targetPreWindows10 = bool(self.options.get_safe("target_pre_windows10"))
+            windowsVersion = "0x0601" if targetPreWindows10 else "0x0A00"
+            tc.preprocessor_definitions["_WIN32_WINNT"] = windowsVersion
+            tc.preprocessor_definitions["WINVER"] = windowsVersion
         tc.generate()
