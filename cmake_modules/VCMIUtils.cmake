@@ -160,7 +160,7 @@ function(vcmi_deploy_qt deployQtToolName deployQtOptions)
 endfunction()
 
 function(vcmi_deploy_qt_runtime targetBinary)
-	if(NOT WIN32)
+	if(NOT WIN32 OR NOT ENABLE_COPY_CONAN_RUNTIME_DLLS)
 		return()
 	endif()
 
@@ -177,7 +177,7 @@ endfunction()
 
 # generate .bat for .exe with proper PATH
 function(vcmi_create_exe_shim tgt)
-	if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
+	if(WIN32 AND USING_CONAN AND ENABLE_COPY_CONAN_RUNTIME_DLLS AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
 		file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
 		if(runtimeLibs)
 			add_custom_command(TARGET ${tgt} POST_BUILD
