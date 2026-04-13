@@ -12,6 +12,7 @@
 #include "ReinforcementsEffect.h"
 
 #include "AdventureSpellMechanics.h"
+#include "TownRelatedSpellUtils.h"
 
 #include "../CSpellHandler.h"
 
@@ -32,7 +33,7 @@ ReinforcementsEffect::ReinforcementsEffect(const CSpell * s, const JsonNode & co
 
 ESpellCastResult ReinforcementsEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
 {
-	std::vector<const CGTownInstance *> towns = getPossibleTowns(env, parameters);
+	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, false);
 
 	if(!parameters.caster->getHeroCaster())
 	{
@@ -106,7 +107,7 @@ ESpellCastResult ReinforcementsEffect::beginCast(SpellCastEnvironment * env, con
 ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const CGTownInstance * destination = nullptr;
-	std::vector<const CGTownInstance *> towns = getPossibleTowns(env, parameters);
+	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, false);
 
 	if(!parameters.caster->getHeroCaster())
 	{
@@ -116,7 +117,7 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 
 	if(!allowTownSelection)
 	{
-		destination = findNearestTown(parameters, towns);
+		destination = spells::adventure::findNearestTown(parameters, towns);
 	}
 	else if(env->getMap()->isInTheMap(parameters.pos))
 	{
@@ -137,42 +138,6 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 
 	env->showGarrisonDialog(destination->id, ObjectInstanceID(parameters.caster->getCasterUnitId()), true);
 	return ESpellCastResult::OK;
-}
-
-const CGTownInstance * ReinforcementsEffect::findNearestTown(const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> & pool) const
-{
-	if(pool.empty() || !parameters.caster->getHeroCaster())
-		return nullptr;
-
-	auto nearest = pool.cbegin();
-	si32 distance = (*nearest)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-	for(auto iter = nearest + 1; iter != pool.cend(); ++iter)
-	{
-		si32 currentDistance = (*iter)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-		if(currentDistance < distance)
-		{
-			nearest = iter;
-			distance = currentDistance;
-		}
-	}
-
-	return *nearest;
-}
-
-std::vector<const CGTownInstance *> ReinforcementsEffect::getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
-{
-	std::vector<const CGTownInstance *> result;
-
-	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner());
-	for(const auto & color : team->players)
-	{
-		for(const auto * town : env->getCb()->getPlayerState(color)->getTowns())
-			result.push_back(town);
-	}
-
-	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

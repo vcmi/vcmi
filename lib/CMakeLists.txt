@@ -283,6 +283,7 @@ set(lib_MAIN_SRCS
 	spells/adventure/RemoveObjectEffect.cpp
 	spells/adventure/ReinforcementsEffect.cpp
 	spells/adventure/SummonBoatEffect.cpp
+	spells/adventure/TownRelatedSpellUtils.cpp
 	spells/adventure/TownPortalEffect.cpp
 	spells/adventure/ViewWorldEffect.cpp
 

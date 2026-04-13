@@ -27,8 +27,6 @@ public:
 private:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const override;
-	const CGTownInstance * findNearestTown(const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> & pool) const;
-	std::vector<const CGTownInstance *> getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 
 VCMI_LIB_NAMESPACE_END

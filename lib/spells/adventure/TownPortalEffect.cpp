@@ -12,6 +12,7 @@
 #include "TownPortalEffect.h"
 
 #include "AdventureSpellMechanics.h"
+#include "TownRelatedSpellUtils.h"
 
 #include "../CSpellHandler.h"
 
@@ -46,8 +47,8 @@ ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
-		destination = findNearestTown(env, parameters, pool);
+		std::vector<const CGTownInstance *> pool = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
+		destination = spells::adventure::findNearestTown(parameters, pool);
 
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
@@ -142,8 +143,8 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
-		destination = findNearestTown(env, parameters, pool);
+		std::vector<const CGTownInstance *> pool = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
+		destination = spells::adventure::findNearestTown(parameters, pool);
 	}
 	else
 	{
@@ -168,7 +169,7 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 
 ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
 {
-	std::vector<const CGTownInstance *> towns = getPossibleTowns(env, parameters);
+	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
 
 	if(!parameters.caster->getHeroCaster())
 	{
@@ -250,47 +251,6 @@ ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const A
 	}
 
 	return ESpellCastResult::OK;
-}
-
-const CGTownInstance * TownPortalEffect::findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance *> & pool) const
-{
-	if(pool.empty())
-		return nullptr;
-
-	if(!parameters.caster->getHeroCaster())
-		return nullptr;
-
-	auto nearest = pool.cbegin(); //nearest town's iterator
-	si32 dist = (*nearest)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-	for(auto i = nearest + 1; i != pool.cend(); ++i)
-	{
-		si32 curDist = (*i)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-		if(curDist < dist)
-		{
-			nearest = i;
-			dist = curDist;
-		}
-	}
-	return *nearest;
-}
-
-std::vector<const CGTownInstance *> TownPortalEffect::getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
-{
-	std::vector<const CGTownInstance *> ret;
-
-	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner());
-
-	for(const auto & color : team->players)
-	{
-		for(auto currTown : env->getCb()->getPlayerState(color)->getTowns())
-		{
-			if (!skipOccupiedTowns || currTown->getVisitingHero() == nullptr)
-				ret.push_back(currTown);
-		}
-	}
-	return ret;
 }
 
 VCMI_LIB_NAMESPACE_END
