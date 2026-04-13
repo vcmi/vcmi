@@ -40,7 +40,9 @@ class CModListView : public QWidget
 	QString activatingPreset;
 
 	QStringList enqueuedModDownloads;
-
+	QStringList enqueuedDownloadFiles;
+	QHash<QString, QString> enqueuedDownloadDescriptions;
+	QString activeDownloadFile;
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
