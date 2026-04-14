@@ -422,11 +422,13 @@ void CGarrisonSlot::update()
 		const auto * equippedArtifact = myStack->getArt(ArtifactPosition::CREATURE_SLOT);
 		if(stackArtifactIndicationEnabled && equippedArtifact)
 		{
+			artifactBackgroundImage->enable();
 			artifactImage->enable();
 			artifactImage->setFrame(equippedArtifact->getTypeId().toArtifact()->getIconIndex());
 		}
 		else
 		{
+			artifactBackgroundImage->disable();
 			artifactImage->disable();
 		}
 
@@ -436,6 +438,7 @@ void CGarrisonSlot::update()
 	else
 	{
 		creatureImage->disable();
+		artifactBackgroundImage->disable();
 		artifactImage->disable();
 		stackCount->disable();
 	}
@@ -458,8 +461,12 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
 	creatureImage->disable();
 
+	const Point artifactIconSize = Owner->smallIcons ? Point(14, 14) : Point(22, 22);
+	artifactBackgroundImage = std::make_shared<CPicture>(ImagePath::builtin(Owner->smallIcons ? "stackArtifactIndicatorSmall.png" : "stackArtifactIndicatorLarge.png"));
+	artifactBackgroundImage->disable();
+
 	artifactImage = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), 0, 0, 0, 0);
-	artifactImage->setScale(Owner->smallIcons ? Point(14, 14) : Point(22, 22));
+	artifactImage->setScale(artifactIconSize);
 	artifactImage->disable();
 
 	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
