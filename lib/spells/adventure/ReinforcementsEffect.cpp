@@ -35,10 +35,20 @@ ESpellCastResult ReinforcementsEffect::beginCast(SpellCastEnvironment * env, con
 {
 	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, false);
 
-	if(!parameters.caster->getHeroCaster())
+	const auto * casterHero = parameters.caster->getHeroCaster();
+	if(!casterHero)
 	{
 		env->complain("Not a hero caster!");
 		return ESpellCastResult::ERROR;
+	}
+
+	if(casterHero->getVisitedTown() != nullptr)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->getCasterOwner();
+		iw.text.appendTextID("vcmi.spells.reinforcements.casterInTown");
+		env->apply(iw);
+		return ESpellCastResult::CANCEL;
 	}
 
 	if(towns.empty())
@@ -109,11 +119,15 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 	const CGTownInstance * destination = nullptr;
 	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, false);
 
-	if(!parameters.caster->getHeroCaster())
+	const auto * casterHero = parameters.caster->getHeroCaster();
+	if(!casterHero)
 	{
 		env->complain("Not a hero caster!");
 		return ESpellCastResult::ERROR;
 	}
+
+	if(casterHero->getVisitedTown() != nullptr)
+		return ESpellCastResult::CANCEL;
 
 	if(!allowTownSelection)
 	{
