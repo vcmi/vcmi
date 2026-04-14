@@ -70,6 +70,7 @@ private:
 	AnimationLayoutMap createGSPButton2Arrow();
 	CanvasPtr createGateListColored(PlayerColor color, PlayerColor backColor) const;
 	CanvasPtr createHeroSlotsColored(PlayerColor backColor) const;
+	CanvasPtr createStackArtifactIndicator(const Point & size) const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);
