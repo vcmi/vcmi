@@ -12,7 +12,7 @@
 #include "CAudioBase.h"
 #include "ISoundPlayer.h"
 
-#include "../lib/CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 struct Mix_Chunk;
 

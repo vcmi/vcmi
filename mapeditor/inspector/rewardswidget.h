@@ -11,7 +11,7 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapObjects/CRewardableObject.h"
+#include "../../lib/mapObjects/CRewardableObject.h"
 
 namespace Ui {
 class RewardsWidget;

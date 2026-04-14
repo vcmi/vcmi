@@ -21,7 +21,7 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
-#include "../lib/CRandomGenerator.h"
+#include "../../CRandomGenerator.h"
 
 #include <vcmi/spells/Spell.h>
 

@@ -27,7 +27,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Slider.h"
-#include "../windows/CMessage.h"
+#include "CMessage.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"

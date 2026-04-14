@@ -22,8 +22,6 @@
 #include "BAI/v13/render.h"
 #include "common.h"
 
-#include <algorithm>
-
 #include "schema/v13/constants.h"
 #include "schema/v13/types.h"
 
@@ -96,9 +94,9 @@ namespace
 		std::map<const CStack *, ReachabilityInfo> rinfos;
 	};
 
-	std::array<const CStack *, 7> getAllStacksForSide(const Context & ctx, bool side)
+	std::vector<const CStack *> getAllStacksForSide(const Context & ctx, bool side)
 	{
-		return side ? ctx.r_CStacks : ctx.l_CStacks;
+		return side ? ctx.r_CStacksAll : ctx.l_CStacksAll;
 	}
 
 	// Return (attr == N/A), but after performing some checks
@@ -348,12 +346,12 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 	ctx.r_CStacksExtra.insert(ctx.r_CStacksExtra.end(), ctx.r_CStacksSummons.begin(), ctx.r_CStacksSummons.end());
 	ctx.r_CStacksExtra.insert(ctx.r_CStacksExtra.end(), ctx.r_CStacksMachines.begin(), ctx.r_CStacksMachines.end());
 
-	auto SideStacks = std::map<bool, std::vector<const CStack *> *>{
+	const auto SideStacks = std::map<bool, std::vector<const CStack *> *>{
 		{false, &ctx.l_CStacksAll},
         {true,  &ctx.r_CStacksAll}
 	};
 
-	auto ended = state->supdata->ended;
+	const auto ended = state->supdata->ended;
 
 	if(!astack)
 		expect(ended, "astack is NULL, but ended is not true");
@@ -375,9 +373,9 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 	auto tmp = std::vector<battle::Units>{};
 	battle->battleGetTurnOrder(tmp, S13::STACK_QUEUE_SIZE, 0);
 	auto queue = std::vector<const battle::Unit *>{};
-	for(auto & units : tmp)
+	for(const auto & units : tmp)
 	{
-		for(auto & unit : units)
+		for(const auto & unit : units)
 		{
 			if(queue.size() < S13::STACK_QUEUE_SIZE)
 				queue.push_back(unit);
@@ -432,8 +430,8 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 	{
 		int x = ihex % 15;
 		int y = ihex / 15;
-		auto & hex = state->battlefield->hexes->at(y).at(x);
-		auto bh = hex->bhex;
+		const auto & hex = state->battlefield->hexes->at(y).at(x);
+		const auto & bh = hex->bhex;
 		expect(bh == BattleHex(x + 1, y), "hex->bhex mismatch");
 
 		auto ainfo = battle->getAccessibility();
@@ -827,8 +825,12 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 									: ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::NOT_ACTIVE), "HEX.STACK_FLAGS1.SLEEPING");
 								break;
 							case SF1::BLOCKED:
-								ensureValueMatch(vf, cstack->canShoot() && battle->battleIsUnitBlocked(cstack), "HEX.STACK_FLAGS1.TWO_HEX_ATTACK_BREATH");
-								break;
+							{
+								auto want = cstack->canShoot() && battle->battleIsUnitBlocked(cstack) && !cstack->hasBonusOfType(BonusType::FREE_SHOOTING)
+										 && !cstack->hasBonusOfType(BonusType::SIEGE_WEAPON);
+								ensureValueMatch(vf, want, "HEX.STACK_FLAGS1.BLOCKED");
+							}
+							break;
 							case SF1::BLOCKING:
 							{
 								auto adjUnits = battle->battleAdjacentUnits(cstack);
@@ -1039,9 +1041,9 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 	const IStack * astack = nullptr;
 
 	// find an active hex (i.e. with active stack on it)
-	for(auto & row : hexes)
+	for(const auto & row : hexes)
 	{
-		for(auto & hex : row)
+		for(const auto & hex : row)
 		{
 			const auto * const stack = hex->getStack();
 			if(stack && stack->getFlag(SF1::IS_ACTIVE))
@@ -1073,7 +1075,7 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 	// #5 attacks #1 for 4 dmg (0 killed)
 	// ...
 	//
-	for(auto & alog : alogs)
+	for(const auto & alog : alogs)
 	{
 		auto row = std::stringstream();
 		auto attcol = ukncol;
@@ -1188,7 +1190,7 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 				{"◼", nocol,   mdefault             }
 			};
 
-			for(auto & tuple : symbols)
+			for(const auto & tuple : symbols)
 			{
 				const auto & [s, c, m] = tuple;
 				if((smask & m) == m)
@@ -1442,7 +1444,7 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 
 			for(int i = 0; i < sidestacks.size(); ++i)
 			{
-				auto & [stack, hex] = sidestacks.at(i);
+				const auto & [stack, hex] = sidestacks.at(i);
 				auto colid = 2 + i + side + (max_stacks_per_side * side);
 
 				if(!stack)
@@ -1540,10 +1542,10 @@ std::string Render(const Schema::IState * istate, const Action * action) // NOSO
 		table.push_back(row);
 	}
 
-	for(auto & r : table)
+	for(const auto & r : table)
 	{
 		auto line = std::stringstream();
-		for(auto & [color, width, txt] : r)
+		for(const auto & [color, width, txt] : r)
 			line << color << PadLeft(txt, width, ' ') << nocol;
 
 		lines.push_back(std::move(line));

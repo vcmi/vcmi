@@ -11,8 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
-#include "../lib/filesystem/ResourcePath.h"
-#include "../lib/json/JsonNode.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/json/JsonNode.h"
 
 class IVideoHolder;
 class IVideoInstance;

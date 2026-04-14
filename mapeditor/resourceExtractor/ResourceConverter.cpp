@@ -12,8 +12,8 @@
 
 #include "ResourceConverter.h"
 
-#include "../lib/VCMIDirs.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 #include "BitmapHandler.h"
 #include "Animation.h"

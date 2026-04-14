@@ -23,7 +23,7 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
-#include "../windows/InfoWindows.h"
+#include "InfoWindows.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"

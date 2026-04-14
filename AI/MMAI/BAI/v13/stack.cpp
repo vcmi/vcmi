@@ -172,7 +172,7 @@ namespace
 		// (e.g. peasant 7.48 => 7 is a lot, 74.8 => 75 is OK)
 		auto res = static_cast<int>(std::round(10 * (a + b) * c * d));
 
-		if(MMAI_VERBOSE)
+		if(isMMAIVerbose())
 		{
 			std::cout << "MMAI_VERBOSE: " << res << " " << cr->getId().toEntity(LIBRARY)->getJsonKey() << " (a=" << a << ", b=" << b << ", c=" << c
 					  << ", d=" << d << ")\n";

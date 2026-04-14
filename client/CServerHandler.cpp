@@ -978,7 +978,12 @@ void CServerHandler::waitForServerShutdown()
 	if (!serverRunner)
 		return; // may not exist for guest in MP
 
-	serverRunner->wait();
+	{
+		// Release interfaceMutex while waiting for server thread to finish
+		// to avoid blocking the GUI thread (same pattern as endNetwork())
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		serverRunner->wait();
+	}
 	int exitCode = serverRunner->exitCode();
 	serverRunner.reset();
 

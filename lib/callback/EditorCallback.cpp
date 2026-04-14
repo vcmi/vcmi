@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "EditorCallback.h"
-#include "../lib/mapping/CMap.h"
+#include "../mapping/CMap.h"
 
 #define THROW_EDITOR_UNSUPPORTED \
 	throw std::runtime_error(std::string("EditorCallback: ") + __func__ + " is not available in map editor")

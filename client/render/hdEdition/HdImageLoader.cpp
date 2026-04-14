@@ -17,8 +17,8 @@
 #include <unordered_set>
 
 #include "../../GameEngine.h"
-#include "../../render/CBitmapHandler.h"
-#include "../../render/IScreenHandler.h"
+#include "../CBitmapHandler.h"
+#include "../IScreenHandler.h"
 #include "../../renderSDL/SDLImage.h"
 #include "../../renderSDL/SDL_Extensions.h"
 #include "../../../lib/filesystem/ResourcePath.h"

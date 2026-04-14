@@ -462,10 +462,6 @@ add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_
 if(NOT ENABLE_STATIC_LIBS)
 	add_dependencies(vcmiclientcommon EmptyAI)
 
-	if(ENABLE_NULLKILLER_AI)
-		add_dependencies(vcmiclientcommon Nullkiller)
-	endif()
-
 	if(ENABLE_NULLKILLER2_AI)
 		add_dependencies(vcmiclientcommon Nullkiller2)
 	endif()

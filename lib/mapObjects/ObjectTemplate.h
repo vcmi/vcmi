@@ -13,7 +13,7 @@
 #include "../int3.h"
 #include "../filesystem/ResourcePath.h"
 #include "../serializer/Serializeable.h"
-#include "../mapObjects/CompoundMapObjectID.h"
+#include "CompoundMapObjectID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

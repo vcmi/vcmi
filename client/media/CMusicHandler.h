@@ -12,7 +12,7 @@
 #include "CAudioBase.h"
 #include "IMusicPlayer.h"
 
-#include "../lib/CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 #include <SDL_mixer.h>
 

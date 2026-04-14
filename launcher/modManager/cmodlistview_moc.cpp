@@ -23,8 +23,8 @@
 #include "cdownloadmanager_moc.h"
 #include "chroniclesextractor.h"
 #include "../settingsView/csettingsview_moc.h"
-#include "../vcmiqt/launcherdirs.h"
-#include "../vcmiqt/jsonutils.h"
+#include "../../vcmiqt/launcherdirs.h"
+#include "../../vcmiqt/jsonutils.h"
 #include "../helper.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -37,7 +37,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
-#include "../vcmiqt/launcherdirs.h"
+#include "../../vcmiqt/launcherdirs.h"
 
 #include <future>
 

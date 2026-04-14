@@ -31,7 +31,7 @@
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
 
-#include "../../lib/spells/CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

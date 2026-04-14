@@ -22,7 +22,7 @@
 #include "../../widgets/Images.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Slider.h"
-#include "../../windows/InfoWindows.h"
+#include "../InfoWindows.h"
 
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/texts/MetaString.h"

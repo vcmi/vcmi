@@ -20,7 +20,7 @@
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
 #include "../render/Canvas.h"
-#include "../lib/CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)

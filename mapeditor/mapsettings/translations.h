@@ -11,7 +11,7 @@
 #pragma once
 
 #include <QDialog>
-#include "../lib/mapping/CMap.h"
+#include "../../lib/mapping/CMap.h"
 
 namespace Ui {
 class Translations;

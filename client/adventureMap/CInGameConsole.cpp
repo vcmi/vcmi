@@ -24,7 +24,7 @@
 #include "../render/Colors.h"
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
-#include "../adventureMap/AdventureMapInterface.h"
+#include "AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
 #include "../../lib/CConfigHandler.h"

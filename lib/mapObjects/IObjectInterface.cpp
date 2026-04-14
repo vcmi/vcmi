@@ -17,7 +17,7 @@
 #include "../TerrainHandler.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 

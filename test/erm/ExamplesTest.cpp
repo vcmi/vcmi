@@ -10,10 +10,9 @@
 #include "StdInc.h"
 
 #include "../scripting/ScriptFixture.h"
-#include "../../lib/VCMI_Lib.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/ScriptHandler.h"
-#include "../../lib/NetPacks.h"
-#include "../../lib/serializer/Cast.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/FileInfo.h"
@@ -45,7 +44,7 @@ public:
 
 	void onCommit(CPackForClient * pack)
 	{
-		InfoWindow * iw = dynamic_ptr_cast<InfoWindow>(pack);
+		InfoWindow * iw = dynamic_cast<InfoWindow *>(pack);
 
 		if(iw)
 		{

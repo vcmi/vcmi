@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/callback/MapInfoCallback.h"
+#include "MapInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -15,9 +15,6 @@
 #include "../VCMIDirs.h"
 
 #ifdef STATIC_AI
-#  ifdef ENABLE_NULLKILLER_AI
-#    include "../../AI/Nullkiller/AIGateway.h"
-#  endif
 #  ifdef ENABLE_NULLKILLER2_AI
 #    include "../../AI/Nullkiller2/AIGateway.h"
 #  endif
@@ -120,11 +117,6 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 #ifdef ENABLE_NULLKILLER2_AI
 	if(libpath.stem() == "libNullkiller2")
 		return std::make_shared<NK2AI::AIGateway>();
-#endif
-
-#ifdef ENABLE_NULLKILLER_AI
-	if(libpath.stem() == "libNullkiller")
-		return std::make_shared<NKAI::AIGateway>();
 #endif
 
 	return std::make_shared<CEmptyAI>();

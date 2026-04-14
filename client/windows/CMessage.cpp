@@ -23,7 +23,7 @@
 #include "../widgets/Images.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
-#include "../windows/InfoWindows.h"
+#include "InfoWindows.h"
 
 #include "../../lib/texts/TextOperations.h"
 

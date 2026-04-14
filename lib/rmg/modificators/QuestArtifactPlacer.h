@@ -51,7 +51,7 @@ protected:
 		ui32 value;
 	};
 
-	std::vector<std::shared_ptr<Zone>> questArtZones; //artifacts required for Seer Huts will be placed here - or not if null
+	std::vector<std::weak_ptr<Zone>> questArtZones; //artifacts required for Seer Huts will be placed here - or not if null
 	std::vector<QuestArtifactRequest> questArtifactsToPlace;
 	std::vector<ReplacementCandidate> artifactsToReplace; //Common artifacts which may be replaced by quest artifacts from other zones
 

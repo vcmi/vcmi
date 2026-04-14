@@ -30,7 +30,7 @@
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"

@@ -11,13 +11,13 @@
 #include "StdInc.h"
 #include "gtest/gtest.h"
 
-#include "../AI/VCAI/VCAI.h"
-#include "../AI/VCAI/Goals/Goals.h"
+#include "../../AI/Nullkiller2/Engine/Nullkiller.h"
+#include "../../AI/Nullkiller2/Goals/Goals.h"
 #include "mock_VCAI_CGoal.h"
 #include "mock_VCAI.h"
 #include "mock_ResourceManager.h"
 #include "../mock/mock_CPSICallback.h"
-#include "../lib/CGameInfoCallback.h"
+#include "../../lib/callback/CGameInfoCallback.h"
 
 using namespace Goals;
 using namespace ::testing;

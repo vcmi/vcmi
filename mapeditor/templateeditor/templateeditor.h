@@ -115,6 +115,7 @@ private:
 	void loadZoneMenuContent(bool onlyPosition = false);
 	void saveZoneMenuContent();
 	void loadZoneConnectionMenuContent();
+	void updateConnectionAddButton();
 	void updateConnectionLines(bool recreate = false);
 	void autoPositionZones();
 	void updateZonePositions();

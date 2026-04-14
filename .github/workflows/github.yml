@@ -412,7 +412,7 @@ jobs:
 
     - name: Upload Artifact
       id: upload_artifact
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
         compression-level: 9
@@ -422,7 +422,7 @@ jobs:
     - name: Upload AAB Artifact
       id: upload_aab
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-aab
         compression-level: 9
@@ -432,7 +432,7 @@ jobs:
     - name: Upload MSVC debug symbols
       id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols
         compression-level: 9
@@ -449,7 +449,7 @@ jobs:
         echo IOS_APPSTORE_SYMBOLS_DIR="$IOS_APPSTORE_SYMBOLS_DIR" >> $GITHUB_ENV
     - name: Upload iOS AppStore debug symbols
       if: ${{ matrix.platform == 'ios' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols
         compression-level: 9
@@ -478,7 +478,7 @@ jobs:
         python3 CI/emit_partial.py
 
     - name: Upload partial JSON with build informations
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: partial-json-${{ matrix.platform }}
         path: .summary/${{ matrix.platform }}.json
@@ -509,7 +509,7 @@ jobs:
 
         - name: Upload source code archive
           id: upload_source
-          uses: actions/upload-artifact@v6
+          uses: actions/upload-artifact@v7
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             compression-level: 9
@@ -525,7 +525,7 @@ jobs:
             JSON
 
         - name: Upload partial JSON with source informations
-          uses: actions/upload-artifact@v6
+          uses: actions/upload-artifact@v7
           with:
             name: partial-json-source
             path: .summary/source.json
@@ -735,7 +735,7 @@ jobs:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
     - name: Download Artifact
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
@@ -765,7 +765,7 @@ jobs:
 
     - name: Upload VCMI Installer Artifacts
       id: upload_installer
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-installer
         compression-level: 9
@@ -793,7 +793,7 @@ jobs:
         JSON
 
     - name: Upload partial JSON with installer informations
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: partial-json-${{ matrix.platform }}-installer
         path: .summary/installer-${{ matrix.platform }}.json
@@ -820,8 +820,12 @@ jobs:
             sudo apt install python3-jstyleson
             python3 CI/validate_json.py
 
+        - name: Validate relative local includes
+          run: |
+            python3 CI/normalize_relative_includes.py --repo .
+
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v22
+          uses: DavidAnson/markdownlint-cli2-action@v23
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
@@ -840,7 +844,7 @@ jobs:
 
       - name: Download all partial JSON artifacts
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: partial-json-*
           merge-multiple: true

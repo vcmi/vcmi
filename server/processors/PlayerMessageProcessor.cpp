@@ -36,7 +36,7 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../lib/VCMIDirs.h"
+#include "../../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)

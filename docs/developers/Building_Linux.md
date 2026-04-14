@@ -67,8 +67,6 @@ sudo apt-get build-dep vcmi
 sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel onnxruntime-devel libsquish-devel libfmt-devel ccache
 ```
 
-NOTE: VCMI bundles the fuzzylite lib in its source code.
-
 ### On Arch-based distributions
 
 On Arch-based distributions, there is a development package available for VCMI on the AUR.

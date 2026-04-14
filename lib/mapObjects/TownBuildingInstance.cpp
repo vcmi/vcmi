@@ -14,7 +14,7 @@
 #include "CGTownInstance.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../entities/building/CBuilding.h"
 
 #include <vstd/RNG.h>

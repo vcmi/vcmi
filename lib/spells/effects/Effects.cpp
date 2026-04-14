@@ -128,7 +128,7 @@ Effects::EffectsToApply Effects::prepare(const Mechanics * m, const Target & aim
 	return effectsToApply;
 }
 
-void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & handler, const int level)
+void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & handler, const int level, const std::string & spellScope, const std::string & spellIdentifier)
 {
 	assert(!handler.saving);
 
@@ -146,6 +146,9 @@ void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & han
 		auto effect = Effect::create(registry, type);
 		if(effect)
 		{
+			effect->name = name;
+			effect->spellScope = spellScope;
+			effect->spellIdentifier = spellIdentifier;
 			effect->serializeJson(handler);
 			add(name, effect, level);
 		}

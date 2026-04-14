@@ -11,7 +11,7 @@
 
 #include "../StdInc.h"
 #include <QDialog>
-#include "../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 namespace Ui {
 	class TownEventDialog;

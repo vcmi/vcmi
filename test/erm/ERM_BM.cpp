@@ -11,7 +11,7 @@
 
 #include "../scripting/ScriptFixture.h"
 
-#include "../../lib/NetPacks.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 
 namespace test
 {

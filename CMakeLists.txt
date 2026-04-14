@@ -11,7 +11,6 @@ project(VCMI)
 # - Consider to remove M_DATA_DIR, DM_BIN_DIR, DM_LIB_DIR and not use them in code as well
 # - Try to get rid of FOLDER override with define_property
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
-# - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
 if(APPLE AND NOT IOS)
 	set(MACOS 1)
@@ -50,7 +49,6 @@ option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routi
 
 # AI libraries. Empty AI is always on
 
-option(ENABLE_NULLKILLER_AI "Enable compilation of NullkillerAI library" ON)
 option(ENABLE_NULLKILLER2_AI "Enable compilation of Nullkiller2AI library" ON)
 option(ENABLE_STUPID_AI "Enable compilation of StupidAI library" ON)
 option(ENABLE_BATTLE_AI "Enable compilation of BattleAI library" ON)
@@ -228,7 +226,7 @@ include(VersionDefinition)
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
-# Very useful to put 3rd-party libraries such as GoogleTest and FuzzyLite in their own folders
+# Very useful to put 3rd-party libraries such as GoogleTest in their own folders
 set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
 # Make FOLDER property inheritable
 # So when we set FOLDER property on AI directory all and targets inside will inherit it
@@ -333,9 +331,6 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
-if(ENABLE_NULLKILLER_AI)
-	add_definitions(-DENABLE_NULLKILLER_AI)
-endif()
 if(ENABLE_NULLKILLER2_AI)
 	add_definitions(-DENABLE_NULLKILLER2_AI)
 endif()
@@ -371,12 +366,6 @@ if(MACOS)
 endif()
 
 if(MINGW OR MSVC)
-	# Windows Vista or newer for FuzzyLite 6 to compile
-	# Except for conan which already has this definition in its profile
-	if(NOT USING_CONAN)
-		add_definitions(-D_WIN32_WINNT=0x0600)
-	endif()
-
 	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
@@ -460,7 +449,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")             # large number of false-positives, disabled
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
 
 	if(ENABLE_STRICT_COMPILATION)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")

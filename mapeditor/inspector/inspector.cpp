@@ -9,18 +9,18 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
-#include "../lib/entities/hero/CHeroClass.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/CRandomGenerator.h"
-#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
-#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../lib/mapObjectConstructors/CommonConstructors.h"
-#include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/constants/StringConstants.h"
-#include "../lib/CPlayerState.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
@@ -383,9 +383,12 @@ void Inspector::updateProperties(CGArtifact * o)
 	if(MapObjectID::isRandomArtifact(o->ID))
 		return;
 
-	const CArtifactInstance * instance = o->getArtifactInstance();
-	if(instance && o->ID == Obj::SPELL_SCROLL)
+	if(o->ID == Obj::SPELL_SCROLL)
 	{
+		const CArtifactInstance * instance = o->getArtifactInstance();
+		if(!instance)
+			return;
+
 		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != SpellID::NONE)
 		{

@@ -9,7 +9,7 @@
 */
 #pragma once
 
-#include "../Goals/CGoal.h"
+#include "CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"

@@ -9,8 +9,8 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/JsonNode.h"
-#include "../../lib/filesystem/ResourceID.h"
+#include "../../lib/json/JsonNode.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 #include "../../lib/rmg/CRmgTemplate.h"
 
@@ -104,7 +104,7 @@ protected:
 TEST_F(CRmgTemplateTest, SerializeCycle)
 {
 	const std::string testFilePath = TEST_DATA_PATH + "1.json";
-	ResourceID testFileRes(testFilePath);
+	JsonPath testFileRes = JsonPath::builtin(testFilePath);
 	JsonNode testData(testFileRes);
 
 	ASSERT_FALSE((testData.Struct().empty()));

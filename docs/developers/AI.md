@@ -62,7 +62,6 @@ Analyzer - a module gathering data from CCallback *. Its goal to make some stati
 * ObjectClusterizer - aggregates all objects into clusters depending on which object blocks way towards them.
 * DeepDecomposer - sometimes pathfinder may return path through some object which canno be simply bypassed but instead it requires something to be done first. DeepDecomposer allows to detalizing such paths. Examples: building a boat requires capturing shipyard, bypassing bordergate requires visiting masterkey tent. See AbstractGoal
 * FuzzyEngines - looks like some legacy from VCAI
-* PriorityEvaluator - gathers information on task rewards, evaluates their priority using Fuzzy Light library (fuzzy logic)
 
 ### Goals
 

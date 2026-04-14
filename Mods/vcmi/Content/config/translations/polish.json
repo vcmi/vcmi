@@ -372,6 +372,7 @@
 	"vcmi.bonusSource.spell": "Zaklęcie",
 	"vcmi.broadcast.command": "Wpisz '!help' aby zobaczyć listę dostępnych komend",
 	"vcmi.broadcast.failedLoadGame": "Nie udało się wczytać gry",
+	"vcmi.broadcast.command" : "Wpisz '!help' aby zobaczyć listę dostępnych komend.",
 	"vcmi.broadcast.gameSavedAs": "gra zapisana jako",
 	"vcmi.broadcast.gameTerminated": "gra została zamknięta",
 	"vcmi.broadcast.help.cheaters": "'!cheaters' - wyświetla listę graczy, którzy użyli 'kodów' w trakcie gry",

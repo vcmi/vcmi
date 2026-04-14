@@ -18,10 +18,10 @@
 #include "../mock/mock_spells_effects_Registry.h"
 #include "../mock/mock_ServerCallback.h"
 
-#include "../../../lib/GameLibrary.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../../../lib/ScriptHandler.h"
-#include "../../../lib/CScriptingModule.h"
+#include "../../lib/ScriptHandler.h"
+#include "../../lib/CScriptingModule.h"
 
 namespace test
 {

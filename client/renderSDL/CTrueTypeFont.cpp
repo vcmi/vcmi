@@ -13,7 +13,7 @@
 #include "CBitmapFont.h"
 
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "SDL_Extensions.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonNode.h"

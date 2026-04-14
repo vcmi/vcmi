@@ -19,8 +19,6 @@
 #include "BAI/v13/stack.h"
 #include "schema/v13/types.h"
 
-#include <memory>
-
 namespace MMAI::BAI::V13
 {
 using HexAction = Schema::V13::HexAction;

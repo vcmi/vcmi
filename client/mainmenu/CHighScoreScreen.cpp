@@ -332,7 +332,7 @@ void CHighScoreInputScreen::clickPressed(const Point & cursorPosition)
 	if(!input)
 	{
 		input = std::make_shared<CHighScoreInput>(calc.parameters[0].playerName,
-		[&] (std::string text)
+		[this] (std::string text)
 		{
 			if(!text.empty())
 			{

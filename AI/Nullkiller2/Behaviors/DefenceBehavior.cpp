@@ -12,7 +12,7 @@
 
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "CaptureObjectsBehavior.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/Composition.h"

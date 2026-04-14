@@ -22,7 +22,7 @@
 #include "../render/Graphics.h"
 #include "../windows/CMessage.h"
 #include "../windows/InfoWindows.h"
-#include "../widgets/TextControls.h"
+#include "TextControls.h"
 
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtHandler.h"

@@ -11,7 +11,7 @@
 #include "StdInc.h"
 
 #ifndef VCMI_NO_EXTRA_VERSION
-#include "../Version.h"
+#include "../../Version.h"
 #endif
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>

@@ -644,7 +644,12 @@ Value of all bonuses can be affected by following bonuses:
 	"type": "core:timed",
 
 	// if set to true, recasting same spell will accumulate (and prolong) effects of previous spellcast
-	"cumulative" : false
+	"cumulative" : false,
+
+	// Optional, localizable battle log message displayed when this effect is applied.
+	// The text should contain a %s placeholder which will be replaced with the affected creature's name.
+	// A text ID for translation is auto-generated as: spell.<modName>.<spellName>.<effectName>.battleLogMessage
+	"battleLogMessage" : "The %s are frozen solid.",
 	
 	// List of bonuses granted by this spell
 	"bonus" : {

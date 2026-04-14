@@ -31,15 +31,15 @@
 #include "../widgets/Slider.h"
 #include "../render/IRenderHandler.h"
 
-#include "../lib/CConfigHandler.h"
-#include "../lib/CSkillHandler.h"
-#include "../lib/GameLibrary.h"
-#include "../lib/callback/CCallback.h"
-#include "../lib/entities/artifact/ArtifactUtils.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/networkPacks/ArtifactLocation.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {

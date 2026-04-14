@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
-#include "../lib/ResourceSet.h"
+#include "../../lib/ResourceSet.h"
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 

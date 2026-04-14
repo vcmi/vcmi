@@ -11,8 +11,7 @@
 
 #include "../scripting/ScriptFixture.h"
 
-#include "../../lib/NetPacks.h"
-#include "../../lib/serializer/Cast.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 
 #include "../mock/mock_CreatureService.h"
 #include "../mock/mock_Creature.h"
@@ -31,7 +30,7 @@ public:
 
 	void onCommit(CPackForClient * pack)
 	{
-		EntitiesChanged * ec = dynamic_ptr_cast<EntitiesChanged>(pack);
+		EntitiesChanged * ec = dynamic_cast<EntitiesChanged *>(pack);
 
 		if(ec)
 			onEntitiesChanged(ec);

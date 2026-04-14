@@ -305,6 +305,7 @@ MainWindow::MainWindow(QWidget* parent) :
 			
 			mapLevel = combo->currentIndex();
 			ui->mapView->setScene(controller.scene(mapLevel));
+			ui->mapView->resetInteractionState();
 			ui->mapView->setViewports();
 			ui->minimapView->setScene(controller.miniScene(mapLevel));
 		});
@@ -346,6 +347,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
+	ui->mapView->resetInteractionState();
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	connect(ui->mapView, &MapView::currentCoordinates, this, &MainWindow::currentCoordinatesChanged);
@@ -431,6 +433,7 @@ void MainWindow::initializeMap(bool isNew)
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
+	ui->mapView->resetInteractionState();
 	ui->minimapView->setScene(controller.miniScene(mapLevel));
 	ui->minimapView->dimensions();
 	if(initialScale.isValid())
@@ -614,12 +617,12 @@ void MainWindow::on_menuOpenRecent_aboutToShow()
 	}
 }
 
-void MainWindow::saveMap()
+void MainWindow::saveMap(bool force)
 {
 	if(!controller.map())
 		return;
 
-	if(!unsaved)
+	if(!force && !unsaved)
 		return;
 	
 	//validate map
@@ -687,7 +690,7 @@ void MainWindow::on_actionSave_as_triggered()
 
 	filename = filenameSelect;
 
-	saveMap();
+	saveMap(true);
 }
 
 void MainWindow::on_actionCampaignEditor_triggered()
@@ -1466,26 +1469,55 @@ void MainWindow::on_actionPaste_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)");
+	QString selectedFilter;
+	QString fileName = QFileDialog::getSaveFileName(
+		this,
+		tr("Save to image"),
+		lastSavingDir,
+		"BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)",
+		&selectedFilter
+	);
 	if(!fileName.isNull())
 	{
+		QFileInfo fileInfo(fileName);
+		if(fileInfo.suffix().isEmpty())
+		{
+			QString extension;
+			if(selectedFilter.contains("*.bmp", Qt::CaseInsensitive))
+				extension = "bmp";
+			else if(selectedFilter.contains("*.jpeg", Qt::CaseInsensitive))
+				extension = "jpeg";
+			else if(selectedFilter.contains("*.png", Qt::CaseInsensitive))
+				extension = "png";
+
+			if(!extension.isEmpty())
+				fileName += "." + extension;
+		}
+		lastSavingDir = QFileInfo(fileName).dir().path();
+
 		auto * sc = static_cast<MapScene*>(ui->mapView->scene());
 		if(!sc)
 			return;
-		
+
 		QRectF sceneRect = sc->sceneRect();
-		
+
 		// Temporarily set viewport to full map for export
 		for (auto * layer : sc->getDynamicLayers())
 			layer->setViewport(sceneRect);
-		
+
 		QImage image(sceneRect.size().toSize(), QImage::Format_RGB888);
 		QPainter painter(&image);
 		sc->render(&painter, QRectF(), sceneRect);
-		image.save(fileName);
-		
+		const bool saved = image.save(fileName);
+
 		// Restore viewport to visible area
 		ui->mapView->setViewports();
+
+		if(!saved)
+		{
+			QMessageBox::critical(this, tr("Failed to save image"), tr("Cannot save image to %1.").arg(fileName));
+			return;
+		}
 	}
 }
 

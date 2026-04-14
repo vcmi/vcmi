@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

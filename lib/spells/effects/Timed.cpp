@@ -22,6 +22,7 @@
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../networkPacks/SetStackEffect.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,71 +31,35 @@ namespace spells
 namespace effects
 {
 
-static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) 
+static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target, const std::string & battleLogMessage)
 {
-	auto addLogLine = [&](const int32_t baseTextID, const boost::logic::tribool & plural)
-	{
-		MetaString line;
-		target->addText(line, EMetaText::GENERAL_TXT, baseTextID, plural);
-		target->addNameReplacement(line, plural);
-		log.push_back(std::move(line));
-	};
-
-	if(m->getSpellIndex() == SpellID::DISEASE)
-	{
-		addLogLine(553, boost::logic::indeterminate);
-		return;
-	}
-
 	for(const auto & bonus : bonuses)
 	{
-		switch(bonus.type)
+		if(bonus.type == BonusType::STACK_HEALTH && bonus.val < 0)
 		{
-		case BonusType::NOT_ACTIVE:
-			{
-				switch(bonus.subtype.as<SpellID>().toEnum())
-				{
-				case SpellID::STONE_GAZE:
-					addLogLine(558, boost::logic::indeterminate);
-					return;
-				case SpellID::PARALYZE:
-					addLogLine(563, boost::logic::indeterminate);
-					return;
-				default:
-					break;
-				}
-			}
-			break;
-		case BonusType::POISON:
-			addLogLine(561, boost::logic::indeterminate);
+			BonusList unitHealth = *target->getBonuses(Selector::type()(BonusType::STACK_HEALTH));
+
+			auto oldHealth = unitHealth.totalValue();
+			unitHealth.push_back(std::make_shared<Bonus>(bonus));
+			auto newHealth = unitHealth.totalValue();
+
+			//"The %s shrivel with age, and lose %d hit points."
+			MetaString line;
+			target->addText(line, EMetaText::GENERAL_TXT, 551);
+			target->addNameReplacement(line);
+
+			line.replaceNumber(oldHealth - newHealth);
+			log.push_back(std::move(line));
 			return;
-		case BonusType::BIND_EFFECT:
-			addLogLine(-560, true);
-			return;
-		case BonusType::STACK_HEALTH:
-			{
-				if(bonus.val < 0)
-				{
-					BonusList unitHealth = *target->getBonuses(Selector::type()(BonusType::STACK_HEALTH));
-
-					auto oldHealth = unitHealth.totalValue();
-					unitHealth.push_back(std::make_shared<Bonus>(bonus));
-					auto newHealth = unitHealth.totalValue();
-
-					//"The %s shrivel with age, and lose %d hit points."
-					MetaString line;
-					target->addText(line, EMetaText::GENERAL_TXT, 551);
-					target->addNameReplacement(line);
-
-					line.replaceNumber(oldHealth - newHealth);
-					log.push_back(std::move(line));
-					return;
-				}
-			}
-			break;
-		default:
-			break;
 		}
+	}
+
+	if(!battleLogMessage.empty())
+	{
+		MetaString line;
+		line.appendTextID(battleLogMessage);
+		target->addNameReplacement(line, boost::logic::indeterminate);
+		log.push_back(std::move(line));
 	}
 }
 
@@ -140,7 +105,7 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 			continue;
 
 		if(describe)
-			describeEffect(blm.lines, m, converted, affected);
+			describeEffect(blm.lines, m, converted, affected, battleLogMessage);
 
 
 		//Apply hero specials - peculiar enchants
@@ -246,6 +211,15 @@ void Timed::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
 	assert(!handler.saving);
 	handler.serializeBool("cumulative", cumulative, false);
+	{
+		const JsonNode & messageNode = handler.getCurrent()["battleLogMessage"];
+		if(!messageNode.String().empty())
+		{
+			TextIdentifier textID("spell", spellScope, spellIdentifier, name, "battleLogMessage");
+			LIBRARY->generaltexth->registerString(spellScope, textID, messageNode);
+			battleLogMessage = textID.get();
+		}
+	}
 	{
 		auto guard = handler.enterStruct("bonus");
 		const JsonNode & data = handler.getCurrent();

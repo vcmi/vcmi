@@ -16,6 +16,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/JsonSerializer.h"
@@ -107,6 +108,7 @@ bool WindowNewMap::loadUserSettings()
 	if (settings.isValid())
 	{
 		auto node = JsonUtils::toJson(settings);
+		node.setModScope(ModScope::scopeMap());
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
 		templ = mapGenOptions.getMapTemplate(); // Remember for later
@@ -189,6 +191,7 @@ void WindowNewMap::saveUserSettings()
 	JsonSerializer ser(nullptr, data);
 
 	ser.serializeStruct("lastSettings", mapGenOptions);
+	data.setModScope(ModScope::scopeMap());
 
 	auto variant = JsonUtils::toVariant(data);
 	s.setValue(newMapWindow, variant);

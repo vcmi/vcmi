@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "../lib/battle/BattleHexArray.h"
+#include "../../lib/battle/BattleHexArray.h"
 
 TEST(BattleHexTest, getNeighbouringTiles)
 {

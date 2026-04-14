@@ -30,7 +30,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
-#include "../lib/spells/effects/UnitEffect.h"
+#include "../spells/effects/UnitEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

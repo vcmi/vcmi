@@ -224,6 +224,7 @@ set(lib_MAIN_SRCS
 	rmg/CRmgTemplate.cpp
 	rmg/CRmgTemplateStorage.cpp
 	rmg/CZonePlacer.cpp
+	rmg/CZoneGridPlacer.cpp
 	rmg/CRoadRandomizer.cpp
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
@@ -320,6 +321,7 @@ set(lib_MAIN_SRCS
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
+	ExceptionsCommon.cpp
 	GameSettings.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
@@ -691,6 +693,7 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplate.h
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
+	rmg/CZoneGridPlacer.h
 	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
 	rmg/Zone.h
@@ -855,9 +858,6 @@ endif()
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
 	target_link_libraries(vcmi PRIVATE EmptyAI)
-	if(ENABLE_NULLKILLER_AI)
-		target_link_libraries(vcmi PRIVATE Nullkiller)
-	endif()
 
 	if(ENABLE_NULLKILLER2_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller2)

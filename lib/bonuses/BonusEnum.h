@@ -203,6 +203,8 @@ class JsonNode;
 	BONUS_NAME(CPU_CONTROLLED) /* Makes unit CPU controller by default, like ballista. Currently, target picking uses custom server logic rather than using battle AI */ \
 	BONUS_NAME(DEITYOFFIRE) /* Controls special week */ \
 	BONUS_NAME(ON_COMBAT_EVENT) /* Allows triggering various effects on combat events */ \
+	BONUS_NAME(SPELL_CAST_COUNTER)  /*used to keep count how many times a particular spells has been cast*/
+	/* end of list */
 
 	/* end of list */
 

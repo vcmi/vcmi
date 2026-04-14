@@ -49,7 +49,7 @@ public:
 
 	void initializeMap(bool isNew);
 
-	void saveMap();
+	void saveMap(bool force = false);
 	bool openMap(const QString &);
 	void openCampaign(const QString &);
 	
