@@ -37,6 +37,7 @@ void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint
 	{
 		entry.status = FileEntry::IN_PROGRESS;
 		entry.reply = manager.get(request);
+		Q_EMIT downloadFileStarted(entry.filename);
 
 		connect(entry.reply, SIGNAL(downloadProgress(qint64,qint64)),
 			SLOT(downloadProgressChanged(qint64,qint64)));

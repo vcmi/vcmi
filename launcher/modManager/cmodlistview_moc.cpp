@@ -765,14 +765,12 @@ void CModListView::on_updateButton_clicked()
 	}
 
 	doUpdateMod(modName);
-
 	ui->updateButton->setEnabled(false);
 }
 
 void CModListView::doUpdateMod(const QString & modName)
 {
 	auto targetMod = modStateModel->getMod(modName);
-
 	if(targetMod.isUpdateAvailable())
 		downloadMod(targetMod);
 
@@ -832,6 +830,8 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		ui->progressWidget->setVisible(true);
 		connect(dlManager, SIGNAL(downloadProgress(QString,qint64,qint64)),
 			this, SLOT(downloadProgress(QString,qint64,qint64)));
+		connect(dlManager, SIGNAL(downloadFileStarted(QString)),
+			this, SLOT(onDownloadFileStarted(QString)));
 		connect(dlManager, SIGNAL(downloadFileFinished(QString)),
 			this, SLOT(onDownloadFileFinished(QString)));
 
@@ -839,22 +839,23 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
 
 		connect(modModel, &ModStateItemModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
+
 	}
 
 	enqueuedDownloadDescriptions[file] = description;
 	enqueuedDownloadFiles.push_back(file);
 	if(activeDownloadFile.isEmpty())
 		activeDownloadFile = file;
-
 	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
 void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 max)
 {
-	Q_UNUSED(currentFile);
-
 	// display progress, in megabytes
+	if(activeDownloadFile.isEmpty() && !currentFile.isEmpty())
+		activeDownloadFile = currentFile;
+
 	const auto currentDescription = enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile);
 	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(currentDescription);
 	ui->progressBar->setFormat(progressBarFormat);
@@ -862,6 +863,11 @@ void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
 	ui->progressBar->setValue(current / (1024 * 1024));
+}
+
+void CModListView::onDownloadFileStarted(QString fileName)
+{
+	Q_UNUSED(fileName);
 }
 
 void CModListView::onDownloadFileFinished(QString fileName)
@@ -1131,7 +1137,6 @@ void CModListView::installMods(QStringList archives)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
-	QMap<QString, QMap<QString, bool>> submodStateBeforeUpdate;
 
 	for(QString archive : archives)
 	{
@@ -1153,14 +1158,8 @@ void CModListView::installMods(QStringList archives)
 	{
 		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
 		{
-			// Update flow is uninstall + install. Save submod states now so we can restore
-			// user configuration after reinstall (including nested "main.sub.another" ids).
-			const auto modSettings = modStateModel->getModSettings(mod);
-			for(const auto & settingID : modSettings.keys())
-				submodStateBeforeUpdate[mod][mod + '.' + settingID] = modSettings.value(settingID);
-
 			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
-			if(modStateModel->isModEnabled(mod))
+			if (modStateModel->isModEnabled(mod))
 				modsToEnable.push_back(mod);
 
 			doUninstallMod(mod, true);
@@ -1178,43 +1177,23 @@ void CModListView::installMods(QStringList archives)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
 		QString modDisplayName = modNames[i];
-		if(modStateModel->isModExists(modNames[i]))
+		if (modStateModel->isModExists(modNames[i]))
 			modDisplayName = modStateModel->getMod(modNames[i]).getName();
 
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
 
-		if(i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
+		if (i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
 			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
 
 	reload(lastInstalled);
 
-	if(!modsToEnable.empty())
+	if (!modsToEnable.empty())
 	{
 		manager->enableMods(modsToEnable);
-	}
-
-	for(const auto & mod : modNames)
-	{
-		if(!modStateModel->isModExists(mod) || !modStateModel->isModEnabled(mod))
-			continue;
-
-		const auto submodsForMod = submodStateBeforeUpdate.value(mod);
-		for(const auto & submod : submodsForMod.keys())
-		{
-			const bool wasEnabled = submodsForMod.value(submod);
-
-			if(!modStateModel->isModExists(submod))
-				continue;
-
-			if(wasEnabled && !modStateModel->isModEnabled(submod))
-				manager->enableMods({submod});
-			else if(!wasEnabled && modStateModel->isModEnabled(submod))
-				manager->disableMod(submod);
-		}
 	}
 
 	checkManagerErrors();
