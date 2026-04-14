@@ -11,6 +11,7 @@
 #include "CGarrisonInt.h"
 
 #include "Buttons.h"
+#include "Images.h"
 #include "TextControls.h"
 #include "RadialMenu.h"
 
