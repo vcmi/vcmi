@@ -846,6 +846,7 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 	enqueuedDownloadFiles.push_back(file);
 	if(activeDownloadFile.isEmpty())
 		activeDownloadFile = file;
+
 	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
@@ -1137,6 +1138,7 @@ void CModListView::installMods(QStringList archives)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
+	QMap<QString, QMap<QString, bool>> submodStateBeforeUpdate;
 
 	for(QString archive : archives)
 	{
@@ -1158,8 +1160,14 @@ void CModListView::installMods(QStringList archives)
 	{
 		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
 		{
+			// Update flow is uninstall + install. Save submod states now so we can restore
+			// user configuration after reinstall (including nested "main.sub.another" ids).
+			const auto modSettings = modStateModel->getModSettings(mod);
+			for(const auto & settingID : modSettings.keys())
+				submodStateBeforeUpdate[mod][mod + '.' + settingID] = modSettings.value(settingID);
+
 			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
-			if (modStateModel->isModEnabled(mod))
+			if(modStateModel->isModEnabled(mod))
 				modsToEnable.push_back(mod);
 
 			doUninstallMod(mod, true);
@@ -1177,23 +1185,43 @@ void CModListView::installMods(QStringList archives)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
 		QString modDisplayName = modNames[i];
-		if (modStateModel->isModExists(modNames[i]))
+		if(modStateModel->isModExists(modNames[i]))
 			modDisplayName = modStateModel->getMod(modNames[i]).getName();
 
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
 
-		if (i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
+		if(i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
 			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
 
 	reload(lastInstalled);
 
-	if (!modsToEnable.empty())
+	if(!modsToEnable.empty())
 	{
 		manager->enableMods(modsToEnable);
+	}
+
+	for(const auto & mod : modNames)
+	{
+		if(!modStateModel->isModExists(mod) || !modStateModel->isModEnabled(mod))
+			continue;
+
+		const auto submodsForMod = submodStateBeforeUpdate.value(mod);
+		for(const auto & submod : submodsForMod.keys())
+		{
+			const bool wasEnabled = submodsForMod.value(submod);
+
+			if(!modStateModel->isModExists(submod))
+				continue;
+
+			if(wasEnabled && !modStateModel->isModEnabled(submod))
+				manager->enableMods({submod});
+			else if(!wasEnabled && modStateModel->isModEnabled(submod))
+				manager->disableMod(submod);
+		}
 	}
 
 	checkManagerErrors();
