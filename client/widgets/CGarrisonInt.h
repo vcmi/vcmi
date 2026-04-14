@@ -22,6 +22,7 @@ class CGarrisonInt;
 class CButton;
 class CAnimImage;
 class CLabel;
+class CPicture;
 
 enum class EGarrisonType
 {
