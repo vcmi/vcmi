@@ -175,6 +175,59 @@ function(vcmi_deploy_qt_runtime targetBinary)
 	endif()
 endfunction()
 
+# Generate Qt5 translation files and resource list for a target.
+# Args:
+#  componentName - used in warning messages
+#  translationsDir - directory with .ts files relative to CMAKE_CURRENT_SOURCE_DIR
+#  tsVariable - variable name with .ts files list
+#  qmVariable - output variable name for generated .qm files
+#  resourcesVariable - in/out variable name for target resources
+function(vcmi_setup_qt5_translations componentName translationsDir tsVariable qmVariable resourcesVariable)
+	set(qmFiles "")
+	if(ENABLE_TRANSLATIONS AND TARGET Qt5::Core)
+		if(TARGET Qt5::lrelease)
+			get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION)
+			if(NOT qtLReleasePath OR qtLReleasePath MATCHES "-NOTFOUND$")
+				get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION_RELWITHDEBINFO)
+			endif()
+			if(NOT qtLReleasePath OR qtLReleasePath MATCHES "-NOTFOUND$")
+				get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION_RELEASE)
+			endif()
+			if(qtLReleasePath AND NOT qtLReleasePath MATCHES "-NOTFOUND$")
+				set(Qt5_LRELEASE_EXECUTABLE "${qtLReleasePath}")
+			endif()
+		endif()
+
+		if(Qt5_LRELEASE_EXECUTABLE AND NOT Qt5_LRELEASE_EXECUTABLE MATCHES "-NOTFOUND$")
+			file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${translationsDir}")
+			set_source_files_properties(${${tsVariable}} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
+			qt5_add_translation(qmFiles ${${tsVariable}})
+		else()
+			message(WARNING "Skipping ${componentName} translation generation because Qt5 lrelease executable is unavailable")
+		endif()
+
+		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+		set(resourceQmFiles "")
+		foreach(qmFile ${qmFiles})
+			string(APPEND resourceQmFiles "<file>${qmFile}</file>\n")
+		endforeach()
+		file(WRITE "${translationsResource}"
+"<!DOCTYPE RCC>
+<RCC version=\"1.0\">
+<qresource prefix=\"/\">
+${resourceQmFiles}
+</qresource>
+</RCC>"
+		)
+
+		set(resources "${${resourcesVariable}}")
+		list(APPEND resources "${translationsResource}")
+		set(${resourcesVariable} "${resources}" PARENT_SCOPE)
+	endif()
+
+	set(${qmVariable} "${qmFiles}" PARENT_SCOPE)
+endfunction()
+
 # generate .bat for .exe with proper PATH
 function(vcmi_create_exe_shim tgt)
 	if(WIN32 AND USING_CONAN AND ENABLE_COPY_CONAN_RUNTIME_DLLS AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
