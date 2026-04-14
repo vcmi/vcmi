@@ -216,44 +216,7 @@ set(editor_TS
 	"${translationsDir}/vietnamese.ts"
 )
 if(ENABLE_TRANSLATIONS)
-	if(TARGET Qt5::Core)
-		if(TARGET Qt5::lrelease)
-			get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION)
-			if(NOT qtLReleasePath OR qtLReleasePath MATCHES "-NOTFOUND$")
-				get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION_RELWITHDEBINFO)
-			endif()
-			if(NOT qtLReleasePath OR qtLReleasePath MATCHES "-NOTFOUND$")
-				get_target_property(qtLReleasePath Qt5::lrelease IMPORTED_LOCATION_RELEASE)
-			endif()
-			if(qtLReleasePath AND NOT qtLReleasePath MATCHES "-NOTFOUND$")
-				set(Qt5_LRELEASE_EXECUTABLE "${qtLReleasePath}")
-			endif()
-		endif()
-
-		if(Qt5_LRELEASE_EXECUTABLE AND NOT Qt5_LRELEASE_EXECUTABLE MATCHES "-NOTFOUND$")
-			file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${translationsDir}")
-			set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
-			qt5_add_translation(editor_QM ${editor_TS})
-		else()
-			message(WARNING "Skipping map editor translation generation because Qt5 lrelease executable is unavailable")
-		endif()
-
-		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
-		list(APPEND editor_RESOURCES "${translationsResource}")
-
-		set(rccQmFiles "")
-		foreach(qmFile ${editor_QM})
-			string(APPEND rccQmFiles "<file>${qmFile}</file>\n")
-		endforeach()
-		file(WRITE "${translationsResource}"
-"<!DOCTYPE RCC>
-<RCC version=\"1.0\">
-<qresource prefix=\"/\">
-${rccQmFiles}
-</qresource>
-</RCC>"
-		)
-	endif()
+	vcmi_setup_qt5_translations("map editor" "${translationsDir}" editor_TS editor_QM editor_RESOURCES)
 endif()
 
 if(WIN32)
