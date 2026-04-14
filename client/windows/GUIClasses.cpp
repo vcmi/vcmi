@@ -1136,10 +1136,13 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	}
 	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[8], ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
-	const auto * sourceHero = dynamic_cast<const CGHeroInstance *>(up);
+	const CGHeroInstance * sourceHero = dynamic_cast<const CGHeroInstance *>(up);
 	const auto * sourceTown = dynamic_cast<const CGTownInstance *>(up);
 	if(sourceTown == nullptr && sourceHero != nullptr)
 		sourceTown = sourceHero->getVisitedTown();
+
+	if(sourceHero == nullptr && sourceTown != nullptr)
+		sourceHero = sourceTown->getGarrisonHero();
 
 	const bool isReinforcementsDialog = sourceTown != nullptr && down->getVisitedTown() != sourceTown;
 
