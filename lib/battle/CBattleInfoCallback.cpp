@@ -60,9 +60,6 @@ bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const Batt
 	if(!middleHex.isValid())
 		return false;
 
-	if(callback.battleGetUnitByPos(middleHex, true) != nullptr) // corpses are allowed for LONG_WEAPON
-		return false;
-
 	const auto accessibility = callback.getAccessibility();
 	return accessibility[middleHex.toInt()] == EAccessibility::ACCESSIBLE;
 }
@@ -730,7 +727,7 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 
 	BattleHex adjacentAttackFrom = target.cloneInDirection(direction, false);
 
-	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !attacker->doubleWide())
+	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 	{
 		const auto longLine = getLongWeaponLineHexes(target, direction);
 		if(!longLine)
@@ -834,7 +831,7 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 	if (canAttackFrom(fromHex))
 		return true;
 
-	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && !attacker->doubleWide() && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
 	{
 		const auto longLine = getLongWeaponLineHexes(position, direction);
 		if(!longLine)
@@ -1733,7 +1730,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 		attackDirection = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
 
 	if (attackDirection == BattleHex::NONE)
-		return at;
+		throw std::runtime_error("!!!");
 
 	const auto & processTargets = [&](const std::vector<int> & additionalTargets) -> BattleHexArray
 	{
