@@ -604,13 +604,31 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 		bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
 		bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
 
-		BattleHexArray attackableHexes = possibleTarget->getAttackableHexes(actingStack);
+		BattleHexArray attackableHexes;
+		const auto availableHexes = battle.battleGetAvailableHexes(reachabilityCache, actingStack, true);
+
+		for(const BattleHex & targetHex : possibleTarget->getHexes())
+		{
+			for(int direction = 0; direction < 8; ++direction)
+			{
+				auto directionEnum = static_cast<BattleHex::EDir>(direction);
+				if(!battle.battleCanAttackHex(availableHexes, actingStack, targetHex, directionEnum))
+					continue;
+
+				BattleHex attackFromHex = battle.fromWhichHexAttack(actingStack, targetHex, directionEnum);
+				if(availableHexes.contains(attackFromHex))
+					attackableHexes.insert(attackFromHex);
+			}
+		}
+
+		bool isReachable = !attackableHexes.empty();
+		if(!isReachable)
+			continue;
+
 		BattleHex closestTargetAdjacentHex = boost::min_element(attackableHexes, [&reachabilityCache](const BattleHex & lhs, const BattleHex & rhs)
 		{
 			return reachabilityCache.distances[lhs.toInt()] < reachabilityCache.distances[rhs.toInt()];
 		})[0];
-
-		bool isReachable = battle.battleGetAvailableHexes(reachabilityCache, actingStack, true).contains(closestTargetAdjacentHex);
 
 		TargetInfo currentTarget =
 		{

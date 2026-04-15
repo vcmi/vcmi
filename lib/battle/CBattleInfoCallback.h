@@ -95,7 +95,7 @@ public:
 	BattleHexArray battleGetOccupiableHexes(const battle::Unit * unit, bool obtainMovementRange) const;
 	BattleHexArray battleGetOccupiableHexes(const BattleHexArray & availableHexes, const battle::Unit * unit) const;
 	//returns from which hex the attacker would attack the target from given direction; INVALID if not possible; the hex may be inccessible
-	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const;
+	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon = true) const;
 
 	//returns to which hex the (head of) unit would move to occupy position (possibly by tail)
 	BattleHex toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const;

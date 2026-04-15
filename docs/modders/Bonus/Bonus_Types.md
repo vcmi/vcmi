@@ -664,7 +664,7 @@ Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead wit
 
 ### LONG_WEAPON
 
-The affected unit can perform a melee attack from two hexes away if there is exactly one empty hex between attacker and target (`attacker -> empty hex -> victim`).
+The affected unit will always perform a melee attack from two hexes away as long as there is exactly one empty hex between attacker and target (`attacker -> empty hex -> victim`).
 
 - If attacker is adjacent to the defender, this bonus does **not** extend range and attack is resolved as normal melee.
 - Attacks performed at two-hex range do **not** allow retaliation.

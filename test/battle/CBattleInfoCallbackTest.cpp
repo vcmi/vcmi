@@ -54,12 +54,14 @@ public:
 	void makeAlive()
 	{
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(true));
+		EXPECT_CALL(*this, isValidTarget(_)).WillRepeatedly(Return(true));
 	}
 
 	void makeDead()
 	{
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(false));
 		EXPECT_CALL(*this, isGhost()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, isValidTarget(_)).WillRepeatedly(Return(false));
 	}
 
 	void setupPoisition(BattleHex pos)
@@ -386,6 +388,18 @@ TEST_F(AttackableHexesTest, LongWeaponCanAttackWithOneEmptyHexGap)
 
 	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanBeDisabledForManualAttack)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+
+	const BattleHex adjacentAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT, false), adjacentAttackHex);
 }
 
 TEST_F(AttackableHexesTest, LongWeaponRequiresEmptyMiddleHex)

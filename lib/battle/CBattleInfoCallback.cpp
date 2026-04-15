@@ -41,7 +41,7 @@ static BattleHex lineToWallHex(int line) //returns hex with wall in given line (
 	return lineToHex[line];
 }
 
-std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
 {
 	try
 	{
@@ -55,7 +55,7 @@ std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const Batt
 	}
 }
 
-bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
+static bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
 {
 	if(!middleHex.isValid())
 		return false;
@@ -307,6 +307,8 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 
 		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
 		{
+			if(stack->hasBonusOfType(BonusType::LONG_WEAPON))
+				allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON);
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
 			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
 		}
@@ -669,7 +671,7 @@ BattleHexArray CBattleInfoCallback::battleGetOccupiableHexes(const BattleHexArra
 	return availableHexes;
 }
 
-BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const
+BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon) const
 {
 	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
 	if (!attacker)
@@ -678,7 +680,7 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	if (!target.isValid() || direction == BattleHex::NONE)
 		return BattleHex::INVALID;
 
-	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
 	{
 		const auto longLine = getLongWeaponLineHexes(target, direction);
 		if(longLine)
@@ -727,7 +729,7 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 
 	BattleHex adjacentAttackFrom = target.cloneInDirection(direction, false);
 
-	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 	{
 		const auto longLine = getLongWeaponLineHexes(target, direction);
 		if(!longLine)

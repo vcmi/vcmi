@@ -369,6 +369,9 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			case PossiblePlayerBattleAction::TELEPORT:
 				return 14;
 				break;
+			case PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON:
+				return 15;
+				break;
 			default:
 				assert(0);
 				return 200;
@@ -483,6 +486,7 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 			return;
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 		{
@@ -586,11 +590,13 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 				return (boost::format(LIBRARY->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				const auto * attacker = owner.stacksController->getActiveStack();
-				BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+				bool allowLongWeapon = action.get() != PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON;
+				BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex), allowLongWeapon);
 				assert(attackFromHex.isValid());
 				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
@@ -762,13 +768,16 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 			return false;
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			{
 				const CStack * currentStack = owner.stacksController->getActiveStack();
+				bool allowLongWeapon = action.get() != PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON;
 				return currentStack &&
 					owner.getBattle()->battleCanAttackUnit(currentStack, targetStack) &&
-					owner.getBattle()->battleCanAttackHex(currentStack, targetHex);
+					owner.getBattle()->battleCanAttackHex(currentStack, targetHex) &&
+					owner.getBattle()->fromWhichHexAttack(currentStack, targetHex, owner.fieldController->selectAttackDirection(targetHex), allowLongWeapon).isValid();
 			}
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			{
@@ -865,12 +874,14 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		}
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 		{
 			bool returnAfterAttack = action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
+			bool allowLongWeapon = action.get() != PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON;
 			auto attacker = owner.stacksController->getActiveStack();
-			BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+			BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex), allowLongWeapon);
 			assert(attackFromHex.isValid());
 			BattleAction command = BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
 			owner.sendCommand(command, attacker);
