@@ -214,6 +214,18 @@ public:
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
+	CGHeroInstance * getHeroByOwner(PlayerColor owner) const
+	{
+		for(auto heroID : map->getHeroesOnMap())
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(map->getObject(heroID));
+			if(hero && hero->tempOwner == owner)
+				return hero;
+		}
+
+		return nullptr;
+	}
+
 	std::shared_ptr<CGameState> gameState;
 
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
@@ -230,12 +242,11 @@ TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor::RED);
+	auto defender = getHeroByOwner(PlayerColor::BLUE);
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	{
@@ -315,12 +326,11 @@ TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor::RED);
+	auto defender = getHeroByOwner(PlayerColor::BLUE);
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
@@ -455,23 +465,12 @@ TEST_F(CGameStateTest, battleInterference)
 
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor::RED);
+	auto defender = getHeroByOwner(PlayerColor::BLUE);
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
-
-	// Ensure deterministic baseline for this test - randomly selected heroes may
-	// have specialties / skills that affect SPELL_POWER in battle.
-	const auto resetHeroBattleBonuses = [](CGHeroInstance * hero)
-	{
-		hero->removeBonusesRecursive(
-			Selector::sourceTypeSel(BonusSource::HERO_SPECIAL)
-			.Or(Selector::sourceTypeSel(BonusSource::SECONDARY_SKILL))
-		);
-	};
 
 	resetHeroBattleBonuses(attacker);
 	resetHeroBattleBonuses(defender);
