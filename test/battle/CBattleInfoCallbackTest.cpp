@@ -262,6 +262,13 @@ public:
 		return unit;
 	}
 
+	UnitFake & addLongWeaponDoubleWide(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addLongWeaponUnit(hex, side);
+		unit.makeDoubleWide();
+		return unit;
+	}
+
 	Units getAttackedUnits(UnitFake & attacker, UnitFake & defender, BattleHex defenderHex)
 	{
 		startBattle();
@@ -417,15 +424,20 @@ TEST_F(AttackableHexesTest, LongWeaponCanAttackOverCorpseInMiddleHex)
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
-TEST_F(AttackableHexesTest, LongWeaponAttackableTilesRangeDoesNotThrow)
+TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
 {
-	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
 	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
 
-	EXPECT_NO_THROW({
-		auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
-		EXPECT_TRUE(attacked.empty());
-	});
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
 //// CERBERI 3-HEADED ATTACKS
