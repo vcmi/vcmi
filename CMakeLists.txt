@@ -67,12 +67,15 @@ option(ENABLE_MMAI "Enable compilation of MMAI AI library" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
-option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
-option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
 
 # Platform-specific options
+
+if(WIN32)
+	option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+	option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
+endif()
 
 if(ANDROID)
 	set(ANDROID_TARGET_SDK_VERSION "35" CACHE STRING "Android target SDK version")
