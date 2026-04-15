@@ -304,11 +304,11 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
 		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
+		if(stack->hasBonusOfType(BonusType::LONG_WEAPON))
+			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON);
 
 		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
 		{
-			if(stack->hasBonusOfType(BonusType::LONG_WEAPON))
-				allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON);
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
 			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
 		}
