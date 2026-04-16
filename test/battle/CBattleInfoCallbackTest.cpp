@@ -454,7 +454,7 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
-TEST_F(AttackableHexesTest, LongWeaponDoubleWidePrefersLongReachWhenMoving)
+TEST_F(AttackableHexesTest, LongWeaponDoubleWideUsesCurrentHexForGapAttack)
 {
 	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
 	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
@@ -463,8 +463,7 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWidePrefersLongReachWhenMoving)
 	redirectUnitsToFake();
 	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
 
-	const BattleHex longAttackFrom = defender.getPosition().cloneInDirection(BattleHex::LEFT).cloneInDirection(BattleHex::LEFT);
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), longAttackFrom);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
 }
 
 TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHex)
@@ -481,16 +480,12 @@ TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHe
 	});
 }
 
-TEST_F(AttackableHexesTest, LongWeaponSingleWideGetAttackedUnitsFromGapDoesNotThrow)
+TEST_F(AttackableHexesTest, LongWeaponSingleWideGetAttackedUnitsFromGapThrows)
 {
 	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
 	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
 
-	EXPECT_NO_THROW(
-	{
-		auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
-		EXPECT_TRUE(vstd::contains(attacked, &defender));
-	});
+	EXPECT_THROW(getAttackedUnits(attacker, defender, defender.getPosition()), std::runtime_error);
 }
 
 //// CERBERI 3-HEADED ATTACKS
