@@ -242,8 +242,8 @@ TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
-	auto attacker = getHeroByOwner(PlayerColor::RED);
-	auto defender = getHeroByOwner(PlayerColor::BLUE);
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
 	ASSERT_NE(attacker, nullptr);
 	ASSERT_NE(defender, nullptr);
@@ -326,8 +326,8 @@ TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
-	auto attacker = getHeroByOwner(PlayerColor::RED);
-	auto defender = getHeroByOwner(PlayerColor::BLUE);
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
 	ASSERT_NE(attacker, nullptr);
 	ASSERT_NE(defender, nullptr);
@@ -465,8 +465,8 @@ TEST_F(CGameStateTest, battleInterference)
 
 	startTestGame();
 
-	auto attacker = getHeroByOwner(PlayerColor::RED);
-	auto defender = getHeroByOwner(PlayerColor::BLUE);
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
 	ASSERT_NE(attacker, nullptr);
 	ASSERT_NE(defender, nullptr);
