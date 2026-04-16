@@ -10,23 +10,25 @@
 
 #pragma once
 
-#include "AdventureSpellEffect.h"
+#include "TownRelatedSpellUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGTownInstance;
 
-class DLL_LINKAGE ReinforcementsEffect final : public IAdventureSpellEffect
+class DLL_LINKAGE ReinforcementsEffect final : public spells::adventure::TownRelatedAdventureSpellEffect
 {
-	const CSpell * owner;
-	bool allowTownSelection;
+	std::string casterInTownTextID;
+	std::string selectTownTitleTextID;
+	std::string selectTownDescriptionTextID;
 
 public:
 	ReinforcementsEffect(const CSpell * s, const JsonNode & config);
 
 private:
+	void configureDialogTitleAndDescription(MetaString & title, MetaString & description) const override;
+	ESpellCastResult beginCastExtraChecks(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> & towns) const override;
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
-	ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const override;
 };
 
 VCMI_LIB_NAMESPACE_END

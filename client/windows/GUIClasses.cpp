@@ -67,6 +67,8 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/constants/EntityIdentifiers.h"
+#include "../lib/spells/CSpellHandler.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -1150,7 +1152,13 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	if(down->tempOwner == up->tempOwner)
 	{
 		if(isReinforcementsDialog)
-			titleText = LIBRARY->generaltexth->translate("vcmi.spells.reinforcements.garrison.title");
+		{
+			const auto * reinforcementsSpell = SpellID(SpellID::decode("vcmi:reinforcements")).toSpell();
+			if(reinforcementsSpell != nullptr)
+				titleText = LIBRARY->generaltexth->translate(reinforcementsSpell->getAdventureEffectTextID("reinforcements", "garrisonTitle"));
+			else
+				titleText = LIBRARY->generaltexth->allTexts[709];
+		}
 		else
 			titleText = LIBRARY->generaltexth->allTexts[709];
 	}

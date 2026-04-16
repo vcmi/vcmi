@@ -11,10 +11,7 @@
 #include "StdInc.h"
 #include "TownPortalEffect.h"
 
-#include "AdventureSpellMechanics.h"
 #include "TownRelatedSpellUtils.h"
-
-#include "../CSpellHandler.h"
 
 #include "../../CPlayerState.h"
 #include "../../IGameSettings.h"
@@ -27,12 +24,35 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 TownPortalEffect::TownPortalEffect(const CSpell * s, const JsonNode & config)
-	: owner(s)
+	: TownRelatedAdventureSpellEffect(s, config["allowTownSelection"].Bool(), config["skipOccupiedTowns"].Bool())
 	, movementPointsRequired(config["movementPointsRequired"].Integer())
 	, movementPointsTaken(config["movementPointsTaken"].Integer())
-	, allowTownSelection(config["allowTownSelection"].Bool())
-	, skipOccupiedTowns(config["skipOccupiedTowns"].Bool())
 {
+}
+
+bool TownPortalEffect::shouldOfferTownInDialog(const CGTownInstance * town) const
+{
+	return town->getVisitingHero() == nullptr;
+}
+
+void TownPortalEffect::configureDialogTitleAndDescription(MetaString & title, MetaString & description) const
+{
+	title.appendLocalString(EMetaText::JK_TXT, 40);
+	description.appendLocalString(EMetaText::JK_TXT, 41);
+}
+
+ESpellCastResult TownPortalEffect::beginCastExtraChecks(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> &) const
+{
+	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsTaken)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->getCasterOwner();
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
+		env->apply(iw);
+		return ESpellCastResult::CANCEL;
+	}
+
+	return ESpellCastResult::OK;
 }
 
 ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
@@ -165,92 +185,6 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 			smp.val = 0;
 		env->apply(smp);
 	}
-}
-
-ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
-{
-	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
-
-	if(!parameters.caster->getHeroCaster())
-	{
-		env->complain("Not a hero caster!");
-		return ESpellCastResult::ERROR;
-	}
-
-	if(towns.empty())
-	{
-		InfoWindow iw;
-		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-		env->apply(iw);
-		return ESpellCastResult::CANCEL;
-	}
-
-	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsTaken)
-	{
-		InfoWindow iw;
-		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
-		env->apply(iw);
-		return ESpellCastResult::CANCEL;
-	}
-
-	if(!parameters.pos.isValid() && allowTownSelection)
-	{
-		auto queryCallback = [&mechanics, env, parameters](std::optional<int32_t> reply) -> void
-		{
-			if(reply.has_value())
-			{
-				ObjectInstanceID townId(*reply);
-
-				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
-				if(o == nullptr)
-				{
-					env->complain("Invalid object instance selected");
-					return;
-				}
-
-				if(!dynamic_cast<const CGTownInstance *>(o))
-				{
-					env->complain("Object instance is not town");
-					return;
-				}
-
-				AdventureSpellCastParameters p;
-				p.caster = parameters.caster;
-				p.pos = o->visitablePos();
-				mechanics.performCast(env, p);
-			}
-		};
-
-		MapObjectSelectDialog request;
-
-		for(const auto * t : towns)
-		{
-			if(t->getVisitingHero() == nullptr) //empty town
-				request.objects.push_back(t->id);
-		}
-
-		if(request.objects.empty())
-		{
-			InfoWindow iw;
-			iw.player = parameters.caster->getCasterOwner();
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-			env->apply(iw);
-			return ESpellCastResult::CANCEL;
-		}
-
-		request.player = parameters.caster->getCasterOwner();
-		request.title.appendLocalString(EMetaText::JK_TXT, 40);
-		request.description.appendLocalString(EMetaText::JK_TXT, 41);
-		request.icon = Component(ComponentType::SPELL, owner->id);
-
-		env->genericQuery(&request, request.player, queryCallback);
-
-		return ESpellCastResult::PENDING;
-	}
-
-	return ESpellCastResult::OK;
 }
 
 VCMI_LIB_NAMESPACE_END

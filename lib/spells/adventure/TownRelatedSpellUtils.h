@@ -15,6 +15,9 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGTownInstance;
+class CSpell;
+struct MapObjectSelectDialog;
+class MetaString;
 
 namespace spells
 {
@@ -22,6 +25,24 @@ namespace adventure
 {
 std::vector<const CGTownInstance *> getPlayerTeamTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, bool skipOccupiedTowns);
 const CGTownInstance * findNearestTown(const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> & pool);
+
+class DLL_LINKAGE TownRelatedAdventureSpellEffect : public IAdventureSpellEffect
+{
+protected:
+	const CSpell * owner;
+	bool allowTownSelection;
+	bool skipOccupiedTowns;
+
+	explicit TownRelatedAdventureSpellEffect(const CSpell * owner, bool allowTownSelection, bool skipOccupiedTowns);
+
+	virtual bool shouldOfferTownInDialog(const CGTownInstance * town) const;
+	virtual void configureDialogTitleAndDescription(MetaString & title, MetaString & description) const = 0;
+	virtual ESpellCastResult beginCastExtraChecks(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> & towns) const;
+	virtual ESpellCastResult onNoTownToSelect(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+
+public:
+	ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const override;
+};
 }
 }
 

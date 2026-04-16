@@ -163,6 +163,12 @@ std::string CSpell::getDescriptionTranslated(int32_t level) const
 	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
+std::string CSpell::getAdventureEffectTextID(const std::string & effectType, const std::string & field) const
+{
+	TextIdentifier textID("spell", modScope, identifier, "adventureEffect", effectType, field);
+	return textID.get();
+}
+
 std::string CSpell::getJsonKey() const
 {
 	return modScope + ':' + identifier;
@@ -998,6 +1004,21 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		}
 
 		levelObject.adventureEffect = levelNode["adventureEffect"];
+
+		if(levelObject.adventureEffect["type"].String() == "reinforcements")
+		{
+			auto registerField = [&](const std::string & field)
+			{
+				const std::string & value = levelObject.adventureEffect[field].String();
+				if(!value.empty() && value.front() != '@')
+					LIBRARY->generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
+			};
+
+			registerField("casterInTown");
+			registerField("selectTownTitle");
+			registerField("selectTownDescription");
+			registerField("garrisonTitle");
+		}
 
 		if(!levelNode["battleEffects"].Struct().empty())
 		{

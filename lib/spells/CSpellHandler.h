@@ -186,6 +186,7 @@ public:
 
 	std::string getDescriptionTextID(int32_t level) const override;
 	std::string getDescriptionTranslated(int32_t level) const override;
+	std::string getAdventureEffectTextID(const std::string & effectType, const std::string & field) const;
 
 	int32_t getLevel() const override;
 

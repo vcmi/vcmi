@@ -139,7 +139,11 @@
 							"castsPerDayXL" : {},
 							"bonuses" : {},
 							"type" : {},
-							"allowTownSelection" : { "type" : "boolean" }
+							"allowTownSelection" : { "type" : "boolean" },
+							"casterInTown" : { "type" : "string" },
+							"selectTownTitle" : { "type" : "string" },
+							"selectTownDescription" : { "type" : "string" },
+							"garrisonTitle" : { "type" : "string" }
 						},
 						"additionalProperties" : false
 					}

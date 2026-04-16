@@ -11,10 +11,15 @@
 #include "StdInc.h"
 #include "TownRelatedSpellUtils.h"
 
+#include "AdventureSpellMechanics.h"
+
+#include "../CSpellHandler.h"
+
 #include "../../CPlayerState.h"
 #include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGTownInstance.h"
+#include "../../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -59,6 +64,107 @@ const CGTownInstance * findNearestTown(const AdventureSpellCastParameters & para
 	}
 
 	return *nearest;
+}
+
+TownRelatedAdventureSpellEffect::TownRelatedAdventureSpellEffect(const CSpell * owner_, bool allowTownSelection_, bool skipOccupiedTowns_)
+	: owner(owner_)
+	, allowTownSelection(allowTownSelection_)
+	, skipOccupiedTowns(skipOccupiedTowns_)
+{
+}
+
+bool TownRelatedAdventureSpellEffect::shouldOfferTownInDialog(const CGTownInstance * town) const
+{
+	return town != nullptr;
+}
+
+ESpellCastResult TownRelatedAdventureSpellEffect::beginCastExtraChecks(SpellCastEnvironment *, const AdventureSpellCastParameters &, const std::vector<const CGTownInstance *> &) const
+{
+	return ESpellCastResult::OK;
+}
+
+ESpellCastResult TownRelatedAdventureSpellEffect::onNoTownToSelect(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	InfoWindow iw;
+	iw.player = parameters.caster->getCasterOwner();
+	iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
+	env->apply(iw);
+	return ESpellCastResult::CANCEL;
+}
+
+ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
+{
+	std::vector<const CGTownInstance *> towns = getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
+
+	if(!parameters.caster->getHeroCaster())
+	{
+		env->complain("Not a hero caster!");
+		return ESpellCastResult::ERROR;
+	}
+
+	auto extraChecksResult = beginCastExtraChecks(env, parameters, towns);
+	if(extraChecksResult != ESpellCastResult::OK)
+		return extraChecksResult;
+
+	if(towns.empty())
+		return onNoTownToSelect(env, parameters);
+
+	if(!parameters.pos.isValid() && allowTownSelection)
+	{
+		std::vector<ObjectInstanceID> offeredTownIDs;
+		offeredTownIDs.reserve(towns.size());
+
+		for(const auto * town : towns)
+		{
+			if(shouldOfferTownInDialog(town))
+				offeredTownIDs.push_back(town->id);
+		}
+
+		if(offeredTownIDs.empty())
+			return onNoTownToSelect(env, parameters);
+
+		auto queryCallback = [&mechanics, env, parameters, offeredTownIDs](std::optional<int32_t> reply) -> void
+		{
+			if(reply.has_value())
+			{
+				ObjectInstanceID townId(*reply);
+				if(!vstd::contains(offeredTownIDs, townId))
+				{
+					env->complain("Invalid town selected in dialog");
+					return;
+				}
+
+				const CGObjectInstance * object = env->getCb()->getObj(townId, true);
+				if(object == nullptr)
+				{
+					env->complain("Invalid object instance selected");
+					return;
+				}
+
+				if(!dynamic_cast<const CGTownInstance *>(object))
+				{
+					env->complain("Object instance is not town");
+					return;
+				}
+
+				AdventureSpellCastParameters nextCast;
+				nextCast.caster = parameters.caster;
+				nextCast.pos = object->visitablePos();
+				mechanics.performCast(env, nextCast);
+			}
+		};
+
+		MapObjectSelectDialog request;
+		request.player = parameters.caster->getCasterOwner();
+		configureDialogTitleAndDescription(request.title, request.description);
+		request.icon = Component(ComponentType::SPELL, owner->id);
+		request.objects = offeredTownIDs;
+
+		env->genericQuery(&request, request.player, queryCallback);
+		return ESpellCastResult::PENDING;
+	}
+
+	return ESpellCastResult::OK;
 }
 }
 }
