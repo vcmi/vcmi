@@ -1771,7 +1771,6 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 
 	if(attackDirection == BattleHex::NONE)
 		throw std::runtime_error("!!!");
-	}
 
 	const auto & processTargets = [&](const std::vector<int> & additionalTargets) -> BattleHexArray
 	{
