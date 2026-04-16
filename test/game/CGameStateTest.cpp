@@ -472,9 +472,6 @@ TEST_F(CGameStateTest, battleInterference)
 	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
-	resetHeroBattleBonuses(attacker);
-	resetHeroBattleBonuses(defender);
-
 	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
 	attacker->addNewBonus(skillBonus);
 	attacker->addNewBonus(specialtyBonus);
