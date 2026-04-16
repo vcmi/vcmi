@@ -22,11 +22,13 @@ class CDownloadManager : public QObject
 	{
 		enum Status
 		{
+			QUEUED,
 			IN_PROGRESS,
 			FINISHED,
 			FAILED
 		};
 
+		QUrl url;
 		QNetworkReply * reply;
 		QSharedPointer<QFile> file;
 		QString filename;
@@ -42,6 +44,9 @@ class CDownloadManager : public QObject
 	QList<FileEntry> currentDownloads;
 
 	FileEntry & getEntry(QNetworkReply * reply);
+	void startDownload(FileEntry & entry);
+	void startNextDownload();
+	bool hasDownloadInProgress() const;
 
 public:
 	CDownloadManager();
