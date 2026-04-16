@@ -454,7 +454,7 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
-TEST_F(AttackableHexesTest, LongWeaponDoubleWideUsesCurrentHexForGapAttack)
+TEST_F(AttackableHexesTest, LongWeaponDoubleWideUsesReachableHexForLongAttack)
 {
 	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
 	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
@@ -463,7 +463,8 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideUsesCurrentHexForGapAttack)
 	redirectUnitsToFake();
 	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
 
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	const BattleHex expectedAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT).cloneInDirection(BattleHex::LEFT);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), expectedAttackHex);
 }
 
 TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHex)
