@@ -399,7 +399,8 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 	if(canAttack || canCastAdjacentSpell)
 	{
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
+		const bool allowLongWeapon = owner.actionsController->currentActionUsesLongWeapon(hoveredHex);
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex), allowLongWeapon);
 		assert(fromHex.isValid());
 		if(stack->doubleWide())
 			return {fromHex, stack->occupiedHex(fromHex)};

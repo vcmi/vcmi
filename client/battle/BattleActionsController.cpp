@@ -1270,6 +1270,17 @@ bool BattleActionsController::currentActionWalkAndCast(const BattleHex & hovered
 	return selectAction(hoveredHex).get() == PossiblePlayerBattleAction::WALK_AND_SPELLCAST;
 }
 
+bool BattleActionsController::currentActionUsesLongWeapon(const BattleHex & hoveredHex)
+{
+	if (heroSpellToCast)
+		return false;
+
+	if (!owner.stacksController->getActiveStack())
+		return true;
+
+	return selectAction(hoveredHex).get() != PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON;
+}
+
 const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPossibleActions() const
 {
 	return possibleActions;

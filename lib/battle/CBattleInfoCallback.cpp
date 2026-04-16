@@ -694,40 +694,70 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
 	if (attacker->doubleWide())
 	{
+		if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+		{
+			const auto longLine = getLongWeaponLineHexes(target, direction);
+			if(longLine)
+			{
+				const auto [middleHex, longAttackFrom] = *longLine;
+				if(isLongWeaponMiddleHexClear(*this, middleHex))
+				{
+					const auto availableHexes = battleGetAvailableHexes(attacker, false);
+					if(availableHexes.contains(longAttackFrom))
+						return longAttackFrom;
+				}
+			}
+		}
+
 		// We need to find position of right hex of double-hex creature (or left for defending side)
 		// | TOP_LEFT | TOP_RIGHT |  RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT   |  TOP   | BOTTOM
 		// |  o o -   |    - o o  |  - -    |   - -      |    - -    |    - -  |  o o   |   - -
 		// |   - x -  |   - x -   | - x o o |  - x -     |   - x -   | o o x - | - x -  |  - x -
 		// |    - -   |    - -    |  - -    |   - o o    |  o o -    |    - -  |  - -   |   o o
 
-		switch (direction)
+		try
 		{
-			case BattleHex::TOP_LEFT:
-			case BattleHex::LEFT:
-			case BattleHex::BOTTOM_LEFT:
-				return target.cloneInDirection(direction, false)
-					.cloneInDirection(isAttacker ? BattleHex::NONE : BattleHex::LEFT, false);
+			switch (direction)
+			{
+				case BattleHex::TOP_LEFT:
+				case BattleHex::LEFT:
+				case BattleHex::BOTTOM_LEFT:
+					return target.cloneInDirection(direction, false)
+						.cloneInDirection(isAttacker ? BattleHex::NONE : BattleHex::LEFT, false);
 
-			case BattleHex::TOP_RIGHT:
-			case BattleHex::RIGHT:
-			case BattleHex::BOTTOM_RIGHT:
-				return target.cloneInDirection(direction, false)
-					.cloneInDirection(isAttacker ? BattleHex::RIGHT : BattleHex::NONE, false);
+				case BattleHex::TOP_RIGHT:
+				case BattleHex::RIGHT:
+				case BattleHex::BOTTOM_RIGHT:
+					return target.cloneInDirection(direction, false)
+						.cloneInDirection(isAttacker ? BattleHex::RIGHT : BattleHex::NONE, false);
 
-			case BattleHex::TOP:
-				return target.cloneInDirection(isAttacker ? BattleHex::TOP_RIGHT : BattleHex::TOP_LEFT, false);
+				case BattleHex::TOP:
+					return target.cloneInDirection(isAttacker ? BattleHex::TOP_RIGHT : BattleHex::TOP_LEFT, false);
 
-			case BattleHex::BOTTOM:
-				return target.cloneInDirection(isAttacker ? BattleHex::BOTTOM_RIGHT : BattleHex::BOTTOM_LEFT, false);
+				case BattleHex::BOTTOM:
+					return target.cloneInDirection(isAttacker ? BattleHex::BOTTOM_RIGHT : BattleHex::BOTTOM_LEFT, false);
 
-			default:
-				return BattleHex::INVALID;
+				default:
+					return BattleHex::INVALID;
+			}
+		}
+		catch(const std::out_of_range &)
+		{
+			return BattleHex::INVALID;
 		}
 	}
 	if (direction == BattleHex::TOP || direction == BattleHex::BOTTOM)
 		return BattleHex::INVALID;
 
-	BattleHex adjacentAttackFrom = target.cloneInDirection(direction, false);
+	BattleHex adjacentAttackFrom = BattleHex::INVALID;
+	try
+	{
+		adjacentAttackFrom = target.cloneInDirection(direction, false);
+	}
+	catch(const std::out_of_range &)
+	{
+		return BattleHex::INVALID;
+	}
 
 	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 	{
@@ -1732,7 +1762,39 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 		attackDirection = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
 
 	if (attackDirection == BattleHex::NONE)
-		throw std::runtime_error("!!!");
+	{
+		if(attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+		{
+			const auto tryResolveLongWeaponDirection = [&](BattleHex defendedHex) -> BattleHex::EDir
+			{
+				for(int direction = 0; direction < 6; ++direction)
+				{
+					const auto longLine = getLongWeaponLineHexes(defendedHex, static_cast<BattleHex::EDir>(direction));
+					if(!longLine)
+						continue;
+
+					const auto [middleHex, longAttackFrom] = *longLine;
+					if(!isLongWeaponMiddleHexClear(*this, middleHex))
+						continue;
+
+					if(longAttackFrom == attackOriginHex)
+						return static_cast<BattleHex::EDir>(direction);
+
+					if(attacker->doubleWide() && longAttackFrom == attacker->occupiedHex(attackOriginHex))
+						return static_cast<BattleHex::EDir>(direction);
+				}
+				return BattleHex::NONE;
+			};
+
+			attackDirection = tryResolveLongWeaponDirection(defenderPos);
+
+			if(attackDirection == BattleHex::NONE && defender->doubleWide())
+				attackDirection = tryResolveLongWeaponDirection(defender->occupiedHex(defenderPos));
+		}
+
+		if(attackDirection == BattleHex::NONE)
+			return at;
+	}
 
 	const auto & processTargets = [&](const std::vector<int> & additionalTargets) -> BattleHexArray
 	{

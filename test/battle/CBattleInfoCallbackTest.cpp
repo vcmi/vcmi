@@ -454,6 +454,45 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
+TEST_F(AttackableHexesTest, LongWeaponDoubleWidePrefersLongReachWhenMoving)
+{
+	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	const BattleHex longAttackFrom = defender.getPosition().cloneInDirection(BattleHex::LEFT).cloneInDirection(BattleHex::LEFT);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), longAttackFrom);
+}
+
+TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+
+	startBattle();
+	redirectUnitsToFake();
+
+	EXPECT_NO_THROW(
+	{
+		const BattleHex attackFrom = subject.fromWhichHexAttack(&attacker, BattleHex(0), BattleHex::LEFT);
+		EXPECT_EQ(attackFrom, BattleHex::INVALID);
+	});
+}
+
+TEST_F(AttackableHexesTest, LongWeaponSingleWideGetAttackedUnitsFromGapDoesNotThrow)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	EXPECT_NO_THROW(
+	{
+		auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+		EXPECT_TRUE(vstd::contains(attacked, &defender));
+	});
+}
+
 //// CERBERI 3-HEADED ATTACKS
 
 TEST_F(AttackableHexesTest, CerberiAttackerRight)
