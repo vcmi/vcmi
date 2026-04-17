@@ -20,6 +20,8 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace
 {
 bool usesBattleSpellCastUpdater(const TUpdaterPtr & updater)
@@ -43,8 +45,6 @@ bool usesBattleSpellCastUpdater(const TUpdaterPtr & updater)
 	return false;
 }
 }
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	: isDetailed(detailed)

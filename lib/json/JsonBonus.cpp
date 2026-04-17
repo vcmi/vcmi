@@ -455,7 +455,6 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
 			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>()},
 			{"TIMES_SIDE_BATTLE_SPELLS_CAST", std::make_shared<TimesSideBattleSpellsCastUpdater>()},
-			{"TIMES_HERO_BATTLE_SPELLS_CAST", std::make_shared<TimesSideBattleSpellsCastUpdater>()},
 			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>()},
 			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
 			{"TIMES_STACK_SIZE", std::make_shared<TimesStackSizeUpdater>()},
@@ -537,14 +536,13 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			}
 			return result;
 		}
-		if(updaterJson["type"].String() == "TIMES_SIDE_BATTLE_SPELLS_CAST" || updaterJson["type"].String() == "TIMES_HERO_BATTLE_SPELLS_CAST")
+		if(updaterJson["type"].String() == "TIMES_SIDE_BATTLE_SPELLS_CAST")
 		{
-			const bool legacyHeroOnlyType = updaterJson["type"].String() == "TIMES_HERO_BATTLE_SPELLS_CAST";
 			int minimum = updaterJson["minimum"].isNull() ? 0 : updaterJson["minimum"].Integer();
 			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
 			int stepSize = updaterJson["stepSize"].isNull() ? 1 : updaterJson["stepSize"].Integer();
 			BattleSpellCastSource casterType = BattleSpellCastSource::HERO;
-			if(!legacyHeroOnlyType && !updaterJson["casterType"].isNull())
+			if(!updaterJson["casterType"].isNull())
 			{
 				const auto & casterTypeName = updaterJson["casterType"].String();
 				if(casterTypeName == "creature")

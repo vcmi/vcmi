@@ -85,8 +85,10 @@ void refreshHeroSpellcastingUI(BattleInterface & battle, BattleSide side)
 	const int32_t effectivePower = heroInfo.details->battleSpellPower;
 	const int32_t spellPowerBonus = heroInfo.details->battleSpellPowerBonus;
 
-	battle.appendBattleLog(hero->getNameTranslated() + " spell power bonus: " + std::to_string(spellPowerBonus) +
-		", spell power: " + formatBattleSpellPower(basePower, effectivePower));
+	battle.appendBattleLog(boost::str(boost::format(LIBRARY->generaltexth->translate("vcmi.battleWindow.spellPowerStatus"))
+		% hero->getNameTranslated()
+		% spellPowerBonus
+		% formatBattleSpellPower(basePower, effectivePower)));
 }
 }
 

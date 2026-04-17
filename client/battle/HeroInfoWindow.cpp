@@ -94,7 +94,7 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 
 	if(showSpellPowerBonus)
 	{
-		labels.push_back(std::make_shared<CLabel>(39, 220, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, "Spell Bonus"));
+		labels.push_back(std::make_shared<CLabel>(39, 220, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.battleWindow.spellPowerBonus")));
 		labels.push_back(std::make_shared<CLabel>(39, 232, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(spellPowerBonus)));
 	}
 }
