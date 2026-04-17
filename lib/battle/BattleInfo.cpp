@@ -489,6 +489,16 @@ BattleLayout BattleInfo::getLayout() const
 	return *layout;
 }
 
+bool BattleInfo::isOngoing() const
+{
+	return ongoing;
+}
+
+void BattleInfo::setOngoing(bool value)
+{
+	ongoing = value;
+}
+
 BattleID BattleInfo::getBattleID() const
 {
 	return battleID;
@@ -612,6 +622,24 @@ int32_t BattleInfo::getCastSpells(BattleSide side) const
 int32_t BattleInfo::getEnchanterCounter(BattleSide side) const
 {
 	return getSide(side).enchanterCounter;
+}
+
+int32_t BattleInfo::getBattleSpellCastCount(BattleSide side, BattleSpellCastSource casterType) const
+{
+	if(!ongoing)
+		return 0;
+
+	switch(casterType)
+	{
+	case BattleSpellCastSource::HERO:
+		return getSide(side).heroSpellsCastCount;
+	case BattleSpellCastSource::CREATURE:
+		return getSide(side).creatureSpellsCastCount;
+	case BattleSpellCastSource::ANY:
+		return getSide(side).heroSpellsCastCount + getSide(side).creatureSpellsCastCount;
+	}
+
+	return 0;
 }
 
 const IBonusBearer * BattleInfo::getBonusBearer() const

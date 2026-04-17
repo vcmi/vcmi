@@ -158,6 +158,24 @@ Filtering for specific unit level:
 }
 ```
 
+## TIMES_SIDE_BATTLE_SPELLS_CAST
+
+Effect: Updates val to `val * clamp(floor(spellCasts / stepSize), minimum, maximum)`, where `spellCasts` is the number of completed spells already cast by the bonus owner's side in the current battle, filtered by `casterType`.
+
+This updater only has effect when the bonus is evaluated on a battle hero or battle stack. Outside battle its result is 0.
+
+Example:
+
+```json
+"updater" : {
+    "type" : "TIMES_SIDE_BATTLE_SPELLS_CAST",
+    "casterType" : "hero",
+    "maximum" : 5
+}
+```
+
+The example above turns a bonus with `val : 1` into `+1` of that bonus's value per previously cast hero spell on the same side, capped at 5.
+
 ## BONUS_OWNER_UPDATER
 
 Helper updater for proper functionality of `OPPOSITE_SIDE` limiter

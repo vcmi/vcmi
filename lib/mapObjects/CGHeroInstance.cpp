@@ -856,7 +856,7 @@ int32_t CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
 {
 	int32_t spellpower = getPrimSkillLevel(PrimarySkill::SPELL_POWER);
 	int32_t durationCommon = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID());
-	int32_t durationSpecific = valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID(spell->getId()));
+	int32_t durationSpecific = spell ? valOfBonuses(BonusType::SPELL_DURATION, BonusSubtypeID(spell->getId())) : 0;
 
 	return spellpower + durationCommon + durationSpecific;
 }

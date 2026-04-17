@@ -17,6 +17,17 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
+namespace
+{
+std::string formatPrimarySkillValue(int32_t baseValue, int32_t effectiveValue)
+{
+	if(baseValue == effectiveValue)
+		return std::to_string(baseValue);
+
+	return std::to_string(baseValue) + " (" + std::to_string(effectiveValue) + ")";
+}
+}
+
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground)
 	: CIntObject(0)
 {
@@ -28,6 +39,12 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point *
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 1, 76, 200), 1, 1);
 		background->setPlayerColor(hero.owner);
+
+		if(hero.details->showBattleSpellPowerBonus)
+		{
+			extraBackground = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 154, 76, 47), 1, 201);
+			extraBackground->setPlayerColor(hero.owner);
+		}
 	}
 
 	initializeData(hero);
@@ -38,12 +55,18 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	OBJECT_CONSTRUCTION;
 	auto attack = hero.details->primskills[0];
 	auto defense = hero.details->primskills[1];
-	auto power = hero.details->primskills[2];
 	auto knowledge = hero.details->primskills[3];
 	auto morale = hero.details->morale;
 	auto luck = hero.details->luck;
 	auto currentSpellPoints = hero.details->mana;
 	auto maxSpellPoints = hero.details->manaLimit;
+	auto baseSpellPower = hero.details->baseSpellPower;
+	auto battleSpellPower = hero.details->battleSpellPower;
+	auto spellPowerBonus = hero.details->battleSpellPowerBonus;
+	bool showSpellPowerBonus = hero.details->showBattleSpellPowerBonus;
+
+	pos.w = 76;
+	pos.h = showSpellPowerBonus ? 248 : 200;
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
 
@@ -55,7 +78,7 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
-	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, formatPrimarySkillValue(baseSpellPower, battleSpellPower)));
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
 
 	//morale+luck
@@ -65,9 +88,15 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), std::clamp(morale + 3, 0, 6), 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), std::clamp(luck + 3, 0, 6), 0, 47, 143));
 
-	//spell points
+	// spell points use native box built into CHRPOP
 	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
+
+	if(showSpellPowerBonus)
+	{
+		labels.push_back(std::make_shared<CLabel>(39, 220, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, "Spell Bonus"));
+		labels.push_back(std::make_shared<CLabel>(39, 232, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(spellPowerBonus)));
+	}
 }
 
 void HeroInfoBasicPanel::update(const InfoAboutHero & updatedInfo)
@@ -94,4 +123,5 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, const Point * positio
 	background->setPlayerColor(hero.owner); //maybe add this functionality to base class?
 
 	content = std::make_shared<HeroInfoBasicPanel>(hero, nullptr, false);
+	pos.h = std::max(pos.h, content->pos.h);
 }

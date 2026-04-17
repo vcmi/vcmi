@@ -97,9 +97,12 @@ public: // TODO: make private
 protected: // Call-ins from server, should not be called directly, but only via GameInterface
 
 	void initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
+	void refreshAdventureSelection();
 
 	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override; //what: 1 - built, 2 - demolished
+	void battleResultsApplied() override;
+	void battleEnded() override;
 
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;

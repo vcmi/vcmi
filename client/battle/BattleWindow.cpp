@@ -415,14 +415,14 @@ void BattleWindow::setPositionInfoWindow()
 	if(defenderStackWindow)
 	{
 		Point position = placeInfoWindowsOutside()
-				? Point(pos.x + pos.w - 1 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetDefender)
+				? Point(pos.x + pos.w - 1 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + defenderHeroWindow->pos.h + 10 : pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
 		Point position = placeInfoWindowsOutside()
-				? Point(pos.x - 77 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetAttacker)
+				? Point(pos.x - 77 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + attackerHeroWindow->pos.h + 10 : pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
 	}

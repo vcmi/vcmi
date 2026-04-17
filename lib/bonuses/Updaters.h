@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Bonus.h"
+#include "../battle/BattleSpellCastSource.h"
 #include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -139,6 +140,39 @@ public:
 		h & filteredLevel;
 		h & filteredCreature;
 		h & filteredFaction;
+	}
+};
+
+class DLL_LINKAGE TimesSideBattleSpellsCastUpdater : public IUpdater
+{
+public:
+	int minimum = 0;
+	int maximum = std::numeric_limits<int>::max();
+	int stepSize = 1;
+	BattleSpellCastSource casterType = BattleSpellCastSource::HERO;
+
+	TimesSideBattleSpellsCastUpdater() = default;
+	TimesSideBattleSpellsCastUpdater(int minimum, int maximum, int stepSize, BattleSpellCastSource casterType)
+		: minimum(minimum)
+		, maximum(maximum)
+		, stepSize(stepSize)
+		, casterType(casterType)
+	{}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
+		if(h.hasFeature(Handler::Version::BATTLE_SPELL_CAST_SOURCE_FILTER))
+			h & casterType;
+		else
+			casterType = BattleSpellCastSource::HERO;
 	}
 };
 

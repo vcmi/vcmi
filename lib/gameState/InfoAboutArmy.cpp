@@ -10,12 +10,39 @@
 #include "StdInc.h"
 #include "InfoAboutArmy.h"
 
+#include "../bonuses/BonusList.h"
+#include "../bonuses/BonusSelector.h"
+#include "../bonuses/Updaters.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../GameLibrary.h"
 
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
+
+namespace
+{
+bool usesBattleSpellCastUpdater(const TUpdaterPtr & updater)
+{
+	if(!updater)
+		return false;
+
+	if(dynamic_cast<const TimesSideBattleSpellsCastUpdater *>(updater.get()) != nullptr)
+		return true;
+
+	const auto * composite = dynamic_cast<const CompositeUpdater *>(updater.get());
+	if(composite == nullptr)
+		return false;
+
+	for(const auto & nestedUpdater : composite->updaters)
+	{
+		if(usesBattleSpellCastUpdater(nestedUpdater))
+			return true;
+	}
+
+	return false;
+}
+}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -131,7 +158,20 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
 		}
 		if (infoLevel == EInfoLevel::INBATTLE)
+		{
 			details->manaLimit = h->manaLimit();
+			details->battleSpellPower = h->getEffectPower(nullptr);
+			BonusList dynamicSpellPowerBonuses;
+			const auto spellPowerBonuses = h->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER)));
+			for(const auto & bonus : *spellPowerBonuses)
+			{
+				if(usesBattleSpellCastUpdater(bonus->updater))
+					dynamicSpellPowerBonuses.push_back(bonus);
+			}
+			details->battleSpellPowerBonus = dynamicSpellPowerBonuses.totalValue();
+			details->baseSpellPower = details->battleSpellPower - details->battleSpellPowerBonus;
+			details->showBattleSpellPowerBonus = !dynamicSpellPowerBonuses.empty();
+		}
 		else
 			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
 	}

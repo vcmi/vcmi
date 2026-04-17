@@ -50,6 +50,46 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
+namespace
+{
+const CGHeroInstance * getHeroForSide(const BattleInterface & battle, BattleSide side)
+{
+	if(side == BattleSide::ATTACKER)
+		return battle.attackingHeroInstance;
+	if(side == BattleSide::DEFENDER)
+		return battle.defendingHeroInstance;
+	return nullptr;
+}
+
+std::string formatBattleSpellPower(int32_t basePower, int32_t effectivePower)
+{
+	if(basePower == effectivePower)
+		return std::to_string(basePower);
+
+	return std::to_string(basePower) + " (" + std::to_string(effectivePower) + ")";
+}
+
+void refreshHeroSpellcastingUI(BattleInterface & battle, BattleSide side)
+{
+	const auto * hero = getHeroForSide(battle, side);
+	if(hero == nullptr || battle.windowObject == nullptr)
+		return;
+
+	InfoAboutHero heroInfo(hero, InfoAboutHero::EInfoLevel::INBATTLE);
+	battle.windowObject->updateHeroInfoWindow(side == BattleSide::ATTACKER ? 0 : 1, heroInfo);
+
+	if(!heroInfo.details || !heroInfo.details->showBattleSpellPowerBonus)
+		return;
+
+	const int32_t basePower = heroInfo.details->baseSpellPower;
+	const int32_t effectivePower = heroInfo.details->battleSpellPower;
+	const int32_t spellPowerBonus = heroInfo.details->battleSpellPowerBonus;
+
+	battle.appendBattleLog(hero->getNameTranslated() + " spell power bonus: " + std::to_string(spellPowerBonus) +
+		", spell power: " + formatBattleSpellPower(basePower, effectivePower));
+}
+}
+
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
@@ -391,6 +431,9 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	if(!spellID.hasValue())
 		return;
+
+	if(sc->side != BattleSide::NONE)
+		refreshHeroSpellcastingUI(*this, sc->side);
 
 	const CSpell * spell = spellID.toSpell();
 	auto targetedTile = sc->tile;

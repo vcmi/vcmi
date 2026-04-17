@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "BattleSpellCastSource.h"
 #include "../GameConstants.h"
 #include "../callback/GameCallbackHolder.h"
 
@@ -28,6 +29,8 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 
 	uint32_t castSpellsCount = 0; //how many spells each side has been cast this turn
 	std::vector<SpellID> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
+	uint32_t heroSpellsCastCount = 0; //how many completed hero spells this side has cast in current battle
+	uint32_t creatureSpellsCastCount = 0; //how many completed creature spells this side has cast in current battle
 	int32_t enchanterCounter = 0; //tends to pass through 0, so sign is needed
 	int32_t initialMana = 0;
 	int32_t additionalMana = 0;
@@ -43,6 +46,21 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 		h & armyObjectID;
 		h & castSpellsCount;
 		h & usedSpellsHistory;
+		if(h.hasFeature(Handler::Version::BATTLE_SPELL_CAST_SOURCE_FILTER))
+		{
+			h & heroSpellsCastCount;
+			h & creatureSpellsCastCount;
+		}
+		else if(h.hasFeature(Handler::Version::HERO_BATTLE_SPELL_COUNTERS))
+		{
+			h & heroSpellsCastCount;
+			creatureSpellsCastCount = 0;
+		}
+		else
+		{
+			heroSpellsCastCount = static_cast<uint32_t>(usedSpellsHistory.size());
+			creatureSpellsCastCount = 0;
+		}
 		h & enchanterCounter;
 		h & initialMana;
 		h & additionalMana;

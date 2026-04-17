@@ -1816,6 +1816,28 @@ void CPlayerInterface::quickSaveGame()
 		adventureInt->updateActiveState();
 }
 
+void CPlayerInterface::refreshAdventureSelection()
+{
+	if (!adventureInt)
+		return;
+
+	adventureInt->onHeroChanged(localState->getCurrentHero());
+	adventureInt->onTownChanged(localState->getCurrentTown());
+	ENGINE->windows().totalRedraw();
+}
+
+void CPlayerInterface::battleResultsApplied()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	refreshAdventureSelection();
+}
+
+void CPlayerInterface::battleEnded()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	refreshAdventureSelection();
+}
+
 bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 {
 	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
