@@ -79,6 +79,7 @@ set(lib_MAIN_SRCS
 	bonuses/IBonusBearer.cpp
 	bonuses/Limiters.cpp
 	bonuses/Propagators.cpp
+	bonuses/Trigger.cpp
 	bonuses/Updaters.cpp
 
 	callback/CAdventureAI.cpp
@@ -479,6 +480,7 @@ set(lib_MAIN_HEADERS
 	bonuses/Bonus.h
 	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
+	bonuses/BonusEffects.h
 	bonuses/BonusList.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
@@ -487,6 +489,7 @@ set(lib_MAIN_HEADERS
 	bonuses/IBonusBearer.h
 	bonuses/Limiters.h
 	bonuses/Propagators.h
+	bonuses/Trigger.h
 	bonuses/Updaters.h
 
 	callback/CAdventureAI.h

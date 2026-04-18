@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleActionProcessor.h"
+#include "BattleBonusEffectsProcessor.h"
 
 #include "BattleProcessor.h"
 
@@ -56,7 +57,7 @@ bool BattleActionProcessor::doWaitAction(const CBattleInfoCallback & battle, con
 	if (!canStackAct(battle, stack))
 		return false;
 
-	processBattleEventTriggers(battle, CombatEventType::WAIT, stack, nullptr);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::WAIT, stack, nullptr);
 	return true;
 }
 
@@ -145,7 +146,7 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 		return false;
 	}
 
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_MOVE, stack, nullptr);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::BEFORE_MOVE, stack, nullptr);
 
 	auto movementResult = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
 	if (movementResult.invalidRequest)
@@ -153,7 +154,7 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 		gameHandler->complain("Stack failed movement!");
 		return false;
 	}
-	processBattleEventTriggers(battle, CombatEventType::AFTER_MOVE, stack, nullptr);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::AFTER_MOVE, stack, nullptr);
 	return true;
 }
 
@@ -209,7 +210,7 @@ bool BattleActionProcessor::doDefendAction(const CBattleInfoCallback & battle, c
 
 	gameHandler->sendAndApply(message);
 
-	processBattleEventTriggers(battle, CombatEventType::DEFEND, stack, nullptr);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::DEFEND, stack, nullptr);
 	return true;
 }
 
@@ -537,7 +538,7 @@ bool BattleActionProcessor::doUnitSpellAction(const CBattleInfoCallback & battle
 	parameters.setSpellLevel(spellLvl);
 	parameters.cast(gameHandler->spellcastEnvironment(), target);
 
-	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::UNIT_SPELLCAST, stack, nullptr);
 	return true;
 }
 
@@ -1231,6 +1232,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if(defender)
 		handleAfterAttackCasting(battle, ranged, attacker, defender);
+    BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::AFTER_ATTACK, attacker, defender);
+    BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::AFTER_ATTACKED, defender, attacker);
 }
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
@@ -1349,8 +1352,8 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 void BattleActionProcessor::handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
 	attackCasting(battle, ranged, BonusType::SPELL_BEFORE_ATTACK, attacker, defender); //no death stare / acid breath needed?
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::BEFORE_ATTACKED, defender, attacker);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::BEFORE_ATTACK, attacker, defender);
+	BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, CombatEventType::BEFORE_ATTACKED, defender, attacker);
 }
 
 void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
@@ -1422,8 +1425,6 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 		return;
 
 	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
 
 	if(!defender->alive())
 	{
@@ -1740,50 +1741,4 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	}
 
 	return makeBattleActionImpl(battle, ba);
-}
-
-void BattleActionProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const CStack * target, const CStack * secondary)
-{
-	const auto & bonuses = target->getBonusesOfType(BonusType::ON_COMBAT_EVENT, BonusCustomSubtype(static_cast<int>(event)));
-	for (const auto & bonus : *bonuses)
-	{
-		const auto parameters = bonus->parameters->toCustom<BonusParametersOnCombatEvent>();
-
-		for (const auto & effect : parameters.effects)
-		{
-			auto * bonusEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectBonus>(&effect);
-			auto * spellEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&effect);
-
-			if (bonusEffect)
-			{
-				SetStackEffect sse;
-				sse.battleID = battle.getBattle()->getBattleID();
-				std::vector<Bonus> bonuses{*bonusEffect->bonus};
-				if (bonusEffect->targetEnemy && secondary)
-					sse.toAdd.emplace_back(secondary->unitId(), bonuses);
-				if (!bonusEffect->targetEnemy)
-					sse.toAdd.emplace_back(target->unitId(), bonuses);
-				gameHandler->sendAndApply(sse);
-			}
-			if (spellEffect)
-			{
-				const CSpell * spell = spellEffect->spell.toSpell();
-				spells::AbilityCaster spellCaster(target, spellEffect->masteryLevel);
-
-				spells::Target spellTarget;
-				if (spellEffect->targetEnemy && secondary)
-					spellTarget.emplace_back(secondary);
-				if (!spellEffect->targetEnemy)
-					spellTarget.emplace_back(target);
-
-				spells::BattleCast parameters(&battle, &spellCaster, spells::Mode::PASSIVE, spell);
-
-				auto m = spell->battleMechanics(&parameters);
-
-				if(m->canBeCastAt(spellTarget))
-					parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
-			}
-		}
-
-	}
 }

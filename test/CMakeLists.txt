@@ -35,6 +35,8 @@ set(test_SRCS
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
 
+		trigger/TriggerTest.cpp
+
 		game/CGameStateTest.cpp
 		game/HeroRecruitmentTest.cpp
 

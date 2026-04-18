@@ -15,6 +15,7 @@
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
 #include "../filesystem/ResourcePath.h"
+#include "BonusEffects.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,6 +31,8 @@ using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TPropagatorPtr = std::shared_ptr<const IPropagator>;
 using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 using TBonusParametersPtr = std::shared_ptr<const BonusParameters>;
+using TBattleEffect = std::variant<BBGrantBonus, BBCastSpell, BBTerminate, BBChangeDuration>;
+using TBattleEffects = std::vector<TBattleEffect>;
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
@@ -53,6 +56,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	TPropagatorPtr propagator;
 	TUpdaterPtr updater;
 	TUpdaterPtr propagationUpdater;
+	TBattleEffects battleEffects;
 
 	ImagePath customIconPath;
 	MetaString description;
@@ -91,6 +95,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 			convertAddInfo(oldAddInfo);
 		}
 		h & turnsRemain;
+		h & battleEffects;
 		h & valType;
 		h & stacking;
 		h & effectRange;
@@ -184,6 +189,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	std::shared_ptr<Bonus> addPropagator(const TPropagatorPtr & Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagationUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
+	TBattleEffects triggerBattleEffects(const CombatEventType & eventType);
+	void restartBattleEffects();
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

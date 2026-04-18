@@ -236,6 +236,21 @@ class JsonNode;
 	BONUS_VALUE(INDEPENDENT_MAX) /*used for SPELL bonus */\
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
+#define COMBAT_EVENT_LIST \
+	COMBAT_EVENT(INVALID)\
+	COMBAT_EVENT(STARTS_ROUND) \
+	COMBAT_EVENT(STARTS_TURN) \
+	COMBAT_EVENT(BEFORE_ATTACK)\
+	COMBAT_EVENT(AFTER_ATTACK)\
+	COMBAT_EVENT(BEFORE_ATTACKED)\
+	COMBAT_EVENT(AFTER_ATTACKED) \
+	COMBAT_EVENT(WAIT) \
+	COMBAT_EVENT(DEFEND) \
+	COMBAT_EVENT(BEFORE_MOVE) \
+	COMBAT_EVENT(AFTER_MOVE) \
+	COMBAT_EVENT(UNIT_SPELLCAST) \
+	COMBAT_EVENT(ENDS_TURN)
+
 
 enum class BonusType : uint16_t
 {
@@ -293,6 +308,13 @@ enum class BonusValueType : uint8_t
 #undef BONUS_VALUE
 };
 
+enum class CombatEventType : uint8_t
+{
+#define COMBAT_EVENT(x) x,
+    COMBAT_EVENT_LIST
+#undef COMBAT_EVENT
+};
+
 enum class BonusNodeType
 {
 	NONE = -1,
@@ -317,6 +339,7 @@ enum class BonusNodeType
 
 
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
+extern DLL_LINKAGE const std::map<std::string, CombatEventType> combatEventMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;

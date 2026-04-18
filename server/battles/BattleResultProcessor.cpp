@@ -209,6 +209,9 @@ FinishingBattleHelper::FinishingBattleHelper(const CBattleInfoCallback & info, c
 
 void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 {
+	auto allStacks = battle.battleGetAllStacks(false);
+	for(auto * stack : allStacks)
+		stack->restartBattleEffects();
 	auto const & giveExp = [&battle](BattleResult &r)
 	{
 		if (r.winner == BattleSide::NONE)

@@ -1,0 +1,25 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI bonus type format",
+	"description" : "Definition of trigger types",
+	"required" : [],
+	"additionalProperties" : false,
+	"properties" : {
+		"eventSequence" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string", 
+				"description" : "defines a sequence of events that will activate the trigger"
+			}
+		},
+		"oncePerBattle" : {
+			"type" : "boolean",
+			"description" : "is set to true, trigger works only once per battle"
+		},
+		"continuous" : {
+			"type" : "boolean",
+			"description" : "is set to true, trigger will accept only a continuous sequence"
+		}
+	}
+}
