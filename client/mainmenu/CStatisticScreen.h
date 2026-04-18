@@ -12,7 +12,7 @@
 #include "../../lib/gameState/GameStatistics.h"
 
 class FilledTexturePlayerColored;
-class CToggleButton;
+class CButton;
 class GraphicalPrimitiveCanvas;
 class LineChart;
 class CGStatusBar;
@@ -60,8 +60,8 @@ class CStatisticScreen : public CWindowObject
 
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
 	std::vector<std::shared_ptr<CIntObject>> layout;
-	std::shared_ptr<CToggleButton> buttonCsvSave;
-	std::shared_ptr<CToggleButton> buttonSelect;
+	std::shared_ptr<CButton> buttonCsvSave;
+	std::shared_ptr<CButton> buttonSelect;
 	StatisticDataSet statistic;
 	std::shared_ptr<CIntObject> mainContent;
 	Rect contentArea;
@@ -79,7 +79,7 @@ public:
 class StatisticSelector : public CWindowObject
 {
 	std::shared_ptr<FilledTexturePlayerColored> filledBackground;
-	std::vector<std::shared_ptr<CToggleButton>> buttons;
+	std::vector<std::shared_ptr<CButton>> buttons;
 	std::shared_ptr<CSlider> slider;
 
 	const int LINES = 10;
