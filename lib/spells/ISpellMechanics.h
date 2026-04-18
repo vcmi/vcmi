@@ -31,6 +31,7 @@ class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
 class IAdventureSpellEffect;
+class MetaString;
 
 namespace spells
 {
@@ -65,7 +66,7 @@ public:
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) = 0;
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
