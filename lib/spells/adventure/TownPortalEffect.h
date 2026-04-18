@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "TownRelatedSpellUtils.h"
+#include "TownRelatedAdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

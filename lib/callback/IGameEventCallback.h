@@ -33,6 +33,7 @@ class CGTownInstance;
 class CCreatureSet;
 class CGObjectInstance;
 class IObjectInterface;
+class MetaString;
 
 using FowTilesType = std::set<int3>;
 enum class EOpenWindowMode : uint8_t;
@@ -71,7 +72,7 @@ public:
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;

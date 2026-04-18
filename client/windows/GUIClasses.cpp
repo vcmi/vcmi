@@ -1126,7 +1126,7 @@ void CUnivConfirmWindow::makeDeal(SecondarySkill skill)
 	close();
 }
 
-CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits)
+CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, const MetaString & customTitle)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("GARRISON"))
 {
 	OBJECT_CONSTRUCTION;
@@ -1146,22 +1146,9 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	if(sourceHero == nullptr && sourceTown != nullptr)
 		sourceHero = sourceTown->getGarrisonHero();
 
-	const bool isReinforcementsDialog = sourceTown != nullptr && down->getVisitedTown() != sourceTown;
-
 	std::string titleText;
 	if(down->tempOwner == up->tempOwner)
-	{
-		if(isReinforcementsDialog)
-		{
-			const auto * reinforcementsSpell = SpellID(SpellID::decode("vcmi:reinforcements")).toSpell();
-			if(reinforcementsSpell != nullptr)
-				titleText = LIBRARY->generaltexth->translate(reinforcementsSpell->getAdventureEffectTextID("reinforcements", "garrisonTitle"));
-			else
-				titleText = LIBRARY->generaltexth->allTexts[709];
-		}
-		else
-			titleText = LIBRARY->generaltexth->allTexts[709];
-	}
+		titleText = !customTitle.empty() ? customTitle.toString() : LIBRARY->generaltexth->allTexts[709];
 	else
 	{
 		//assume that this is joining monsters dialog
@@ -1177,7 +1164,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	}
 	title = std::make_shared<CLabel>(275, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, titleText);
 
-	if(isReinforcementsDialog && sourceHero != nullptr)
+	if(sourceTown != nullptr && down->getVisitedTown() != sourceTown && sourceHero != nullptr)
 		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), sourceHero->getIconIndex(), 0, 27, 127);
 	else
 		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 27, 127);

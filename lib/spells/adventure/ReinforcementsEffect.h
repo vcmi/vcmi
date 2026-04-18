@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "TownRelatedSpellUtils.h"
+#include "TownRelatedAdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,6 +21,7 @@ class DLL_LINKAGE ReinforcementsEffect final : public spells::adventure::TownRel
 	std::string casterInTownTextID;
 	std::string selectTownTitleTextID;
 	std::string selectTownDescriptionTextID;
+	std::string garrisonTitleTextID;
 
 public:
 	ReinforcementsEffect(const CSpell * s, const JsonNode & config);

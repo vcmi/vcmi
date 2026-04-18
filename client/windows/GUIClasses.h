@@ -20,6 +20,7 @@ class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
+class MetaString;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -430,7 +431,7 @@ class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
 public:
 	std::shared_ptr<CButton> quit;
 
-	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits);
+	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, const MetaString & customTitle);
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;

@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "ReinforcementsEffect.h"
 
-#include "TownRelatedSpellUtils.h"
-
 #include "../CSpellHandler.h"
 
 #include "../../CPlayerState.h"
@@ -29,6 +27,7 @@ ReinforcementsEffect::ReinforcementsEffect(const CSpell * s, const JsonNode & co
 	, casterInTownTextID(config["casterInTown"].String().starts_with("@") ? config["casterInTown"].String().substr(1) : s->getAdventureEffectTextID("reinforcements", "casterInTown"))
 	, selectTownTitleTextID(config["selectTownTitle"].String().starts_with("@") ? config["selectTownTitle"].String().substr(1) : s->getAdventureEffectTextID("reinforcements", "selectTownTitle"))
 	, selectTownDescriptionTextID(config["selectTownDescription"].String().starts_with("@") ? config["selectTownDescription"].String().substr(1) : s->getAdventureEffectTextID("reinforcements", "selectTownDescription"))
+	, garrisonTitleTextID(config["garrisonTitle"].String().starts_with("@") ? config["garrisonTitle"].String().substr(1) : s->getAdventureEffectTextID("reinforcements", "garrisonTitle"))
 {
 }
 
@@ -56,7 +55,7 @@ ESpellCastResult ReinforcementsEffect::beginCastExtraChecks(SpellCastEnvironment
 ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const CGTownInstance * destination = nullptr;
-	std::vector<const CGTownInstance *> towns = spells::adventure::getPlayerTeamTowns(env, parameters, false);
+	std::vector<const CGTownInstance *> towns = getPlayerTeamTowns(env, parameters);
 
 	const auto * casterHero = parameters.caster->getHeroCaster();
 	if(!casterHero)
@@ -70,7 +69,7 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 
 	if(!allowTownSelection)
 	{
-		destination = spells::adventure::findNearestTown(parameters, towns);
+		destination = findNearestTown(parameters, towns);
 	}
 	else if(env->getMap()->isInTheMap(parameters.pos))
 	{
@@ -90,7 +89,9 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 	}
 
 	const auto * sourceArmy = destination->getUpperArmy();
-	env->showGarrisonDialog(sourceArmy->id, ObjectInstanceID(parameters.caster->getCasterUnitId()), true);
+	MetaString garrisonTitle;
+	garrisonTitle.appendTextID(garrisonTitleTextID);
+	env->showGarrisonDialog(sourceArmy->id, ObjectInstanceID(parameters.caster->getCasterUnitId()), true, garrisonTitle);
 
 	return ESpellCastResult::OK;
 }

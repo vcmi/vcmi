@@ -1392,6 +1392,7 @@ struct DLL_LINKAGE GarrisonDialog : public Query
 	ObjectInstanceID objid;
 	ObjectInstanceID hid;
 	bool removableUnits = false;
+	MetaString customTitle;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -1401,6 +1402,7 @@ struct DLL_LINKAGE GarrisonDialog : public Query
 		h & objid;
 		h & hid;
 		h & removableUnits;
+		h & customTitle;
 	}
 };
 

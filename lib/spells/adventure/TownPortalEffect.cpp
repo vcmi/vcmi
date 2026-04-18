@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "TownPortalEffect.h"
 
-#include "TownRelatedSpellUtils.h"
+#include "TownRelatedAdventureSpellEffect.h"
 
 #include "../../CPlayerState.h"
 #include "../../IGameSettings.h"
@@ -67,8 +67,8 @@ ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
-		destination = spells::adventure::findNearestTown(parameters, pool);
+		std::vector<const CGTownInstance *> pool = getPlayerTeamTowns(env, parameters);
+		destination = findNearestTown(parameters, pool);
 
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
@@ -163,8 +163,8 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = spells::adventure::getPlayerTeamTowns(env, parameters, skipOccupiedTowns);
-		destination = spells::adventure::findNearestTown(parameters, pool);
+		std::vector<const CGTownInstance *> pool = getPlayerTeamTowns(env, parameters);
+		destination = findNearestTown(parameters, pool);
 	}
 	else
 	{
