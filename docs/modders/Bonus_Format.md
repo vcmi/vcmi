@@ -61,6 +61,9 @@ All parameters but type are optional.
 	// See Bonus Updaters list below for full list of supported updaters
 	"updater" :	    {Bonus Updater},
 	
+	// See Battle Effects list below for the documentation of supported battle effects 
+	"battleEffects" : 	{Battle Effect},
+	
     // Multiple updaters are supported, however updaters that modify same property may overwrite effect of previous updater
 	"updater" : [ {Bonus Updater 1}, {Bonus Updater 2} ],
 	
@@ -95,6 +98,7 @@ All parameters but type are optional.
 - [Bonus Types](Bonus/Bonus_Types.md)
 - [Bonus Propagators](Bonus/Bonus_Propagators.md)
 - [Bonus Updaters](Bonus/Bonus_Updaters.md)
+- [Bonus Battle Effects](Bonus/Bonus_Battle_Effects.md)
 - [Bonus Range Types](Bonus/Bonus_Range_Types.md)
 - [Bonus Value Types](Bonus/Bonus_Value_Types.md)
 

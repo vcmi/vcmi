@@ -32,6 +32,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+
 std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32> customValue) const
 {
 	MetaString descriptionHelper = description;
@@ -271,6 +275,47 @@ std::shared_ptr<Bonus> Bonus::addPropagationUpdater(const TUpdaterPtr & newUpdat
 {
 	propagationUpdater = appendToUpdaters(propagationUpdater, newUpdater);
 	return this->shared_from_this();
+}
+
+TBattleEffects Bonus::triggerBattleEffects(const CombatEventType & eventType)
+{
+	TBattleEffects triggeredEffects;
+	for(auto & bbe : battleEffects)
+	{
+		bool isTriggered = false;
+
+		std::visit(
+			overloaded{
+				[&isTriggered, &eventType](auto & arg)
+				{
+					isTriggered = arg.trigger.triggered(eventType);
+				},
+			},
+			bbe
+		);
+
+		if(isTriggered)
+			triggeredEffects.push_back(bbe);
+	}
+	return triggeredEffects;
+}
+
+void Bonus::restartBattleEffects()
+{
+
+	for(auto & bbe : battleEffects)
+	{
+
+		std::visit(
+			overloaded{
+				[](auto & arg)
+				{
+					arg.trigger.restart();
+				},
+			},
+			bbe
+		);
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

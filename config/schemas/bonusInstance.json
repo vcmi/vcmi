@@ -395,73 +395,6 @@
 					"addInfo" : { "type" : "array", "minItems" : 1, "maxItems" : 9, "items" : { "type" : "string" } }
 				}
 			}
-		},
-		{
-			"if" : {
-				"properties" : {
-					"type" : { "enum" : [ "FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT" ] }
-				}
-			},
-			"then" : {
-				"properties" : {
-					"addInfo" : { "type" : "array", "minItems" : 1, "maxItems" : 7, "items" : { "type" : "number" } }
-				}
-			}
-		},
-		{
-			"if" : {
-				"properties" : {
-					"type" : { "enum" : [ "ON_COMBAT_EVENT" ] }
-				}
-			},
-			"then" : {
-				"properties" : {
-					"addInfo" : {
-						"type" : "object",
-						"additionalProperties" : false,
-						"required" : [ "effect" ],
-						"properties" : {
-							"effect" : {
-								"type" : "array",
-								"items" : {
-									"type" : "object",
-									"allOf" : [
-										{
-											"if" : {
-												"properties" : { "action" : { "enum" : [ "bonus" ] } }
-											},
-											"then" : {
-												"additionalProperties" : false,
-												"required" : [ "action", "bonus" ],
-												"properties" : {
-													"action" : { "enum" : [ "bonus" ] },
-													"targetEnemy" : { "type" : "boolean" },
-													"bonus" : { "$ref" : "bonusInstance.json" }
-												}
-											}
-										},
-										{
-											"if" : {
-												"properties" : { "action" : { "enum" : [ "spell" ] } }
-											},
-											"then" : {
-												"additionalProperties" : false,
-												"required" : [ "action", "spell" ],
-												"properties" : {
-													"action" : { "enum" : [ "spell" ] },
-													"targetEnemy" : { "type" : "boolean" },
-													"mastery" : { "type" : "number" },
-													"spell" : { "type" : "string" }
-												}
-											}
-										}
-									]
-								}
-							}
-						}
-					}
-				}
-			}
 		}
 	],
 	"properties" : {
@@ -532,6 +465,13 @@
 				}
 			],
 			"description" : "duration"
+		},
+		"battleEffects" : {
+			"type" : "array",
+			"items" : {
+				"type" : "object",
+				"$ref" : "battleEffect.json"
+			}
 		},
 		"turns" : {
 			"type" : "number",

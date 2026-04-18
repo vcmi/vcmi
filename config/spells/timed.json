@@ -1127,7 +1127,16 @@
 					"inFrenzy" : {
 						"type" : "IN_FRENZY",
 						"val" : 100,
-						"duration" : "UNTIL_ATTACK"
+						"duration" : "N_TURNS",
+						"turns" : 2,
+						"battleEffects": [
+							{
+								"action": "terminate",
+								"trigger": {
+									"eventSequence": [ "ENDS_TURN", "STARTS_TURN"]
+								}
+							}
+						]
 					}
 				}
 			},

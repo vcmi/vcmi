@@ -2,6 +2,7 @@ set(vcmiservercommon_SRCS
 		StdInc.cpp
 
 		battles/BattleActionProcessor.cpp
+		battles/BattleBonusEffectsProcessor.cpp
 		battles/BattleFlowProcessor.cpp
 		battles/BattleProcessor.cpp
 		battles/BattleResultProcessor.cpp
@@ -30,6 +31,7 @@ set(vcmiservercommon_HEADERS
 		StdInc.h
 
 		battles/BattleActionProcessor.h
+		battles/BattleBonusEffectsProcessor.h
 		battles/BattleFlowProcessor.h
 		battles/BattleProcessor.h
 		battles/BattleResultProcessor.h

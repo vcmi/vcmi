@@ -18,6 +18,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 	const std::map<std::string, BonusValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE
 
+#define COMBAT_EVENT(x) { #x, CombatEventType::x },
+	const std::map<std::string, CombatEventType> combatEventMap = { COMBAT_EVENT_LIST };
+#undef Combat_EVENT
+
 #define BONUS_SOURCE(x) { #x, BonusSource::x },
 	const std::map<std::string, BonusSource> bonusSourceMap = { BONUS_SOURCE_LIST };
 #undef BONUS_SOURCE

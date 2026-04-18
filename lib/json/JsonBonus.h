@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct Bonus;
 class ILimiter;
 class CSelector;
+class Trigger;
 class BonusParameters;
 namespace JsonUtils
 {
@@ -25,6 +26,7 @@ namespace JsonUtils
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, const TextIdentifier & descriptionID = "");
 	bool parseBonus(const JsonNode & ability, Bonus * placement, const TextIdentifier & descriptionID = "");
 	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter);
+	DLL_LINKAGE Trigger parseTrigger(const JsonNode & node);
 	CSelector parseSelector(const JsonNode &ability);
 }
 

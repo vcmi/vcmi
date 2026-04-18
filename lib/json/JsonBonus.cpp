@@ -18,6 +18,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusEffects.h"
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
@@ -305,38 +306,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = loadedData;
 			break;
 		}
-		case BonusType::ON_COMBAT_EVENT:
-		{
-			var = BonusParameters(BonusParametersOnCombatEvent());
-			auto & loadedData = result->toCustom<BonusParametersOnCombatEvent>();
-
-			for (const auto & effect : value["effect"].Vector())
-			{
-				int index = loadedData.effects.size();
-				bool targetEnemy = effect["targetEnemy"].Bool();
-				if (effect["action"].String() == "bonus")
-				{
-					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
-					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectBonus{
-						bonus, targetEnemy
-					});
-				}
-				if (effect["action"].String() == "spell")
-				{
-					int mastery = effect["mastery"].Integer();
-					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
-					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
-						SpellID(), mastery, targetEnemy
-					});
-					LIBRARY->identifiers()->requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
-					{
-						auto * targetEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&loadedData.effects[index]);
-						targetEffect->spell = SpellID(identifier);
-					});
-				}
-			}
-			break;
-		}
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
@@ -561,6 +530,82 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
 	return b;
+}
+
+TBattleEffects parseBattleEffects(const JsonNode & node, Bonus * b)
+{
+	TBattleEffects results;
+	for(const auto & effect : node.Vector())
+	{
+		if(effect["action"].String() == "bonus")
+		{
+			auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+			results.push_back(BBGrantBonus{JsonUtils::parseTrigger(effect["trigger"]), bonus, effect["targetEnemy"].Bool()});
+		}
+		if(effect["action"].String() == "spell")
+		{
+			int index = results.size();
+			results.push_back(
+				BBCastSpell{JsonUtils::parseTrigger(effect["trigger"]), SpellID(), static_cast<int>(effect["mastery"].Integer()), effect["targetEnemy"].Bool()}
+			);
+			LIBRARY->identifiers()->requestIdentifier(
+				"spell",
+				effect["spell"],
+				[b, index](int32_t identifier)
+				{
+					auto & be = b->battleEffects[index];
+					auto * spellEffect = std::get_if<BBCastSpell>(&be);
+					spellEffect->spell = SpellID(identifier);
+				}
+			);
+		}
+		if(effect["action"].String() == "terminate")
+		{
+			results.push_back(BBTerminate{JsonUtils::parseTrigger(effect["trigger"])});
+		}
+		if(effect["action"].String() == "changeDuration")
+		{
+			int value = effect["value"].Integer();
+			results.push_back(BBChangeDuration{JsonUtils::parseTrigger(effect["trigger"]), value});
+		}
+	}
+	return results;
+}
+
+Trigger JsonUtils::parseTrigger(const JsonNode & node)
+{
+	std::vector<AlternativeEventTypes> eventSequence;
+	bool oncePerBattle = false;
+	bool continuous = false;
+
+	if(node["oncePerBattle"].isBool())
+		oncePerBattle = node["oncePerBattle"].Bool();
+
+	if(node["continuous"].isBool())
+		continuous = node["continuous"].Bool();
+
+	if(node["eventSequence"].isVector())
+	{
+		for(const auto & alternativeEventsNode : node["eventSequence"].Vector())
+		{
+			if(alternativeEventsNode.isString())
+			{
+				AlternativeEventTypes aet;
+				{
+
+					std::stringstream fullString(alternativeEventsNode.String());
+					std::string event;
+					while(std::getline(fullString, event, '|'))
+					{
+						if(combatEventMap.contains(event))
+							aet.insert(combatEventMap.at(event));
+					}
+				}
+				eventSequence.push_back(aet);
+			}
+		}
+	}
+	return Trigger(eventSequence, oncePerBattle, continuous);
 }
 
 static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & limiter)
@@ -933,6 +978,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	value = &ability["propagationUpdater"];
 	if(!value->isNull())
 		b->propagationUpdater = parseUpdater(*value);
+	value = &ability["battleEffects"];
+	if(!value->isNull())
+		b->battleEffects = parseBattleEffects(*value, b);
 	return true;
 }
 

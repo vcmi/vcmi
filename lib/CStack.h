@@ -78,6 +78,7 @@ public:
 	BattleSide unitSide() const override;
 	PlayerColor unitOwner() const override;
 	SlotID unitSlot() const override;
+	void restartBattleEffects() const;
 	bool doubleWide() const override { return doubleWideCached;};
 
 	std::string getDescription() const override;

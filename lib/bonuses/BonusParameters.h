@@ -15,51 +15,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct BonusParametersOnCombatEvent
-{
-	struct CombatEffectBonus
-	{
-		std::shared_ptr<const Bonus> bonus;
-		bool targetEnemy = false;
-
-		template <class H>
-		void serialize(H& h)
-		{
-			h & bonus;
-			h & targetEnemy;
-		}
-	};
-
-	struct CombatEffectSpell
-	{
-		SpellID spell;
-		int masteryLevel = 0;
-		bool targetEnemy = false;
-
-		template <class H>
-		void serialize(H& h)
-		{
-			h & spell;
-			h & masteryLevel;
-			h & targetEnemy;
-		}
-	};
-
-	using CombatEffect = std::variant<CombatEffectBonus, CombatEffectSpell>;
-
-	std::vector<CombatEffect> effects;
-
-	template <class H>
-	void serialize(H& h)
-	{
-		h & effects;
-	}
-};
-
 class DLL_LINKAGE BonusParameters final : public Serializeable
 {
 public:
-	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>, BonusParametersOnCombatEvent>;
+	using storage_type = std::variant<int32_t, CreatureID, SpellID, std::vector<int32_t>>;
 
 	BonusParameters() = default;
 

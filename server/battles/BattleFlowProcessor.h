@@ -11,6 +11,7 @@
 
 #include "../lib/battle/BattleSide.h"
 #include "../lib/battle/BattleUnitTurnReason.h"
+#include <bonuses/BonusEnum.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
@@ -52,6 +53,7 @@ class BattleFlowProcessor : boost::noncopyable
 	void castOpeningSpells(const CBattleInfoCallback & battle);
 	void activateNextStack(const CBattleInfoCallback & battle);
 	void startNextRound(const CBattleInfoCallback & battle, bool isFirstRound);
+	void triggerEvent(const CBattleInfoCallback & battle, const int & stackId, const CombatEventType &eventType);
 
 	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);

@@ -351,6 +351,16 @@ SlotID CStack::unitSlot() const
 	return slot;
 }
 
+void CStack::restartBattleEffects() const
+{
+	auto allBonuses = *getAllBonuses(Selector::all);
+	for(const auto & bonus : allBonuses)
+	{
+		if(bonus)
+			bonus->restartBattleEffects();
+	}
+}
+
 std::string CStack::getDescription() const
 {
 	return nodeName();

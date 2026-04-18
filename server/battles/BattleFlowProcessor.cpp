@@ -11,6 +11,7 @@
 #include "BattleFlowProcessor.h"
 
 #include "BattleProcessor.h"
+#include "BattleBonusEffectsProcessor.h"
 
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
@@ -248,8 +249,17 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 	activateNextStack(battle);
 }
 
+void BattleFlowProcessor::triggerEvent(const CBattleInfoCallback & battle, const int & stackId, const CombatEventType & eventType)
+{
+	auto * stack = battle.battleGetStackByID(stackId);
+	if(stack)
+		BattleBonusEffectsProcessor::processBattleEventTriggers(battle, gameHandler, eventType, stack, nullptr);
+}
+
 void BattleFlowProcessor::startNextRound(const CBattleInfoCallback & battle, bool isFirstRound)
 {
+	for(const auto * stack : battle.battleGetAllStacks(false))
+		triggerEvent(battle, stack->unitId(), CombatEventType::STARTS_ROUND);
 	BattleNextRound bnr;
 	bnr.battleID = battle.getBattle()->getBattleID();
 	logGlobal->debug("Next round starts");
@@ -810,6 +820,8 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		}
 	}
 
+	if(activeStack && activeStack->alive())
+		triggerEvent(battle, activeStack->unitId(), CombatEventType::ENDS_TURN);
 	activateNextStack(battle);
 }
 
@@ -1006,6 +1018,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason)
 {
 	assert(stack);
+	if(reason == BattleUnitTurnReason::TURN_QUEUE)
+		triggerEvent(battle, stack->unitId(), CombatEventType::STARTS_TURN);
 
 	BattleSetActiveStack sas;
 	sas.battleID = battle.getBattle()->getBattleID();
