@@ -1134,9 +1134,9 @@ AssetGenerator::CanvasPtr AssetGenerator::createStackArtifactIndicator(const Poi
 				continue;
 
 			const double edgeOpacity = std::clamp(radius - distanceToCenter, 0.0, 1.0);
-			const double alphaValue = 204.0 * edgeOpacity;
+			const double alphaValue = 191.0 * edgeOpacity;
 			const auto alpha = static_cast<uint8_t>(alphaValue);
-			canvas.drawPoint(Point(x, y), ColorRGBA(160, 160, 160, alpha));
+			canvas.drawPoint(Point(x, y), ColorRGBA(0, 0, 0, alpha));
 		}
 	}
 
