@@ -435,6 +435,7 @@
 	"vcmi.credits.vcmi": "VCMI",
 	"vcmi.credits.website": "Website",
 	"vcmi.dimensionDoor.seaToLandError": "It's not possible to teleport from sea to land or vice versa with a Dimension Door.",
+	"vcmi.dwelling.noCreaturesAvailable": "No Creatures Available",
 	"vcmi.heroOverview.secondarySkills": "Secondary Skills",
 	"vcmi.heroOverview.spells": "Spells",
 	"vcmi.heroOverview.startingArmy": "Starting Units",

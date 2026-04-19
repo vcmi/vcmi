@@ -306,10 +306,11 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::CREATURE:
 		{
 			auto creature = LIBRARY->creh->getById(data.subType.as<CreatureID>());
-			if(data.value)
-				return std::to_string(*data.value) + " " + (*data.value > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
-			else
+			if(!data.value)
 				return creature->getNamePluralTranslated();
+			if(*data.value == 0)
+				return creature->getNamePluralTranslated() + " - " + LIBRARY->generaltexth->translate("vcmi.dwelling.noCreaturesAvailable");
+			return std::to_string(*data.value) + " " + (*data.value > 1 ? creature->getNamePluralTranslated() : creature->getNameSingularTranslated());
 		}
 		case ComponentType::ARTIFACT:
 			return LIBRARY->artifacts()->getById(data.subType.as<ArtifactID>())->getNameTranslated();
