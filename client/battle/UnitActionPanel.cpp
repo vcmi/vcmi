@@ -124,7 +124,7 @@ void UnitActionPanel::setPossibleActions(const std::vector<PossiblePlayerBattleA
 	static const std::vector actionsGenie = { PossiblePlayerBattleAction::RANDOM_GENIE_SPELL };
 	static const std::vector actionsAttack = { PossiblePlayerBattleAction::ATTACK, PossiblePlayerBattleAction::WALK_AND_ATTACK };
 	static const std::vector actionsReturn = { PossiblePlayerBattleAction::ATTACK_AND_RETURN };
-	static const std::vector actionsAttackNoLongWeapon = { PossiblePlayerBattleAction::ATTACK_WITHOUT_LONG_WEAPON };
+	static const std::vector actionsAttackNoLongWeapon = { PossiblePlayerBattleAction::LONG_WEAPON_ATTACK };
 
 	testAndAddAction(newActions, actionsMove, ImagePath::builtin("battle/actionMove"), "vcmi.battle.action.move");
 	testAndAddAction(newActions, actionsReturn, ImagePath::builtin("battle/actionReturn"), "vcmi.battle.action.return");
