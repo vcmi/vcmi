@@ -153,27 +153,25 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 		details->mana = h->mana;
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 
-		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
-		{
-			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
-		}
-		if (infoLevel == EInfoLevel::INBATTLE)
-		{
-			details->manaLimit = h->manaLimit();
-			details->battleSpellPower = h->getEffectPower(nullptr);
-			BonusList dynamicSpellPowerBonuses;
-			const auto spellPowerBonuses = h->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER)));
-			for(const auto & bonus : *spellPowerBonuses)
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
 			{
-				if(usesBattleSpellCastUpdater(bonus->updater))
-					dynamicSpellPowerBonuses.push_back(bonus);
+				details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
 			}
-			details->battleSpellPowerBonus = dynamicSpellPowerBonuses.totalValue();
-			details->baseSpellPower = details->battleSpellPower - details->battleSpellPowerBonus;
-			details->showBattleSpellPowerBonus = !dynamicSpellPowerBonuses.empty();
-		}
-		else
-			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
+			if(infoLevel == EInfoLevel::INBATTLE)
+			{
+				details->manaLimit = h->manaLimit();
+				BonusList dynamicSpellPowerBonuses;
+				const auto spellPowerBonuses = h->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER)));
+				for(const auto & bonus : *spellPowerBonuses)
+				{
+					if(usesBattleSpellCastUpdater(bonus->updater))
+						dynamicSpellPowerBonuses.push_back(bonus);
+				}
+				details->battleSpellPowerBonus = dynamicSpellPowerBonuses.totalValue();
+				details->showBattleSpellPowerBonus = !dynamicSpellPowerBonuses.empty();
+			}
+			else
+				details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
 	}
 }
 

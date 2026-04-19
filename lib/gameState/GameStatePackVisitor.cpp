@@ -1372,12 +1372,11 @@ void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 		if(pack.castByHero)
 		{
 			side.castSpellsCount++;
-			side.heroSpellsCastCount++;
 			side.usedSpellsHistory.push_back(pack.spellID);
 		}
 		else
 		{
-			side.creatureSpellsCastCount++;
+			side.usedCreatureSpellsHistory.push_back(pack.spellID);
 		}
 		battle->nodeHasChanged();
 	}
@@ -1481,8 +1480,6 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 		}
 	}
 
-	currentBattle->setOngoing(false);
-	currentBattle->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)

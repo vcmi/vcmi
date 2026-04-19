@@ -53,17 +53,15 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point *
 void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 {
 	OBJECT_CONSTRUCTION;
-	auto attack = hero.details->primskills[0];
-	auto defense = hero.details->primskills[1];
-	auto knowledge = hero.details->primskills[3];
-	auto morale = hero.details->morale;
-	auto luck = hero.details->luck;
-	auto currentSpellPoints = hero.details->mana;
-	auto maxSpellPoints = hero.details->manaLimit;
-	auto baseSpellPower = hero.details->baseSpellPower;
-	auto battleSpellPower = hero.details->battleSpellPower;
-	auto spellPowerBonus = hero.details->battleSpellPowerBonus;
-	bool showSpellPowerBonus = hero.details->showBattleSpellPowerBonus;
+	const auto & primarySkills = hero.details->primskills;
+	const auto morale = hero.details->morale;
+	const auto luck = hero.details->luck;
+	const auto currentSpellPoints = hero.details->mana;
+	const auto maxSpellPoints = hero.details->manaLimit;
+	const auto spellPowerBonus = hero.details->battleSpellPowerBonus;
+	const bool showSpellPowerBonus = hero.details->showBattleSpellPowerBonus;
+	const int32_t effectiveSpellPower = primarySkills[2];
+	const int32_t baseSpellPower = effectiveSpellPower - spellPowerBonus;
 
 	pos.w = 76;
 	pos.h = showSpellPowerBonus ? 248 : 200;
@@ -76,10 +74,10 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[382] + ":"));
 	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[383] + ":"));
 
-	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
-	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
-	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, formatPrimarySkillValue(baseSpellPower, battleSpellPower)));
-	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
+	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[0])));
+	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[1])));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, formatPrimarySkillValue(baseSpellPower, effectiveSpellPower)));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[3])));
 
 	//morale+luck
 	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[384] + ":"));

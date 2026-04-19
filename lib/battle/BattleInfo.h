@@ -48,7 +48,6 @@ public:
 
 	BattleField battlefieldType; //like !!BA:B
 	TerrainId terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
-	bool ongoing = true;
 
 	BattleSide tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
@@ -66,10 +65,6 @@ public:
 		h & si;
 		h & battlefieldType;
 		h & terrainType;
-		if(h.hasFeature(Handler::Version::BATTLE_ONGOING_STATE))
-			h & ongoing;
-		else
-			ongoing = true;
 		h & tacticsSide;
 		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
@@ -127,8 +122,6 @@ public:
 
 	int3 getLocation() const override;
 	BattleLayout getLayout() const override;
-	bool isOngoing() const;
-	void setOngoing(bool value);
 
 	std::vector<SpellID> getUsedSpells(BattleSide side) const override;
 

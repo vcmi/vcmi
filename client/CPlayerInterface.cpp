@@ -1826,12 +1826,6 @@ void CPlayerInterface::refreshAdventureSelection()
 	ENGINE->windows().totalRedraw();
 }
 
-void CPlayerInterface::battleResultsApplied()
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	refreshAdventureSelection();
-}
-
 void CPlayerInterface::battleEnded()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

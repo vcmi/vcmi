@@ -13,7 +13,7 @@
 						"type" : "string"
 					},
 					"then" : {
-						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "IN_BATTLE", "OPPOSITE_SIDE" ],
 						"description" : "parameterless limiter or boolean operator at start of array"
 					}
 				},
@@ -371,15 +371,15 @@
 			},
 			"then" : {
 				"properties" : {
-					"addInfo" : {
-						"anyOf" : [
-							{ "type" : "number" },
-							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
-						],
+						"addInfo" : {
+							"anyOf" : [
+								{ "type" : "number" },
+								{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
+							]
+						}
 					}
 				}
-			}
-		},
+			},
 		{
 			"if" : {
 				"properties" : {
@@ -405,15 +405,15 @@
 			},
 			"then" : {
 				"properties" : {
-					"addInfo" : {
-						"anyOf" : [
-							{ "type" : "string" },
-							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "string" } }
-						],
+						"addInfo" : {
+							"anyOf" : [
+								{ "type" : "string" },
+								{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "string" } }
+							]
+						}
 					}
 				}
-			}
-		},
+			},
 		{
 			"if" : {
 				"properties" : {

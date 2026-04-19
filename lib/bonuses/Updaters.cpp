@@ -191,13 +191,6 @@ JsonNode TimesArmySizeUpdater::toJsonNode() const
 
 namespace
 {
-std::shared_ptr<Bonus> makeZeroBonus(const std::shared_ptr<Bonus> & b)
-{
-	auto newBonus = std::make_shared<Bonus>(*b);
-	newBonus->val = 0;
-	return newBonus;
-}
-
 std::optional<std::pair<const BattleInfo *, BattleSide>> getBattleSpellCastContext(const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == BonusNodeType::HERO)
@@ -233,7 +226,7 @@ std::shared_ptr<Bonus> TimesSideBattleSpellsCastUpdater::createUpdatedBonus(cons
 {
 	const auto battleContext = getBattleSpellCastContext(context);
 	if(!battleContext)
-		return makeZeroBonus(b);
+		return b;
 
 	auto newBonus = std::make_shared<Bonus>(*b);
 	const int castCount = battleContext->first->getBattleSpellCastCount(battleContext->second, casterType);

@@ -237,6 +237,19 @@ public:
 	}
 };
 
+class DLL_LINKAGE InBattleLimiter : public ILimiter
+{
+public:
+	EDecision limit(const BonusLimitationContext &context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & static_cast<ILimiter&>(*this);
+	}
+};
+
 class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
 {
 public:

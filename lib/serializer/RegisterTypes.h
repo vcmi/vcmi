@@ -306,6 +306,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CompositeUpdater>(263);
 	s.template registerType<BonusParameters>(264);
 	s.template registerType<TimesSideBattleSpellsCastUpdater>(265);
+	s.template registerType<InBattleLimiter>(266);
 }
 
 VCMI_LIB_NAMESPACE_END
