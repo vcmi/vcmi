@@ -164,6 +164,13 @@ Effect: Updates val to `val * clamp(floor(spellCasts / stepSize), minimum, maxim
 
 This updater only has effect when the bonus is evaluated on a battle hero or battle stack. Outside battle it returns the original bonus unchanged, so use an `IN_BATTLE` limiter when the bonus should only work during combat.
 
+Parameters:
+
+- `casterType` - spell cast source to count. Supported values are `hero`, `creature`, and `any`. Default is `hero`
+- `minimum` - lower bound for the multiplier after dividing by `stepSize`. Default is `0`
+- `maximum` - upper bound for the multiplier after dividing by `stepSize`. Default is unlimited
+- `stepSize` - number of completed spells required for each multiplier step. Default is `1`
+
 Example:
 
 ```json

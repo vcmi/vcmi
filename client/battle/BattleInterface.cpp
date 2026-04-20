@@ -50,52 +50,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-namespace
-{
-const CGHeroInstance * getHeroForSide(const BattleInterface & battle, BattleSide side)
-{
-	if(side == BattleSide::ATTACKER)
-		return battle.attackingHeroInstance;
-	if(side == BattleSide::DEFENDER)
-		return battle.defendingHeroInstance;
-	return nullptr;
-}
-
-std::string formatBattleSpellPower(int32_t basePower, int32_t effectivePower)
-{
-	if(basePower == effectivePower)
-		return std::to_string(basePower);
-
-	return std::to_string(basePower) + " (" + std::to_string(effectivePower) + ")";
-}
-
-std::optional<InfoAboutHero> updateHeroSpellcastingPanel(BattleInterface & battle, BattleSide side)
-{
-	const auto * hero = getHeroForSide(battle, side);
-	if(hero == nullptr || battle.windowObject == nullptr)
-		return std::nullopt;
-
-	InfoAboutHero heroInfo(hero, InfoAboutHero::EInfoLevel::INBATTLE);
-	battle.windowObject->updateHeroInfoWindow(side == BattleSide::ATTACKER ? 0 : 1, heroInfo);
-	return heroInfo;
-}
-
-void appendHeroSpellcastingStatus(BattleInterface & battle, const CGHeroInstance & hero, const InfoAboutHero & heroInfo)
-{
-	if(!heroInfo.details || !heroInfo.details->showBattleSpellPowerBonus)
-		return;
-
-	const int32_t effectivePower = heroInfo.details->primskills[2];
-	const int32_t spellPowerBonus = heroInfo.details->battleSpellPowerBonus;
-	const int32_t basePower = effectivePower - spellPowerBonus;
-
-	battle.appendBattleLog(boost::str(boost::format(LIBRARY->generaltexth->translate("vcmi.battleWindow.spellPowerStatus"))
-		% hero.getNameTranslated()
-		% spellPowerBonus
-		% formatBattleSpellPower(basePower, effectivePower)));
-}
-}
-
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		std::shared_ptr<CPlayerInterface> att,
@@ -437,14 +391,6 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	if(!spellID.hasValue())
 		return;
-
-	if(sc->side != BattleSide::NONE)
-	{
-		const auto * hero = getHeroForSide(*this, sc->side);
-		auto heroInfo = updateHeroSpellcastingPanel(*this, sc->side);
-		if(hero != nullptr && heroInfo)
-			appendHeroSpellcastingStatus(*this, *hero, *heroInfo);
-	}
 
 	const CSpell * spell = spellID.toSpell();
 	auto targetedTile = sc->tile;

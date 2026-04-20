@@ -17,17 +17,6 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-namespace
-{
-std::string formatPrimarySkillValue(int32_t baseValue, int32_t effectiveValue)
-{
-	if(baseValue == effectiveValue)
-		return std::to_string(baseValue);
-
-	return std::to_string(baseValue) + " (" + std::to_string(effectiveValue) + ")";
-}
-}
-
 HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground)
 	: CIntObject(0)
 {
@@ -39,12 +28,6 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point *
 	{
 		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 1, 76, 200), 1, 1);
 		background->setPlayerColor(hero.owner);
-
-		if(hero.details->showBattleSpellPowerBonus)
-		{
-			extraBackground = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 154, 76, 47), 1, 201);
-			extraBackground->setPlayerColor(hero.owner);
-		}
 	}
 
 	initializeData(hero);
@@ -58,13 +41,9 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	const auto luck = hero.details->luck;
 	const auto currentSpellPoints = hero.details->mana;
 	const auto maxSpellPoints = hero.details->manaLimit;
-	const auto spellPowerBonus = hero.details->battleSpellPowerBonus;
-	const bool showSpellPowerBonus = hero.details->showBattleSpellPowerBonus;
-	const int32_t effectiveSpellPower = primarySkills[2];
-	const int32_t baseSpellPower = effectiveSpellPower - spellPowerBonus;
 
 	pos.w = 76;
-	pos.h = showSpellPowerBonus ? 248 : 200;
+	pos.h = 200;
 
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero.getIconIndex(), 0, 10, 6));
 
@@ -76,7 +55,7 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 
 	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[0])));
 	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[1])));
-	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, formatPrimarySkillValue(baseSpellPower, effectiveSpellPower)));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[2])));
 	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(primarySkills[3])));
 
 	//morale+luck
@@ -89,12 +68,6 @@ void HeroInfoBasicPanel::initializeData(const InfoAboutHero & hero)
 	// spell points use native box built into CHRPOP
 	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[387]));
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
-
-	if(showSpellPowerBonus)
-	{
-		labels.push_back(std::make_shared<CLabel>(39, 220, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.battleWindow.spellPowerBonus")));
-		labels.push_back(std::make_shared<CLabel>(39, 232, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(spellPowerBonus)));
-	}
 }
 
 void HeroInfoBasicPanel::update(const InfoAboutHero & updatedInfo)

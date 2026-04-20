@@ -50,8 +50,6 @@ public:
 	{
 		std::vector<si32> primskills;
 		si32 mana, manaLimit, luck, morale;
-		si32 battleSpellPowerBonus = 0;
-		bool showBattleSpellPowerBonus = false;
 	};
 
 	std::optional<Details> details;

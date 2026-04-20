@@ -361,8 +361,6 @@
 	"vcmi.battleWindow.healValuePreview.2": "%d health will be healed",
 	"vcmi.battleWindow.killed": "Killed",
 	"vcmi.battleWindow.pressKeyToSkipIntro": "Press any key to start battle immediately",
-	"vcmi.battleWindow.spellPowerBonus": "Spell Bonus",
-	"vcmi.battleWindow.spellPowerStatus": "%s spell bonus: %d, spell power: %s",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.0": "acquire %d health",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.1": "acquire %d health",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.2": "acquire %d health",

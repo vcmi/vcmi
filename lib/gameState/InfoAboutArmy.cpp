@@ -10,9 +10,6 @@
 #include "StdInc.h"
 #include "InfoAboutArmy.h"
 
-#include "../bonuses/BonusList.h"
-#include "../bonuses/BonusSelector.h"
-#include "../bonuses/Updaters.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../GameLibrary.h"
@@ -21,30 +18,6 @@
 #include <vcmi/HeroType.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-namespace
-{
-bool usesBattleSpellCastUpdater(const TUpdaterPtr & updater)
-{
-	if(!updater)
-		return false;
-
-	if(dynamic_cast<const TimesSideBattleSpellsCastUpdater *>(updater.get()) != nullptr)
-		return true;
-
-	const auto * composite = dynamic_cast<const CompositeUpdater *>(updater.get());
-	if(composite == nullptr)
-		return false;
-
-	for(const auto & nestedUpdater : composite->updaters)
-	{
-		if(usesBattleSpellCastUpdater(nestedUpdater))
-			return true;
-	}
-
-	return false;
-}
-}
 
 ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	: isDetailed(detailed)
@@ -153,25 +126,13 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 		details->mana = h->mana;
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 
-			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
-			{
-				details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
-			}
-			if(infoLevel == EInfoLevel::INBATTLE)
-			{
-				details->manaLimit = h->manaLimit();
-				BonusList dynamicSpellPowerBonuses;
-				const auto spellPowerBonuses = h->getBonuses(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::SPELL_POWER)));
-				for(const auto & bonus : *spellPowerBonuses)
-				{
-					if(usesBattleSpellCastUpdater(bonus->updater))
-						dynamicSpellPowerBonuses.push_back(bonus);
-				}
-				details->battleSpellPowerBonus = dynamicSpellPowerBonuses.totalValue();
-				details->showBattleSpellPowerBonus = !dynamicSpellPowerBonuses.empty();
-			}
-			else
-				details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
+		for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
+			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
+
+		if(infoLevel == EInfoLevel::INBATTLE)
+			details->manaLimit = h->manaLimit();
+		else
+			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
 	}
 }
 
