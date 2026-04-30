@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "BattleSpellCastSource.h"
 #include "CBattleInfoCallback.h"
 #include "IBattleState.h"
 #include "SideInBattle.h"
@@ -111,6 +112,7 @@ public:
 
 	int32_t getCastSpells(BattleSide side) const override;
 	int32_t getEnchanterCounter(BattleSide side) const override;
+	int32_t getBattleSpellCastCount(BattleSide side, BattleSpellCastSource casterType) const;
 
 	const IBonusBearer * getBonusBearer() const override;
 

@@ -13,7 +13,7 @@
 						"type" : "string"
 					},
 					"then" : {
-						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "UNIT_DEFENDING", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "IN_BATTLE", "OPPOSITE_SIDE" ],
 						"description" : "parameterless limiter or boolean operator at start of array"
 					}
 				},
@@ -194,7 +194,7 @@
 			"anyOf" : [
 				{
 					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", "TIMES_SIDE_BATTLE_SPELLS_CAST" ]
 				},
 				{
 					"type" : "array",
@@ -307,6 +307,36 @@
 							"description" : "Specific unit to count"
 						}
 					}
+				},
+				{
+					"description" : "TIMES_SIDE_BATTLE_SPELLS_CAST updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_SIDE_BATTLE_SPELLS_CAST"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Number of completed spell casts needed to increase multiplier by 1"
+						},
+						"minimum" : {
+							"type" : "integer",
+							"description" : "Minimal multiplier"
+						},
+						"maximum" : {
+							"type" : "integer",
+							"description" : "Maximal multiplier"
+						},
+						"casterType" : {
+							"type" : "string",
+							"enum" : [ "hero", "creature", "any" ],
+							"description" : "Which completed spell casts on the bonus owner's side should be counted"
+						}
+					}
 				}
 			]
 		}
@@ -341,15 +371,15 @@
 			},
 			"then" : {
 				"properties" : {
-					"addInfo" : {
-						"anyOf" : [
-							{ "type" : "number" },
-							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
-						],
+						"addInfo" : {
+							"anyOf" : [
+								{ "type" : "number" },
+								{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
+							]
+						}
 					}
 				}
-			}
-		},
+			},
 		{
 			"if" : {
 				"properties" : {
@@ -375,15 +405,15 @@
 			},
 			"then" : {
 				"properties" : {
-					"addInfo" : {
-						"anyOf" : [
-							{ "type" : "string" },
-							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "string" } }
-						],
+						"addInfo" : {
+							"anyOf" : [
+								{ "type" : "string" },
+								{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "string" } }
+							]
+						}
 					}
 				}
-			}
-		},
+			},
 		{
 			"if" : {
 				"properties" : {

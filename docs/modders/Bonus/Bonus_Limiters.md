@@ -30,6 +30,10 @@ Bonus is active if affected unit is on native terrain
 
 Bonus is active only on units
 
+### IN_BATTLE
+
+Bonus is active only while evaluated in battle
+
 ### UNIT_DEFENDING
 
 Bonus is active only while unit is defending

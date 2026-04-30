@@ -451,9 +451,10 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 {
 	const std::map<std::string, std::shared_ptr<IUpdater>> bonusUpdaterMap =
-	{
+		{
 			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
 			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>()},
+			{"TIMES_SIDE_BATTLE_SPELLS_CAST", std::make_shared<TimesSideBattleSpellsCastUpdater>()},
 			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>()},
 			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
 			{"TIMES_STACK_SIZE", std::make_shared<TimesStackSizeUpdater>()},
@@ -534,6 +535,29 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 				});
 			}
 			return result;
+		}
+		if(updaterJson["type"].String() == "TIMES_SIDE_BATTLE_SPELLS_CAST")
+		{
+			int minimum = updaterJson["minimum"].isNull() ? 0 : updaterJson["minimum"].Integer();
+			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
+			int stepSize = updaterJson["stepSize"].isNull() ? 1 : updaterJson["stepSize"].Integer();
+			BattleSpellCastSource casterType = BattleSpellCastSource::HERO;
+			if(!updaterJson["casterType"].isNull())
+			{
+				const auto & casterTypeName = updaterJson["casterType"].String();
+				if(casterTypeName == "creature")
+					casterType = BattleSpellCastSource::CREATURE;
+				else if(casterTypeName == "any")
+					casterType = BattleSpellCastSource::ANY;
+				else if(casterTypeName != "hero")
+					logMod->warn("TIMES_SIDE_BATTLE_SPELLS_CAST updater: unknown casterType \"%s\", defaulting to hero!", casterTypeName);
+			}
+			if(minimum > maximum)
+			{
+				logMod->warn("TIMES_SIDE_BATTLE_SPELLS_CAST updater: minimum value (%d) is above maximum value(%d)!", minimum, maximum);
+				std::swap(minimum, maximum);
+			}
+			return std::make_shared<TimesSideBattleSpellsCastUpdater>(minimum, maximum, std::max(1, stepSize), casterType);
 		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());

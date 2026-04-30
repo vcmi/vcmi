@@ -460,6 +460,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleHexArray.h
 	battle/BattleInfo.h
 	battle/BattleLayout.h
+	battle/BattleSpellCastSource.h
 	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h

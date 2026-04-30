@@ -20,6 +20,7 @@
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
+#include "../mapObjects/army/CArmedInstance.h"
 #include "../json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -32,6 +33,7 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"UNIT_DEFENDING", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNIT_DEFENDING)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<TerrainLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
+	{"IN_BATTLE", std::make_shared<InBattleLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 };
 
@@ -469,6 +471,28 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(GameConstants::ALIGNMENT_NAMES[vstd::to_underlying(alignment)]);
 
 	return root;
+}
+
+ILimiter::EDecision InBattleLimiter::limit(const BonusLimitationContext &context) const
+{
+	if(context.node.getNodeType() == BonusNodeType::STACK_BATTLE || context.node.getNodeType() == BonusNodeType::BATTLE_WIDE)
+		return ILimiter::EDecision::ACCEPT;
+
+	const auto * armed = dynamic_cast<const CArmedInstance *>(&context.node);
+	if(!armed)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	return armed->battle ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+}
+
+std::string InBattleLimiter::toString() const
+{
+	return "InBattleLimiter";
+}
+
+JsonNode InBattleLimiter::toJsonNode() const
+{
+	return JsonNode("IN_BATTLE");
 }
 
 RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)

@@ -614,6 +614,21 @@ int32_t BattleInfo::getEnchanterCounter(BattleSide side) const
 	return getSide(side).enchanterCounter;
 }
 
+int32_t BattleInfo::getBattleSpellCastCount(BattleSide side, BattleSpellCastSource casterType) const
+{
+	switch(casterType)
+	{
+	case BattleSpellCastSource::HERO:
+		return static_cast<int32_t>(getSide(side).usedSpellsHistory.size());
+	case BattleSpellCastSource::CREATURE:
+		return static_cast<int32_t>(getSide(side).usedCreatureSpellsHistory.size());
+	case BattleSpellCastSource::ANY:
+		return static_cast<int32_t>(getSide(side).usedSpellsHistory.size() + getSide(side).usedCreatureSpellsHistory.size());
+	}
+
+	return 0;
+}
+
 const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;

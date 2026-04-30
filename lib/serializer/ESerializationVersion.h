@@ -62,9 +62,10 @@ enum class ESerializationVersion : int32_t
 	DISABLE_TACTICS, // disable tactics
 	REWARDABLE_EXTENSIONS_2, // movement points limiter for rewardables
 	BONUS_TRIGGER, // bonus that allows triggered effects in combat
+	BATTLE_SPELL_CAST_SOURCE_FILTER, // battle spell cast history tracks caster source and updater stores caster filter
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
-	CURRENT = BONUS_TRIGGER,
+	CURRENT = BATTLE_SPELL_CAST_SOURCE_FILTER,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

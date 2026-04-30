@@ -1361,17 +1361,25 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				break;
 		}
 	}
-	else
-	{
-		if(pack.ba.actionType == EActionType::HERO_SPELL)
-			gs.getBattle(pack.battleID)->getSide(pack.ba.side).usedSpellsHistory.push_back(pack.ba.spell);
-	}
 }
 
 void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 {
-	if(pack.castByHero && pack.side != BattleSide::NONE)
-		gs.getBattle(pack.battleID)->getSide(pack.side).castSpellsCount++;
+	if(pack.side != BattleSide::NONE)
+	{
+		auto * battle = gs.getBattle(pack.battleID);
+		auto & side = battle->getSide(pack.side);
+		if(pack.castByHero)
+		{
+			side.castSpellsCount++;
+			side.usedSpellsHistory.push_back(pack.spellID);
+		}
+		else
+		{
+			side.usedCreatureSpellsHistory.push_back(pack.spellID);
+		}
+		battle->nodeHasChanged();
+	}
 }
 
 void GameStatePackVisitor::visitSetStackEffect(SetStackEffect & pack)
@@ -1461,16 +1469,17 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	{
 		return battle->battleID == pack.battleID;
 	});
-	const auto & currentBattle = **battleIter;
+	auto * currentBattle = battleIter->get();
 
 	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		if (currentBattle.getSide(i).heroID.hasValue())
+		if (currentBattle->getSide(i).heroID.hasValue())
 		{
-			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
-			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
+			CGHeroInstance * hero = gs.getHero(currentBattle->getSideHero(i)->id);
+			hero->mana = std::min(hero->mana, currentBattle->getSide(i).initialMana);
 		}
 	}
+
 }
 
 void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)

@@ -126,11 +126,10 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 		details->mana = h->mana;
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 
-		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
-		{
+		for(int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
 			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill>(i));
-		}
-		if (infoLevel == EInfoLevel::INBATTLE)
+
+		if(infoLevel == EInfoLevel::INBATTLE)
 			details->manaLimit = h->manaLimit();
 		else
 			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value

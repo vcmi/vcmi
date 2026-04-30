@@ -22,6 +22,7 @@ class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit 
 {
 private:
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> extraBackground;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 

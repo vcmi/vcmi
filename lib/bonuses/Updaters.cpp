@@ -12,6 +12,7 @@
 
 #include "Updaters.h"
 #include "Limiters.h"
+#include "../battle/BattleInfo.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
@@ -186,6 +187,73 @@ std::string TimesArmySizeUpdater::toString() const
 JsonNode TimesArmySizeUpdater::toJsonNode() const
 {
 	return JsonNode("TIMES_ARMY_SIZE");
+}
+
+namespace
+{
+std::optional<std::pair<const BattleInfo *, BattleSide>> getBattleSpellCastContext(const CBonusSystemNode & context)
+{
+	if(context.getNodeType() == BonusNodeType::HERO)
+	{
+		const auto & hero = dynamic_cast<const CGHeroInstance &>(context);
+		if(hero.battle == nullptr)
+			return std::nullopt;
+
+		const BattleSide side = hero.battle->whatSide(hero.getOwner());
+		if(side == BattleSide::NONE)
+			return std::nullopt;
+
+		return std::make_pair(hero.battle, side);
+	}
+
+	if(context.getNodeType() == BonusNodeType::STACK_BATTLE)
+	{
+		const auto & stack = dynamic_cast<const CStack &>(context);
+		if(stack.getBattle() == nullptr)
+			return std::nullopt;
+
+		if(stack.unitSide() == BattleSide::NONE)
+			return std::nullopt;
+
+		return std::make_pair(stack.getBattle(), stack.unitSide());
+	}
+
+	return std::nullopt;
+}
+}
+
+std::shared_ptr<Bonus> TimesSideBattleSpellsCastUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	const auto battleContext = getBattleSpellCastContext(context);
+	if(!battleContext)
+		return b;
+
+	auto newBonus = std::make_shared<Bonus>(*b);
+	const int castCount = battleContext->first->getBattleSpellCastCount(battleContext->second, casterType);
+	newBonus->val *= std::clamp(castCount / std::max(1, stepSize), minimum, maximum);
+	return newBonus;
+}
+
+std::string TimesSideBattleSpellsCastUpdater::toString() const
+{
+	return "TimesSideBattleSpellsCastUpdater";
+}
+
+JsonNode TimesSideBattleSpellsCastUpdater::toJsonNode() const
+{
+	JsonNode root;
+	root["type"].String() = "TIMES_SIDE_BATTLE_SPELLS_CAST";
+	if(minimum != 0)
+		root["minimum"].Integer() = minimum;
+	if(maximum != std::numeric_limits<int>::max())
+		root["maximum"].Integer() = maximum;
+	if(stepSize != 1)
+		root["stepSize"].Integer() = stepSize;
+	if(casterType == BattleSpellCastSource::CREATURE)
+		root["casterType"].String() = "creature";
+	else if(casterType == BattleSpellCastSource::ANY)
+		root["casterType"].String() = "any";
+	return root;
 }
 
 
