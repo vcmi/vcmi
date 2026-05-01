@@ -560,9 +560,6 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 	if (!obj->id.hasValue())
 		obj->id = ObjectInstanceID(objects.size());
 
-	if(obj->id != ObjectInstanceID(objects.size()) && objects.at(obj->id.getNum()) != nullptr)
-		throw std::runtime_error("Invalid object instance id");
-
 	if(obj->instanceName.empty())
 		throw std::runtime_error("Object instance name missing");
 
@@ -572,7 +569,17 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 	if (obj->id == ObjectInstanceID(objects.size()))
 		objects.emplace_back(obj);
 	else
-		objects[obj->id.getNum()] = obj;
+	{
+		if(objects.at(obj->id.getNum()) == nullptr)
+			objects[obj->id.getNum()] = obj;
+		else
+		{
+			int index = obj->id.getNum();
+			auto iter = objects.begin() + index;
+			objects.insert(iter, obj);
+			shiftObjectIndices(index, 1);
+		}
+	}
 
 	instanceNames[obj->instanceName] = obj;
 	showObject(obj.get());
@@ -603,32 +610,31 @@ std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
 
-	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
-		(*iter)->id = ObjectInstanceID(i);
-
-	for (auto & town : towns)
-		if (town.getNum() >= obj->id)
-			town = ObjectInstanceID(town.getNum()-1);
-
-	for (auto & hero : heroesOnMap)
-		if (hero.getNum() >= obj->id)
-			hero = ObjectInstanceID(hero.getNum()-1);
-
-	for(auto & tile : terrain)
-	{
-		for (auto & objectID : tile.blockingObjects)
-			if (objectID.getNum() >= obj->id)
-				objectID = ObjectInstanceID(objectID.getNum()-1);
-
-		for (auto & objectID : tile.visitableObjects)
-			if (objectID.getNum() >= obj->id)
-				objectID = ObjectInstanceID(objectID.getNum()-1);
-	}
-
+	shiftObjectIndices(obj->id.getNum(), -1);
 	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
-	//This causes crash with undo/redo in editor
 
 	return obj;
+}
+
+void CMap::shiftObjectIndices(int from, int shift)
+{
+	for(int i = from; i < objects.size(); i++)
+		objects[i]->id = ObjectInstanceID(i);
+
+	auto shiftUtilityContainer = [&from, &shift](std::vector<ObjectInstanceID> & indices) -> void
+	{
+		for(auto & index : indices)
+			if(index.getNum() >= from)
+				index = ObjectInstanceID(index.getNum() + shift);
+	};
+
+	shiftUtilityContainer(towns);
+	shiftUtilityContainer(heroesOnMap);
+	for(auto & tile : terrain)
+	{
+		shiftUtilityContainer(tile.blockingObjects);
+		shiftUtilityContainer(tile.visitableObjects);
+	}
 }
 
 std::shared_ptr<CGObjectInstance> CMap::replaceObject(ObjectInstanceID oldObjectID, const std::shared_ptr<CGObjectInstance> & newObject)

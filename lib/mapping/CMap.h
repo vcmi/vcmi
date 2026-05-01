@@ -290,7 +290,9 @@ private:
 	/// a 3-dimensional array of terrain tiles
 	MapTilesStorage<TerrainTile> terrain;
 
-	si32 uidCounter; 
+	si32 uidCounter;
+
+	void shiftObjectIndices(int from, int shift);
 
 public:
 	template <typename Handler>
