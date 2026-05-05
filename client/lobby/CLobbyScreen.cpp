@@ -132,6 +132,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 			GAME->server().getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
 
+	// Make sure scenario selection is centered
 	if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 	{
 		const Point contentOffset(19, 0);
@@ -295,6 +296,7 @@ void CLobbyScreen::updateAfterStateChange()
 		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
 		tabBattleOnlyMode->setEnabled(false);
 
+		// Make sure scenario selection is centered
 		if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 			tabBattleOnlyMode->moveBy(Point(19, 0));
 
