@@ -24,6 +24,7 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/Images.h"
 #include "../windows/InfoWindows.h"
 #include "../render/Colors.h"
 #include "../globalLobby/GlobalLobbyClient.h"
@@ -130,6 +131,18 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		if (wasInLobbyRoom)
 			GAME->server().getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
+
+	if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+	{
+		const Point contentOffset(19, 0);
+		for(CIntObject * child : children)
+		{
+			if(!child || child == background.get())
+				continue;
+
+			child->moveBy(contentOffset);
+		}
+	}
 
 	if(hideScreen) // workaround to avoid confusing players by custom campaign list displaying for a few ms -> instead of this draw a black screen while "loading"
 	{
@@ -281,6 +294,9 @@ void CLobbyScreen::updateAfterStateChange()
 	{
 		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
 		tabBattleOnlyMode->setEnabled(false);
+
+		if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+			tabBattleOnlyMode->moveBy(Point(19, 0));
 
 		if(GAME->server().battleMode)
 			toggleTab(tabBattleOnlyMode);
