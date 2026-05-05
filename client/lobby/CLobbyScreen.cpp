@@ -132,7 +132,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 			GAME->server().getGlobalLobby().activateInterface();
 	}, EShortcut::GLOBAL_CANCEL);
 
-	if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+	if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 	{
 		const Point contentOffset(19, 0);
 		for(CIntObject * child : children)
@@ -295,7 +295,7 @@ void CLobbyScreen::updateAfterStateChange()
 		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
 		tabBattleOnlyMode->setEnabled(false);
 
-		if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+		if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 			tabBattleOnlyMode->moveBy(Point(19, 0));
 
 		if(GAME->server().battleMode)
