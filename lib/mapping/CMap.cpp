@@ -605,21 +605,39 @@ std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 	instanceNames.erase(obj->instanceName);
 	obj->afterRemoveFromMap(this);
 
-	//update indices
+	for(int i = 0; i < objects.size(); i++)
+	{
+		if(auto questGiver = std::dynamic_pointer_cast<IQuestObject>(objects[i]))
+		{
+			ObjectInstanceID & questTarget = questGiver->getQuest().killTarget;
+			if(questTarget.getNum() == oldObject)
+				questTarget = ObjectInstanceID::NONE;
+		}
+	}
 
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
 
 	shiftObjectIndices(obj->id.getNum(), -1);
-	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
+	//TODO: Clean artifact instances (mostly worn by hero?)
 
 	return obj;
 }
 
 void CMap::shiftObjectIndices(int from, int shift)
 {
-	for(int i = from; i < objects.size(); i++)
-		objects[i]->id = ObjectInstanceID(i);
+	for(int i = 0; i < objects.size(); i++)
+	{
+		if(i >= from)
+			objects[i]->id = ObjectInstanceID(i);
+
+		if(auto questGiver = std::dynamic_pointer_cast<IQuestObject>(objects[i]))
+		{
+			ObjectInstanceID & questTarget = questGiver->getQuest().killTarget;
+			if(questTarget != ObjectInstanceID::NONE && questTarget.getNum() >= from)
+				questTarget = ObjectInstanceID(questTarget.getNum() + shift);
+		}
+	}
 
 	auto shiftUtilityContainer = [&from, &shift](std::vector<ObjectInstanceID> & indices) -> void
 	{
