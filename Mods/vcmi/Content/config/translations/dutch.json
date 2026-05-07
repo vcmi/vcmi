@@ -11,6 +11,7 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Verlaag de spreukkosten (${val})}\nVerlaagt de spreukkosten voor de held met ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Magiedemper (${val})}\nVerhoogt de spreukkosten van vijandelijke spreuken met ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immuun voor steekspelbonus}\nDeze eenheid ontvangt geen extra schade door de steekspelbonus",
+	"core.bonus.CPU_CONTROLLED.description": "",
 	"core.bonus.DAMAGE_RECEIVED_CAP.description": "Schadelimiet (${val}%)\nGeen enkele aanval kan meer schade toebrengen dan ${val}% van de maximale gezondheid",
 	"core.bonus.DEATH_STARE.description": "{Doodsblik (${val}%)}\nHeeft een kans van ${val}% om een ​​enkel levend wezen direct te doden",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Verdedigingsbonus}\nVerhoogt de verdediging met +${val} na het uitvoeren van een verdedigingsactie",
