@@ -23,6 +23,7 @@
 	"core.bonus.ENCHANTER.description": "{Чародей}\nМожет применять ${subtype.spell} каждый ход.",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Игнорирует атаку (${val}%)}\nПри получении атаки игнорирует ${val}% атаки нападающего",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Игнорирует броню (${val}%)}\nПри атаке игнорирует ${val}% защиты цели",
+	"core.bonus.FEARFUL.description": "",
 	"core.bonus.FEROCITY.description": "{Свирепость}\nАтакует дополнительно ${val} раз, если кого-то убивает",
 	"core.bonus.FIRE_SHIELD.description": "{Огненный щит (${val}%)}\nОтряд отражает ${val}% полученного урона в ближнем бою",
 	"core.bonus.FIRST_STRIKE.description": "{Первый удар}\nОтряд наносит ответный удар до атаки противника",

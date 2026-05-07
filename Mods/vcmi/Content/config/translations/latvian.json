@@ -23,6 +23,7 @@
 	"core.bonus.ENCHANTER.description": "{Enchanter}\nVar izmest ${subtype.spell} katrā gājienā",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Ignorēt uzbrukumu (${val}%) }\nUzbrukuma gadījumā ${val}% no uzbrucēja uzbrukuma tiek ignorēti",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorēt aizsardzību (${val}%) }\nUzbrūkot, ${val}% no aizstāvja aizsardzības tiek ignorēta",
+	"core.bonus.FEARFUL.description": "",
 	"core.bonus.FEROCITY.description": "{Ferocity}\nUzbrūk ${val} papildu reizes, ja kāds tiek nogalināts",
 	"core.bonus.FIRE_SHIELD.description": "{Uguns vairogs (${val}%) }\nVienība atspoguļo ${val} no tuvcīņas saņemtajiem bojājumiem",
 	"core.bonus.FIRST_STRIKE.description": "{Pirmais trieciens}\nVienība atbild uz uzbrukumu pirms tā saņemšanas",
