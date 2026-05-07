@@ -7,26 +7,27 @@ msgstr ""
 "Project-Id-Version: VCMI 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 20:10+0200\n"
-"PO-Revision-Date: 2026-03-12 21:15+0200\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-05-07 14:05+0000\n"
+"Last-Translator: Karyoplasma <karyoplasma@proton.me>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/vcmi/linux/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.17.1\n"
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "Open-Source Spiele-Engine für Heroes of Might and Magic III"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "VCMI Team"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -93,11 +94,11 @@ msgstr ""
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
-msgstr ""
+msgstr "heroes3"
 
 #: eu.vcmi.VCMI.metainfo.xml:128
 msgid "homm3"
-msgstr ""
+msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
@@ -109,4 +110,4 @@ msgstr "Open-Source-Nachbau von Heroes of Might and Magic III"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
-msgstr ""
+msgstr "heroes of might and magic;heroes;homm;homm3;strategy;"
