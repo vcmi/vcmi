@@ -1920,7 +1920,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation>Schopnosti</translation>
+        <translation>Dovednosti</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
@@ -2239,35 +2239,44 @@ UPOZORNĚNÍ: Aktualizované verze modifikací nemusí být v některých příp
         <location filename="../startGame/StartGameTab.cpp" line="346"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokud vlastníte Heroes Chronicles na GOG.com, můžete pomocí offline instalačních balíčků z GOG importovat data Heroes Chronicles do VCMI jako vlastní kampaně.
+Pro import Heroes Chronicles stáhněte offline instalační balíček každé kroniky, kterou chcete nainstalovat, poté zvolte možnost „Importovat soubory“ a vyberte stažený soubor. Tím se vytvoří a nainstaluje modifikace pro VCMI obsahující importované kroniky.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebyly nalezeny hudební soubory z Heroes III. Hru bude možné spustit, ale během hraní nebude dostupná hudba.
+
+Chybějící soubory MP3 zkopírujte z Heroes III do datového adresáře hry nebo přeinstalujte hru a znovu importujte data Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="370"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebyly nalezeny videosoubory z Heroes III. Hru bude možné spustit, ale herní videa nebudou dostupná.
+
+Soubor VIDEO.VID zkopírujte z Heroes III do datového adresáře hry nebo přeinstalujte hru a znovu importujte data Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="381"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>Některé datové soubory z Heroes III nebyly nalezeny. Hru sice můžete spustit, ale nemusí fungovat správně a může docházet k pádům.
+
+Pro vyřešení problému přeinstalujte hru a znovu importujte data z podporované verze Heroes III. Ke spuštění je vyžadováno Heroes III Complete Edition, které lze získat například na GOG.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="392"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Některé datové soubory z Heroes III: Armageddon&apos;s Blade nebyly nalezeny. Hra bude fungovat, ale kampaně Meče zkázy nebudou dostupné.
+
+Chybějící soubory zkopírujte z Heroes III do datového adresáře hry nebo přeinstalujte hru a znovu importujte data Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="403"/>
