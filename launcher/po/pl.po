@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 20:10+0200\n"
 "PO-Revision-Date: 2026-05-07 13:58+0000\n"
-"Last-Translator: Ivan Savenko <saven.ivan@gmail.com>\n"
+"Last-Translator: Nowy dzień <literad@protonmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/vcmi/linux/pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -20,15 +20,15 @@ msgstr ""
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "Silnik gry o otwartym kodzie źródłowym do Heroes of Might and Magic III"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "Zespół projektu VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -36,48 +36,62 @@ msgid ""
 "possibilities. Years of intensive work resulted in an impressive amount of "
 "features. Among the current features are:"
 msgstr ""
+"VCMI to silnik gry o otwartym kodzie źródłowym do Heroes of Might and Magic "
+"III. Lata intensywnej pracy zaowocowały nowymi funkcjonalnościami, wśród "
+"nich znajdują się m.in.:"
 
 #: eu.vcmi.VCMI.metainfo.xml:14
 msgid "Complete gameplay mechanics"
-msgstr ""
+msgstr "Pełna mechanika rozgrywki"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
 msgstr ""
+"Niemal wszystkie obiekty, umiejętności, zaklęcia oraz pozostała zawartość"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"
-msgstr ""
+msgstr "Podstawowa SI bitewna i SI na mapie przygody"
 
 #: eu.vcmi.VCMI.metainfo.xml:17
 msgid "Many GUI improvements: high resolutions, stack queue, creature window"
 msgstr ""
+"Wiele usprawnień interfejsu użytkownika: wysokie rozdzielczości, kolejka "
+"oddziałów, okno jednostek"
 
 #: eu.vcmi.VCMI.metainfo.xml:18
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
 msgstr ""
+"Zaawansowane i proste wsparcie modów – dodawaj nowe miasta, jednostki, "
+"bohaterów, artefakty i zaklęcia bez ograniczeń i konfliktów"
 
 #: eu.vcmi.VCMI.metainfo.xml:19
 msgid ""
 "Launcher for easy configuration - download mods from our server and install "
 "them immediately!"
 msgstr ""
+"Launcher do szybkiej konfiguracji – pobierz mody z serwera i zainstaluj od "
+"razu!"
 
 #: eu.vcmi.VCMI.metainfo.xml:20
 msgid "Random map generator that supports objects added by mods"
-msgstr ""
+msgstr "Generator losowych map z obsługą obiektów wprowadzanych przez mody"
 
 #: eu.vcmi.VCMI.metainfo.xml:22
 msgid ""
 "Note: In order to play the game using VCMI you need to own data files for "
 "Heroes of Might and Magic III: The Shadow of Death."
 msgstr ""
+"Do gry w VCMI potrzebne są pliki danych z Heroes of Might and Magic III: The "
+"Shadow of Death."
 
 #: eu.vcmi.VCMI.metainfo.xml:23
 msgid "If you want help, please check our forum, bug tracker or GitHub page."
 msgstr ""
+"W razie problemów, zapraszamy do naszego forum, systemu zgłaszania błędów "
+"lub na stronę projektu na GitHub."
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
@@ -89,11 +103,11 @@ msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
-msgstr ""
+msgstr "Gra strategiczna"
 
 #: vcmilauncher.desktop:6
 msgid "Open-source recreation of Heroes of Might & Magic III"
-msgstr ""
+msgstr "Rekonstrukcja Heroes of Might & Magic III w otwartym kodzie źródłowym"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
