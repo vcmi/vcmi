@@ -4096,7 +4096,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Недостатньо шаблонів!</translation>
     </message>
     <message>
         <source>To few templates!</source>
