@@ -1900,6 +1900,20 @@ uint64_t AIPath::getTotalDanger() const
 	return danger;
 }
 
+bool AIPath::requiresBattle() const
+{
+	if(targetObjectArmyLoss > 0)
+		return true;
+
+	for(const auto & node : nodes)
+	{
+		if(node.action == EPathNodeAction::BATTLE || node.action == EPathNodeAction::TELEPORT_BATTLE)
+			return true;
+	}
+
+	return false;
+}
+
 bool AIPath::containsHero(const CGHeroInstance * hero) const
 {
 	if(targetHero == hero)

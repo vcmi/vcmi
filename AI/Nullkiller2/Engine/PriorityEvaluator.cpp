@@ -66,6 +66,33 @@ float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue,
 	return std::min(baseMaxArmyLoss + conquestPressure, 0.75f);
 }
 
+static float computeResourceRequirementStrength(const Nullkiller * aiNk, GameResID resType, TResource missingAmount, TResource dailyIncome, float noIncomeBaseStrength)
+{
+	assert(missingAmount > 0);
+
+	TResources missingResources;
+	missingResources[resType] = missingAmount;
+
+	const auto missingMarketValue = missingResources.marketValue();
+	const auto currentStock = aiNk->getFreeResources()[resType];
+
+	float strength = dailyIncome == 0 ? noIncomeBaseStrength : 0.5f;
+
+	// Use market value so rare resources and gold shortages scale on the same axis.
+	if(missingMarketValue >= 500)
+		strength += 0.10f;
+	if(missingMarketValue >= 1500)
+		strength += 0.15f;
+	if(missingMarketValue >= 3000)
+		strength += 0.15f;
+
+	// Wood and ore depletion blocks early and mid-game town development
+	if((resType == GameResID::WOOD || resType == GameResID::ORE) && currentStock == 0)
+		strength += 0.25f;
+
+	return std::min(1.5f, strength);
+}
+
 EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	: movementCost(0.0),
 	manaCost(0),
@@ -90,6 +117,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isDefend(false),
 	threatTurns(INT_MAX),
 	involvesSailing(false),
+	requiresBattle(false),
 	isTradeBuilding(false),
 	isExchange(false),
 	isArmyUpgrade(false),
@@ -408,10 +436,7 @@ float RewardEvaluator::getNowResourceRequirementStrength(GameResID resType) cons
 	if(requiredResources[resType] == 0)
 		return 0;
 
-	if(dailyIncome[resType] == 0)
-		return 1.0f;
-
-	return 0.8f;
+	return computeResourceRequirementStrength(aiNk, resType, requiredResources[resType], dailyIncome[resType], 0.8f);
 }
 
 /// @return between 0-1.0f
@@ -423,10 +448,7 @@ float RewardEvaluator::getTotalResourceRequirementStrength(GameResID resType) co
 	if(requiredResources[resType] == 0)
 		return 0;
 
-	if(dailyIncome[resType] == 0)
-		return 1.0f;
-
-	return 0.8f;
+	return computeResourceRequirementStrength(aiNk, resType, requiredResources[resType], dailyIncome[resType], 0.7f);
 }
 
 uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
@@ -461,7 +483,7 @@ float RewardEvaluator::getCombinedResourceRequirementStrength(const TResources &
 			+ 0.5f * getTotalResourceRequirementStrength(it->resType);
 
 		// Even not required resources should be valuable because they shouldn't be left for the enemies to collect
-		sum += std::min(MINIMUM_STRATEGICAL_VALUE_NON_TOWN, calculation);
+		sum += std::max(MINIMUM_STRATEGICAL_VALUE_NON_TOWN, calculation);
 	}
 
 	return sum;
@@ -1026,6 +1048,7 @@ public:
 			return;
 
 		vstd::amax(evaluationContext.danger, path.getTotalDanger());
+		evaluationContext.requiresBattle = evaluationContext.requiresBattle || path.requiresBattle();
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
@@ -1437,6 +1460,20 @@ float PriorityEvaluator::evaluateConquestValue(float score, const float conquest
 float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 {
 	auto evaluationContext = buildEvaluationContext(task);
+	const auto * targetObject = task->objid >= 0 ? aiNk->cc->getObj(ObjectInstanceID(task->objid), false) : nullptr;
+	std::optional<GameResID> targetResourceType;
+
+	// Loose resources and mines satisfy the same build shortage pressure
+	if(targetObject && targetObject->ID == Obj::RESOURCE)
+	{
+		if(auto resource = dynamic_cast<const CGResource *>(targetObject))
+			targetResourceType = resource->resourceID();
+	}
+	else if(targetObject && (targetObject->ID == Obj::MINE || targetObject->ID == Obj::ABANDONED_MINE))
+	{
+		if(auto mine = dynamic_cast<const CGMine *>(targetObject))
+			targetResourceType = mine->producedResource;
+	}
 
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
@@ -1622,7 +1659,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				//    && ((evaluationContext.enemyHeroDangerRatio > 0 && arriveNextWeek) || evaluationContext.enemyHeroDangerRatio > involvedStrengthOutOfTotalRatio))
 				// 	return 0;
 
-				const auto requiresBattle = evaluationContext.armyLossRatio > 0 || evaluationContext.danger > 0;
+				const auto requiresBattle = evaluationContext.requiresBattle || evaluationContext.armyLossRatio > 0;
 				score += evaluationContext.strategicalValue * 1000;
 				if(evaluationContext.explorePriority > 0)
 				{
@@ -1640,8 +1677,54 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 					if(evaluationContext.heroRole == MAIN)
 					{
+						bool scoutCanReachResourceThisTurn = false;
+						if(!requiresBattle && targetResourceType.has_value())
+						{
+							const auto targetTile = targetObject->visitablePos();
+
+							// Only same-turn SCOUT pickup is certain enough to make MAIN abandon this target.
+							for(const auto * hero : aiNk->cc->getHeroesInfo())
+							{
+								if(hero == task->hero)
+									continue;
+								if(aiNk->getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED)
+									continue;
+								if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) != HeroRole::SCOUT)
+									continue;
+
+								auto paths = aiNk->getPathsInfo(hero);
+								if(!paths)
+									continue;
+
+								auto pathNode = paths->getPathInfo(targetTile);
+								if(pathNode->reachable() && pathNode->turns == 0)
+								{
+									scoutCanReachResourceThisTurn = true;
+									break;
+								}
+							}
+						}
+
+						if(scoutCanReachResourceThisTurn)
+						{
+							logAi->trace(
+								"priorityTier %d, MAIN yields %s at %s because a SCOUT can reach it this turn",
+								priorityTier,
+								targetObject->getObjectName(),
+								targetObject->visitablePos().toString());
+							return 0;
+						}
+
 						if(requiresBattle)
 							// Encourage MAIN to fight for crypts and similar
+							score *= 2;
+						else if(targetResourceType.has_value()
+							&& aiNk->buildAnalyzer->getMissingResourcesNow()[*targetResourceType] > 0
+							&& ((*targetResourceType == GameResID::GOLD
+								&& aiNk->getFreeResources()[*targetResourceType] < GameConstants::HERO_GOLD_COST
+								&& aiNk->buildAnalyzer->isGoldPressureOverMax())
+								|| (*targetResourceType != GameResID::GOLD && aiNk->getFreeResources()[*targetResourceType] == 0)))
+							// Critical no-battle resources are still worth MAIN movement if waiting blocks builds or hero hiring.
 							score *= 2;
 						else
 							// Discourage MAIN to waste time picking resources if they don't require a fight

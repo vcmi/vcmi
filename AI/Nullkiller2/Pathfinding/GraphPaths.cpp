@@ -249,6 +249,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				n.coord = graphTile->coord;
 				n.cost = cost;
 				n.turns = static_cast<ui8>(cost) + 1; // just in case lets select worst scenario
+				n.action = EPathNodeAction::NORMAL;
 				n.danger = danger;
 				n.targetHero = hero;
 				n.parentIndex = -1;
@@ -365,6 +366,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 			n.targetHero = hero;
 			n.parentIndex = -1;
+			n.action = EPathNodeAction::NORMAL;
 
 			// final node
 			n.coord = tile;
@@ -397,6 +399,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 				n.coord = graphTile->coord;
 				n.cost = node.cost;
 				n.turns = static_cast<ui8>(node.cost);
+				n.action = EPathNodeAction::NORMAL;
 				n.danger = danger;
 				n.specialAction = node.specialAction;
 				n.parentIndex = path.nodes.size();

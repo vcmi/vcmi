@@ -72,6 +72,7 @@ struct DLL_EXPORT EvaluationContext
 	int threatTurns;
 	TResources buildingCost;
 	bool involvesSailing;
+	bool requiresBattle;
 	bool isTradeBuilding;
 	bool isExchange;
 	bool isArmyUpgrade;

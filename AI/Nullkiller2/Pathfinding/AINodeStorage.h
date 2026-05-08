@@ -79,6 +79,7 @@ struct AIPathNodeInfo
 	uint8_t turns;
 	int3 coord;
 	EPathfindingLayer layer;
+	EPathNodeAction action;
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
 	int parentIndex;
@@ -107,6 +108,9 @@ struct AIPath
 
 	/// Gets danger of path including danger of visiting the target object like creature bank
 	uint64_t getTotalDanger() const;
+
+	/// Returns true if path contains an actual battle action or the target visit itself causes army loss.
+	bool requiresBattle() const;
 
 	/// Gets danger of path including danger of visiting the target object like creature bank
 	uint64_t getTotalArmyLoss() const;
