@@ -60,7 +60,7 @@ jobs:
           - platform: msvc-x64
             arch: x64
             toolset: '14.29'
-            os: windows-2025
+            os: windows-2025-vs2026
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -74,7 +74,7 @@ jobs:
           - platform: msvc-x86
             arch: amd64_x86
             toolset: '14.29'
-            os: windows-2025
+            os: windows-2025-vs2026
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -705,11 +705,11 @@ jobs:
         include:
           - platform: msvc-x64
             arch: x64
-            os: windows-2025
+            os: windows-2025-vs2026
 
           - platform: msvc-x86
             arch: x86
-            os: windows-2025
+            os: windows-2025-vs2026
 
           - platform: msvc-arm64
             arch: arm64
