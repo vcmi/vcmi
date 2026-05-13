@@ -377,7 +377,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="870"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Распаковка content.zip (%1/%2) для %3</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="877"/>
@@ -411,7 +411,9 @@ Install successfully downloaded?</source>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Не удалось установить файл %1.
+Причина: %2.
+Пожалуйста, сообщите об этой проблеме разработчикам</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1068"/>
@@ -475,12 +477,12 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Удалить мод</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы уверены, что хотите удалить %1?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="974"/>
@@ -584,7 +586,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Полная распаковка мода</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="476"/>
@@ -599,7 +601,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="593"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показывать статус в Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
@@ -609,7 +611,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1543"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сохранять перед посещением</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
@@ -1112,7 +1114,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="316"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы можете вручную скопировать папки Maps, Data и Mp3 из каталога оригинальной игры в каталог данных VCMI, указанный ниже</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="335"/>
@@ -1147,7 +1149,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="600"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Установить рекомендуемые моды VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="704"/>
@@ -1162,7 +1164,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="769"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Дополнения VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="799"/>
@@ -1172,17 +1174,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="815"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Масштабное дополнение, расширяющее игровой процесс: по одному альтернативному существу для каждого из 9 стандартных городов, а также новые нейтральные существа, банки существ, навыки и заклинания</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="831"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Спуститесь в подземное царство и откройте Каземат — новую фракцию, где во тьме процветают грибы, камень и руническая магия, созданную для VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Обнаружены файлы демо-версии Heroes III. Этот мод обязателен для использования демо-ресурсов в VCMI, иначе игра завершится с ошибкой</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1192,17 +1194,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tides of War</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fallen of the Depth</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Поддержка демо-версии</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
@@ -1346,23 +1348,24 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Необходимо выбрать файл %1!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="377"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выбран неизвестный установщик.
+Необходимо выбрать офлайн-установщик GOG.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="389"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы выбрали установщик GOG Galaxy. Этот файл не содержит игру. Пожалуйста, скачайте офлайн-установщик резервной копии игры.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выберите офлайн-установщик GOG (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="427"/>
@@ -1374,29 +1377,29 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="434"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выберите файл данных офлайн-установщика GOG: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="454"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="633"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Недопустимый файл данных</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="685"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Импорт данных Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="582"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Подготовка установщика...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="642"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Распаковка установщика...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="669"/>
@@ -1421,7 +1424,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="699"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сканирование выбранной папки...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="474"/>
@@ -1608,7 +1611,7 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нидерландский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1618,7 +1621,7 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Filipino</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Филиппинский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
@@ -1663,7 +1666,7 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Латышский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
@@ -1693,7 +1696,7 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сербский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
@@ -2228,42 +2231,53 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="346"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Если у вас есть Heroes Chronicles на gog.com, вы можете использовать офлайн-установщики резервной копии от GOG для импорта данных Heroes Chronicles в VCMI как пользовательских кампаний.
+Чтобы импортировать Heroes Chronicles, скачайте офлайн-установщик резервной копии для каждой хроники, которую хотите установить, выберите опцию «Импортировать файлы» и укажите скачанный файл. Это создаст и установит мод для VCMI, содержащий импортированные хроники.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">VCMI обнаружил, что в вашей установке отсутствуют музыкальные файлы Heroes III. VCMI запустится, но внутриигровая музыка будет недоступна.
+
+Чтобы решить эту проблему, вручную скопируйте отсутствующие mp3-файлы из Heroes III в каталог данных VCMI или переустановите VCMI и повторно импортируйте файлы данных Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="370"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">VCMI обнаружил, что в вашей установке отсутствуют видеофайлы Heroes III. VCMI запустится, но внутриигровые ролики будут недоступны.
+
+Чтобы решить эту проблему, вручную скопируйте файл VIDEO.VID из Heroes III в каталог данных VCMI или переустановите VCMI и повторно импортируйте файлы данных Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="381"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">VCMI обнаружил, что в вашей установке отсутствует часть файлов данных Heroes III. Вы можете попытаться запустить VCMI, но игра может работать некорректно или аварийно завершаться.
+
+Чтобы решить эту проблему, переустановите игру и повторно импортируйте файлы данных, используя поддерживаемую версию Heroes III. Для работы VCMI требуется Heroes III: Shadow of Death или Complete Edition, которые можно приобрести, например, на gog.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="392"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">VCMI обнаружил, что в вашей установке отсутствует часть файлов данных Heroes III: Armageddon&apos;s Blade. VCMI будет работать, но кампании Armageddon&apos;s Blade будут недоступны.
+
+Чтобы решить эту проблему, вручную скопируйте отсутствующие файлы данных из Heroes III в каталог данных VCMI или переустановите VCMI и повторно импортируйте файлы данных Heroes III.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="403"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Чтобы улучшить качество графики в VCMI, вы можете установить файлы из официальной HD-версии Heroes III в Steam. Выберите папку Heroes HD из Steam.
+
+После установки необходимо выставить фильтр масштабирования x2 или выше, чтобы действительно увидеть HD-графику.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>
