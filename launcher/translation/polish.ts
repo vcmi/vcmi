@@ -1194,7 +1194,7 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="928"/>
         <source>Tides of War</source>
-        <translation>Tides of War</translation>
+        <translation type="unfinished">Losy wojny</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="966"/>
@@ -1383,7 +1383,7 @@ Musisz wybrać instalator GOG w trybie offline.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="389"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation>Wybrałeś instalator GOG Galaxy. Ten plik nie zawiera gry. Zamiast tego pobierz offline backup game installer.</translation>
+        <translation>Wybrałeś instalator GOG Galaxy. Ten plik nie zawiera gry. Zamiast tego pobierz zapasowy offline instalator gry.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="418"/>
