@@ -292,7 +292,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="999"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1004"/>
         <source>mods repository index</source>
-        <translation>モッズリポジトリインデックス</translation>
+        <translation>モッド リポジトリ インデックス</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
@@ -596,7 +596,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Mods Validation</source>
-        <translation>モッズの検証</translation>
+        <translation>モッドの検証</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
@@ -743,7 +743,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1543"/>
         <source>Save Before Visit</source>
-        <translation>訪問する前に保存してください</translation>
+        <translation>訪問前に保存</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="822"/>
@@ -1082,7 +1082,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>モッズプリセット</translation>
+        <translation>モッド プリセット</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="126"/>
@@ -1092,7 +1092,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="172"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>質問がありますか？バグを見つけましたか？お手伝いしたいですか？ぜひご参加ください！</translation>
+        <translation>質問がありますか？バグを見つけましたか？手伝いたいですか？ぜひご参加ください！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="251"/>
@@ -1741,7 +1741,7 @@ Bin (%n バイト):
     <message>
         <location filename="../mainwindow_moc.ui" line="107"/>
         <source>Mods</source>
-        <translation>モッズ</translation>
+        <translation>モッド</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="52"/>
@@ -1939,7 +1939,7 @@ Bin (%n バイト):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
-        <translation>生き物</translation>
+        <translation>クリーチャー</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
@@ -2041,7 +2041,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation>アーマゲドンの刃のキャンペーンが見つかりません！</translation>
+        <translation>アーマゲドンズ ブレードのキャンペーンが見つかりません！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="331"/>
@@ -2152,7 +2152,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="250"/>
         <source>Mods</source>
-        <translation>モッズ</translation>
+        <translation>モッド</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="251"/>

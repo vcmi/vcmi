@@ -146,17 +146,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="66"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="405"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンペーンを開けませんでした</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>検証に失敗しました</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンペーンにマップが定義されていません。</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="251"/>
@@ -959,7 +959,7 @@
         <location filename="../mainwindow.ui" line="1254"/>
         <location filename="../mainwindow.cpp" line="1415"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>マップレイヤーの種類を選択してください</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
@@ -1183,7 +1183,7 @@
         <location filename="../mainwindow.cpp" line="455"/>
         <location filename="../mainwindow.cpp" line="1432"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>レベル %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="481"/>
@@ -1383,7 +1383,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1416"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>種類：</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1471"/>
@@ -1640,7 +1640,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>必須のオブジェクト</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
@@ -1762,7 +1762,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="226"/>
@@ -2005,8 +2005,8 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="357"/>
         <location filename="../inspector/inspector.cpp" line="358"/>
         <source>%n tile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n タイル</numerusform>
         </translation>
     </message>
     <message>
@@ -2484,7 +2484,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="220"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンペーンを開くことができませんでした</translation>
     </message>
 </context>
 <context>
@@ -4018,37 +4018,37 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="649"/>
         <source>Validation failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>検証に失敗しました！</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="654"/>
         <source>No player range defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>プレイヤー範囲が定義されていません。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="661"/>
         <source>Invalid range for players.</source>
-        <translation type="unfinished"></translation>
+        <translation>プレイヤーの範囲が無効です。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="669"/>
         <source>Invalid range for human players.</source>
-        <translation type="unfinished"></translation>
+        <translation>人間のプレイヤーには無効な範囲です。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="684"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>接続が存在しないゾーンを参照しています：%1 - %2</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="696"/>
         <source>Zone %1 has no connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーン %1 には接続がありません。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="720"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>プレイヤー %1 には、開始ゾーンが必ず1つだけ存在する必要があります（%2 に存在）。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="757"/>
@@ -4095,7 +4095,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>テンプレートが少なすぎます！</translation>
     </message>
     <message>
         <source>To few templates!</source>
