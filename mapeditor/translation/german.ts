@@ -4095,7 +4095,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="915"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu wenige Templates!</translation>
     </message>
     <message>
         <source>To few templates!</source>
