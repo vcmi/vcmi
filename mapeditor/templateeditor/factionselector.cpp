@@ -21,7 +21,6 @@ FactionSelector::FactionSelector(std::set<FactionID> & factions) :
 	factionsSelected(factions)
 {
 	ui->setupUi(this);
-
 	setWindowTitle(tr("Faction Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

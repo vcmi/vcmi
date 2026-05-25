@@ -17,7 +17,12 @@
 #include "CServerHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
+#include "battle/BattleFieldController.h"
+#include "battle/BattleInterface.h"
+#include "battle/BattleObstacleController.h"
+#include "battle/CObstacleInstance.h"
 #include "gui/WindowHandler.h"
+#include "render/CanvasImage.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
 #include "../lib/callback/CCallback.h"
@@ -41,11 +46,8 @@
 #include "../lib/modding/ModUtility.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/ObstacleHandler.h"
 #include "../lib/logging/VisualLogger.h"
-
-#ifdef SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
-#endif
 
 void ClientCommandManager::handleQuitCommand()
 {
@@ -372,30 +374,6 @@ void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBu
 	}
 }
 
-void ClientCommandManager::handleGetScriptsCommand()
-{
-#if SCRIPTING_ENABLED
-	printCommandMessage("Command accepted.\t");
-
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "scripts";
-
-	boost::filesystem::create_directories(outPath);
-
-	for(const auto & kv : LIBRARY->scriptHandler->objects)
-	{
-		std::string name = kv.first;
-		boost::algorithm::replace_all(name,":","_");
-
-		const scripting::ScriptImpl * script = kv.second.get();
-		boost::filesystem::path filePath = outPath / (name + ".lua");
-		std::ofstream file(filePath.c_str());
-		file << script->getSource();
-	}
-	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
-#endif
-}
-
 void ClientCommandManager::handleGetTextCommand()
 {
 	printCommandMessage("Command accepted.\t");
@@ -452,6 +430,59 @@ void ClientCommandManager::handleExtractCommand(std::istringstream& singleWordBu
 		printCommandMessage("File not found!", ELogLevel::ERROR);
 }
 
+void ClientCommandManager::handleObstaclesDebugCommand()
+{
+	auto cellBorder = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	auto cellShade = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
+	auto & battleInt = GAME->interface()->battleInt;
+	if (!battleInt)
+		return;
+
+	auto & obstacleController = battleInt->obstacleController;
+
+	for (const auto & obstacle : LIBRARY->obstacleHandler->objects)
+	{
+		if (obstacle->isAbsoluteObstacle)
+		{
+			continue; // TODO?
+		}
+		else
+		{
+			BattleHex position(0, obstacle->height - 1);
+			BattleHex bottomRightHex(obstacle->width, obstacle->height);
+			CObstacleInstance testObstacle;
+			testObstacle.obstacleType = CObstacleInstance::USUAL;
+			testObstacle.pos = position;
+			testObstacle.ID = obstacle->getIndex();
+			obstacleController->loadObstacleImage(testObstacle);
+
+			Point bottomRightCorner = battleInt->fieldController->hexPositionLocal(bottomRightHex).bottomRight();
+			CanvasImage canvas(bottomRightCorner, CanvasScalingPolicy::IGNORE);
+			auto image = obstacleController->getObstacleImage(testObstacle);
+
+			if (!image)
+				continue;
+
+			canvas.getCanvas().drawColor(Rect(Point(), canvas.dimensions()), ColorRGBA(0,255,255,255));
+			canvas.getCanvas().draw(image, obstacleController->getObstaclePosition(image, testObstacle));
+			canvas.getCanvas().drawBorder(Rect(obstacleController->getObstaclePosition(image, testObstacle), image->dimensions()), ColorRGBA(255, 0, 0, 255));
+
+			for (int y = 0; y < obstacle->height; ++y)
+				for (int x = 0; x < obstacle->width; ++x)
+					canvas.getCanvas().draw(cellBorder, battleInt->fieldController->hexPositionLocal(BattleHex(x,y)).topLeft());
+
+			for (const auto & blockedHex : obstacle->getBlocked(position))
+				canvas.getCanvas().draw(cellShade, battleInt->fieldController->hexPositionLocal(blockedHex).topLeft());
+
+			std::string modID = obstacle->getModScope();
+			std::string obstacleID = obstacle->identifier;
+			auto fullPath = VCMIDirs::get().userExtractedPath() / "obstacles" / modID;
+			boost::filesystem::create_directories(fullPath);
+			canvas.exportBitmap(fullPath / (obstacleID + ".png"));
+		}
+	}
+}
+
 void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordBuffer)
 {
 	if(currentCallFromIngameConsole)
@@ -503,7 +534,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 void ClientCommandManager::handleMpCommand()
 {
 	if(const CGHeroInstance* h = GAME->interface()->localState->getCurrentHero())
-		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit(true)) + "/" + std::to_string(h->movementPointsLimit(false)) + "\n");
+		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit()) + "\n");
 }
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)
@@ -647,9 +678,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(message=="get config")
 		handleGetConfigCommand();
 
-	else if(message=="get scripts")
-		handleGetScriptsCommand();
-
 	else if(message=="get txt")
 		handleGetTextCommand();
 
@@ -661,6 +689,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "bonuses")
 		handleBonusesCommand(singleWordBuffer);
+
+	else if(message == "obstacles debug")
+		handleObstaclesDebugCommand();
 
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);

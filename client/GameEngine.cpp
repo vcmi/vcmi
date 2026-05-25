@@ -190,6 +190,16 @@ Point GameEngine::screenDimensions() const
 	return screenHandlerInstance->getLogicalResolution();
 }
 
+bool GameEngine::isRoeData() const
+{
+	return LIBRARY->isRoeData();
+}
+
+bool GameEngine::isDemoData() const
+{
+	return LIBRARY->isDemoData();
+}
+
 void GameEngine::drawPerformanceOverlay()
 {
 	auto font = EFonts::FONT_SMALL;

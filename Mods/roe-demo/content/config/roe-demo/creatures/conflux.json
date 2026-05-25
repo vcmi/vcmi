@@ -1,0 +1,145 @@
+{
+	"core:pixie" :
+	{
+		"index": 145,
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:sprite" :
+	{
+		"index": 146,
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:stormElemental" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:psychicElemental" :
+	{
+		"index": 147,
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:magicElemental" :
+	{
+		"index": 148,
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:iceElemental" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:magmaElemental" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:energyElemental" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:firebird" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	},
+	"core:phoenix" :
+	{
+		"special" : true,
+		"graphics" : null,
+		"sound" :
+		{
+			"attack": "default.wav",
+			"defend": "default.wav",
+			"killed": "default.wav",
+			"move": "default.wav",
+			"shoot": "default.wav",
+			"wince": "default.wav"
+		}
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"core:elementalist" :
+	{
+		"animation" : { "battle" : { "male" : "null", "female" : "null" } },
+		"mapObject" : { "templates" : { "default" : { "animation" : "null", "editorAnimation" : "null" } } },
+		"primarySkills" : { "attack" : 1, "defence" : 1, "spellpower" : 2, "knowledge" : 2 },
+		"lowLevelChance" : { "attack" : 15, "defence" : 15, "spellpower" : 35, "knowledge" : 35 },
+		"highLevelChance" : { "attack" : 15, "defence" : 15, "spellpower" : 35, "knowledge" : 35 }
+	},
+	"core:planeswalker" :
+	{
+		"animation" : { "battle" : { "male" : "null", "female" : "null" } },
+		"mapObject" : { "templates" : { "default" : { "animation" : "null", "editorAnimation" : "null" } } },
+		"primarySkills" : { "attack" : 2, "defence" : 2, "spellpower" : 1, "knowledge" : 1 },
+		"lowLevelChance" : { "attack" : 35, "defence" : 35, "spellpower" : 15, "knowledge" : 15 },
+		"highLevelChance" : { "attack" : 35, "defence" : 35, "spellpower" : 15, "knowledge" : 15 }
+	}
+}

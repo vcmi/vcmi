@@ -45,6 +45,8 @@ public:
 	bool optional = false;
 
 	std::string name;
+	std::string spellScope;
+	std::string spellIdentifier;
 
 	virtual ~Effect() = default; //Required for child classes
 

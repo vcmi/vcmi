@@ -37,6 +37,7 @@
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/ScopeGuard.h"
@@ -288,14 +289,18 @@ int main(int argc, char * argv[])
 	};
 
 	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
-	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted!\nBuilt-in mod was not found!");
 	testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + VCMIDirs::get().userDataPath().string() + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
 	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
 	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
 
 	if(!settings["session"]["headless"].Bool())
+	{
+		if(LIBRARY->getGameDataMode() == GameLibrary::GameDataMode::ROE)
+			handleFatalError("Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!", false);
+
 		ENGINE = std::make_unique<GameEngine>();
+	}
 
 	GAME = std::make_unique<GameInstance>();
 

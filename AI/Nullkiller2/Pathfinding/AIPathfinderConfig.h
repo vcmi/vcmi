@@ -23,7 +23,7 @@ namespace AIPathfinding
 	class AIPathfinderConfig : public PathfinderConfig
 	{
 	private:
-		std::map<const CGHeroInstance *, std::unique_ptr<CPathfinderHelper>> pathfindingHelpers;
+		HeroMap<std::unique_ptr<CPathfinderHelper>> pathfindingHelpers;
 		std::shared_ptr<AINodeStorage> aiNodeStorage;
 
 	public:

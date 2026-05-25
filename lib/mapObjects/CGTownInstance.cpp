@@ -35,7 +35,7 @@
 #include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
@@ -554,6 +554,11 @@ bool CGTownInstance::passableFor(PlayerColor color) const
 		return false;
 
 	return cb->getPlayerRelations(tempOwner, color) != PlayerRelations::ENEMIES;
+}
+
+EPathfindingLayer CGTownInstance::getBoatLayer() const
+{
+	return EPathfindingLayer::SAIL;
 }
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const

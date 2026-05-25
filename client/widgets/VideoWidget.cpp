@@ -192,7 +192,7 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 	}
 }
 
-void VideoWidgetBase::setPlaybackFinishedCallback(std::function<void()> cb)
+void VideoWidgetBase::setPlaybackFinishedCallback(const std::function<void()> & cb)
 {
 	playBackFinishedCallback = cb;
 }

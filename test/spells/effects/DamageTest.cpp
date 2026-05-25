@@ -108,7 +108,7 @@ TEST_F(DamageApplyTest, DoesDamageToAliveUnit)
 	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId),_, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
@@ -131,7 +131,7 @@ TEST_F(DamageApplyTest, IgnoresDeadUnit)
 
 	EXPECT_CALL(targetUnit, alive()).WillRepeatedly(Return(false));
 	EXPECT_CALL(targetUnit, acquireState()).Times(0);
-	EXPECT_CALL(*battleFake, setUnitState(_,_,_)).Times(0);
+	EXPECT_CALL(*battleFake, updateUnit(_,_,_)).Times(0);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
@@ -173,7 +173,7 @@ TEST_F(DamageApplyTest, DoesDamageByPercent)
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId),_, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
@@ -217,7 +217,7 @@ TEST_F(DamageApplyTest, DoesDamageByCount)
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 

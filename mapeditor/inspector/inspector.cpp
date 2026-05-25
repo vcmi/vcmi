@@ -9,19 +9,20 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
-#include "../lib/entities/hero/CHeroClass.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/CRandomGenerator.h"
-#include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
-#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../lib/mapObjectConstructors/CommonConstructors.h"
-#include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/constants/StringConstants.h"
-#include "../lib/CPlayerState.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
+#include "abilitieswidget.h"
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
 #include "townspellswidget.h"
@@ -383,9 +384,12 @@ void Inspector::updateProperties(CGArtifact * o)
 	if(MapObjectID::isRandomArtifact(o->ID))
 		return;
 
-	const CArtifactInstance * instance = o->getArtifactInstance();
-	if(instance && o->ID == Obj::SPELL_SCROLL)
+	if(o->ID == Obj::SPELL_SCROLL)
 	{
+		const CArtifactInstance * instance = o->getArtifactInstance();
+		if(!instance)
+			return;
+
 		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != SpellID::NONE)
 		{
@@ -414,8 +418,8 @@ void Inspector::updateProperties(CGResource * o)
 {
 	if(!o) return;
 
-	addProperty(QObject::tr("Amount"), o->amount, false);
-	addProperty(QObject::tr("Message"), o->message, false);
+	addProperty(QObject::tr("Amount"), o->getAmount(), false);
+	addProperty(QObject::tr("Message"), o->getMessage(), false);
 }
 
 void Inspector::updateProperties(CGSignBottle * o)
@@ -445,10 +449,19 @@ void Inspector::updateProperties(CGCreature * o)
 
 void Inspector::updateProperties(CRewardableObject * o)
 {
-	if(!o) return;
+	if(!o)
+		return;
 
-	auto * delegate = new RewardsDelegate(*controller.map(), *o);
-	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), delegate, false);
+	if(o->ID == MapObjectID::WITCH_HUT)
+	{
+		auto * delegate = new AbilitiesDelegate(controller, *o);
+		addProperty(QObject::tr("Abilities"), PropertyEditorPlaceholder(), delegate, false);
+	}
+	else
+	{
+		auto * delegate = new RewardsDelegate(*controller.map(), *o);
+		addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), delegate, false);
+	}
 }
 
 void Inspector::updateProperties(CGPandoraBox * o)
@@ -762,7 +775,7 @@ void Inspector::setProperty(CGResource * o, const QString & key, const QVariant 
 	if(!o) return;
 
 	if(key == QObject::tr("Amount"))
-		o->amount = value.toString().toInt();
+		o->setAmount(value.toString().toInt());
 }
 
 void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant & value)

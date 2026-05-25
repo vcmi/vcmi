@@ -1,204 +1,111 @@
 # Lua Scripting System
 
-## Configuration
+This page describes internal working of Lua scripting module. For usage of public API see modding documentation
 
-```json
-{
- 	//general purpose script, Lua or ERM, runs on server
- 	"myScript":
-	{
-		"source":"path/to/script/with/ext",
-		"implements":"ANYTHING"
-	},
+## TODO
 
+- (MAJOR) switch from using global to `return table` pattern when loading scripts. This would allow implementing inheritance / extension of existing scripts
+- (MAJOR) expand API to make scripts actually usable for modding. [ERM docs](https://azethmeron.github.io/) can serve as reference as to what should be accessible from Lua.
+- (MAJOR) expand usage of scripts:
+  - convert HotA map scripts into Lua form
+  - convert HotA (and possibly - H3) Seer Huts into scripts
+  - Move all spell effects to Lua form
+  - Implement support for scriptable map objects
+  - Move damage calculator, or at least - damage formula to Lua, based on [existing PR](https://github.com/vcmi/vcmi/pull/5135)
+  - Move map movement point limit calculation to Lua
+- Document public scripting API. Decide approach on how to handle it:
+  - Use .md form and place them as part of our docs, accessible from website
+  - Use [Lua Language Server format](https://luals.github.io/wiki/definition-files/) to make docs accessible from IDE
+  - Both .md and Lua Language Server
+  - Document everything in code and make exporter to both .md and Lua Language Server
+- Currently C++ bindings rely on undefined behavior, which previously was causing issues on Android. We need to remove `VCMI_REGISTER_CORE_SCRIPT_API` and `VCMI_REGISTER_CORE_SCRIPT_API` macro and perform these actions explicitly on initialization of scripting
+- Review existing API and ensure that it follows rules described here
+  - replace `getAnyUnitIf` method with `getUnitsIf` that returns array
+- Document C++ classes
+- Review class names and rename them where necessary. Same for file names.
+- Remove usage of numeric identifiers from script. In cases where entity does not exists such as `PlayerColor`, replace them with copyable API class
+- Add error handling instead of returning nil values whenever something goes wrong. Lua already provides `luaL_error` for such cases. Make sure that Lua stack size is correct whenever error occurs
+  - For API calls, ensure that all use some wrapper, such as `LuaCallWrapper` and not a direct function call
+- Add "preprocess" or "initialize" function to initialize parameters (e.g. load string ID and resolve it to Creature type)
+- Consider config validation as part of the script. Options:
+  - external json schema support
+  - implement "validate" function that performs all checks manually
+  - have Lua generate json schema?
+- ensure that there is debug logging available to scripts:
+  - information logging
+  - assertions
+  - error messages
+- implement comparison operator of exposed API classes by auto-implementing `__eq` Lua field for all exported classes
+- consider wrapping Lua userdata into std::any for better type safety
+- decide how to handle MetaString in Lua API. Make it Lua serializeable?
 
- 	//custom battle spell effect, Lua only, runs on both client and server
- 	//script ID will be used as effect 'type' (with mod prefix)
- 	"mySpellEffect":
-	{
-		"source":"path/to/script/with/ext",
-		"implements":"BATTLE_EFFECT"
-	},
+## General rules
 
-	//TODO: object|building type
- 	//custom map object or building, Lua only, runs on both client and server
- 	//script ID will be used as 'handler' (with mod prefix)
- 	"myObjectType":
-	{
-		"source":"path/to/script/with/ext",
-		"implements":"MAP_OBJECT"
-	},
-	//TODO: server query
-	//TODO: client query
+Scripts must be constant and should not generate any side effects.
 
-}
-```
+Exception are scripts that are executed as result of netpack apply (such scripts should be marked as such)
 
-## Lua
+Global state of a Lua script must never change - script should not make assumptions on how many times it was run or in what order were functions called
 
-### API Reference
+## Naming rules
 
-TODO **In near future Lua API may change drastically several times. Information here may be outdated**
+- Method names are in camelCase
+- Method names must be verbs: `getFoo`, `isFoo`, `setFoo`, `run`, `update`
+- Library classes, such as Creature must be passed as pointer like `const Creature *`, not as identifier like `CreatureID`
+- If you need to expose identifier, prefer exposing its string form, like one provided via `getJsonKey`
 
-#### Globals
+## Exposing class to Lua script
 
-- DATA - persistent table
-- - DATA.ERM contains ERM state, anything else is free to use.
-- GAME - IGameInfoCallback API
-- BATTLE - IBattleInfoCallback API
-- EVENT_BUS - opaque handle, for use with events API
-- SERVICES - root "raw" access to all static game objects
-- - SERVICES:artifacts()
-- - SERVICES:creatures()
-- - SERVICES:factions()
-- - SERVICES:heroClasses()
-- - SERVICES:heroTypes()
-- - SERVICES:spells()
-- - SERVICES:skills()
-- require(URI)
-- -works similar to usual Lua require
-- -require("ClassName") - loads additional API and returns it as table (for C++ classes)
-- -require("core:relative.path.to.module") - loads module from "SCRIPTS/LIB"
-- -TODO require("modName:relative.path.to.module") - loads module from dependent mod
-- -TODO require(":relative.path.to.module") - loads module from same mod
-- logError(text) - backup error log function
+1. Decide how this class should be passed into Lua
+   - As Lua table (POD type): inherit class from `scripting::ApiSerializable` and implement `void serializeScript(Serializer & s)` method. Skip all subsequent steps. This approach is preferred for POD types
+   - As copy: inherit class from `scripting::ApiCopyable`. This approach is preferred for small classes that don't use inheritance to avoid lifetime management
+   - As raw pointer: inherit class from `scripting::ApiRawPointer`. Preferred for classes that are guaranteed to exists longer than scripts or for interfaces
+   - As shared pointer: inherit class from `scripting::ApiSharedPointer`. Preferred for short-lived classes or for interfaces
+2. Create class named XXXProxy and place it into one of `luascript/api` subdirectories
+3. Provide all methods that needs to be exposed to a script in `REGISTER_CUSTOM` field:
+   - if method can be used as it, use `LuaMethodWrapper` or `LuaSharedMethodWrapper` adapters
+   - if method needs a simple adaptor, like provide a fixed parameter to a method, use `LuaFunctionWrapper` and implement static method with adapted signature in `XXXProxy` class
+   - if method needs a compex adaptor, like to allow optional parameters, implement static method `int doXXX(lua_State * L)` and use it directly. WARNING: Should be avoided
+4. Allow access to this class in script by returning it via API call or by passing it into script callback
 
-#### Low level events API
+## Classes
 
-```lua
+#### LuaModule
 
--- Each event type must be loaded first
-local PlayerGotTurn = require("events.PlayerGotTurn")
+Global class responsible for loading Lua scripts on startup. Part of `ScriptingHandler`.
 
--- in this example subscription handles made global, do so if there is no better place
--- !!! do not store them in local variables
-sub1 = 	PlayerGotTurn.subscribeAfter(EVENT_BUS, function(event)
-		--do smth
-	end)
+#### LuaScriptInstance
 
-sub2 = 	PlayerGotTurn.subscribeBefore(EVENT_BUS, function(event)
-		--do smth
-	end)
-```
+Instance of loaded script content (e.g. script source code). One is created for each loaded script. Persists between map restarts. Owned by `LuaModule`
 
-#### Lua standard library
+#### LuaScriptPool
 
-VCMI uses LuaJIT, which is Lua 5.1 API, see [upstream documentation](https://www.lua.org/manual/5.1/manual.html)
+Owned by CGameState. Contains runnable instances of all scripts
 
-Following libraries are supported
+#### LuaContext
 
-- base
-- table
-- string
-- math
-- bit
+Manages a single script. Game maintains one LuaContext for each loaded script. Each script has its own independent LuaState. Does not persists between map restarts. Owned by `LuaScriptPool`
 
-## ERM
+#### CopyableWrapper, RawPointerWrapper and SharedPointerWrapper
 
-### Features
+Wrapper to expose C++ class to Lua in form of table with metadata
 
-- no strict limit on function/variable numbers (technical limit 32 bit integer except 0))
-- TODO semi compare
-- DONE macros
+#### LuaFunctionWrapper and LuaMethodWrapper
 
-### Bugs
+Wrappers to adapt C++ method call into Lua callback signature `int function(lua_State * L)`
 
-- TODO Broken XOR support (clashes with \`X\` option)
+#### LuaStack
 
-### Triggers
+Helper to manage Lua state. Provides helper functions to:
 
-- TODO **!?AE** Equip/Unequip artifact
-- WIP **!?BA** when any battle occurs
-- WIP **!?BF** when a battlefield is prepared for a battle
-- TODO **!?BG** at every action taken by any stack or by the hero
-- TODO **!?BR** at every turn of a battle
-- *!?CM (client only) click the mouse button.*
-- TODO **!?CO** Commander triggers
-- TODO **!?DL** Custom dialogs
-- DONE **!?FU** function
-- TODO **!?GE** "global" event
-- TODO **!?GM** Saving/Loading
-- TODO **!?HE** when the hero \# is attacked by an enemy hero or
-    visited by an allied hero
-- TODO **!?HL** hero gains a level
-- TODO **!?HM** every step a hero \# takes
-- *!?IP Multiplayer support.*
-- TODO **!?LE** (!$LE) An Event on the map
-- WIP **!?MF** stack taking physical damage(before an action)
-- TODO **!?MG** casting on the adventure map
-- *!?MM scroll text during a battle*
-- TODO **!?MR** Magic resistance
-- TODO **!?MW** Wandering Monsters
-- WIP **!?OB** (!$OB) visiting objects
-- DONE **!?PI** Post Instruction.
-- TODO **!?SN** Sound and ERA extensions
-- *!?TH town hall*
-- TODO **!?TL** Real-Time Timer
-- TODO **!?TM** timed events
+- push variables onto Lua stack
+- query variables located as specific position of the stack
+- adjust stack size, including automatic restoration of stack size to its initial size
 
-### Receivers
+#### LuaReference
 
-#### VCMI
+TODO
 
-- **!!MC:S@varName@** - declare new "normal" variable (technically
-    v-var with string key)
-- TODO Identifier resolver
-- WIP Bonus system
+#### LuaSpellEffect
 
-#### ERA
-
-- DONE !!if !!el !!en
-- TODO !!br !!co
-- TODO !!SN:X
-
-#### WoG
-
-- TODO !!AR Артефакт (ресурс) в определенной позиции
-- TODO !!BA Битва
-- !!BA:A$ return 1 for battle evaluation
-- TODO !!BF Препятствия на поле боя
-- TODO !!BG Действий монстров в бою
-- TODO !!BH Действия героя в бою
-- TODO !!BM Монстр в битве
-- WIP !!BU Универсальные параметры битвы
-- TODO !!CA Замок
-- TODO !!CD Разрушения замков
-- TODO !!CE События в замке
-- TODO !!CM Клика мышью
-- TODO !!DL Нестандартный диалог (только ТЕ или выше)
-- TODO !!CO Командиры
-- WIP !!DO Многократный вызов функции
-- TODO !!EA Бонусы опыта существ
-- TODO !!EX Опыт стека
-- DONE !!FU Однократный вызов функции
-- TODO !!GE Глобальное событие
-- WIP !!HE Герой
-- TODO !!HL Новый уровень героя
-- TODO !!HO Взаимодействия героев
-- TODO !!HT Подсказки по правому клику
-- WIP !!IF Диалоги и флагов
-- TODO !!IP Сетевой сервис битвы
-- TODO !!LE Локальное события
-- WIP !!MA Общие параметры монстров
-- DONE !!MC Макросы
-- WIP !!MF Получение физ. урона в бою
-- TODO !!MM Текст в битве
-- WIP !!MO Монстр в определенной позиции
-- TODO !!MP Контроль MP3
-- TODO !!MR Сопротивления магии
-- TODO !!MW Бродячих монстров
-- WIP !!OB Объект в определенной позиции
-- TODO !!OW Параметры игрока
-- TODO !!PM Пирамиды или новые объекты
-- TODO !!PO Информация квадрата карты
-- TODO (???) !!QW Журнала
-- TODO !!SN Проигрываемые звуков
-- TODO !!SS Настройка заклинаний (только ТЕ или выше)
-- TODO !!TL Контроль времени хода (только ТЕ или выше)
-- TODO !!TM Временный таймер
-- TODO !!TR Квадрата карты (почва, проходимость, т.п.)
-- TODO !!UN Универсальная команда
-- *!#VC Контроль переменных*
-- WIP !!VR Установка переменных
-
-### Persistence
+Adapter to provide spell effect implementation via Lua

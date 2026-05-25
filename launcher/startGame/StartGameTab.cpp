@@ -22,6 +22,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../vcmiqt/MessageBox.h"
+#include "../../vcmiqt/convpathqstring.h"
 
 void StartGameTab::changeEvent(QEvent *event)
 {
@@ -93,11 +94,18 @@ StartGameTab::~StartGameTab()
 
 void StartGameTab::refreshState()
 {
+	bool demoActive = CModListView::isDemoDataPresent();
+
 	refreshGameData();
 	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
-	refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
+
+	if (!demoActive)
+	{
+		refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
+		refreshMods();
+	}
+
 	refreshPresets();
-	refreshMods();
 
 	if (settings["launcher"]["trackClipboardState"].Bool())
 		clipboardDataChanged();
@@ -116,6 +124,22 @@ void StartGameTab::refreshPresets()
 
 void StartGameTab::refreshGameData()
 {
+	bool demoDataPresent = CModListView::isDemoDataPresent();
+
+	ui->buttonInstallGame->setVisible(demoDataPresent);
+#ifdef ENABLE_EDITOR
+	ui->buttonGameEditor->setEnabled(!demoDataPresent);
+#endif
+
+	if (demoDataPresent)
+	{
+		for (QWidget * child : ui->scrollAreaWidgetContents_2->findChildren<QWidget*>())
+			child->setVisible(child == ui->buttonInstallGame);
+		return;
+	}
+
+	ui->scrollArea_2->setVisible(true);
+
 	// Some players are using pirated version of the game with some of the files missing
 	// leading to broken town hall menu (and possibly other dialogs)
 	// Provide diagnostics to indicate problem with chair-monitor adaptor layer and not with VCMI
@@ -235,6 +259,29 @@ void StartGameTab::on_buttonGameEditor_clicked()
 {
 	Helper::getMainWindow()->hide();
 	startEditor({});
+}
+
+void StartGameTab::on_buttonInstallGame_clicked()
+{
+	int result = QMessageBox::question(
+		this,
+		tr("Install Heroes III"),
+		tr("This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?"),
+		QMessageBox::Yes | QMessageBox::No,
+		QMessageBox::No
+	);
+
+	if (result != QMessageBox::Yes)
+		return;
+
+	QString userDataPath = pathToQString(VCMIDirs::get().userDataPath());
+	for (const QString folder : {"Data", "Maps", "Mp3", "Video"})
+		QDir(userDataPath + "/" + folder).removeRecursively();
+
+	Settings writer = settings.write["launcher"]["setupCompleted"];
+	writer->Bool() = false;
+
+	Helper::getMainWindow()->enterSetup();
 }
 
 void StartGameTab::on_buttonImportFiles_clicked()

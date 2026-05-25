@@ -26,8 +26,13 @@
 int argcForClient;
 char ** argvForClient;
 #elif defined(VCMI_ANDROID)
+# include <QAndroidJniEnvironment>
 # include <QAndroidJniObject>
 # include <QtAndroid>
+# include "../lib/CAndroidVMHelper.h"
+# ifdef ENABLE_EDITOR
+#  include "../mapeditor/editorbridge.h"
+# endif
 #else
 # include <QMessageBox>
 # include <QProcess>
@@ -49,7 +54,15 @@ int MAIN_EXPORT main(int argc, char * argv[])
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-	QApplication vcmilauncher(argc, argv);
+#ifdef VCMI_ANDROID
+	// Initialize JNI classloader before QApplication - Qt's platform plugin
+	// may trigger VCMIDirs::get() which needs CAndroidVMHelper
+	{
+		QAndroidJniEnvironment jniEnv;
+		CAndroidVMHelper::initClassloader(static_cast<JNIEnv *>(jniEnv));
+	}
+#endif
+	QApplication app(argc, argv);
 
 	// use system proxy
 	{
@@ -59,6 +72,19 @@ int MAIN_EXPORT main(int argc, char * argv[])
 			QNetworkProxy::setApplicationProxy(systemProxies[0]);
 	}
 
+#ifdef VCMI_ANDROID
+	if (qgetenv("VCMI_LAUNCH_MAP_EDITOR") == "1")
+	{
+		launcher::prepare();
+		openMapEditor();
+		result = app.exec();
+		// Qt event loop has ended but the Android Activity stays alive,
+		// leaving a black screen. Terminate the editor process.
+		exit(0);
+		return result;
+	}
+#endif
+
 	launcher::prepare();
 
 	MainWindow mainWindow;
@@ -67,7 +93,7 @@ int MAIN_EXPORT main(int argc, char * argv[])
 #ifdef VCMI_ANDROID
 	// changing language causes window to increase size over the bounds, force it back to proper value
 	// TODO: check in Qt 6 if the hack is still needed
-	auto appWindow = vcmilauncher.focusWindow();
+	auto appWindow = app.focusWindow();
 	auto resizeWindowToScreen = [appWindow]{
 		appWindow->resize(appWindow->screen()->availableSize());
 	};
@@ -75,7 +101,7 @@ int MAIN_EXPORT main(int argc, char * argv[])
 	QObject::connect(appWindow, &QWindow::heightChanged, resizeWindowToScreen);
 #endif
 
-	result = vcmilauncher.exec();
+	result = app.exec();
 #ifdef VCMI_IOS
 	}
 	if (result == 0)
@@ -111,7 +137,11 @@ void startGame(const QStringList & args)
 void startEditor(const QStringList & args)
 {
 #ifdef ENABLE_EDITOR
+# ifdef VCMI_ANDROID
+	QtAndroid::androidActivity().callMethod<void>("openMapEditor");
+# else
 	startExecutable(pathToQString(VCMIDirs::get().mapEditorPath()), args);
+# endif
 #endif
 }
 

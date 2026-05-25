@@ -13,8 +13,8 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../render/Canvas.h"
-#include "../../widgets/Slider.h"
-#include "../../widgets/TextControls.h"
+#include "../Slider.h"
+#include "../TextControls.h"
 #include "../../windows/InfoWindows.h"
 
 #include "../../CPlayerInterface.h"

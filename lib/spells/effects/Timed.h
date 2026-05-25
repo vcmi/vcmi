@@ -27,6 +27,8 @@ class Timed : public UnitEffect
 {
 public:
 	bool cumulative = false;
+	std::string battleLogMessageSingular;
+	std::string battleLogMessagePlural;
 	std::vector<std::shared_ptr<Bonus>> bonus;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;

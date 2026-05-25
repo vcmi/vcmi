@@ -140,7 +140,7 @@ struct DLL_LINKAGE BattleResult : public Query
 	}
 };
 
-struct DLL_LINKAGE BattleLogMessage : public CPackForClient
+struct DLL_LINKAGE BattleLogMessage : public CPackForClient, public scripting::ApiSharedPointer<BattleLogMessage>
 {
 	BattleID battleID = BattleID::NONE;
 	std::vector<MetaString> lines;
@@ -155,7 +155,7 @@ struct DLL_LINKAGE BattleLogMessage : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleStackMoved : public CPackForClient
+struct DLL_LINKAGE BattleStackMoved : public CPackForClient, public scripting::ApiSharedPointer<BattleStackMoved>
 {
 	BattleID battleID = BattleID::NONE;
 	ui32 stack = 0;
@@ -176,7 +176,7 @@ struct DLL_LINKAGE BattleStackMoved : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient
+struct DLL_LINKAGE BattleUnitsChanged : public CPackForClient, public scripting::ApiSharedPointer<BattleUnitsChanged>
 {
 	BattleID battleID = BattleID::NONE;
 	std::vector<UnitChanges> changedStacks;

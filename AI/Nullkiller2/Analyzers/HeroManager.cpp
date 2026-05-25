@@ -109,7 +109,7 @@ void HeroManager::update()
 {
 	logAi->trace("Start analysing our heroes");
 
-	std::map<const CGHeroInstance *, float> scores;
+	HeroMap<float> scores;
 	auto myHeroes = cc->getHeroesInfo();
 
 	for(auto & hero : myHeroes)

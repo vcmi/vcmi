@@ -320,4 +320,9 @@ AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 	return actualAnimation;
 }
 
+EPathfindingLayer BoatInstanceConstructor::getLayer() const
+{
+	return layer;
+}
+
 VCMI_LIB_NAMESPACE_END

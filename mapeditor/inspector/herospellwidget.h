@@ -13,6 +13,8 @@
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 	class HeroSpellWidget;
 }

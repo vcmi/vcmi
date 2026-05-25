@@ -11,7 +11,7 @@
 #include "CanvasImage.h"
 
 #include "../GameEngine.h"
-#include "../render/IScreenHandler.h"
+#include "IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../renderSDL/SDLImageScaler.h"
 #include "../renderSDL/SDLImage.h"

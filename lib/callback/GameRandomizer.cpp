@@ -12,15 +12,15 @@
 
 #include "IGameInfoCallback.h"
 
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/GameLibrary.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/CSkillHandler.h"
-#include "../../lib/IGameSettings.h"
-#include "../../lib/entities/artifact/CArtHandler.h"
-#include "../../lib/entities/artifact/EArtifactClass.h"
-#include "../../lib/entities/hero/CHeroClass.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../CRandomGenerator.h"
+#include "../GameLibrary.h"
+#include "../CCreatureHandler.h"
+#include "../CSkillHandler.h"
+#include "../IGameSettings.h"
+#include "../entities/artifact/CArtHandler.h"
+#include "../entities/artifact/EArtifactClass.h"
+#include "../entities/hero/CHeroClass.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

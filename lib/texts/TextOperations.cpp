@@ -11,7 +11,7 @@
 #include "TextOperations.h"
 
 #include "../GameLibrary.h"
-#include "../texts/CGeneralTextHandler.h"
+#include "CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 

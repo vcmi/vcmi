@@ -24,7 +24,6 @@
 #include "Obstacle.h"
 #include "RemoveObstacle.h"
 #include "Sacrifice.h"
-#include "Summon.h"
 #include "Teleport.h"
 #include "Timed.h"
 #include "UnitEffect.h"
@@ -53,7 +52,6 @@ public:
 		add("core:obstacle", std::make_shared<EffectFactory<Obstacle>>());
 		add("core:removeObstacle", std::make_shared<EffectFactory<RemoveObstacle>>());
 		add("core:sacrifice", std::make_shared<EffectFactory<Sacrifice>>());
-		add("core:summon", std::make_shared<EffectFactory<Summon>>());
 		add("core:teleport", std::make_shared<EffectFactory<Teleport>>());
 		add("core:timed", std::make_shared<EffectFactory<Timed>>());
 	}
@@ -69,6 +67,7 @@ public:
 
 	void add(const std::string & name, FactoryPtr item) override
 	{
+		assert(!data.contains(name));
 		data[name] = item;
 	}
 

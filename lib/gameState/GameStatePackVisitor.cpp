@@ -31,7 +31,7 @@
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
 
-#include "../../lib/spells/CSpellHandler.h"
+#include "../spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -667,7 +667,7 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 	h->updateAppearance();
 
 	h->setOwner(pack.player);
-	h->setMovementPoints(h->movementPointsLimit(true));
+	h->setMovementPoints(h->movementPointsLimit());
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 
@@ -1295,7 +1295,7 @@ void GameStatePackVisitor::visitBattleAttack(BattleAttack & pack)
 	pack.attackerChanges.visit(*this);
 
 	for(BattleStackAttacked & stack : pack.bsa)
-		gs.getBattle(pack.battleID)->setUnitState(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
+		gs.getBattle(pack.battleID)->updateUnit(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
 
 	attacker->removeBonusesRecursive(Bonus::UntilAttack);
 
@@ -1660,7 +1660,7 @@ void BattleStatePackVisitor::visitStacksInjured(StacksInjured & pack)
 {
 	for(const BattleStackAttacked & stack : pack.stacks)
 	{
-		battleState.setUnitState(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
+		battleState.updateUnit(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
 	}
 }
 
@@ -1670,17 +1670,14 @@ void BattleStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 	{
 		switch(elem.operation)
 		{
-			case BattleChanges::EOperation::RESET_STATE:
-				battleState.setUnitState(elem.id, elem.data, elem.healthDelta);
+			case BattleChanges::EOperation::UPDATE:
+				battleState.updateUnit(elem.id, elem.data, elem.healthDelta);
 				break;
 			case BattleChanges::EOperation::REMOVE:
 				battleState.removeUnit(elem.id);
 				break;
 			case BattleChanges::EOperation::ADD:
 				battleState.addUnit(elem.id, elem.data);
-				break;
-			case BattleChanges::EOperation::UPDATE:
-				battleState.updateUnit(elem.id, elem.data);
 				break;
 			default:
 				throw std::runtime_error("Unknown unit operation");

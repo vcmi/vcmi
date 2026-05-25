@@ -142,8 +142,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 				{
 					if(secondaryID != -1)
 					{
-						auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
-						const std::string subtypeKey = handler->getSubTypeName();
+						auto objectHandler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
+						const std::string subtypeKey = objectHandler->getSubTypeName();
 						bool banned = true;
 						objStruct->serializeBool(subtypeKey, banned);
 					}

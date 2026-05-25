@@ -1,0 +1,72 @@
+{
+	"core:inferno" :
+	{
+		"special" : true,
+		"creatureBackground" :
+		{
+			"120px" : "null",
+			"130px" : "null"
+		},
+		"town" :
+		{
+			"structures" :
+			{
+				"mageGuild1":     { "animation" : "null", "x" : 667, "y" : 127, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"mageGuild2":     { "animation" : "null", "x" : 667, "y" : 101, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"mageGuild3":     { "animation" : "null", "x" : 667, "y" : 83, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"mageGuild4":     { "animation" : "null", "x" : 667, "y" : 56, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"mageGuild5":     { "animation" : "null", "x" : 667, "y" : 35, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"tavern":         { "animation" : "null", "x" : 105, "y" : 219, "z" : 1, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"fort":           { "animation" : "null", "x" : 222, "y" : 44, "z" : -2, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"citadel":        { "animation" : "null", "x" : 222, "y" : 44, "z" : -2, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"castle":         { "animation" : "null", "x" : 222, "y" : 18, "z" : -2, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"villageHall":    { "animation" : "null", "x" : 0, "y" : 174, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"townHall":       { "animation" : "null", "x" : 0, "y" : 174, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"cityHall":       { "animation" : "null", "x" : 0, "y" : 174, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"capitol":        { "animation" : "null", "x" : 0, "y" : 131, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"marketplace":    { "animation" : "null", "x" : 511, "y" : 301, "z" : 4, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"resourceSilo":   { "animation" : "null", "x" : 497, "y" : 337, "z" : 5, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"blacksmith":     { "animation" : "null", "x" : 684, "y" : 253, "z" : 1, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"horde1":         { "animation" : "null", "x" : 614, "y" : 256, "border" : "null", "area" : "null", "hidden" : true, "campaignBonus" : "null" },
+				"horde1Upgr":     { "animation" : "null", "x" : 614, "y" : 221, "border" : "null", "area" : "null", "hidden" : true, "builds" : "horde1", "campaignBonus" : "null" },
+				"special2":       { "animation" : "null", "x" : 297, "y" : 0, "z" : -4, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"special3":       { "animation" : "null", "x" : 227, "y" : 174, "z" : -1, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"special4":       { "animation" : "null", "x" : 593, "y" : 104, "z" : -1, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"horde2":         { "animation" : "null", "x" : 10, "y" : 301, "border" : "null", "area" : "null", "hidden" : true, "campaignBonus" : "null" },
+				"horde2Upgr":     { "animation" : "null", "x" : 9, "y" : 273, "border" : "null", "area" : "null", "hidden" : true, "builds" : "horde2", "campaignBonus" : "null" },
+				"grail":          { "animation" : "null", "x" : 24, "y" : 10, "z" : -1, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl1":   { "animation" : "null", "x" : 614, "y" : 256, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl2":   { "animation" : "null", "x" : 187, "y" : 248, "z" : 4, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl3":   { "animation" : "null", "x" : 9, "y" : 325, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl4":   { "animation" : "null", "x" : 414, "y" : 204, "z" : 2, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl5":   { "animation" : "null", "x" : 359, "y" : 296, "z" : 3, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl6":   { "animation" : "null", "x" : 220, "y" : 350, "z" : 5, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingLvl7":   { "animation" : "null", "x" : 420, "y" : 153, "z" : -3, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl1": { "animation" : "null", "x" : 614, "y" : 221, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl2": { "animation" : "null", "x" : 187, "y" : 212, "z" : 4, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl3": { "animation" : "null", "x" : 9, "y" : 273, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl4": { "animation" : "null", "x" : 412, "y" : 197, "z" : 2, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl5": { "animation" : "null", "x" : 359, "y" : 244, "z" : 3, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl6": { "animation" : "null", "x" : 220, "y" : 282, "z" : 5, "border" : "null", "area" : "null", "campaignBonus" : "null" },
+				"dwellingUpLvl7": { "animation" : "null", "x" : 420, "y" : 105, "z" : -3, "border" : "null", "area" : "null", "campaignBonus" : "null" }
+			},
+			"musicTheme" : [ "music/default" ],
+			"guildBackground" : "null",
+			"townBackground": "null",
+			"guildWindow": "null",
+			"hallBackground": "null",
+			"buildingsIcons": "null",
+			"mapObject" :
+			{
+				"templates" :
+				{
+					"castle": { "animation" : "null" },
+					"citadel": { "animation" : "null" },
+					"fort":   { "animation" : "null" },
+					"village": { "animation" : "null" },
+					"capitol": { "animation" : "null" }
+				}
+			}
+		}
+	}
+}

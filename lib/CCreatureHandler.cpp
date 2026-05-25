@@ -563,11 +563,14 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		parser.endLine();
 	}
 
+	const bool isRoe = LIBRARY->isRoeData();
+
 	for (size_t i=0; i<dataSize; i++)
 	{
 		//loop till non-empty line
 		while (parser.isNextEntryEmpty())
-			parser.endLine();
+			if(!parser.endLine())
+				break;
 
 		JsonNode data;
 
@@ -596,8 +599,9 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		if (float shots = parser.readNumber())
 			data["shots"].Float() = shots;
 
-		if (float spells = parser.readNumber())
-			data["spellPoints"].Float() = spells;
+		if(!isRoe)
+			if (float spells = parser.readNumber())
+				data["spellPoints"].Float() = spells;
 
 		data["advMapAmount"]["min"].Float() = parser.readNumber();
 		data["advMapAmount"]["max"].Float() = parser.readNumber();

@@ -12,7 +12,7 @@
 
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "CaptureObjectsBehavior.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/Composition.h"
@@ -21,7 +21,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/RecruitHero.h"
 #include "../Markers/DefendTown.h"
-#include "../../lib/IGameSettings.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NK2AI
 {
@@ -197,7 +197,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		}
 
 		std::vector<int> pathsToDefend;
-		std::map<const CGHeroInstance *, std::vector<int>> defferedPaths;
+		HeroMap<std::vector<int>> defferedPaths;
 		AIPath * closestWay = nullptr;
 
 		for(int i = 0; i < paths.size(); i++)

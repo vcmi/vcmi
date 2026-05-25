@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include "../lib/constants/NumericConstants.h"
-#include "../lib/constants/EntityIdentifiers.h"
-#include "../lib/Color.h"
+#include "../../lib/constants/NumericConstants.h"
+#include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/Color.h"
 
 struct SDL_Palette;
 

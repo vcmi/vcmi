@@ -733,7 +733,7 @@ class DLL_LINKAGE EPathfindingLayerBase : public IdentifierBase
 public:
 	enum Type : int32_t
 	{
-		LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS, WRONG, AUTO
+		LAND = 0, SAIL = 1, WATER, AVIATE, AIR, NUM_LAYERS, WRONG, AUTO
 	};
 };
 

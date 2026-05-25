@@ -19,6 +19,7 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
+#include "../GameEngine.h"
 #include "../GameInstance.h"
 
 #include "../../lib/StartInfo.h"
@@ -297,6 +298,8 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			size_t itemIndex = (size_t)item;
 			setSimturnsPresetCallback(itemIndex);
 		};
+
+		w->setEnabled(!ENGINE->isDemoData());
 	}
 
 	if(auto w = widget<ComboBox>("timerPresetSelector"))
@@ -311,6 +314,8 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			size_t itemIndex = (size_t)item;
 			setTimerPresetCallback(itemIndex);
 		};
+
+		w->setEnabled(!ENGINE->isDemoData());
 	}
 }
 
@@ -443,6 +448,7 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
 	{
 		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
+		buttonTurnOptions->setEnabled(!ENGINE->isDemoData());
 	}
 
 	if(SEL->screenType == ESelectionScreen::scenarioInfo)

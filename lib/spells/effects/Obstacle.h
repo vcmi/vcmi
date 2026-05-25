@@ -34,8 +34,6 @@ public:
 	AnimationPath appearAnimation;
 	AnimationPath animation;
 
-	int offsetY = 0;
-
 	void serializeJson(JsonSerializeFormat & handler);
 };
 

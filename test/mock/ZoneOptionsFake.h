@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include "../../../lib/mapping/CMap.h"
-#include "../../../lib/rmg/CMapGenOptions.h"
-#include "../../../lib/rmg/CMapGenerator.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/rmg/CMapGenerator.h"
 
 class ZoneOptionsFake : public rmg::ZoneOptions
 {

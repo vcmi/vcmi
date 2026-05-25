@@ -947,7 +947,7 @@ bool AINodeStorage::isDistanceLimitReached(const PathNodeInfo & source, CDestina
 	return false;
 }
 
-void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
+void AINodeStorage::setHeroes(HeroMap<HeroRole> heroes)
 {
 	playerID = aiNk->playerID;
 
@@ -966,8 +966,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 		if(actor->hero->tempOwner != aiNk->playerID)
 		{
-			bool onLand = !actor->hero->inBoat() || actor->hero->getBoat()->layer != EPathfindingLayer::SAIL;
-			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
+			actor->initialMovement = actor->hero->movementPointsLimit();
 		}
 
 		playerID = actor->hero->tempOwner;
@@ -1142,7 +1141,7 @@ struct TownPortalFinder
 		}
 
 		AIPathNode * node = nodeOptional.value();
-		float movementCost = (float)movementNeeded / (float)hero->movementPointsLimit(EPathfindingLayer::LAND);
+		float movementCost = (float)movementNeeded / (float)hero->movementPointsLimit();
 		movementCost += bestNode->getCost();
 
 		if(node->action == EPathNodeAction::UNKNOWN || node->getCost() > movementCost)
@@ -1167,7 +1166,7 @@ struct TownPortalFinder
 template<class TVector>
 void AINodeStorage::calculateTownPortal(
 	const ChainActor * actor,
-	const std::map<const CGHeroInstance *, int> & maskMap,
+	const HeroMap<int> & maskMap,
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
@@ -1241,7 +1240,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 			actorsOfInitial.insert(aiNode->actor->baseActor);
 	}
 
-	std::map<const CGHeroInstance *, int> maskMap;
+	HeroMap<int> maskMap;
 
 	for(std::shared_ptr<ChainActor> basicActor : actors)
 	{

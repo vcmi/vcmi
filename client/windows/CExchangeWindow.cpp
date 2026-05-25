@@ -27,14 +27,14 @@
 
 #include "../render/IRenderHandler.h"
 
-#include "../lib/CSkillHandler.h"
-#include "../lib/GameLibrary.h"
-#include "../lib/callback/CCallback.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/texts/TextOperations.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 
 static const std::string QUICK_EXCHANGE_BG = "quick-exchange/TRADEQE";
 
@@ -44,7 +44,7 @@ static bool isQuickExchangeLayoutAvailable()
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2")),
+	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : (ENGINE->isRoeData() ? "TRADE" : "TRADE2"))),
 	controller(hero1, hero2)
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();

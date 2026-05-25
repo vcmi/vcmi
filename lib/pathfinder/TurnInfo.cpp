@@ -84,6 +84,11 @@ int TurnInfo::getMovePointsLimitWater() const
 	return movePointsLimitWater;
 }
 
+int TurnInfo::getMovePointsLimitAir() const
+{
+	return movePointsLimitAir;
+}
+
 TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn)
 	: target(target)
 	, noterrainPenalty(LIBRARY->terrainTypeHandler->size())
@@ -162,6 +167,11 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	}
 
 	{
+		// A hero in an airship has 2000 movements. No modificators increasing the speed of moving either by land or water influence this quantity.
+		movePointsLimitAir = 2000;
+	}
+
+	{
 		static const CSelector selector = Selector::type()(BonusType::NO_TERRAIN_PENALTY);
 		const auto & bonuses = sharedCache->noTerrainPenalty.getBonusList(target, selector);
 		for (const auto & bonus : *bonuses)
@@ -184,7 +194,8 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
-		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::AIR)
+		//airship with aviation uses both AIR and AVIATE layers
+		if(target && target->inBoat() && (target->getBoat()->layer == EPathfindingLayer::AIR || target->getBoat()->layer == EPathfindingLayer::AVIATE))
 			break;
 
 		if(!hasFlyingMovement())
@@ -207,7 +218,12 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 
 int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 {
-	return layer == EPathfindingLayer::SAIL ? getMovePointsLimitWater() : getMovePointsLimitLand();
+	if(layer == EPathfindingLayer::SAIL)
+		return getMovePointsLimitWater();
+	else if(layer == EPathfindingLayer::AVIATE)
+		return getMovePointsLimitAir();
+	else
+		return getMovePointsLimitLand();
 }
 
 VCMI_LIB_NAMESPACE_END

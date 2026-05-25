@@ -11,9 +11,9 @@
 
 #include "IMapRendererContext.h"
 
-#include "../lib/GameConstants.h"
-#include "../lib/int3.h"
-#include "../lib/spells/ViewSpellInt.h"
+#include "../../lib/GameConstants.h"
+#include "../../lib/int3.h"
+#include "../../lib/spells/ViewSpellInt.h"
 
 struct MapRendererContextState;
 

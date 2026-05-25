@@ -25,7 +25,7 @@
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../adventureMap/CInGameConsole.h"
-#include "../client/render/CAnimation.h"
+#include "../render/CAnimation.h"
 #include "../gui/CursorHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -668,7 +668,7 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 
 	if (owner.defendingHero)
 	{
-		if (owner.attackingHero->pos.isInside(hoverPos))
+		if (owner.defendingHero->pos.isInside(hoverPos))
 			return BattleHex::HERO_DEFENDER;
 	}
 

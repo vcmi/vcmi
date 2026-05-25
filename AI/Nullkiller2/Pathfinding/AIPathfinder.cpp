@@ -62,7 +62,7 @@ void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & t
 	}
 }
 
-void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings)
+void AIPathfinder::updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSettings pathfinderSettings)
 {
 	if(!storage)
 	{
@@ -132,7 +132,7 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 }
 
 void AIPathfinder::updateGraphs(
-	const std::map<const CGHeroInstance *, HeroRole> & heroes,
+	const HeroMap<HeroRole> & heroes,
 	uint8_t mainScanDepth,
 	uint8_t scoutScanDepth)
 {

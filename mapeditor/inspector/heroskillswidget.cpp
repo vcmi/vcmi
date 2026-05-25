@@ -30,7 +30,7 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	hero(h)
 {
 	ui->setupUi(this);
-	
+
 	ui->labelAttack->setText(QString::fromStdString(NPrimarySkill::names[0]));
 	ui->labelDefence->setText(QString::fromStdString(NPrimarySkill::names[1]));
 	ui->labelPower->setText(QString::fromStdString(NPrimarySkill::names[2]));

@@ -47,13 +47,10 @@ namespace vstd
 	class RNG;
 }
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Service;
 }
-#endif
-
 
 ///callback to be provided by server
 class DLL_LINKAGE SpellCastEnvironment : public ServerCallback
@@ -179,7 +176,7 @@ protected:
 	ISpellMechanicsFactory(const CSpell * s);
 };
 
-class DLL_LINKAGE Mechanics
+class DLL_LINKAGE Mechanics : public scripting::ApiRawPointer<Mechanics>
 {
 public:
 	virtual ~Mechanics();
@@ -237,6 +234,8 @@ public:
 	virtual IBattleCast::Value64 getEffectValue() const = 0;
 
 	virtual PlayerColor getCasterColor() const = 0;
+	virtual BattleSide getCasterSide() const { return casterSide; };
+	virtual const CGHeroInstance * getHeroCaster() const = 0;
 
 	//Spell facade
 	virtual int32_t getSpellIndex() const = 0;
@@ -266,12 +265,11 @@ public:
 
 	//Global environment facade
 	virtual const CreatureService * creatures() const = 0;
-#if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
-#endif
 	virtual const Service * spells() const = 0;
 
 	virtual const CBattleInfoCallback * battle() const = 0;
+	virtual BattleID getBattleID() const = 0;
 
 	const Caster * caster;
 
@@ -296,13 +294,12 @@ public:
 
 	IBattleCast::Value getEffectLevel() const override;
 	IBattleCast::Value getRangeLevel() const override;
-
 	IBattleCast::Value getEffectPower() const override;
 	IBattleCast::Value getEffectDuration() const override;
-
 	IBattleCast::Value64 getEffectValue() const override;
 
 	PlayerColor getCasterColor() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 
 	bool isSmart() const override;
 	bool isMassive() const override;
@@ -326,12 +323,11 @@ public:
 	std::vector<AimType> getTargetTypes() const override;
 
 	const CreatureService * creatures() const override;
-#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
-#endif
 	const Service * spells() const override;
 
 	const CBattleInfoCallback * battle() const override;
+	BattleID getBattleID() const override;
 
 protected:
 	const CSpell * owner;

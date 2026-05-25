@@ -21,8 +21,8 @@
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-#include "../vcmiqt/jsonutils.h"
-#include "../vcmiqt/launcherdirs.h"
+#include "../../vcmiqt/jsonutils.h"
+#include "../../vcmiqt/launcherdirs.h"
 
 #include <future>
 

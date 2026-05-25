@@ -49,6 +49,9 @@ RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable(),
 	templateIndex(0)
 {
+	if(ENGINE->isRoeData())
+		return;
+
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	

@@ -9,141 +9,166 @@
  */
 
 #include "StdInc.h"
-#include "CRandomGenerator.h"
 #include "callback/CBattleCallback.h"
 #include "callback/CDynLibHandler.h"
 #include "callback/IGameInfoCallback.h"
 #include "filesystem/Filesystem.h"
+#include "lib/CRandomGenerator.h"
 #include "json/JsonUtils.h"
 
-#include "BAI/base.h"
-#include "BAI/model/NNModel.h"
-#include "BAI/model/NNModelStochastic.h"
-#include "BAI/model/ScriptedModel.h"
+#include "BAI/factory.h"
+#include "BAI/fallback/scripted_model.h"
 #include "BAI/router.h"
 
 #include "common.h"
 
-#include <utility>
-
 namespace MMAI::BAI
 {
-using ModelStorage = std::map<std::string, std::unique_ptr<Schema::IModel>>;
+// key => {model, path}
+using ModelStorage = std::map<std::string, std::pair<std::shared_ptr<MMAI::Schema::IModel>, std::string>>;
 
 namespace
 {
 	struct ModelRepository
 	{
-		ModelStorage models;
+		mutable std::mutex mutex;
+		mutable ModelStorage models;
 		float temperature = 1.0;
 		uint64_t seed = 0;
-		std::unique_ptr<ScriptedModel> fallbackModel;
+		std::map<std::string, std::string> paths;
+		std::shared_ptr<ScriptedModel> fallbackModel;
 		std::string fallbackName;
 	};
 
-	std::unique_ptr<ModelRepository> InitModelRepository()
+	std::shared_ptr<ModelRepository> InitModelRepository()
 	{
 		auto repo = std::make_unique<ModelRepository>();
 		auto json = JsonUtils::assembleFromFiles("MMAI/CONFIG/mmai-settings.json");
-		if(!json.isStruct())
+		std::string fallback;
+
+		if(json.isStruct())
+		{
+			JsonUtils::validate(json, "vcmi:mmaiSettings", "mmai");
+			repo->temperature = static_cast<float>(json["temperature"].Float());
+
+			repo->seed = json["seed"].Integer();
+			if(repo->seed == 0)
+				repo->seed = CRandomGenerator::getDefault().nextInt();
+
+			for(const auto & [key, node] : json["models"].Struct())
+				repo->paths.try_emplace(key, "MMAI/models/" + node.String());
+
+			fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
+		}
+		else
 		{
 			logAi->error("Could not load MMAI config. Is MMAI mod enabled?");
-			std::string fallback = "BattleAI";
-			logAi->debug("MMAI: preparing fallback model: %s", fallback);
-			repo->fallbackModel = std::make_unique<ScriptedModel>(fallback);
-			repo->fallbackName = fallback;
-			return repo;
+			fallback = "BattleAI";
 		}
 
-		JsonUtils::validate(json, "vcmi:mmaiSettings", "mmai");
-		repo->temperature = static_cast<float>(json["temperature"].Float());
-
-		repo->seed = json["seed"].Integer();
-		if(repo->seed == 0)
-			repo->seed = CRandomGenerator::getDefault().nextInt();
-
-		for(const std::string key : {"attacker", "defender"})
-		{
-			std::string path = "MMAI/models/" + json["models"][key].String();
-
-			// Try loading stochastic and dynamic models with priority
-			// (temporary code for a smooth migration path)
-			std::string suffix;
-			const auto pos = path.rfind(".onnx");
-			if(pos != std::string::npos)
-			{
-				for(const std::string s : {"stochastic", "dynamic"})
-				{
-					std::string altpath = path;
-					altpath.insert(pos, "-" + s); // insert right before ".onnx"
-					const auto rpath = ResourcePath(altpath, EResType::AI_MODEL);
-					const auto * rhandler = CResourceHandler::get();
-					if(rhandler->existsResource(rpath))
-					{
-						path = altpath;
-						suffix = s;
-						break;
-					}
-				}
-			}
-
-			logAi->debug("MMAI: Loading NN %s model from: %s", key, path);
-			try
-			{
-				// Only stochastic models use a separate class
-				if(suffix == "stochastic")
-					repo->models.try_emplace(key, std::make_unique<NNModelStochastic>(path, repo->temperature, repo->seed));
-				else
-					repo->models.try_emplace(key, std::make_unique<NNModel>(path, repo->temperature, repo->seed));
-			}
-			catch(std::exception & e)
-			{
-				logAi->error("MMAI: error loading " + key + ": " + std::string(e.what()));
-			}
-		}
-
-		auto fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
-		logAi->debug("MMAI: preparing fallback model: %s", fallback);
+		logAi->debug("MMAI: repo initialized with fallback: %s", fallback);
 		repo->fallbackModel = std::make_unique<ScriptedModel>(fallback);
 		repo->fallbackName = fallback;
 
 		return repo;
 	}
 
+	const ModelRepository * GetModelRepository()
+	{
+		static const auto repo = InitModelRepository();
+		return repo.get();
+	}
+
 	Schema::IModel * GetModel(const std::string & key)
 	{
-		static const auto MODEL_REPO = InitModelRepository();
-		auto it = MODEL_REPO->models.find(key);
-		if(it == MODEL_REPO->models.end())
+		const auto * repo = GetModelRepository();
+		auto lock = std::lock_guard<std::mutex>(repo->mutex);
+
+		std::shared_ptr<Schema::IModel> model = nullptr;
+
+		// Search for "foo.bar.baz" -> "foo.bar" -> "foo"
+		auto currentKey = key;
+		auto keysToAdd = std::vector<std::string>{};
+
+		while(true)
 		{
-			logAi->error("MMAI: no %s model loaded, trying fallback: %s", key, MODEL_REPO->fallbackName);
-			ASSERT(MODEL_REPO->fallbackModel, "fallback failed: model is null");
-			return MODEL_REPO->fallbackModel.get();
+			logAi->debug("MMAI: trying %s", currentKey);
+			auto it = repo->models.find(currentKey);
+
+			if(it != repo->models.end())
+			{
+				model = it->second.first;
+				logAi->debug("MMAI: cache hit: %s (%s)", currentKey, it->second.second);
+				break;
+			}
+
+			logAi->debug("MMAI: cache miss: %s", currentKey);
+			keysToAdd.push_back(currentKey);
+
+			auto itPath = repo->paths.find(currentKey);
+			if(itPath != repo->paths.end())
+			{
+				const auto & path = itPath->second;
+				logAi->debug("MMAI: Loading %s model from: %s", currentKey, path);
+				try
+				{
+					model = CreateNNModel(path, repo->temperature, repo->seed);
+					for(const auto & k : keysToAdd)
+					{
+						logAi->debug("MMAI: cache write: %s (%s)", k, path);
+						repo->models.try_emplace(k, model, path);
+					}
+					break;
+				}
+				catch(std::exception & e)
+				{
+					logAi->error("MMAI: load error: %s: %s", currentKey, std::string(e.what()));
+				}
+			}
+			else
+			{
+				logAi->warn("MMAI: load error: %s: no path configured", currentKey);
+			}
+
+			// Try next key (if any)
+			auto pos = currentKey.rfind('.');
+			if(pos == std::string::npos)
+				break;
+
+			currentKey = currentKey.substr(0, pos);
 		}
 
-		return it->second.get();
+		if(!model)
+		{
+			logAi->error("MMAI: %s: falling back to %s", key, repo->fallbackName);
+			ASSERT(repo->fallbackModel, "fallback error: model is null");
+			model = repo->fallbackModel;
+		}
+
+		return model.get();
 	}
+
+	// Convert a memory address for logging purposes
+	std::string MakeAddrStr(const void * p)
+	{
+		std::ostringstream oss;
+		oss << p;
+		return oss.str();
+	}
+
 }
 
-Router::Router()
-{
-	std::ostringstream oss;
-	// Store the memory address and include it in logging
-	const auto * ptr = static_cast<const void *>(this);
-	oss << ptr;
-	addrstr = oss.str();
-	info("+++ constructor +++"); // log after addrstr is set
-}
+#define MMAI_LOG_TAG LogTag _(logtag + "." + __func__)
+
+Router::Router() : addrstr(MakeAddrStr(this)), logtag(addrstr + ":MMAI") {}
 
 Router::~Router()
 {
-	info("--- destructor ---");
 	cb->waitTillRealize = wasWaitingForRealize;
 }
 
 void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
-	info("*** initBattleInterface ***");
 	env = ENV;
 	cb = CB;
 	colorname = cb->getPlayerID()->toString();
@@ -155,6 +180,7 @@ void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_p
 
 void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB, AutocombatPreferences prefs)
 {
+	MMAI_LOG_TAG;
 	autocombatPreferences = prefs;
 	initBattleInterface(ENV, CB);
 }
@@ -165,76 +191,91 @@ void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_p
 
 void Router::actionFinished(const BattleID & bid, const BattleAction & action)
 {
+	MMAI_LOG_TAG;
 	bai->actionFinished(bid, action);
 }
 
 void Router::actionStarted(const BattleID & bid, const BattleAction & action)
 {
+	MMAI_LOG_TAG;
 	bai->actionStarted(bid, action);
 }
 
 void Router::activeStack(const BattleID & bid, const CStack * astack)
 {
+	MMAI_LOG_TAG;
 	bai->activeStack(bid, astack);
 }
 
 void Router::battleAttack(const BattleID & bid, const BattleAttack * ba)
 {
+	MMAI_LOG_TAG;
 	bai->battleAttack(bid, ba);
 }
 
 void Router::battleCatapultAttacked(const BattleID & bid, const CatapultAttack & ca)
 {
+	MMAI_LOG_TAG;
 	bai->battleCatapultAttacked(bid, ca);
 }
 
 void Router::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
 {
+	MMAI_LOG_TAG;
 	bai->battleEnd(bid, br, queryID);
 }
 
 void Router::battleGateStateChanged(const BattleID & bid, const EGateState state)
 {
+	MMAI_LOG_TAG;
 	bai->battleGateStateChanged(bid, state);
 };
 
 void Router::battleLogMessage(const BattleID & bid, const std::vector<MetaString> & lines)
 {
+	MMAI_LOG_TAG;
 	bai->battleLogMessage(bid, lines);
 };
 
 void Router::battleNewRound(const BattleID & bid)
 {
+	MMAI_LOG_TAG;
 	bai->battleNewRound(bid);
 }
 
 void Router::battleNewRoundFirst(const BattleID & bid)
 {
+	MMAI_LOG_TAG;
 	bai->battleNewRoundFirst(bid);
 }
 
 void Router::battleObstaclesChanged(const BattleID & bid, const std::vector<ObstacleChanges> & obstacles)
 {
+	MMAI_LOG_TAG;
 	bai->battleObstaclesChanged(bid, obstacles);
 };
 
 void Router::battleSpellCast(const BattleID & bid, const BattleSpellCast * sc)
 {
+	MMAI_LOG_TAG;
 	bai->battleSpellCast(bid, sc);
 }
 
 void Router::battleStackMoved(const BattleID & bid, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)
 {
+	MMAI_LOG_TAG;
 	bai->battleStackMoved(bid, stack, dest, distance, teleport);
 }
 
 void Router::battleStacksAttacked(const BattleID & bid, const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
+	MMAI_LOG_TAG;
 	bai->battleStacksAttacked(bid, bsa, ranged);
 }
 
 void Router::battleStacksEffectsSet(const BattleID & bid, const SetStackEffect & sse)
 {
+	MMAI_LOG_TAG;
 	bai->battleStacksEffectsSet(bid, sse);
 }
 
@@ -249,9 +290,18 @@ void Router::battleStart(
 	bool replayAllowed
 )
 {
+	MMAI_LOG_TAG;
 	Schema::IModel * model;
-	const std::string modelkey = side == BattleSide::ATTACKER ? "attacker" : "defender";
+
+	std::string modelkey = side == BattleSide::ATTACKER ? "attacker" : "defender";
+
+	if(cb->getBattle(bid)->battleGetWallState(EWallPart::GATE) != EWallState::NONE)
+		modelkey += ".siege";
+
 	model = GetModel(modelkey);
+
+	logtag += ".v" + std::to_string(model->getVersion());
+	LogTag _2(logtag + "." + __func__);
 
 	auto modelside = model->getSide();
 	auto realside = static_cast<Schema::Side>(EI(side));
@@ -279,7 +329,7 @@ void Router::battleStart(
 			break;
 		case Schema::ModelType::NN:
 			// XXX: must not call initBattleInterface here
-			bai = Base::Create(model, env, cb, autocombatPreferences.enableSpellsUsage);
+			bai = CreateBAI(model, env, cb, autocombatPreferences.enableSpellsUsage);
 			break;
 
 		default:
@@ -291,46 +341,19 @@ void Router::battleStart(
 
 void Router::battleTriggerEffect(const BattleID & bid, const BattleTriggerEffect & bte)
 {
+	MMAI_LOG_TAG;
 	bai->battleTriggerEffect(bid, bte);
 }
 
 void Router::battleUnitsChanged(const BattleID & bid, const std::vector<UnitChanges> & changes)
 {
+	MMAI_LOG_TAG;
 	bai->battleUnitsChanged(bid, changes);
 }
 
 void Router::yourTacticPhase(const BattleID & bid, int distance)
 {
+	MMAI_LOG_TAG;
 	bai->yourTacticPhase(bid, distance);
-}
-
-/*
- * private
- */
-
-void Router::error(const std::string & text) const
-{
-	log(ELogLevel::ERROR, text);
-}
-void Router::warn(const std::string & text) const
-{
-	log(ELogLevel::WARN, text);
-}
-void Router::info(const std::string & text) const
-{
-	log(ELogLevel::INFO, text);
-}
-void Router::debug(const std::string & text) const
-{
-	log(ELogLevel::DEBUG, text);
-}
-void Router::trace(const std::string & text) const
-{
-	log(ELogLevel::TRACE, text);
-}
-void Router::log(ELogLevel::ELogLevel level, const std::string & text) const
-{
-	if(logAi->getEffectiveLevel() <= level)
-		logAi->debug("Router-%s [%s] %s", addrstr, colorname, text);
 }
 }

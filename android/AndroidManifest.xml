@@ -96,6 +96,33 @@
 		</activity>
 
 		<activity
+			android:name=".ActivityMapEditor"
+			android:process=":editor"
+			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+			android:exported="true"
+			android:screenOrientation="sensorLandscape">
+			<meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
+			<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
+			<meta-data android:name="android.app.repository" android:value="default"/>
+			<meta-data android:name="android.app.qt_libs_resource_id" android:resource="@array/qt_libs"/>
+			<meta-data android:name="android.app.bundled_libs_resource_id" android:resource="@array/bundled_libs"/>
+			<meta-data android:name="android.app.bundle_local_qt_libs" android:value="-- %%BUNDLE_LOCAL_QT_LIBS%% --"/>
+			<meta-data android:name="android.app.use_local_qt_libs" android:value="-- %%USE_LOCAL_QT_LIBS%% --"/>
+			<meta-data android:name="android.app.libs_prefix" android:value="/data/local/tmp/qt/"/>
+			<meta-data android:name="android.app.load_local_libs_resource_id" android:resource="@array/load_local_libs"/>
+			<meta-data android:name="android.app.load_local_jars" android:value="-- %%INSERT_LOCAL_JARS%% --"/>
+			<meta-data android:name="android.app.static_init_classes" android:value="-- %%INSERT_INIT_CLASSES%% --"/>
+			<meta-data android:value="@string/ministro_not_found_msg" android:name="android.app.ministro_not_found_msg"/>
+			<meta-data android:value="@string/ministro_needed_msg" android:name="android.app.ministro_needed_msg"/>
+			<meta-data android:value="@string/fatal_error_msg" android:name="android.app.fatal_error_msg"/>
+			<meta-data android:value="@string/unsupported_android_version" android:name="android.app.unsupported_android_version"/>
+			<meta-data android:name="android.app.background_running" android:value="false"/>
+			<meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
+			<meta-data android:name="android.app.extract_android_style" android:value="none"/>
+			<meta-data android:name="android.app.environment" android:value="VCMI_LAUNCH_MAP_EDITOR=1"/>
+		</activity>
+
+		<activity
 			android:name=".VcmiSDLActivity"
 			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
 			android:label="@string/app_name"

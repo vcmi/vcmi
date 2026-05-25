@@ -248,13 +248,13 @@ public:
 
 	void add(std::unique_ptr<T> t)
 	{
-		std::lock_guard<std::mutex> lock(sync);
+		std::lock_guard lock(sync);
 		pool.push_back(std::move(t));
 	}
 
 	ptr_type acquire()
 	{
-		std::lock_guard<std::mutex> lock(sync);
+		std::lock_guard lock(sync);
 		bool poolIsEmpty = pool.empty();
 		T * element = poolIsEmpty
 			? elementFactory().release()

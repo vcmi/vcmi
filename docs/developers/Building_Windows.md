@@ -188,9 +188,9 @@ git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
 - Run
 `%VCMI_DIR%/vcpkg/bootstrap-vcpkg.bat`
 - For 32-bit build run:
-`%VCMI_DIR%/vcpkg/vcpkg.exe install tbb:x64-windows fuzzylite:x64-windows sdl2:x64-windows sdl2-image:x64-windows sdl2-ttf:x64-windows sdl2-mixer[mpg123]:x64-windows boost:x64-windows qt5-base:x64-windows ffmpeg:x64-windows luajit:x64-windows`
+`%VCMI_DIR%/vcpkg/vcpkg.exe install tbb:x64-windows sdl2:x64-windows sdl2-image:x64-windows sdl2-ttf:x64-windows sdl2-mixer[mpg123]:x64-windows boost:x64-windows qt5-base:x64-windows ffmpeg:x64-windows luajit:x64-windows`
 - For 64-bit build run:
-`%VCMI_DIR%/vcpkg/vcpkg.exe install install tbb:x86-windows fuzzylite:x86-windows sdl2:x86-windows sdl2-image:x86-windows sdl2-ttf:x86-windows sdl2-mixer[mpg123]:x86-windows boost:x86-windows qt5-base:x86-windows ffmpeg:x86-windows luajit:x86-windows`
+`%VCMI_DIR%/vcpkg/vcpkg.exe install install tbb:x86-windows sdl2:x86-windows sdl2-image:x86-windows sdl2-ttf:x86-windows sdl2-mixer[mpg123]:x86-windows boost:x86-windows qt5-base:x86-windows ffmpeg:x86-windows luajit:x86-windows`
 
 For the list of the packages used you can also consult [vcmi-deps-windows readme](https://github.com/vcmi/vcmi-deps-windows) in case this article gets outdated a bit.
 

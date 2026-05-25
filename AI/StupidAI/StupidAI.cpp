@@ -127,7 +127,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	std::vector<EnemyInfo> enemiesUnreachable;
 	std::vector<EnemyInfo> enemiesInvincible;
 
-	if(stack->creatureId() == CreatureID::CATAPULT)
+	if(stack->isCatapult())
 	{
 		BattleAction attack;
 		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};

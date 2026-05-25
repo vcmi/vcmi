@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include "../lib/GameConstants.h"
-#include "../lib/mapping/MapTilesStorage.h"
-#include "../lib/int3.h"
+#include "../../lib/GameConstants.h"
+#include "../../lib/mapping/MapTilesStorage.h"
+#include "../../lib/int3.h"
 
 #include <boost/container/small_vector.hpp>
 

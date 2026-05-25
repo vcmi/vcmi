@@ -1,0 +1,92 @@
+{
+	"author" : "VCMI Team",
+	"contact" : "",
+	"name" : "RoE demo",
+	"description" : "Support for RoE demo",
+	"modType" : "Demo",
+	"keepDisabled" : true,
+	"version" : "1.0",
+	"factions" :
+	[
+		"config/roe-demo/factions/castle.json",
+		"config/roe-demo/factions/dungeon.json",
+		"config/roe-demo/factions/necropolis.json",
+		"config/roe-demo/factions-without-town/conflux.json",
+		"config/roe-demo/factions-without-town/fortress.json",
+		"config/roe-demo/factions-without-town/inferno.json",
+		"config/roe-demo/factions-without-town/rampart.json",
+		"config/roe-demo/factions-without-town/stronghold.json",
+		"config/roe-demo/factions-without-town/tower.json"
+	],
+	"creatures" :
+	[
+		"config/roe-demo/creatures/conflux.json",
+		"config/roe-demo/creatures/fortress.json",
+		"config/roe-demo/creatures/inferno.json",
+		"config/roe-demo/creatures/rampart.json",
+		"config/roe-demo/creatures/stronghold.json",
+		"config/roe-demo/creatures/tower.json",
+		"config/roe-demo/creatures/neutral.json"
+	],
+	"heroes" :
+	[
+		"config/roe-demo/heroes/castle.json",
+		"config/roe-demo/heroes/conflux.json",
+		"config/roe-demo/heroes/fortress.json",
+		"config/roe-demo/heroes/inferno.json",
+		"config/roe-demo/heroes/portraits.json",
+		"config/roe-demo/heroes/rampart.json",
+		"config/roe-demo/heroes/special.json",
+		"config/roe-demo/heroes/stronghold.json",
+		"config/roe-demo/heroes/tower.json"
+	],
+	"terrains":
+	[
+		"config/roe-demo/terrains.json"
+	],
+	"objects" : 
+	[
+		"config/roe-demo/patched-objects/banks.json",
+		"config/roe-demo/patched-objects/dwellings.json"
+	],
+	"spells" :
+	[
+		"config/roe-demo/spells.json"
+	],
+	"artifacts" :
+	[
+		"config/roe-demo/artifacts.json"
+	],
+	"heroClasses" :
+	[
+		"config/roe-demo/heroclasses.json"
+	],
+	"battlefields" :
+	[
+		"config/roe-demo/battlefields.json"
+	],
+	"obstacles" :
+	[
+		"config/roe-demo/obstacles.json"
+	],
+	"biomes" :
+	[
+		"config/roe-demo/biomes.json"
+	],
+	"settings":
+	{
+		"textData" :
+		{
+			"faction" : 8
+		},
+
+		"mapFormat" : {
+			"armageddonsBlade" : {
+				"supported" : false
+			},
+			"shadowOfDeath" : { 
+				"supported" : false
+			}
+		}
+	}
+}

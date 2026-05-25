@@ -41,7 +41,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 		std::swap(minDmg, maxDmg);
 	}
 
-	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
+	if(info.attacker->isTurret())
 	{
 		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
@@ -61,7 +61,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 	const std::string cachingStrSiedgeWeapon = "type_SIEGE_WEAPON";
 	static const auto selectorSiedgeWeapon = Selector::type()(BonusType::SIEGE_WEAPON);
 
-	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
+	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && !info.attacker->isTurret())
 	{
 		static const auto bonusSelector =
 			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(

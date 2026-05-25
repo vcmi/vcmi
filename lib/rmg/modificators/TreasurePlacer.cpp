@@ -1252,8 +1252,7 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 			return ObjectConfig::EObjectCategory::NONE;
 		}
 
-		auto temp = handler->getTemplates().front();
-		auto info = handler->getObjectInfo(temp);
+		auto info = handler->getObjectInfo();
 
 		if (info->hasGuards())
 		{

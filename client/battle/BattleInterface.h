@@ -10,7 +10,7 @@
 #pragma once
 
 #include "BattleConstants.h"
-#include "../lib/battle/BattleHex.h"
+#include "../../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 #include "../../lib/ConditionalWait.h"

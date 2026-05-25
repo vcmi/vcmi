@@ -41,4 +41,9 @@ void IHandlerBase::registerObject(const std::string & scope, const std::string &
 	}
 }
 
+std::optional<int32_t> IHandlerBase::resolveIdentifier(const std::string & scope, const std::string & typeName, const std::string & name) const
+{
+	return LIBRARY->identifiersHandler->getIdentifier(scope, typeName, name);
+}
+
 VCMI_LIB_NAMESPACE_END

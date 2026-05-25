@@ -14,20 +14,20 @@ done
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(dirname "$SCRIPT_DIR")
 # Allow BUILD_DIR to be overridden by environment variable
-if [ -z "$BUILD_DIR" ]; then
+if [[ -z "$BUILD_DIR" ]]; then
     BUILD_DIR="$REPO_ROOT/out/build/linux-clang-debug"
 fi
 APP_DIR="$REPO_ROOT/AppDir"
 OUT_DIR="$REPO_ROOT/out"
 
 # Define architecture
-if [ -z "$ARCH" ]; then
+if [[ -z "$ARCH" ]]; then
     ARCH="x86_64"
 fi
 
-if [ "$ARCH" == "arm64" ]; then
+if [[ "$ARCH" == "arm64" ]]; then
     LINUXDEPLOY_ARCH="aarch64"
-elif [ "$ARCH" == "aarch64" ]; then
+elif [[ "$ARCH" == "aarch64" ]]; then
     LINUXDEPLOY_ARCH="aarch64"
 else
     LINUXDEPLOY_ARCH="x86_64"
@@ -35,13 +35,13 @@ fi
 
 # Function to download linuxdeploy if not present
 download_tools() {
-    if [ ! -f "linuxdeploy-$LINUXDEPLOY_ARCH.AppImage" ]; then
+    if [[ ! -f "linuxdeploy-$LINUXDEPLOY_ARCH.AppImage" ]]; then
         echo "Downloading linuxdeploy..."
         wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-$LINUXDEPLOY_ARCH.AppImage"
         chmod +x "linuxdeploy-$LINUXDEPLOY_ARCH.AppImage"
     fi
 
-    if [ ! -f "linuxdeploy-plugin-qt-$LINUXDEPLOY_ARCH.AppImage" ]; then
+    if [[ ! -f "linuxdeploy-plugin-qt-$LINUXDEPLOY_ARCH.AppImage" ]]; then
         echo "Downloading linuxdeploy-plugin-qt..."
         wget -q "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-$LINUXDEPLOY_ARCH.AppImage"
         chmod +x "linuxdeploy-plugin-qt-$LINUXDEPLOY_ARCH.AppImage"
@@ -75,9 +75,9 @@ cp -r "$REPO_ROOT/config" "$APP_DIR/usr/bin/"
 cp -r "$REPO_ROOT/Mods" "$APP_DIR/usr/bin/"
 
 # Set up version
-if [ -z "$VERSION" ]; then
+if [[ -z "$VERSION" ]]; then
     VERSION_FILE="$REPO_ROOT/cmake_modules/VersionDefinition.cmake"
-    if [ -f "$VERSION_FILE" ]; then
+    if [[ -f "$VERSION_FILE" ]]; then
         V_MAJOR=$(grep -m 1 "VCMI_VERSION_MAJOR" "$VERSION_FILE" | tr -d -c 0-9)
         V_MINOR=$(grep -m 1 "VCMI_VERSION_MINOR" "$VERSION_FILE" | tr -d -c 0-9)
         V_PATCH=$(grep -m 1 "VCMI_VERSION_PATCH" "$VERSION_FILE" | tr -d -c 0-9)
@@ -157,7 +157,7 @@ echo "AppImage creation complete!"
 
 # Move to build directory if specified (for CI integration)
 APPIMAGE_FILE=$(ls VCMI-*.AppImage 2>/dev/null | head -n 1)
-if [ -n "$APPIMAGE_FILE" ] && [ -n "$BUILD_DIR" ]; then
+if [[ -n "$APPIMAGE_FILE" ]] && [[ -n "$BUILD_DIR" ]]; then
     # Use VCMI_PACKAGE_FILE_NAME from CI if available, otherwise original name
     TARGET_NAME="${VCMI_PACKAGE_FILE_NAME:-${APPIMAGE_FILE%.*}}.AppImage"
     echo "Ensuring $BUILD_DIR exists and moving $APPIMAGE_FILE to $BUILD_DIR/$TARGET_NAME"

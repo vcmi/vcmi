@@ -113,7 +113,7 @@ void TurnTimerHandler::update(int waitTimeMs)
 		for(auto & hero : gameHandler.gameState().getHeroes(player))
 		{
 			movementPoints += hero->movementPointsRemaining();
-			movementPointsLimit += hero->movementPointsLimit(!hero->inBoat());
+			movementPointsLimit += hero->movementPointsLimit();
 		}
 		if(movementPointsLimit)
 			// limit to 100 - ignore overflow conditions: if hero unequips boots of speed or visits rally flag he will end up with movement points over 100%

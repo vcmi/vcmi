@@ -158,6 +158,7 @@ void MainWindow::enterSetup()
 {
 	ui->sidePanel->setVisible(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
+	ui->setupView->enterSetup();
 }
 
 void MainWindow::exitSetup(bool goToMods)

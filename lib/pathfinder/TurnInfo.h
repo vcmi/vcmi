@@ -61,6 +61,7 @@ private:
 	int moveCostBaseValue;
 	int movePointsLimitLand;
 	int movePointsLimitWater;
+	int movePointsLimitAir;
 
 	bool waterWalkingTest;
 	bool flyingMovementTest;
@@ -78,6 +79,7 @@ public:
 	int getMovementCostBase() const;
 	int getMovePointsLimitLand() const;
 	int getMovePointsLimitWater() const;
+	int getMovePointsLimitAir() const;
 
 	TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;

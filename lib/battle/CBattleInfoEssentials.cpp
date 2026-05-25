@@ -127,7 +127,7 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 
 battle::Units CBattleInfoEssentials::battleGetAllUnits(bool includeTurrets) const
 {
-	return battleGetUnitsIf([=](const battle::Unit * unit)
+	return battleGetUnitsIf([includeTurrets](const battle::Unit * unit)
 	{
 		return !unit->isGhost() && (includeTurrets || !unit->isTurret());
 	});

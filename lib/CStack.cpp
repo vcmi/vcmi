@@ -223,10 +223,10 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 		}
 	}
 
-	customState->save(bsa.newState.data);
+	bsa.newState.data = customState->save();
 	bsa.newState.healthDelta = -bsa.damageAmount;
 	bsa.newState.id = customState->unitId();
-	bsa.newState.operation = UnitChanges::EOperation::RESET_STATE;
+	bsa.newState.operation = UnitChanges::EOperation::UPDATE;
 }
 
 BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
@@ -309,7 +309,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
 	for(const auto & st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st.get(), unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st.get(), unit, true) && st->isAmmoCart())
 		{
 			return st->alive();
 		}

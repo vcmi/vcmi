@@ -1168,7 +1168,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		|| (upgrades != BuildingID::NONE
 			&& town->getTown()->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
-	if(upgrades != BuildingID::NONE)
+	if(upgrades != BuildingID::NONE && upgrades != building)
 		descr += "\n\n"+town->getTown()->buildings.find(BuildingID(upgrades))->second->getDescriptionTranslated();
 
 	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
@@ -1388,8 +1388,7 @@ void CCreaInfo::clickPressed(const Point & cursorPosition)
 
 			si32 amount = town->creatures[i].first;
 			auto creatureId = ENGINE->isKeyboardCtrlDown() ? town->creatures[i].second.back() : town->creatures[i].second.front();
-			auto creature = creatureId.toCreature();
-			si32 maxAmount = creature->maxAmount(GAME->interface()->cb->getResourceAmount());
+			si32 maxAmount = creatureId.toCreature()->maxAmount(GAME->interface()->cb->getResourceAmount());
 			vstd::amin(maxAmount, amount);
 
 			if(maxAmount > 0)

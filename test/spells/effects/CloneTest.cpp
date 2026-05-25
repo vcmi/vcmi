@@ -157,8 +157,8 @@ public:
 		EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(cloneId));
 		EXPECT_CALL(*battleFake, addUnit(_, _)).WillOnce(Invoke(this, &CloneApplyTest::onUnitAdded));
 
-		EXPECT_CALL(*battleFake, setUnitState(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
-		EXPECT_CALL(*battleFake, setUnitState(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
 
 		auto & original = unitsFake.add(BattleSide::ATTACKER);
 		EXPECT_CALL(original, isValidTarget(Eq(false))).Times(AtLeast(1)).WillRepeatedly(Return(true));

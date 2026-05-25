@@ -371,7 +371,7 @@ TEST_P(HealApplyTest, Heals)
 
 	EXPECT_CALL(targetUnit, acquire()).WillRepeatedly(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Gt(0))).Times(1);
 
 	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(CreatureID(unitId)));
 

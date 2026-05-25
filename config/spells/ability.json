@@ -14,31 +14,37 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : "spell.stoneGaze",
-						"duration" : [
-							"UNTIL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : [
-							"UNTIL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"val" : 50,
-						"duration" : [
-						    "UNTIL_BEING_ATTACKED",
-						    "N_TURNS"
-						]
+				"battleEffects" : {
+					"petrification" : {
+						"type" : "core:timed",
+						"battleLogMessage" : { "singular" : "@core.genrltxt.558", "plural" : "@core.genrltxt.559" },
+						"bonus" : {
+							"notActive" : {
+								"val" : 0,
+								"type" : "NOT_ACTIVE",
+								"subtype" : "spell.stoneGaze",
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							},
+							"noRetaliation" : {
+								"val" : 0,
+								"type" : "NO_RETALIATION",
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							},
+							"generalDamageReduction" : {
+								"type" : "GENERAL_DAMAGE_REDUCTION",
+								"val" : 50,
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							}
+						}
 					}
 				}
 			}
@@ -66,18 +72,24 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"poison" : {
-						"val" : 30,
-						"type" : "POISON",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
-					},
-					"stackHealth" : {
-						"val" : -10,
-						"type" : "STACK_HEALTH",
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"poisoning" : {
+						"type" : "core:timed",
+						"battleLogMessage" : { "singular" : "@core.genrltxt.561", "plural" : "@core.genrltxt.562" },
+						"bonus" : {
+							"poison" : {
+								"val" : 30,
+								"type" : "POISON",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS"
+							},
+							"stackHealth" : {
+								"val" : -10,
+								"type" : "STACK_HEALTH",
+								"valueType" : "PERCENT_TO_ALL",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			}
@@ -108,13 +120,18 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				//no cumulative effect even with mods here
-				"effects" : {
-					"bindEffect" : {
-						"val" : 0,
-						"type" : "BIND_EFFECT",
-						"duration" : "PERMANENT",
-						"addInfo" : -1
+				"battleEffects" : {
+					"binding" : {
+						"type" : "core:timed",
+						"battleLogMessage" : { "singular" : "@core.genrltxt.560", "plural" : "@core.genrltxt.560" },
+						"bonus" : {
+							"bindEffect" : {
+								"val" : 0,
+								"type" : "BIND_EFFECT",
+								"duration" : "PERMANENT",
+								"addInfo" : -1
+							}
+						}
 					}
 				}
 			}
@@ -138,18 +155,24 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.attack",
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"val" : -2,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primarySkill.defence",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"illness" : {
+						"type" : "core:timed",
+						"battleLogMessage" : { "singular" : "@core.genrltxt.553", "plural" : "@core.genrltxt.554" },
+						"bonus" : {
+							"attack" : {
+								"val" : -2,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primarySkill.attack",
+								"duration" : "N_TURNS"
+							},
+							"defence" : {
+								"val" : -2,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primarySkill.defence",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			}
@@ -180,32 +203,38 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : "spell.paralyze",
-						"duration" : [
-							"UNTIL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : [
-							"UNTIL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalAttackReduction" : {
-						"val" : 75,
-						"type" : "GENERAL_ATTACK_REDUCTION",
-						"duration" : [
-							"UNTIL_AFTER_ATTACK_SEQUENCE",
-							"UNTIL_TAKING_INDIRECT_DAMAGE",
-							"N_TURNS"
-						]
+				"battleEffects" : {
+					"paralysis" : {
+						"type" : "core:timed",
+						"battleLogMessage" : { "singular" : "@core.genrltxt.563", "plural" : "@core.genrltxt.564" },
+						"bonus" : {
+							"notActive" : {
+								"val" : 0,
+								"type" : "NOT_ACTIVE",
+								"subtype" : "spell.paralyze",
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							},
+							"noRetaliation" : {
+								"val" : 0,
+								"type" : "NO_RETALIATION",
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							},
+							"generalAttackReduction" : {
+								"val" : 75,
+								"type" : "GENERAL_ATTACK_REDUCTION",
+								"duration" : [
+									"UNTIL_AFTER_ATTACK_SEQUENCE",
+									"UNTIL_TAKING_INDIRECT_DAMAGE",
+									"N_TURNS"
+								]
+							}
+						}
 					}
 				}
 			}

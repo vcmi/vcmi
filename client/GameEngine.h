@@ -102,6 +102,10 @@ public:
 	/// returns true if Shift is currently pressed down
 	bool isKeyboardShiftDown() const;
 
+	/// returns game data mode
+	bool isRoeData() const;
+	bool isDemoData() const;
+
 	IScreenHandler & screenHandler();
 	IRenderHandler & renderHandler();
 	WindowHandler & windows();

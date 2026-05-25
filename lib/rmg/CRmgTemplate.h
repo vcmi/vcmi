@@ -18,11 +18,14 @@
 #include "ObjectConfig.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 
+#ifdef ENABLE_TEMPLATE_EDITOR
+class TemplateEditor;
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
 struct CompoundMapObjectID;
-class TemplateEditor;
 
 enum class ETemplateZoneType
 {

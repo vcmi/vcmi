@@ -800,10 +800,6 @@ void AIGateway::makeTurn()
 	{
 		logAi->debug("Making turn thread has been terminated. We'll end without calling endTurn");
 	}
-	catch (...)
-	{
-		logAi->error("Unknown exception in makeTurn. Ending turn without calling endTurn.");
-	}
 }
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr)

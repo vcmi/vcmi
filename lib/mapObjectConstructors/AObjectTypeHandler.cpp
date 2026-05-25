@@ -282,7 +282,7 @@ void AObjectTypeHandler::afterLoadFinalization()
 {
 }
 
-std::unique_ptr<IObjectInfo> AObjectTypeHandler::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
+std::unique_ptr<IObjectInfo> AObjectTypeHandler::getObjectInfo() const
 {
 	return nullptr;
 }

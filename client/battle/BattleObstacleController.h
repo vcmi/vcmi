@@ -31,6 +31,8 @@ class BattleRenderer;
 /// (with exception of moat, which is apparently handled by siege controller)
 class BattleObstacleController
 {
+	friend class ClientCommandManager;
+
 	BattleInterface & owner;
 
 	/// total time, in seconds, since start of battle. Used for animating obstacles

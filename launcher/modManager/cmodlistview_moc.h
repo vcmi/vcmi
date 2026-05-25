@@ -40,7 +40,9 @@ class CModListView : public QWidget
 	QString activatingPreset;
 
 	QStringList enqueuedModDownloads;
-
+	QStringList enqueuedDownloadFiles;
+	QHash<QString, QString> enqueuedDownloadDescriptions;
+	QString activeDownloadFile;
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
@@ -126,6 +128,12 @@ public:
 	/// returns true if mod is currently installed
 	bool isModInstalled(const QString & modName);
 
+	static bool isDemoDataPresent();
+
+protected:
+	void showEvent(QShowEvent * event) override;
+
+public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 	void installFiles(QStringList mods);
@@ -138,7 +146,8 @@ private slots:
 	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
-	void downloadProgress(qint64 current, qint64 max);
+	void downloadProgress(QString currentFile, qint64 current, qint64 max);
+	void onDownloadFileFinished(QString fileName);
 	void extractionProgress(qint64 current, qint64 max);
 	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);

@@ -389,6 +389,14 @@
 							"chainLength" : { "type" : "number" },
 							"chainFactor" : { "type" : "number" },
 							"cumulative" : { "type" : "boolean" },
+							"battleLogMessage" : {
+								"type" : "object",
+								"additionalProperties" : false,
+								"properties" : {
+									"singular" : { "type" : "string" },
+									"plural" : { "type" : "string" }
+								}
+							},
 							"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
 						},
 						"additionalProperties" : false

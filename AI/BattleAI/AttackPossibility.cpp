@@ -232,9 +232,9 @@ float AttackPossibility::calculateDamageReduce(
 			{
 				return u->unitSide() != defender->unitSide()
 					&& !u->isTurret()
-					&& u->creatureId() != CreatureID::CATAPULT
-					&& u->creatureId() != CreatureID::BALLISTA
-					&& u->creatureId() != CreatureID::FIRST_AID_TENT
+					&& !u->isCatapult()
+					&& !u->isBallista()
+					&& !u->isFirstAidTent()
 					&& u->getCount();
 			});
 

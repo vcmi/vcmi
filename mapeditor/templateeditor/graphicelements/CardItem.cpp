@@ -57,10 +57,27 @@ CardItem::CardItem():
 	useBlackText(false),
 	mousePressed(false)
 {
-	QFile file(":/icons/templateSquare.svg");
-	file.open(QIODevice::ReadOnly);
-	QByteArray data = file.readAll();
-	doc.setContent(data);
+	static const QString templateSquarePath = ":/icons/templateSquare.svg";
+	QFile file(templateSquarePath);
+	if(!file.open(QIODevice::ReadOnly))
+	{
+		logGlobal->error("Failed to open template editor card SVG %s: %s", templateSquarePath.toStdString(), file.errorString().toStdString());
+	}
+	else
+	{
+		QByteArray data = file.readAll();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+		const auto parseResult = doc.setContent(data);
+		if(!parseResult)
+			logGlobal->error("Failed to parse template editor card SVG %s at %d:%d: %s", templateSquarePath.toStdString(), parseResult.errorLine, parseResult.errorColumn, parseResult.errorMessage.toStdString());
+#else
+		QString errorMessage;
+		int errorLine = 0;
+		int errorColumn = 0;
+		if(!doc.setContent(data, &errorMessage, &errorLine, &errorColumn))
+			logGlobal->error("Failed to parse template editor card SVG %s at %d:%d: %s", templateSquarePath.toStdString(), errorLine, errorColumn, errorMessage.toStdString());
+#endif
+	}
 
 	updateContent();
 }

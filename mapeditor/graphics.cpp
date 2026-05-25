@@ -35,6 +35,10 @@
 #include "../lib/mapObjects/CGObjectInstance.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 Graphics * graphics = nullptr;
 
 void Graphics::loadPaletteAndColors()
@@ -345,3 +349,7 @@ void Graphics::initializeImageLists()
 	addImageListEntries(LIBRARY->skills());
 	addImageListEntries(LIBRARY->resources());
 }
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif

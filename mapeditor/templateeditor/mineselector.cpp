@@ -25,7 +25,6 @@ MineSelector::MineSelector(std::map<GameResID, ui16> & mines) :
 	minesSelected(mines)
 {
 	ui->setupUi(this);
-
 	setWindowTitle(tr("Mine Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

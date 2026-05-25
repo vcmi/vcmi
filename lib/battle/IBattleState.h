@@ -41,6 +41,7 @@ public:
 	virtual ~IBattleInfo() = default;
 
 	virtual BattleID getBattleID() const = 0;
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
 
 	virtual int32_t getActiveStackID() const = 0;
 
@@ -86,10 +87,9 @@ public:
 	virtual void nextTurn(uint32_t unitId, BattleUnitTurnReason reason) = 0;
 
 	virtual void addUnit(uint32_t id, const JsonNode & data) = 0;
-	virtual void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) = 0;
+	virtual void updateUnit(uint32_t id, const JsonNode & data, int64_t healthDelta) = 0;
 	virtual void moveUnit(uint32_t id, const BattleHex & destination) = 0;
 	virtual void removeUnit(uint32_t id) = 0;
-	virtual void updateUnit(uint32_t id, const JsonNode & data) = 0;
 
 	virtual void addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;
 	virtual void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;

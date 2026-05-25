@@ -54,7 +54,7 @@ protected:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject, public scripting::ApiRawPointer<CGHeroInstance>
 {
 	// We serialize heroes into JSON for crossover
 	friend class CampaignState;
@@ -128,6 +128,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	EPathfindingLayer getBoatLayer() const override;
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 	const IObjectInterface * getObject() const override;
 
@@ -205,9 +206,8 @@ public:
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
 	int movementPointsLimit() const;
-	int movementPointsLimit(bool onLand) const;
 	//cached version is much faster, TurnInfo construction is costly
-	int movementPointsLimitCached(bool onLand, const TurnInfo * ti) const;
+	int movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const;
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
 

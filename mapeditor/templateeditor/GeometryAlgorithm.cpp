@@ -39,6 +39,14 @@ bool GeometryAlgorithm::edgesIntersect(const Node& a, const Node& b, const Node&
 
 void GeometryAlgorithm::forceDirectedLayout(std::vector<Node> & nodes, const std::vector<Edge> & edges, int iterations, double width, double height)
 {
+	if (nodes.empty())
+		return;
+
+	const auto hasValidNodeIndex = [&nodes](int index)
+	{
+		return index >= 0 && static_cast<size_t>(index) < nodes.size();
+	};
+
 	const double area = width * height;
 	const double k = std::sqrt(area / nodes.size());
 
@@ -68,6 +76,9 @@ void GeometryAlgorithm::forceDirectedLayout(std::vector<Node> & nodes, const std
 		// Attractive forces
 		for (const auto& edge : edges)
 		{
+			if (!hasValidNodeIndex(edge.from) || !hasValidNodeIndex(edge.to))
+				continue;
+
 			Node& u = nodes[edge.from];
 			Node& v = nodes[edge.to];
 			double dx = u.x - v.x;
@@ -89,6 +100,10 @@ void GeometryAlgorithm::forceDirectedLayout(std::vector<Node> & nodes, const std
 			for (size_t j = i + 1; j < edges.size(); ++j) {
 				const Edge& e1 = edges[i];
 				const Edge& e2 = edges[j];
+
+				if (!hasValidNodeIndex(e1.from) || !hasValidNodeIndex(e1.to) ||
+					!hasValidNodeIndex(e2.from) || !hasValidNodeIndex(e2.to))
+					continue;
 
 				if (e1.from == e2.from || e1.from == e2.to ||
 				   e1.to == e2.from || e1.to == e2.to)

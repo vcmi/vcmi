@@ -17,9 +17,6 @@
 #include "BAI/v13/battlefield.h"
 #include "BAI/v13/hex.h"
 #include "common.h"
-#include <algorithm>
-#include <memory>
-#include <ranges>
 
 namespace MMAI::BAI::V13
 {
@@ -212,9 +209,9 @@ Queue Battlefield::GetQueue(const CPlayerBattleCallback * battle, const CStack *
 
 	auto tmp = std::vector<battle::Units>{};
 	battle->battleGetTurnOrder(tmp, S13::STACK_QUEUE_SIZE, 0);
-	for(auto & units : tmp)
+	for(const auto & units : tmp)
 	{
-		for(auto & unit : units)
+		for(const auto & unit : units)
 		{
 			if(res.size() < S13::STACK_QUEUE_SIZE)
 				res.push_back(unit->unitId());
@@ -405,20 +402,20 @@ std::tuple<Stacks, Queue> Battlefield::InitStacks(
 }
 
 // static
-AllLinks Battlefield::InitAllLinks(const CPlayerBattleCallback * battle, const Stacks & stacks, const Queue & queue, std::shared_ptr<Hexes> & hexes)
+AllLinks Battlefield::InitAllLinks(const CPlayerBattleCallback * battle, const Stacks & stacks, const Queue & queue, const std::shared_ptr<Hexes> & hexes)
 {
 	auto allLinks = AllLinks();
 
 	for(auto i = 0; i < EI(LT::_count); ++i)
 		allLinks[static_cast<LT>(i)] = std::make_shared<Links>();
 
-	for(auto & srcrow : *hexes)
+	for(const auto & srcrow : *hexes)
 	{
-		for(auto & srchex : srcrow)
+		for(const auto & srchex : srcrow)
 		{
-			for(auto & dstrow : *hexes)
+			for(const auto & dstrow : *hexes)
 			{
-				for(auto & dsthex : dstrow)
+				for(const auto & dsthex : dstrow)
 				{
 					LinkTwoHexes(allLinks, battle, stacks, queue, srchex.get(), dsthex.get());
 				}

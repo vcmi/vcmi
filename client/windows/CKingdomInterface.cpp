@@ -27,8 +27,8 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
-#include "../windows/CHeroWindow.h"
-#include "../windows/CMarketWindow.h"
+#include "CHeroWindow.h"
+#include "CMarketWindow.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"

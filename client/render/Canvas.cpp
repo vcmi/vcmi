@@ -12,8 +12,8 @@
 
 #include "../GameEngine.h"
 #include "../media/IVideoPlayer.h"
-#include "../render/IRenderHandler.h"
-#include "../render/IScreenHandler.h"
+#include "IRenderHandler.h"
+#include "IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "Colors.h"
 #include "IImage.h"

@@ -163,7 +163,7 @@ void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn, std::
 		// if mod is not up to date and does have arrow tower icon yet - second setFrame call will fail and retain previously set image
 		// for 1.2 release & later next line should be moved into 'else' block
 		icon->setFrame(unit->creatureIconIndex(), 0);
-		if(unit->unitType()->getId() == CreatureID::ARROW_TOWERS)
+		if(unit->isTurret())
 			icon->setFrame(owner->getSiegeShooterIconID(), 1);
 
 		roundRect->setEnabled(currentTurn.has_value());

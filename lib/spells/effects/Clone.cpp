@@ -43,7 +43,7 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 		if(clonedStack->getCount() < 1)
 			continue;
 
-		auto hex = m->battle()->getAvailableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition().toInt());
+		auto hex = m->battle()->getAvailableHex(clonedStack->creatureId().toEntity(LIBRARY), m->casterSide, clonedStack->getPosition().toInt());
 
 		if(!hex.isValid())
 		{
@@ -82,13 +82,13 @@ void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 
 		auto cloneState = cloneUnit->acquireState();
 		cloneState->cloned = true;
-		cloneFlags.changedStacks.emplace_back(cloneState->unitId(), UnitChanges::EOperation::RESET_STATE);
-		cloneState->save(cloneFlags.changedStacks.back().data);
+		cloneFlags.changedStacks.emplace_back(cloneState->unitId(), UnitChanges::EOperation::UPDATE);
+		cloneFlags.changedStacks.back().data = cloneState->save();
 
 		auto originalState = clonedStack->acquireState();
 		originalState->cloneID = unitId;
-		cloneFlags.changedStacks.emplace_back(originalState->unitId(), UnitChanges::EOperation::RESET_STATE);
-		originalState->save(cloneFlags.changedStacks.back().data);
+		cloneFlags.changedStacks.emplace_back(originalState->unitId(), UnitChanges::EOperation::UPDATE);
+		cloneFlags.changedStacks.back().data = originalState->save();
 
 		server->apply(cloneFlags);
 

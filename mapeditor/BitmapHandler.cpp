@@ -20,6 +20,10 @@
 #include <QImage>
 #include <QPixmap>
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 namespace BitmapHandler
 {
 	QImage loadH3PCX(ui8 * data, size_t size);
@@ -162,3 +166,7 @@ namespace BitmapHandler
 		return {};
 	}
 }
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif

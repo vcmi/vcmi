@@ -11,8 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
-#include "../lib/filesystem/ResourcePath.h"
-#include "../lib/json/JsonNode.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/json/JsonNode.h"
 
 class IVideoHolder;
 class IVideoInstance;
@@ -52,7 +52,7 @@ public:
 	void showAll(Canvas & to) override;
 	void tick(uint32_t msPassed) override;
 
-	void setPlaybackFinishedCallback(std::function<void()> cb);
+	void setPlaybackFinishedCallback(const std::function<void()> & cb);
 };
 
 class VideoWidget final: public VideoWidgetBase

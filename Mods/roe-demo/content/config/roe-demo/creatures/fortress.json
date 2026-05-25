@@ -1,0 +1,47 @@
+{
+	"core:gorgon" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:mightyGorgon" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:fireDragonFly" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:basilisk" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:greaterBasilisk" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:wyvern" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:wyvernMonarch" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:hydra" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:chaosHydra" :
+	{
+		"special" : true,
+		"graphics" : null
+	}
+}

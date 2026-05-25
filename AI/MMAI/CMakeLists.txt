@@ -1,24 +1,18 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(MMAI_FILES
-  BAI/base.cpp
-  BAI/base.h
+  BAI/logger.h
+  BAI/factory.h
+  BAI/factory.cpp
   BAI/router.cpp
   BAI/router.h
-  BAI/model/ScriptedModel.h
-  BAI/model/ScriptedModel.cpp
-  BAI/model/NNModel.h
-  BAI/model/NNModel.cpp
-  BAI/model/NNModelStochastic.h
-  BAI/model/NNModelStochastic.cpp
-  BAI/model/util/bucketing.cpp
-  BAI/model/util/bucketing.h
-  BAI/model/util/common.h
-  BAI/model/util/sampling.cpp
-  BAI/model/util/sampling.h
+  BAI/fallback/scripted_model.h
+  BAI/fallback/scripted_model.cpp
 
   BAI/v13/BAI.cpp
   BAI/v13/BAI.h
+  BAI/v13/nn_model.h
+  BAI/v13/nn_model.cpp
   BAI/v13/action.cpp
   BAI/v13/action.h
   BAI/v13/attack_log.h
@@ -53,6 +47,7 @@ set(MMAI_FILES
   StdInc.h
   common.h
 )
+
 
 option(ENABLE_MMAI_TEST "Compile tests" OFF)
 

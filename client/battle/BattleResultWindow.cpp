@@ -136,10 +136,10 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 			int yPos = 344 + static_cast<int>(step) * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				const auto * creature = elem.first.toEntity(LIBRARY);
-				if (creature->getId() == CreatureID::ARROW_TOWERS )
+				if (elem.first == CreatureID::ARROW_TOWERS)
 					continue; // do not show destroyed towers in battle results
 
+				const auto * creature = elem.first.toEntity(LIBRARY);
 				icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), creature->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;

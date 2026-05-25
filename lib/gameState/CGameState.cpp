@@ -70,11 +70,27 @@
 #include "UpgradeInfo.h"
 #include "mapObjects/CGPandoraBox.h"
 
+#include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::shared_mutex CGameState::mutex;
+
+const Services * GameStateEnvironment::services() const
+{
+	return LIBRARY;
+}
+
+const Environment::BattleCb * GameStateEnvironment::battle(const BattleID & battleID) const
+{
+	return owner.getBattle(battleID);
+}
+
+const Environment::GameCb * GameStateEnvironment::game() const
+{
+	return &owner;
+}
 
 HeroTypeID CGameState::pickNextHeroType(vstd::RNG & randomGenerator, const PlayerColor & owner)
 {
@@ -169,6 +185,8 @@ CGameState::CGameState()
 	:globalEffects(BonusNodeType::GLOBAL_EFFECTS)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
+	scriptingEnvironment = std::make_unique<GameStateEnvironment>(*this);
+	scriptingPool = LIBRARY->scripts()->createPoolInstance(scriptingEnvironment.get());
 }
 
 CGameState::~CGameState()
@@ -1692,12 +1710,10 @@ void CGameState::loadGame(CLoadFile & file)
 	}
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * CGameState::getGlobalContextPool() const
+const scripting::Pool & CGameState::getScriptContextPool() const
 {
-	return nullptr; // TODO
+	return *scriptingPool;
 }
-#endif
 
 void CGameState::saveCompatibilityRegisterMissingArtifacts()
 {

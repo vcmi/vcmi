@@ -190,7 +190,7 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 
 	victim.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, victimUnitHP, BonusSourceID()));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
 
 	EXPECT_CALL(*battleFake, removeUnit(Eq(victimId))).Times(1);
 

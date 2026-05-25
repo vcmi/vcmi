@@ -24,7 +24,6 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	regions(campaignState->campaignRegions)
 {
 	ui->setupUi(this);
-
 	setWindowTitle(tr("Campaign Properties"));
 	
 	setWindowModality(Qt::ApplicationModal);

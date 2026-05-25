@@ -14,7 +14,7 @@
 #include "../AIUtility.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Goals/Composition.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "CaptureObjectsBehavior.h"
 
 namespace NK2AI
 {

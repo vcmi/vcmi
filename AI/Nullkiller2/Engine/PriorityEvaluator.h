@@ -8,11 +8,6 @@
 *
 */
 #pragma once
-#if __has_include(<fuzzylite/Headers.h>)
-#  include <fuzzylite/Headers.h>
-#else
-#  include <fl/Headers.h>
-#endif
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
@@ -105,7 +100,6 @@ class PriorityEvaluator
 public:
 	PriorityEvaluator(const Nullkiller * aiNk);
 	~PriorityEvaluator();
-	void initVisitTile();
 
 	float evaluate(Goals::TSubgoal task, int priorityTier = BUILDINGS);
 
@@ -124,24 +118,6 @@ public:
 private:
 	const Nullkiller * aiNk;
 
-	fl::Engine * engine;
-	fl::InputVariable * armyLossRatioVariable;
-	fl::InputVariable * heroRoleVariable;
-	fl::InputVariable * mainTurnDistanceVariable;
-	fl::InputVariable * scoutTurnDistanceVariable;
-	fl::InputVariable * turnVariable;
-	fl::InputVariable * goldRewardVsMovementVariable;
-	fl::InputVariable * armyRewardVariable;
-	fl::InputVariable * armyGrowthVariable;
-	fl::InputVariable * dangerVariable;
-	fl::InputVariable * skillRewardVariable;
-	fl::InputVariable * strategicalValueVariable;
-	fl::InputVariable * rewardTypeVariable;
-	fl::InputVariable * closestHeroRatioVariable;
-	fl::InputVariable * goldPressureVariable;
-	fl::InputVariable * goldCostVariable;
-	fl::InputVariable * fearVariable;
-	fl::OutputVariable * value;
 	std::vector<std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 
 	EvaluationContext buildEvaluationContext(const Goals::TSubgoal & goal) const;

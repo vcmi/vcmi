@@ -10,7 +10,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
-#include "../AI/VCAI/ResourceManager.h"
+#include "../../AI/Nullkiller2/Engine/Nullkiller.h"
 
 class ResourceManager;
 class CPlayerSpecificInfoCallback;

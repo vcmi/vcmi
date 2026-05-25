@@ -1,0 +1,18 @@
+{
+	"core:fiona":      { "special" : true },
+	"core:rashka":     { "special" : true },
+	"core:marius":     { "special" : true },
+	"core:ignatius":   { "special" : true },
+	"core:octavia":    { "special" : true },
+	"core:calh":       { "special" : true },
+	"core:pyre":       { "special" : true },
+	"core:nymus":      { "special" : true },
+	"core:ayden":      { "special" : true },
+	"core:xyron":      { "special" : true },
+	"core:axsis":      { "special" : true },
+	"core:olema":      { "special" : true },
+	"core:calid":      { "special" : true },
+	"core:ash":        { "special" : true },
+	"core:zydar":      { "special" : true },
+	"core:xarfax":     { "special" : true }
+}

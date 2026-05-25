@@ -65,7 +65,8 @@ EntitiesSelector::EntitiesSelector(EntityIds & entities) :
 	entitiesSelected(entities)
 {
 	ui->setupUi(this);
-	
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
 	setWindowModality(Qt::ApplicationModal);
 
 	HandlerVariant handler;

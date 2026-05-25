@@ -55,9 +55,16 @@ void MinimapView::mousePressEvent(QMouseEvent* event)
 	mouseMoveEvent(event);
 }
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 MapView::MapView(QWidget * parent):
 	QGraphicsView(parent),
-	selectionTool(MapView::SelectionTool::None)
+	selectionTool(MapView::SelectionTool::None),
+	tileStart(int3{}),
+	tilePrev(int3{}),
+	pressedOnSelected(false)
 {
 	connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &MapView::setViewports);
 	connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &MapView::setViewports);
@@ -71,6 +78,17 @@ void MapView::cameraChanged(const QPointF & pos)
 void MapView::setController(MapController * ctrl)
 {
 	controller = ctrl;
+}
+
+void MapView::resetInteractionState()
+{
+	if(rubberBand)
+		rubberBand->hide();
+
+	tileStart = int3{};
+	tilePrev = int3{};
+	pressedOnSelected = false;
+	temporaryTiles.clear();
 }
 
 void MapView::resizeEvent(QResizeEvent * event)
@@ -163,7 +181,16 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	case MapView::SelectionTool::Line:
 	{
 		{
-			assert(tile.z == tileStart.z);
+			if(!(mouseEvent->buttons() & (Qt::LeftButton | Qt::RightButton)))
+				break;
+
+			if(tile.z != tileStart.z)
+			{
+				temporaryTiles.clear();
+				tileStart = tilePrev = tile;
+				break;
+			}
+
 			const auto diff = tile - tileStart;
 			if(diff == int3{})
 				break;
@@ -685,6 +712,10 @@ void MapView::setViewports()
 		}
 	}
 }
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif
 
 MapSceneBase::MapSceneBase(int lvl):
 	QGraphicsScene(nullptr),

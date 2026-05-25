@@ -10,7 +10,7 @@
 #pragma once
 
 #include "TradePanels.h"
-#include "../../widgets/Slider.h"
+#include "../Slider.h"
 #include "../../render/EFont.h"
 #include "../../render/Colors.h"
 

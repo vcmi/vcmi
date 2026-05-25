@@ -548,7 +548,7 @@ void CMultiMode::onNameChange(std::string newText)
 	name->String() = newText;
 }
 
-JoinScreen::JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> PlayerNames) :
+JoinScreen::JoinScreen(ESelectionScreen ScreenType, const std::vector<std::string> & PlayerNames) :
 	screenType(ScreenType), playerNames(PlayerNames)
 {
 	OBJECT_CONSTRUCTION;
@@ -712,36 +712,50 @@ void CMultiPlayers::enterSelectionScreen()
 	CMainMenu::openLobby(screenType, host, playerNames, loadMode, false, hotseat);
 }
 
-CSimpleJoinScreen::CSimpleJoinScreen(bool host, std::string server, ui16 port)
+CSimpleJoinScreen::CSimpleJoinScreen(bool host, const std::string & server, ui16 port)
 {
 	OBJECT_CONSTRUCTION;
-	background = std::make_shared<CPicture>(ImagePath::builtin("MUDIALOG.bmp")); // address background
-	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
+	if(!ENGINE->isRoeData())
+	{
+		background = std::make_shared<CPicture>(ImagePath::builtin("MUDIALOG.bmp")); // address background
+		pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
-	textTitle = std::make_shared<CTextBox>("", Rect(20, 10, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
-	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
-	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
-	buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), LIBRARY->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
+		textTitle = std::make_shared<CTextBox>("", Rect(20, 10, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
+		inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), background->getSurface());
+		inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), background->getSurface());
+		buttonOk = std::make_shared<CButton>(Point(26, 142), AnimationPath::builtin("MUBCHCK.DEF"), LIBRARY->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), EShortcut::GLOBAL_ACCEPT);
+	}
 	if(host && !settings["session"]["donotstartserver"].Bool())
 	{
-		textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
-		buttonOk->block(true);
+		if(textTitle)
+			textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
+		if(buttonOk)
+			buttonOk->block(true);
 		startConnection();
 	}
 	else
 	{
-		textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
-		inputAddress->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
-		inputPort->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
-		inputPort->setFilterNumber(0, 65535);
-		inputAddress->giveFocus();
+		if(textTitle)
+			textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverAddressEnter"));
+		if(inputAddress)
+			inputAddress->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
+		if(inputPort)
+		{
+			inputPort->setCallback(std::bind(&CSimpleJoinScreen::onChange, this, _1));
+			inputPort->setFilterNumber(0, 65535);
+		}
+		if(inputAddress)
+			inputAddress->giveFocus();
 	}
-	inputAddress->setText(host ? GAME->server().getLocalHostname() : GAME->server().getRemoteHostname());
-	inputPort->setText(std::to_string(host ? GAME->server().getLocalPort() : GAME->server().getRemotePort()));
-	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
+	if(!ENGINE->isRoeData())
+	{
+		inputAddress->setText(host ? GAME->server().getLocalHostname() : GAME->server().getRemoteHostname());
+		inputPort->setText(std::to_string(host ? GAME->server().getLocalPort() : GAME->server().getRemotePort()));
+		buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 
-	buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
+		buttonCancel = std::make_shared<CButton>(Point(142, 142), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), EShortcut::GLOBAL_CANCEL);
+		statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 186, 218, 18), 7, 186));
+	}
 
 	if(!server.empty())
 	{
@@ -753,11 +767,13 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host, std::string server, ui16 port)
 
 void CSimpleJoinScreen::connectToServer()
 {
-	textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
-	buttonOk->block(true);
+	if(textTitle)
+		textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverConnecting"));
+	if(buttonOk)
+		buttonOk->block(true);
 	ENGINE->input().stopTextInput();
 
-	startConnection(inputAddress->getText(), boost::lexical_cast<ui16>(inputPort->getText()));
+	startConnection(inputAddress ? inputAddress->getText() : "", inputPort ? boost::lexical_cast<ui16>(inputPort->getText()) : 0);
 }
 
 void CSimpleJoinScreen::leaveScreen()
@@ -769,7 +785,8 @@ void CSimpleJoinScreen::leaveScreen()
 
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {
-	buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
+	if(buttonOk)
+		buttonOk->block(inputAddress->getText().empty() || inputPort->getText().empty());
 }
 
 void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)

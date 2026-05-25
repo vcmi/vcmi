@@ -24,7 +24,6 @@ ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * paren
 	fittingSet(fittingSet)
 {
 	ui->setupUi(this);
-
 	connect(ui->saveButton, &QPushButton::clicked, this, [this]() 
 	{
 		saveArtifact(ui->artifact->currentData().toInt(), ArtifactPosition(ui->possiblePositions->currentData().toInt()));

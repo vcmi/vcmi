@@ -198,7 +198,7 @@ namespace AIPathfinding
 		{
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
-			if(vstd::contains(summonableVirtualBoats, hero) && summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
+			if(summonableVirtualBoats.contains(hero) && summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}

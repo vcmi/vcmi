@@ -32,7 +32,7 @@ public:
 
 	void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const override;
 
-	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
+	std::unique_ptr<IObjectInfo> getObjectInfo() const override;
 
 	Rewardable::Configuration generateConfiguration(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
 };

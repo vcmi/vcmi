@@ -17,6 +17,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
 VCMI_LIB_NAMESPACE_END
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 class Validator;
 }

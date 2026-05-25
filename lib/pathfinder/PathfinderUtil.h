@@ -84,6 +84,13 @@ namespace PathfinderUtil
 
 			break;
 
+		case ELayer::AVIATE:
+			//cannot aviate over blocked and visitable tiles (use FLY layer instead)
+			if(tinfo.blocked() || tinfo.visitable())
+				return EPathAccessibility::BLOCKED;
+			return EPathAccessibility::ACCESSIBLE;
+			break;
+
 		case ELayer::AIR:
 			return EPathAccessibility::FLYABLE;
 

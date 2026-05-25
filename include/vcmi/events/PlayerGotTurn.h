@@ -12,6 +12,7 @@
 
 #include "Event.h"
 #include "SubscriptionRegistry.h"
+#include "../scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -20,7 +21,7 @@ class PlayerColor;
 namespace events
 {
 
-class DLL_LINKAGE PlayerGotTurn : public Event
+class DLL_LINKAGE PlayerGotTurn : public Event, public scripting::ApiRawPointer<PlayerGotTurn>
 {
 public:
 	using Sub = SubscriptionRegistry<PlayerGotTurn>;

@@ -66,7 +66,7 @@ void DemonSummon::apply(ServerCallback * server, const Mechanics * m, const Effe
 			continue;
 		}
 
-		auto hex = m->battle()->getAvailableHex(targetStack->creatureId(), m->casterSide, targetStack->getPosition().toInt());
+		auto hex = m->battle()->getAvailableHex(creature.toEntity(LIBRARY), m->casterSide, targetStack->getPosition().toInt());
 
 		if(!hex.isValid())
 		{

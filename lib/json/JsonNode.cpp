@@ -93,25 +93,25 @@ JsonNode::JsonNode(const JsonMap & map)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string & fileName)
-	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
+JsonNode::JsonNode(const std::byte * stringData, size_t dataSize, const std::string & fileName)
+	: JsonNode(stringData, dataSize, JsonParsingSettings(), fileName)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+JsonNode::JsonNode(const std::byte * stringData, size_t dataSize, const JsonParsingSettings & parserSettings, const std::string & fileName)
 {
-	JsonParser parser(data, datasize, parserSettings);
+	JsonParser parser(stringData, dataSize, parserSettings);
 	*this = parser.parse(fileName);
 }
 
-JsonNode::JsonNode(const char * data, size_t datasize, const std::string & fileName)
-	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
+JsonNode::JsonNode(const char * stringData, size_t dataSize, const std::string & fileName)
+	: JsonNode(stringData, dataSize, JsonParsingSettings(), fileName)
 {
 }
 
-JsonNode::JsonNode(const char * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+JsonNode::JsonNode(const char * stringData, size_t dataSize, const JsonParsingSettings & parserSettings, const std::string & fileName)
 {
-	JsonParser parser(data, datasize, parserSettings);
+	JsonParser parser(stringData, dataSize, parserSettings);
 	*this = parser.parse(fileName);
 }
 

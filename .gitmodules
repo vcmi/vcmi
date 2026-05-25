@@ -2,10 +2,6 @@
 	path = test/googletest
 	url = https://github.com/google/googletest
 	branch = v1.15.x
-[submodule "AI/FuzzyLite"]
-	path = AI/FuzzyLite
-	url = https://github.com/fuzzylite/fuzzylite.git
-	branch = release
 [submodule "innoextract"]
 	path = launcher/lib/innoextract
 	url = https://github.com/vcmi/innoextract.git

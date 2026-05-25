@@ -38,7 +38,7 @@ void QuestArtifactPlacer::init()
 void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 {
 	RecursiveLock lock(externalAccessMutex);
-	questArtZones.push_back(otherZone);
+	questArtZones.emplace_back(otherZone);
 }
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id, ui32 desiredValue)
@@ -132,10 +132,16 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 	for (const auto & questRequest : questArtifactsToPlace)
 	{
 		RandomGeneratorUtil::randomShuffle(questArtZones, rand);
-		for (auto zone : questArtZones)
+		for (const auto & zoneWeak : questArtZones)
 		{
-			auto* qap = zone->getModificator<QuestArtifactPlacer>();
-			
+			auto targetZone = zoneWeak.lock();
+			if (!targetZone)
+				throw rmgException("Quest artifact target zone expired unexpectedly");
+
+			auto* qap = targetZone->getModificator<QuestArtifactPlacer>();
+			if (!qap)
+				continue;
+
 			auto objectToReplace = qap->drawObjectToReplace(questRequest.desiredValue);
 			if (!objectToReplace)
 				continue;

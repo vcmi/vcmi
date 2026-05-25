@@ -28,15 +28,15 @@ bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *wh
 	return true;
 }
 
-void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit)
+void CCallback::moveHero(const CGHeroInstance *h, const int3 & destination, bool transit, const EPathfindingLayer & layer)
 {
-	MoveHero pack({destination}, h->id, transit);
+	MoveHero pack({destination}, layer, h->id, transit);
 	sendRequest(pack);
 }
 
-void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit)
+void CCallback::moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit, const EPathfindingLayer & layer)
 {
-	MoveHero pack(path, h->id, transit);
+	MoveHero pack(path, layer, h->id, transit);
 	sendRequest(pack);
 }
 

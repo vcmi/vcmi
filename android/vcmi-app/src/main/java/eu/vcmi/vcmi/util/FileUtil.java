@@ -109,7 +109,7 @@ public class FileUtil
 		return true;
 	}
 
-	private static void copyStream(InputStream source, OutputStream target) throws IOException
+	public static void copyStream(InputStream source, OutputStream target) throws IOException
 	{
 		final byte[] buffer = new byte[BUFFER_SIZE];
 		int read;
@@ -137,7 +137,7 @@ public class FileUtil
 	}
 
 	@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-	private static String getFilenameFromUri(String sourceFileUri, Context context)
+	public static String getFilenameFromUri(String sourceFileUri, Context context)
 	{
 		String fileName = "";
 		try

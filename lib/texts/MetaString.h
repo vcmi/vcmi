@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <vcmi/scripting/ApiTags.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
@@ -36,7 +38,7 @@ enum class EMetaText : uint8_t
 
 /// Class for string formatting tools that also support transfer over network with localization using language of local install
 /// Can be used to compose resulting text from multiple line segments and with placeholder replacement
-class DLL_LINKAGE MetaString
+class DLL_LINKAGE MetaString : public scripting::ApiSharedPointer<MetaString>
 {
 private:
 	enum class EMessage : uint8_t

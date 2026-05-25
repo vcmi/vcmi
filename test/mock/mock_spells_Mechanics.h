@@ -48,6 +48,7 @@ public:
 	MOCK_CONST_METHOD0(getEffectValue, IBattleCast::Value64());
 
 	MOCK_CONST_METHOD0(getCasterColor, PlayerColor());
+	MOCK_CONST_METHOD0(getHeroCaster, const CGHeroInstance*());
 
 	MOCK_CONST_METHOD0(getSpellIndex, int32_t());
 	MOCK_CONST_METHOD0(getSpellId, SpellID());
@@ -73,13 +74,12 @@ public:
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
 
 	MOCK_CONST_METHOD0(creatures, const CreatureService *());
-#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
-#endif
 	MOCK_CONST_METHOD0(spells, const Service *());
 
 	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());
 	MOCK_CONST_METHOD0(battle, const CBattleInfoCallback * ());
+	MOCK_CONST_METHOD0(getBattleID, BattleID ());
 };
 
 }

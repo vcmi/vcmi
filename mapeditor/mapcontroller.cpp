@@ -44,7 +44,7 @@ MapController::MapController(QObject * parent)
 {
 }
 
-MapController::MapController(MainWindow * m): main(m)
+MapController::MapController(EditorMainWindow * m): main(m)
 {
 	for(int i = 0; i < MAX_LEVELS; i++)
 	{

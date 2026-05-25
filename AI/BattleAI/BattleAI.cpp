@@ -142,7 +142,7 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	if(stack->creatureId() == CreatureID::CATAPULT)
+	if(stack->isCatapult())
 	{
 		cb->battleMakeUnitAction(battleID, useCatapult(battleID, stack));
 		return;

@@ -11,8 +11,8 @@
 
 #include "../windows/CWindowObject.h"
 
-#include "../lib/campaign/CampaignConstants.h"
-#include "../lib/filesystem/ResourcePath.h"
+#include "../../lib/campaign/CampaignConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

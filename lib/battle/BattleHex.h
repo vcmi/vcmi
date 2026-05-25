@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BattleSide.h"
+#include <vcmi/scripting/ApiTags.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,7 +31,7 @@ class BattleHexArray;
  * Valid hexes are within the range 0 to 186, excluding some invalid values, ex. castle towers (-2, -3, -4).
  * Available hexes are those valid ones but NOT in the first or last column.
  */
-class DLL_LINKAGE BattleHex
+class DLL_LINKAGE BattleHex : public scripting::ApiCopyable<BattleHex>
 {
 public:
 

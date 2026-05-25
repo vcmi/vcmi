@@ -44,6 +44,21 @@ uint32_t CGResource::getAmount() const
 	return amount;
 }
 
+void CGResource::setAmount(uint32_t value)
+{
+	amount = value;
+}
+
+const MetaString & CGResource::getMessage() const
+{
+	return message;
+}
+
+void CGResource::setMessage(MetaString && value)
+{
+	message = std::move(value);
+}
+
 GameResID CGResource::resourceID() const
 {
 	return getResourceHandler()->getResourceType();

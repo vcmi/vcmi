@@ -11,12 +11,14 @@
 #pragma once
 
 #include "Entity.h"
+#include "scripting/ApiTags.h"
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class HeroTypeID;
 
-class DLL_LINKAGE HeroType : public EntityT<HeroTypeID>
+class DLL_LINKAGE HeroType : public EntityT<HeroTypeID>, public scripting::ApiRawPointer<HeroType>
 {
 	virtual std::string getBiographyTranslated() const = 0;
 	virtual std::string getSpecialtyNameTranslated() const = 0;

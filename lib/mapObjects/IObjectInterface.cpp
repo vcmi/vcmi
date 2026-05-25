@@ -17,7 +17,7 @@
 #include "../TerrainHandler.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 
@@ -92,7 +92,7 @@ int3 IBoatGenerator::bestLocation() const
 		if(!tile)
 			continue; // tile not visible / outside the map
 
-		if(!tile->isWater())
+		if(getBoatLayer() == EPathfindingLayer::SAIL && !tile->isWater())
 			continue;
 
 		if (tile->blocked())

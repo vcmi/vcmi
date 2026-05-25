@@ -21,6 +21,7 @@ set(launcher_SRCS
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		firstLaunch/progressoverlay.cpp
+		demo.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -64,6 +65,7 @@ set(launcher_HEADERS
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
+		demo.h
 		main.h
 		helper.h
 		innoextract.h

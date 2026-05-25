@@ -27,6 +27,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CCastleEvent.h"
 #include "../../lib/networkPacks/PacksForClient.h"
@@ -597,8 +598,12 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 		for (const CGHeroInstance *h : elem.second.getHeroes())
 		{
 			auto ti = h->getTurnInfo(1);
-			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
+			int32_t newMovementPoints = 0;
+			if (h->inBoat())
+				newMovementPoints = h->movementPointsLimitCached(h->getBoat()->layer, ti.get());
+			else
+				// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
+				newMovementPoints = h->movementPointsLimitCached(EPathfindingLayer::LAND, ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
 				result.emplace_back(h->id, newMovementPoints);

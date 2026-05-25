@@ -511,6 +511,9 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	eraseMissingModsFromPreset();
 	addNewModsToPreset();
 
+	// Sync roe-demo enabled state with demo data presence
+	syncDemoModState();
+
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 	ModDependenciesResolver newResolver(desiredModList, *modsStorage);
 	updatePreset(newResolver);
@@ -616,6 +619,27 @@ void ModManager::addNewModsToPreset()
 		if (!modSettings.count(settingID))
 			modsPreset->setSettingActive(rootMod, settingID, !modsStorage->getMod(modID).keepDisabled());
 	}
+}
+
+void ModManager::syncDemoModState()
+{
+	static const TModID demoModID = "roe-demo";
+
+	if (!vstd::contains(modsStorage->getAllMods(), demoModID))
+		return;
+
+	if (!modsStorage->getMod(demoModID).isInstalled())
+		return;
+
+	bool hasFullData = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
+	bool hasDemoData = !hasFullData && CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
+
+	bool isActive = vstd::contains(modsPreset->getActiveRootMods(), demoModID);
+
+	if (hasDemoData && !isActive)
+		modsPreset->setModActive(demoModID, true);
+	else if (!hasDemoData && isActive)
+		modsPreset->setModActive(demoModID, false);
 }
 
 TModList ModManager::getInstalledValidMods() const

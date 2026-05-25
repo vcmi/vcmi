@@ -52,6 +52,9 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	const auto art = hero->getArt(slot);
 	assert(art);
 
+	if(ENGINE->isRoeData())
+		return false;
+
 	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;
 
@@ -103,6 +106,9 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 	assert(hero);
 	const auto art = hero->getArt(slot);
 	assert(art);
+
+	if(ENGINE->isRoeData())
+		return false;
 
 	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;

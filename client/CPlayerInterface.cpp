@@ -693,7 +693,7 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 	{
 		switch(info.operation)
 		{
-		case UnitChanges::EOperation::RESET_STATE:
+		case UnitChanges::EOperation::UPDATE:
 			{
 				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id );
 

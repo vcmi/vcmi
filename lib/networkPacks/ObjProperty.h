@@ -18,7 +18,7 @@ enum class ObjProperty : int8_t
 {
 	INVALID,
 	OWNER,
-	BLOCKVIS,
+	UNUSED,
 	PRIMARY_STACK_COUNT,
 	VISITORS,
 	VISITED,

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../Entity.h"
+#include "../scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +22,7 @@ namespace spells
 {
 class Caster;
 
-class DLL_LINKAGE Spell: public EntityT<SpellID>
+class DLL_LINKAGE Spell: public EntityT<SpellID>, public scripting::ApiRawPointer<Spell>
 {
 public:
 	using SchoolCallback = std::function<void(const SpellSchool &, bool &)>;

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/battle/BattleSide.h"
-#include "../lib/battle/BattleUnitTurnReason.h"
+#include "../../lib/battle/BattleSide.h"
+#include "../../lib/battle/BattleUnitTurnReason.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;

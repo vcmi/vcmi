@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../AIUtility.h"
-#include "../Goals/CGoal.h"
+#include "CGoal.h"
 #include "../../../lib/gameState/QuestInfo.h"
 
 namespace NK2AI

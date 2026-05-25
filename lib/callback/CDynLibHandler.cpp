@@ -15,9 +15,6 @@
 #include "../VCMIDirs.h"
 
 #ifdef STATIC_AI
-#  ifdef ENABLE_NULLKILLER_AI
-#    include "../../AI/Nullkiller/AIGateway.h"
-#  endif
 #  ifdef ENABLE_NULLKILLER2_AI
 #    include "../../AI/Nullkiller2/AIGateway.h"
 #  endif
@@ -122,11 +119,6 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 		return std::make_shared<NK2AI::AIGateway>();
 #endif
 
-#ifdef ENABLE_NULLKILLER_AI
-	if(libpath.stem() == "libNullkiller")
-		return std::make_shared<NKAI::AIGateway>();
-#endif
-
 	return std::make_shared<CEmptyAI>();
 }
 
@@ -174,11 +166,9 @@ std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(const std::
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-#if SCRIPTING_ENABLED
 std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const boost::filesystem::path & dllname)
 {
 	return createAny<scripting::Module>(dllname, "GetNewModule");
 }
-#endif
 
 VCMI_LIB_NAMESPACE_END

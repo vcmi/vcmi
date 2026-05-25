@@ -130,6 +130,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void generateLoadOrder(TModList desiredModList);
 	void eraseMissingModsFromPreset();
 	void addNewModsToPreset();
+	void syncDemoModState();
 	void updatePreset(const ModDependenciesResolver & newData);
 
 	TModList getInstalledValidMods() const;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
+ <class>EditorMainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
@@ -183,8 +183,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>192</width>
-     <height>214</height>
+     <width>96</width>
+     <height>108</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -232,8 +232,8 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>192</width>
-         <height>192</height>
+         <width>96</width>
+         <height>96</height>
         </size>
        </property>
        <property name="verticalScrollBarPolicy">
@@ -256,8 +256,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>268</width>
-     <height>196</height>
+     <width>130</width>
+     <height>100</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -1019,8 +1019,8 @@
       <widget class="QGraphicsView" name="objectPreview">
        <property name="minimumSize">
         <size>
-         <width>128</width>
-         <height>128</height>
+         <width>64</width>
+         <height>64</height>
         </size>
        </property>
       </widget>

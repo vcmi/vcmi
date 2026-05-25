@@ -1,0 +1,34 @@
+{
+	"core:sand" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:grass" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:snow" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:swamp" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:rough" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:subterra" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:lava" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	},
+	"core:rock" :
+	{
+		"music" : [ "Dirt.mp3" ]
+	}
+}

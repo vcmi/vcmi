@@ -21,6 +21,12 @@
 #include "GeometryAlgorithm.h"
 
 #include "../helper.h"
+#include "../editorfiledialog.h"
+
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/rmg/CRmgTemplate.h"
@@ -30,7 +36,11 @@ TemplateEditor::TemplateEditor():
 	ui(new Ui::TemplateEditor)
 {
 	ui->setupUi(this);
-	
+
+#ifdef VCMI_MOBILE
+	ui->menubar->setNativeMenuBar(false);
+#endif
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
@@ -131,6 +141,9 @@ void TemplateEditor::autoPositionZones()
 {
 	auto & zones = templates[selectedTemplate]->getZones();
 
+	if (zones.empty())
+		return;
+
 	std::vector<GeometryAlgorithm::Node> nodes;
 	std::default_random_engine rng(0);
 	std::uniform_real_distribution<double> distX(0.0, 500);
@@ -145,10 +158,13 @@ void TemplateEditor::autoPositionZones()
 	}
 	std::vector<GeometryAlgorithm::Edge> edges;
 	for(auto & item : templates[selectedTemplate]->getConnectedZoneIds())
-		edges.push_back({
-			vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneA(); }),
-			vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneB(); })
-		});
+	{
+		const auto from = vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneA(); });
+		const auto to = vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneB(); });
+		if (from >= nodes.size() || to >= nodes.size())
+			continue;
+		edges.push_back({from, to});
+	}
 		
 	GeometryAlgorithm::forceDirectedLayout(nodes, edges, 1000, 500, 500);
 
@@ -169,7 +185,7 @@ void TemplateEditor::loadContent(bool autoPosition)
 		return;
 
 	auto & zones = templates[selectedTemplate]->getZones();
-	if(autoPosition || std::all_of(zones.begin(), zones.end(), [](auto & item){ return item.second->getVisiblePosition().x == 0 && item.second->getVisiblePosition().y == 0; }))
+	if(!zones.empty() && (autoPosition || std::all_of(zones.begin(), zones.end(), [](auto & item){ return item.second->getVisiblePosition().x == 0 && item.second->getVisiblePosition().y == 0; })))
 		autoPositionZones();
 
 	for(auto & zone : zones)
@@ -425,6 +441,8 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 
 void TemplateEditor::loadZoneConnectionMenuContent()
 {
+	updateConnectionAddButton();
+
 	auto widget = ui->tableWidgetConnections;
 	auto & connections = templates[selectedTemplate]->connections;
 
@@ -504,6 +522,12 @@ void TemplateEditor::loadZoneConnectionMenuContent()
 		widget->setCellWidget(i, 5, delButton);
 	};
 	widget->resizeColumnsToContents();
+}
+
+void TemplateEditor::updateConnectionAddButton()
+{
+	const bool canAddConnection = templates.count(selectedTemplate) && templates[selectedTemplate]->getZones().size() >= 2;
+	ui->pushButtonConnectionAdd->setEnabled(canAddConnection);
 }
 
 void TemplateEditor::saveZoneMenuContent()
@@ -744,6 +768,7 @@ void TemplateEditor::showTemplateEditor(QWidget *parent)
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
+	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void TemplateEditor::on_actionOpen_triggered()
@@ -754,9 +779,11 @@ void TemplateEditor::on_actionOpen_triggered()
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 	
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open template"),
-		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
-		tr("VCMI templates(*.json)"));
+	auto title = tr("Open template");
+	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto filter = tr("VCMI templates(*.json)");
+
+	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter, /*externalOnly=*/true);
 	if(filenameSelect.isEmpty())
 		return;
 
@@ -772,7 +799,12 @@ void TemplateEditor::on_actionSave_as_triggered()
 	if(!validate())
 		return;
 
-	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save template"), "", tr("VCMI templates (*.json)"));
+	auto title = tr("Save template");
+	auto filter = tr("VCMI templates (*.json)");
+
+	QString contentUri;
+	auto filenameSelect = EditorFileDialog::getSaveFileName(this, title, QString(), filter,
+		contentUri, /*externalOnly=*/true);
 
 	if(filenameSelect.isNull())
 		return;
@@ -785,6 +817,8 @@ void TemplateEditor::on_actionSave_as_triggered()
 	filename = filenameSelect;
 	saveTemplate();
 	setTitle();
+
+	EditorFileDialog::writeFileToUri(filename, contentUri);
 }
 
 void TemplateEditor::on_actionNew_triggered()
@@ -880,9 +914,24 @@ void TemplateEditor::on_comboBoxTemplateSelection_activated(int index)
 void TemplateEditor::closeEvent(QCloseEvent *event)
 {
 	if(getAnswerAboutUnsavedChanges())
+	{
 		QWidget::closeEvent(event);
+#ifdef VCMI_ANDROID
+		QApplication::quit();
+		QAndroidJniObject activity = QtAndroid::androidActivity();
+		if(activity.isValid())
+			activity.callMethod<void>("finishAffinity");
+#endif
+	}
 	else
 		event->ignore();
+}
+
+void TemplateEditor::changeEvent(QEvent *event)
+{
+	QWidget::changeEvent(event);
+	if(event->type() == QEvent::LanguageChange)
+		ui->retranslateUi(this);
 }
 
 void TemplateEditor::on_pushButtonAddSubTemplate_clicked()
@@ -1159,8 +1208,20 @@ void TemplateEditor::on_checkBoxAllowedWaterContentIslands_stateChanged(int stat
 
 void TemplateEditor::on_pushButtonConnectionAdd_clicked()
 {
+	const auto & zones = templates[selectedTemplate]->getZones();
+	if (zones.size() < 2)
+	{
+		QMessageBox::warning(this, tr("Too few zones"), tr("Create at least two zones before adding a connection."));
+		return;
+	}
+
 	auto & connections = templates[selectedTemplate]->connections;
-	connections.push_back(rmg::ZoneConnection());
+	rmg::ZoneConnection connection;
+	auto zoneIt = zones.begin();
+	connection.zoneA = zoneIt->first;
+	++zoneIt;
+	connection.zoneB = zoneIt->first;
+	connections.push_back(connection);
 	loadZoneConnectionMenuContent();
 }
 

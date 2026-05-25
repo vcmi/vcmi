@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "../lib/json/JsonUtils.h"
+#include "../../lib/json/JsonUtils.h"
 
 TEST(JsonTest, conflictDetectionTestNoConflict)
 {

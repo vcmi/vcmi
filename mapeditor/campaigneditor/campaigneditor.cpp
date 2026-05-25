@@ -18,6 +18,16 @@
 
 #include "../BitmapHandler.h"
 #include "../helper.h"
+#include "../editorfiledialog.h"
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+using namespace MapEditor;
+#endif
+
+#ifdef VCMI_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/campaign/CampaignHandler.h"
@@ -36,7 +46,11 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 	cb(cb)
 {
 	ui->setupUi(this);
-	
+
+#ifdef VCMI_MOBILE
+	ui->menubar->setNativeMenuBar(false);
+#endif
+
 	setAcceptDrops(true);
 	
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
@@ -196,6 +210,7 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, EditorCallback * cb)
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
+	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb)
@@ -205,6 +220,7 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaign
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
+	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 
 	try
 	{
@@ -248,9 +264,11 @@ void CampaignEditor::on_actionOpen_triggered()
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 	
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open map"),
-		QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string()),
-		tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)"));
+	auto title = tr("Open campaign");
+	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto filter = tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)");
+
+	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filenameSelect.isEmpty())
 		return;
 	
@@ -305,7 +323,12 @@ void CampaignEditor::on_actionSave_as_triggered()
 	if(!campaignState)
 		return;
 
-	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save campaign"), "", tr("VCMI campaigns (*.vcmp)"));
+	auto title = tr("Save campaign");
+	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto filter = tr("VCMI campaigns (*.vcmp)");
+
+	QString contentUri;
+	auto filenameSelect = EditorFileDialog::getSaveFileName(this, title, dir, filter, contentUri);
 
 	if(filenameSelect.isNull())
 		return;
@@ -318,6 +341,8 @@ void CampaignEditor::on_actionSave_as_triggered()
 	filename = filenameSelect;
 	saveCampaign();
 	setTitle();
+
+	EditorFileDialog::writeFileToUri(filename, contentUri);
 }
 
 void CampaignEditor::on_actionNew_triggered()
@@ -375,9 +400,24 @@ void CampaignEditor::on_actionScenarioProperties_triggered()
 void CampaignEditor::closeEvent(QCloseEvent *event)
 {
 	if(getAnswerAboutUnsavedChanges())
+	{
 		QWidget::closeEvent(event);
+#ifdef VCMI_ANDROID
+		QApplication::quit();
+		QAndroidJniObject activity = QtAndroid::androidActivity();
+		if(activity.isValid())
+			activity.callMethod<void>("finishAffinity");
+#endif
+	}
 	else
 		event->ignore();
+}
+
+void CampaignEditor::changeEvent(QEvent *event)
+{
+	QWidget::changeEvent(event);
+	if(event->type() == QEvent::LanguageChange)
+		ui->retranslateUi(this);
 }
 
 void CampaignEditor::dragEnterEvent(QDragEnterEvent *event)

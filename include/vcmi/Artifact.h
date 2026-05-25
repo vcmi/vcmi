@@ -11,13 +11,14 @@
 #pragma once
 
 #include "Entity.h"
+#include "scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class ArtifactID;
 class CreatureID;
 
-class DLL_LINKAGE Artifact : public EntityWithBonuses<ArtifactID>
+class DLL_LINKAGE Artifact : public EntityWithBonuses<ArtifactID>, public scripting::ApiRawPointer<Artifact>
 {
 public:
 

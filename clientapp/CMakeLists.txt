@@ -43,6 +43,10 @@ if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
 
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_EDITOR)
+	target_link_libraries(vcmiclient PRIVATE vcmieditor)
+endif()
+
 target_include_directories(vcmiclient
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )

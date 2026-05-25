@@ -91,8 +91,6 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("appearSound", appearSound);
 	handler.serializeStruct("appearAnimation", appearAnimation);
 	handler.serializeStruct("animation", animation);
-
-	handler.serializeInt("offsetY", offsetY);
 }
 
 void Obstacle::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
@@ -300,8 +298,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
 		obstacle.animation = options.animation;
-
-		obstacle.animationYOffset = options.offsetY;
 
 		obstacle.customSize.clear();
 

@@ -69,6 +69,7 @@ class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
 
+	const scripting::Pool & getScriptContextPool() const override;
 	std::optional<BattleSide> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true) const override;
@@ -201,7 +202,8 @@ public:
 	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 	BattleHex getClosestHexToTargetInRange(const ReachabilityInfo& cache, const battle::Unit& unit, const BattleHex& targetHex) const;
 
-	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
+	/// find free hex suitable to place new unit. If no initial position was provided, hex located on left size (attacker) or right side (defender) will be selected
+	BattleHex getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos = {}) const override;
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;

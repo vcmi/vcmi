@@ -13,6 +13,8 @@
 #include "../constants/Enumerations.h"
 #include "../int3.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct StartInfo;
@@ -42,12 +44,10 @@ class IMarket;
 
 using FowTilesType = std::set<int3>;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 class Pool;
 }
-#endif
 
 namespace vstd
 {
@@ -56,7 +56,7 @@ class RNG;
 
 /// Provide interfaces through which map objects can access game state data
 /// TODO: currently it is also used as Environment::GameCb. Consider separating these two interfaces
-class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
+class DLL_LINKAGE IGameInfoCallback : boost::noncopyable, public scripting::ApiRawPointer<IGameInfoCallback>
 {
 public:
 	~IGameInfoCallback() = default;
@@ -166,9 +166,8 @@ public:
 	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
 
-#if SCRIPTING_ENABLED
-	virtual scripting::Pool * getGlobalContextPool() const = 0;
-#endif
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
+
 };
 
 VCMI_LIB_NAMESPACE_END

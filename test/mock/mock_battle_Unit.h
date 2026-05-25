@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../lib/battle/Unit.h"
+#include "../../lib/json/JsonNode.h"
 
 class UnitMock : public battle::Unit
 {
@@ -93,7 +94,7 @@ public:
 	MOCK_CONST_METHOD0(acquire, std::shared_ptr<battle::Unit>());
 	MOCK_CONST_METHOD0(acquireState, std::shared_ptr<battle::CUnitState>());
 
-	MOCK_METHOD1(save, void(JsonNode &));
+	MOCK_METHOD0(save, JsonNode());
 	MOCK_METHOD1(load, void(const JsonNode &));
 
 	MOCK_METHOD1(damage, void(int64_t &));

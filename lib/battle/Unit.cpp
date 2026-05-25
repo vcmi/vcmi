@@ -11,6 +11,7 @@
 
 #include "Unit.h"
 
+#include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
 
@@ -36,6 +37,31 @@ bool Unit::isDead() const
 bool Unit::isTurret() const
 {
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
+}
+
+bool Unit::isCatapult() const
+{
+	return unitType()->warMachine == ArtifactID::CATAPULT;
+}
+
+bool Unit::isBallista() const
+{
+	return unitType()->warMachine == ArtifactID::BALLISTA;
+}
+
+bool Unit::isFirstAidTent() const
+{
+	return unitType()->warMachine == ArtifactID::FIRST_AID_TENT;
+}
+
+bool Unit::isAmmoCart() const
+{
+	return unitType()->warMachine == ArtifactID::AMMO_CART;
+}
+
+bool Unit::isSummoned() const
+{
+	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
 }
 
 bool Unit::isMeleeAttacker() const
@@ -260,14 +286,14 @@ void UnitInfo::save(JsonNode & data)
 {
 	data.clear();
 	JsonSerializer ser(nullptr, data);
-	ser.serializeStruct("newUnitInfo", *this);
+	serializeJson(ser);
 }
 
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
 	JsonDeserializer deser(nullptr, data);
-	deser.serializeStruct("newUnitInfo", *this);
+	serializeJson(deser);
 }
 
 }

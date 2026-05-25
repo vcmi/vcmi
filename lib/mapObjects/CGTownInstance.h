@@ -67,8 +67,8 @@ public:
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
-	int spellResearchCounterDay; //TODO: change to si32 when breaking save compatibility
-	int spellResearchAcceptedCounter; //TODO: change to si32 when breaking save compatibility
+	int32_t spellResearchCounterDay;
+	int32_t spellResearchAcceptedCounter;
 	std::vector<si32> spellResearchPendingRerollsCounters;
 	bool spellResearchAllowed;
 
@@ -143,6 +143,7 @@ public:
 	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadius() const override; //returns sight distance
 	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	EPathfindingLayer getBoatLayer() const override;
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed. Parameter will be cleared
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;

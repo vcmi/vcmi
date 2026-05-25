@@ -22,7 +22,6 @@ TreasureSelector::TreasureSelector(std::vector<CTreasureInfo> & treasures) :
 	treasures(treasures)
 {
 	ui->setupUi(this);
-
 	setWindowTitle(tr("Treasure Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

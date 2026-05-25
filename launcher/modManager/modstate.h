@@ -60,6 +60,7 @@ public:
 	bool isSubmod() const;
 	bool isCompatibility() const;
 	bool isTranslation() const;
+	bool isDemoSupport() const;
 
 	bool isVisible() const;
 	bool isHidden() const;

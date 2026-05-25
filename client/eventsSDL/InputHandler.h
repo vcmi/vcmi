@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../lib/Rect.h"
+#include "../../lib/Rect.h"
 
 #include <tbb/concurrent_queue.h>
 

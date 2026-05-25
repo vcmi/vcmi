@@ -19,7 +19,7 @@
 #include <QLabel>
 
 
-PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
+PlayerSelectionDialog::PlayerSelectionDialog(EditorMainWindow * mainWindow)
 	: QDialog(mainWindow), selectedPlayer(PlayerColor::NEUTRAL)
 {
 	setupDialogComponents();
@@ -44,7 +44,7 @@ void PlayerSelectionDialog::setupDialogComponents()
 {
 	setWindowTitle(tr("Select Player"));
 	setFixedWidth(dialogWidth);
-	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::MSWindowsFixedSizeDialogHint);
 	font.setPointSize(10);
 	setFont(font);
 

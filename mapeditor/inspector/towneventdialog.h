@@ -11,7 +11,9 @@
 
 #include "../StdInc.h"
 #include <QDialog>
-#include "../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+
+VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 	class TownEventDialog;

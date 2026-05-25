@@ -28,7 +28,6 @@ HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInsta
 	fittingSet(CArtifactFittingSet(h))
 {
 	ui->setupUi(this);
-
 	connect(ui->saveButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onSaveButtonClicked);
 	connect(ui->cancelButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onCancelButtonClicked);
 }

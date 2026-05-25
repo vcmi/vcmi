@@ -31,11 +31,11 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
-#include "../lib/gameState/UpgradeInfo.h"
+#include "../gameState/UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
@@ -628,7 +628,9 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 
 const CArtifactInstance * CGArtifact::getArtifactInstance() const
 {
-	assert(storedArtifact.hasValue());
+	if(!storedArtifact.hasValue())
+		return nullptr;
+
 	return cb->getArtInstance(storedArtifact);
 }
 
@@ -1146,6 +1148,26 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 BoatId CGShipyard::getBoatType() const
 {
 	return createdBoat;
+}
+
+EPathfindingLayer CGShipyard::getBoatLayer() const
+{
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, getBoatType());
+	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	return boatConstructor->getLayer();
+}
+
+void CGShipyard::getBoatCost(ResourceSet & cost) const
+{
+	if (getBoatLayer() == EPathfindingLayer::AVIATE)
+	{
+		cost[EGameResID::WOOD] = 20;
+		cost[EGameResID::GOLD] = 5000;
+	}
+	else
+	{
+		IShipyard::getBoatCost(cost);
+	}
 }
 
 const IOwnableObject * CGShipyard::asOwnable() const

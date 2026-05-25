@@ -1,0 +1,42 @@
+{
+	"core:grandElf" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:silverPegasus" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:dendroidGuard" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:dendroidSoldier" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:unicorn" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:warUnicorn" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:greenDragon" :
+	{
+		"special" : true,
+		"graphics" : null
+	},
+	"core:goldDragon" :
+	{
+		"special" : true,
+		"graphics" : null
+	}
+}

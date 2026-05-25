@@ -478,8 +478,6 @@ void ObjectClusterizer::clusterizeObject(
 					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 				}
 
-				if(aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
-					continue;
 				if (priority <= 0)
 					continue;
 
@@ -504,13 +502,11 @@ void ObjectClusterizer::clusterizeObject(
 			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 		}
 
-		if (aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
-			continue;
 		if (priority <= 0)
 			continue;
 
 		// TODO: Mircea: Move to constant
-		bool interestingObject = path.turn() <= 2 || priority > (aiNk->settings->isUseFuzzy() ? 0.5f : 0);
+		bool interestingObject = path.turn() <= 2 || priority > 0;
 
 		if(interestingObject)
 		{

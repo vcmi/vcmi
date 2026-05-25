@@ -164,7 +164,6 @@ void Moat::placeObstacles(ServerCallback * server, const Mechanics * m, const Ef
 		obstacle.appearAnimation = sideOptions.appearAnimation; //For dispellable moats
 		obstacle.animation = sideOptions.animation;
 		obstacle.customSize.insert(destination);
-		obstacle.animationYOffset = sideOptions.offsetY;
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());
 	}

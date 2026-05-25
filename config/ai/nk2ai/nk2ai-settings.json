@@ -38,7 +38,6 @@
 	// - this becomes 100% if AI player loses all towns, it's willing to risk it all
 	// - example: the higher the value, the higher the chance it will die in a battle
 	// - example: beginners are more likely to loose their heroes, thus pawn level also has a higher percentage here
-	// useFuzzy: a different engine for calculating and prioritizing what to do (2026.01.03 currently unfinished in unknown state, so false)
 
 	"pawn" : {
 		"maxRoamingHeroes" : 3, //H3 value: 3,
@@ -59,8 +58,7 @@
 		"retreatThresholdRelative" : 0.1,
 		"retreatThresholdAbsolute" : 2000,
 		"safeAttackRatio" : 1.1,
-		"maxArmyLossTarget" : 0.65,
-		"useFuzzy" : false
+		"maxArmyLossTarget" : 0.65
 	},
 
 	"knight" : {
@@ -82,8 +80,7 @@
 		"retreatThresholdRelative" : 0.1,
 		"retreatThresholdAbsolute" : 5000,
 		"safeAttackRatio" : 1.1,
-		"maxArmyLossTarget" : 0.50,
-		"useFuzzy" : false
+		"maxArmyLossTarget" : 0.50
 	},
 
 	"rook" : {
@@ -105,8 +102,7 @@
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,
-		"maxArmyLossTarget" : 0.35,
-		"useFuzzy" : false
+		"maxArmyLossTarget" : 0.35
 	},
 
 	"queen" : {
@@ -128,8 +124,7 @@
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,
-		"maxArmyLossTarget" : 0.35,
-		"useFuzzy" : false
+		"maxArmyLossTarget" : 0.35
 	},
 
 	"king" : {
@@ -151,7 +146,6 @@
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,
-		"maxArmyLossTarget" : 0.35,
-		"useFuzzy" : false
+		"maxArmyLossTarget" : 0.35
 	}
 }

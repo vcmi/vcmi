@@ -15,13 +15,10 @@
 #include "../StdInc.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/GameConstants.h"
+#include "../../lib/rmg/CRmgTemplate.h"
 
-class CRmgTemplate;
 class CardItem;
 class LineItem;
-namespace rmg {
-class ZoneOptions;
-}
 
 namespace Ui {
 class TemplateEditor;
@@ -115,6 +112,7 @@ private:
 	void loadZoneMenuContent(bool onlyPosition = false);
 	void saveZoneMenuContent();
 	void loadZoneConnectionMenuContent();
+	void updateConnectionAddButton();
 	void updateConnectionLines(bool recreate = false);
 	void autoPositionZones();
 	void updateZonePositions();
@@ -122,6 +120,7 @@ private:
 	void updateZoneCards(TRmgTemplateZoneId id = -1);
 
 	void closeEvent(QCloseEvent *event) override;
+	void changeEvent(QEvent *event) override;
 
 	Ui::TemplateEditor *ui;
 

@@ -12,8 +12,10 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../mapcontroller.h"
+
+VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 	class TownEventsWidget;

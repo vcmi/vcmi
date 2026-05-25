@@ -20,14 +20,16 @@ using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 class EditorObstaclePlacer;
 VCMI_LIB_NAMESPACE_END
 
-class MainWindow;
+VCMI_LIB_USING_NAMESPACE
+
+class EditorMainWindow;
 class MapController : public QObject
 {
 	Q_OBJECT
 
 public:
 	explicit MapController(QObject * parent = nullptr);
-	MapController(MainWindow *);
+	MapController(EditorMainWindow *);
 	MapController(const MapController &) = delete;
 	MapController(const MapController &&) = delete;
 	~MapController();
@@ -100,7 +102,7 @@ private:
 	std::unique_ptr<EditorCallback> _cb;
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;
-	MainWindow * main;
+	EditorMainWindow * main;
 	mutable std::map<int, std::unique_ptr<MapScene>> _scenes;
 	mutable std::map<int, std::unique_ptr<MinimapScene>> _miniscenes;
 	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;

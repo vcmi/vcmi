@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "PackRollbackGeneratorVisitor.h"
 
-#include "../lib/gameState/CGameState.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/gameState/CGameState.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 void PackRollbackGeneratorVisitor::visitPackageReceived(PackageReceived & pack)
 {

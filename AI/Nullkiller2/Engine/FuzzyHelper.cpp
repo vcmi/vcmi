@@ -62,17 +62,6 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 				objectDanger *= aiNk->heroManager->getFightingStrengthCached(hero);
 		}
 
-		if(objectDanger)
-		{
-			//TODO: don't downcast objects AI shouldn't know about!
-			auto armedObj = dynamic_cast<const CArmedInstance *>(dangerousObject);
-			if(armedObj)
-			{
-				// TODO: Mircea: Here is where advantages should be added to danger (shooters etc)
-				float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, armedObj);
-				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
-			}
-		}
 		if(dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
 		{
 			//check guard on the other side of the gate
@@ -82,13 +71,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
 
 				for(auto cre : guards)
-				{
-					float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(
-						visitor, 
-						dynamic_cast<const CArmedInstance *>(cre));
-
-					vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantage);
-				}
+					vstd::amax(guardDanger, evaluateDanger(cre));
 			}
 		}
 	}
@@ -97,11 +80,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 	{
 		auto guards = cb->getGuardingCreatures(tile);
 		for(auto cre : guards)
-		{
-			float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
-
-			vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantage); //we are interested in strongest monster around
-		}
+			vstd::amax(guardDanger, evaluateDanger(cre)); //we are interested in strongest monster around
 	}
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika

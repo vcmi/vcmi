@@ -12,8 +12,8 @@
 #include "CArtifactsBuying.h"
 
 #include "../../gui/Shortcut.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/TextControls.h"
+#include "../Buttons.h"
+#include "../TextControls.h"
 
 #include "../../CPlayerInterface.h"
 #include "../../GameInstance.h"

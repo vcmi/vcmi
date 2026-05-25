@@ -3,9 +3,9 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QStandardItemModel>
-#include <QTranslator>
 #include <QTableWidgetItem>
 #include <QComboBox>
+#include <QTranslator>
 #include "mapcontroller.h"
 #include "resourceExtractor/ResourceConverter.h"
 
@@ -21,11 +21,11 @@ VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {
-	class MainWindow;
+	class EditorMainWindow;
 	const QString appName = "mapeditor";
 }
 
-class MainWindow : public QMainWindow
+class EditorMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
@@ -35,7 +35,6 @@ class MainWindow : public QMainWindow
 	const QString recentlyOpenedFilesSetting = "MainWindow/RecentlyOpenedFiles";
 
 #ifdef ENABLE_QT_TRANSLATIONS
-	QTranslator translator;
 #endif
 
 #ifndef VCMI_MOBILE
@@ -44,12 +43,12 @@ class MainWindow : public QMainWindow
 	std::unique_ptr<CBasicLogConfigurator> logConfig;
 
 public:
-	explicit MainWindow(QWidget *parent = nullptr);
-	~MainWindow();
+	explicit EditorMainWindow(QWidget *parent = nullptr);
+	~EditorMainWindow();
 
 	void initializeMap(bool isNew);
 
-	void saveMap();
+	void saveMap(bool force = false);
 	bool openMap(const QString &);
 	void openCampaign(const QString &);
 	
@@ -193,7 +192,7 @@ private:
 	void updateRecentMenu(const QString & filenameSelect);
 
 private:
-	Ui::MainWindow * ui;
+	Ui::EditorMainWindow * ui;
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	MapSettings * mapSettings = nullptr;
@@ -214,6 +213,9 @@ private:
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
 
+	QTranslator translator;
+
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent* event) override;
 };
+
