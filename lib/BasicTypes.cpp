@@ -16,6 +16,7 @@
 #include "bonuses/BonusList.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/IBonusBearer.h"
+#include "bonuses/BonusSelector.h"
 
 #include <vcmi/Creature.h>
 #include <vcmi/Faction.h>
@@ -158,20 +159,43 @@ ui32 ACreature::getMovementRange() const
 
 int32_t ACreature::getInitiative(int turn) const
 {
-	if (turn == 0)
+	// Use the initiative chain if the creature has any STACKS_INITIATIVE bonus that is
+	// NOT from native terrain. TERRAIN_NATIVE bonus alone must not activate initiative
+	// for vanilla creatures (it only boosts creatures that already have a base initiative).
+	const auto selectorNonTerrain = Selector::type()(BonusType::STACKS_INITIATIVE)
+		.And(Selector::sourceTypeSel(BonusSource::TERRAIN_NATIVE).Not());
+	const bool hasNonTerrainInitiative = getBonusBearer()->hasBonus(selectorNonTerrain);
+
+	if(!hasNonTerrainInitiative)
 	{
-		int initiative = getBonusBearer()->valOfBonuses(BonusType::STACKS_INITIATIVE);
-		if(initiative)
-			return initiative;
-		return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+		// Pure vanilla: use speed chain.
+		if(turn == 0)
+			return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+		const std::string cachingStrSP = "type_STACKS_SPEED_turns_" + std::to_string(turn);
+		return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSP);
+	}
+
+	const auto selectorBaseInit  = Selector::type()(BonusType::STACKS_INITIATIVE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	const auto selectorBaseSpeed = Selector::type()(BonusType::STACKS_SPEED).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	const bool hasBaseInitiative = getBonusBearer()->hasBonus(selectorBaseInit);
+
+	if(turn == 0)
+	{
+		const int totalInit = getBonusBearer()->valOfBonuses(BonusType::STACKS_INITIATIVE);
+		if(hasBaseInitiative)
+			return totalInit;
+		// No base initiative but external init bonus: base creature speed + all init bonuses.
+		// External speed bonuses excluded to avoid double-counting with terrain.
+		return getBonusBearer()->valOfBonuses(selectorBaseSpeed) + totalInit;
 	}
 	else
 	{
-		const std::string cachingStrSS = "type_STACKS_INITIATIVE_turns_" + std::to_string(turn);
-		int initiative = getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_INITIATIVE).And(Selector::turns(turn)), cachingStrSS);
-		if(initiative)
-			return initiative;
-		return getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_SPEED).And(Selector::turns(turn)), cachingStrSS);
+		const std::string cachingStrSI = "type_STACKS_INITIATIVE_turns_" + std::to_string(turn);
+		const std::string cachingStrBS = "type_STACKS_SPEED_CREATURE_ABILITY_turns_" + std::to_string(turn);
+		const int totalInit = getBonusBearer()->valOfBonuses(Selector::type()(BonusType::STACKS_INITIATIVE).And(Selector::turns(turn)), cachingStrSI);
+		if(hasBaseInitiative)
+			return totalInit;
+		return getBonusBearer()->valOfBonuses(selectorBaseSpeed.And(Selector::turns(turn)), cachingStrBS) + totalInit;
 	}
 }
 

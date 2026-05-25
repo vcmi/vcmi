@@ -414,7 +414,7 @@ void CCreature::updateFrom(const JsonNode & data)
 		if(!configNode["speed"].isNull())
 			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
-		if(!configNode["initiative"].isNull())
+		if(configNode["initiative"].Integer() > 0)
 			addBonus(configNode["initiative"].Integer(), BonusType::STACKS_INITIATIVE);
 
 		if(!configNode["attack"].isNull())
@@ -641,7 +641,8 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
-	cre->addBonus(node["initiative"].Integer(), BonusType::STACKS_INITIATIVE);
+	if(node["initiative"].Integer() > 0)
+		cre->addBonus(node["initiative"].Integer(), BonusType::STACKS_INITIATIVE);
 	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 

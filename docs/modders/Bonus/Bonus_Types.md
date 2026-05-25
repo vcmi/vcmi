@@ -491,6 +491,15 @@ Increases movement speed of units in battle
 
 - val: additional movement speed points
 
+### STACKS_INITIATIVE
+
+Increases combat initiative of a unit, determining its position in the turn order. Higher value means the unit acts earlier.
+
+Creatures with an `initiative` field in their JSON definition use this bonus directly. Creatures without a base initiative (vanilla HoMM3 creatures) also switch to the initiative chain when they receive a `STACKS_INITIATIVE` bonus from a non-terrain source (hero specialty, mod bonus, spell, etc.); in that case the initiative value is shown separately in the UI. The native terrain `+1 STACKS_INITIATIVE` bonus is intentionally excluded from this trigger — it only adds to creatures that already operate on the initiative chain.
+
+- val: additional initiative points
+- source `CREATURE_ABILITY`: marks the creature's own base initiative (set automatically from the `initiative` JSON field)
+
 ### CREATURE_DAMAGE
 
 Increases base damage of creature in battle

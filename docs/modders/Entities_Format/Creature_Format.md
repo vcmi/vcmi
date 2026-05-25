@@ -77,6 +77,16 @@ In order to make functional creature you also need:
 	"defense" : 0,
 	"hitPoints" : 0,
 	"speed" : 0,
+
+	// Optional. Combat initiative of this creature. When set, this value is used instead
+	// of speed to determine turn order in battle. Higher value means the creature acts earlier.
+	// External initiative bonuses (hero specialties, spells, etc.) are added on top of this value.
+	// Native terrain gives +1 to initiative for creatures that have a base initiative defined.
+	// If not set, speed is used as initiative (vanilla HoMM3 behaviour).
+	// External initiative bonuses from non-terrain sources (specialty, mods) DO activate initiative
+	// even for creatures without a base value, and will be displayed separately in the UI.
+	"initiative" : 0,
+
 	"damage" :
 	{
 		"min" : 0,

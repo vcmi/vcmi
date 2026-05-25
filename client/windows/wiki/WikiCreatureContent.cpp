@@ -130,6 +130,10 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 			stats.push_back({tr("core.genrltxt.199"), std::to_string(dmgMin) + " - " + std::to_string(dmgMax)});
 
 		stats.push_back({tr("core.genrltxt.193"),     std::to_string(creature->getBaseSpeed())});
+		{
+			const int baseIni = creature->getBaseInitiative();
+			stats.push_back({tr("vcmi.creatureWindow.initiative"), std::to_string(baseIni > 0 ? baseIni : creature->getBaseSpeed())});
+		}
 		stats.push_back({tr("core.help.439.help"), std::to_string(creature->getBaseHitPoints())});
 		stats.push_back({tr("core.genrltxt.194"),    std::to_string(creature->getGrowth())});
 

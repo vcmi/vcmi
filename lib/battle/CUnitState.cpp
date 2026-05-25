@@ -16,6 +16,7 @@
 #include "../CCreatureHandler.h"
 
 #include "../bonuses/BonusParameters.h"
+#include "../bonuses/BonusSelector.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -335,6 +336,8 @@ CUnitState::CUnitState():
 	health(this),
 	shots(this),
 	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
+	baseCreatureSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY)), BonusCacheMode::VALUE),
+	stackInitiativePerTurn(this, Selector::type()(BonusType::STACKS_INITIATIVE), BonusCacheMode::VALUE),
 	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this),
 	cloneID(-1)
@@ -590,6 +593,23 @@ void CUnitState::setPosition(const BattleHex & hex)
 
 int32_t CUnitState::getInitiative(int turn) const
 {
+	// Use the initiative chain if the creature has any STACKS_INITIATIVE bonus that is
+	// NOT from native terrain. TERRAIN_NATIVE bonus alone must not activate initiative
+	// for vanilla creatures (it only boosts creatures that already have a base initiative).
+	const auto selectorNonTerrain = Selector::type()(BonusType::STACKS_INITIATIVE)
+		.And(Selector::sourceTypeSel(BonusSource::TERRAIN_NATIVE).Not());
+	if(getBonusBearer()->hasBonus(selectorNonTerrain))
+	{
+		const bool hasBaseInitiative = getBonusBearer()->hasBonus(
+			Selector::type()(BonusType::STACKS_INITIATIVE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY)));
+		if(hasBaseInitiative)
+			// Base initiative defined: use init chain only (speed bonuses don't count).
+			return stackInitiativePerTurn.getValue(turn);
+		// No base initiative but external init bonus: base creature speed + all init bonuses.
+		// External speed bonuses excluded to avoid double-counting with terrain.
+		return baseCreatureSpeedPerTurn.getValue(turn) + stackInitiativePerTurn.getValue(turn);
+	}
+
 	return stackSpeedPerTurn.getValue(turn);
 }
 

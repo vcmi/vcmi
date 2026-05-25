@@ -19,6 +19,7 @@
 #include "../../entities/faction/CFaction.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../IBonusTypeHandler.h"
+#include "../../bonuses/BonusSelector.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -34,7 +35,7 @@ CStackInstance::CStackInstance(IGameInfoCallback * cb, BonusNodeType nodeType, b
 	, CArtifactSet(cb)
 	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
-	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+	, initiative(this, Selector::type()(BonusType::STACKS_INITIATIVE))
 	, totalExperience(0)
 {
 }
@@ -244,7 +245,25 @@ PlayerColor CStackInstance::getOwner() const
 int32_t CStackInstance::getInitiative(int turn) const
 {
 	if(turn == 0)
-		return initiative.getValue();
+	{
+		// Use the initiative chain if the creature has any STACKS_INITIATIVE bonus that is
+		// NOT from native terrain. TERRAIN_NATIVE bonus alone must not activate initiative
+		// for vanilla creatures (it only boosts creatures that already have a base initiative).
+		const auto selectorNonTerrain = Selector::type()(BonusType::STACKS_INITIATIVE)
+			.And(Selector::sourceTypeSel(BonusSource::TERRAIN_NATIVE).Not());
+		if(getBonusBearer()->hasBonus(selectorNonTerrain))
+		{
+			if(getType()->getBaseInitiative())
+				// Base initiative defined: init chain only.
+				return initiative.getValue();
+			// No base initiative but external init bonus: base creature speed + all init bonuses.
+			// External speed bonuses excluded to avoid double-counting with terrain.
+			const int baseSpeed = getBonusBearer()->valOfBonuses(
+				Selector::type()(BonusType::STACKS_SPEED).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY)));
+			return baseSpeed + initiative.getValue();
+		}
+		return getBonusBearer()->valOfBonuses(BonusType::STACKS_SPEED);
+	}
 
 	return ACreature::getInitiative(turn);
 }

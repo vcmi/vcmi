@@ -645,13 +645,39 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	morale = std::make_shared<MoraleLuckBox>(true, Rect(Point(321, 32), Point(42, 42) ));
 	luck = std::make_shared<MoraleLuckBox>(false,  Rect(Point(375, 32), Point(42, 42) ));
 
+	// Renders the Speed row; shows "Speed / Initiative" when base initiative is defined
+	// or when any external initiative bonus is active (currIni != currSpd).
+	auto addSpeedStat = [&](int currSpd, int currIni)
+	{
+		const int baseSpd = parent->info->creature->getBaseSpeed();
+		const int baseIni = parent->info->creature->getBaseInitiative(); // 0 if not defined in JSON
+
+		// Show initiative separately only when base initiative is explicitly set,
+		// or when an external initiative bonus changes the value.
+		const bool showInitiative = (baseIni > 0) || (currIni != currSpd);
+		if(!showInitiative)
+		{
+			addStatLabel(EStat::SPEED, parent->info->creature->getMovementRange(), currSpd);
+			return;
+		}
+
+		const std::string label = statNames[static_cast<size_t>(EStat::SPEED)] + " / " + LIBRARY->generaltexth->translate("vcmi.creatureWindow.initiative");
+		const int effectiveBaseIni = parent->info->creature->getInitiative(0);
+		std::string val = std::to_string(baseSpd);
+		if(effectiveBaseIni != baseSpd)
+			val += " / " + std::to_string(effectiveBaseIni);
+		if(baseSpd != currSpd || effectiveBaseIni != currIni)
+			val += " (" + std::to_string(currSpd) + " / " + std::to_string(currIni) + ")";
+		addStatLabelStr(EStat::SPEED, label, val);
+	};
+
 	if(battleStack != nullptr) // in battle
 	{
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(battleStack->isShooter()), battleStack->getAttack(battleStack->isShooter()));
 		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(battleStack->isShooter()), battleStack->getDefense(battleStack->isShooter()));
 		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(battleStack->isShooter()) * dmgMultiply, battleStack->getMaxDamage(battleStack->isShooter()) * dmgMultiply);
 		addStatLabel(EStat::HEALTH, parent->info->creature->getMaxHealth(), battleStack->getMaxHealth());
-		addStatLabel(EStat::SPEED, parent->info->creature->getMovementRange(), battleStack->getMovementRange());
+		addSpeedStat(static_cast<int>(battleStack->getMovementRange()), battleStack->getInitiative(0));
 
 		if(battleStack->isShooter())
 			addStatLabel(EStat::SHOTS, battleStack->shots.total(), battleStack->shots.available());
@@ -671,7 +697,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(shooter), parent->info->stackNode->getDefense(shooter));
 		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(shooter), parent->info->stackNode->getMaxDamage(shooter));
 		addStatLabel(EStat::HEALTH, parent->info->creature->getMaxHealth(), parent->info->stackNode->getMaxHealth());
-		addStatLabel(EStat::SPEED, parent->info->creature->getMovementRange(), parent->info->stackNode->getMovementRange());
+		addSpeedStat(static_cast<int>(parent->info->stackNode->getMovementRange()), parent->info->stackNode->getInitiative(0));
 
 		if(shooter)
 			addStatLabel(EStat::SHOTS, parent->info->stackNode->valOfBonuses(BonusType::SHOTS));
@@ -774,6 +800,12 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)
 {
 	addStatLabel(index, value, value);
+}
+
+void CStackWindow::MainSection::addStatLabelStr(EStat index, const std::string & name, const std::string & value)
+{
+	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, name));
+	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, value));
 }
 
 CStackWindow::CStackWindow(const CStack * stack, bool popup)

@@ -265,8 +265,10 @@ public:
 private:
 	const IUnitEnvironment * env;
 
-	BonusCachePerTurn immobilizedPerTurn;
 	BonusCachePerTurn stackSpeedPerTurn;
+	BonusCachePerTurn baseCreatureSpeedPerTurn; // STACKS_SPEED from CREATURE_ABILITY only
+	BonusCachePerTurn stackInitiativePerTurn;
+	BonusCachePerTurn immobilizedPerTurn;
 	UnitBonusValuesProxy bonusCache;
 
 	void reset();

@@ -223,8 +223,10 @@ int CGHeroInstance::getLowestCreatureSpeed() const
 	{
 		int minimalSpeed = std::numeric_limits<int>::max();
 		//TODO? should speed modifiers (eg from artifacts) affect hero movement?
+		// Always use STACKS_SPEED for adventure map movement, not initiative.
+		// Initiative is a battle-only stat and must not influence hero travel speed.
 		for(const auto & slot : Slots())
-			minimalSpeed = std::min(minimalSpeed, slot.second->getInitiative());
+			minimalSpeed = std::min(minimalSpeed, slot.second->valOfBonuses(BonusType::STACKS_SPEED));
 
 		return minimalSpeed;
 	}

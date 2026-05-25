@@ -160,6 +160,14 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(Creatu
 	{
 		auto bonus = std::make_shared<Bonus>();
 		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
+		bonus->type = BonusType::STACKS_INITIATIVE;
+		bonus->val = 1;
+		result.push_back(bonus);
+	}
+
+	{
+		auto bonus = std::make_shared<Bonus>();
+		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
 		bonus->type = BonusType::STACKS_SPEED;
 		bonus->val = 1;
 		result.push_back(bonus);

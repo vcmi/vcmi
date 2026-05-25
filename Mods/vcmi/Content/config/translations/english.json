@@ -433,6 +433,7 @@
 	"vcmi.creatureWindow.showBonuses.hover": "Switch to bonuses view",
 	"vcmi.creatureWindow.showSkills.help": "Display all learned skills of the commander.",
 	"vcmi.creatureWindow.showSkills.hover": "Switch to skills view",
+	"vcmi.creatureWindow.initiative": "Initiative",
 	"vcmi.credits.developing": "Developing",
 	"vcmi.credits.heroes": "Heroes III",
 	"vcmi.credits.idea": "Idea",

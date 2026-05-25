@@ -155,6 +155,7 @@ class CStackWindow : public CWindowObject
 
 		void addStatLabel(EStat index, int64_t value1, int64_t value2);
 		void addStatLabel(EStat index, int64_t value);
+		void addStatLabelStr(EStat index, const std::string & name, const std::string & value);
 
 		static ImagePath getBackgroundName(bool showExp, bool showArt);
 
