@@ -10,12 +10,12 @@
 #include "StdInc.h"
 #include "QuestInfo.h"
 
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CQuest.h"
-#include "../CGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-const CQuest * QuestInfo::getQuest(CGameInfoCallback *cb) const
+const CQuest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
 	auto questObject = dynamic_cast<const IQuestObject*>(getObject(cb));
 	assert(questObject);
@@ -23,12 +23,12 @@ const CQuest * QuestInfo::getQuest(CGameInfoCallback *cb) const
 	return &questObject->getQuest();
 }
 
-const CGObjectInstance * QuestInfo::getObject(CGameInfoCallback *cb) const
+const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const
 {
 	return cb->getObjInstance(obj);
 }
 
-int3 QuestInfo::getPosition(CGameInfoCallback *cb) const
+int3 QuestInfo::getPosition(IGameInfoCallback *cb) const
 {
 	return getObject(cb)->visitablePos();
 }

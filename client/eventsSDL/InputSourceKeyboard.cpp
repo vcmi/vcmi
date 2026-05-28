@@ -12,6 +12,7 @@
 #include "InputSourceKeyboard.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../render/IScreenHandler.h"
 #include "../GameEngine.h"
 #include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
@@ -88,6 +89,8 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
 
+	ENGINE->events().dispatchKeyPressed(keyName);
+
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
 		ENGINE->user().onGlobalLobbyInterfaceActivated();
 
@@ -95,8 +98,11 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 	{
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	}
+
+	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_SCREENSHOT))
+		ENGINE->screenHandler().screenShot();
 
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
 	{
@@ -142,6 +148,8 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	assert(key.state == SDL_RELEASED);
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
+	
+	ENGINE->events().dispatchKeyReleased(keyName);
 
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }

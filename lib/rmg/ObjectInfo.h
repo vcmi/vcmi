@@ -20,6 +20,7 @@ class CGObjectInstance;
 
 struct DLL_LINKAGE ObjectInfo
 {
+	ObjectInfo() = default;
 	ObjectInfo(si32 ID, si32 subID);
 	ObjectInfo(CompoundMapObjectID id);
 	ObjectInfo(const ObjectInfo & other);

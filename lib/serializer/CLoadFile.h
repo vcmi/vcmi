@@ -21,7 +21,7 @@ class DLL_LINKAGE CLoadFile : public IBinaryReader
 	int read(std::byte * data, unsigned size) override; //throws!
 
 public:
-	CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb); //throws!
+	CLoadFile(const boost::filesystem::path & fname, IGameInfoCallback * cb); //throws!
 
 	template<class T>
 	void load(T & data)

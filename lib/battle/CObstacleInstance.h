@@ -95,8 +95,6 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	AnimationPath appearAnimation;
 	AnimationPath animation;
 
-	int animationYOffset;
-
 	BattleHexArray customSize;
 
 	SpellCreatedObstacle();

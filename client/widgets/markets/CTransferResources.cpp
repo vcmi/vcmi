@@ -14,13 +14,12 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/TextControls.h"
+#include "../Buttons.h"
+#include "../TextControls.h"
 
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/MetaString.h"

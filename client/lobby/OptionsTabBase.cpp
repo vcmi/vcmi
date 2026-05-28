@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "OptionsTabBase.h"
 #include "CSelectionBase.h"
+#include "TurnOptionsTab.h"
+#include "CLobbyScreen.h"
 
 #include "../widgets/ComboBox.h"
 #include "../widgets/CTextInput.h"
@@ -17,6 +19,7 @@
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
 #include "../CServerHandler.h"
+#include "../GameEngine.h"
 #include "../GameInstance.h"
 
 #include "../../lib/StartInfo.h"
@@ -25,6 +28,7 @@
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 
 static std::string timeToString(int time)
 {
@@ -78,6 +82,12 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	auto setSimturnsPresetCallback = [this](int index){
 		GAME->server().setSimturnsInfo(getSimturnsPresets().at(index));
 	};
+
+	addCallback("tabTurnOptions", [&](int)
+	{
+		auto lobby = (static_cast<CLobbyScreen *>(parent));
+		lobby->toggleTab(lobby->tabTurnOptions);
+	});
 
 	addCallback("setTimerPreset", setTimerPresetCallback);
 	addCallback("setSimturnPreset", setSimturnsPresetCallback);
@@ -288,6 +298,8 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			size_t itemIndex = (size_t)item;
 			setSimturnsPresetCallback(itemIndex);
 		};
+
+		w->setEnabled(!ENGINE->isDemoData());
 	}
 
 	if(auto w = widget<ComboBox>("timerPresetSelector"))
@@ -302,6 +314,8 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 			size_t itemIndex = (size_t)item;
 			setTimerPresetCallback(itemIndex);
 		};
+
+		w->setEnabled(!ENGINE->isDemoData());
 	}
 }
 
@@ -309,27 +323,30 @@ void OptionsTabBase::recreate(bool campaign)
 {
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
+		int daysPerWeek = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+		int daysPerMonth = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH) * daysPerWeek;
+
 		if (days == 0)
 			return LIBRARY->generaltexth->translate("core.genrltxt.523");
 
 		if (days >= 1000000) // Not "unlimited" but close enough
 			return LIBRARY->generaltexth->translate("core.turndur.10");
 
-		bool canUseMonth = days % 28 == 0 && days >= 28*2;
-		bool canUseWeek = days % 7 == 0 && days >= 7*2;
+		bool canUseMonth = days % daysPerMonth == 0 && days >= daysPerMonth*2;
+		bool canUseWeek = days % daysPerWeek == 0 && days >= daysPerWeek*2;
 
 		int value = days;
 		std::string text = "vcmi.optionsTab.simturns.days";
 
 		if (canUseWeek && !canUseMonth)
 		{
-			value = days / 7;
+			value = days / daysPerWeek;
 			text = "vcmi.optionsTab.simturns.weeks";
 		}
 
 		if (canUseMonth)
 		{
-			value = days / 28;
+			value = days / daysPerMonth;
 			text = "vcmi.optionsTab.simturns.months";
 		}
 
@@ -426,6 +443,24 @@ void OptionsTabBase::recreate(bool campaign)
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
+	{
+		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
+		buttonTurnOptions->setEnabled(!ENGINE->isDemoData());
+	}
+
+	if(SEL->screenType == ESelectionScreen::scenarioInfo)
+	{
+		if(auto timerPresetSelector = widget<CIntObject>("timerPresetSelector"))
+			timerPresetSelector->setEnabled(false);
+
+		if(auto simturnsPresetSelector = widget<CIntObject>("simturnsPresetSelector"))
+			simturnsPresetSelector->setEnabled(false);
+
+		if(auto buttonTurnOptions = widget<CIntObject>("buttonTurnOptions"))
+			buttonTurnOptions->setEnabled(false);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))

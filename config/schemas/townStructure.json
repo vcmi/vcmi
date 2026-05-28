@@ -29,6 +29,11 @@
 			"description" : "Golden border around building, displayed when building is selected",
 			"format" : "imageFile"
 		},
+		"campaignBonus" : {
+			"type" : "string",
+			"description" : "Town building icon for campaigns",
+			"format" : "imageFile"
+		},
 		"x" : {
 			"type" : "number",
 			"description" : "Position on screen"

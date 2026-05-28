@@ -11,27 +11,25 @@
 #include "BattleEffectsController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleWindow.h"
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleFieldController.h"
-#include "BattleStacksController.h"
+#include "BattleInterface.h"
 #include "BattleRenderer.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/Graphics.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
-#include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -68,7 +66,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		return;
 	}
 	//don't show animation when no HP is regenerated
-	switch(static_cast<BonusType>(bte.effect))
+	switch(bte.effect)
 	{
 		case BonusType::HP_REGENERATION:
 			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition(), 0.5);
@@ -79,7 +77,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		case BonusType::POISON:
 			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
-		case BonusType::FEAR:
+		case BonusType::FEARFUL:
 			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition(), 0.5);
 			break;
 		case BonusType::MORALE:
@@ -135,7 +133,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 void BattleEffectsController::loadColorMuxers()
 {
-	const JsonNode config(JsonPath::builtin("config/battleEffects.json"));
+	const JsonNode config = JsonUtils::assembleFromFiles("config/battleEffects.json");
 
 	for(auto & muxer : config["colorMuxers"].Struct())
 	{

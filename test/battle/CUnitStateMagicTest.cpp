@@ -45,6 +45,7 @@ public:
 
 		EXPECT_CALL(infoMock, unitBaseAmount()).WillRepeatedly(Return(DEFAULT_AMOUNT));
 
+		EXPECT_CALL(spellMock, getId()).WillRepeatedly(Return(SpellID(DEFAULT_SPELL_INDEX)));
 		EXPECT_CALL(spellMock, getIndex()).WillRepeatedly(Return(DEFAULT_SPELL_INDEX));
 	}
 
@@ -74,7 +75,7 @@ TEST_F(UnitStateMagicTest, initialNormal)
 	EXPECT_EQ(subject.casts.available(), 567);
 }
 
-TEST_F(UnitStateMagicTest, DISABLED_schoolLevelByDefault)
+TEST_F(UnitStateMagicTest, schoolLevelByDefault)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -82,7 +83,7 @@ TEST_F(UnitStateMagicTest, DISABLED_schoolLevelByDefault)
 	EXPECT_EQ(subject.getSpellSchoolLevel(&spellMock, nullptr), 0);
 }
 
-TEST_F(UnitStateMagicTest, DISABLED_schoolLevelForNormalCaster)
+TEST_F(UnitStateMagicTest, schoolLevelForNormalCaster)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -91,7 +92,7 @@ TEST_F(UnitStateMagicTest, DISABLED_schoolLevelForNormalCaster)
 	EXPECT_EQ(subject.getSpellSchoolLevel(&spellMock, nullptr), DEFAULT_SCHOOL_LEVEL);
 }
 
-TEST_F(UnitStateMagicTest, DISABLED_effectLevelForNormalCaster)
+TEST_F(UnitStateMagicTest, effectLevelForNormalCaster)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -155,7 +156,7 @@ TEST_F(UnitStateMagicTest, enchantPower)
 	EXPECT_EQ(subject.getEnchantPower(&spellMock), ENCHANT_POWER);
 }
 
-TEST_F(UnitStateMagicTest, DISABLED_effectValueByDefault)
+TEST_F(UnitStateMagicTest, effectValueByDefault)
 {
 	setDefaultExpectations();
 	initUnit();
@@ -164,7 +165,7 @@ TEST_F(UnitStateMagicTest, DISABLED_effectValueByDefault)
 	EXPECT_EQ(subject.getEffectValue(&spellMock), 0);
 }
 
-TEST_F(UnitStateMagicTest, DISABLED_effectValue)
+TEST_F(UnitStateMagicTest, effectValue)
 {
 	setDefaultExpectations();
 	initUnit();

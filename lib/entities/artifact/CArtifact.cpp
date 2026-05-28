@@ -14,6 +14,7 @@
 #include "ArtifactUtils.h"
 #include "CArtifactFittingSet.h"
 
+#include "../../bonuses/Limiters.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
@@ -59,22 +60,22 @@ bool CGrowingArtifact::isGrowing() const
 	return !bonusesPerLevel.empty() || !thresholdBonuses.empty();
 }
 
-std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel()
+std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getBonusesPerLevel()
 {
 	return bonusesPerLevel;
 }
 
-const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel() const
+const std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getBonusesPerLevel() const
 {
 	return bonusesPerLevel;
 }
 
-std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses()
+std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getThresholdBonuses()
 {
 	return thresholdBonuses;
 }
 
-const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses() const
+const std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getThresholdBonuses() const
 {
 	return thresholdBonuses;
 }
@@ -102,7 +103,6 @@ std::string CArtifact::getModScope() const
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "ARTIFACT", image);
-	cb(getIconIndex(), 0, "ARTIFACTLARGE", large);
 }
 
 ArtifactID CArtifact::getId() const
@@ -143,6 +143,11 @@ std::string CArtifact::getEventTextID() const
 std::string CArtifact::getNameTextID() const
 {
 	return TextIdentifier("artifact", modScope, identifier, "name").get();
+}
+
+std::string CArtifact::getBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("artifact", modScope, identifier, "bonus", bonusID).get();
 }
 
 uint32_t CArtifact::getPrice() const
@@ -229,9 +234,9 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 
 	if(slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		for(const auto & slot : possibleSlots.at(artSet->bearerType()))
+		for(const auto & possibleSlot : possibleSlots.at(artSet->bearerType()))
 		{
-			if(artCanBePutAt(artSet, slot, assumeDestRemoved))
+			if(artCanBePutAt(artSet, possibleSlot, assumeDestRemoved))
 				return true;
 		}
 		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
@@ -246,11 +251,68 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 	}
 }
 
+CChargedArtifact::CChargedArtifact()
+	: condition(DischargeArtifactCondition::NONE)
+	,	removeOnDepletion(false)
+	, defaultStartCharges(0)
+{
+}
+
+bool CChargedArtifact::isCharged() const
+{
+	return condition != DischargeArtifactCondition::NONE;
+}
+
+void CChargedArtifact::setCondition(const DischargeArtifactCondition & dischargeCondition)
+{
+	condition = dischargeCondition;
+}
+
+void CChargedArtifact::setRemoveOnDepletion(const bool remove)
+{
+	removeOnDepletion = remove;
+}
+
+void CChargedArtifact::setDefaultStartCharges(const uint16_t charges)
+{
+	defaultStartCharges = charges;
+}
+
+uint16_t CChargedArtifact::getDefaultStartCharges() const
+{
+	return defaultStartCharges;
+}
+
+DischargeArtifactCondition CChargedArtifact::getDischargeCondition() const
+{
+	return condition;
+}
+
+bool CChargedArtifact::getRemoveOnDepletion() const
+{
+	return removeOnDepletion;
+}
+
+std::optional<uint16_t> CChargedArtifact::getChargeCost(const SpellID & id) const
+{
+	auto art = static_cast<const CArtifact*>(this);
+
+	for(const auto & bonus : art->instanceBonuses)
+	{
+		if(bonus->type == BonusType::SPELL && bonus->subtype.as<SpellID>() == id)
+		{
+			if(const auto chargesLimiter = std::static_pointer_cast<const HasChargesLimiter>(bonus->limiter))
+				return chargesLimiter->chargeCost;
+		}
+	}
+	return std::nullopt;
+}
+
 CArtifact::CArtifact()
-	: iconIndex(ArtifactID::NONE),
+	: CBonusSystemNode(BonusNodeType::ARTIFACT),
+	iconIndex(ArtifactID::NONE),
 	price(0)
 {
-	setNodeType(ARTIFACT);
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
@@ -290,26 +352,24 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = BonusSource::ARTIFACT;
 	b->duration = BonusDuration::PERMANENT;
-	b->description.appendTextID(getNameTextID());
-	b->description.appendRawString(" %+d");
+	if (b->description.empty() && (b->type == BonusType::LUCK || b->type == BonusType::MORALE))
+	{
+		b->description.appendTextID(getNameTextID());
+		b->description.appendRawString(" %+d");
+	}
 	CBonusSystemNode::addNewBonus(b);
 }
 
-const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibleSlots() const
+const std::map<ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibleSlots() const
 {
 	return possibleSlots;
 }
 
-void CArtifact::updateFrom(const JsonNode& data)
+void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, const std::string & newLargeImage)
 {
-	//TODO:CArtifact::updateFrom
-}
-
-void CArtifact::setImage(int32_t iconIndex, std::string image, std::string large)
-{
-	this->iconIndex = iconIndex;
-	this->image = image;
-	this->large = large;
+	iconIndex = newIconIndex;
+	image = newImage;
+	scenarioBonus = newLargeImage;
 }
 
 

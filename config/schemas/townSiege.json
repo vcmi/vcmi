@@ -55,8 +55,19 @@
 			"format" : "imageFile"
 		},
 		"imagePrefix" : {
-			"type" : "string",
-			"description" : "Prefix to all images related to siege screen"
+			"anyOf" : [
+				{
+					"type" : "string",
+					"description" : "Prefix to all images related to siege screen"
+				},
+				{
+					"description" : "Prefix to all images related to siege screen for specific layers",
+					"type" : "object",
+					"additionalProperties" : {
+						"type" : "string"
+					}
+				}
+			]
 		},
 		"static" : {
 			"type" : "object",

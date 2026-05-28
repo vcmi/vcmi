@@ -1,0 +1,113 @@
+# Translation file for VCMI (Open Heroes III engine)
+# Copyright (C) 2024 VCMI Team
+# This file is distributed under GPL 2.0 or later
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: VCMI 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-14 20:10+0200\n"
+"PO-Revision-Date: 2026-05-16 12:15+0000\n"
+"Last-Translator: Ertuğrul Hazar <ertugrulhazar@gmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/vcmi/linux/tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.6.dev0\n"
+
+#: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
+msgid "VCMI"
+msgstr "VCMI"
+
+#: eu.vcmi.VCMI.metainfo.xml:5
+msgid "Open-source game engine for Heroes of Might and Magic III"
+msgstr "Heroes of Might and Magic III için açık kaynaklı oyun motoru"
+
+#: eu.vcmi.VCMI.metainfo.xml:7
+msgid "VCMI Team"
+msgstr "VCMI Ekibi"
+
+#: eu.vcmi.VCMI.metainfo.xml:12
+msgid ""
+"VCMI is an open-source engine for Heroes of Might and Magic III with new "
+"possibilities. Years of intensive work resulted in an impressive amount of "
+"features. Among the current features are:"
+msgstr ""
+"VCMI, Heroes of Might and Magic III için yeni olanaklar sunan açık kaynaklı "
+"bir oyun motorudur. Yıllarca süren yoğun çalışmalar, etkileyici sayıda "
+"özellik ortaya çıkardı. Mevcut özellikler arasında şunlar yer almaktadır:"
+
+#: eu.vcmi.VCMI.metainfo.xml:14
+msgid "Complete gameplay mechanics"
+msgstr "Oyun mekaniklerinin tamamı"
+
+#: eu.vcmi.VCMI.metainfo.xml:15
+msgid "Almost all objects, abilities, spells and other content"
+msgstr "Neredeyse tüm nesneler, yetenekler, büyüler ve diğer içerikler"
+
+#: eu.vcmi.VCMI.metainfo.xml:16
+msgid "Basic battle AI and adventure AI"
+msgstr "Temel savaş YZ ve macera YZ"
+
+#: eu.vcmi.VCMI.metainfo.xml:17
+msgid "Many GUI improvements: high resolutions, stack queue, creature window"
+msgstr ""
+"Birçok GUI iyileştirmesi: yüksek çözünürlükler, takım sırası, yaratık "
+"penceresi"
+
+#: eu.vcmi.VCMI.metainfo.xml:18
+msgid ""
+"Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
+"and spells without limits or conflicts"
+msgstr ""
+"Gelişmiş ve kullanımı kolay mod desteği - sınırlama veya çakışma olmadan "
+"yeni kasabalar, yaratıklar, kahramanlar, eserler ve büyüler ekleyin"
+
+#: eu.vcmi.VCMI.metainfo.xml:19
+msgid ""
+"Launcher for easy configuration - download mods from our server and install "
+"them immediately!"
+msgstr ""
+"Kolay kurulum için başlatıcı - sunucumuzdan modları indirin ve hemen "
+"yükleyin!"
+
+#: eu.vcmi.VCMI.metainfo.xml:20
+msgid "Random map generator that supports objects added by mods"
+msgstr ""
+"Modlar tarafından eklenen nesneleri destekleyen rastgele harita oluşturucu"
+
+#: eu.vcmi.VCMI.metainfo.xml:22
+msgid ""
+"Note: In order to play the game using VCMI you need to own data files for "
+"Heroes of Might and Magic III: The Shadow of Death."
+msgstr ""
+"Not: VCMI kullanarak oyunu oynamak için, Heroes of Might and Magic III: The "
+"Shadow of Death oyununa ait veri dosyalarına sahip olmanız gerekir."
+
+#: eu.vcmi.VCMI.metainfo.xml:23
+msgid "If you want help, please check our forum, bug tracker or GitHub page."
+msgstr ""
+"Yardıma ihtiyacınız varsa lütfen forumumuzu, hata takip sistemimizi veya "
+"GitHub sayfamızı kontrol edin."
+
+#: eu.vcmi.VCMI.metainfo.xml:127
+msgid "heroes3"
+msgstr "heroes3"
+
+#: eu.vcmi.VCMI.metainfo.xml:128
+msgid "homm3"
+msgstr "homm3"
+
+#: vcmilauncher.desktop:5
+msgid "Strategy Game"
+msgstr "Strateji Oyunu"
+
+#: vcmilauncher.desktop:6
+msgid "Open-source recreation of Heroes of Might & Magic III"
+msgstr "Heroes of Might & Magic III'ün açık kaynaklı yeniden yapımı"
+
+#: vcmilauncher.desktop:11
+msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
+msgstr "heroes of might and magic;heroes;homm;homm3;strateji;"

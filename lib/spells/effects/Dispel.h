@@ -27,7 +27,7 @@ namespace effects
 class Dispel : public UnitEffect
 {
 public:
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 
 protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;

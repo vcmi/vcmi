@@ -26,12 +26,6 @@ struct DamageRange;
 template<typename ContainedClass>
 class LogicalExpression;
 
-class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
-{
-public:
-	CTownAndVisitingHero();
-};
-
 struct DLL_LINKAGE GrowthInfo
 {
 	struct Entry
@@ -52,6 +46,7 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 {
 	friend class CTownInstanceConstructor;
 	std::string nameTextId; // name of town
+	std::string customName;
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
@@ -61,9 +56,9 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
-	CTownAndVisitingHero townAndVis;
-	si32 built; //how many buildings has been built this turn
-	si32 destroyed; //how many buildings has been destroyed this turn
+	CBonusSystemNode townAndVis;
+	si32 built; //how many buildings have been built this turn
+	si32 destroyed; //how many buildings have been destroyed this turn
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
@@ -72,8 +67,9 @@ public:
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
-	int spellResearchCounterDay;
-	int spellResearchAcceptedCounter;
+	int32_t spellResearchCounterDay;
+	int32_t spellResearchAcceptedCounter;
+	std::vector<si32> spellResearchPendingRerollsCounters;
 	bool spellResearchAllowed;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -81,6 +77,8 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
+		if (h.version >= Handler::Version::CUSTOM_NAMES)
+			h & customName;
 		h & built;
 		h & destroyed;
 		h & identifier;
@@ -115,6 +113,9 @@ public:
 		h & rewardableBuildings;
 		h & townAndVis;
 
+		if(h.hasFeature(Handler::Version::SPELL_RESEARCH_IMPROVEMENTS))
+			h & spellResearchPendingRerollsCounters;
+
 		if(!h.saving)
 			postDeserialize();
 	}
@@ -134,6 +135,7 @@ public:
 	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
 	void setNameTextId(const std::string & newName);
+	void setCustomName(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -141,6 +143,7 @@ public:
 	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
 	int getSightRadius() const override; //returns sight distance
 	BoatId getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	EPathfindingLayer getBoatLayer() const override;
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed. Parameter will be cleared
 	EGeneratorState shipyardStatus() const override;
 	const IObjectInterface * getObject() const override;
@@ -162,18 +165,17 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	bool hasBuiltSomeTradeBuilding() const;
+	bool hasBuiltResourceMarketplace() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 	void addBuilding(const BuildingID & buildingID);
 	void removeBuilding(const BuildingID & buildingID);
 	void removeAllBuildings();
 	std::set<BuildingID> getBuildings() const;
 
-	TResources getBuildingCost(const BuildingID & buildingID) const;
+	ResourceSet getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
 
@@ -183,10 +185,10 @@ public:
 
 	LogicalExpression<BuildingID> genBuildingRequirements(const BuildingID & build, bool deep = false) const;
 
-	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
-	void removeCapitols(const PlayerColor & owner) const;
-	void clearArmy() const;
-	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
+	void mergeGarrisonOnSiege(IGameEventCallback & gameEvents) const; // merge garrison into army of visiting hero
+	void removeCapitols(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void clearArmy(IGameEventCallback & gameEvents) const;
+	void addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
@@ -200,23 +202,24 @@ public:
 
 	/// INativeTerrainProvider
 	FactionID getFactionID() const override;
-	TerrainId getNativeTerrain() const override;
+	bool isNativeTerrain(TerrainId terrain) const override;
+	TerrainId getTownSiegeTerrain(TerrainId defaultTerrain) const;
 
 	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
 	ArtifactID getWarMachineInBuilding(BuildingID) const;
 	/// Returns true if provided war machine is available in any of built buildings of this town
 	bool isWarMachineAvailable(ArtifactID) const;
 
-	CGTownInstance(IGameCallback *cb);
+	CGTownInstance(IGameInfoCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn(vstd::RNG & rand) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void onHeroLeave(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
@@ -234,11 +237,11 @@ protected:
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);
-	void setOwner(const PlayerColor & owner) const;
-	void onTownCaptured(const PlayerColor & winner) const;
+	void setOwner(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 

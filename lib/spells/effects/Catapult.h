@@ -23,8 +23,8 @@ namespace effects
 class Catapult : public LocationEffect
 {
 public:
-	bool applicable(Problem & problem, const Mechanics * m) const override;
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	bool applicableGeneral(Problem & problem, const Mechanics * m) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
@@ -43,7 +43,7 @@ private:
 	int getRandomDamage(ServerCallback * server) const;
 	void adjustHitChance();
 	void applyMassive(ServerCallback * server, const Mechanics * m) const;
-	void applyTargeted(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
+	void applyTargeted(ServerCallback * server, const Mechanics * m, const Target & target) const;
 	void removeTowerShooters(ServerCallback * server, const Mechanics * m) const;
 	std::vector<EWallPart> getPotentialTargets(const Mechanics * m, bool bypassGateCheck, bool bypassTowerCheck) const;
 };

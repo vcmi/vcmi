@@ -40,7 +40,7 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 		}
 	}
 
-	dailyIncome = ResourceSet(config["dailyIncome"]);
+	dailyIncome.resolveFromJson(config["dailyIncome"]);
 }
 
 void FlaggableInstanceConstructor::initializeObject(FlaggableMapObject * flaggable) const

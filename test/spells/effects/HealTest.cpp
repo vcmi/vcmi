@@ -51,10 +51,10 @@ TEST_F(HealTest, NotApplicableToHealthyUnit)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableToWoundedUnit)
@@ -68,10 +68,10 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableIfActuallyResurrects)
@@ -95,10 +95,10 @@ TEST_F(HealTest, ApplicableIfActuallyResurrects)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
@@ -121,10 +121,10 @@ TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
@@ -147,10 +147,10 @@ TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableToDeadUnit)
@@ -178,13 +178,13 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(0));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
+TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
 {
 	{
 		JsonNode config;
@@ -215,13 +215,13 @@ TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
+TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
 {
 	{
 		JsonNode config;
@@ -252,10 +252,10 @@ TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
@@ -280,10 +280,10 @@ TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 class HealApplyTest : public TestWithParam<::testing::tuple<EHealLevel, EHealPower>>, public EffectFixture
@@ -325,7 +325,7 @@ protected:
 	}
 };
 
-TEST_P(HealApplyTest, DISABLED_Heals)
+TEST_P(HealApplyTest, Heals)
 {
 	{
 		JsonNode config;
@@ -371,16 +371,16 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 
 	EXPECT_CALL(targetUnit, acquire()).WillRepeatedly(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Gt(0))).Times(1);
 
-	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
+	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(CreatureID(unitId)));
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);

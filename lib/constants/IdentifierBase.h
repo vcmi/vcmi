@@ -11,7 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class IdentifierResolutionException : public std::runtime_error
+class DLL_LINKAGE IdentifierResolutionException : public std::runtime_error
 {
 public:
 	const std::string identifierName;
@@ -20,6 +20,7 @@ public:
 		: std::runtime_error("Failed to resolve identifier " + identifierName)
 		, identifierName(identifierName)
 	{}
+	~IdentifierResolutionException() override;
 };
 
 class IdentifierBase

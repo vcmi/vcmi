@@ -12,10 +12,15 @@
 
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "../Point.h"
 #include "../ResourceSet.h"
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
+
+#ifdef ENABLE_TEMPLATE_EDITOR
+class TemplateEditor;
+#endif
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -58,6 +63,13 @@ namespace EMonsterStrength // used as int in monster generation procedure and in
 	};
 }
 
+enum class EZoneLevel // used to force zone placement on surface or underground
+{
+	AUTOMATIC = 0,
+	SURFACE = 1,
+	UNDERGROUND = 2
+};
+
 class DLL_LINKAGE CTreasureInfo
 {
 public:
@@ -86,13 +98,17 @@ enum class EConnectionType
 
 enum class ERoadOption
 {
+	ROAD_RANDOM = 0,
 	ROAD_TRUE,
-	ROAD_FALSE,
-	ROAD_RANDOM
+	ROAD_FALSE
 };
 
 class DLL_LINKAGE ZoneConnection
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 
 	ZoneConnection();
@@ -105,10 +121,12 @@ public:
 	int getGuardStrength() const;
 	rmg::EConnectionType getConnectionType() const;
 	rmg::ERoadOption getRoadOption() const;
+	void setRoadOption(rmg::ERoadOption roadOption);
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
 	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
+	friend bool operator<(const ZoneConnection &, const ZoneConnection &);
 private:
 	int id;
 	TRmgTemplateZoneId zoneA;
@@ -120,11 +138,18 @@ private:
 
 class DLL_LINKAGE ZoneOptions
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo
 	{
+#ifdef ENABLE_TEMPLATE_EDITOR
+		friend class ::TemplateEditor;
+#endif
 	public:
 		CTownInfo();
 
@@ -194,8 +219,8 @@ public:
 
 	void setMonsterTypes(const std::set<FactionID> & value);
 
-	void setMinesInfo(const std::map<TResource, ui16> & value);
-	std::map<TResource, ui16> getMinesInfo() const;
+	void setMinesInfo(const std::map<GameResID, ui16> & value);
+	std::map<GameResID, ui16> getMinesInfo() const;
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	void addTreasureInfo(const CTreasureInfo & value);
@@ -209,7 +234,11 @@ public:
 
 	void addConnection(const ZoneConnection & connection);
 	std::vector<ZoneConnection> getConnections() const;
+	std::vector<ZoneConnection>& getConnectionsRef();
 	std::vector<TRmgTemplateZoneId> getConnectedZoneIds() const;
+
+	// Set road option for a specific connection by ID
+	void setRoadOption(int connectionId, rmg::ERoadOption roadOption);
 
 	void serializeJson(JsonSerializeFormat & handler);
 	
@@ -228,12 +257,24 @@ public:
 	TRmgTemplateZoneId getCustomObjectsLikeZone() const;
 	TRmgTemplateZoneId getTownsLikeZone() const;
 
+	Point getVisiblePosition() const;
+	void setVisiblePosition(Point value);
+
+	float getVisibleSize() const;
+	void setVisibleSize(float value);
+
+	EZoneLevel getForcedLevel() const;
+	void setForcedLevel(EZoneLevel value);
+
 protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
 	std::optional<int> owner;
+
+	Point visiblePosition;
+	float visibleSize;
 
 	ObjectConfig objectConfig;
 	CTownInfo playerTowns;
@@ -249,7 +290,7 @@ protected:
 	std::set<FactionID> monsterTypes;
 	std::set<FactionID> bannedMonsters;
 
-	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
+	std::map<GameResID, ui16> mines; //obligatory mines to spawn in this zone
 
 	std::vector<CTreasureInfo> treasureInfo;
 
@@ -261,6 +302,7 @@ protected:
 	TRmgTemplateZoneId terrainTypeLikeZone;
 	TRmgTemplateZoneId treasureLikeZone;
 	TRmgTemplateZoneId customObjectsLikeZone;
+	EZoneLevel forcedLevel;
 };
 
 }
@@ -268,11 +310,18 @@ protected:
 /// The CRmgTemplate describes a random map template.
 class DLL_LINKAGE CRmgTemplate : boost::noncopyable
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<rmg::ZoneOptions>>;
 
 	class DLL_LINKAGE CPlayerCountRange
 	{
+#ifdef ENABLE_TEMPLATE_EDITOR
+		friend class ::TemplateEditor;
+#endif
 	public:
 		void addRange(int lower, int upper);
 		void addNumber(int value);
@@ -309,6 +358,15 @@ public:
 	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
+	const std::set<SpellID> & getBannedSpells() const { return bannedSpells; }
+	const std::set<ArtifactID> & getBannedArtifacts() const { return bannedArtifacts; }
+	const std::set<SecondarySkill> & getBannedSkills() const { return bannedSkills; }
+	const std::set<HeroTypeID> & getBannedHeroes() const { return bannedHeroes; }
+	const std::set<SpellID> & getEnabledSpells() const { return enabledSpells; }
+	const std::set<ArtifactID> & getEnabledArtifacts() const { return enabledArtifacts; }
+	const std::set<SecondarySkill> & getEnabledSkills() const { return enabledSkills; }
+	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabledHeroes; }
+
 	void validate() const; /// Tests template on validity and throws exception on failure
 
 	void serializeJson(JsonSerializeFormat & handler);
@@ -327,8 +385,18 @@ private:
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	std::unique_ptr<JsonNode> mapSettings;
 
+	std::set<SpellID> bannedSpells;
+	std::set<ArtifactID> bannedArtifacts;
+	std::set<SecondarySkill> bannedSkills;
+	std::set<HeroTypeID> bannedHeroes;
+
+	std::set<SpellID> enabledSpells;
+	std::set<ArtifactID> enabledArtifacts;
+	std::set<SecondarySkill> enabledSkills;
+	std::set<HeroTypeID> enabledHeroes;
+
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
-	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 
 	void inheritTownProperties(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

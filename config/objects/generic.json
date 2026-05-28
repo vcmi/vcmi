@@ -529,6 +529,7 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 7000,
+				// should be @core.xtrainfo.14
 				"description" : "",
 				"rmg" : {
 					"zoneLimit"	: 1,

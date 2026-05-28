@@ -47,10 +47,10 @@ TEST_F(DamageTest, ApplicableToAliveUnit)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(DamageTest, NotApplicableToDeadUnit)
@@ -61,10 +61,10 @@ TEST_F(DamageTest, NotApplicableToDeadUnit)
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 class DamageApplyTest : public Test, public EffectFixture
@@ -85,7 +85,7 @@ protected:
 	}
 };
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
+TEST_F(DamageApplyTest, DoesDamageToAliveUnit)
 {
 	EffectFixture::setupEffect(JsonNode());
 	using namespace ::battle;
@@ -108,13 +108,13 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
 	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId),_, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);
@@ -122,7 +122,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageToAliveUnit)
 	EXPECT_EQ(targetUnitState->getCount(), unitAmount - 1);
 }
 
-TEST_F(DamageApplyTest, DISABLED_IgnoresDeadUnit)
+TEST_F(DamageApplyTest, IgnoresDeadUnit)
 {
 	EffectFixture::setupEffect(JsonNode());
 	using namespace ::battle;
@@ -131,18 +131,18 @@ TEST_F(DamageApplyTest, DISABLED_IgnoresDeadUnit)
 
 	EXPECT_CALL(targetUnit, alive()).WillRepeatedly(Return(false));
 	EXPECT_CALL(targetUnit, acquireState()).Times(0);
-	EXPECT_CALL(*battleFake, setUnitState(_,_,_)).Times(0);
+	EXPECT_CALL(*battleFake, updateUnit(_,_,_)).Times(0);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
+TEST_F(DamageApplyTest, DoesDamageByPercent)
 {
 	using namespace ::battle;
 
@@ -173,13 +173,13 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId),_, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId),_, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);
@@ -187,7 +187,7 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByPercent)
 	EXPECT_EQ(targetUnitState->getCount(), unitAmount - (unitAmount * effectValue / 100));
 }
 
-TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
+TEST_F(DamageApplyTest, DoesDamageByCount)
 {
 	using namespace ::battle;
 
@@ -217,13 +217,13 @@ TEST_F(DamageApplyTest, DISABLED_DoesDamageByCount)
 	targetUnitState->localInit(&unitEnvironmentMock);
 	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Lt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Lt(0))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<StacksInjured &>(_))).Times(1);
 	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);

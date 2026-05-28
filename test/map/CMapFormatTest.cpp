@@ -17,7 +17,7 @@
 #include "../../lib/rmg/CMapGenerator.h"
 #include "../../lib/mapping/MapFormatJson.h"
 
-#include "../lib/VCMIDirs.h"
+#include "../../lib/VCMIDirs.h"
 
 #include "MapComparer.h"
 #include "../JsonComparer.h"
@@ -52,7 +52,7 @@ TEST(MapFormat, DISABLED_Random)
 
 	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
-	opt.setHasTwoLevels(true);
+	opt.setLevels(2);
 	opt.setHumanOrCpuPlayerCount(4);
 
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);

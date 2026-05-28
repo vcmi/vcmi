@@ -24,16 +24,22 @@ struct Query;
 class IBattleState;
 class CreatureService;
 class CMap;
-class CGameInfoCallback;
+class IGameInfoCallback;
 class CBattleInfoCallback;
 class JsonNode;
 class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
+class IAdventureSpellEffect;
+class MetaString;
 
 namespace spells
 {
 class Service;
+	namespace effects
+	{
+		class Effect;
+	}
 }
 
 namespace vstd
@@ -41,13 +47,10 @@ namespace vstd
 	class RNG;
 }
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Service;
 }
-#endif
-
 
 ///callback to be provided by server
 class DLL_LINKAGE SpellCastEnvironment : public ServerCallback
@@ -56,10 +59,11 @@ public:
 	virtual ~SpellCastEnvironment() = default;
 
 	virtual const CMap * getMap() const = 0;
-	virtual const CGameInfoCallback * getCb() const = 0;
+	virtual const IGameInfoCallback * getCb() const = 0;
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
@@ -102,9 +106,6 @@ public:
 	//normal constructor
 	BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_);
 
-	//magic mirror constructor
-	BattleCast(const BattleCast & orig, const Caster * caster_);
-
 	virtual ~BattleCast();
 
 	///IBattleCast
@@ -142,8 +143,6 @@ public:
 	///cast with silent check for permitted cast
 	bool castIfPossible(ServerCallback * server, Target target);
 
-	std::vector<Target> findPotentialTargets(bool fast = false) const;
-
 private:
 	///spell school level
 	OptionalValue magicSkillLevel;
@@ -177,10 +176,29 @@ protected:
 	ISpellMechanicsFactory(const CSpell * s);
 };
 
-class DLL_LINKAGE Mechanics
+class DLL_LINKAGE Mechanics : public scripting::ApiRawPointer<Mechanics>
 {
 public:
 	virtual ~Mechanics();
+
+	virtual void forEachEffect(const std::function<bool(const effects::Effect &)> & fn) const
+	{ }
+
+	template<class T>
+	const T * findEffect() const
+	{
+		const T * found = nullptr;
+		forEachEffect([&found](const effects::Effect & e)
+		{
+			if(auto p = dynamic_cast<const T *>(&e))
+			{
+				found = p;
+				return true;
+			}
+			return false;
+		});
+		return found;
+	}
 
 	virtual bool adaptProblem(ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
@@ -189,6 +207,7 @@ public:
 	virtual std::vector<const CStack *> getAffectedStacks(const Target & target) const = 0;
 
 	virtual bool canBeCast(Problem & problem) const = 0;
+	virtual bool canBeCastAt(const Target & target) const = 0;
 	virtual bool canBeCastAt(const Target & target, Problem & problem) const = 0;
 
 	virtual void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const = 0;
@@ -198,10 +217,9 @@ public:
 	virtual void castEval(ServerCallback * server, const Target & target) = 0;
 
 	virtual bool isReceptive(const battle::Unit * target) const = 0;
+	virtual bool wouldResist(const battle::Unit * target) const = 0;
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
-
-	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast = false) const = 0;
 
 	virtual const Spell * getSpell() const = 0;
 
@@ -216,6 +234,8 @@ public:
 	virtual IBattleCast::Value64 getEffectValue() const = 0;
 
 	virtual PlayerColor getCasterColor() const = 0;
+	virtual BattleSide getCasterSide() const { return casterSide; };
+	virtual const CGHeroInstance * getHeroCaster() const = 0;
 
 	//Spell facade
 	virtual int32_t getSpellIndex() const = 0;
@@ -230,12 +250,14 @@ public:
 
 	virtual bool isNegativeSpell() const = 0;
 	virtual bool isPositiveSpell() const = 0;
+	virtual bool isNeutralSpell() const = 0;
 	virtual bool isMagicalEffect() const = 0;
 
 	virtual int64_t adjustEffectValue(const battle::Unit * target) const = 0;
 	virtual int64_t applySpellBonus(int64_t value, const battle::Unit * target) const = 0;
 	virtual int64_t applySpecificSpellBonus(int64_t value) const = 0;
 	virtual int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const = 0;
+	virtual Target canonicalizeTarget(const Target & aim) const = 0;
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
@@ -243,12 +265,11 @@ public:
 
 	//Global environment facade
 	virtual const CreatureService * creatures() const = 0;
-#if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
-#endif
 	virtual const Service * spells() const = 0;
 
 	virtual const CBattleInfoCallback * battle() const = 0;
+	virtual BattleID getBattleID() const = 0;
 
 	const Caster * caster;
 
@@ -273,13 +294,12 @@ public:
 
 	IBattleCast::Value getEffectLevel() const override;
 	IBattleCast::Value getRangeLevel() const override;
-
 	IBattleCast::Value getEffectPower() const override;
 	IBattleCast::Value getEffectDuration() const override;
-
 	IBattleCast::Value64 getEffectValue() const override;
 
 	PlayerColor getCasterColor() const override;
+	const CGHeroInstance * getHeroCaster() const override;
 
 	bool isSmart() const override;
 	bool isMassive() const override;
@@ -288,12 +308,14 @@ public:
 
 	bool isNegativeSpell() const override;
 	bool isPositiveSpell() const override;
+	bool isNeutralSpell() const override;
 	bool isMagicalEffect() const override;
 
 	int64_t adjustEffectValue(const battle::Unit * target) const override;
 	int64_t applySpellBonus(int64_t value, const battle::Unit * target) const override;
 	int64_t applySpecificSpellBonus(int64_t value) const override;
 	int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const override;
+	Target canonicalizeTarget(const Target & aim) const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;
@@ -301,12 +323,11 @@ public:
 	std::vector<AimType> getTargetTypes() const override;
 
 	const CreatureService * creatures() const override;
-#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
-#endif
 	const Service * spells() const override;
 
 	const CBattleInfoCallback * battle() const override;
+	BattleID getBattleID() const override;
 
 protected:
 	const CSpell * owner;
@@ -355,13 +376,22 @@ public:
 	IAdventureSpellMechanics(const CSpell * s);
 	virtual ~IAdventureSpellMechanics() = default;
 
-	virtual bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const = 0;
-	virtual bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
-
+	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
+	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
+
+	virtual bool givesBonus(const spells::Caster * caster, BonusType which) const = 0;
+
+	template<typename EffectType>
+	const EffectType * getEffectAs(const spells::Caster * caster) const
+	{
+		return dynamic_cast<const EffectType *>(getEffect(caster));
+	}
 protected:
+	virtual const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const = 0;
+
 	const CSpell * owner;
 };
 

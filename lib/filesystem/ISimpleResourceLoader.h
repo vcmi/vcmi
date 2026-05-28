@@ -75,7 +75,7 @@ public:
 	 *
 	 * @param filter Filter that returns true if specified mount point matches filter
 	 */
-	virtual void updateFilteredFiles(std::function<bool(const std::string &)> filter) const = 0;
+	virtual void updateFilteredFiles(std::function<bool(const std::string &)> filter) = 0;
 
 	/**
 	 * Get list of files that match filter function
@@ -106,6 +106,10 @@ public:
 			return std::vector<const ISimpleResourceLoader *>(1, this);
 		return std::vector<const ISimpleResourceLoader *>();
 	}
+
+	virtual std::string getFullFileURI(const ResourcePath& resourceName) const = 0;
+		
+	virtual std::time_t getLastWriteTime(const ResourcePath& resourceName) const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

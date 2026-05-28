@@ -30,6 +30,7 @@ class ISoundPlayer;
 class IMusicPlayer;
 class CursorHandler;
 class IVideoPlayer;
+class Discord;
 
 class GameEngine
 {
@@ -55,11 +56,15 @@ private:
 	std::unique_ptr<IVideoPlayer> videoPlayerInstance;
 	std::unique_ptr<AsyncRunner> asyncTasks;
 
+	std::unique_ptr<Discord> discordInstance;
+
 	IGameEngineUser *engineUser = nullptr;
+
+	int maxPerformanceOverlayTextWidth = 0;
 
 	void updateFrame();
 	void handleEvents(); //takes events from queue and calls interested objects
-	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
+	void drawPerformanceOverlay(); // draws box with additional infos (e.g. fps)
 
 public:
 	std::mutex interfaceMutex;
@@ -78,6 +83,7 @@ public:
 	IMusicPlayer & music() { return *musicPlayerInstance; }
 	CursorHandler & cursor() { return *cursorHandlerInstance; }
 	IVideoPlayer & video() { return *videoPlayerInstance; }
+	Discord & discord() { return *discordInstance; }
 
 	/// Returns current logical screen dimensions
 	/// May not match size of window if user has UI scaling different from 100%
@@ -95,6 +101,10 @@ public:
 	bool isKeyboardCmdDown() const;
 	/// returns true if Shift is currently pressed down
 	bool isKeyboardShiftDown() const;
+
+	/// returns game data mode
+	bool isRoeData() const;
+	bool isDemoData() const;
 
 	IScreenHandler & screenHandler();
 	IRenderHandler & renderHandler();
@@ -120,7 +130,7 @@ public:
 	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
-	void onScreenResize(bool resolutionChanged);
+	void onScreenResize(bool resolutionChanged, bool windowResized);
 
 	/// Simulate mouse movement to force refresh UI state that updates on mouse move
 	void fakeMouseMove();

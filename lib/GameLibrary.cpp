@@ -17,30 +17,35 @@
 #include "RoadHandler.h"
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
-#include "spells/CSpellHandler.h"
-#include "spells/effects/Registry.h"
+#include "MapLayerHandler.h"
+#include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
+#include "callback/CDynLibHandler.h"
 #include "entities/artifact/CArtHandler.h"
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "campaign/CampaignRegionsHandler.h"
+#include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
-#include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
-#include "ScriptHandler.h"
+#include "spells/CSpellHandler.h"
+#include "spells/effects/SpellEffectHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "GameSettings.h"
+
+#include <vcmi/scripting/Service.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -73,12 +78,15 @@ const HeroTypeService * GameLibrary::heroTypes() const
 	return heroh.get();
 }
 
-#if SCRIPTING_ENABLED
+const ResourceTypeService * GameLibrary::resources() const
+{
+	return resourceTypeHandler.get();
+}
+
 const scripting::Service * GameLibrary::scripts() const
 {
 	return scriptHandler.get();
 }
-#endif
 
 const spells::Service * GameLibrary::spells() const
 {
@@ -100,14 +108,9 @@ const CIdentifierStorage * GameLibrary::identifiers() const
 	return identifiersHandler.get();
 }
 
-const spells::effects::Registry * GameLibrary::spellEffects() const
+const spells::effects::SpellEffectService * GameLibrary::spellEffects() const
 {
-	return spells::effects::GlobalRegistry::get();
-}
-
-spells::effects::Registry * GameLibrary::spellEffects()
-{
-	return spells::effects::GlobalRegistry::get();
+	return spellEffectHandler.get();
 }
 
 const BattleFieldService * GameLibrary::battlefields() const
@@ -158,7 +161,40 @@ void GameLibrary::initializeFilesystem(bool extractArchives)
 	loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
+	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
 	loadModFilesystem();
+
+	// Detect game data mode after filesystem is loaded
+	gameDataMode = GameDataMode::SOD;
+	if(CGeneralTextHandler::isRoEData())
+	{
+		if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+			gameDataMode = GameDataMode::DEMO_ROE;
+		else
+			gameDataMode = GameDataMode::ROE;
+	}
+	else if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+		gameDataMode = GameDataMode::DEMO_SOD;
+
+	if(gameDataMode == GameDataMode::DEMO_ROE || gameDataMode == GameDataMode::DEMO_SOD)
+		logGlobal->info("Game started with demo data");
+	if(gameDataMode == GameDataMode::ROE || gameDataMode == GameDataMode::DEMO_ROE)
+		logGlobal->info("Game started with RoE data");
+}
+
+GameLibrary::GameDataMode GameLibrary::getGameDataMode() const
+{
+	return gameDataMode;
+}
+
+bool GameLibrary::isRoeData() const
+{
+	return gameDataMode == GameDataMode::ROE || gameDataMode == GameDataMode::DEMO_ROE;
+}
+
+bool GameLibrary::isDemoData() const
+{
+	return gameDataMode == GameDataMode::DEMO_ROE || gameDataMode == GameDataMode::DEMO_SOD;
 }
 
 void GameLibrary::initializeLibrary()
@@ -168,6 +204,7 @@ void GameLibrary::initializeLibrary()
 
 	createHandler(generaltexth);
 	createHandler(bth);
+	createHandler(resourceTypeHandler);
 	createHandler(roadTypeHandler);
 	createHandler(riverTypeHandler);
 	createHandler(terrainTypeHandler);
@@ -177,28 +214,26 @@ void GameLibrary::initializeLibrary()
 	createHandler(creh);
 	createHandler(townh);
 	createHandler(biomeHandler);
-	createHandler(objh);
 	createHandler(objtypeh);
+	createHandler(spellSchoolHandler);
 	createHandler(spellh);
+	createHandler(spellEffectHandler);
 	createHandler(skillh);
 	createHandler(terviewh);
+	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
-#if SCRIPTING_ENABLED
-	createHandler(scriptHandler);
-#endif
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
+	createHandler(mapLayerHandler);
 
+	boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
+	scriptHandler = CDynLibHandler::getNewScriptingModule(filePath);
+	scriptHandler->installScripting(spellEffectHandler.get());
 	modh->load();
 	modh->afterLoad();
-}
 
-#if SCRIPTING_ENABLED
-void GameLibrary::scriptsLoaded()
-{
-	scriptHandler->performRegistration(this);
+	createHandler(mapFormat);
 }
-#endif
 
 GameLibrary::GameLibrary() = default;
 GameLibrary::~GameLibrary() = default;

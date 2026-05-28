@@ -13,6 +13,7 @@
 #include "EArtifactClass.h"
 
 #include "../../bonuses/CBonusSystemNode.h"
+#include "../../networkPacks/ArtifactLocation.h"
 
 #include <vcmi/Artifact.h>
 
@@ -53,23 +54,44 @@ class DLL_LINKAGE CGrowingArtifact
 protected:
 	CGrowingArtifact() = default;
 
-	std::vector<std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
-	std::vector<std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> bonusesPerLevel; // Bonus given each n levels
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> thresholdBonuses; // After certain level they will be added once
 public:
 	bool isGrowing() const;
 
-	std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel();
-	const std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
-	std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses();
-	const std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses() const;
+};
+
+class DLL_LINKAGE CChargedArtifact
+{
+	DischargeArtifactCondition condition;
+	bool removeOnDepletion;
+	uint16_t defaultStartCharges;
+
+protected:
+	CChargedArtifact();
+
+public:
+	bool isCharged() const;
+
+	void setCondition(const DischargeArtifactCondition & dischargeCondition);
+	void setRemoveOnDepletion(const bool remove);
+	void setDefaultStartCharges(const uint16_t charges);
+	uint16_t getDefaultStartCharges() const;
+	DischargeArtifactCondition getDischargeCondition() const;
+	bool getRemoveOnDepletion() const;
+	std::optional<uint16_t> getChargeCost(const SpellID & id) const;
 };
 
 // Container for artifacts. Not for instances.
-class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode, public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact
+class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode,
+		public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact, public CChargedArtifact
 {
 	ArtifactID id;
 	std::string image;
-	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; // used for adventure map object
 	std::string modScope;
 	std::string identifier;
@@ -77,10 +99,15 @@ class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode, pu
 	uint32_t price;
 	CreatureID warMachine;
 	// Bearer Type => ids of slots where artifact can be placed
-	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
+	std::map<ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
 
 public:
-	EArtifactClass::Type aClass = EArtifactClass::ART_SPECIAL;
+	/// Bonuses that are created for each instance of artifact
+	std::vector<std::shared_ptr<Bonus>> instanceBonuses;
+
+	std::string scenarioBonus;
+
+	EArtifactClass aClass = EArtifactClass::ART_SPECIAL;
 	bool onlyOnWaterMap;
 
 	int32_t getIndex() const override;
@@ -98,6 +125,7 @@ public:
 	std::string getDescriptionTextID() const override;
 	std::string getEventTextID() const override;
 	std::string getNameTextID() const override;
+	std::string getBonusTextID(const std::string & bonusID) const;
 
 	uint32_t getPrice() const override;
 	CreatureID getWarMachine() const override;
@@ -107,12 +135,11 @@ public:
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus> & b) override;
-	const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
+	const std::map<ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
 
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE, bool assumeDestRemoved = false) const;
-	void updateFrom(const JsonNode & data);
 	// Is used for testing purposes only
-	void setImage(int32_t iconIndex, std::string image, std::string large);
+	void setImage(int32_t iconIndex, const std::string & image, const std::string & large);
 
 	CArtifact();
 	~CArtifact();

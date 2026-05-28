@@ -34,44 +34,77 @@
 				"inTheWakeOfGods" :      { "type" : "object" }
 			}
 		},
+		"general": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"daysPerWeek" :  { "type" : "number" },
+				"weeksPerMonth" : { "type" : "number" }
+			}
+		},
 		"heroes" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"perPlayerOnMapCap"  :        { "type" : "number" },
-				"perPlayerTotalCap"  :        { "type" : "number" },
-				"retreatOnWinWithoutTroops" : { "type" : "boolean" },
-				"startingStackChances" :      { "type" : "array" },
-				"backpackSize" :              { "type" : "number" },
-				"tavernInvite" :              { "type" : "boolean" },
-				"minimalPrimarySkills" :      { "type" : "array" },
-				"movementCostBase"  :         { "type" : "number" },
-				"movementPointsLand" :        { "type" : "array" },
-				"movementPointsSea" :         { "type" : "array" }
+				"perPlayerOnMapCap"  :            { "type" : "number" },
+				"perPlayerTotalCap"  :            { "type" : "number" },
+				"retreatOnWinWithoutTroops" :     { "type" : "boolean" },
+				"startingStackChances" :          { "type" : "array" },
+				"backpackSize" :                  { "type" : "number" },
+				"tavernInvite" :                  { "type" : "boolean" },
+				"minimalPrimarySkills" :          { "type" : "array" },
+				"movementCostBase"  :             { "type" : "number" },
+				"movementPointsLand" :            { "type" : "array" },
+				"movementPointsSea" :             { "type" : "array" },
+				"skillPerHero" :                  { "type" : "number" },
+				"specialtyCreatureGrowth" :       { "type" : "number" },
+				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"baseScoutingRange" :             { "type" : "number" },
+				"levelupTotalSkillsAmount" :      { "type" : "number" },
+				"levelupUpgradedSkillsAmount" :   { "type" : "number" }
 			}
 		},
 		"towns" : {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"buildingsPerTurnCap"  :                 { "type" : "number" },
-				"startingDwellingChances" :              { "type" : "array" },
-				"spellResearch" :                        { "type" : "boolean" },
-				"spellResearchCost" :                    { "type" : "array" },
-				"spellResearchPerDay" :                  { "type" : "array" },
-				"spellResearchCostExponentPerResearch" : { "type" : "array" }
+				"buildingsPerTurnCap"  :                   { "type" : "number" },
+				"startingDwellingChances" :                { "type" : "array" },
+				"spellResearch" :                          { "type" : "boolean" },
+				"spellResearchCost" :                      { "type" : "array" },
+				"spellResearchPerDay" :                    { "type" : "array" },
+				"spellResearchCostMultiplierPerResearch" : { "type" : "array" },
+				"spellResearchCostMultiplierPerReroll" :   { "type" : "array" },
+				"baseScoutingRange" :                      { "type" : "number" }
+			}
+		},
+		"campaign": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"unlockAll" : { "type" : "boolean" }
+			}
+		},
+		"cheats": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"buildWithoutGrail" : { "type" : "boolean" }
 			}
 		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"abilityBias" :                   { "type" : "number" },
 				"goodMoraleChance" :              { "type" : "array" },
 				"badMoraleChance" :               { "type" : "array" },
 				"moraleDiceSize" :                { "type" : "number" },
+				"moraleBias" :                    { "type" : "number" },
 				"goodLuckChance" :                { "type" : "array" },
 				"badLuckChance" :                 { "type" : "array" },
 				"luckDiceSize" :                  { "type" : "number" },
+				"luckBias" :                      { "type" : "number" },
 				"backpackSize" :                { "type" : "number" },
 				"attackPointDamageFactor" :     { "type" : "number" },
 				"attackPointDamageFactorCap" :  { "type" : "number" },
@@ -79,20 +112,25 @@
 				"defensePointDamageFactorCap" : { "type" : "number" },
 				"oneHexTriggersObstacles" :     { "type" : "boolean" },
 				"layouts" :                     { "type" : "object" },
-				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" }
+				"areaShotCanTargetEmptyHex" :   { "type" : "boolean" },
+				"noSpellHitAndRunRounds" :      { "type" : "number" }
 			}
 		},
 		"creatures": {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"weeklyGrowthPercent" :     { "type" : "number" },
-				"weeklyGrowthCap" :         { "type" : "number" },
-				"dailyStackExperience" :    { "type" : "number" },
-				"allowRandomSpecialWeeks" : { "type" : "boolean" },
-				"allowAllForDoubleMonth" :  { "type" : "boolean" },
-				"allowJoiningForFree" :     { "type" : "boolean" },
-				"joiningPercentage" :       { "type" : "number" }
+				"weeklyGrowthPercent" :               { "type" : "number" },
+				"weeklyGrowthCap" :                   { "type" : "number" },
+				"additionalWeeklyGrowthSpecialWeek" : { "type" : "number" },
+				"monthDoubleGrowthProbability" :      { "type" : "number" },
+				"monthPlagueProbability" :            { "type" : "number" },
+				"weekSpecialProbability" :            { "type" : "number" },
+				"dailyStackExperience" :              { "type" : "number" },
+				"allowRandomSpecialWeeks" :           { "type" : "boolean" },
+				"allowAllForDoubleMonth" :            { "type" : "boolean" },
+				"allowJoiningForFree" :               { "type" : "boolean" },
+				"joiningPercentage" :                 { "type" : "number" }
 			}
 		},
 		"dwellings": {
@@ -108,7 +146,15 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"blackMarketRestockPeriod" : { "type" : "number" }
+				"blackMarketRestockPeriod" : { "type" : "number" },
+				"universityGoldCost" : { "type" : "number" }
+			}
+		},
+		"mapObjects": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
 			}
 		},
 		"banks": {
@@ -124,6 +170,7 @@
 			"properties" : {
 				"stackExperience" : { "type" : "boolean" },
 				"stackArtifact" : { "type" : "boolean" },
+				"stackArtifactIndication" : { "type" : "boolean" },
 				"commanders" : { "type" : "boolean" }
 			}
 		},
@@ -152,11 +199,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"dimensionDoorOnlyToUncoveredTiles" : { "type" : "boolean" },
-				"dimensionDoorExposesTerrainType" :   { "type" : "boolean" },
-				"dimensionDoorFailureSpendsPoints" :  { "type" : "boolean" },
 				"dimensionDoorTriggersGuards" :       { "type" : "boolean" },
-				"dimensionDoorTournamentRulesLimit" : { "type" : "boolean" }
+				"tomesGrantBannedSpells" : { "type" : "boolean" }
 			}
 		},
 		"bonuses": {

@@ -1,0 +1,29 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI spell school format",
+	"description" : "Format used to define new spell schools in VCMI",
+	"required" : [ "type", "script", "schema" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"type" : {
+			"type" : "string",
+			"description" : "Type of script, such as built-in or Lua"
+		},
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
+		"script" : {
+			"type" : "string",
+			"description" : "path to the script that represents this effect"
+		},
+		"schema" : {
+			"type" : "object",
+			"description" : "Json schema for validating spell effect",
+		}
+	}
+}

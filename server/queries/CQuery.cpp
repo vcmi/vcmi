@@ -30,9 +30,7 @@ CQuery::CQuery(CGameHandler * gameHandler)
 	: owner(gameHandler->queries.get())
 	, gh(gameHandler)
 {
-	static QueryID QID = QueryID(0);
-
-	queryID = ++QID;
+	queryID = ++gameHandler->QID;
 	logGlobal->trace("Created a new query with id %d", queryID);
 }
 
@@ -143,8 +141,8 @@ void CDialogQuery::setReply(std::optional<int32_t> reply)
 		answer = *reply;
 }
 
-CGenericQuery::CGenericQuery(CGameHandler * gh, PlayerColor color, std::function<void(std::optional<int32_t>)> Callback):
-	CQuery(gh), callback(Callback)
+CGenericQuery::CGenericQuery(CGameHandler * gh, PlayerColor color, const std::function<void(std::optional<int32_t>)> & callback):
+	CQuery(gh), callback(callback)
 {
 	addPlayer(color);
 }
@@ -164,9 +162,9 @@ void CGenericQuery::onExposure(QueryPtr topQuery)
 	//do nothing
 }
 
-void CGenericQuery::setReply(std::optional<int32_t> reply)
+void CGenericQuery::setReply(std::optional<int32_t> receivedReply)
 {
-	this->reply = reply;
+	reply = receivedReply;
 }
 
 void CGenericQuery::onRemoval(PlayerColor color)

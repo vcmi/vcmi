@@ -13,6 +13,7 @@
 #include "modstatemodel.h"
 
 #include "../../lib/VCMIDirs.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/modding/CModHandler.h"
@@ -20,13 +21,97 @@
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-#include "../vcmiqt/jsonutils.h"
-#include "../vcmiqt/launcherdirs.h"
+#include "../../vcmiqt/jsonutils.h"
+#include "../../vcmiqt/launcherdirs.h"
 
 #include <future>
 
 namespace
 {
+void findContentArchives(const QDir & currentDir, QVector<QString> & archives)
+{
+	const QFileInfoList entries = currentDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+	for(const QFileInfo & entry : entries)
+	{
+		if(entry.isDir())
+		{
+			findContentArchives(QDir(entry.absoluteFilePath()), archives);
+			continue;
+		}
+
+		if(entry.fileName().compare("content.zip", Qt::CaseInsensitive) == 0)
+			archives.push_back(entry.absoluteFilePath());
+	}
+}
+
+bool extractContentArchives(ModStateController * controller, const QString & modName, const QString & modPath)
+{
+	QVector<QString> archives;
+	findContentArchives(QDir(modPath), archives);
+
+	for(qint64 archiveIndex = 0; archiveIndex < archives.size(); ++archiveIndex)
+	{
+		controller->contentExtractionProgress(modName, archiveIndex + 1, archives.size());
+		qApp->processEvents();
+
+		const QString archivePath = archives[archiveIndex];
+		const QFileInfo archiveInfo(archivePath);
+		const QString contentDirPath = archiveInfo.dir().filePath("content");
+
+		QDir contentDir(contentDirPath);
+		if(!contentDir.exists() && !archiveInfo.dir().mkpath("content"))
+		{
+			logGlobal->error("Failed to create content directory for '%s'", archivePath.toStdString().c_str());
+			return false;
+		}
+
+		auto futureExtract = std::async(std::launch::async, [archivePath, contentDirPath]()
+		{
+			ZipArchive archive(qstringToPath(archivePath));
+			for(const auto & file : archive.listFiles())
+			{
+				if(!archive.extract(qstringToPath(contentDirPath), file))
+				{
+					logGlobal->error("Failed to extract '%s' from '%s'", file, archivePath.toStdString().c_str());
+					return false;
+				}
+			}
+			return true;
+		});
+
+		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+		{
+			qApp->processEvents();
+		}
+
+		if(!futureExtract.get())
+			return false;
+
+		if(!QFile::remove(archivePath))
+		{
+			logGlobal->error("Failed to remove extracted archive '%s'", archivePath.toStdString().c_str());
+			return false;
+		}
+	}
+
+	controller->contentExtractionProgress(modName, archives.size(), archives.size());
+	qApp->processEvents();
+	return true;
+}
+
+bool extractNestedModArchives(ModStateController * controller, const QString & modName, const QString & modPath)
+{
+	try
+	{
+		return extractContentArchives(controller, modName, modPath);
+	}
+	catch(const std::runtime_error & e)
+	{
+		logGlobal->error("Failed to extract nested mod archive. Reason: %s", e.what());
+		return false;
+	}
+}
+
 QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
 {
 	try {
@@ -232,11 +317,19 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	auto rc = QFile::rename(destDir + modDirName, destDir + modname);
 	if (rc)
 		extractedDir.setPath(destDir + modname);
+
+	// Remove .github folder from installed mod
+	QDir githubDir(extractedDir.filePath(".github"));
+	if (githubDir.exists())
+		githubDir.removeRecursively();
 	
 	//there are possible excessive files - remove them
 	QString upperLevel = modDirName.section('/', 0, 0);
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
+
+	if(settings["launcher"]["fullModExtraction"].Bool() && !extractNestedModArchives(this, modname, extractedDir.path()))
+		return addError(modname, tr("Failed to extract mod data"));
 
 	return true;
 }

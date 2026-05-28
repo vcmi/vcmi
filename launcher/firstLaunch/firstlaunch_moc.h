@@ -10,22 +10,33 @@
 #pragma once
 #include "../StdInc.h"
 
+#include "../demo.h"
+
 namespace Ui
 {
 class FirstLaunchView;
 }
 
 class CModListView;
+class ProgressOverlay;
 
-class FirstLaunchView : public QWidget
+class FirstLaunchView : public QWidget, public IDemoInstallerCallback
 {
 	Q_OBJECT
 
-	void changeEvent(QEvent *event);
+	std::unique_ptr<DemoInstaller> demo;
+	ProgressOverlay * demoOverlay = nullptr;
+	bool demoDataActive = false;
+
+	// IDemoInstallerCallback
+	void onInstallFinished() override;
+	void onInstallError() override;
+	void onInstallProgress(float percent) override;
+
+	void changeEvent(QEvent *event) override;
 	CModListView * getModView();
 
 	void setSetupProgress(int progress);
-	void enterSetup();
 	void activateTabLanguage();
 	void activateTabHeroesData();
 	void activateTabModPreset();
@@ -35,7 +46,7 @@ class FirstLaunchView : public QWidget
 	void languageSelected(const QString & languageCode);
 
 	// Tab Heroes III Data
-	bool heroesDataDetect();
+	bool heroesDataDetect(bool checkDemo);
 
 	void heroesDataMissing();
 	void heroesDataDetected();
@@ -43,7 +54,9 @@ class FirstLaunchView : public QWidget
 	QString getHeroesInstallDir();
 	void extractGogData();
 	void extractGogDataAsync(QString filePathBin, QString filePathExe);
-	void copyHeroesData(const QString & path = {}, bool move = false);
+	ProgressOverlay * createOverlay(const QString & title, bool indeterminate = true);
+	bool performCopyFlow(const QString& path, ProgressOverlay* overlay, bool removeSource);
+	void copyHeroesData(const QString & path = {}, bool removeSource = false);
 
 	// Tab Mod Preset
 	void modPresetUpdate();
@@ -51,16 +64,26 @@ class FirstLaunchView : public QWidget
 	QString findTranslationModName();
 
 	bool checkCanInstallTranslation();
-	bool checkCanInstallWog();
-	bool checkCanInstallHota();
 	bool checkCanInstallExtras();
+	bool checkCanInstallHota();
+	bool checkCanInstallWog();
+	bool checkCanInstallTow();
+	bool checkCanInstallFod();
 	bool checkCanInstallMod(const QString & modID);
 
 public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
+	~FirstLaunchView() override;
+
+	void enterSetup();
 
 	// Tab Heroes III Data
-	bool heroesDataUpdate();
+	bool heroesDataUpdate(bool checkDemo);
+
+    bool needPostCopyCheckExe;
+    bool needPostCopyCheckBin;
+
+    QString checkFileMagic(const QString &filename, const QString &filter, const QByteArray &magic, const QString &ext, bool &openFailed) const;
 
 public slots:
 
@@ -76,6 +99,8 @@ private slots:
 
 	void on_pushButtonDataSearch_clicked();
 
+	void on_pushButtonDemo_clicked();
+
 	void on_pushButtonDataCopy_clicked();
 
 	void on_pushButtonGogInstall_clicked();
@@ -89,5 +114,5 @@ private slots:
 	void on_pushButtonGithub_clicked();
 
 private:
-	Ui::FirstLaunchView * ui;
+	std::unique_ptr<Ui::FirstLaunchView> ui;
 };

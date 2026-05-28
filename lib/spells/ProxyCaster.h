@@ -31,6 +31,7 @@ public:
 	int32_t getEffectPower(const Spell * spell) const override;
 	int32_t getEnchantPower(const Spell * spell) const override;
 	int64_t getEffectValue(const Spell * spell) const override;
+	int64_t getEffectRange(const Spell * spell) const override;
 	PlayerColor getCasterOwner() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const override;

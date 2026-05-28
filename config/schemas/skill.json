@@ -16,6 +16,7 @@
 				"images" : {
 					"type" : "object",
 					"description" : "Skill icons of varying size",
+					"required" : [ "small", "medium", "large", "scenarioBonus"],
 					"properties" : {
 						"small" : {
 							"type" : "string",
@@ -31,6 +32,11 @@
 							"type" : "string",
 							"description" : "82x93 skill icon",
 							"format" : "imageFile"
+						},
+						"scenarioBonus" : {
+							"type" : "string",
+							"description" : "58x64 skill icon for use as campaign scenario bonus",
+							"format" : "imageFile"
 						}
 					}
 				},
@@ -43,8 +49,15 @@
 			}
 		}
 	},
-	"required" : ["name", "basic", "advanced", "expert"],
+	"required" : ["name", "basic", "advanced", "expert", "specialty", "gainChance" ],
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"name" : {
 			"type" : "string",
 			"description" : "Mandatory, localizable skill name"
@@ -53,13 +66,10 @@
 			"type" : "number",
 			"description" : "Internal, numeric id of skill, required for existing skills"
 		},
-		"obligatoryMajor" : {
-			"type" : "boolean",
-			"description" : "This skill is major obligatory (like H3 Wisdom)"
-		},
-		"obligatoryMinor" : {
-			"type" : "boolean",
-			"description" : "This skill is minor obligatory (like H3 Magic school)"
+		"specialty" : {
+			"type" : "array",
+			"description" : "List of bonuses that are affected by hero specialty",
+			"items" : { "type" : "string" }
 		},
 		"gainChance" : {
 			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",
@@ -89,14 +99,13 @@
 		},
 		"expert" : {
 			"$ref" : "#/definitions/skillBonus"
+		},
+		"tags" : {
+			"type" : "object",
+			"description" : "List of tags describing this skill",
+			"additionalProperties" : {
+				"type" : "boolean"
+			}
 		}
-	},
-	"onlyOnWaterMap" : {
-		"type" : "boolean",
-		"description" : "It true, skill won't be available on a map without water"
-	},
-	"special" : {
-		"type" : "boolean",
-		"description" : "If true, skill is not available on maps at random"
 	}
 }

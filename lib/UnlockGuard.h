@@ -90,28 +90,9 @@ namespace vstd
 		return unlock_guard<Mutex, detail::unlock_policy<Mutex> >(m_);
 	}
 	template<typename Mutex>
-	unlock_guard<Mutex, detail::unlock_policy<Mutex> > makeEmptyGuard(Mutex &)
-	{
-		return unlock_guard<Mutex, detail::unlock_policy<Mutex> >();
-	}
-	template<typename Mutex>
-	unlock_guard<Mutex, detail::unlock_policy<Mutex> > makeUnlockGuardIf(Mutex &m_, bool shallUnlock)
-	{
-		return shallUnlock 
-			? makeUnlockGuard(m_)
-			: unlock_guard<Mutex, detail::unlock_policy<Mutex> >();
-	}
-	template<typename Mutex>
 	unlock_guard<Mutex, detail::unlock_shared_policy<Mutex> > makeUnlockSharedGuard(Mutex &m_)
 	{
 		return unlock_guard<Mutex, detail::unlock_shared_policy<Mutex> >(m_);
-	}
-	template<typename Mutex>
-	unlock_guard<Mutex, detail::unlock_shared_policy<Mutex> > makeUnlockSharedGuardIf(Mutex &m_, bool shallUnlock)
-	{
-		return shallUnlock 
-			? makeUnlockSharedGuard(m_)
-			: unlock_guard<Mutex, detail::unlock_shared_policy<Mutex> >();
 	}
 
 	using unlock_shared_guard = unlock_guard<std::shared_mutex, detail::unlock_shared_policy<std::shared_mutex>>;

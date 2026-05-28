@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../scripting/ApiTags.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class Environment;
@@ -19,7 +21,7 @@ namespace events
 
 class EventBus;
 
-class DLL_LINKAGE EventSubscription : public boost::noncopyable
+class DLL_LINKAGE EventSubscription : public boost::noncopyable, public scripting::ApiSharedPointer<EventSubscription>
 {
 public:
 	virtual ~EventSubscription() = default;
@@ -91,7 +93,7 @@ private:
 		{
 		}
 
-		STRONG_INLINE
+		inline
 		void operator()(E & event)
 		{
 			handler(event);

@@ -30,7 +30,7 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	hero(h)
 {
 	ui->setupUi(this);
-	
+
 	ui->labelAttack->setText(QString::fromStdString(NPrimarySkill::names[0]));
 	ui->labelDefence->setText(QString::fromStdString(NPrimarySkill::names[1]));
 	ui->labelPower->setText(QString::fromStdString(NPrimarySkill::names[2]));
@@ -165,8 +165,16 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	auto heroSecondarySkills = hero.secSkills;
 	if(heroSecondarySkills.size() == 1 && heroSecondarySkills[0].first == SecondarySkill::NONE) 
 	{
-		textList += QObject::tr("Default secondary skills:");
-		heroSecondarySkills = hero.getHeroType()->secSkillsInit;
+		if(hero.getHeroTypeID().isValid())
+		{
+			textList += QObject::tr("Default secondary skills:");
+			heroSecondarySkills = hero.getHeroType()->secSkillsInit;
+		}
+		else
+		{
+			textList += QObject::tr("Random hero secondary skills");
+			heroSecondarySkills.clear();
+		}
 	}
 	else
 	{

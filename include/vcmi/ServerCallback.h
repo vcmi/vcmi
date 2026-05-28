@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "scripting/ApiTags.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace vstd
@@ -26,7 +28,7 @@ struct StacksInjured;
 struct BattleObstaclesChanged;
 struct CatapultAttack;
 
-class DLL_LINKAGE ServerCallback
+class DLL_LINKAGE ServerCallback : public scripting::ApiRawPointer<ServerCallback>
 {
 public:
 	virtual ~ServerCallback() = default;

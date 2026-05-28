@@ -79,9 +79,9 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 	gh->sendAndApply(pack);
 }
 
-const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
+const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
-	return gh;
+	return &gh->gameInfo();
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const
@@ -97,6 +97,11 @@ bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovem
 void ServerSpellCastEnvironment::createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator)
 {
 	return gh->createBoat(visitablePosition, type, initiator);
+}
+
+void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle)
+{
+	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
 }
 
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)

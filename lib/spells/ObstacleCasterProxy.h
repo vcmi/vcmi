@@ -42,6 +42,7 @@ public:
 	int32_t getEffectPower(const Spell * spell) const override;
 	int32_t getEnchantPower(const Spell * spell) const override;
 	int64_t getEffectValue(const Spell * spell) const override;
+	int64_t getEffectRange(const Spell * spell) const override;
 
 private:
 	const SpellCreatedObstacle & obs;

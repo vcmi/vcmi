@@ -18,13 +18,14 @@
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../spells/CSpellHandler.h" //for choosing random spells
+#include "../../spells/CSpellHandler.h"
 #include "../RmgPath.h"
 #include "../RmgObject.h"
 #include "ObjectManager.h"
 #include "../Functions.h"
 #include "RoadPlacer.h"
 #include "MinePlacer.h"
+#include "ObjectPlacer.h"
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
 
@@ -69,6 +70,7 @@ void TownPlacer::init()
 		}
 	}
 	POSTFUNCTION(MinePlacer);
+	POSTFUNCTION(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
 } 
 
@@ -241,7 +243,7 @@ FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
 		auto townTypesAllowed = zone.getTownTypes();
 		vstd::erase_if(townTypesAllowed, [townTerrain](FactionID type)
 		{
-			return (*LIBRARY->townh)[type]->getNativeTerrain() != townTerrain;
+			return !(*LIBRARY->townh)[type]->isNativeTerrain(townTerrain);
 		});
 		zone.setTownTypes(townTypesAllowed);
 		

@@ -22,7 +22,7 @@ namespace effects
 class Clone : public UnitEffect
 {
 public:
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 protected:
 	bool isReceptive(const Mechanics * m, const battle::Unit * s) const override;
 	bool isValidTarget(const Mechanics * m, const battle::Unit * s) const override;

@@ -1,6 +1,5 @@
 set(vcmiclientcommon_SRCS
 	StdInc.cpp
-	../CCallback.cpp
 
 	adventureMap/AdventureMapInterface.cpp
 	adventureMap/AdventureMapShortcuts.cpp
@@ -16,18 +15,25 @@ set(vcmiclientcommon_SRCS
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
+	battle/BattleConsole.cpp
 	battle/BattleEffectsController.cpp
 	battle/BattleFieldController.cpp
+	battle/BattleHero.cpp
 	battle/BattleInterface.cpp
-	battle/BattleInterfaceClasses.cpp
 	battle/BattleObstacleController.cpp
+	battle/BattleOverlayLogVisualizer.cpp
 	battle/BattleProjectileController.cpp
 	battle/BattleRenderer.cpp
+	battle/BattleResultWindow.cpp
 	battle/BattleSiegeController.cpp
 	battle/BattleStacksController.cpp
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
-	battle/BattleOverlayLogVisualizer.cpp
+	battle/HeroInfoWindow.cpp
+	battle/QuickSpellPanel.cpp
+	battle/StackInfoBasicPanel.cpp
+	battle/StackQueue.cpp
+	battle/UnitActionPanel.cpp
 
 	eventsSDL/NotificationHandler.cpp
 	eventsSDL/InputHandler.cpp
@@ -46,6 +52,7 @@ set(vcmiclientcommon_SRCS
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
+	lobby/BattleOnlyModeTab.cpp
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
 	lobby/CLobbyScreen.cpp
@@ -82,6 +89,9 @@ set(vcmiclientcommon_SRCS
 	media/CSoundHandler.cpp
 	media/CVideoHandler.cpp
 
+	netlag/NetworkLagCompensator.cpp
+	netlag/PackRollbackGeneratorVisitor.cpp
+
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
 	render/CBitmapHandler.cpp
@@ -93,6 +103,9 @@ set(vcmiclientcommon_SRCS
 	render/Graphics.cpp
 	render/IFont.cpp
 	render/ImageLocator.cpp
+	render/hdEdition/HdImageLoader.cpp
+	render/hdEdition/PakLoader.cpp
+	render/hdEdition/DdsFormat.cpp
 
 	renderSDL/CBitmapFont.cpp
 	renderSDL/CTrueTypeFont.cpp
@@ -128,6 +141,7 @@ set(vcmiclientcommon_SRCS
 	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
+	widgets/CViewport.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
 	widgets/Scrollable.cpp
@@ -152,6 +166,7 @@ set(vcmiclientcommon_SRCS
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CStackExperienceDetailsWindow.cpp
 	windows/CExchangeWindow.cpp
 	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
@@ -163,6 +178,17 @@ set(vcmiclientcommon_SRCS
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTutorialWindow.cpp
+	windows/wiki/WikiCommon.cpp
+	windows/wiki/WikiWindow.cpp
+	windows/wiki/WikiMarkdown.cpp
+	windows/wiki/markdown/MDParser.cpp
+	windows/wiki/markdown/MDRenderer.cpp
+	windows/wiki/markdown/MDWidgets.cpp
+	windows/wiki/WikiCreatureContent.cpp
+	windows/wiki/WikiHeroContent.cpp
+	windows/wiki/WikiArtifactContent.cpp
+	windows/wiki/WikiModContent.cpp
+	windows/wiki/WikiTownContent.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
 	windows/GUIClasses.cpp
@@ -175,6 +201,7 @@ set(vcmiclientcommon_SRCS
 	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
+	windows/settings/KeyBindingsWindow.cpp
 
 	xBRZ/xbrz.cpp
 
@@ -192,6 +219,7 @@ set(vcmiclientcommon_SRCS
 	NetPacksLobbyClient.cpp
 	ServerRunner.cpp
 	UIHelper.cpp
+	Discord.cpp
 )
 
 set(vcmiclientcommon_HEADERS
@@ -212,19 +240,25 @@ set(vcmiclientcommon_HEADERS
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
-	battle/BattleConstants.h
+	battle/BattleConsole.h
 	battle/BattleEffectsController.h
 	battle/BattleFieldController.h
+	battle/BattleHero.h
 	battle/BattleInterface.h
-	battle/BattleInterfaceClasses.h
 	battle/BattleObstacleController.h
+	battle/BattleOverlayLogVisualizer.h
 	battle/BattleProjectileController.h
 	battle/BattleRenderer.h
+	battle/BattleResultWindow.h
 	battle/BattleSiegeController.h
 	battle/BattleStacksController.h
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
-	battle/BattleOverlayLogVisualizer.h
+	battle/HeroInfoWindow.h
+	battle/QuickSpellPanel.h
+	battle/StackInfoBasicPanel.h
+	battle/StackQueue.h
+	battle/UnitActionPanel.h
 
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h
@@ -246,6 +280,7 @@ set(vcmiclientcommon_HEADERS
 	gui/TextAlignment.h
 	gui/WindowHandler.h
 
+	lobby/BattleOnlyModeTab.h
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
 	lobby/CLobbyScreen.h
@@ -288,6 +323,12 @@ set(vcmiclientcommon_HEADERS
 	media/ISoundPlayer.h
 	media/IVideoPlayer.h
 
+	netlag/NetworkLagCompensator.h
+	netlag/NetworkLagPredictedPack.h
+	netlag/NetworkLagPredictionTestVisitor.h
+	netlag/NetworkLagReplyPrediction.h
+	netlag/PackRollbackGeneratorVisitor.h
+
 	render/AssetGenerator.h
 	render/CAnimation.h
 	render/CBitmapHandler.h
@@ -305,6 +346,9 @@ set(vcmiclientcommon_HEADERS
 	render/ImageLocator.h
 	render/IRenderHandler.h
 	render/IScreenHandler.h
+	render/hdEdition/HdImageLoader.h
+	render/hdEdition/PakLoader.h
+	render/hdEdition/DdsFormat.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CTrueTypeFont.h
@@ -343,6 +387,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
+	widgets/CViewport.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
 	widgets/Scrollable.h
@@ -368,6 +413,7 @@ set(vcmiclientcommon_HEADERS
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CStackExperienceDetailsWindow.h
 	windows/CExchangeWindow.h
 	windows/CHeroOverview.h
 	windows/CHeroWindow.h
@@ -379,6 +425,17 @@ set(vcmiclientcommon_HEADERS
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTutorialWindow.h
+	windows/wiki/WikiCommon.h
+	windows/wiki/WikiWindow.h
+	windows/wiki/WikiMarkdown.h
+	windows/wiki/markdown/MDParser.h
+	windows/wiki/markdown/MDRenderer.h
+	windows/wiki/markdown/MDWidgets.h
+	windows/wiki/WikiCreatureContent.h
+	windows/wiki/WikiHeroContent.h
+	windows/wiki/WikiArtifactContent.h
+	windows/wiki/WikiModContent.h
+	windows/wiki/WikiTownContent.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h
@@ -391,6 +448,7 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
+	windows/settings/KeyBindingsWindow.h
 
 	xBRZ/xbrz.h
 	xBRZ/xbrz_tools.h
@@ -412,9 +470,10 @@ set(vcmiclientcommon_HEADERS
 	ServerRunner.h
 	resource.h
 	UIHelper.h
+	Discord.h
 )
 
-if(APPLE_IOS)
+if(IOS)
 	set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
 		ios/utils.mm
 	)
@@ -427,23 +486,26 @@ assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
-	if(ENABLE_NULLKILLER_AI)
-		add_dependencies(vcmiclientcommon Nullkiller)
+	add_dependencies(vcmiclientcommon EmptyAI)
+
+	if(ENABLE_NULLKILLER2_AI)
+		add_dependencies(vcmiclientcommon Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		add_dependencies(vcmiclientcommon StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		add_dependencies(vcmiclientcommon BattleAI)
+	endif()
+
+	if(ENABLE_MMAI)
+		add_dependencies(vcmiclientcommon MMAI)
 	endif()
 endif()
-if(APPLE_IOS)
-	if(ENABLE_ERM)
-		add_dependencies(vcmiclientcommon vcmiERM)
-	endif()
-	if(ENABLE_LUA)
-		add_dependencies(vcmiclientcommon vcmiLua)
-	endif()
+if(IOS)
+	add_dependencies(vcmiclientcommon vcmiLua)
 endif()
 
 if(WIN32)
@@ -457,7 +519,7 @@ if(WIN32)
 		target_link_libraries(vcmiclientcommon SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclientcommon PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-elseif(APPLE_IOS)
+elseif(IOS)
 	target_link_libraries(vcmiclientcommon PRIVATE
 		iOS_utils
 
@@ -475,7 +537,7 @@ endif()
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)
 
 target_link_libraries(vcmiclientcommon PUBLIC
-		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF libsquish::libsquish
 )
 
 if(ENABLE_VIDEO)
@@ -497,6 +559,19 @@ endif()
 
 if(VCMI_PORTMASTER)
 	target_compile_definitions(vcmiclientcommon PRIVATE VCMI_PORTMASTER)
+endif()
+
+if (ENABLE_DISCORD)
+	if(USING_CONAN)
+		# don't search for libs in system locations
+		set(findOptions NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+	endif()
+	find_package(fmt ${findOptions})
+	find_package(glaze ${findOptions})
+
+	add_subdirectory(lib/discord-presence)
+	target_link_libraries(vcmiclientcommon PRIVATE discord-rpc)
+	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_DISCORD)
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

@@ -1,6 +1,7 @@
 {
 	"pathfinding" : {
 		"index" : 0,
+		"specialty" : [], // no generic specialty
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -27,6 +28,9 @@
 	},
 	"archery" : {
 		"index" : 1,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -54,6 +58,9 @@
 	},
 	"logistics" : {
 		"index" : 2,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -81,6 +88,9 @@
 	},
 	"scouting" : {
 		"index" : 3,
+		"specialty" : [ // NOTE: no such specialists in H3, hota uses different logic
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -107,6 +117,9 @@
 	},
 	"diplomacy" : {
 		"index" : 4,
+		"specialty" : [ // NOTE: no such specialists in H3
+			"surr"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -141,6 +154,12 @@
 	},
 	"navigation" : {
 		"index" : 5,
+		"tags" : {
+			"onlyOnWaterMap" : true
+		},
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -164,11 +183,14 @@
 			"effects" : {
 				"main" : { "val" : 150 }
 			}
-		},
-		"onlyOnWaterMap" : true
+		}
 	},
 	"leadership" : {
 		"index" : 6,
+		"tags" : {
+			"bannedForWitchHut" : true
+		},
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -195,7 +217,10 @@
 	},
 	"wisdom" : {
 		"index" : 7,
-		"obligatoryMajor" : true,
+		"specialty" : [], // generic specialty not applicable
+		"tags" : {
+			"wisdom" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -222,6 +247,9 @@
 	},
 	"mysticism" : {
 		"index" : 8,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -248,6 +276,7 @@
 	},
 	"luck" : {
 		"index" : 9,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -274,6 +303,7 @@
 	},
 	"ballistics" : {
 		"index" : 10,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -307,6 +337,9 @@
 	},
 	"eagleEye" : {
 		"index" : 11,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -340,6 +373,13 @@
 	},
 	"necromancy" : {
 		"index" : 12,
+		"tags" : {
+			"bannedForWitchHut" : true,
+			"bannedForUniversity" : true
+		},
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -374,6 +414,9 @@
 	},
 	"estates" : {
 		"index" : 13,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -401,7 +444,10 @@
 	},
 	"fireMagic" : {
 		"index" : 14,
-		"obligatoryMinor" : true,
+		"specialty" : [], // generic specialty not applicable
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -429,7 +475,10 @@
 	},
 	"airMagic" : {
 		"index" : 15,
-		"obligatoryMinor" : true,
+		"specialty" : [], // generic specialty not applicable
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -457,7 +506,10 @@
 	},
 	"waterMagic" : {
 		"index" : 16,
-		"obligatoryMinor" : true,
+		"specialty" : [], // generic specialty not applicable
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -485,7 +537,10 @@
 	},
 	"earthMagic" : {
 		"index" : 17,
-		"obligatoryMinor" : true,
+		"specialty" : [], // generic specialty not applicable
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -513,6 +568,7 @@
 	},
 	"scholar" : {
 		"index" : 18,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -539,6 +595,7 @@
 	},
 	"tactics" : {
 		"index" : 19,
+		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -572,6 +629,7 @@
 	},
 	"artillery" : {
 		"index" : 20,
+		"specialty" : [], // generic specialty not applicable, H3 heroes specialize in ballista creature instead
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -625,6 +683,9 @@
 	},
 	"learning" : {
 		"index" : 21,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -651,6 +712,9 @@
 	},
 	"offence" : {
 		"index" : 22,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -678,6 +742,9 @@
 	},
 	"armorer" : {
 		"index" : 23,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -705,6 +772,9 @@
 	},
 	"intelligence" : {
 		"index" : 24,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -731,6 +801,9 @@
 	},
 	"sorcery" : {
 		"index" : 25,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -758,6 +831,9 @@
 	},
 	"resistance" : {
 		"index" : 26,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -784,6 +860,9 @@
 	},
 	"firstAid" : {
 		"index" : 27,
+		"specialty" : [
+			"main"
+		],
 		"base" : {
 			"effects" : {
 				"main" : {

@@ -17,10 +17,12 @@
 #include "../updatedialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../vcmiqt/MessageBox.h"
+#include "../../vcmiqt/convpathqstring.h"
 
 void StartGameTab::changeEvent(QEvent *event)
 {
@@ -92,11 +94,18 @@ StartGameTab::~StartGameTab()
 
 void StartGameTab::refreshState()
 {
+	bool demoActive = CModListView::isDemoDataPresent();
+
 	refreshGameData();
 	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
-	refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
+
+	if (!demoActive)
+	{
+		refreshTranslation(Helper::getMainWindow()->getTranslationStatus());
+		refreshMods();
+	}
+
 	refreshPresets();
-	refreshMods();
 
 	if (settings["launcher"]["trackClipboardState"].Bool())
 		clipboardDataChanged();
@@ -115,6 +124,22 @@ void StartGameTab::refreshPresets()
 
 void StartGameTab::refreshGameData()
 {
+	bool demoDataPresent = CModListView::isDemoDataPresent();
+
+	ui->buttonInstallGame->setVisible(demoDataPresent);
+#ifdef ENABLE_EDITOR
+	ui->buttonGameEditor->setEnabled(!demoDataPresent);
+#endif
+
+	if (demoDataPresent)
+	{
+		for (QWidget * child : ui->scrollAreaWidgetContents_2->findChildren<QWidget*>())
+			child->setVisible(child == ui->buttonInstallGame);
+		return;
+	}
+
+	ui->scrollArea_2->setVisible(true);
+
 	// Some players are using pirated version of the game with some of the files missing
 	// leading to broken town hall menu (and possibly other dialogs)
 	// Provide diagnostics to indicate problem with chair-monitor adaptor layer and not with VCMI
@@ -184,6 +209,14 @@ void StartGameTab::refreshMods()
 	ui->labelChronicles->setText(tr("Heroes Chronicles:\n%n/%1 installed", "", chroniclesMods.size()).arg(chroniclesCount));
 	ui->labelChronicles->setVisible(chroniclesMods.size() != chroniclesCount);
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
+
+#ifdef VCMI_ANDROID
+	bool canInstallHD = false; // TODO: HD import on android
+#else
+	bool canInstallHD = !Helper::getMainWindow()->getModView()->isInstalledHd();
+#endif
+	ui->buttonInstallHdEdition->setVisible(canInstallHD);
+	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
@@ -226,6 +259,29 @@ void StartGameTab::on_buttonGameEditor_clicked()
 {
 	Helper::getMainWindow()->hide();
 	startEditor({});
+}
+
+void StartGameTab::on_buttonInstallGame_clicked()
+{
+	int result = QMessageBox::question(
+		this,
+		tr("Install Heroes III"),
+		tr("This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?"),
+		QMessageBox::Yes | QMessageBox::No,
+		QMessageBox::No
+	);
+
+	if (result != QMessageBox::Yes)
+		return;
+
+	QString userDataPath = pathToQString(VCMIDirs::get().userDataPath());
+	for (const QString folder : {"Data", "Maps", "Mp3", "Video"})
+		QDir(userDataPath + "/" + folder).removeRecursively();
+
+	Settings writer = settings.write["launcher"]["setupCompleted"];
+	writer->Bool() = false;
+
+	Helper::getMainWindow()->enterSetup();
 }
 
 void StartGameTab::on_buttonImportFiles_clicked()
@@ -339,7 +395,7 @@ void StartGameTab::on_buttonChroniclesHelp_clicked()
 		"to import Heroes Chronicles data into VCMI as custom campaigns.\n"
 		"To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, "
 		"select 'Import files' option and select downloaded file. "
-		"This will generate and install mod for VCMI that contains imported chronicles"
+		"This will generate and install mod for VCMI that contains imported chronicles."
 	);
 
 	MessageBoxCustom::information(this, ui->labelChronicles->text(), message);
@@ -351,7 +407,7 @@ void StartGameTab::on_buttonMissingSoundtrackHelp_clicked()
 		"VCMI has detected that Heroes III music files are missing from your installation. "
 		"VCMI will run, but in-game music will not be available.\n\n"
 		"To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually "
-		"or reinstall VCMI and re-import Heroes III data files"
+		"or reinstall VCMI and re-import Heroes III data files."
 	);
 	MessageBoxCustom::information(this, ui->labelMissingSoundtrack->text(), message);
 }
@@ -362,7 +418,7 @@ void StartGameTab::on_buttonMissingVideoHelp_clicked()
 		"VCMI has detected that Heroes III video files are missing from your installation. "
 		"VCMI will run, but in-game cutscenes will not be available.\n\n"
 		"To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually "
-		"or reinstall VCMI and re-import Heroes III data files"
+		"or reinstall VCMI and re-import Heroes III data files."
 		);
 	MessageBoxCustom::information(this, ui->labelMissingVideo->text(), message);
 }
@@ -373,7 +429,7 @@ void StartGameTab::on_buttonMissingFilesHelp_clicked()
 		"VCMI has detected that some of Heroes III data files are missing from your installation. "
 		"You may attempt to run VCMI, but game may not work as expected or crash.\n\n"
 		"To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. "
-		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com"
+		"VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com."
 	);
 	MessageBoxCustom::information(this, ui->labelMissingFiles->text(), message);
 }
@@ -384,9 +440,35 @@ void StartGameTab::on_buttonMissingCampaignsHelp_clicked()
 		"VCMI has detected that some of Heroes III: Armageddon's Blade data files are missing from your installation. "
 		"VCMI will work, but Armageddon's Blade campaigns will not be available.\n\n"
 		"To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually "
-		"or reinstall VCMI and re-import Heroes III data files"
+		"or reinstall VCMI and re-import Heroes III data files."
 	);
 	MessageBoxCustom::information(this, ui->labelMissingCampaigns->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEditionHelp_clicked()
+{
+	QString message = tr(
+		"To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam."
+		"Select the Heroes HD folder from Steam.\n\n"
+		"After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics."
+	);
+	MessageBoxCustom::information(this, ui->buttonInstallHdEdition->text(), message);
+}
+
+void StartGameTab::on_buttonInstallHdEdition_clicked()
+{
+	HdExtractor extractor(this);
+	extractor.installHd();
+
+	QString modName = "hd-edition";
+	auto modView = Helper::getMainWindow()->getModView();
+
+	modView->reload(modName);
+	if (modView->isModInstalled(modName))
+	{
+		modView->enableModByName(modName);
+		refreshState();
+	}
 }
 
 void StartGameTab::on_buttonPresetExport_clicked()

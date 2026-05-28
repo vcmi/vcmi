@@ -52,6 +52,7 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	void receiveChatMessage(const JsonNode & json);
 	void receiveActiveAccounts(const JsonNode & json);
 	void receiveActiveGameRooms(const JsonNode & json);
+	void receiveUpdateGameRoom(const JsonNode & json);
 	void receiveMatchesHistory(const JsonNode & json);
 	void receiveJoinRoomSuccess(const JsonNode & json);
 	void receiveInviteReceived(const JsonNode & json);
@@ -62,6 +63,8 @@ class GlobalLobbyClient final : public INetworkClientListener, boost::noncopyabl
 	void setAccountID(const std::string & accountID);
 	void setAccountCookie(const std::string & accountCookie);
 	void setAccountDisplayName(const std::string & accountDisplayName);
+
+	const JsonNode & getCurrentAccountDetails() const;
 
 public:
 	explicit GlobalLobbyClient();

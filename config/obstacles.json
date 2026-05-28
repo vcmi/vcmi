@@ -73,8 +73,8 @@
 	{
 		"allowedTerrains" : ["dirt"],
 		"width" : 3,
-		"height" : 2,
-		"blockedTiles" :  [-15, -16],
+		"height" : 1,
+		"blockedTiles" :  [0, 1],
 		"animation" : "ObDRk01.def",
 		"absolute" : false
 	},
@@ -92,8 +92,8 @@
 	{
 		"allowedTerrains" : ["dirt"],
 		"width" : 2,
-		"height" : 2,
-		"blockedTiles" :  [-16],
+		"height" : 1,
+		"blockedTiles" :  [0, 1],
 		"animation" : "ObDRk03.def",
 		"absolute" : false
 	},
@@ -131,7 +131,7 @@
 	{
 		"allowedTerrains" : ["dirt", "rough"],
 		"specialBattlefields" : ["cursed_ground"],
-		"width" : 3,
+		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
 		"animation" : "ObDtS03.def",

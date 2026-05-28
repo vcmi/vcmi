@@ -14,7 +14,6 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 
@@ -38,7 +37,7 @@ bool CRewardableConstructor::hasNameTextID() const
 	return !objectInfo.getParameters()["name"].isNull();
 }
 
-std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
+std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	auto ret = std::make_shared<CRewardableObject>(cb);
 	preInitObject(ret.get());
@@ -47,13 +46,22 @@ std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameCallback *
 	return ret;
 }
 
-Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
+void CRewardableConstructor::assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses, MapObjectID objectID) const
+{
+	for (auto & bonus : bonuses)
+	{
+		bonus->source = BonusSource::OBJECT_TYPE;
+		bonus->sid = BonusSourceID(objectID);
+	}
+}
+
+Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
 	Rewardable::Configuration result;
 	result.variables.preset = presetVariables;
 
 	try {
-		objectInfo.configureObject(result, rand, cb);
+		objectInfo.configureObject(result, gameRandomizer, cb);
 	}
 	catch (const JsonRandomizationException & e)
 	{
@@ -62,24 +70,22 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCal
 
 	for(auto & rewardInfo : result.info)
 	{
-		for (auto & bonus : rewardInfo.reward.bonuses)
-		{
-			bonus.source = BonusSource::OBJECT_TYPE;
-			bonus.sid = BonusSourceID(objectID);
-		}
+		assignBonuses(rewardInfo.reward.heroBonuses, objectID);
+		assignBonuses(rewardInfo.reward.commanderBonuses, objectID);
+		assignBonuses(rewardInfo.reward.playerBonuses, objectID);
 	}
 
 	return result;
 }
 
-void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RNG & rng) const
+void CRewardableConstructor::configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const
 {
 	auto * rewardableObject = dynamic_cast<CRewardableObject*>(object);
 
 	if (!rewardableObject)
 		throw std::runtime_error("Object " + std::to_string(object->getObjGroupIndex()) + ", " + std::to_string(object->getObjTypeIndex()) + " is not a rewardable object!" );
 
-	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID, rewardableObject->configuration.variables.preset);
+	rewardableObject->configuration = generateConfiguration(object->cb, gameRandomizer, object->ID, rewardableObject->configuration.variables.preset);
 	rewardableObject->initializeGuards();
 
 	if (rewardableObject->configuration.info.empty())
@@ -91,7 +97,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RN
 	}
 }
 
-std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
+std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo() const
 {
 	return std::unique_ptr<IObjectInfo>(new Rewardable::Info(objectInfo));
 }

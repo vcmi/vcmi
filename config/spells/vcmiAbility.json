@@ -14,10 +14,10 @@
 		"sounds": {
 			"cast": "RESURECT"
 		},
+		"graphics" : {},
 		"levels" : {
 			"base": {
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 40,
 				"cost" : 1,
 				"targetModifier":{"smart":true},
@@ -68,7 +68,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 10,
 				"cost" : 0,
 				"targetModifier":{"smart":true},
@@ -117,7 +116,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 1,
 				"cost" : 0,
 				"targetModifier":{"smart":true},
@@ -198,7 +196,6 @@
 		"levels" : {
 			"base":{
 				"description" : "",
-				"aiValue" : 0,
 				"power" : 1,
 				"cost" : 0,
 				"targetModifier":{"smart":true},

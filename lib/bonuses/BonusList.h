@@ -39,8 +39,8 @@ public:
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, const std::shared_ptr<Bonus> & c = nullptr);
 	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
-	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
-	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
+	inline std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
+	inline const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
 	std::shared_ptr<Bonus> &back() { return bonuses.back(); }
 	std::shared_ptr<Bonus> &front() { return bonuses.front(); }
 	const std::shared_ptr<Bonus> &back() const { return bonuses.back(); }
@@ -54,7 +54,7 @@ public:
 	// BonusList functions
 	void stackBonuses();
 	int totalValue(int baseValue = 0) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
+	void getBonuses(BonusList &out, const CSelector &selector) const;
 	void getAllBonuses(BonusList &out) const;
 
 	//special find functions
@@ -80,8 +80,6 @@ public:
 		std::copy(newList.begin(), newList.end(), bonuses.begin());
 	}
 
-	template <class InputIterator>
-	void insert(const int position, InputIterator first, InputIterator last);
 	void insert(TInternalContainer::iterator position, TInternalContainer::size_type n, const std::shared_ptr<Bonus> & x);
 
 	template <typename Handler>

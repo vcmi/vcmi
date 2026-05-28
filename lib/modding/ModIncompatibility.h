@@ -9,11 +9,15 @@
  */
 #pragma once
 
+#include "../texts/CGeneralTextHandler.h"
+#include "GameLibrary.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE ModIncompatibility: public std::exception
 {
 public:
+	~ModIncompatibility() override;
 	using ModList = std::vector<std::string>;
 
 	ModIncompatibility(const ModList & _missingMods)
@@ -47,6 +51,22 @@ public:
 	const std::string & whatExcessive() const noexcept
 	{
 		return messageExcessiveMods;
+	}
+
+	std::string getFullErrorMsg() const noexcept
+	{
+		std::string errorMsg;
+		if(!messageMissingMods.empty())
+		{
+			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
+			errorMsg += messageMissingMods;
+		}
+		if(!messageExcessiveMods.empty())
+		{
+			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
+			errorMsg += messageExcessiveMods;
+		}
+		return errorMsg;
 	}
 
 private:

@@ -33,11 +33,11 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapService.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
@@ -177,7 +177,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config, const
 		}
 	}
 
-	if(persistentStorage["unlockAllCampaigns"].Bool())
+	if(LIBRARY->engineSettings()->getBoolean(EGameSettings::CAMPAIGN_UNLOCK_ALL))
 		status = CCampaignScreen::ENABLED;
 
 	if(status != CCampaignScreen::DISABLED)

@@ -25,6 +25,7 @@
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
+#include "CRoadRandomizer.h"
 #include "TileInfo.h"
 #include "Zone.h"
 #include "Functions.h"
@@ -40,7 +41,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
 	rand(std::make_unique<CRandomGenerator>(RandomSeed))
@@ -82,6 +83,8 @@ void CMapGenerator::loadConfig()
 		config.questValues.push_back(i.Integer());
 	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
 		config.questRewardValues.push_back(i.Integer());
+	config.seerHutValue = randomMapJson["quests"]["seerHutValue"].Integer();
+	logGlobal->info("Seer Hut value: %d", config.seerHutValue);
 	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();
 	config.pandoraMultiplierExperience = randomMapJson["pandoras"]["valueMultiplierExperience"].Integer();
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
@@ -328,6 +331,10 @@ void CMapGenerator::genZones()
 {
 	placer->placeZones(rand.get());
 	placer->assignZones(rand.get());
+	placer->RemoveRoadsForWideConnections();
+	
+	CRoadRandomizer roadRandomizer(*map);
+	roadRandomizer.dropRandomRoads(rand.get());
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -458,7 +465,16 @@ void CMapGenerator::addHeaderInfo()
 	m.version = EMapFormat::VCMI;
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
-	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.mapLayers.clear();
+	for(int i = 0; i < mapGenOptions.getLevels(); i++)
+	{
+		if(i == 0)
+			m.mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			m.mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			m.mapLayers.push_back(MapLayerId::UNKNOWN); //TODO: multilevel support
+	}
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
@@ -466,6 +482,30 @@ void CMapGenerator::addHeaderInfo()
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();
 	m.overrideGameSettings(mapGenOptions.getMapTemplate()->getMapSettings());
+
+	for (const auto & spell : mapGenOptions.getMapTemplate()->getBannedSpells())
+		m.allowedSpells.erase(spell);
+
+	for (const auto & artifact : mapGenOptions.getMapTemplate()->getBannedArtifacts())
+		m.allowedArtifact.erase(artifact);
+
+	for (const auto & skill : mapGenOptions.getMapTemplate()->getBannedSkills())
+		m.allowedAbilities.erase(skill);
+
+	for (const auto & hero : mapGenOptions.getMapTemplate()->getBannedHeroes())
+		m.allowedHeroes.erase(hero);
+
+	for (const auto & spell : mapGenOptions.getMapTemplate()->getEnabledSpells())
+		m.allowedSpells.insert(spell);
+
+	for (const auto & artifact : mapGenOptions.getMapTemplate()->getEnabledArtifacts())
+		m.allowedArtifact.insert(artifact);
+
+	for (const auto & skill : mapGenOptions.getMapTemplate()->getEnabledSkills())
+		m.allowedAbilities.insert(skill);
+
+	for (const auto & hero : mapGenOptions.getMapTemplate()->getEnabledHeroes())
+		m.allowedHeroes.insert(hero);
 }
 
 int CMapGenerator::getNextMonlithIndex()

@@ -11,11 +11,10 @@
 #include "BattleSiegeController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
-#include "BattleStacksController.h"
 #include "BattleFieldController.h"
+#include "BattleInterface.h"
 #include "BattleRenderer.h"
+#include "BattleStacksController.h"
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
@@ -24,11 +23,30 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/entities/building/TownFortifications.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/callback/CCallback.h"
+
+const std::string & BattleSiegeController::getSiegePrefix() const
+{
+	const auto & siegePrefixes = town->getTown()->clientInfo.siegePrefix;
+	const auto & currentLayer = owner.curInt->cb->getMapHeader()->mapLayers.at(town->pos.z);
+	if(siegePrefixes.count(currentLayer))
+		return siegePrefixes.at(currentLayer);
+	else
+	{
+		logGlobal->warn("No siege prefix for town %s for layer %s found, fallback", town->getObjectName(), MapLayerId::encode(currentLayer));
+		if(siegePrefixes.count(MapLayerId::UNKNOWN))
+			return siegePrefixes.at(MapLayerId::UNKNOWN);
+		if(siegePrefixes.count(MapLayerId::SURFACE))
+			return siegePrefixes.at(MapLayerId::SURFACE);
+		return siegePrefixes.begin()->second;
+	}
+}
 
 ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const
 {
@@ -57,7 +75,7 @@ ImagePath BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual 
 		};
 	};
 
-	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
+	const std::string & prefix = getSiegePrefix();
 	std::string addit = std::to_string(getImageIndex());
 
 	switch(what)
@@ -119,7 +137,7 @@ void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVis
 
 ImagePath BattleSiegeController::getBattleBackgroundName() const
 {
-	const std::string & prefix = town->getTown()->clientInfo.siegePrefix;
+	const std::string & prefix = getSiegePrefix();
 	return ImagePath::builtinTODO(prefix + "BACK.BMP");
 }
 

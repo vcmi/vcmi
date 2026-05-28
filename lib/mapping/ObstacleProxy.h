@@ -13,12 +13,15 @@
 #include "../rmg/RmgObject.h"
 #include "CMapEditManager.h"
 
+#include <cstddef>
+#include <deque>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapEditManager;
 class CGObjectInstance;
 class ObjectTemplate;
-class IGameCallback;
+class IGameInfoCallback;
 class ObstacleSetFilter;
 
 class DLL_LINKAGE ObstacleProxy
@@ -43,7 +46,7 @@ public:
 
 	virtual void placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances);
 
-	virtual std::set<std::shared_ptr<CGObjectInstance>> createObstacles(vstd::RNG & rand, IGameCallback * cb);
+	virtual std::set<std::shared_ptr<CGObjectInstance>> createObstacles(vstd::RNG & rand, IGameInfoCallback * cb);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
@@ -52,8 +55,18 @@ public:
 	virtual void postProcess(const rmg::Object& object) {};
 
 protected:
-	int getWeightedObjects(const int3& tile, vstd::RNG& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	static constexpr size_t DEFAULT_RECENT_OBSTACLE_QUEUE_SIZE = 10;
+
+	int getWeightedObjects(const int3& tile, vstd::RNG& rand, IGameInfoCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
 	void sortObstacles();
+
+	void clearRecentObstacleQueue();
+	void recordPlacedObstacleTemplate(const ObjectTemplate * templ);
+	bool isObstacleTemplateRecentlyUsed(const ObjectTemplate * templ) const;
+
+	/// Last N successfully placed obstacle templates are avoided on the next rolls (see DEFAULT_RECENT_OBSTACLE_QUEUE_SIZE). A size bucket with no remaining variants is skipped in favor of smaller obstacles.
+	size_t recentObstacleQueueMaxSize = DEFAULT_RECENT_OBSTACLE_QUEUE_SIZE;
+	std::deque<const ObjectTemplate *> recentPlacedObstacleTemplates;
 
 	rmg::Area blockedArea;
 

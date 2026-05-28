@@ -28,13 +28,12 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-
-#include "../../CCallback.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER),
@@ -444,6 +443,11 @@ void CTownList::CTownItem::select(bool on)
 		GAME->interface()->localState->setSelection(town);
 }
 
+void CTownList::CTownItem::forceSelect()
+{
+	GAME->interface()->localState->setSelection(town, true);
+}
+
 void CTownList::CTownItem::open()
 {
 	GAME->interface()->openTownWindow(town);
@@ -594,4 +598,10 @@ void CTownList::updateWidget()
 		select(GAME->interface()->localState->getCurrentTown());
 
 	CList::update();
+}
+
+void CTownList::refreshSelected()
+{
+	if(getSelectedIndex() != -1)
+		dynamic_cast<CTownItem*>(this->listBox->getItem(getSelectedIndex()).get())->forceSelect();
 }

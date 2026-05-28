@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "PlayerLocalState.h"
 
-#include "../CCallback.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -37,7 +37,7 @@ void PlayerLocalState::setSpellbookSettings(const PlayerSpellbookSetting & newSe
 void PlayerLocalState::setPath(const CGHeroInstance * h, const CGPath & path)
 {
 	paths[h] = path;
-	syncronizeState();
+	synchronizeState();
 }
 
 const CGPath & PlayerLocalState::getPath(const CGHeroInstance * h) const
@@ -51,13 +51,13 @@ bool PlayerLocalState::hasPath(const CGHeroInstance * h) const
 	return paths.count(h) > 0;
 }
 
-bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination)
+bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination, const EPathfindingLayer & layer)
 {
 	CGPath path;
-	if(!owner.getPathsInfo(h)->getPath(path, destination))
+	if(!owner.getPathsInfo(h)->getPath(path, destination, layer))
 	{
 		paths.erase(h); //invalidate previously possible path if selected (before other hero blocked only path / fly spell expired)
-		syncronizeState();
+		synchronizeState();
 		return false;
 	}
 
@@ -81,14 +81,23 @@ void PlayerLocalState::erasePath(const CGHeroInstance * h)
 {
 	paths.erase(h);
 	adventureInt->onHeroChanged(h);
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 {
-	if(!hasPath(h))
-		return;
-	setPath(h, getPath(h).endPos());
+	if (hasPath(h))
+		setPath(h, getPath(h).endPos(), getPath(h).endLayer());
+}
+
+SpellID PlayerLocalState::getCurrentSpell() const
+{
+	return currentSpell;
+}
+
+void PlayerLocalState::setCurrentSpell(SpellID castedSpell)
+{
+	currentSpell = castedSpell;
 }
 
 const CGHeroInstance * PlayerLocalState::getCurrentHero() const
@@ -152,14 +161,19 @@ const CArmedInstance * PlayerLocalState::getCurrentArmy() const
 
 void PlayerLocalState::setSelection(const CArmedInstance * selection)
 {
-	if (currentSelection == selection)
+	setSelection(selection, false);
+}
+
+void PlayerLocalState::setSelection(const CArmedInstance * selection, bool force)
+{
+	if (!force && currentSelection == selection)
 		return;
 
 	currentSelection = selection;
 
 	if (adventureInt && selection)
 		adventureInt->onSelectionChanged(selection);
-	syncronizeState();
+	synchronizeState();
 }
 
 bool PlayerLocalState::isHeroSleeping(const CGHeroInstance * hero) const
@@ -174,7 +188,7 @@ void PlayerLocalState::setHeroAsleep(const CGHeroInstance * hero)
 	assert(!vstd::contains(sleepingHeroes, hero));
 
 	sleepingHeroes.push_back(hero);
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
@@ -184,7 +198,7 @@ void PlayerLocalState::setHeroAwaken(const CGHeroInstance * hero)
 	assert(vstd::contains(sleepingHeroes, hero));
 
 	vstd::erase(sleepingHeroes, hero);
-	syncronizeState();
+	synchronizeState();
 }
 
 const std::vector<const CGHeroInstance *> & PlayerLocalState::getWanderingHeroes()
@@ -208,7 +222,7 @@ void PlayerLocalState::addWanderingHero(const CGHeroInstance * hero)
 	if (currentSelection == nullptr)
 		setSelection(hero);
 
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
@@ -236,7 +250,7 @@ void PlayerLocalState::removeWanderingHero(const CGHeroInstance * hero)
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
 
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::swapWanderingHero(size_t pos1, size_t pos2)
@@ -246,7 +260,7 @@ void PlayerLocalState::swapWanderingHero(size_t pos1, size_t pos2)
 
 	adventureInt->onHeroOrderChanged();
 
-	syncronizeState();
+	synchronizeState();
 }
 
 const std::vector<const CGTownInstance *> & PlayerLocalState::getOwnedTowns()
@@ -270,7 +284,7 @@ void PlayerLocalState::addOwnedTown(const CGTownInstance * town)
 	if (currentSelection == nullptr)
 		setSelection(town);
 
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
@@ -288,7 +302,7 @@ void PlayerLocalState::removeOwnedTown(const CGTownInstance * town)
 	if (currentSelection == nullptr && !ownedTowns.empty())
 		setSelection(ownedTowns.front());
 
-	syncronizeState();
+	synchronizeState();
 }
 
 void PlayerLocalState::swapOwnedTowns(size_t pos1, size_t pos2)
@@ -296,12 +310,12 @@ void PlayerLocalState::swapOwnedTowns(size_t pos1, size_t pos2)
 	assert(ownedTowns[pos1] && ownedTowns[pos2]);
 	std::swap(ownedTowns.at(pos1), ownedTowns.at(pos2));
 
-	syncronizeState();
+	synchronizeState();
 
 	adventureInt->onTownOrderChanged();
 }
 
-void PlayerLocalState::syncronizeState()
+void PlayerLocalState::synchronizeState()
 {
 	JsonNode data;
 	serialize(data);
@@ -331,6 +345,7 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 			record["path"]["x"].Integer() = paths.at(hero).lastNode().coord.x;
 			record["path"]["y"].Integer() = paths.at(hero).lastNode().coord.y;
 			record["path"]["z"].Integer() = paths.at(hero).lastNode().coord.z;
+			record["path"]["layer"].Integer() = paths.at(hero).lastNode().layer;
 		}
 		dest["heroes"].Vector().push_back(record);
 	}
@@ -389,10 +404,11 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 		if (hero["sleeping"].Bool())
 			sleepingHeroes.push_back(heroPtr);
 
-		if (hero["path"]["x"].isNumber() && hero["path"]["y"].isNumber() && hero["path"]["z"].isNumber())
+		if (hero["path"]["x"].isNumber() && hero["path"]["y"].isNumber() && hero["path"]["z"].isNumber() && hero["path"]["layer"].isNumber())
 		{
 			int3 pathTarget(hero["path"]["x"].Integer(), hero["path"]["y"].Integer(), hero["path"]["z"].Integer());
-			setPath(heroPtr, pathTarget);
+			EPathfindingLayer pathLayer = static_cast<EPathfindingLayer>(hero["path"]["layer"].Integer());
+			setPath(heroPtr, pathTarget, pathLayer);
 		}
 	}
 
@@ -400,8 +416,8 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 	{
 		spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
 		spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
-		spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
-		spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+		spellbookSettings.spellbookLastTabBattle = SpellSchool(source["spellbook"]["tabBattle"].Integer());
+		spellbookSettings.spellbookLastTabAdvmap = SpellSchool(source["spellbook"]["tabAdvmap"].Integer());
 	}
 
 	// append any owned heroes / towns that were not present in loaded state

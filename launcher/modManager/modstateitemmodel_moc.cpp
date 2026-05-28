@@ -11,6 +11,7 @@
 #include "modstateitemmodel_moc.h"
 
 #include "modstatemodel.h"
+#include "cmodlistview_moc.h"
 
 #include <QIcon>
 
@@ -54,6 +55,8 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Campaigns"),
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
+		QT_TR_NOOP("Resources"),
+		QT_TR_NOOP("Demo"),
 	};
 
 	if (modTypes.contains(modTypeID))
@@ -76,6 +79,9 @@ QVariant ModStateItemModel::getValue(const ModState & mod, int field) const
 
 		case ModFields::TYPE:
 			return modTypeName(mod.getType());
+
+		case ModFields::STARS:
+			return mod.getGithubStars() == -1 ? QVariant("") : mod.getGithubStars();
 
 		default:
 			return QVariant();
@@ -159,6 +165,8 @@ QVariant ModStateItemModel::data(const QModelIndex & index, int role) const
 			return getValue(mod, index.column());
 		case ModRoles::ModNameRole:
 			return mod.getID();
+		case ModRoles::ModNameRoleEnglish:
+			return mod.getNameEnglish();
 		}
 	}
 	return QVariant();
@@ -189,10 +197,19 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // star icon
 	};
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section]);
+	if(orientation == Qt::Horizontal)
+	{
+		if(role == Qt::DecorationRole)
+		{
+			if(section == ModFields::STARS)
+				return QIcon(":/icons/star.png");
+		}
+		else if(role == Qt::DisplayRole)
+			return QCoreApplication::translate("ModFields", header[section]);
+	}
 	return QVariant();
 }
 
@@ -275,7 +292,7 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 			return !mod.isInstalled();
 		case ModFilterMask::INSTALLED:
 			return mod.isInstalled();
-		case ModFilterMask::UPDATEABLE:
+		case ModFilterMask::UPDATABLE:
 			return mod.isUpdateAvailable();
 		case ModFilterMask::ENABLED:
 			return mod.isInstalled() && base->model->isModEnabled(modID);
@@ -288,14 +305,34 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 
 bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
-	return filterMatchesCategory(source) && QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
+	if(!filterMatchesCategory(source))
+		return false;
+
+	const QRegularExpression filter = filterRegularExpression();
+	if(filter.pattern().isEmpty())
+		return true;
+
+	if(QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent()))
+		return true;
+
+	const QString localizedName = source.data(Qt::DisplayRole).toString();
+	const QString englishName = source.data(ModRoles::ModNameRoleEnglish).toString();
+	return localizedName.contains(filter) || englishName.contains(filter);
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
 	QString modID = index.data(ModRoles::ModNameRole).toString();
-	if (base->model->getMod(modID).isHidden())
+	const auto & mod = base->model->getMod(modID);
+
+	if (mod.isHidden())
+		return false;
+
+	bool isDemo = CModListView::isDemoDataPresent();
+	if (isDemo && !mod.isTranslation())
+		return false;
+	if (mod.isDemoSupport())
 		return false;
 
 	if(filterMatchesThis(index))
@@ -317,6 +354,57 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 		parent = parent.parent();
 	}
 	return false;
+}
+
+bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
+{
+	if(source_left.column() == ModFields::STARS)
+	{
+		// Compare STARS numerically (descending)
+		QVariant lData = sourceModel()->data(source_left);
+		QVariant rData = sourceModel()->data(source_right);
+
+		bool lIsInt = false;
+		bool rIsInt = false;
+
+		int lValue = lData.toInt(&lIsInt);
+		int rValue = rData.toInt(&rIsInt);
+
+		if (!lIsInt)
+			lValue = -1;
+			
+		if (!rIsInt)
+			rValue = -1;
+		
+		return lValue > rValue;
+
+		// Compare NAME (ascending)
+		const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
+		const QString rightName = sourceModel()->data(source_right.siblingAtColumn(ModFields::NAME)).toString();
+		if (leftName != rightName)
+			return leftName < rightName;
+	}
+	if(source_left.column() != ModFields::STATUS_ENABLED)
+		return QSortFilterProxyModel::lessThan(source_left, source_right);
+
+	const auto leftMod = base->model->getMod(base->modIndexToName(source_left));
+	const auto rightMod = base->model->getMod(base->modIndexToName(source_right));
+
+	const auto isLeftEnabled = base->model->isModEnabled(leftMod.getID());
+	const auto isRightEnabled = base->model->isModEnabled(rightMod.getID());
+	if(!isLeftEnabled && isRightEnabled)
+		return true;
+	if(isLeftEnabled && !isRightEnabled)
+		return false;
+
+	const auto isLeftInstalled = leftMod.isInstalled();
+	const auto isRightInstalled = rightMod.isInstalled();
+	if(!isLeftInstalled && isRightInstalled)
+		return true;
+	if(isLeftInstalled && !isRightInstalled)
+		return false;
+
+	return QSortFilterProxyModel::lessThan(source_left.siblingAtColumn(ModFields::NAME), source_right.siblingAtColumn(ModFields::NAME));
 }
 
 CModFilterModel::CModFilterModel(ModStateItemModel * model, QObject * parent)

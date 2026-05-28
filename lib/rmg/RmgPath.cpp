@@ -196,20 +196,20 @@ float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int
 	float W = 10.0f;// width of the transition area
 	float A = 0.7f; // sine bias
 
-    // Euclidean distance:
-    float d = src.dist2d(dst);
-    
-    // Distance from dst to the zone center:
-    float r = dst.dist2d(center);
-    
-    // Compute normalized offset inside the zone:
-    // (R - W) is the inner edge, R is the outer edge.
-    float t = std::clamp((r - (R - W)) / W, 0.0f, 1.0f);
-    
-    // Use sine bias: lowest cost in the middle (t=0.5), higher near edges.
-    float bias = 1.0f + A * std::sin(M_PI * t);
-    
-    return d * bias;
+	// Euclidean distance:
+	float d = src.dist2d(dst);
+
+	// Distance from dst to the zone center:
+	float r = dst.dist2d(center);
+
+	// Compute normalized offset inside the zone:
+	// (R - W) is the inner edge, R is the outer edge.
+	float t = std::clamp((r - (R - W)) / W, 0.0f, 1.0f);
+
+	// Use sine bias: lowest cost in the middle (t=0.5), higher near edges.
+	float bias = 1.0f + A * std::sin(M_PI * t);
+
+	return d * bias;
 }
 
 Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
@@ -226,6 +226,56 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 			ret /= dist;
 		}
 		return ret;
+	};
+}
+
+float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+{
+	// Approximate distance to cubic Bezier curve by sampling
+	// B(t) = (1-t)³P0 + 3(1-t)²tP1 + 3(1-t)t²P2 + t³P3
+	constexpr int SAMPLES = 20;
+	float minDistSq = std::numeric_limits<float>::max();
+
+	for(int i = 0; i <= SAMPLES; ++i)
+	{
+		float t = static_cast<float>(i) / SAMPLES;
+		float oneMinusT = 1.0f - t;
+		float oneMinusT2 = oneMinusT * oneMinusT;
+		float oneMinusT3 = oneMinusT2 * oneMinusT;
+		float t2 = t * t;
+		float t3 = t2 * t;
+
+		// Cubic Bezier formula
+		float bx = oneMinusT3 * p0.x + 3.0f * oneMinusT2 * t * p1.x + 3.0f * oneMinusT * t2 * p2.x + t3 * p3.x;
+		float by = oneMinusT3 * p0.y + 3.0f * oneMinusT2 * t * p1.y + 3.0f * oneMinusT * t2 * p2.y + t3 * p3.y;
+
+		float dx = point.x - bx;
+		float dy = point.y - by;
+		float distSq = dx * dx + dy * dy;
+
+		if(distSq < minDistSq)
+			minDistSq = distSq;
+	}
+
+	return minDistSq;
+}
+
+Path::MoveCostFunction Path::createBezierCostFunction(const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+{
+	// p0: start point (Q0)
+	// p1: first control point (Q1) - any tile in zone
+	// p2: second control point (Q2) - any tile in zone
+	// p3: end point (Q3)
+	return [p0, p1, p2, p3](const int3 & src, const int3 & dst) -> float
+	{
+
+		// Distance from destination tile to the Bezier curve
+		float distToCurve = distanceToCubicBezier(dst, p0, p1, p2, p3);
+
+		// Penalize tiles far from the curve
+		// Square for stronger effect
+		return distToCurve * distToCurve;
+
 	};
 }
 

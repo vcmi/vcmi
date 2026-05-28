@@ -25,17 +25,20 @@
 #include "../windows/CSpellWindow.h"
 #include "../windows/CMarketWindow.h"
 #include "../windows/GUIClasses.h"
+#include "../windows/InfoWindows.h"
+#include "../windows/wiki/WikiWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
 #include "AdventureState.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -72,6 +75,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X1,    optionInWorldView(),    [this]() { this->worldViewScale1x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X2,    optionInWorldView(),    [this]() { this->worldViewScale2x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
+		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
@@ -95,12 +99,15 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_SAVE_GAME,        optionInMapView(),      [this]() { this->saveGame(); } },
 		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
 		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
+		{ EShortcut::ADVENTURE_QUICK_SAVE,       optionIsLocal(),        [this]() { this->quickSaveGame(); } },
+		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionQuickSaveLoad(),  [this]() { this->quickLoadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
-		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
+		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
+		{ EShortcut::ADVENTURE_REPLAY_TURN,      optionInMapView(),      [this]() { this->replayTurn(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
-		{ EShortcut::ADVENTURE_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
+		{ EShortcut::ADVENTURE_MARKETPLACE,      optionMarketplace(),    [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+10); } },
 		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-10); } },
 		{ EShortcut::ADVENTURE_ZOOM_RESET,       optionSidePanelActive(),[this]() { this->zoom( 0); } },
@@ -116,7 +123,10 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_NN,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({ 0, -1}); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
 		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
-		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } }
+		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } },
+		{ EShortcut::ADVENTURE_DISEMBARK,        optionCanDisembark(),   [this]() { this->enterDisembarkMode(); } },
+		{ EShortcut::ADVENTURE_OPEN_WIKI,        optionInMapView(),      [this]() { this->showWiki(); } },
+		{ EShortcut::MAIN_MENU_LOBBY,            optionLobbyActive(),    [    ]() { ENGINE->user().onGlobalLobbyInterfaceActivated(); } }
 	};
 	return result;
 }
@@ -151,18 +161,24 @@ void AdventureMapShortcuts::worldViewScale4x()
 	owner.openWorldView(16);
 }
 
+void AdventureMapShortcuts::viewStatistic()
+{
+	GAME->interface()->cb->requestStatistic();
+}
+
 void AdventureMapShortcuts::switchMapLevel()
 {
-	int maxLevels = GAME->interface()->cb->getMapSize().z;
-	if (maxLevels < 2)
-		return;
-
 	owner.hotkeySwitchMapLevel();
 }
 
 void AdventureMapShortcuts::showQuestlog()
 {
 	GAME->interface()->showQuestLog();
+}
+
+void AdventureMapShortcuts::showWiki()
+{
+	ENGINE->windows().createAndPushWindow<WikiWindow>();
 }
 
 void AdventureMapShortcuts::toggleTrackHero()
@@ -277,27 +293,36 @@ void AdventureMapShortcuts::endTurn()
 	if(!GAME->interface()->makingTurn)
 		return;
 
+	auto showMoveReminderDialog = [this]()
+	{
+		GAME->interface()->showYesNoDialog(
+			LIBRARY->generaltexth->allTexts[55],
+			[this](){ owner.hotkeyEndingTurn(); },
+			nullptr
+		);
+	};
+
 	if(settings["adventure"]["heroReminder"].Bool())
 	{
-		for(auto hero : GAME->interface()->localState->getWanderingHeroes())
+		for(const auto hero : GAME->interface()->localState->getWanderingHeroes())
 		{
 			if(!GAME->interface()->localState->isHeroSleeping(hero) && hero->movementPointsRemaining() > 0)
 			{
-				// Only show hero reminder if conditions met:
-				// - There still movement points
-				// - Hero don't have a path or there not points for first step on path
 				GAME->interface()->localState->verifyPath(hero);
 
+				// Only show hero reminder if conditions are met:
+				// - There are still movement points
+				// - Hero doesn't have a path or there are enough points for the first step on path
 				if(!GAME->interface()->localState->hasPath(hero))
 				{
-					GAME->interface()->showYesNoDialog( LIBRARY->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					showMoveReminderDialog();
 					return;
 				}
 
-				auto path = GAME->interface()->localState->getPath(hero);
-				if (path.nodes.size() < 2 || path.nodes[path.nodes.size() - 2].turns)
+				const auto path = GAME->interface()->localState->getPath(hero);
+				if (!path.hasNextNode() || path.nextNode().turns == 0)
 				{
-					GAME->interface()->showYesNoDialog( LIBRARY->generaltexth->allTexts[55], [this](){ owner.hotkeyEndingTurn(); }, nullptr);
+					showMoveReminderDialog();
 					return;
 				}
 			}
@@ -370,12 +395,27 @@ void AdventureMapShortcuts::loadGame()
 	GAME->interface()->proposeLoadingGame();
 }
 
+void AdventureMapShortcuts::quickSaveGame()
+{
+	GAME->interface()->quickSaveGame();
+}
+
+void AdventureMapShortcuts::quickLoadGame()
+{
+	GAME->interface()->proposeQuickLoadingGame();
+}
+
 void AdventureMapShortcuts::digGrail()
 {
 	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
 
 	if(h && GAME->interface()->makingTurn)
 		GAME->interface()->tryDigging(h);
+}
+
+void AdventureMapShortcuts::replayTurn()
+{
+	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.replayOpponentTurnNotImplemented"));
 }
 
 void AdventureMapShortcuts::viewPuzzleMap()
@@ -406,6 +446,11 @@ void AdventureMapShortcuts::visitObject()
 
 	if(h)
 		GAME->interface()->cb->moveHero(h, h->pos, false);
+}
+
+void AdventureMapShortcuts::enterDisembarkMode()
+{
+	owner.enterDisembarkMode();
 }
 
 void AdventureMapShortcuts::openObject()
@@ -460,45 +505,59 @@ void AdventureMapShortcuts::zoom( int distance)
 
 void AdventureMapShortcuts::search(bool next)
 {
-	// get all relevant objects
-	std::vector<ObjectInstanceID> visitableObjInstances;
-	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-		if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::HERO && obj->ID != MapObjectID::TOWN)
-			visitableObjInstances.push_back(obj->id);
+	auto getColor = [](MapObjectID id ){
+		switch (id)
+		{
+		case MapObjectID::HERO:
+			return ColorRGBA{ 0, 192, 0};
+		case MapObjectID::MONSTER:
+			return ColorRGBA{ 255, 0, 0};
+		case MapObjectID::TOWN:
+			return ColorRGBA{ 100, 100, 255};
+		case MapObjectID::MINE:
+			return ColorRGBA{ 255, 153, 204};
+		case MapObjectID::RESOURCE:
+			return ColorRGBA{ 255, 51, 255};
+		case MapObjectID::ARTIFACT:
+			return ColorRGBA{ 192, 255, 0};
+		default:
+			return Colors::WHITE;
+		}
+	};
 
 	// count of elements for each group (map is already sorted)
-	std::map<std::string, int> mapObjCount;
-	for(auto & obj : visitableObjInstances)
-		mapObjCount[{ GAME->interface()->cb->getObjInstance(obj)->getObjectName() }]++;
+	std::map<std::pair<std::string, ColorRGBA>, int> mapObjCount;
+	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName(), getColor(obj->ID)}]++;
 
 	// convert to vector for indexed access
-	std::vector<std::pair<std::string, int>> textCountList;
+	std::vector<std::pair<std::pair<std::string, ColorRGBA>, int>> textCountList;
 	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
-		textCountList.push_back(*itr);
+		textCountList.push_back({(*itr).first, (*itr).second});
 
 	// get pos of last selection
 	int lastSel = 0;
 	for(int i = 0; i < textCountList.size(); i++)
-		if(textCountList[i].first == searchLast)
+		if(textCountList[i].first.first == searchLast)
 			lastSel = i;
 
 	// create texts
 	std::vector<std::string> texts;
 	for(auto & obj : textCountList)
-		texts.push_back(obj.first + " (" + std::to_string(obj.second) + ")");
+		texts.push_back("{" + Colors::colorToHexString(obj.first.second) + "|" + obj.first.first + "}" + " (" + std::to_string(obj.second) + ")");
 
 	// function to center element from list on map
-	auto selectObjOnMap = [this, textCountList, visitableObjInstances](int index)
+	auto selectObjOnMap = [this, textCountList](int index)
 		{
 			auto selObj = textCountList[index].first;
 
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
-			for(auto & obj : visitableObjInstances)
-				if(selObj == GAME->interface()->cb->getObjInstance(obj)->getObjectName())
-					selVisitableObjInstances.push_back(obj);
-			
-			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
+			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+					selVisitableObjInstances.push_back(obj->id);
+
+			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj.first)
 				searchPos++;
 			else
 				searchPos = 0;
@@ -507,11 +566,38 @@ void AdventureMapShortcuts::search(bool next)
 			owner.centerOnObject(objInst);
 			searchLast = objInst->getObjectName();
 		};
+	auto openObjMap = [textCountList](int index)
+		{
+			auto selObj = textCountList[index].first;
+
+			// filter for matching objects
+			std::vector<const CGObjectInstance *> selVisitableObjInstances;
+			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+					selVisitableObjInstances.push_back(obj);
+
+			ENGINE->windows().createAndPushWindow<SearchPopup>(selVisitableObjInstances);
+		};
 
 	if(next)
 		selectObjOnMap(lastSel);
 	else
-		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+	{
+		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.tip"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+		window->onPopup = openObjMap;
+		ENGINE->windows().pushWindow(window);
+	}
+}
+
+bool AdventureMapShortcuts::optionCanDisembark()
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->inBoat();
+}
+
+bool AdventureMapShortcuts::optionDisembarking()
+{
+	return state == EAdventureState::DISEMBARKING;
 }
 
 void AdventureMapShortcuts::nextObject()
@@ -540,7 +626,11 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 	if (!GAME->map().isInMap((dst)))
 		return;
 
-	if ( !GAME->interface()->localState->setPath(h, dst))
+	EPathfindingLayer destinationLayer = EPathfindingLayer::AUTO;
+	if (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::AVIATE)
+		destinationLayer = EPathfindingLayer::AVIATE;
+
+	if (!GAME->interface()->localState->setPath(h, dst, destinationLayer))
 		return;
 
 	const CGPath & path = GAME->interface()->localState->getPath(h);
@@ -562,9 +652,9 @@ bool AdventureMapShortcuts::optionCanToggleLevel()
 	return optionSidePanelActive() && GAME->interface()->cb->getMapSize().z > 1;
 }
 
-bool AdventureMapShortcuts::optionMapLevelSurface()
+int AdventureMapShortcuts::optionMapLevel()
 {
-	return mapLevel == 0;
+	return mapLevel;
 }
 
 bool AdventureMapShortcuts::optionHeroSleeping()
@@ -631,7 +721,12 @@ bool AdventureMapShortcuts::optionInWorldView()
 
 bool AdventureMapShortcuts::optionSidePanelActive()
 {
-return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
+}
+
+bool AdventureMapShortcuts::optionLobbyActive()
+{
+	return optionSidePanelActive() && !ENGINE->isDemoData();
 }
 
 bool AdventureMapShortcuts::optionMapScrollingActive()
@@ -641,5 +736,55 @@ bool AdventureMapShortcuts::optionMapScrollingActive()
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL || state == EAdventureState::DISEMBARKING;
+}
+
+bool AdventureMapShortcuts::optionMarketplace()
+{
+	if(state != EAdventureState::MAKING_TURN)
+		return false;
+	for(const CGTownInstance *t : GAME->interface()->cb->getTownsInfo())
+		if(t->hasBuilt(BuildingID::MARKETPLACE))
+			return true;
+	return false;
+}
+
+bool AdventureMapShortcuts::optionHeroBoat(const EPathfindingLayer & layer)
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->inBoat() && hero->getBoat()->layer == layer;
+}
+
+bool AdventureMapShortcuts::optionHeroDig()
+{
+	auto hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->diggingStatus() == EDiggingStatus::CAN_DIG;
+}
+
+bool AdventureMapShortcuts::optionViewStatistic()
+{
+	if(!GAME->interface()->makingTurn)
+		return false;
+	auto day = GAME->interface()->cb->getDate(Date::DAY);
+	return optionInMapView() && day > 1;
+}
+
+bool AdventureMapShortcuts::optionIsLocal()
+{
+	if (!optionInMapView() || !GAME->server().isHost() || !(GAME->server().serverMode == EServerMode::LOCAL))
+		return false;
+
+	//exclude local multiplayer games (hot seat is ok)
+	auto hostClientId = GAME->server().hostClientId;
+	for(const auto& playerName : GAME->server().playerNames)
+	{
+		if(playerName.second.connection != hostClientId)
+			return false;
+	}
+	return true;
+}
+
+bool AdventureMapShortcuts::optionQuickSaveLoad()
+{
+	return optionIsLocal() && GAME->interface()->hasQuickSave;
 }

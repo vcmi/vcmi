@@ -42,6 +42,6 @@ public:
 	/// Must be called when client receives new chat message from server
 	void onNewGameMessageReceived(PlayerColor sender, const std::string & messageText);
 
-	/// Must be called when client receives new message from "system" sender
+	/// Must be called when client receives new message from "System" sender
 	void onNewSystemMessageReceived(const std::string & messageText);
 };

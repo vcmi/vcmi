@@ -10,16 +10,17 @@
 #include "StdInc.h"
 #include "PathfinderOptions.h"
 
-#include "../gameState/CGameState.h"
-#include "../IGameSettings.h"
-#include "../GameLibrary.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
 
+#include "../IGameSettings.h"
+#include "../GameLibrary.h"
+#include "../callback/IGameInfoCallback.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
-PathfinderOptions::PathfinderOptions(const CGameInfoCallback & cb)
+PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	: useFlying(true)
 	, useWaterWalking(true)
 	, ignoreGuards(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_IGNORE_GUARDS))
@@ -39,7 +40,7 @@ PathfinderOptions::PathfinderOptions(const CGameInfoCallback & cb)
 {
 }
 
-PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const CGameInfoCallback & callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
+PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const IGameInfoCallback & callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
 	nodeStorage(std::move(nodeStorage)),
 	rules(std::move(rules)),
 	options(callback)
@@ -59,16 +60,16 @@ std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::build
 
 SingleHeroPathfinderConfig::~SingleHeroPathfinderConfig() = default;
 
-SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback & gs, const CGHeroInstance * hero)
+SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const IGameInfoCallback & gs, const CGHeroInstance * hero)
 	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), gs, buildRuleSet())
 	, hero(hero)
 {
 }
 
-CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
+CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, const IGameInfoCallback & gameInfo)
 {
 	if (!pathfinderHelper)
-		pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);
+		pathfinderHelper = std::make_unique<CPathfinderHelper>(gameInfo, hero, options);
 
 	return pathfinderHelper.get();
 }

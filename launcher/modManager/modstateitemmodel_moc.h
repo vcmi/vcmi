@@ -23,6 +23,7 @@ enum EModFields
 	STATUS_ENABLED,
 	STATUS_UPDATE,
 	TYPE,
+	STARS,
 	COUNT
 };
 }
@@ -32,7 +33,7 @@ enum class ModFilterMask : uint8_t
 	ALL,
 	AVAILABLE,
 	INSTALLED,
-	UPDATEABLE,
+	UPDATABLE,
 	ENABLED,
 	DISABLED
 };
@@ -42,7 +43,8 @@ namespace ModRoles
 enum EModRoles
 {
 	ValueRole = Qt::UserRole,
-	ModNameRole
+	ModNameRole,
+	ModNameRoleEnglish
 };
 }
 
@@ -97,8 +99,11 @@ class CModFilterModel final : public QSortFilterProxyModel
 
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 
+	bool lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const override;
+
 public:
 	void setTypeFilter(ModFilterMask filterMask);
+	void reloadFilter() { invalidateFilter(); }
 
 	CModFilterModel(ModStateItemModel * model, QObject * parent = nullptr);
 };

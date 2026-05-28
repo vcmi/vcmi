@@ -28,7 +28,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 * - Attempting to insert invalid BattleHex objects will have no effect.
 *
 */
-class DLL_LINKAGE BattleHexArray
+class DLL_LINKAGE BattleHexArray final : public scripting::ApiCopyable<BattleHexArray>
 {
 public:
 	static constexpr uint8_t totalSize = GameConstants::BFIELD_SIZE;

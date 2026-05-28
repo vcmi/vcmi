@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../windows/CWindowObject.h"
+#include "CWindowObject.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -37,6 +37,8 @@ class CGarrisonInt;
 class CComponent;
 class CComponentBox;
 class LRClickableArea;
+class LRClickableAreaWText;
+class CTextInputWithConfirm;
 
 /// Building "button"
 class CBuildingRect : public CShowableAnim
@@ -223,9 +225,9 @@ public:
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
+class CCastleInterface final : public CStatusbarWindow, public IGarrisonHolder, public IArtifactsHolder
 {
-	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CTextInputWithConfirm> title;
 	std::shared_ptr<CLabel> income;
 	std::shared_ptr<CAnimImage> icon;
 
@@ -239,7 +241,7 @@ class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
-	std::shared_ptr<LRClickableArea> fastTavern;
+	std::shared_ptr<LRClickableArea> fastWiki;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 
@@ -257,6 +259,7 @@ public:
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
+	void updateArtifacts() override;
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 
@@ -377,6 +380,24 @@ public:
 	void creaturesChangedEventHandler();
 };
 
+class CSpellResearchDialog : public CStatusbarWindow
+{
+	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CTextBox> description;
+	std::shared_ptr<CComponentBox> components;
+	std::shared_ptr<CButton> acceptButton;
+	std::shared_ptr<CButton> rerollButton;
+	std::shared_ptr<CButton> closeButton;
+
+public:
+	CSpellResearchDialog(
+		const std::string & textToShow,
+		const std::vector<std::shared_ptr<CComponent>> & components,
+		const CGTownInstance * town,
+		SpellID oldSpell,
+		bool canAfford);
+};
+
 /// The mage guild screen where you can see which spells you have
 class CMageGuildScreen : public CStatusbarWindow
 {
@@ -392,10 +413,21 @@ class CMageGuildScreen : public CStatusbarWindow
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 	};
+
+	class ScrollAllSpells : public CIntObject
+	{
+		std::shared_ptr<CAnimImage> image;
+		std::shared_ptr<LRClickableAreaWText> text;
+
+	public:
+		ScrollAllSpells(Point position, const std::string & buildingName);
+	};
+
 	std::shared_ptr<CPicture> window;
 	std::shared_ptr<CButton> exit;
 	std::vector<std::shared_ptr<Scroll>> spells;
 	std::vector<std::shared_ptr<CAnimImage>> emptyScrolls;
+	std::vector<std::shared_ptr<ScrollAllSpells>> auroraBorealisScrolls;
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
@@ -419,5 +451,5 @@ class CBlacksmithDialog : public CStatusbarWindow
 	std::shared_ptr<CLabel> costValue;
 
 public:
-	CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid);
+	CBlacksmithDialog(bool possible, ArtifactID newArtifact, ArtifactID existingArtifact, ObjectInstanceID hid);
 };

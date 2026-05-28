@@ -10,14 +10,14 @@
 #include "StdInc.h"
 #include "BattleRenderer.h"
 
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
-#include "BattleWindow.h"
-#include "BattleSiegeController.h"
-#include "BattleStacksController.h"
+#include "BattleHero.h"
+#include "BattleInterface.h"
 #include "BattleObstacleController.h"
 #include "BattleOverlayLogVisualizer.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
 void BattleRenderer::collectObjects()
 {

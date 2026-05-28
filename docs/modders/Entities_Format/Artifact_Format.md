@@ -25,7 +25,7 @@ In order to make functional artifact you also need:
 	// MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5
 	// MISC, RING 
 	"slot":	"HEAD", 
-	"slot":	[ "LEFT_HAND", "RIGHT_HAND ],
+	"slot":	[ "LEFT_HAND", "RIGHT_HAND" ],
 
 	// Cost of this artifact, in gold
 	"value": 12000, 
@@ -43,18 +43,27 @@ In order to make functional artifact you also need:
 	},
 	"graphics":
 	{
-		// Base image for this artifact, used for example in hero screen
+		// Base 44x44 image for this artifact, used for example in hero screen
 		"image": "BigSword.png",
 
-		// Large image, used for drag-and-drop and popup messages
-		"large": "BigSword_large.png",
+		// Large 58x64 image, used for campaign scenario bonus selection
+		"scenarioBonus": "BigSword_large.png",
 
-		//def file for adventure map
+		// def file for adventure map (preferred size: 64x32)
 		"map": "BigSword.def"
 	},
 
 	// Bonuses provided by this artifact using bonus system
+	// If hero equips multiple instances of the same artifact, their effect will not stack
 	"bonuses":
+	{
+		Bonus_1,
+		Bonus_2
+	},
+	
+	// Bonuses provided by every instance of this artifact using bonus system
+	// These bonuses will stack if hero equips multiple instances of this artifact
+	"instanceBonuses":
 	{
 		Bonus_1,
 		Bonus_2
@@ -86,6 +95,19 @@ In order to make functional artifact you also need:
 	"growing" : {
 		"bonusesPerLevel" : {},
 		"thresholdBonuses" : {},
+	}
+
+	// Optional, used for artifacts with charges.
+	"charged" : {
+    // Artifact discharging action
+    // SPELLCAST - Consumes a charge for each spellcast. Applies to every spell added through the "bonuses" section.
+    // BATTLE - Consumes one charge per battle.
+    // BUILDING (not implemented)
+    "usageType": "BATTLE",
+    // Optional, by default is false. Remove when fully discharged
+    "removeOnDepletion" : true,
+    // Optional, by default is 0. Default starting charge amount.
+    "startingCharges" : 2,
 	}
 }
 ```

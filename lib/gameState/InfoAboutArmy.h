@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CCreatureSet.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

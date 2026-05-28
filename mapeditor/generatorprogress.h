@@ -12,6 +12,8 @@
 #include <QDialog>
 #include "../lib/LoadProgress.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 class GeneratorProgress;
 }

@@ -130,6 +130,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void generateLoadOrder(TModList desiredModList);
 	void eraseMissingModsFromPreset();
 	void addNewModsToPreset();
+	void syncDemoModState();
 	void updatePreset(const ModDependenciesResolver & newData);
 
 	TModList getInstalledValidMods() const;
@@ -147,6 +148,7 @@ public:
 	TModList getAllMods() const;
 
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
+	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
 	uint32_t computeChecksum(const TModID & modName) const;
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;

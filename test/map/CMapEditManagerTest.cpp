@@ -10,14 +10,15 @@
 
 #include "StdInc.h"
 
-#include "../lib/filesystem/ResourcePath.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/TerrainHandler.h"
-#include "../lib/mapping/CMapEditManager.h"
-#include "../lib/int3.h"
-#include "../lib/CRandomGenerator.h"
-#include "../lib/GameLibrary.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/mapping/CMapService.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/TerrainHandler.h"
+#include "../../lib/mapping/CMapEditManager.h"
+#include "../../lib/int3.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/EditorCallback.h"
 
 
 TEST(MapManager, DrawTerrain_Type)
@@ -114,8 +115,9 @@ TEST(MapManager, DrawTerrain_View)
 		const ResourcePath testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		CMapService mapService;
-		const auto originalMap = mapService.loadMap(testMap, nullptr);
-		auto map = mapService.loadMap(testMap, nullptr);
+		EditorCallback cb(nullptr);
+		const auto originalMap = mapService.loadMap(testMap, &cb);
+		auto map = mapService.loadMap(testMap, &cb);
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();

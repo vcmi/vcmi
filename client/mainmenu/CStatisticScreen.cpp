@@ -28,11 +28,13 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/Slider.h"
 
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 
 #include <vstd/DateUtils.h>
 
@@ -54,10 +56,10 @@ CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 	layout.emplace_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 80, 128, 255), 1));
 	layout.emplace_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
 
-	buttonSelect = std::make_shared<CToggleButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ onSelectButton(); });
+	buttonSelect = std::make_shared<CButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ onSelectButton(); });
 	buttonSelect->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
 
-	buttonCsvSave = std::make_shared<CToggleButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](bool on){ ENGINE->input().copyToClipBoard(statistic.toCsv("\t"));	});
+	buttonCsvSave = std::make_shared<CButton>(Point(150, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ ENGINE->input().copyToClipBoard(statistic.toCsv("\t")); });
 	buttonCsvSave->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.statisticWindow.tsvCopy"), EFonts::FONT_SMALL, Colors::YELLOW);
 
 	mainContent = getContent(OVERVIEW, EGameResID::NONE);
@@ -76,10 +78,10 @@ void CStatisticScreen::onSelectButton()
 		else
 		{
 			auto content = static_cast<Content>(selectedIndex);
-			auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+			auto possibleRes = LIBRARY->resourceTypeHandler->getAllObjects();
 			std::vector<std::string> resourceText;
 			for(const auto & res : possibleRes)
-				resourceText.emplace_back(LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()));
+				resourceText.emplace_back(res.toResource()->getNameTranslated());
 			
 			ENGINE->windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int index)
 			{
@@ -169,7 +171,7 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_RESOURCES:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.resources[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + res.toResource()->getNameTranslated(), plotData, icons, 0);
 	
 	case CHART_INCOME:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.income; });
@@ -193,7 +195,7 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_NUMBER_OF_MINES:
 		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.numMines[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + res.toResource()->getNameTranslated(), plotData, icons, 0);
 	
 	case CHART_ARMY_STRENGTH:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.armyStrength; });
@@ -205,11 +207,11 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_RESOURCES_SPENT_ARMY:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.spentResourcesForArmy[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + res.toResource()->getNameTranslated(), plotData, icons, 0);
 	
 	case CHART_RESOURCES_SPENT_BUILDINGS:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.spentResourcesForBuildings[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", res.getNum()).get()), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + res.toResource()->getNameTranslated(), plotData, icons, 0);
 	
 	case CHART_MAP_EXPLORED:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.mapExploredRatio; });
@@ -243,7 +245,7 @@ void StatisticSelector::update(int to)
 		if(i>=texts.size())
 			continue;
 
-		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
+		auto button = std::make_shared<CButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](){ close(); cb(i); });
 		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
 		buttons.emplace_back(button);
 	}
@@ -330,43 +332,43 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::GOLD).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::GOLD).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::GOLD]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::WOOD).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::WOOD).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::WOOD]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::MERCURY).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::MERCURY).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::MERCURY]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::ORE).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::ORE).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::ORE]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::SULFUR).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::SULFUR).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::SULFUR]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::CRYSTAL).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::CRYSTAL).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::CRYSTAL]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", EGameResID::GEMS).get()), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + GameResID(EGameResID::GEMS).toResource()->getNameTranslated(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::GEMS]);
 			}
@@ -474,7 +476,9 @@ LineChart::LineChart(Rect position, std::string title, TData data, TIcons icons,
 	niceMaxVal = std::max(1, niceMaxVal); // avoid zero size Y axis (if all values are 0)
 
 	// draw grid (vertical lines)
-	int dayGridInterval = maxDay < 700 ? 7 : 28;
+	int daysPerWeek = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+	int daysPerMonth = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH) * daysPerWeek;
+	int dayGridInterval = maxDay < 700 ? daysPerWeek : daysPerMonth;
 	if(maxDay > 1)
 	{
 		for(const auto & line : data)

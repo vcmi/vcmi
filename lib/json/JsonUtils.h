@@ -45,9 +45,10 @@ namespace JsonUtils
 	 * @param files - list of filenames with parts of json structure
 	 */
 	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files);
-	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, bool & isValid);
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings);
+	DLL_LINKAGE JsonNode assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings, bool & isValid);
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files);
-	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, std::string modName, bool & isValid);
+	DLL_LINKAGE JsonNode assembleFromFiles(const std::vector<std::string> & files, std::string modName, const JsonParsingSettings & settings, bool & isValid);
 
 	/// This version loads all files with same name (overridden by mods)
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::string & filename);
@@ -70,6 +71,15 @@ namespace JsonUtils
 	* @returns true if data in node fully compliant with schema
 	*/
 	DLL_LINKAGE bool validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName);
+
+	/**
+	* @brief validate node against provided inline schema
+	* @param node - JsonNode to check
+	* @param schema - schema to validate against
+	* @param dataName - some way to identify data (printed in console in case of errors)
+	* @returns true if data in node fully compliant with schema
+	*/
+	DLL_LINKAGE bool validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName);
 
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings

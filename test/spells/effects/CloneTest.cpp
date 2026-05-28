@@ -56,10 +56,10 @@ TEST_F(CloneTest, ApplicableToValidTarget)
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtLeast(1)).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(CloneTest, CloneIsNotClonable)
@@ -71,10 +71,10 @@ TEST_F(CloneTest, CloneIsNotClonable)
 	EXPECT_CALL(unit, isClone()).Times(AtLeast(1)).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(CloneTest, SecondCloneRejected)
@@ -86,10 +86,10 @@ TEST_F(CloneTest, SecondCloneRejected)
 	EXPECT_CALL(unit, isClone()).WillRepeatedly(Return(false));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 class CloneApplyTest : public Test, public EffectFixture
@@ -105,7 +105,7 @@ public:
 	const int32_t effectDuration = 6;
 	const BattleHex originalPosition = BattleHex(5,5);
 
-	EffectTarget target;
+	Target target;
 
 	CloneApplyTest()
 		: EffectFixture("core:clone")
@@ -157,8 +157,8 @@ public:
 		EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(cloneId));
 		EXPECT_CALL(*battleFake, addUnit(_, _)).WillOnce(Invoke(this, &CloneApplyTest::onUnitAdded));
 
-		EXPECT_CALL(*battleFake, setUnitState(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
-		EXPECT_CALL(*battleFake, setUnitState(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
 
 		auto & original = unitsFake.add(BattleSide::ATTACKER);
 		EXPECT_CALL(original, isValidTarget(Eq(false))).Times(AtLeast(1)).WillRepeatedly(Return(true));
@@ -188,7 +188,7 @@ protected:
 
 };
 
-TEST_F(CloneApplyTest, DISABLED_AddsNewUnit)
+TEST_F(CloneApplyTest, AddsNewUnit)
 {
 	setDefaultExpectations();
 
@@ -205,7 +205,7 @@ TEST_F(CloneApplyTest, DISABLED_AddsNewUnit)
 	EXPECT_TRUE(cloneAddInfo->summoned);
 }
 
-TEST_F(CloneApplyTest, DISABLED_SetsClonedFlag)
+TEST_F(CloneApplyTest, SetsClonedFlag)
 {
 	setDefaultExpectations();
 
@@ -218,7 +218,7 @@ TEST_F(CloneApplyTest, DISABLED_SetsClonedFlag)
 	EXPECT_TRUE(cloneState->cloned);
 }
 
-TEST_F(CloneApplyTest, DISABLED_SetsCloneLink)
+TEST_F(CloneApplyTest, SetsCloneLink)
 {
 	setDefaultExpectations();
 
@@ -229,7 +229,7 @@ TEST_F(CloneApplyTest, DISABLED_SetsCloneLink)
 	EXPECT_EQ(originalState->cloneID, cloneId);
 }
 
-TEST_F(CloneApplyTest, DISABLED_SetsLifetimeMarker)
+TEST_F(CloneApplyTest, SetsLifetimeMarker)
 {
 	setDefaultExpectations();
 

@@ -14,7 +14,7 @@
 #include "SideInBattle.h"
 #include "SiegeInfo.h"
 
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../bonuses/Bonus.h"
 #include "../bonuses/CBonusSystemNode.h"
 #include "../int3.h"
@@ -31,12 +31,12 @@ class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallba
 {
 	BattleSideArray<SideInBattle> sides; //sides[0] - attacker, sides[1] - defender
 	std::unique_ptr<BattleLayout> layout;
+	si32 round;
 
 	void postDeserialize();
 public:
 	BattleID battleID = BattleID(0);
 
-	si32 round;
 	si32 activeStack;
 	ObjectInstanceID townID; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
@@ -74,10 +74,11 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	BattleInfo(IGameCallback *cb, const BattleLayout & layout);
-	BattleInfo(IGameCallback *cb);
+	BattleInfo(IGameInfoCallback *cb, const BattleLayout & layout);
+	BattleInfo(IGameInfoCallback *cb);
 	virtual ~BattleInfo();
-
+	
+	const scripting::Pool & getScriptContextPool() const override;
 	const IBattleInfo * getBattle() const override;
 	std::optional<PlayerColor> getPlayerID() const override;
 
@@ -101,16 +102,15 @@ public:
 	const CArmedInstance * getSideArmy(BattleSide side) const override;
 	const CGHeroInstance * getSideHero(BattleSide side) const override;
 
-	const CGTownInstance * getTown() const;
-
 	ui8 getTacticDist() const override;
 	BattleSide getTacticsSide() const override;
+	int32_t getRound() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
-	uint32_t getCastSpells(BattleSide side) const override;
+	int32_t getCastSpells(BattleSide side) const override;
 	int32_t getEnchanterCounter(BattleSide side) const override;
 
 	const IBonusBearer * getBonusBearer() const override;
@@ -132,9 +132,8 @@ public:
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void moveUnit(uint32_t id, const BattleHex & destination) override;
-	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
+	void updateUnit(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
 	void removeUnit(uint32_t id) override;
-	void updateUnit(uint32_t id, const JsonNode & data) override;
 
 	void addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
@@ -164,14 +163,9 @@ public:
 	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static std::unique_ptr<BattleInfo> setupBattle(IGameCallback *cb, const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
+	static std::unique_ptr<BattleInfo> setupBattle(IGameInfoCallback *cb, const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
 
 	BattleSide whatSide(const PlayerColor & player) const;
-
-protected:
-#if SCRIPTING_ENABLED
-	scripting::Pool * getContextPool() const override;
-#endif
 };
 
 

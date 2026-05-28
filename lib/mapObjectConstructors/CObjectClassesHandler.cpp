@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CConfigHandler.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
@@ -19,12 +20,13 @@
 #include "../IGameSettings.h"
 #include "../CSoundBase.h"
 
-#include "../mapObjectConstructors/CRewardableConstructor.h"
-#include "../mapObjectConstructors/CommonConstructors.h"
-#include "../mapObjectConstructors/DwellingInstanceConstructor.h"
-#include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
-#include "../mapObjectConstructors/HillFortInstanceConstructor.h"
-#include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
+#include "CRewardableConstructor.h"
+#include "CommonConstructors.h"
+#include "DwellingInstanceConstructor.h"
+#include "FlaggableInstanceConstructor.h"
+#include "HillFortInstanceConstructor.h"
+#include "MarketInstanceConstructor.h"
+#include "ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -65,6 +67,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("shipyard", ShipyardInstanceConstructor);
 	SET_HANDLER_CLASS("monster", CreatureInstanceConstructor);
 	SET_HANDLER_CLASS("resource", ResourceInstanceConstructor);
+	SET_HANDLER_CLASS("mine", MineInstanceConstructor);
 
 	SET_HANDLER_CLASS("static", CObstacleConstructor);
 	SET_HANDLER_CLASS("", CObstacleConstructor);
@@ -86,7 +89,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("magi", CGMagi);
-	SET_HANDLER("mine", CGMine);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
@@ -173,14 +175,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 	assert(subObject);
 	baseObject->objectTypeHandlers.push_back(subObject);
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!", scope, identifier);
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -193,20 +188,24 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	baseObject->objectTypeHandlers.at(index) = subObject;
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), subObject->subtype);
-	for(const auto & compatID : entry["compatibilityIdentifiers"].Vector())
-	{
-		if (identifier != compatID.String())
-			registerObject(scope, baseObject->getJsonKey(), compatID.String(), subObject->subtype);
-		else
-			logMod->warn("Mod '%s' map object '%s': compatibility identifier has same name as object itself!");
-	}
+	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
 {
-	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
+
+	if (settings["mods"]["validation"].String() != "off")
+	{
+		size_t separator = identifier.find(':');
+
+		if (separator != std::string::npos)
+		{
+			std::string modName = identifier.substr(0, separator);
+			std::string objectName = identifier.substr(separator + 1);
+			logMod->warn("Mod %s: Map object type with format '%s' will add new map object, not modify it! Please use '%s' form and add dependency on mod '%s' instead!", scope, identifier, modName, identifier );
+		}
+	}
 
 	std::string handler = baseObject->handlerName;
 	if(!handlerConstructors.count(handler))
@@ -343,6 +342,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 	}
 
 	JsonUtils::inherit(config, mapObjectTypes.at(ID.getNum())->base);
+	for (auto & templ : config["templates"].Struct())
+		JsonUtils::inherit(templ.second, config["base"]);
+
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:objectType", identifier);
+
 	loadSubObject(config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
 }
 
@@ -389,9 +394,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 			return object->objectTypeHandlers.at(subID.value());
 	}
 
-	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
-	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
+	std::string objectType = type + "::" + subtype;
+	logGlobal->error("Failed to find object of type %s", objectType);
+	throw IdentifierResolutionException(objectType);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
@@ -414,7 +419,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 	if(id)
 	{
 		if (subtype.empty())
-			return CompoundMapObjectID(id.value(), 0);
+			return CompoundMapObjectID(id.value(), -1);
 
 		const auto & object = mapObjectTypes.at(id.value());
 		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
@@ -430,7 +435,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 
 CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
 {
-	std::string subtype = "object"; //Default for objects with no subIds
+	std::string subtype;
 	std::string type;
 
 	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
@@ -545,6 +550,9 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 	//FIXME: Monoliths  in this vector can be already not useful for every terrain
 	const size_t portalCount = portalVec.size();
 
+	if (portalCount == 0)
+		return;
+
 	//Invalid portals will be skipped and portalVec size stays unchanged
 	for (size_t i = portalCount; portalVec.size() < 100; ++i)
 	{
@@ -562,20 +570,20 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 		newPortal->templates = portal->getTemplates();
 		newPortal->sounds = portal->getSounds();
 		newPortal->aiValue = portal->getAiValue();
-		newPortal->battlefield = portal->battlefield; //getter is not initialized at this point
+		newPortal->battlefields = portal->battlefields; //getter is not initialized at this point
 		newPortal->modScope = portal->modScope; //private
 		newPortal->typeName = portal->getTypeName(); 
-		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size());
+		newPortal->subTypeName = std::string("monolith") + std::to_string(portalVec.size() + 1);
 		newPortal->type = portal->getIndex();
 
 		// Inconsintent original indexing: monolith1 has index 0
-		newPortal->subtype = portalVec.size() - 1; //indexes must be unique, they are returned as a set
+		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
 		newPortal->blockVisit = portal->blockVisit;
 		newPortal->removable = portal->removable;
 
 		portalVec.push_back(newPortal);
 
-		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, newPortal->subtype);
+		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
 	}
 }
 

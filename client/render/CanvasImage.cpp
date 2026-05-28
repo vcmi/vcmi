@@ -11,7 +11,7 @@
 #include "CanvasImage.h"
 
 #include "../GameEngine.h"
-#include "../render/IScreenHandler.h"
+#include "IScreenHandler.h"
 #include "../renderSDL/SDL_Extensions.h"
 #include "../renderSDL/SDLImageScaler.h"
 #include "../renderSDL/SDLImage.h"
@@ -65,6 +65,8 @@ Rect CanvasImage::contentRect() const
 
 Point CanvasImage::dimensions() const
 {
+	if (scalingPolicy != CanvasScalingPolicy::IGNORE)
+		return Point(surface->w, surface->h) / ENGINE->screenHandler().getScalingFactor();
 	return {surface->w, surface->h};
 }
 

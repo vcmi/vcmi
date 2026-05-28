@@ -62,6 +62,32 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 	return ArtifactPosition::PRE_FIRST;
 }
 
+bool CArtifactSet::hasScroll(const SpellID & spellID, bool onlyWorn) const
+{
+	return getScrollPos(spellID, onlyWorn) != ArtifactPosition::PRE_FIRST;
+}
+
+ArtifactPosition CArtifactSet::getScrollPos(const SpellID & spellID, bool onlyWorn) const
+{
+	for (const auto & slot : artifactsWorn)
+		if (slot.second.getArt() && slot.second.getArt()->isScroll() && slot.second.getArt()->getScrollSpellID() == spellID)
+			return slot.first;
+
+	if (!onlyWorn)
+	{
+		size_t backpackPositionIdx = ArtifactPosition::BACKPACK_START;
+
+		for (const auto & slot : artifactsInBackpack)
+		{
+			if (slot.getArt() && slot.getArt()->isScroll() && slot.getArt()->getScrollSpellID() == spellID)
+				return ArtifactPosition(backpackPositionIdx);
+			backpackPositionIdx++;
+		}
+	}
+
+	return ArtifactPosition::PRE_FIRST;
+}
+
 const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanceID & artInstId) const
 {
 	for(const auto & i : artifactsWorn)
@@ -158,7 +184,7 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 	return resArtPlacement;
 }
 
-CArtifactSet::CArtifactSet(IGameCallback * cb)
+CArtifactSet::CArtifactSet(IGameInfoCallback * cb)
 	:artifactsTransitionPos(cb)
 {}
 
@@ -203,6 +229,19 @@ void CArtifactSet::removeArtifact(const ArtifactPosition & slot)
 
 const CArtifactInstance * CArtifactSet::getCombinedArtWithPart(const ArtifactID & partId) const
 {
+	for(const auto & slot : artifactsWorn)
+	{
+		auto art = slot.second.getArt();
+		if(art->isCombined())
+		{
+			for(auto & ci : art->getPartsInfo())
+			{
+				if(ci.getArtifact()->getTypeId() == partId)
+					return art;
+			}
+		}
+	}
+
 	for(const auto & slot : artifactsInBackpack)
 	{
 		auto art = slot.getArt();
@@ -255,7 +294,7 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 		return artifactsInBackpack.size() < GameConstants::ALTAR_ARTIFACTS_SLOTS;
 
 	if(const ArtSlotInfo *s = getSlot(pos))
-		return (onlyLockCheck || !s->getArt()) && !s->locked;
+		return (onlyLockCheck || !s->getID().hasValue()) && !s->locked;
 
 	return true; //no slot means not used
 }
@@ -350,12 +389,12 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		if(info != nullptr && !info->locked)
 		{
 			artifactID = info->getArt()->getTypeId();
-			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
+			handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
 		}
 	}
 	else
 	{
-		handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
+		handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
 
 		if(artifactID != ArtifactID::NONE)
 		{

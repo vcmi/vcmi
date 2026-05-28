@@ -11,7 +11,7 @@
 #include "loseconditions.h"
 #include "ui_loseconditions.h"
 #include "../mapcontroller.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 LoseConditions::LoseConditions(QWidget *parent) :
 	AbstractSettings(parent),
@@ -103,8 +103,9 @@ void LoseConditions::initialize(MapController & c)
 							assert(loseValueWidget);
 							loseValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
+						}
 
-						case EventCondition::IS_HUMAN:
+						case EventCondition::IS_HUMAN: {
 							break; //ignore because always applicable for defeat conditions
 						}
 
@@ -289,9 +290,9 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 void LoseConditions::onObjectSelect()
 {
 	int loseCondition = ui->loseComboBox->currentIndex() - 1;
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		switch(loseCondition)
 		{
 			case 0: {  //EventCondition::CONTROL (Obj::TOWN)
@@ -317,9 +318,9 @@ void LoseConditions::onObjectPicked(const CGObjectInstance * obj)
 {
 	controller->settingsDialog->show();
 	
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller->getScenes())
 	{
-		auto & l = controller->scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &LoseConditions::onObjectPicked);

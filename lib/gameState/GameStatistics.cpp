@@ -22,6 +22,9 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../entities/building/CBuilding.h"
+#include "../serializer/JsonDeserializer.h"
+#include "../serializer/JsonUpdater.h"
+#include "../entities/ResourceTypeHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,7 +34,37 @@ void StatisticDataSet::add(StatisticDataSetEntry entry)
 	data.push_back(entry);
 }
 
-StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, const CGameState * gs)
+StatisticDataSet::PlayerAccumulatedValueStorage & StatisticDataSet::getPlayerAccumulator(PlayerColor player)
+{
+	if(!player.isValidPlayer())
+		throw std::runtime_error("Invalid player color " + std::to_string(player.getNum()) + " for statistics accumulator");
+	return accumulatedValues[player];
+}
+
+const StatisticDataSet::PlayerAccumulatedValueStorage & StatisticDataSet::getPlayerAccumulator(PlayerColor player) const
+{
+	if(!player.isValidPlayer())
+		throw std::runtime_error("Invalid player color " + std::to_string(player.getNum()) + " for statistics accumulator");
+	auto it = accumulatedValues.find(player);
+	if(it == accumulatedValues.end())
+		throw std::runtime_error("No statistics accumulator found for player " + std::to_string(player.getNum()));
+	return it->second;
+}
+
+void StatisticDataSet::filterByTeam(const TeamState * team)
+{
+	for(auto it = accumulatedValues.begin(); it != accumulatedValues.end();) {
+		if (std::find(team->players.begin(), team->players.end(), it->first) == team->players.end())
+			it = accumulatedValues.erase(it);
+		else
+			++it;
+	}
+	data.erase(std::remove_if(data.begin(), data.end(), [&team](const StatisticDataSetEntry& entry) {
+		return std::find(team->players.begin(), team->players.end(), entry.player) == team->players.end();
+	}), data.end());
+}
+
+StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData)
 {
 	StatisticDataSetEntry data;
 
@@ -63,27 +96,100 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
-	data.numBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesNeutral : 0;
-	data.numBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesPlayer : 0;
-	data.numWinBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesNeutral : 0;
-	data.numWinBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesPlayer : 0;
-	data.numHeroSurrendered = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroSurrendered : 0;
-	data.numHeroEscaped = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroEscaped : 0;
-	data.spentResourcesForArmy = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
-	data.spentResourcesForBuildings = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
-	data.tradeVolume = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).tradeVolume : TResources();
-	data.eventCapturedTown = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
-	data.eventDefeatedStrongestHero = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
-	data.movementPointsUsed = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).movementPointsUsed : 0;
+	data.numBattlesNeutral = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numBattlesNeutral : 0;
+	data.numBattlesPlayer = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numBattlesPlayer : 0;
+	data.numWinBattlesNeutral = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numWinBattlesNeutral : 0;
+	data.numWinBattlesPlayer = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numWinBattlesPlayer : 0;
+	data.numHeroSurrendered = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numHeroSurrendered : 0;
+	data.numHeroEscaped = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numHeroEscaped : 0;
+	data.spentResourcesForArmy = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
+	data.spentResourcesForBuildings = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
+	data.tradeVolume = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).tradeVolume : TResources();
+	data.eventCapturedTown = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
+	data.eventDefeatedStrongestHero = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
+	data.movementPointsUsed = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
 }
 
-std::string StatisticDataSet::toCsv(std::string sep)
+void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeString("map", map);
+	handler.serializeInt("timestamp", timestamp);
+	handler.serializeInt("day", day);
+	handler.serializeId("player", player, PlayerColor::CANNOT_DETERMINE);
+	handler.serializeString("playerName", playerName);
+	handler.serializeInt("team", team);
+	handler.serializeBool("isHuman", isHuman);
+	handler.serializeEnum("status", status, {"ingame", "loser", "winner"});
+	resources.serializeJson(handler, "resources");
+	handler.serializeInt("numberHeroes", numberHeroes);
+	handler.serializeInt("numberTowns", numberTowns);
+	handler.serializeInt("numberArtifacts", numberArtifacts);
+	handler.serializeInt("numberDwellings", numberDwellings);
+	handler.serializeInt("armyStrength", armyStrength);
+	handler.serializeInt("totalExperience", totalExperience);
+	handler.serializeInt("income", income);
+	handler.serializeFloat("mapExploredRatio", mapExploredRatio);
+	handler.serializeFloat("obeliskVisitedRatio", obeliskVisitedRatio);
+	handler.serializeFloat("townBuiltRatio", townBuiltRatio);
+	handler.serializeBool("hasGrail", hasGrail);
+	{
+		auto zonesData = handler.enterStruct("numMines");
+		for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+			handler.serializeInt(idx.toResource()->getJsonKey(), numMines[idx], 0);
+	}
+	handler.serializeInt("score", score);
+	handler.serializeInt("maxHeroLevel", maxHeroLevel);
+	handler.serializeInt("numBattlesNeutral", numBattlesNeutral);
+	handler.serializeInt("numBattlesPlayer", numBattlesPlayer);
+	handler.serializeInt("numWinBattlesNeutral", numWinBattlesNeutral);
+	handler.serializeInt("numWinBattlesPlayer", numWinBattlesPlayer);
+	handler.serializeInt("numHeroSurrendered", numHeroSurrendered);
+	handler.serializeInt("numHeroEscaped", numHeroEscaped);
+	spentResourcesForArmy.serializeJson(handler, "spentResourcesForArmy");
+	spentResourcesForBuildings.serializeJson(handler, "spentResourcesForBuildings");
+	tradeVolume.serializeJson(handler, "tradeVolume");
+	handler.serializeBool("eventCapturedTown", eventCapturedTown);
+	handler.serializeBool("eventDefeatedStrongestHero", eventDefeatedStrongestHero);
+	handler.serializeInt("movementPointsUsed", movementPointsUsed);
+}
+
+void StatisticDataSet::PlayerAccumulatedValueStorage::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("numBattlesNeutral", numBattlesNeutral);
+	handler.serializeInt("numBattlesPlayer", numBattlesPlayer);
+	handler.serializeInt("numWinBattlesNeutral", numWinBattlesNeutral);
+	handler.serializeInt("numWinBattlesPlayer", numWinBattlesPlayer);
+	handler.serializeInt("numHeroSurrendered", numHeroSurrendered);
+	handler.serializeInt("numHeroEscaped", numHeroEscaped);
+	spentResourcesForArmy.serializeJson(handler, "spentResourcesForArmy");
+	spentResourcesForBuildings.serializeJson(handler, "spentResourcesForBuildings");
+	tradeVolume.serializeJson(handler, "tradeVolume");
+	handler.serializeInt("movementPointsUsed", movementPointsUsed);
+	handler.serializeInt("lastCapturedTownDay", lastCapturedTownDay);
+	handler.serializeInt("lastDefeatedStrongestHeroDay", lastDefeatedStrongestHeroDay);
+}
+
+void StatisticDataSet::serializeJson(JsonSerializeFormat & handler)
+{
+	{
+		auto eventsHandler = handler.enterArray("data");
+		eventsHandler.syncSize(data, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(data);
+	}
+	{
+		auto eventsHandler = handler.enterStruct("accumulatedValues");
+		for(auto & val : accumulatedValues)
+			eventsHandler->serializeStruct(GameConstants::PLAYER_COLOR_NAMES[val.first], val.second);
+	}
+}
+
+std::string StatisticDataSet::toCsv(std::string sep) const
 {
 	std::stringstream ss;
 
-	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+	auto resources = LIBRARY->resourceTypeHandler->getAllObjects();
 
 	ss << "Map" << sep;
 	ss << "Timestamp" << sep;
@@ -116,15 +222,15 @@ std::string StatisticDataSet::toCsv(std::string sep)
 	ss << "EventDefeatedStrongestHero" << sep;
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource];
+		ss << sep << resource.toResource()->getJsonKey();
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "Mines";
+		ss << sep << resource.toResource()->getJsonKey() + "Mines";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
+		ss << sep << resource.toResource()->getJsonKey() + "SpentResourcesForArmy";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
+		ss << sep << resource.toResource()->getJsonKey() + "SpentResourcesForBuildings";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
+		ss << sep << resource.toResource()->getJsonKey() + "TradeVolume";
 	ss << "\r\n";
 
 	for(auto & entry : data)
@@ -162,7 +268,7 @@ std::string StatisticDataSet::toCsv(std::string sep)
 		for(auto & resource : resources)
 			ss << sep << entry.resources[resource];
 		for(auto & resource : resources)
-			ss << sep << entry.numMines[resource];
+			ss << sep << entry.numMines.at(resource);
 		for(auto & resource : resources)
 			ss << sep << entry.spentResourcesForArmy[resource];
 		for(auto & resource : resources)
@@ -175,7 +281,7 @@ std::string StatisticDataSet::toCsv(std::string sep)
 	return ss.str();
 }
 
-std::string StatisticDataSet::writeCsv()
+std::string StatisticDataSet::writeCsv() const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
 	boost::filesystem::create_directories(outPath);
@@ -250,7 +356,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 	float visible = 0.0;
 	float numTiles = 0.0;
 
-	for(int layer = 0; layer < (gs->getMap().twoLevel ? 2 : 1); layer++)
+	for(int layer = 0; layer < gs->getMap().levels(); layer++)
 		for(int y = 0; y < gs->getMap().height; ++y)
 			for(int x = 0; x < gs->getMap().width; ++x)
 			{
@@ -259,7 +365,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 				if(tile.blocked() && !tile.visitable())
 					continue;
 
-				if(gs->isVisible(int3(x, y, layer), player))
+				if(gs->isVisibleFor(int3(x, y, layer), player))
 					visible++;
 				numTiles++;
 			}
@@ -328,7 +434,7 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 {
 	std::map<EGameResID, int> tmp;
 
-	for(auto & res : EGameResID::ALL_RESOURCES())
+	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 		tmp[res] = 0;
 
 	for(const auto * object : ps->getOwnedObjects())

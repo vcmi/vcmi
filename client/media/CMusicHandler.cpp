@@ -269,7 +269,7 @@ void MusicEntry::load(const AudioPath & musicURI)
 		auto * musicFile = MakeSDLRWops(std::move(stream));
 		music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 	}
-	catch(std::exception & e)
+	catch(const std::exception & e)
 	{
 		logGlobal->error("Failed to load music. setName=%s\tmusicURI=%s", setName, currentName.getOriginalName());
 		logGlobal->error("Exception: %s", e.what());

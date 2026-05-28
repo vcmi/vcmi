@@ -11,9 +11,9 @@
 
 #include "MapComparer.h"
 
-#include "../lib/mapping/CMap.h"
-#include "../lib/mapObjects/CGObjectInstance.h"
-#include "../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
 
 #define VCMI_CHECK_FIELD_EQUAL_P(field) EXPECT_EQ(actual->field, expected->field)
 
@@ -151,7 +151,7 @@ void MapComparer::compareHeader()
 	//map size parameters are vital for further checks
 	VCMI_REQUIRE_FIELD_EQUAL_P(height);
 	VCMI_REQUIRE_FIELD_EQUAL_P(width);
-	VCMI_REQUIRE_FIELD_EQUAL_P(twoLevel);
+	VCMI_REQUIRE_FIELD_EQUAL_P(mapLayers);
 
 	VCMI_CHECK_FIELD_EQUAL_P(name);
 	VCMI_CHECK_FIELD_EQUAL_P(description);

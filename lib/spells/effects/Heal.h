@@ -26,10 +26,12 @@ namespace effects
 class Heal : public UnitEffect
 {
 public:
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
+
+	SpellEffectValue getHealthChange(const Mechanics * m, const Target & spellTarget) const override;
 
 protected:
-	void apply(int64_t value, ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
+	void apply(int64_t value, ServerCallback * server, const Mechanics * m, const Target & target) const;
 
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
@@ -40,7 +42,8 @@ private:
 
 	int32_t minFullUnits = 0;
 
-	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
+	SpellEffectValue getHealEffectValue(int64_t value, const Mechanics * m, const battle::Unit * unit, std::shared_ptr<battle::Unit> newState = nullptr) const;
+	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const Target & target) const;
 };
 
 }

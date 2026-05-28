@@ -1,0 +1,111 @@
+# Translation file for VCMI (Open Heroes III engine)
+# Copyright (C) 2024 VCMI Team
+# This file is distributed under GPL 2.0 or later
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: VCMI 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-14 20:10+0200\n"
+"PO-Revision-Date: 2026-05-16 12:30+0000\n"
+"Last-Translator: Maurycy <maurycy.domaradzki@outlook.com>\n"
+"Language-Team: Swedish <https://hosted.weblate.org/projects/vcmi/linux/sv/>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.6.dev0\n"
+
+#: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
+msgid "VCMI"
+msgstr "VCMI"
+
+#: eu.vcmi.VCMI.metainfo.xml:5
+msgid "Open-source game engine for Heroes of Might and Magic III"
+msgstr "En öppen källkodsbaserad spelmotor för Heroes of Might and Magic III"
+
+#: eu.vcmi.VCMI.metainfo.xml:7
+msgid "VCMI Team"
+msgstr "VCMI-teamet"
+
+#: eu.vcmi.VCMI.metainfo.xml:12
+msgid ""
+"VCMI is an open-source engine for Heroes of Might and Magic III with new "
+"possibilities. Years of intensive work resulted in an impressive amount of "
+"features. Among the current features are:"
+msgstr ""
+"VCMI är en öppen källkods-motor för Heroes of Might and Magic III som "
+"erbjuder nya möjligheter. Åratal av intensivt arbete har resulterat i en "
+"imponerande mängd funktioner. Bland de nuvarande funktionerna finns:"
+
+#: eu.vcmi.VCMI.metainfo.xml:14
+msgid "Complete gameplay mechanics"
+msgstr "Hela spelmekaniken"
+
+#: eu.vcmi.VCMI.metainfo.xml:15
+msgid "Almost all objects, abilities, spells and other content"
+msgstr "Nästan alla objekt, förmågor, trollformler och annat innehåll"
+
+#: eu.vcmi.VCMI.metainfo.xml:16
+msgid "Basic battle AI and adventure AI"
+msgstr "Grundläggande strids-AI och äventyrs-AI"
+
+#: eu.vcmi.VCMI.metainfo.xml:17
+msgid "Many GUI improvements: high resolutions, stack queue, creature window"
+msgstr ""
+"Många gränssnittsförbättringar: högre bildskärmsupplösningar, stapelkö och "
+"varelsefönster"
+
+#: eu.vcmi.VCMI.metainfo.xml:18
+msgid ""
+"Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
+"and spells without limits or conflicts"
+msgstr ""
+"Avancerat och enkelt stöd för moddar - lägg till nya städer, varelser, "
+"hjältar, artefakter och trollformler utan begränsningar eller konflikter"
+
+#: eu.vcmi.VCMI.metainfo.xml:19
+msgid ""
+"Launcher for easy configuration - download mods from our server and install "
+"them immediately!"
+msgstr ""
+"Startprogram för enkel konfiguration - ladda ner moddar från vår server och "
+"installera dem direkt!"
+
+#: eu.vcmi.VCMI.metainfo.xml:20
+msgid "Random map generator that supports objects added by mods"
+msgstr "Slumpkartsgenerator som stöder objekt tillagda av moddar"
+
+#: eu.vcmi.VCMI.metainfo.xml:22
+msgid ""
+"Note: In order to play the game using VCMI you need to own data files for "
+"Heroes of Might and Magic III: The Shadow of Death."
+msgstr ""
+"Obs: För att kunna spela spelet med VCMI måste du äga datafilerna till "
+"Heroes of Might and Magic III: The Shadow of Death."
+
+#: eu.vcmi.VCMI.metainfo.xml:23
+msgid "If you want help, please check our forum, bug tracker or GitHub page."
+msgstr ""
+"Om du behöver hjälp, kolla gärna vårt forum, buggspårare eller GitHub-sida."
+
+#: eu.vcmi.VCMI.metainfo.xml:127
+msgid "heroes3"
+msgstr "heroes3"
+
+#: eu.vcmi.VCMI.metainfo.xml:128
+msgid "homm3"
+msgstr "homm3"
+
+#: vcmilauncher.desktop:5
+msgid "Strategy Game"
+msgstr "Strategispel"
+
+#: vcmilauncher.desktop:6
+msgid "Open-source recreation of Heroes of Might & Magic III"
+msgstr "Öppen källkods‑rekreation av Heroes of Might & Magic III"
+
+#: vcmilauncher.desktop:11
+msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
+msgstr "heroes of might and magic;heroes;homm;homm3;strategi;"

@@ -18,7 +18,7 @@
 
 #include "../CPlayerInterface.h"
 
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"
@@ -269,9 +269,21 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	artPlace->slot = slot;
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
+		const auto curArt = slotInfo->getArt();
+
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->getArt()->getTypeId(), slotInfo->getArt()->getScrollSpellID());
-		if(slotInfo->locked || slotInfo->getArt()->isCombined())
+		artPlace->setArtifact(curArt->getTypeId(), curArt->getScrollSpellID());
+		if(slotInfo->locked)
+			return;
+
+		// If the artifact has charges, add charges information
+		if(curArt->getType()->isCharged())
+			artPlace->addChargedArtInfo(curArt->getCharges());
+
+		if(curArt->isCombined())
+			return;
+
+		if(ENGINE->isRoeData())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information

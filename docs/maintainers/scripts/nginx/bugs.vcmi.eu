@@ -1,0 +1,12 @@
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+        ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
+        ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;
+        ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+        ssl_verify_client on;
+
+        server_name bugs.vcmi.eu;
+        return 301 https://github.com/vcmi/vcmi/issues;
+}

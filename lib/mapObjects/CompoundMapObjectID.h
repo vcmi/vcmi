@@ -18,6 +18,7 @@ struct DLL_LINKAGE CompoundMapObjectID
 	si32 primaryID;
 	si32 secondaryID;
 
+	CompoundMapObjectID() : primaryID(0), secondaryID(0) {}
 	CompoundMapObjectID(si32 primID, si32 secID) : primaryID(primID), secondaryID(secID) {};
 
 	bool operator<(const CompoundMapObjectID& other) const

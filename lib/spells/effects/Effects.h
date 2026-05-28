@@ -23,7 +23,7 @@ namespace effects
 class DLL_LINKAGE Effects
 {
 public:
-	using EffectsToApply = std::vector<std::pair<const Effect *, EffectTarget>>;
+	using EffectsToApply = std::vector<std::pair<const Effect *, Target>>;
 
 	using EffectsMap = std::map<std::string, std::shared_ptr<Effect>>;
 	using EffectData = std::array<EffectsMap, GameConstants::SPELL_SCHOOL_LEVELS>;
@@ -41,7 +41,7 @@ public:
 
 	EffectsToApply prepare(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;
 
-	void serializeJson(const Registry * registry, JsonSerializeFormat & handler, const int level);
+	void serializeJson(JsonSerializeFormat & handler, const int level, const std::string & spellScope, const std::string & spellIdentifier);
 };
 
 

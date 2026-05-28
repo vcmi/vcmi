@@ -43,6 +43,9 @@ public:
 	static const std::string OBJECTS_FILE_NAME;
 	static const std::string TERRAIN_FILE_NAMES[2];
 
+	/// Removes "map.<mapName>." prefix from translation keys
+	static std::string removeMapNamePrefix(const std::string & fullIdentifier);
+
 	int fileVersionMajor;
 	int fileVersionMinor;
 protected:
@@ -57,12 +60,16 @@ protected:
 	 * (when loading map and mapHeader point to the same object)
 	 */
 	CMapHeader * mapHeader;
+	
+	std::string mapName; ///< name of the map file (for translations, same as H3M)
 
 	CMapFormatJson();
 
 	static TerrainId getTerrainByCode(const std::string & code);
 	static RiverId getRiverByCode(const std::string & code);
 	static RoadId getRoadByCode(const std::string & code);
+
+	void fixStringsTextIDInJson(JsonNode & node, const std::string & mapPrefix, bool remove) const;
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<FactionID> & value) const;
 
@@ -159,15 +166,16 @@ public:
 	 * Constructor.
 	 *
 	 * @param stream a stream containing the map data
+	 * @param mapName name of the map file (for external translations)
 	 */
-	CMapLoaderJson(CInputStream * stream);
+	CMapLoaderJson(CInputStream * stream, const std::string & mapName = "");
 
 	/**
 	 * Loads the VCMI/Json map file.
 	 *
 	 * @return a unique ptr of the loaded map class
 	 */
-	std::unique_ptr<CMap> loadMap(IGameCallback * cb) override;
+	std::unique_ptr<CMap> loadMap(IGameInfoCallback * cb) override;
 
 	/**
 	 * Loads the VCMI/Json map header.
@@ -176,9 +184,15 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
+	/**
+	 * Set whether map loading is performed by map editor (affects TextID handling)
+	 */
+	void setRunningInMapEditor(bool val);
+
 	struct MapObjectLoader
 	{
 		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
+		MapObjectLoader(CMapLoaderJson * _owner, JsonVector::value_type & json);
 		CMapLoaderJson * owner;
 		std::shared_ptr<CGObjectInstance> instance;
 		ObjectInstanceID id;
@@ -226,6 +240,8 @@ private:
 	std::shared_ptr<CIOApi> ioApi;
 
 	CZipLoader loader;///< object to handle zip archive operations
+
+	bool runningInMapEditor = false; ///< local flag replacing global isRunningInMapEditor
 };
 
 class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver

@@ -1,0 +1,14 @@
+server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+      
+        server_name builds.vcmi.download;
+    
+        ssl on;
+        ssl_certificate /etc/nginx/certs/builds.vcmi.download.pem;
+        ssl_certificate_key /etc/nginx/certs/builds.vcmi.download.key;
+        ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+        ssl_verify_client on;
+    
+        return 301 https://download.vcmi.eu$request_uri;
+}

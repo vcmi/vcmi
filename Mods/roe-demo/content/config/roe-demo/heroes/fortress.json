@@ -1,0 +1,18 @@
+{
+	"core:bron":       { "special" : true },
+	"core:drakon":     { "special" : true },
+	"core:wystan":     { "special" : true },
+	"core:tazar":      { "special" : true },
+	"core:alkin":      { "special" : true },
+	"core:korbac":     { "special" : true },
+	"core:gerwulf":    { "special" : true },
+	"core:broghild":   { "special" : true },
+	"core:mirlanda":   { "special" : true },
+	"core:rosic":      { "special" : true },
+	"core:voy":        { "special" : true },
+	"core:verdish":    { "special" : true },
+	"core:merist":     { "special" : true },
+	"core:styg":       { "special" : true },
+	"core:andra":      { "special" : true },
+	"core:tiva":       { "special" : true }
+}

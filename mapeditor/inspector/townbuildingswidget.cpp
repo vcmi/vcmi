@@ -11,9 +11,9 @@
 #include "townbuildingswidget.h"
 #include "ui_townbuildingswidget.h"
 #include "mapeditorroles.h"
-#include "../lib/entities/building/CBuilding.h"
-#include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)
 {

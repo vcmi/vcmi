@@ -15,19 +15,18 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
 #include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../spells/CSpell.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../BattleFieldHandler.h"
 #include "../ObstacleHandler.h"
 
 #include <vstd/RNG.h>
-
-//TODO: remove
-#include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -48,7 +47,7 @@ void BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, Batt
 	assert(!owner.isValidPlayer() || (base.getArmy() && base.getArmy()->tempOwner == owner));
 
 	auto ret = std::make_unique<CStack>(&base, owner, id, side, slot);
-	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
+	ret->initialPosition = getAvailableHex(base.getCreature(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
 	stacks.push_back(std::move(ret));
 }
 
@@ -158,18 +157,18 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
+std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto currentBattle = std::make_unique<BattleInfo>(cb, layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
-		currentBattle->sides[i].init(heroes[i], armies[i]);
+		currentBattle->sides[i].init(heroes[i], armies[i], i == BattleSide::RIGHT_SIDE ? town : nullptr);
 
 	currentBattle->tile = tile;
 	currentBattle->terrainType = terrain;
 	currentBattle->battlefieldType = battlefieldType;
-	currentBattle->round = -2;
+	currentBattle->round = 0;
 	currentBattle->activeStack = -1;
 	currentBattle->replayAllowed = false;
 	if (town)
@@ -344,6 +343,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int
 
 			if (pos.isValid())
 				currentBattle->generateNewStack(currentBattle->nextUnitId(), *i->second, side, i->first, pos);
+			else
+				logMod->warn("Invalid battlefield layout! Failed to find position for unit %d for %s", k, side == BattleSide::ATTACKER ? "attacker" : "defender");
 		}
 	}
 
@@ -358,13 +359,13 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int
 
 	if (currentBattle->townID.hasValue())
 	{
-		if (currentBattle->getTown()->fortificationsLevel().citadelHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().citadelHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (currentBattle->getTown()->fortificationsLevel().upperTowerHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().upperTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
-		if (currentBattle->getTown()->fortificationsLevel().lowerTowerHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().lowerTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 
 		//Moat generating is done on server
@@ -384,8 +385,10 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int
 	}
 
 	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
-	
+	auto nativeTerrain = std::make_shared<AllOfLimiter>();
+	nativeTerrain->add(std::make_shared<TerrainLimiter>());
+	nativeTerrain->add(std::make_shared<CreatureLevelLimiter>()); // creature only limiter - exclude hero
+
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::STACKS_SPEED, BonusSource::TERRAIN_NATIVE, 1,  BonusSourceID())->addLimiter(nativeTerrain));
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::ATTACK))->addLimiter(nativeTerrain));
 	currentBattle->addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::PRIMARY_SKILL, BonusSource::TERRAIN_NATIVE, 1, BonusSourceID(), BonusSubtypeID(PrimarySkill::DEFENSE))->addLimiter(nativeTerrain));
@@ -398,7 +401,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int
 	{
 		if(heroes[i])
 		{
-			battleRepositionHex[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION);
+			if(heroes[i]->tacticFormationEnabled)
+				battleRepositionHex[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION);
 			battleRepositionHexBlock[i] += heroes[i]->valOfBonuses(BonusType::BEFORE_BATTLE_REPOSITION_BLOCK);
 		}
 	}
@@ -460,14 +464,15 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo(IGameCallback *cb, const BattleLayout & layout):
+BattleInfo::BattleInfo(IGameInfoCallback *cb, const BattleLayout & layout):
 	BattleInfo(cb)
 {
 	*this->layout = layout;
 }
 
-BattleInfo::BattleInfo(IGameCallback *cb)
-	:GameCallbackHolder(cb),
+BattleInfo::BattleInfo(IGameInfoCallback *cb)
+	:CBonusSystemNode(BonusNodeType::BATTLE_WIDE),
+	GameCallbackHolder(cb),
 	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),
 	round(-1),
@@ -477,7 +482,6 @@ BattleInfo::BattleInfo(IGameCallback *cb)
 	tacticsSide(BattleSide::NONE),
 	tacticDistance(0)
 {
-	setNodeType(BATTLE);
 }
 
 BattleLayout BattleInfo::getLayout() const
@@ -493,6 +497,11 @@ BattleID BattleInfo::getBattleID() const
 const IBattleInfo * BattleInfo::getBattle() const
 {
 	return this;
+}
+
+const scripting::Pool & BattleInfo::getScriptContextPool() const
+{
+	return cb->getScriptContextPool();
 }
 
 std::optional<PlayerColor> BattleInfo::getPlayerID() const
@@ -568,13 +577,6 @@ const CGHeroInstance * BattleInfo::getSideHero(BattleSide side) const
 	return getSide(side).getHero();
 }
 
-const CGTownInstance * BattleInfo::getTown() const
-{
-	if (townID.hasValue())
-		return cb->getTown(townID);
-	return nullptr;
-}
-
 uint8_t BattleInfo::getTacticDist() const
 {
 	return tacticDistance;
@@ -583,6 +585,11 @@ uint8_t BattleInfo::getTacticDist() const
 BattleSide BattleInfo::getTacticsSide() const
 {
 	return tacticsSide;
+}
+
+int32_t BattleInfo::getRound() const
+{
+	return round;
 }
 
 const CGTownInstance * BattleInfo::getDefendedTown() const
@@ -602,7 +609,7 @@ EGateState BattleInfo::getGateState() const
 	return si.gateState;
 }
 
-uint32_t BattleInfo::getCastSpells(BattleSide side) const
+int32_t BattleInfo::getCastSpells(BattleSide side) const
 {
 	return getSide(side).castSpellsCount;
 }
@@ -673,8 +680,11 @@ void BattleInfo::nextTurn(uint32_t unitId, BattleUnitTurnReason reason)
 
 	CStack * st = getStack(activeStack);
 
-	//remove bonuses that last until when stack gets new turn
-	st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	if (reason != BattleUnitTurnReason::UNIT_SPELLCAST)
+	{
+		//remove bonuses that last until when stack gets new turn
+		st->removeBonusesRecursive(Bonus::UntilGetsTurn);
+	}
 
 	st->afterGetsTurn(reason);
 }
@@ -708,7 +718,7 @@ void BattleInfo::moveUnit(uint32_t id, const BattleHex & destination)
 	nodeHasChanged();
 }
 
-void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)
+void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDelta)
 {
 	CStack * changedStack = getStack(id, false);
 	if(!changedStack)
@@ -739,6 +749,11 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
 	}
 
+	if(healthDelta < 0)
+	{
+		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
+	}
+
 	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)
@@ -760,7 +775,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>() != SpellID::DISRUPTING_RAY;
+			return b->source == BonusSource::SPELL_EFFECT && b->sid.as<SpellID>().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
@@ -816,11 +831,6 @@ void BattleInfo::removeUnit(uint32_t id)
 	}
 }
 
-void BattleInfo::updateUnit(uint32_t id, const JsonNode & data)
-{
-	//TODO
-}
-
 void BattleInfo::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 {
 	CStack * sta = getStack(id, false);
@@ -871,7 +881,6 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 			&& one.val == b->val
 			&& one.sid == b->sid
 			&& one.valType == b->valType
-			&& one.additionalInfo == b->additionalInfo
 			&& one.effectRange == b->effectRange;
 		};
 		sta->removeBonusesRecursive(selector);
@@ -966,21 +975,12 @@ void BattleInfo::postDeserialize()
 		unit->postDeserialize(getSideArmy(unit->unitSide()));
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * BattleInfo::getContextPool() const
-{
-	//this is real battle, use global scripting context pool
-	//TODO: make this line not ugly
-	return battleGetFightingHero(BattleSide::ATTACKER)->cb->getGlobalContextPool();
-}
-#endif
-
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b) const
 {
 	switch(phase)
 	{
 	case 0: //catapult moves after turrets
-		return a->creatureIndex() > b->creatureIndex(); //catapult is 145 and turrets are 149
+		return a->isTurret() && !b->isTurret(); //turrets move before catapult
 	case 1:
 	case 2:
 	case 3:

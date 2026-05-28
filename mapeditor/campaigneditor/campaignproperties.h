@@ -12,7 +12,12 @@
 
 #include "../../lib/campaign/CampaignState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 class CampaignState;
+VCMI_LIB_NAMESPACE_END
+
+VCMI_LIB_USING_NAMESPACE
+
 class QAbstractButton;
 
 namespace Ui {
@@ -34,6 +39,7 @@ private slots:
 	void on_comboBoxRegionPreset_currentIndexChanged(int index);
 	void on_pushButtonRegionAdd_clicked();
 	void on_pushButtonRegionRemove_clicked();
+	void on_checkBoxVideoRim_toggled(bool checked);
 
 private:
 	Ui::CampaignProperties *ui;

@@ -110,14 +110,9 @@ void ConnectionsPlacer::init()
 	POSTFUNCTION(RoadPlacer);
 	POSTFUNCTION(ObjectManager);
 	
-	auto id = zone.getId();
-	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnectedZoneIds())
+	for (auto c : zone.getConnections())
 	{
-		// Only consider connected zones
-		if (c.getZoneA() == id || c.getZoneB() == id)
-		{
-			addConnection(c);
-		}
+		addConnection(c);
 	}
 }
 
@@ -477,8 +472,11 @@ void ConnectionsPlacer::collectNeighbourZones()
 
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
-	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
-		(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM && zone.getRand().nextDouble(0, 1) >= 0.5f);
+	if (connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
+		logGlobal->error("Random road between zones %d and %d", connection.getZoneA(), connection.getZoneB());
+	else
+		logGlobal->info("Should generate road between zones %d and %d: %d", connection.getZoneA(), connection.getZoneB(), connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE);
+	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE;
 }
 
 void ConnectionsPlacer::createBorder()

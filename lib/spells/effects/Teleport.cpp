@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "Teleport.h"
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
@@ -26,7 +25,7 @@ namespace spells
 namespace effects
 {
 
-void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
+void Teleport::adjustTargetTypes(std::vector<TargetType> & types, const Mechanics * m) const
 {
 	if(!types.empty())
 	{
@@ -48,10 +47,10 @@ void Teleport::adjustTargetTypes(std::vector<TargetType> & types) const
 	}
 }
 
-bool Teleport::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
+bool Teleport::applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const
 {
 	if(target.size() == 1) //Assume, this is check only for selecting a unit
-		return UnitEffect::applicable(problem, m, target);
+		return UnitEffect::applicableTarget(problem, m, target);
 
 	if(target.size() != 2)
 		return m->adaptProblem(ESpellCastProblem::WRONG_SPELL_TARGET, problem);
@@ -72,7 +71,7 @@ bool Teleport::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	return true;
 }
 
-void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Teleport::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	const auto *targetUnit = target[0].unitValue;
 	const auto destination = target[1].hexValue;
@@ -101,13 +100,13 @@ void Teleport::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("isMoatPassable", isMoatPassable);
 }
 
-EffectTarget Teleport::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
+Target Teleport::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
 	//first transformed destination is unit to teleport, let base class handle immunity etc.
 	//second spell destination is destination tile, use it directly
-	EffectTarget transformed = UnitEffect::transformTarget(m, aimPoint, spellTarget);
+	Target transformed = UnitEffect::transformTarget(m, aimPoint, spellTarget);
 
-	EffectTarget ret;
+	Target ret;
 	if(!transformed.empty())
 		ret.push_back(transformed.front());
 	if(aimPoint.size() == 2)

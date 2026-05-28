@@ -12,14 +12,17 @@
 
 #include "ResourceConverter.h"
 
-#include "../lib/VCMIDirs.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../../lib/VCMIDirs.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 #include "BitmapHandler.h"
 #include "Animation.h"
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+using namespace MapEditor;
+#endif
+
 #include <boost/filesystem/path.hpp>
-#include <boost/locale.hpp>
 
 void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversionOptions)
 {

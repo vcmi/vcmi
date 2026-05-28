@@ -50,6 +50,130 @@
 				}
 			}
 		},
+		"adventureEffect" : {
+			"type" : "object",
+			"required" : [ "type" ],
+			"properties" : {
+				"type" : {
+					"type" : "string",
+					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "reinforcements", "viewWorld" ]
+				},
+				"castsPerDay" : { "type" : "number" },
+				"castsPerDayXL" : { "type" : "number" },
+				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }}
+			},
+			"allOf" : [
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "dimensionDoor" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"cursorGuarded" : { "type" : "string" },
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"waterLandFailureTakesPoints" : { "type" : "boolean" },
+							"exposeFow" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "removeObject" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "summonBoat" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"useExistingBoat" : { "type" : "boolean" },
+							"createdBoat" : { "type" : "string" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "townPortal" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"allowTownSelection" : { "type" : "boolean" },
+							"skipOccupiedTowns" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "reinforcements" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"allowTownSelection" : { "type" : "boolean" },
+							"casterInTown" : { "type" : "string" },
+							"selectTownTitle" : { "type" : "string" },
+							"selectTownDescription" : { "type" : "string" },
+							"garrisonTitle" : { "type" : "string" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "viewWorld" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"showTerrain" : { "type" : "boolean" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				}
+			]
+		},
+		"battleEffect" : {
+			"type" : "object",
+			"required" : [ "type" ],
+			"properties" : {
+				"type" : {
+					"type" : "string",
+				}
+			},
+			"additionalProperties" : true // validated separately as part of spell effect loading
+		},
 		"flags" : {
 			"type" : "object",
 			"additionalProperties" : {
@@ -58,7 +182,7 @@
 		},
 		"levelInfo" : {
 			"type" : "object",
-			"required" :["range", "description", "cost", "power", "aiValue"],
+			"required" :["range", "description", "cost", "power"],
 
 			"additionalProperties" : false,
 			"properties" : {
@@ -77,9 +201,6 @@
 					"type" : "string",
 					"description" : "spell range description in SRSL"
 				},
-				"aiValue" : {
-					"type" : "number"
-				},
 				"effects" : {
 					"type" : "object",
 					"description" : "Timed effects (updated by prolongation)",
@@ -97,8 +218,11 @@
 				"battleEffects" : {
 					"type" : "object",
 					"additionalProperties" : {
-						"type" : "object"
+						"$ref" : "#/definitions/battleEffect"
 					}
+				},
+				"adventureEffect" : {
+					"$ref" : "#/definitions/adventureEffect"
 				},
 				"targetModifier" : {
 					"type" : "object",
@@ -107,11 +231,6 @@
 						"smart" : {
 							"type" : "boolean",
 							"description" : "true: friendly/hostile based on positiveness; false: all targets"
-						},
-						"clearTarget" :
-						{
-							"type" : "boolean",
-							"description" : "LOCATION target only. Target hex/tile must be clear"
 						},
 						"clearAffected" :
 						{
@@ -127,9 +246,75 @@
 			"additionalProperties" : false
 		}
 	},
-	"required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
+	"required" : ["type", "name", "school", "level", "power", "flags", "levels"],
 	"additionalProperties" : false,
+	
+	"allOf": [
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"enum" : ["adventure", "combat"]
+					}
+					
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none", "basic", "advanced", "expert"]
+					},
+					"graphics" : {
+						"required" : ["iconBook", "iconScroll", "iconEffect", "iconImmune", "iconScenarioBonus"]
+					}
+				}
+			}
+		},
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"const" : "ability"
+					}
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none"]
+					},
+					"graphics" : {
+						"required" : ["iconEffect", "iconImmune"]
+					}
+				}
+			}
+		}
+	],
+	
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"index" : {
 			"type" : "number",
 			"description" : "numeric id of spell required only for original spells, prohibited for new spells"
@@ -146,12 +331,8 @@
 		"school" : {
 			"type" : "object",
 			"description" : "List of spell schools this spell belongs to",
-			"additionalProperties" : false,
-			"properties" : {
-				"air" : {"type" : "boolean"},
-				"fire" : {"type" : "boolean"},
-				"earth" : {"type" : "boolean"},
-				"water" : {"type" : "boolean"}
+			"additionalProperties" : {
+				"type" : "boolean"
 			}
 		},
 		"level" : {
@@ -214,6 +395,10 @@
 						"type" : "boolean",
 						"description" : "Spell is positive for target"
 				},
+				"persistent" : {
+						"type" : "boolean",
+						"description" : "Spell can not be removed from target"
+				},
 				"damage" : {
 						"type" : "boolean",
 						"description" : "Spell does damage (direct or indirect)"
@@ -254,7 +439,12 @@
 		},
 		"targetCondition" : {
 			"type" : "object",
-			"additionalProperties" : true
+			"additionalProperties" : false,
+			"properties" : {
+				"noneOf" : { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"anyOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"allOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } }
+			}
 		},
 		"animation" : {"$ref" : "#/definitions/animation"},
 		"graphics" : {
@@ -273,7 +463,7 @@
 				},
 				"iconEffect" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for spell effects during battle" ,
+					"description" : "Resourse path of icon for spell effects during battle",
 					"format" : "imageFile"
 				},
 				"iconImmune" : {
@@ -283,7 +473,7 @@
 				},
 				"iconScenarioBonus" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for scenario bonus" ,
+					"description" : "Resourse path of 58x64 icon for scenario bonus",
 					"format" : "imageFile"
 				}
 			}
@@ -301,13 +491,7 @@
 		"levels" : {
 			 "type" : "object",
 			 "additionalProperties" : false,
-			 "required" : ["none", "basic", "advanced", "expert"],
 			 "properties" : {
-				"base" : {
-					"type" : "object",
-					"description" : "will be merged with all levels",
-					"additionalProperties" : true
-				},
 				"none" : {
 					"$ref" : "#/definitions/levelInfo"
 				},

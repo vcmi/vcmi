@@ -27,6 +27,10 @@
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
+	,motionAccumulatedX(.0f)
+	,motionAccumulatedY(.0f)
+	,wheelAccumulatedX(.0f)
+	,wheelAccumulatedY(.0f)
 {
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 }
@@ -34,7 +38,11 @@ InputSourceMouse::InputSourceMouse()
 void InputSourceMouse::handleEventMouseMotion(const SDL_MouseMotionEvent & motion)
 {
 	Point newPosition = Point(motion.x, motion.y) / ENGINE->screenHandler().getScalingFactor();
-	Point distance = Point(-motion.xrel, -motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedX += static_cast<float>(-motion.xrel) / ENGINE->screenHandler().getScalingFactor();
+	motionAccumulatedY += static_cast<float>(-motion.yrel) / ENGINE->screenHandler().getScalingFactor();
+	Point distance = Point(motionAccumulatedX, motionAccumulatedY);
+	motionAccumulatedX -= distance.x;
+	motionAccumulatedY -= distance.y;
 
 	mouseButtonsMask = motion.state;
 
@@ -72,12 +80,33 @@ void InputSourceMouse::handleEventMouseButtonDown(const SDL_MouseButtonEvent & b
 
 void InputSourceMouse::handleEventMouseWheel(const SDL_MouseWheelEvent & wheel)
 {
+	// On Wayland (and some other platforms), SDL delivers smooth/precise scroll events
+	// where the integer wheel.y is 0 but wheel.preciseY carries a fractional value.
+	// We accumulate preciseY and dispatch only whole steps to avoid losing scroll input.
+	// Note: preciseY is already normalised for SDL_MOUSEWHEEL_FLIPPED (natural scrolling),
+	// the same way wheel.y is, so no extra direction handling is needed here.
+#if SDL_VERSION_ATLEAST(2,0,18)
+	wheelAccumulatedX += wheel.preciseX;
+	wheelAccumulatedY += wheel.preciseY;
+#else
+	wheelAccumulatedX += static_cast<float>(wheel.x);
+	wheelAccumulatedY += static_cast<float>(wheel.y);
+#endif
+
+	int stepsX = static_cast<int>(wheelAccumulatedX);
+	wheelAccumulatedX -= static_cast<float>(stepsX);
+	int stepsY = static_cast<int>(wheelAccumulatedY);
+	wheelAccumulatedY -= static_cast<float>(stepsY);
+
+	if(stepsX == 0 && stepsY == 0)
+		return;
+
 	//NOTE: while mouseX / mouseY properties are available since 2.26.0, they are not converted into logical coordinates so don't account for resolution scaling
 	// This SDL bug was fixed in 2.30.1: https://github.com/libsdl-org/SDL/issues/9097
 #if SDL_VERSION_ATLEAST(2,30,1)
-	ENGINE->events().dispatchMouseScrolled(Point(wheel.x, wheel.y), Point(wheel.mouseX, wheel.mouseY) / ENGINE->screenHandler().getScalingFactor());
+	ENGINE->events().dispatchMouseScrolled(Point(stepsX, stepsY), Point(wheel.mouseX, wheel.mouseY) / ENGINE->screenHandler().getScalingFactor());
 #else
-	ENGINE->events().dispatchMouseScrolled(Point(wheel.x, wheel.y), ENGINE->getCursorPosition());
+	ENGINE->events().dispatchMouseScrolled(Point(stepsX, stepsY), ENGINE->getCursorPosition());
 #endif
 }
 

@@ -30,10 +30,10 @@ private:
 	bool dispellable; //For Tower landmines
 	int moatDamage; // Minimal moat damage
 public:
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
-	void placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void placeObstacles(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 	void convertBonus(const Mechanics * m, std::vector<Bonus> & converted) const;
 };
 

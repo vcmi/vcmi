@@ -27,24 +27,24 @@ namespace effects
 class RemoveObstacle : public LocationEffect
 {
 public:
-	bool applicable(Problem & problem, const Mechanics * m) const override;
-	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
+	bool applicableGeneral(Problem & problem, const Mechanics * m) const override;
+	bool applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const override;
 
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 
 private:
-    bool removeAbsolute = false;
-    bool removeUsual = false;
-    bool removeAllSpells = false;
+	bool removeAbsolute = false;
+	bool removeUsual = false;
+	bool removeAllSpells = false;
 
-    std::set<SpellID> removeSpells;
+	std::set<SpellID> removeSpells;
 
-    bool canRemove(const CObstacleInstance * obstacle) const;
+	bool canRemove(const CObstacleInstance * obstacle) const;
 
-	std::set<const CObstacleInstance *> getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const;
+	std::set<const CObstacleInstance *> getTargets(const Mechanics * m, const Target & target, bool alwaysMassive) const;
 };
 
 }

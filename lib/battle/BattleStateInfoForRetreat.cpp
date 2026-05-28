@@ -12,7 +12,6 @@
 #include "BattleStateInfoForRetreat.h"
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
-#include "../CCreatureSet.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

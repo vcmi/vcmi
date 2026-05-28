@@ -38,6 +38,9 @@ private:
 	void buttonResetClick();
 	void buttonExitClick();
 
+	void rowEvent(std::function<void(int row, bool currentGameNotInListEntry)> func, const Point & cursorPosition);
+
+	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 	void showAll(Canvas & to) override;
 

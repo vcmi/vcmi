@@ -23,10 +23,9 @@
 #include "../adventureMap/CMinimap.h"
 #include "../render/Canvas.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

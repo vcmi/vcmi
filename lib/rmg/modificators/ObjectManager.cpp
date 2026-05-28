@@ -19,10 +19,12 @@
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
 #include "MinePlacer.h"
+#include "ObjectPlacer.h"
 #include "QuestArtifactPlacer.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjects/army/CStackInstance.h"
 #include "../../mapObjects/CGCreature.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
@@ -68,6 +70,7 @@ void ObjectManager::init()
 
 	DEPENDENCY(TownPlacer); //Only secondary towns
 	DEPENDENCY(MinePlacer);
+	DEPENDENCY(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
 	createDistancesPriorityQueue();
 }
@@ -684,11 +687,13 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
-			case Obj::RANDOM_RESOURCE:
+			case Obj::RANDOM_MAJOR_ART:
+			case Obj::RANDOM_RELIC_ART:
+			case Obj::PANDORAS_BOX:
 			{
 				if (auto * qap = zone.getModificator<QuestArtifactPlacer>())
 				{
-					qap->rememberPotentialArtifactToReplace(&instance->object());
+					qap->rememberPotentialArtifactToReplace(&instance->object(), instance->object().rmgValue);
 				}
 				break;
 			}
@@ -776,7 +781,7 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
 	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
-	guard->character = CGCreature::HOSTILE;
+	guard->initialCharacter = CGCreature::Character::HOSTILE;
 	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), std::move(hlp));

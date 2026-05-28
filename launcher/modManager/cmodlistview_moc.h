@@ -40,7 +40,9 @@ class CModListView : public QWidget
 	QString activatingPreset;
 
 	QStringList enqueuedModDownloads;
-
+	QStringList enqueuedDownloadFiles;
+	QHash<QString, QString> enqueuedDownloadDescriptions;
+	QString activeDownloadFile;
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
@@ -61,6 +63,7 @@ class CModListView : public QWidget
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
+	QString getRepoUrl(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 
@@ -73,7 +76,7 @@ public:
 	void loadScreenshots();
 	void loadRepositories();
 
-	void reload();
+	void reload(const QString& modToSelect = QString());
 
 	void disableModInfo();
 
@@ -85,7 +88,7 @@ public:
 	void doInstallMod(const QString & modName);
 
 	/// uninstall mod by name
-	void doUninstallMod(const QString & modName);
+	void doUninstallMod(const QString & modName, bool silent = false);
 
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
@@ -101,6 +104,9 @@ public:
 
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
+
+	/// finds imported HD
+	bool isInstalledHd();
 
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();
@@ -122,6 +128,12 @@ public:
 	/// returns true if mod is currently installed
 	bool isModInstalled(const QString & modName);
 
+	static bool isDemoDataPresent();
+
+protected:
+	void showEvent(QShowEvent * event) override;
+
+public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 	void installFiles(QStringList mods);
@@ -134,8 +146,10 @@ private slots:
 	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
-	void downloadProgress(qint64 current, qint64 max);
+	void downloadProgress(QString currentFile, qint64 current, qint64 max);
+	void onDownloadFileFinished(QString fileName);
 	void extractionProgress(qint64 current, qint64 max);
+	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();
@@ -147,7 +161,7 @@ private slots:
 	void on_updateButton_clicked();
 	void on_uninstallButton_clicked();
 	void on_installButton_clicked();
-	void on_pushButton_clicked();
+	void on_abortButton_clicked();
 	void on_refreshButton_clicked();
 	void on_allModsView_activated(const QModelIndex & index);
 	void on_tabWidget_currentChanged(int index);

@@ -22,6 +22,7 @@
 #include "../entities/hero/CHero.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/CMapInfo.h"
+#include "../mapping/CCastleEvent.h"
 #include "../rmg/CMapGenOptions.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -30,12 +31,12 @@ template<typename Type>
 class SerializerReflection final : public ISerializerReflection
 {
 public:
-	Serializeable * createPtr(BinaryDeserializer &ar, IGameCallback * cb) const override
+	Serializeable * createPtr(BinaryDeserializer &ar, IGameInfoCallback * cb) const override
 	{
 		return ClassObjectCreator<Type>::invoke(cb);
 	}
 
-	void loadPtr(BinaryDeserializer &ar, IGameCallback * cb, Serializeable * data) const override
+	void loadPtr(BinaryDeserializer &ar, IGameInfoCallback * cb, Serializeable * data) const override
 	{
 		auto * realPtr = dynamic_cast<Type *>(data);
 		realPtr->serialize(ar);
@@ -52,7 +53,7 @@ template<typename Type, ESerializationVersion maxVersion>
 class SerializerCompatibility : public ISerializerReflection
 {
 public:
-	Serializeable * createPtr(BinaryDeserializer &ar, IGameCallback * cb) const override
+	Serializeable * createPtr(BinaryDeserializer &ar, IGameInfoCallback * cb) const override
 	{
 		return ClassObjectCreator<Type>::invoke(cb);
 	}

@@ -10,9 +10,11 @@
 #pragma once
 
 #include "BattleConstants.h"
-#include "../lib/battle/BattleHex.h"
+
 #include "../gui/CIntObject.h"
-#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
+
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/spells/SpellAnimationItem.h"
 #include "../../lib/ConditionalWait.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,6 +33,7 @@ struct BattleTriggerEffect;
 struct InfoAboutHero;
 class ObstacleChanges;
 class CPlayerBattleCallback;
+class MetaString;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -85,6 +88,7 @@ struct StackAttackInfo
 	bool unlucky;
 	bool deathBlow;
 	bool lifeDrain;
+	bool playCustomAnimation;
 };
 
 /// Main class for battles, responsible for relaying information from server to various battle entities
@@ -164,6 +168,8 @@ public:
 	void requestAutofightingAIToTakeAction();
 
 	void giveCommand(EActionType action, const BattleHex & tile = BattleHex(), SpellID spell = SpellID::NONE);
+	void giveCommand(EActionType action, const std::vector<BattleHex> & tiles, SpellID spell = SpellID::NONE);
+
 	void sendCommand(BattleAction command, const CStack * actor = nullptr);
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
@@ -215,7 +221,7 @@ public:
 
 	void displayBattleLog(const std::vector<MetaString> & battleLog);
 
-	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, const BattleHex & destinationTile, bool isHit);
+	void displaySpellAnimationQueue(const CSpell * spell, const SpellAnimationQueue & q, const BattleHex & destinationTile, bool isHit);
 	void displaySpellCast(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation
 	void displaySpellHit(const CSpell * spell, const BattleHex & destinationTile); //displays spell`s affected animation

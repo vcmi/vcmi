@@ -1,5 +1,0 @@
-include(base/macos)
-
-[settings]
-os.version=11.0
-arch=armv8

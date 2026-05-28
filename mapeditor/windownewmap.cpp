@@ -16,11 +16,13 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 
+#include "../vcmiqt/launcherdirs.h"
 #include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
@@ -77,8 +79,7 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		int height = ui->heightTxt->text().toInt();
 		mapGenOptions.setWidth(width ? width : 1);
 		mapGenOptions.setHeight(height ? height : 1);
-		bool twoLevel = ui->twoLevelCheck->isChecked();
-		mapGenOptions.setHasTwoLevels(twoLevel);
+		mapGenOptions.setLevels(ui->spinBoxLevels->value());
 
 		updateTemplateList();
 	}
@@ -92,9 +93,9 @@ WindowNewMap::~WindowNewMap()
 bool WindowNewMap::loadUserSettings()
 {
 	bool ret = false;
-	CRmgTemplate * templ = nullptr;
+	const CRmgTemplate * templ = nullptr;
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	auto generateRandom = s.value(newMapGenerateRandom);
 	if (generateRandom.isValid())
@@ -107,9 +108,10 @@ bool WindowNewMap::loadUserSettings()
 	if (settings.isValid())
 	{
 		auto node = JsonUtils::toJson(settings);
+		node.setModScope(ModScope::scopeMap());
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
-		templ = const_cast<CRmgTemplate*>(mapGenOptions.getMapTemplate()); // Remember for later
+		templ = mapGenOptions.getMapTemplate(); // Remember for later
 
 		ui->widthTxt->setValue(mapGenOptions.getWidth());
 		ui->heightTxt->setValue(mapGenOptions.getHeight());
@@ -123,7 +125,7 @@ bool WindowNewMap::loadUserSettings()
 			}
 		}
 
-		ui->twoLevelCheck->setChecked(mapGenOptions.getHasTwoLevels());
+		ui->spinBoxLevels->setValue(mapGenOptions.getLevels());
 
 		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
 		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
@@ -183,12 +185,13 @@ bool WindowNewMap::loadUserSettings()
 
 void WindowNewMap::saveUserSettings()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	JsonNode data;
 	JsonSerializer ser(nullptr, data);
 
 	ser.serializeStruct("lastSettings", mapGenOptions);
+	data.setModScope(ModScope::scopeMap());
 
 	auto variant = JsonUtils::toVariant(data);
 	s.setValue(newMapWindow, variant);
@@ -201,7 +204,7 @@ void WindowNewMap::on_cancelButton_clicked()
 	close();
 }
 
-void generateRandomMap(CMapGenerator & gen, MainWindow * window)
+void generateRandomMap(CMapGenerator & gen, EditorMainWindow * window)
 {
 	window->controller.setMap(gen.generate());
 }
@@ -213,7 +216,16 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
-	map->twoLevel = options.getHasTwoLevels();
+	map->mapLayers.clear();
+	for(int i = 0; i < options.getLevels(); i++)
+	{
+		if(i == 0)
+			map->mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			map->mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			map->mapLayers.push_back(MapLayerId::UNKNOWN);
+	}
 	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
@@ -275,6 +287,8 @@ void WindowNewMap::on_okButton_clicked()
 	saveUserSettings();
 
 	std::unique_ptr<CMap> nmap;
+	auto & mapController = static_cast<EditorMainWindow *>(parent())->controller;
+
 	if(ui->randomMapCheck->isChecked())
 	{
 		//verify map template
@@ -290,7 +304,7 @@ void WindowNewMap::on_okButton_clicked()
 		if(ui->checkSeed->isChecked() && ui->lineSeed->value() != 0)
 			seed = ui->lineSeed->value();
 			
-		CMapGenerator generator(mapGenOptions, nullptr, seed);
+		CMapGenerator generator(mapGenOptions, mapController.getCallback(), seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
@@ -311,9 +325,9 @@ void WindowNewMap::on_okButton_clicked()
 		nmap = f.get();
 	}
 	
-	nmap->mods = MapController::modAssessmentAll();
-	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
-	static_cast<MainWindow*>(parent())->initializeMap(true);
+	nmap->mods = MapController::modAssessmentMap(*nmap);
+	mapController.setMap(std::move(nmap));
+	static_cast<EditorMainWindow *>(parent())->initializeMap(true);
 	close();
 }
 
@@ -326,10 +340,12 @@ void WindowNewMap::on_sizeCombo_activated(int index)
 }
 
 
-void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
+void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	bool twoLevel = ui->twoLevelCheck->isChecked();
-	mapGenOptions.setHasTwoLevels(twoLevel);
+	if(value > 2)
+		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+
+	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
 }
 

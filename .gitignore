@@ -5,6 +5,7 @@
 /mapeditor/.lupdate
 /launcher/vcmilauncher_automoc.cpp
 /conan-*
+/result
 
 build/
 .cache/*
@@ -46,7 +47,6 @@ VCMI_VS11.opensdf
 .directory
 CMakeUserPresets.json
 compile_commands.json
-fuzzylite.pc
 
 # Visual Studio
 *.suo
@@ -56,14 +56,11 @@ fuzzylite.pc
 /client/RD
 /launcher/RD
 /lib/RD
-/lib/minizip/RD
-/lib/minizip/*/RD
 /scripting/erm/RD
 /scripting/erm/*/RD
 /server/RD
 /test/RD
 /VCMI_VS11.VC.opendb
-/AI/FuzzyLite.lib
 /deps
 .vs/
 

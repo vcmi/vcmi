@@ -16,6 +16,8 @@
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 
+#include <optional>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapGenOptions;
@@ -27,6 +29,8 @@ class CLabel;
 class CLabelGroup;
 class CSlider;
 class CPicture;
+class CTextInput;
+class TransparentFilledRectangle;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -40,12 +44,17 @@ public:
 	void saveOptions(const CMapGenOptions & options);
 	void loadOptions();
 	CMapGenOptions & obtainMapGenOptions() {return *mapGenOptions;}
+	bool isCustomMapSizeMode() const { return customMapSizeMode; }
+	size_t getCustomMapSizeIconFrame() const;
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
 private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
-	std::vector<int> getPossibleMapSizes();
+	std::vector<int> getStandardMapSizes() const;
+	std::optional<int> getMapSizeForButtonId(int btnId) const;
+	bool isCustomSizeButtonId(int btnId) const;
+	void onToggleMapSize(int btnId);
 
 	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
@@ -55,6 +64,9 @@ private:
 	std::set<int> playerTeamsAllowed;
 	std::set<int> compCountAllowed;
 	std::set<int> compTeamsAllowed;
+	bool customMapSizeMode = false;
+
+	int templateIndex;
 };
 
 class TeamAlignmentsWidget: public InterfaceObjectConfigurable
@@ -78,4 +90,18 @@ class TeamAlignments: public CWindowObject
 	std::shared_ptr<TeamAlignmentsWidget> widget;
 public:
 	TeamAlignments(RandomMapTab & randomMapTab);
+};
+
+class SetSizeWindow: public CWindowObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::vector<std::shared_ptr<CLabel>> titles;
+	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonCancel;
+	std::vector<std::shared_ptr<CLabel>> sizeLabels;
+
+	std::vector<std::shared_ptr<CTextInput>> numInputs;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> rectangles;
+public:
+	SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb);
 };

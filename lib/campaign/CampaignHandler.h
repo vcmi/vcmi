@@ -16,13 +16,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE CampaignHandler
 {
-	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier);
-	static std::string readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier);
+	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier);
+	static std::string readLocalizedString(CampaignHeader & target, const std::string & text, const std::string & filename, const std::string & modName, const std::string & identifier);
 
-	static void readCampaign(Campaign * target, const std::vector<ui8> & stream, std::string filename, std::string modName, std::string encoding);
+	static void readCampaign(Campaign * target, const std::vector<ui8> & stream, const std::string & filename, const std::string & modName, const std::string & encoding);
 
 	//parsers for VCMI campaigns (*.vcmp)
-	static void readHeaderFromJson(CampaignHeader & target, JsonNode & reader, std::string filename, std::string modName, std::string encoding);
+	static void readHeaderFromJson(CampaignHeader & target, JsonNode & reader, const std::string & filename, const std::string & modName, const std::string & encoding);
 	static CampaignScenario readScenarioFromJson(JsonNode & reader);
 	static CampaignTravel readScenarioTravelFromJson(JsonNode & reader);
 
@@ -30,16 +30,12 @@ class DLL_LINKAGE CampaignHandler
 	static void writeScenarioTravelToJson(JsonNode & node, const CampaignTravel & travel);
 
 	//parsers for original H3C campaigns
-	static void readHeaderFromMemory(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding);
+	static void readHeaderFromMemory(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding);
 	static CampaignScenario readScenarioFromMemory(CBinaryReader & reader, CampaignHeader & header);
 	static CampaignTravel readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly);
-
-	static VideoPath prologVideoName(ui8 index);
-	static AudioPath prologMusicName(ui8 index);
-	static AudioPath prologVoiceName(ui8 index);
 
 	static constexpr auto VCMP_HEADER_FILE_NAME = "header.json";
 public:

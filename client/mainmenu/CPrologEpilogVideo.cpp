@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CPrologEpilogVideo.h"
+#include "CMainMenu.h"
 
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
@@ -19,7 +20,7 @@
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
 #include "../render/Canvas.h"
-#include "../lib/CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)
@@ -28,24 +29,28 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	addUsedEvents(LCLICK | TIME);
 	pos = center(Rect(0, 0, 800, 600));
 
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
 
-	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
-	// however, currently our campaigns format expects only	a single video file
-	static const std::map<VideoPath, VideoPath> pairedVideoFiles = {
-		{ VideoPath::builtin("EVIL2AP1"),  VideoPath::builtin("EVIL2AP2") },
-		{ VideoPath::builtin("H3ABdb4"),   VideoPath::builtin("H3ABdb4b") },
-		{ VideoPath::builtin("H3x2_RNe1"), VideoPath::builtin("H3x2_RNe2") },
-	};
+	backgroundAroundMenu = std::make_shared<CFilledTexture>(bgConfig.isString() ?ImagePath::fromJson(bgConfig) : ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
-	if (pairedVideoFiles.count(spe.prologVideo))
-		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, pairedVideoFiles.at(spe.prologVideo), true);
+	if (!spe.prologVideo.second.empty())
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, spe.prologVideo.second, true);
 	else
-		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, true);
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, true);
 
 	//some videos are 800x600 in size while some are 800x400
 	if (videoPlayer->pos.h == 400)
 		videoPlayer->moveBy(Point(0, 100));
+
+	videoPlayer->setPlaybackFinishedCallback([this]() {
+		videoFinishedCounter++;
+		if(!spe.prologVideo.second.empty() && videoFinishedCounter < 2) // play looped video at least once
+			return;
+
+		if(!videoFinished)
+			elapsedTimeMilliseconds = 0;
+		videoFinished = true;
+	});
 
 	ENGINE->music().setVolume(ENGINE->music().getVolume() / 2); // background volume is too loud by default
 	ENGINE->music().playMusic(spe.prologMusic, true, true);
@@ -80,7 +85,7 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 		elapsedTimeMilliseconds -= speed;
 		++positionCounter;
 	}
-	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped) // pause after completed scrolling (longer for intros missing voice)
+	else if(elapsedTimeMilliseconds > (voiceDurationMilliseconds == 0 ? 8000 : 3000) && voiceStopped && videoFinished) // pause after completed scrolling (longer for intros missing voice)
 		clickPressed(ENGINE->getCursorPosition());
 }
 

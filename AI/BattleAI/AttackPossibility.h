@@ -9,7 +9,6 @@
  */
 #pragma once
 #include "../../lib/battle/CUnitState.h"
-#include "../../CCallback.h"
 #include "StackWithBonuses.h"
 
 #define BATTLE_TRACE_LEVEL 0

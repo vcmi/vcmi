@@ -15,8 +15,8 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
-#include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusParameters.h"
 #include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
@@ -135,11 +135,22 @@ protected:
 		if(!m->isMagicalEffect()) //Always pass on non-magical
 			return true;
 
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::LEVEL_SPELL_IMMUNITY) << "addInfo_1";
+		if (m->getSpellLevel() <= 0)
+			return true;
 
-		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type()(BonusType::LEVEL_SPELL_IMMUNITY).And(Selector::info()(1)), cachingStr.str());
-		return (levelImmunities->size() == 0 || levelImmunities->totalValue() < m->getSpellLevel() || m->getSpellLevel() <= 0);
+		bool hasAbsoluteImmunity = false;
+
+		const auto & levelImmunities = target->getBonusesOfType(BonusType::LEVEL_SPELL_IMMUNITY);
+		for (const auto & bonus : *levelImmunities)
+			if (bonus->parameters && bonus->parameters->toNumber() == 1)
+				hasAbsoluteImmunity = true;
+
+		if (!hasAbsoluteImmunity)
+			return true;
+
+		return levelImmunities->totalValue() < m->getSpellLevel();
+
+		return true;
 	}
 };
 
@@ -155,9 +166,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		std::stringstream cachingStr;
-		cachingStr << "type_" << vstd::to_underlying(BonusType::SPELL_IMMUNITY) << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		return !target->hasBonus(Selector::typeSubtypeInfo(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()), 1), cachingStr.str());
+		return !target->hasAbsoluteImmunity(m->getSpellId());
 	}
 };
 
@@ -177,7 +186,10 @@ protected:
 		bool elementalImmune = false;
 		auto bearer = target->getBonusBearer();
 
-		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop) 
+		if(!m->isPositiveSpell() && bearer->hasBonusOfType(BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSubtypeID(SpellSchool::ANY)))
+			return true;
+
+		m->getSpell()->forEachSchool([&](const SpellSchool & cnf, bool & stop)
 		{
 			if (bearer->hasBonusOfType(BonusType::SPELL_SCHOOL_IMMUNITY, BonusSubtypeID(cnf)))
 			{
@@ -231,7 +243,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return !target->hasBonusOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(m->getSpellId()));
+		return !target->hasImmunity(m->getSpellId());
 	}
 };
 
@@ -318,37 +330,37 @@ class DefaultTargetConditionItemFactory : public TargetConditionItemFactory
 public:
 	Object createAbsoluteLevel() const override
 	{
-		static auto antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
+		static const auto antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
         return antimagicCondition;
 	}
 
 	Object createAbsoluteSpell() const override
 	{
-		static auto alCondition = std::make_shared<AbsoluteSpellCondition>();
+		static const auto alCondition = std::make_shared<AbsoluteSpellCondition>();
 		return alCondition;
 	}
 
 	Object createElemental() const override
 	{
-		static auto elementalCondition = std::make_shared<ElementalCondition>();
+		static const auto elementalCondition = std::make_shared<ElementalCondition>();
 		return elementalCondition;
 	}
 
 	Object createResistance() const override
 	{
-		static auto elementalCondition = std::make_shared<ResistanceCondition>();
+		static const auto elementalCondition = std::make_shared<ResistanceCondition>();
 		return elementalCondition;
 	}
 
 	Object createNormalLevel() const override
 	{
-		static auto nlCondition = std::make_shared<NormalLevelCondition>();
+		static const auto nlCondition = std::make_shared<NormalLevelCondition>();
 		return nlCondition;
 	}
 
 	Object createNormalSpell() const override
 	{
-		static auto nsCondition = std::make_shared<NormalSpellCondition>();
+		static const auto nsCondition = std::make_shared<NormalSpellCondition>();
 		return nsCondition;
 	}
 
@@ -356,21 +368,11 @@ public:
 	{
 		if(type == "bonus")
 		{
-			//TODO: support custom bonus types
-
-			auto it = bonusNameMap.find(identifier);
-			if(it != bonusNameMap.end())
-				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
-
-			auto params = BonusParams(identifier, "", -1);
-			if(params.isConverted)
-			{
-				if(params.val)
-					return std::make_shared<SelectorCondition>(params.toSelector(), *params.val, *params.val);
-				return std::make_shared<SelectorCondition>(params.toSelector());
-			}
-
-				logMod->error("Invalid bonus type %s in spell target condition.", identifier);
+			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			if (bonusID)
+				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
+			else
+				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}
 		else if(type == "creature")
 		{
@@ -424,23 +426,20 @@ public:
 
 	Object createReceptiveFeature() const override
 	{
-		static auto condition = std::make_shared<ReceptiveFeatureCondition>();
+		static const auto condition = std::make_shared<ReceptiveFeatureCondition>();
 		return condition;
 	}
 
 	Object createImmunityNegation() const override
 	{
-		static auto condition = std::make_shared<ImmunityNegationCondition>();
+		static const auto condition = std::make_shared<ImmunityNegationCondition>();
 		return condition;
 	}
 };
 
 const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
 {
-	static std::unique_ptr<TargetConditionItemFactory> singleton;
-
-	if(!singleton)
-		singleton = std::make_unique<DefaultTargetConditionItemFactory>();
+	static const std::unique_ptr<TargetConditionItemFactory> singleton = std::make_unique<DefaultTargetConditionItemFactory>();
 	return singleton.get();
 }
 
@@ -523,6 +522,9 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 		bool isAbsolute;
 
 		const JsonNode & value = keyValue.second;
+
+		if (!value.isString())
+			continue;
 
 		if(value.String() == "absolute")
 			isAbsolute = true;

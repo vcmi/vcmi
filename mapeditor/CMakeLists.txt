@@ -2,6 +2,7 @@ set(editor_SRCS
 		StdInc.cpp
 		main.cpp
 		mainwindow.cpp
+		editorbridge.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
 		Animation.cpp
@@ -11,6 +12,7 @@ set(editor_SRCS
 		mapview.cpp
 		objectbrowser.cpp
 		mapsettings/abstractsettings.cpp
+		mapsettings/heroessettings.cpp
 		mapsettings/mapsettings.cpp
 		mapsettings/generalsettings.cpp
 		mapsettings/modsettings.cpp
@@ -20,7 +22,8 @@ set(editor_SRCS
 		mapsettings/eventsettings.cpp
 		mapsettings/rumorsettings.cpp
 		mapsettings/translations.cpp
-		playersettings.cpp
+		PlayerSelectionDialog.cpp
+		PlayerSettingsDialog.cpp
 		playerparams.cpp
 		scenelayer.cpp
 		mapcontroller.cpp
@@ -41,6 +44,7 @@ set(editor_SRCS
 		inspector/PickObjectDelegate.cpp
 		inspector/portraitwidget.cpp
 		inspector/playerselectionwidget.cpp
+		inspector/abilitieswidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 		helper.cpp
 		campaigneditor/campaigneditor.cpp
@@ -48,7 +52,25 @@ set(editor_SRCS
 		campaigneditor/scenarioproperties.cpp
 		campaigneditor/startingbonus.cpp
 		campaigneditor/campaignview.cpp
+		androidfilepicker.cpp
+		editorfiledialog.cpp
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_SRCS
+		${editor_SRCS}
+		templateeditor/templateeditor.cpp
+		templateeditor/templateview.cpp
+		templateeditor/graphicelements/CardItem.cpp
+		templateeditor/graphicelements/LineItem.cpp
+		templateeditor/GeometryAlgorithm.cpp
+		templateeditor/entitiesselector.cpp
+		templateeditor/factionselector.cpp
+		templateeditor/mineselector.cpp
+		templateeditor/treasureselector.cpp
+		templateeditor/objectselector.cpp
+		templateeditor/townhintselector.cpp
+	)
+endif()
 
 set(editor_HEADERS
 		StdInc.h
@@ -64,6 +86,7 @@ set(editor_HEADERS
 		mapsettings/abstractsettings.h
 		mapsettings/mapsettings.h
 		mapsettings/generalsettings.h
+		mapsettings/heroessettings.h
 		mapsettings/modsettings.h
 		mapsettings/timedevent.h
 		mapsettings/victoryconditions.h
@@ -71,7 +94,8 @@ set(editor_HEADERS
 		mapsettings/eventsettings.h
 		mapsettings/rumorsettings.h
 		mapsettings/translations.h
-		playersettings.h
+		PlayerSelectionDialog.h
+		PlayerSettingsDialog.h
 		playerparams.h
 		scenelayer.h
 		mapcontroller.h
@@ -93,6 +117,7 @@ set(editor_HEADERS
 		inspector/portraitwidget.h
 		inspector/baseinspectoritemdelegate.h
 		inspector/playerselectionwidget.h
+		inspector/abilitieswidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 		helper.h
@@ -101,7 +126,25 @@ set(editor_HEADERS
 		campaigneditor/scenarioproperties.h
 		campaigneditor/startingbonus.h
 		campaigneditor/campaignview.h
+		androidfilepicker.h
+		editorfiledialog.h
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_HEADERS
+		${editor_HEADERS}
+		templateeditor/templateeditor.h
+		templateeditor/templateview.h
+		templateeditor/graphicelements/CardItem.h
+		templateeditor/graphicelements/LineItem.h
+		templateeditor/GeometryAlgorithm.h
+		templateeditor/entitiesselector.h
+		templateeditor/factionselector.h
+		templateeditor/mineselector.h
+		templateeditor/treasureselector.h
+		templateeditor/objectselector.h
+		templateeditor/townhintselector.h
+	)
+endif()
 
 set(editor_FORMS
 		mainwindow.ui
@@ -109,6 +152,7 @@ set(editor_FORMS
 		generatorprogress.ui
 		mapsettings/mapsettings.ui
 		mapsettings/generalsettings.ui
+		mapsettings/heroessettings.ui
 		mapsettings/modsettings.ui
 		mapsettings/timedevent.ui
 		mapsettings/victoryconditions.ui
@@ -116,7 +160,7 @@ set(editor_FORMS
 		mapsettings/eventsettings.ui
 		mapsettings/rumorsettings.ui
 		mapsettings/translations.ui
-		playersettings.ui
+		PlayerSettingsDialog.ui
 		playerparams.ui
 		validator.ui
 		inspector/townbuildingswidget.ui
@@ -130,17 +174,29 @@ set(editor_FORMS
 		inspector/heroartifactswidget.ui
 		inspector/artifactwidget.ui
 		inspector/heroskillswidget.ui
-		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
 		inspector/playerselectionwidget.ui
+		inspector/abilitieswidget.ui
 		campaigneditor/campaigneditor.ui
 		campaigneditor/campaignproperties.ui
 		campaigneditor/scenarioproperties.ui
 		campaigneditor/startingbonus.ui
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_FORMS
+		${editor_FORMS}
+		templateeditor/templateeditor.ui
+		templateeditor/entitiesselector.ui
+		templateeditor/factionselector.ui
+		templateeditor/mineselector.ui
+		templateeditor/treasureselector.ui
+		templateeditor/objectselector.ui
+		templateeditor/townhintselector.ui
+	)
+endif()
 
 set(editor_RESOURCES
-	resources.qrc
+	editor_resources.qrc
 )
 
 set(translationsDir "translation")
@@ -148,8 +204,10 @@ set(editor_TS
 	"${translationsDir}/belarusian.ts"
 	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
+	"${translationsDir}/tchinese.ts"
 	"${translationsDir}/czech.ts"
-	"${translationsDir}/english.ts"
+	"${translationsDir}/dutch.ts"
+	"${translationsDir}/filipino.ts"
 	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
@@ -158,11 +216,13 @@ set(editor_TS
 	"${translationsDir}/italian.ts"
 	"${translationsDir}/japanese.ts"
 	"${translationsDir}/korean.ts"
+	"${translationsDir}/latvian.ts"
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
+	"${translationsDir}/serbian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"
 	"${translationsDir}/turkish.ts"
@@ -175,17 +235,18 @@ if(ENABLE_TRANSLATIONS)
 		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
 		qt5_add_translation(editor_QM ${editor_TS})
 
-		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/editor_translations.qrc")
 		list(APPEND editor_RESOURCES "${translationsResource}")
 
 		set(rccQmFiles "")
 		foreach(qmFile ${editor_QM})
 			string(APPEND rccQmFiles "<file>${qmFile}</file>\n")
 		endforeach()
+		set(editor_qrc_prefix "/editor")
 		file(WRITE "${translationsResource}"
 "<!DOCTYPE RCC>
 <RCC version=\"1.0\">
-<qresource prefix=\"/\">
+<qresource prefix=\"${editor_qrc_prefix}\">
 ${rccQmFiles}
 </qresource>
 </RCC>"
@@ -194,7 +255,11 @@ ${rccQmFiles}
 endif()
 
 if(WIN32)
-	set(editor_ICON mapeditor.rc)
+	set(VCMI_FILE_DESCRIPTION "VCMI Map Editor")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_mapeditor.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/mapeditor.ico\"")
+	set(editor_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_mapeditor_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${editor_ICON}" @ONLY)
 endif()
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})
@@ -215,13 +280,15 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmieditor OBJECT ${editor_QM})
 else()
 	add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+	vcmi_create_exe_shim(vcmieditor)
 endif()
 
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt6::Core)
+		set(_editor_res_prefix "/editor/${translationsDir}")
 		qt_add_translations(vcmieditor
 			TS_FILES ${editor_TS}
-			RESOURCE_PREFIX "/${translationsDir}"
+			RESOURCE_PREFIX "${_editor_res_prefix}"
 			INCLUDE_DIRECTORIES
 				${CMAKE_CURRENT_BINARY_DIR})
 	endif()
@@ -255,6 +322,10 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
+if(ENABLE_TEMPLATE_EDITOR)
+	target_compile_definitions(vcmieditor PRIVATE ENABLE_TEMPLATE_EDITOR)
+endif()
+
 # Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
 target_compile_definitions(vcmieditor PRIVATE QT_NO_EMIT)
 
@@ -263,6 +334,15 @@ if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 endif()
 
 target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ANDROID)
+	target_link_libraries(vcmieditor Qt${QT_VERSION_MAJOR}::AndroidExtras)
+endif()
+if(ENABLE_TEMPLATE_EDITOR)
+	target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Xml)
+	if(QT_VERSION_MAJOR EQUAL 6)
+		target_link_libraries(vcmieditor vcmi vcmiqt Qt6::SvgWidgets)
+	endif()
+endif()
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

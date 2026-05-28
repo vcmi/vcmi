@@ -11,22 +11,21 @@
 
 #include "JsonNode.h"
 #include "../GameConstants.h"
+#include "../texts/TextIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct Bonus;
 class ILimiter;
 class CSelector;
-class CAddInfo;
-
+class BonusParameters;
 namespace JsonUtils
 {
 	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
-	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability);
-	bool parseBonus(const JsonNode & ability, Bonus * placement);
-	std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
+	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, const TextIdentifier & descriptionID = "");
+	bool parseBonus(const JsonNode & ability, Bonus * placement, const TextIdentifier & descriptionID = "");
+	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter);
 	CSelector parseSelector(const JsonNode &ability);
-	void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 }
 
 VCMI_LIB_NAMESPACE_END

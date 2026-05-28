@@ -16,6 +16,7 @@
 #include "mapsettings/eventsettings.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/mapping/CCastleEvent.h"
 
 TownEventsWidget::TownEventsWidget(CGTownInstance & town, QWidget * parent) :
 	QDialog(parent),

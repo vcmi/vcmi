@@ -11,8 +11,8 @@
 
 #include "../windows/CWindowObject.h"
 
-#include "../lib/campaign/CampaignConstants.h"
-#include "../lib/filesystem/ResourcePath.h"
+#include "../../lib/campaign/CampaignConstants.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -92,6 +92,7 @@ public:
 
 	std::shared_ptr<CLabel> labelChooseBonus;
 	std::shared_ptr<CToggleGroup> groupBonuses;
+	std::vector<std::shared_ptr<CLabel>> groupBonusesLabels;
 	std::shared_ptr<CLabel> labelDifficulty;
 	std::array<std::shared_ptr<CAnimImage>, 5> difficultyIcons;
 	std::array<std::shared_ptr<LRClickableArea>, 5> difficultyIconAreas;

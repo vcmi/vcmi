@@ -13,7 +13,7 @@
 #include "CBitmapFont.h"
 
 #include "../render/Colors.h"
-#include "../renderSDL/SDL_Extensions.h"
+#include "SDL_Extensions.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonNode.h"
@@ -147,10 +147,13 @@ void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & te
 	else
 		rendered = TTF_RenderUTF8_Solid(font.get(), text.c_str(), CSDL_Ext::toSDL(color));
 
-	if (!rendered)
-		throw std::runtime_error("Failed to render text '" + text + "'. Reason: '" + TTF_GetError() + "'");
+	if (rendered)
+	{
+		CSDL_Ext::blitSurface(rendered, surface, pos);
+		SDL_FreeSurface(rendered);
+	}
+	else
+		logGlobal->error("Failed to render text '%s'. Reason: '%s'", text, TTF_GetError());
 
-	CSDL_Ext::blitSurface(rendered, surface, pos);
-	SDL_FreeSurface(rendered);
 }
 

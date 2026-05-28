@@ -11,7 +11,6 @@
 
 #include "Catapult.h"
 
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
@@ -31,7 +30,7 @@ namespace spells
 namespace effects
 {
 
-bool Catapult::applicable(Problem & problem, const Mechanics * m) const
+bool Catapult::applicableGeneral(Problem & problem, const Mechanics * m) const
 {
 	const auto *town = m->battle()->battleGetDefendedTown();
 
@@ -51,12 +50,12 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	const auto attackableBattleHexes = m->battle()->getAttackableBattleHexes();
+	const auto attackableBattleHexes = m->battle()->getAttackableWallParts();
 
 	return !attackableBattleHexes.empty() || m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 }
 
-void Catapult::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & eTarget) const
+void Catapult::apply(ServerCallback * server, const Mechanics * m, const Target & eTarget) const
 {
 	if(m->isMassive())
 		applyMassive(server, m); // Like earthquake
@@ -109,7 +108,7 @@ void Catapult::applyMassive(ServerCallback * server, const Mechanics * m) const
 	removeTowerShooters(server, m);
 }
 
-void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Catapult::applyTargeted(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	assert(!target.empty());
 	auto destination = target.at(0).hexValue;

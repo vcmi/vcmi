@@ -12,9 +12,9 @@
 
 #include "../renderSDL/SDL_Extensions.h"
 
-#include "../lib/ExceptionsCommon.h"
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/vcmi_endian.h"
+#include "../../lib/ExceptionsCommon.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/vcmi_endian.h"
 
 #include <SDL_image.h>
 

@@ -9,6 +9,10 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+class JsonNode;
+VCMI_LIB_NAMESPACE_END
+
 enum class LobbyCookieStatus : int32_t
 {
 	INVALID,
@@ -36,6 +40,17 @@ struct LobbyAccount
 {
 	std::string accountID;
 	std::string displayName;
+
+	JsonNode toJson() const;
+};
+
+struct LobbyGameRoomMod
+{
+	std::string ID;
+	std::string name;
+	std::string version;
+
+	JsonNode toJson() const;
 };
 
 struct LobbyGameRoom
@@ -45,12 +60,15 @@ struct LobbyGameRoom
 	std::string hostAccountDisplayName;
 	std::string description;
 	std::string version;
-	std::string modsJson;
+	std::vector<LobbyGameRoomMod> mods;
 	std::vector<LobbyAccount> participants;
 	std::vector<LobbyAccount> invited;
 	LobbyRoomState roomState;
 	uint32_t playerLimit;
 	std::chrono::seconds age;
+
+	JsonNode toJsonShort() const;
+	JsonNode toJsonFull() const;
 };
 
 struct LobbyChatMessage

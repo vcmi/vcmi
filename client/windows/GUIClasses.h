@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
-#include "../lib/ResourceSet.h"
+#include "../../lib/ResourceSet.h"
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 
@@ -20,6 +20,7 @@ class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
+class MetaString;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -97,6 +98,7 @@ class CRecruitmentWindow : public CStatusbarWindow
 	void select(std::shared_ptr<CCreatureCard> card);
 	void buy();
 	void sliderMoved(int to);
+	static ImagePath getRecruitmentBackground(const CGDwelling * dwelling, int level);
 
 	void showAll(Canvas & to) override;
 public:
@@ -152,7 +154,16 @@ class CLevelWindow : public CWindowObject
 	std::shared_ptr<CComponentBox> box; //skills to select
 	std::function<void(ui32)> cb;
 
+	int skillViewOffset = 0;
+	std::shared_ptr<CButton> buttonLeft;
+	std::shared_ptr<CButton> buttonRight;
+
+	std::vector<SecondarySkill> skills;
+	std::vector<SecondarySkill> sortedSkills;
+	const CGHeroInstance * hero;
+
 	void selectionChanged(unsigned to);
+	void createSkillBox();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
@@ -196,8 +207,8 @@ class CObjectListWindow : public CWindowObject
 	std::vector< std::pair<int, std::string> > items; //all items present in list
 	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
-	void trimTextIfTooWide(std::string & text, int id) const; // trim item's text to fit within window's width
+	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled, bool blue);
+	void trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const; // trim item's text to fit within window's width
 	void itemsSearchCallback(const std::string & text);
 	void exitPressed();
 public:
@@ -210,8 +221,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0, std::vector<std::shared_ptr<IImage>> images = {}, bool searchBoxEnabled = false, bool blue = false);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -246,28 +257,6 @@ public:
 		std::shared_ptr<CAnimImage> portrait;
 	};
 
-	class HeroSelector : public CWindowObject
-	{
-	public:
-		std::shared_ptr<CFilledTexture> background;
-		std::shared_ptr<CSlider> slider;
-
-		const int MAX_LINES = 18;
-		const int ELEM_PER_LINES = 16;
-
-		HeroSelector(std::map<HeroTypeID, CGHeroInstance*> InviteableHeroes, std::function<void(CGHeroInstance*)> OnChoose);
-
-	private:
-		std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
-		std::function<void(CGHeroInstance*)> onChoose;
-
-		std::vector<std::shared_ptr<CAnimImage>> portraits;
-		std::vector<std::shared_ptr<LRClickableArea>> portraitAreas;
-
-		void recreate();
-		void sliderMove(int slidPos);
-	};
-
 	//recruitable heroes
 	std::shared_ptr<HeroPortrait> h1;
 	std::shared_ptr<HeroPortrait> h2; //recruitable heroes
@@ -295,6 +284,7 @@ public:
 	std::map<HeroTypeID, CGHeroInstance*> inviteableHeroes;
 	CGHeroInstance* heroToInvite;
 	void addInvite();
+	void chooseHeroToInvite(CGHeroInstance* selectedHero, const std::map<HeroTypeID, CGHeroInstance*> & inviteableHeroes, const std::function<void(CGHeroInstance*)> & onChoose);
 
 	CTavernWindow(const CGObjectInstance * TavernObj, const std::function<void()> & onWindowClosed);
 
@@ -400,7 +390,11 @@ class CUniversityWindow final : public CStatusbarWindow, public IMarketHolder
 	std::function<void()> onWindowClosed;
 
 public:
+	static ImagePath getUniversityBackground(size_t skillCount);
+	static ImagePath getUniversityConfirmBackground(int costElements);
+	static int getUniversityItemPosX(size_t itemIndex, size_t skillCount, int windowWidth);
 	CUniversityWindow(const CGHeroInstance * _hero, BuildingID building, const IMarket * _market, const std::function<void()> & onWindowClosed);
+	const CGHeroInstance * getHero() const;
 
 	void makeDeal(SecondarySkill skill);
 	void close() override;
@@ -442,7 +436,7 @@ class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
 public:
 	std::shared_ptr<CButton> quit;
 
-	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits);
+	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, const MetaString & customTitle);
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
@@ -455,7 +449,7 @@ private:
 
 	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
 	static constexpr std::size_t slotsCount = 7;
-	//todo: mithril support
+	//todo: configurable resource support
 	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;

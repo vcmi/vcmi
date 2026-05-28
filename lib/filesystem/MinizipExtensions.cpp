@@ -83,7 +83,7 @@ inline int streamProxyClose(voidpf opaque, voidpf stream)
 
 	actualStream->seek(0);
 
-    return 0;
+	return 0;
 }
 
 ///CDefaultIOApi
@@ -222,7 +222,7 @@ int ZCALLBACK CProxyIOApi::closeFileProxy(voidpf opaque, voidpf stream)
 
 int ZCALLBACK CProxyIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 {
-    return 0;
+	return 0;
 }
 
 CInputOutputStream * CProxyIOApi::openFile(const boost::filesystem::path & filename, int mode)

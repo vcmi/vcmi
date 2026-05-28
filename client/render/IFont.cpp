@@ -13,7 +13,7 @@
 
 #include "../GameEngine.h"
 
-#include "../render/IScreenHandler.h"
+#include "IScreenHandler.h"
 
 #include "../../lib/Point.h"
 #include "../../lib/texts/TextOperations.h"

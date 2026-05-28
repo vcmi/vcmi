@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HeroesSettings</class>
+ <widget class="QWidget" name="HeroesSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>493</width>
+    <height>428</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QListWidget" name="playerList">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>181</y>
+     <width>151</width>
+     <height>231</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="heroList">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>301</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="editTriggers">
+    <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+   </property>
+   <property name="horizontalScrollMode">
+    <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
+   </property>
+   <property name="isWrapping" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="layoutMode">
+    <enum>QListView::LayoutMode::SinglePass</enum>
+   </property>
+   <property name="batchSize">
+    <number>30</number>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textSearch">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>251</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="filterModeCombo">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>10</y>
+     <width>191</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QGraphicsView" name="heroPortrait">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>50</y>
+     <width>116</width>
+     <height>128</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -35,6 +35,12 @@ class BattleActionsController
 	/// spell for which player's hero is choosing destination
 	std::shared_ptr<BattleAction> heroSpellToCast;
 
+	// targets of multi-target spells cast by monsters
+	std::vector<BattleHex> monsterSpellTargets;
+
+	// the monster that casts the spell 
+	const CStack * monsterCaster = nullptr;
+
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
 
@@ -45,7 +51,6 @@ class BattleActionsController
 	const CStack * selectedStack;
 
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
-	bool canStackMoveHere (const CStack *sactive, const BattleHex & MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
 
@@ -93,6 +98,12 @@ public:
 	/// - current creature is spellcaster and preferred action for current hex is spellcast
 	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
+	/// returns true if current hex action is "walk and spellcast" with active stack
+	bool currentActionWalkAndCast(const BattleHex& hoveredHex);
+
+	/// returns true if currently selected action allows long weapon reach for melee attacks
+	bool currentActionUsesLongWeapon(const BattleHex & hoveredHex);
+
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
 
@@ -120,10 +131,9 @@ public:
 
 	/// methods to work with array of possible actions, needed to control special creatures abilities
 	const std::vector<PossiblePlayerBattleAction> & getPossibleActions() const;
-	void removePossibleAction(PossiblePlayerBattleAction);
 	
-	/// inserts possible action in the beginning in order to prioritize it
-	void pushFrontPossibleAction(PossiblePlayerBattleAction);
+	/// sets list of high-priority actions that should be selected before any other actions
+	void setPriorityActions(const std::vector<PossiblePlayerBattleAction> &);
 
 	/// resets possible actions to original state
 	void resetCurrentStackPossibleActions();

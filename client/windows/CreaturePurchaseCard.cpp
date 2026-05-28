@@ -23,7 +23,6 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/CreatureCostBox.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 
 void CreaturePurchaseCard::initButtons()

@@ -48,7 +48,8 @@ struct FinishingBattleHelper
 
 	ObjectInstanceID winnerId;
 	ObjectInstanceID loserId;
-	PlayerColor victor, loser;
+	PlayerColor victor;
+	PlayerColor loser;
 	BattleSide winnerSide;
 
 	int remainingBattleQueriesCount;
@@ -66,14 +67,13 @@ struct FinishingBattleHelper
 
 class BattleResultProcessor : boost::noncopyable
 {
-	//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
 	std::map<BattleID, std::unique_ptr<BattleResult>> battleResults;
 	std::map<BattleID, std::unique_ptr<FinishingBattleHelper>> finishingBattles;
 
 public:
-	explicit BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
+	explicit BattleResultProcessor(CGameHandler * gameHandler);
 
 	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 

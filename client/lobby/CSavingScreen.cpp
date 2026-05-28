@@ -19,8 +19,8 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -85,7 +85,7 @@ void CSavingScreen::saveGame()
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
-		GAME->interface()->cb->save(path);
+		GAME->interface()->cb->save(path, true);
 		close();
 	};
 

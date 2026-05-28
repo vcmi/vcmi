@@ -9,10 +9,8 @@
  */
 #pragma once
  
-#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
  
-class CCallback;
-
 class CExchangeController
 {
 public:

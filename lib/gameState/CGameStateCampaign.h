@@ -15,11 +15,17 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct CampaignBonus;
+class CampaignBonus;
 struct CampaignTravel;
+class CampaignState;
 class CGHeroInstance;
 class CGameState;
 class CMap;
+
+namespace vstd
+{
+	class RNG;
+}
 
 struct CampaignHeroReplacement
 {
@@ -46,7 +52,7 @@ class CGameStateCampaign : public Serializeable
 	std::optional<CampaignBonus> currentBonus() const;
 
 	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
-	void trimCrossoverHeroesParameters(const CampaignTravel & travelOptions);
+	void trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignState & campaignState);
 
 	void replaceHeroesPlaceholders();
 	void transferMissingArtifacts(const CampaignTravel & travelOptions);
@@ -58,7 +64,7 @@ public:
 	CGameStateCampaign(CGameState * owner);
 	void setGamestate(CGameState * owner);
 
-	void placeCampaignHeroes();
+	void placeCampaignHeroes(vstd::RNG & randomGenerator);
 	void initStartingResources();
 	void initHeroes();
 	void initTowns();
@@ -76,11 +82,9 @@ public:
 		{
 			bool dummyA = false;
 			uint32_t dummyB = 0;
-			uint16_t dummyC = 0;
 
 			h & dummyA;
 			h & dummyB;
-			h & dummyC;
 		}
 	}
 };

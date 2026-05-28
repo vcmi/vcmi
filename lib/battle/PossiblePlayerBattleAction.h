@@ -25,11 +25,13 @@ public:
 
 		MOVE_STACK,
 		ATTACK,
+		LONG_WEAPON_ATTACK,
 		WALK_AND_ATTACK,
 		ATTACK_AND_RETURN,
 		SHOOT,
 		CATAPULT,
 		HEAL,
+		WALK_AND_SPELLCAST,
 
 		RANDOM_GENIE_SPELL,   // random spell on a friendly creature
 
@@ -50,7 +52,7 @@ public:
 	bool spellcast() const
 	{
 		return action == ANY_LOCATION || action == NO_LOCATION || action == OBSTACLE || action == TELEPORT ||
-			   action == SACRIFICE || action == FREE_LOCATION || action == AIMED_SPELL_CREATURE;
+			   action == SACRIFICE || action == FREE_LOCATION || action == AIMED_SPELL_CREATURE || action == WALK_AND_SPELLCAST;
 	}
 
 	Actions get() const

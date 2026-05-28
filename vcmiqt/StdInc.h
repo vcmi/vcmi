@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QFile>
 #include <QString>
+#include <QSettings>
 
 #include "convpathqstring.h"
 

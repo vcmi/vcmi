@@ -92,6 +92,14 @@ int64_t ProxyCaster::getEffectValue(const Spell * spell) const
 	return 0;
 }
 
+int64_t ProxyCaster::getEffectRange(const Spell * spell) const
+{
+	if(actualCaster)
+		return actualCaster->getEffectRange(spell);
+
+	return 0;
+}
+
 PlayerColor ProxyCaster::getCasterOwner() const
 {
 	if(actualCaster)

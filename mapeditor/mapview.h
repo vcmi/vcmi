@@ -12,6 +12,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QRubberBand>
 #include "scenelayer.h"
 #include "../lib/int3.h"
 
@@ -20,7 +21,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
 
-class MainWindow;
+class EditorMainWindow;
 class MapController;
 
 class MapSceneBase : public QGraphicsScene
@@ -30,12 +31,11 @@ public:
 	MapSceneBase(int lvl);
 	
 	const int level;
-	
-	virtual void updateViews();
+	virtual void createMap();
+	virtual void updateMap();
 	virtual void initialize(MapController &);
-	
-protected:
-	virtual std::list<AbstractLayer *> getAbstractLayers() = 0;
+	virtual std::list<AbstractFixedLayer *> getStaticLayers() = 0;
+	virtual std::list<AbstractViewportLayer *> getDynamicLayers() = 0;
 };
 
 class MinimapScene : public MapSceneBase
@@ -43,13 +43,12 @@ class MinimapScene : public MapSceneBase
 public:
 	MinimapScene(int lvl);
 	
-	void updateViews() override;
+	void createMap() override;
 	
 	MinimapLayer minimapView;
 	MinimapViewLayer viewport;
-	
-protected:
-	std::list<AbstractLayer *> getAbstractLayers() override;
+	std::list<AbstractFixedLayer *> getStaticLayers() override;
+	std::list<AbstractViewportLayer *> getDynamicLayers() override;
 };
 
 class MapScene : public MapSceneBase
@@ -58,8 +57,11 @@ class MapScene : public MapSceneBase
 public:
 	MapScene(int lvl);
 	
-	void updateViews() override;
+	void createMap() override;
+	std::list<AbstractFixedLayer *> getStaticLayers() override;
+	std::list<AbstractViewportLayer *> getDynamicLayers() override;
 	
+	EmptyLayer emptyLayer;
 	GridLayer gridView;
 	PassabilityLayer passabilityView;
 	SelectionTerrainLayer selectionTerrainView;
@@ -74,14 +76,19 @@ signals:
 public slots:
 	void terrainSelected(bool anything);
 	void objectSelected(bool anything);
-	
-protected:
-	std::list<AbstractLayer *> getAbstractLayers() override;
 
+protected:
 	bool isTerrainSelected;
 	bool isObjectSelected;
 
 };
+
+// In single-app builds (Android/iOS), editor symbols like MapView, Animation,
+// Graphics and BitmapHandler clash with identically-named client classes.
+// Wrapping them in a namespace avoids renaming every affected symbol.
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
 
 class MapView : public QGraphicsView
 {
@@ -95,10 +102,12 @@ public:
 public:
 	MapView(QWidget * parent);
 	void setController(MapController *);
+	void resetInteractionState();
 
 	SelectionTool selectionTool;
 
 public slots:
+	void resizeEvent (QResizeEvent * event) override;
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
@@ -106,8 +115,8 @@ public slots:
 	void dragMoveEvent(QDragMoveEvent *event) override;
 	void dragLeaveEvent(QDragLeaveEvent *event) override;
 	void dropEvent(QDropEvent * event) override;
-	
 	void cameraChanged(const QPointF & pos);
+	void setViewports();
 	
 signals:
 	void openObjectProperties(CGObjectInstance *, bool switchTab);
@@ -115,7 +124,6 @@ signals:
 	//void viewportChanged(const QRectF & rect);
 
 protected:
-	bool viewportEvent(QEvent *event) override;
 	
 private:
 	MapController * controller = nullptr;
@@ -127,6 +135,11 @@ private:
 	
 	std::set<int3> temporaryTiles;
 };
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+using MapEditor::MapView;
+#endif
 
 class MinimapView : public QGraphicsView
 {

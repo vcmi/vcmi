@@ -22,14 +22,16 @@ namespace effects
 class Sacrifice : public Heal
 {
 public:
-	void adjustTargetTypes(std::vector<TargetType> & types) const override;
+	void adjustTargetTypes(std::vector<TargetType> & types, const Mechanics * m) const override;
 
-	bool applicable(Problem & problem, const Mechanics * m) const override;
-	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
+	bool applicableGeneral(Problem & problem, const Mechanics * m) const override;
+	bool applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const override;
 
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 
-	EffectTarget transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const override;
+	Target transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const override;
+
+	SpellEffectValue getHealthChange(const Mechanics * m, const Target & spellTarget) const final;
 
 protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;

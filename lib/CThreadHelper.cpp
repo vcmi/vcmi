@@ -19,7 +19,9 @@
 	#include <sys/prctl.h>
 #endif
 
-#include <tbb/task_arena.h>
+#ifndef ENABLE_MINIMAL_LIB
+	#include <tbb/task_arena.h>
+#endif
 #include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,12 +33,16 @@ std::string getThreadName()
 	if (!threadNameForLogging.empty())
 		return threadNameForLogging;
 
+#ifndef ENABLE_MINIMAL_LIB
 	int tbbIndex = tbb::this_task_arena::current_thread_index();
 
 	if (tbbIndex < 0)
 		return boost::lexical_cast<std::string>(std::this_thread::get_id());
 	else
 		return "TBB worker " + boost::lexical_cast<std::string>(tbbIndex);
+#else
+	return boost::lexical_cast<std::string>(std::this_thread::get_id());
+#endif
 }
 
 void setThreadNameLoggingOnly(const std::string &name)

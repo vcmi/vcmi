@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
+#include "CBonusTypeHandler.h"
 #include "ResourceSet.h"
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
@@ -19,6 +20,7 @@
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
+#include "bonuses/BonusParameters.h"
 #include "json/JsonBonus.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
@@ -178,7 +180,7 @@ int32_t CCreature::getRecruitCost(GameResID resIndex) const
 		return 0;
 }
 
-TResources CCreature::getFullRecruitCost() const
+const TResources & CCreature::getFullRecruitCost() const
 {
 	return cost;
 }
@@ -226,6 +228,11 @@ std::string CCreature::getNameSingularTextID() const
 std::string CCreature::getDescriptionTextID() const
 {
 	return TextIdentifier("creatures", modScope, identifier, "description").get();
+}
+
+std::string CCreature::getBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("creatures", modScope, identifier, "bonus", bonusID).get();
 }
 
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
@@ -307,8 +314,8 @@ si32 CCreature::maxAmount(const TResources &res) const //how many creatures can 
 }
 
 CCreature::CCreature()
+	:CBonusSystemNode(BonusNodeType::CREATURE)
 {
-	setNodeType(CBonusSystemNode::CREATURE);
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
@@ -323,7 +330,7 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
-	exported.getBonuses(existing, selector, Selector::all);
+	exported.getBonuses(existing, selector);
 
 	if(existing.empty())
 	{
@@ -337,10 +344,38 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	}
 }
 
-bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
+bool CCreature::isMyDirectUpgrade(const CCreature *anotherCre) const
 {
-	//TODO upgrade of upgrade?
 	return vstd::contains(upgrades, anotherCre->getId());
+}
+
+bool CCreature::isMyDirectOrIndirectUpgrade(const CCreature *anotherCre) const
+{
+	std::set<CreatureID> foundUpgrades;
+	std::vector<CreatureID> upgradesToTest;
+
+	upgradesToTest.push_back(getId());
+
+	while (!upgradesToTest.empty())
+	{
+		CreatureID testedID = upgradesToTest.back();
+		const CCreature * testedPtr = testedID.toCreature();
+
+		upgradesToTest.pop_back();
+
+		for (const auto & upgrade : testedPtr->upgrades)
+		{
+			if (upgrade == anotherCre->getId())
+				return true;
+
+			if (foundUpgrades.count(upgrade))
+				continue;
+
+			upgradesToTest.push_back(upgrade);
+			foundUpgrades.insert(upgrade);
+		}
+	}
+	return false;
 }
 
 std::string CCreature::nodeName() const
@@ -348,44 +383,12 @@ std::string CCreature::nodeName() const
 	return "\"" + getNamePluralTextID() + "\"";
 }
 
-void CCreature::updateFrom(const JsonNode & data)
+int CCreature::getRandomAmount(vstd::RNG & ranGen) const
 {
-	JsonUpdater handler(nullptr, data);
-
-	{
-		auto configScope = handler.enterStruct("config");
-
-		const JsonNode & configNode = handler.getCurrent();
-
-		serializeJson(handler);
-
-		if(!configNode["hitPoints"].isNull())
-			addBonus(configNode["hitPoints"].Integer(), BonusType::STACK_HEALTH);
-
-		if(!configNode["speed"].isNull())
-			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
-
-		if(!configNode["attack"].isNull())
-			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
-
-		if(!configNode["defense"].isNull())
-			addBonus(configNode["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
-
-		if(!configNode["damage"]["min"].isNull())
-			addBonus(configNode["damage"]["min"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin);
-
-		if(!configNode["damage"]["max"].isNull())
-			addBonus(configNode["damage"]["max"].Integer(), BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax);
-
-		if(!configNode["shots"].isNull())
-			addBonus(configNode["shots"].Integer(), BonusType::SHOTS);
-
-		if(!configNode["spellPoints"].isNull())
-			addBonus(configNode["spellPoints"].Integer(), BonusType::CASTS);
-	}
-
-
-	handler.serializeBonuses("bonuses", this);
+	if(ammMax > ammMin)
+		return ammMin + (ranGen.nextInt(ammMin, ammMax));
+	else
+		return ammMax;
 }
 
 void CCreature::serializeJson(JsonSerializeFormat & handler)
@@ -428,6 +431,16 @@ CCreatureHandler::CCreatureHandler()
 
 void CCreatureHandler::loadCommanders()
 {
+	const auto & parseBonusWithCompatibility = [](const JsonNode & node)
+	{
+		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
+		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
+		if (node.isVector())
+			return JsonUtils::parseBonus(node.Vector());
+		else
+			return JsonUtils::parseBonus(node);
+	};
+
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
@@ -438,7 +451,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
+		commanderLevelPremy.push_back(parseBonusWithCompatibility(bonus));
 	}
 
 	int level = 0;
@@ -452,18 +465,23 @@ void CCreatureHandler::loadCommanders()
 		++level;
 	}
 
-	for (auto ability : config["abilityRequirements"].Vector())
+	for (const auto & abilityRequirements : config["abilityRequirements"].Vector())
 	{
 		std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > a;
-		JsonVector & abilities = ability["ability"].Vector();
-		a.first = std::vector<std::shared_ptr<Bonus> >();
-		if (abilities[0].isVector()) 
-			for (int i = 0; i < abilities.size(); i++) 
-				a.first.push_back(JsonUtils::parseBonus(abilities[i].Vector()));
-		else 
-			a.first.push_back(JsonUtils::parseBonus(ability["ability"].Vector()));
-		a.second.first =  static_cast<ui8>(ability["skills"].Vector()[0].Float());
-		a.second.second = static_cast<ui8>(ability["skills"].Vector()[1].Float());
+		const JsonNode & abilities = abilityRequirements["ability"];
+
+		if (abilities[0].isString()) // old format with single bonus
+		{
+			a.first.push_back(parseBonusWithCompatibility(abilities));
+		}
+		else
+		{
+			for (const auto & ability : abilities.Vector())
+				a.first.push_back(parseBonusWithCompatibility(ability));
+		}
+
+		a.second.first =  static_cast<ui8>(abilityRequirements["skills"][0].Float());
+		a.second.second = static_cast<ui8>(abilityRequirements["skills"][1].Float());
 		skillRequirements.push_back (a);
 	}
 }
@@ -496,11 +514,14 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		parser.endLine();
 	}
 
+	const bool isRoe = LIBRARY->isRoeData();
+
 	for (size_t i=0; i<dataSize; i++)
 	{
 		//loop till non-empty line
 		while (parser.isNextEntryEmpty())
-			parser.endLine();
+			if(!parser.endLine())
+				break;
 
 		JsonNode data;
 
@@ -511,7 +532,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		data["name"]["plural"].String() =  parser.readString();
 
-		for(int v=0; v<7; ++v)
+		for(int v=0; v<GameConstants::RESOURCE_QUANTITY; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
 		data["fightValue"].Float() = parser.readNumber();
@@ -529,8 +550,9 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		if (float shots = parser.readNumber())
 			data["shots"].Float() = shots;
 
-		if (float spells = parser.readNumber())
-			data["spellPoints"].Float() = spells;
+		if(!isRoe)
+			if (float spells = parser.readNumber())
+				data["spellPoints"].Float() = spells;
 
 		data["advMapAmount"]["min"].Float() = parser.readNumber();
 		data["advMapAmount"]["max"].Float() = parser.readNumber();
@@ -566,7 +588,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = ResourceSet(node["cost"]);
+	cre->cost.resolveFromJson(node["cost"]);
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
 	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
@@ -598,12 +620,6 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	loadStackExperience(cre.get(), node["stackExperience"]);
 	loadJsonAnimation(cre.get(), node["graphics"]);
 	loadCreatureJson(cre.get(), node);
-
-	for(const auto & extraName : node["extraNames"].Vector())
-	{
-		for(const auto & type_name : getTypeNames())
-			registerObject(scope, type_name, extraName.String(), cre->getIndex());
-	}
 
 	if (!cre->special &&
 		!CResourceHandler::get()->existsResource(cre->animDefName) &&
@@ -729,7 +745,6 @@ void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
 		b.duration = BonusDuration::PERMANENT;
 		b.valType = BonusValueType::ADDITIVE_VALUE;
 		b.effectRange = BonusLimitEffect::NO_LIMIT;
-		b.additionalInfo = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
 
@@ -860,38 +875,18 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
+	creature->mapAttackFromLeft = ImagePath::fromJson(config["graphics"]["mapAttackFromLeft"]);
+	creature->mapAttackFromRight = ImagePath::fromJson(config["graphics"]["mapAttackFromRight"]);
 
-	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
+	for(const auto & ability : config["abilities"].Struct())
 	{
-		for(const auto & ability : config["abilities"].Struct())
+		if (!ability.second.isNull())
 		{
-			if (!ability.second.isNull())
-			{
-				auto b = JsonUtils::parseBonus(ability.second);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
-		}
-	}
-	else
-	{
-		for(const JsonNode &ability : config["abilities"].Vector())
-		{
-			if(ability.getType() == JsonNode::JsonType::DATA_VECTOR)
-			{
-				logMod->error("Ignored outdated creature ability format in %s", creature->getJsonKey());
-			}
-			else
-			{
-				auto b = JsonUtils::parseBonus(ability);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
+			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			b->source = BonusSource::CREATURE_ABILITY;
+			b->sid = BonusSourceID(creature->getId());
+			b->duration = BonusDuration::PERMANENT;
+			creature->addNewBonus(b);
 		}
 	}
 
@@ -946,7 +941,9 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 	for (const JsonNode &exp : input.Vector())
 	{
 		const JsonVector &values = exp["values"].Vector();
-		int lowerLimit = 1;//, upperLimit = 255;
+		// RankRangeLimiter uses strict bounds (rank > minRank), so level 1 bonus
+		// must start from 0 to map values[0] -> rank 1 and values[9] -> rank 10.
+		int lowerLimit = 0;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
 			for (const JsonNode &val : values)
@@ -959,7 +956,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
@@ -979,7 +976,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
@@ -1035,7 +1032,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.subtype = BonusCustomSubtype::deathStareGorgon;
 		break;
 	case 'F':
-		b.type = BonusType::FEAR; break;
+		b.type = BonusType::FEARFUL; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
 		b.subtype = BonusSubtypeID(SpellSchool::ANY);
@@ -1064,7 +1061,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'D':
 				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = BonusType::FEARLESS; break;
+				b.type = BonusType::FEARFUL; break;
 			case 'F':
 				b.type = BonusType::FLYING; break;
 			case 'm':
@@ -1103,42 +1100,34 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B': //Blind
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BLIND));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::HYPNOTIZE));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::IMPLOSION));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::BERSERK));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispel beneficial spells
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::ARMAGEDDON));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = BonusType::SPELL_IMMUNITY;
 				b.subtype = BonusSubtypeID(SpellID(SpellID::SLOW));
-				b.additionalInfo = 0;//normal immunity
 				break;
 			case '6':
 			case '7':
@@ -1236,7 +1225,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	case 'J':
 		b.type = BonusType::SPELL_BEFORE_ATTACK;
 		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
-		b.additionalInfo = 3; //always expert?
+		b.parameters = std::make_shared<BonusParameters>(3); //always expert?
 		break;
 	case 'r':
 		b.type = BonusType::HP_REGENERATION;
@@ -1321,34 +1310,31 @@ CCreatureHandler::~CCreatureHandler()
 		p.first.clear();
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
-{
-	std::vector<CreatureID> allowed;
-	for(const auto & creature : objects)
-	{
-		if(creature->special)
-			continue;
-
-		if(creature->excludeFromRandomization)
-			continue;
-
-		if (creature->level == tier || tier == -1)
-			allowed.push_back(creature->getId());
-	}
-
-	if(allowed.empty())
-	{
-		logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
-		return CreatureID::NONE;
-	}
-
-	return *RandomGeneratorUtil::nextItem(allowed, rand);
-}
-
-
 void CCreatureHandler::afterLoadFinalization()
 {
+	for(auto & creature : objects)
+	{
+		if (!creature)
+			continue;
 
+		auto natureBonuses = creature->getBonuses([](const Bonus * b){
+				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		});
+
+		if (natureBonuses->empty())
+			creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
+	}
+}
+
+std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const
+{
+	std::set<CreatureID> result;
+
+	for(auto & creature : objects)
+		if (creature && !creature->special)
+			result.insert(creature->getId());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

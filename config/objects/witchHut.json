@@ -27,8 +27,9 @@
 					"secondarySkill" : {
 						"gainedSkill" : { // Note: this variable name is used by engine for H3M loading and by AI
 							"noneOf" : [
-								"leadership",
-								"necromancy"
+								{
+									"tag" : "bannedForWitchHut"
+								}
 							]
 						}
 					}

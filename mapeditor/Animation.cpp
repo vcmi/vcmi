@@ -25,6 +25,10 @@
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class DefFile
@@ -833,3 +837,7 @@ void Animation::createFlippedGroup(const size_t sourceGroup, const size_t target
 		*image = image->transformed(QTransform::fromScale(1, -1));
 	}
 }
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif

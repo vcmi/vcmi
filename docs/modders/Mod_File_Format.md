@@ -9,7 +9,8 @@
 	"name" : "My test mod",
 
 	// More lengthy description of mod. No hard limit. This text will be visible in launcher.
-	// This field can use small subset of HTML, see link at the bottom of this page.
+	// This field uses .md (Markdown) formatting
+	// For main mods, prefer to use external description in form of description.md file, see below for details
 	"description" : "My test mod that add a lot of useless stuff into the game",
 
 	// Author of mod. Can be nickname, real name or name of team
@@ -31,7 +32,7 @@
 
 	// Type of mod, list of all possible values:
 	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", 
-	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI"
+	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources", "Demo"
 	//
 	// Some mod types have additional effects on your mod:
 	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property. 
@@ -119,7 +120,16 @@ These are fields that are present only in local mod.json file
 	],
 	
 	// List of configuration files for skills
-	skills
+	"skills" :
+	[
+		"config/skills.json"
+	],
+
+	// List of configuration files for campaign regions for h3c campaigns
+	"campaignRegions" :
+	[
+		"config/campaignRegions.json"
+	],
 
 	// list of creature configuration files
 	"creatures" :
@@ -174,6 +184,12 @@ These are fields that are present only in local mod.json file
 	[
 		"config/obstacles.json"
 	],
+	
+	// List of configuration files for map layers
+	"mapLayers" :
+	[
+		"config/mapLayers.json"
+	],
 
 	// List of RMG templates defined in this mod
 	"templates" :
@@ -182,10 +198,10 @@ These are fields that are present only in local mod.json file
 	],
 	
 	// Optional, primaly used by translation mods
-	// Defines strings that are translated by mod into base language specified in "language" field
+	// Defines strings that are translated by mod into base language specified in 'language' field
 	"translations" :
 	[
-		"config/englishStrings.json
+	    "config/englishStrings.json"
 	]
 }
 ```
@@ -223,9 +239,6 @@ These are fields that are present only in remote repository and are generally no
 }
 ```
 
-## Notes
+## Mod description
 
-For mod description it is possible to use certain subset of HTML as
-described here:
-
-<https://doc.qt.io/qt-6/richtext-html-subset.html>
+For mod description it is recommended to provide file named `description.mod`. See [Readme](Readme.md#creating-mod-description) for more details

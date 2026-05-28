@@ -14,7 +14,7 @@ Difficulty configuration is located in [config/difficulty.json](../../config/dif
 		"pawn": //parameters for specific difficulty
 		{
 			//starting resources
-			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000, "mithril": 0 },
+			"resources": { "wood" : 30, "mercury": 15, "ore": 30, "sulfur": 15, "crystal": 15, "gems": 15, "gold": 30000 },
 			//bonuses will be given to player globally
 			"globalBonuses": [],
 			//bonuses will be given to player every battle

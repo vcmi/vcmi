@@ -17,9 +17,7 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
 #include "mock/mock_battle_Unit.h"
-#if SCRIPTING_ENABLED
 #include "mock/mock_scripting_Pool.h"
-#endif
 
 using namespace battle;
 using namespace testing;
@@ -54,6 +52,14 @@ public:
 	void makeAlive()
 	{
 		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(true));
+		EXPECT_CALL(*this, isValidTarget(_)).WillRepeatedly(Return(true));
+	}
+
+	void makeDead()
+	{
+		EXPECT_CALL(*this, alive()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, isGhost()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, isValidTarget(_)).WillRepeatedly(Return(false));
 	}
 
 	void setupPoisition(BattleHex pos)
@@ -83,13 +89,13 @@ public:
 
 	void redirectBonusesToFake()
 	{
-		ON_CALL(*this, getAllBonuses(_, _, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));
+		ON_CALL(*this, getAllBonuses(_, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));
 		ON_CALL(*this, getTreeVersion()).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getTreeVersion));
 	}
 
 	void expectAnyBonusSystemCall()
 	{
-		EXPECT_CALL(*this, getAllBonuses(_, _, _)).Times(AtLeast(0));
+		EXPECT_CALL(*this, getAllBonuses(_, _)).Times(AtLeast(0));
 		EXPECT_CALL(*this, getTreeVersion()).Times(AtLeast(0));
 	}
 
@@ -154,16 +160,11 @@ public:
 	public:
 
 		const IBattleInfo * battle;
-#if SCRIPTING_ENABLED
 		scripting::Pool * pool;
 
 		TestSubject(scripting::Pool * p)
 			: CBattleInfoCallback(),
 			pool(p)
-#else
-		TestSubject()
-			: CBattleInfoCallback()
-#endif
 		{
 		}
 
@@ -176,18 +177,9 @@ public:
 		{
 			return std::nullopt;
 		}
-
-#if SCRIPTING_ENABLED
-		scripting::Pool * getContextPool() const override
-		{
-			return pool;
-		}
-#endif
 	};
 
-#if SCRIPTING_ENABLED
 	StrictMock<scripting::PoolMock> pool;
-#endif
 
 	TestSubject subject;
 
@@ -195,10 +187,8 @@ public:
 	UnitsFake unitsFake;
 
 	CBattleInfoCallbackTest()
-#if SCRIPTING_ENABLED
 		: pool(),
 		subject(&pool)
-#endif
 	{
 
 	}
@@ -229,6 +219,16 @@ public:
 		return unit;
 	}
 
+	UnitFake & addCerberi(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addRegularMelee(hex, side);
+
+		unit.addCreatureAbility(BonusType::THREE_HEADED_ATTACK);
+		unit.makeDoubleWide();
+
+		return unit;
+	}
+
 	UnitFake & addDragon(BattleHex hex, BattleSide side)
 	{
 		auto & unit = addRegularMelee(hex, side);
@@ -236,6 +236,20 @@ public:
 		unit.addCreatureAbility(BonusType::TWO_HEX_ATTACK_BREATH);
 		unit.makeDoubleWide();
 
+		return unit;
+	}
+
+	UnitFake & addLongWeaponUnit(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addRegularMelee(hex, side);
+		unit.addCreatureAbility(BonusType::LONG_WEAPON);
+		return unit;
+	}
+
+	UnitFake & addLongWeaponDoubleWide(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addLongWeaponUnit(hex, side);
+		unit.makeDoubleWide();
 		return unit;
 	}
 
@@ -251,6 +265,295 @@ public:
 			defender.getPosition());
 	}
 };
+
+///// getAttackableHexes tests
+
+TEST_F(AttackableHexesTest, getAttackableHexes_SingleWideAttacker_SingleWideDefender)
+{
+	UnitFake & attacker = addRegularMelee(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		89,
+		91,
+		106,
+		107
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_SingleWideAttacker_DoubleWideDefender)
+{
+	UnitFake & attacker = addRegularMelee(60, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		89,
+		92,
+		106,
+		107,
+		108
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_DoubleWideAttacker_SingleWideDefender)
+{
+	UnitFake & attacker = addDragon(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		89,
+		92,
+		106,
+		107,
+		108
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_DoubleWideAttacker_DoubleWideDefender)
+{
+	UnitFake & attacker = addDragon(60, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		75,
+		89,
+		93,
+		106,
+		107,
+		108,
+		109
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanAttackWithOneEmptyHexGap)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanBeDisabledForManualAttack)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+
+	const BattleHex adjacentAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT, false), adjacentAttackHex);
+}
+
+TEST_F(AttackableHexesTest, LongWeaponRequiresEmptyMiddleHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	const BattleHex middleHex = attacker.getPosition().cloneInDirection(BattleHex::RIGHT);
+	UnitFake & blocker = addRegularMelee(middleHex, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(middleHex.cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	(void)blocker;
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_FALSE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponCanAttackOverCorpseInMiddleHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	const BattleHex middleHex = attacker.getPosition().cloneInDirection(BattleHex::RIGHT);
+	UnitFake & corpse = addRegularMelee(middleHex, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(middleHex.cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	corpse.makeDead();
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
+{
+	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(attacker.getPosition());
+
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, LongWeaponDoubleWideFallsBackToAdjacentReachableHexWhenLongHexIsUnavailable)
+{
+	UnitFake & attacker = addLongWeaponDoubleWide(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
+
+	const BattleHex expectedAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), expectedAttackHex);
+}
+
+TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHex)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+
+	startBattle();
+	redirectUnitsToFake();
+
+	EXPECT_NO_THROW(
+	{
+		const BattleHex attackFrom = subject.fromWhichHexAttack(&attacker, BattleHex(0), BattleHex::LEFT);
+		EXPECT_EQ(attackFrom, BattleHex::INVALID);
+	});
+}
+
+TEST_F(AttackableHexesTest, LongWeaponSingleWideGetAttackedUnitsFromGapThrows)
+{
+	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	EXPECT_THROW(getAttackedUnits(attacker, defender, defender.getPosition()), std::runtime_error);
+}
+
+//// CERBERI 3-HEADED ATTACKS
+
+TEST_F(AttackableHexesTest, CerberiAttackerRight)
+{
+	//    #
+	// X A D
+	//    #
+	UnitFake & attacker = addCerberi(35, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	UnitFake & right = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
+	UnitFake & left = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::TOP_RIGHT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &right));
+	EXPECT_TRUE(vstd::contains(attacked, &left));
+}
+
+TEST_F(AttackableHexesTest, CerberiAttackerTopRight)
+{
+	//  # D
+	// X A #
+	//
+	UnitFake & attacker = addCerberi(35, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::TOP_RIGHT), BattleSide::DEFENDER);
+	UnitFake & right = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+	UnitFake & left = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::TOP_LEFT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &right));
+	EXPECT_TRUE(vstd::contains(attacked, &left));
+}
+
+TEST_F(AttackableHexesTest, CerberiAttackerTopMiddle)
+{
+	// # D #
+	//  X A
+	//
+	UnitFake & attacker = addCerberi(35, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::TOP_LEFT), BattleSide::DEFENDER);
+	UnitFake & right = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::TOP_RIGHT), BattleSide::DEFENDER);
+	UnitFake & left = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::TOP_LEFT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &right));
+	EXPECT_TRUE(vstd::contains(attacked, &left));
+}
+
+TEST_F(AttackableHexesTest, CerberiAttackerTopLeft)
+{
+	//  D #
+	// # X A
+	//
+	UnitFake & attacker = addCerberi(40, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::TOP_LEFT), BattleSide::DEFENDER);
+	UnitFake & right = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::TOP_RIGHT), BattleSide::DEFENDER);
+	UnitFake & left = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::LEFT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &right));
+	EXPECT_TRUE(vstd::contains(attacked, &left));
+}
+
+TEST_F(AttackableHexesTest, CerberiAttackerLeft)
+{
+	//  #
+	// D X A
+	//  #
+	UnitFake & attacker = addCerberi(40, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::LEFT), BattleSide::DEFENDER);
+	UnitFake & right = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::TOP_LEFT), BattleSide::DEFENDER);
+	UnitFake & left = addRegularMelee(attacker.occupiedHex().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &right));
+	EXPECT_TRUE(vstd::contains(attacked, &left));
+}
+
+//// DRAGON BREATH AS ATTACKER
 
 TEST_F(AttackableHexesTest, DragonRightRegular_RightHorithontalBreath)
 {
@@ -282,26 +585,26 @@ TEST_F(AttackableHexesTest, DragonDragonVerticalDownHead_VerticalDownBreathFromH
 {
 	// X A
 	//  D X		target D
-	//   #
+	//     #
 	UnitFake & attacker = addDragon(35, BattleSide::ATTACKER);
 	UnitFake & defender = addDragon(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::DEFENDER);
-	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
+	UnitFake & next = addRegularMelee(defender.occupiedHex().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
 
 	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
 
 	EXPECT_TRUE(vstd::contains(attacked, &next));
 }
 
-TEST_F(AttackableHexesTest, DragonDragonVerticalDownHeadReverse_VerticalDownBreathFromHead)
+TEST_F(AttackableHexesTest, DragonDragonVerticalDownHead_VerticalRightBreathFromHead)
 {
-	//  A X
-	// X D		target D
-	//  #
-	UnitFake & attacker = addDragon(36, BattleSide::DEFENDER);
-	UnitFake & defender = addDragon(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::ATTACKER);
-	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::ATTACKER);
+	// X A
+	//  D X		target X
+	//     #
+	UnitFake & attacker = addDragon(35, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::DEFENDER);
+	UnitFake & next = addRegularMelee(defender.occupiedHex().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
 
-	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+	auto attacked = getAttackedUnits(attacker, defender, defender.occupiedHex());
 
 	EXPECT_TRUE(vstd::contains(attacked, &next));
 }
@@ -328,6 +631,36 @@ TEST_F(AttackableHexesTest, DragonDragonHeadBottomRight_BottomRightBreathFromHea
 	UnitFake & attacker = addDragon(37, BattleSide::ATTACKER);
 	UnitFake & defender = addDragon(attacker.occupiedHex().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::DEFENDER);
 	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
+
+	EXPECT_TRUE(vstd::contains(attacked, &next));
+}
+
+TEST_F(AttackableHexesTest, DragonLeftBottomDragonBackToBack_LeftBottomBreathFromBackHex)
+{
+	//    X A
+	// D X		target X
+	//  #
+	UnitFake & attacker = addDragon(8, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(attacker.occupiedHex().cloneInDirection(BattleHex::BOTTOM_LEFT).cloneInDirection(BattleHex::LEFT), BattleSide::DEFENDER);
+	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
+
+	auto attacked = getAttackedUnits(attacker, defender, defender.occupiedHex());
+
+	EXPECT_TRUE(vstd::contains(attacked, &next));
+}
+
+//// DRAGON BREATH AS DEFENDER
+
+TEST_F(AttackableHexesTest, DragonDragonVerticalDownHeadReverse_VerticalDownBreathFromHead)
+{
+	//   A X
+	//  X D		target D
+	// #
+	UnitFake & attacker = addDragon(36, BattleSide::DEFENDER);
+	UnitFake & defender = addDragon(attacker.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::ATTACKER);
+	UnitFake & next = addRegularMelee(defender.occupiedHex().cloneInDirection(BattleHex::BOTTOM_LEFT), BattleSide::ATTACKER);
 
 	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
 
@@ -361,28 +694,14 @@ TEST_F(AttackableHexesTest, DragonRightBottomDragonHeadReverse_RightBottomBreath
 	EXPECT_TRUE(vstd::contains(attacked, &next));
 }
 
-TEST_F(AttackableHexesTest, DragonLeftBottomDragonBackToBack_LeftBottomBreathFromBackHex)
-{
-	//    X A
-	// D X		target X
-	//  #
-	UnitFake & attacker = addDragon(8, BattleSide::ATTACKER);
-	UnitFake & defender = addDragon(attacker.occupiedHex().cloneInDirection(BattleHex::BOTTOM_LEFT).cloneInDirection(BattleHex::LEFT), BattleSide::DEFENDER);
-	UnitFake & next = addRegularMelee(defender.getPosition().cloneInDirection(BattleHex::BOTTOM_RIGHT), BattleSide::DEFENDER);
-
-	auto attacked = getAttackedUnits(attacker, defender, defender.occupiedHex());
-
-	EXPECT_TRUE(vstd::contains(attacked, &next));
-}
-
 TEST_F(AttackableHexesTest, DefenderPositionOverride_BreathCountsHypoteticDefenderPosition)
 {
-	//  # N
-	// X D		target D
-	//  A X
+	// # N
+	//  X D		target D
+	//   A X
 	UnitFake & attacker = addDragon(35, BattleSide::DEFENDER);
 	UnitFake & defender = addDragon(8, BattleSide::ATTACKER);
-	UnitFake & next = addDragon(2, BattleSide::ATTACKER);
+	UnitFake & next = addDragon(1, BattleSide::ATTACKER);
 
 	startBattle();
 	redirectUnitsToFake();

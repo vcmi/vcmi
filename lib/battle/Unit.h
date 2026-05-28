@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vcmi/Creature.h>
+#include <vcmi/scripting/ApiTags.h>
 #include <vcmi/spells/Caster.h>
 
 #include "../bonuses/Bonus.h"
@@ -62,7 +63,7 @@ struct HealInfo
 
 class CUnitState;
 
-class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature
+class DLL_LINKAGE Unit : public IUnitInfo, public spells::Caster, public virtual IBonusBearer, public ACreature, public	scripting::ApiRawPointer<Unit>
 {
 	static BattleHexArray::ArrayOfBattleHexArrays precomputeUnitHexes(BattleSide side, bool twoHex);
 
@@ -84,6 +85,10 @@ public:
 
 	bool isDead() const;
 	bool isTurret() const;
+	bool isCatapult() const;
+	bool isBallista() const;
+	bool isFirstAidTent() const;
+	bool isAmmoCart() const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 
 	virtual bool isHypnotized() const = 0;
@@ -97,6 +102,10 @@ public:
 	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
+	bool isMeleeAttacker() const;
+	bool isSummoned() const;
+	bool hasImmunity(SpellID spell) const;
+	bool hasAbsoluteImmunity(SpellID spell) const;
 
 	/// returns initial size of this unit
 	virtual int32_t getCount() const = 0;
@@ -132,10 +141,15 @@ public:
 	virtual std::string getDescription() const;
 
 	const BattleHexArray & getSurroundingHexes(const BattleHex & assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+
+	/// Returns list of hexes (head positions for double-wide units) from which attacker can attack this unit
 	BattleHexArray getAttackableHexes(const Unit * attacker) const;
 	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 
 	bool coversPos(const BattleHex & position) const; //checks also if unit is double-wide
+
+	/// Returns the direction the double-wide unit is facing; returns NONE for single-hex units
+	BattleHex::EDir headDirection() const;
 
 	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
 	const BattleHexArray & getHexes(const BattleHex & assumedPos) const; //up to two occupied hexes, starting from front
@@ -157,7 +171,7 @@ public:
 
 	//NOTE: save could possibly be const, but this requires heavy changes to Json serialization,
 	//also this method should be called only after modifying object
-	virtual void save(JsonNode & data) = 0;
+	virtual JsonNode save() = 0;
 	virtual void load(const JsonNode & data) = 0;
 
 	virtual void damage(int64_t & amount) = 0;

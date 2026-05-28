@@ -1,0 +1,22 @@
+{
+	// Action buttons for the Adventure Options dialog.
+	// Each entry defines:
+	//   "legacyAnimation" - DEF animation, always used in classic mode and as fallback in enhanced mode.
+	//   "overlay"         - (optional) Overlay image for enhanced mode. If present, the button animation
+	//                       is generated from this image (placed under SPRITES/<overlay>).
+	//                       If absent, legacyAnimation is used even in enhanced mode.
+	//   "label"           - (optional) Translation key for the text label shown in enhanced mode.
+	//   "shortcut"        - Shortcut identifier string (see ShortcutHandler). Used to look up
+	//                       the callback and enabled-state from AdventureMapShortcuts::getShortcuts().
+	"buttons" : [
+		{ "legacyAnimation" : "ADVVIEW.DEF",      "label" : "core.help.370.hover",             "shortcut" : "adventureViewWorld"     },
+		{ "legacyAnimation" : "ADVPUZ.DEF",       "label" : "core.help.371.hover",             "shortcut" : "adventureViewPuzzle"    },
+		{ "legacyAnimation" : "ADVDIG.DEF",       "label" : "core.help.373.hover",             "shortcut" : "adventureDigGrail"      },
+		{ "legacyAnimation" : "ADVINFO.DEF",      "label" : "core.genrltxt.661",               "shortcut" : "adventureViewScenario"  },
+		{ "legacyAnimation" : "ADVTURN.DEF",      "label" : "core.help.374.hover",             "shortcut" : "adventureReplayTurn"    },
+		{ "overlay" : "adventureOptionWiki",      "label" : "vcmi.wiki.title",                 "shortcut" : "adventureOpenWiki"      },
+		{ "overlay" : "adventureOptionLobby",     "label" : "vcmi.lobby.login.title",          "shortcut" : "mainMenuLobby"          },
+		{ "overlay" : "adventureOptionSearch",    "label" : "vcmi.adventureMap.search.hover",  "shortcut" : "adventureSearch"        },
+		{ "overlay" : "adventureOptionStatistic", "label" : "vcmi.statisticWindow.statistics", "shortcut" : "adventureViewStatistic" }
+	]
+}

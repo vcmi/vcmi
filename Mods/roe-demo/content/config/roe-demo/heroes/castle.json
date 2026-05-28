@@ -1,0 +1,10 @@
+{
+	"core:sirMullich" :
+	{
+		"special" : true,
+		"army" :
+		[
+			{ "creature" : "pikeman", "min" : 1, "max" : 1 }
+		]
+	}
+}

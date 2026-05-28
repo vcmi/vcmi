@@ -19,6 +19,56 @@ CampaignScene::CampaignScene():
 CampaignView::CampaignView(QWidget * parent):
 	QGraphicsView(parent)
 {
+	setAcceptDrops(true);
+}
+
+void CampaignView::dragEnterEvent(QDragEnterEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+	{
+		for(const QUrl& url : event->mimeData()->urls())
+		{
+			QString path = url.toLocalFile();
+			if(path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+			{
+				event->acceptProposedAction();
+				return;
+			}
+		}
+	}
+}
+
+void CampaignView::dragMoveEvent(QDragMoveEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+	{
+		for(const QUrl& url : event->mimeData()->urls())
+		{
+			QString path = url.toLocalFile();
+			if(path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+			{
+				event->acceptProposedAction();
+				return;
+			}
+		}
+	}
+}
+
+void CampaignView::dropEvent(QDropEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+	{
+		for(const QUrl& url : event->mimeData()->urls())
+		{
+			QString path = url.toLocalFile();
+			if(path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+			{
+				Q_EMIT fileDropped(path);
+				event->acceptProposedAction();
+				return;
+			}
+		}
+	}
 }
 
 ClickablePixmapItem::ClickablePixmapItem(const QPixmap &pixmap, const std::function<void()> & clickedCallback, const std::function<void()> & doubleClickedCallback, const std::function<void(QGraphicsSceneContextMenuEvent *)> & contextMenuCallback):

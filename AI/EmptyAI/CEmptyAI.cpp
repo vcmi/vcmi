@@ -13,6 +13,8 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
@@ -58,7 +60,7 @@ void CEmptyAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID
 	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
+void CEmptyAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
 	cb->selectionMade(0, queryID);
 }

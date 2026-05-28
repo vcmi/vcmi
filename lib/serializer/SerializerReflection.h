@@ -11,7 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class IGameCallback;
+class IGameInfoCallback;
 class Serializeable;
 class GameCallbackHolder;
 class BinaryDeserializer;
@@ -21,7 +21,7 @@ class GameCallbackHolder;
 template <typename T, typename Enable = void>
 struct ClassObjectCreator
 {
-	static T *invoke(IGameCallback *cb)
+	static T *invoke(IGameInfoCallback *cb)
 	{
 		static_assert(!std::is_base_of_v<GameCallbackHolder, T>, "Cannot call new upon map objects!");
 		static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
@@ -32,9 +32,10 @@ struct ClassObjectCreator
 template<typename T>
 struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCallbackHolder, T>>>
 {
-	static T *invoke(IGameCallback *cb)
+	static T *invoke(IGameInfoCallback *cb)
 	{
 		static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
+		assert(cb != nullptr);
 		return new T(cb);
 	}
 };
@@ -42,8 +43,8 @@ struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCal
 class ISerializerReflection
 {
 public:
-	virtual Serializeable * createPtr(BinaryDeserializer &ar, IGameCallback * cb) const =0;
-	virtual void loadPtr(BinaryDeserializer &ar, IGameCallback * cb, Serializeable * data) const =0;
+	virtual Serializeable * createPtr(BinaryDeserializer &ar, IGameInfoCallback * cb) const =0;
+	virtual void loadPtr(BinaryDeserializer &ar, IGameInfoCallback * cb, Serializeable * data) const =0;
 	virtual void savePtr(BinarySerializer &ar, const Serializeable *data) const =0;
 	virtual ~ISerializerReflection() = default;
 };

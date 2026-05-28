@@ -1,0 +1,22 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+		android:shortcutId="play"
+		android:enabled="true"
+		android:icon="@mipmap/ic_launcher"
+		android:shortcutShortLabel="@string/shortcut_play"
+		android:shortcutLongLabel="@string/shortcut_play">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:targetClass="eu.vcmi.vcmi.VcmiSDLActivity" />
+	</shortcut>
+	<shortcut
+		android:shortcutId="editor"
+		android:enabled="true"
+		android:icon="@mipmap/ic_launcher"
+		android:shortcutShortLabel="@string/shortcut_editor"
+		android:shortcutLongLabel="@string/shortcut_editor">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:targetClass="eu.vcmi.vcmi.ActivityMapEditor" />
+	</shortcut>
+</shortcuts>

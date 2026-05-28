@@ -1,4 +1,6 @@
 if(ENABLE_INNOEXTRACT)
+	# libiconv not required for our use case
+	set(WITH_CONV "builtin" CACHE STRING "" FORCE)
 	add_subdirectory("lib/innoextract")
 endif()
 
@@ -13,10 +15,13 @@ set(launcher_SRCS
 		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
+		modManager/hdextractor.cpp
 		settingsView/csettingsview_moc.cpp
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
+		firstLaunch/progressoverlay.cpp
+		demo.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -25,7 +30,7 @@ set(launcher_SRCS
 		updatedialog_moc.cpp
 		prepare.cpp
 )
-if(APPLE_IOS)
+if(IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
 		ios/revealdirectoryinfiles.h
@@ -51,13 +56,16 @@ set(launcher_HEADERS
 		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
+		modManager/hdextractor.h
 		settingsView/configeditordialog_moc.h
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
+		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
+		demo.h
 		main.h
 		helper.h
 		innoextract.h
@@ -87,7 +95,8 @@ set(launcher_TS
 	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
-	"${translationsDir}/english.ts"
+	"${translationsDir}/dutch.ts"
+	"${translationsDir}/filipino.ts"
 	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
@@ -96,13 +105,16 @@ set(launcher_TS
 	"${translationsDir}/italian.ts"
 	"${translationsDir}/japanese.ts"
 	"${translationsDir}/korean.ts"
+	"${translationsDir}/latvian.ts"
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
+	"${translationsDir}/serbian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"
+	"${translationsDir}/tchinese.ts"
 	"${translationsDir}/turkish.ts"
 	"${translationsDir}/ukrainian.ts"
 	"${translationsDir}/vietnamese.ts"
@@ -132,7 +144,11 @@ ${rccQmFiles}
 endif()
 
 if(WIN32)
-	set(launcher_ICON VCMI_launcher.rc)
+	set(VCMI_FILE_DESCRIPTION "VCMI Launcher")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_launcher.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/VCMI_launcher.ico\"")
+	set(launcher_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_launcher_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${launcher_ICON}" @ONLY)
 endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
@@ -153,6 +169,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
+	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
 if(ENABLE_TRANSLATIONS)
@@ -222,7 +239,7 @@ endif()
 
 if(ANDROID)
 	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
-elseif(NOT APPLE_IOS)
+elseif(NOT IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
@@ -242,16 +259,15 @@ if(ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
-if(APPLE_IOS)
+if(ENABLE_DISCORD)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_DISCORD)
+endif()
+
+if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils
 		"-framework UniformTypeIdentifiers"
 	)
-
-	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
-	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
-		target_link_libraries(vcmilauncher "-framework IOKit")
-	endif()
 
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
@@ -274,8 +290,29 @@ else()
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
 
 	# Install icons and desktop file on Linux
-	if(NOT WIN32 AND NOT APPLE)
-		install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
-		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
+	if(NOT WIN32 AND NOT APPLE AND ENABLE_TRANSLATIONS)
+
+		add_custom_command(
+			TARGET vcmilauncher POST_BUILD
+			COMMAND msgfmt --xml
+			    -d ${CMAKE_CURRENT_SOURCE_DIR}/po/
+				-o ${CMAKE_CURRENT_BINARY_DIR}/eu.vcmi.VCMI.metainfo.xml
+				--template=${CMAKE_CURRENT_SOURCE_DIR}/eu.vcmi.VCMI.metainfo.xml
+				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Translating eu.vcmi.VCMI.metainfo.xml"
+		)
+
+	    add_custom_command(
+			TARGET vcmilauncher POST_BUILD
+			COMMAND msgfmt --desktop
+			    -d ${CMAKE_CURRENT_SOURCE_DIR}/po/
+				-o ${CMAKE_CURRENT_BINARY_DIR}/vcmilauncher.desktop
+				--template=${CMAKE_CURRENT_SOURCE_DIR}/vcmilauncher.desktop
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Translating vcmilauncher.desktop"
+		)
+
+	    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vcmilauncher.desktop" DESTINATION share/applications)
+		install(FILES "${CMAKE_CURRENT_BINARY_DIR}/eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()

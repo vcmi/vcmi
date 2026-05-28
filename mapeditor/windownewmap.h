@@ -15,6 +15,8 @@
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui
 {
 	class WindowNewMap;
@@ -87,7 +89,7 @@ private slots:
 
 	void on_sizeCombo_activated(int index);
 
-	void on_twoLevelCheck_stateChanged(int arg1);
+	void on_spinBoxLevels_valueChanged(int value);
 
 	void on_humanCombo_activated(int index);
 

@@ -60,7 +60,30 @@ void TerrainPainter::initTerrainType()
 	{
 		if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
 		{
-			auto terrainType = (*LIBRARY->townh)[zone.getTownType()]->nativeTerrain;
+			const auto & faction = (*LIBRARY->townh)[zone.getTownType()];
+			const auto & nativeTerrains = faction->nativeTerrains;
+			TerrainId terrainType = ETerrainId::NONE;
+
+			// If preferred native terrain is incompatible with zone level,
+			// try subsequent native terrains in declared order.
+			const auto isCompatibleWithLevel = [this](TerrainId terrainId)
+			{
+				const auto & terrain = LIBRARY->terrainTypeHandler->getById(terrainId);
+				return zone.isUnderground() ? terrain->isUnderground() : terrain->isSurface();
+			};
+
+			std::vector<TerrainId> compatibleTerrains;
+			for (const auto & candidate : nativeTerrains)
+			{
+				if (isCompatibleWithLevel(candidate))
+					compatibleTerrains.push_back(candidate);
+			}
+
+			// Prefer random native terrain when multiple compatible terrains exist.
+			if (!compatibleTerrains.empty())
+				terrainType = *RandomGeneratorUtil::nextItem(compatibleTerrains, zone.getRand());
+			else if (!nativeTerrains.empty())
+				terrainType = nativeTerrains.front();
 
 			if (terrainType <= ETerrainId::NONE)
 			{

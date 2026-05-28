@@ -31,10 +31,11 @@ public:
 	CMemorySerializer();
 
 	template <typename T>
-	static std::unique_ptr<T> deepCopy(const T &data)
+	static std::unique_ptr<T> deepCopy(const T &data, IGameInfoCallback * cb = nullptr)
 	{
 		CMemorySerializer mem;
 		mem.oser & &data;
+		mem.iser.cb = cb;
 
 		std::unique_ptr<T> ret;
 		mem.iser & ret;
@@ -42,10 +43,11 @@ public:
 	}
 
 	template <typename T>
-	static std::shared_ptr<T> deepCopyShared(const T &data)
+	static std::shared_ptr<T> deepCopyShared(const T &data, IGameInfoCallback * cb = nullptr)
 	{
 		CMemorySerializer mem;
 		mem.oser & &data;
+		mem.iser.cb = cb;
 
 		std::shared_ptr<T> ret;
 		mem.iser & ret;

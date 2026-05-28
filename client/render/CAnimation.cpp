@@ -11,9 +11,9 @@
 #include "CAnimation.h"
 
 #include "../GameEngine.h"
-#include "../render/IImage.h"
-#include "../render/IRenderHandler.h"
-#include "../render/IScreenHandler.h"
+#include "IImage.h"
+#include "IRenderHandler.h"
+#include "IScreenHandler.h"
 
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/json/JsonUtils.h"

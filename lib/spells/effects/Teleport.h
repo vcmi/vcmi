@@ -24,13 +24,13 @@ namespace effects
 class Teleport : public UnitEffect
 {
 public:
-	void adjustTargetTypes(std::vector<TargetType> & types) const override;
+	void adjustTargetTypes(std::vector<TargetType> & types, const Mechanics * m) const override;
 
-	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
+	bool applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const override;
 
-	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const Target & target) const override;
 
-	EffectTarget transformTarget(const Mechanics * m,  const Target & aimPoint, const Target & spellTarget) const override;
+	Target transformTarget(const Mechanics * m,  const Target & aimPoint, const Target & spellTarget) const override;
 
 protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override;

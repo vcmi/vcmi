@@ -6,7 +6,8 @@
 	// "land" - same rules as movement of hero on land
 	// "sail" - object can move on water and interact with objects on water
 	// "water" - object can walk on water but can not interact with objects
-	// "air" - object can fly across any terrain but can not interact with objects
+	// "air" - object can fly across any terrain but can not interact with objects or hover over unpassable terrain
+	// "aviate" - object can fly across and hover over any terrain but can not interact with objects
 	"layer" : "",
 	
 	// If set to true, it is possible to attack wandering monsters from boat

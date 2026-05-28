@@ -66,14 +66,18 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
-		InteractiveArea(const Rect &myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, const std::function<void()> & funcL, int helpTextId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, const std::function<void()> & funcL, std::string textId, CSpellWindow * _owner);
 	};
 
 	std::shared_ptr<CPicture> leftCorner;
 	std::shared_ptr<CPicture> rightCorner;
 
 	std::shared_ptr<CAnimImage> schoolTab;
+	std::vector<std::shared_ptr<CAnimImage>> schoolTabCustom;
+	std::shared_ptr<CPicture> schoolTabAnyDisabled;
 	std::shared_ptr<CAnimImage> schoolPicture;
+	std::shared_ptr<CPicture> schoolPictureCustom;
 
 	std::array<std::shared_ptr<SpellArea>, 24> spellAreas;
 	std::shared_ptr<CLabel> mana;
@@ -98,11 +102,15 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	int offT;
 	int offB;
 
-	int sitesPerTabAdv[5];
-	int sitesPerTabBattle[5];
+	std::map<SpellSchool, int> sitesPerTabAdv;
+	std::map<SpellSchool, int> sitesPerTabBattle;
+
+	const int MAX_CUSTOM_SPELL_SCHOOLS = 5;
+	const int MAX_CUSTOM_SPELL_SCHOOLS_BIG = 6;
+	std::vector<SpellSchool> customSpellSchools;
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
-	uint8_t selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	SpellSchool selectedTab;
 	int currentPage; //changes when corners are clicked
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
@@ -112,6 +120,8 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	void processSpells();
 	void searchInput();
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
+
+	void setSchoolImages(SpellSchool school);
 
 	void setCurrentPage(int value);
 	void turnPageLeft();
@@ -135,7 +145,7 @@ public:
 	void fLcornerb();
 	void fRcornerb();
 
-	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	void selectSchool(SpellSchool school);
 	int pagesWithinCurrentTab();
 
 	void keyPressed(EShortcut key) override;

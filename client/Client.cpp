@@ -22,26 +22,28 @@
 #include "gui/WindowHandler.h"
 #include "mapView/mapHandler.h"
 
-#include "../CCallback.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
+#include "../lib/battle/BattleInfo.h"
+#include "../lib/battle/CPlayerBattleCallback.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/CGlobalAI.h"
+#include "../lib/callback/IGameInfoCallback.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
-#include "../lib/battle/BattleInfo.h"
-#include "../lib/serializer/Connection.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/mapping/CMapService.h"
-#include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/pathfinder/CGPathNode.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/serializer/GameConnection.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
 
-#if SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
-#endif
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -58,16 +60,6 @@ CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::
 const Services * CPlayerEnvironment::services() const
 {
 	return LIBRARY;
-}
-
-vstd::CLoggerBase * CPlayerEnvironment::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CPlayerEnvironment::eventBus() const
-{
-	return cl->eventBus();//always get actual value
 }
 
 const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle(const BattleID & battleID) const
@@ -87,6 +79,11 @@ CClient::CClient()
 
 CClient::~CClient() = default;
 
+IGameInfoCallback & CClient::gameInfo()
+{
+	return *gamestate;
+}
+
 const Services * CClient::services() const
 {
 	return LIBRARY; //todo: this should be LIBRARY
@@ -99,30 +96,18 @@ const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
 
 const CClient::GameCb * CClient::game() const
 {
-	return this;
-}
-
-vstd::CLoggerBase * CClient::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CClient::eventBus() const
-{
-	return clientEventBus.get();
+	return gamestate.get();
 }
 
 void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 {
 	GAME->server().th->update();
-	CMapService mapService;
 	assert(initializedGameState);
 	gamestate = initializedGameState;
 	gamestate->preInit(LIBRARY);
 	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 
 	initMapHandler();
-	reinitScripting();
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -134,27 +119,12 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gamestate = initializedGameState;
 	gamestate->preInit(LIBRARY);
-	gamestate->updateOnLoad(GAME->server().si.get());
+	gamestate->updateOnLoad(*GAME->server().si);
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
-
-	reinitScripting();
-
 	initPlayerEnvironments();
 	initPlayerInterfaces();
-}
-
-void CClient::save(const std::string & fname)
-{
-	if(!gameState().currentBattles.empty())
-	{
-		logNetwork->error("Game cannot be saved during battle!");
-		return;
-	}
-
-	SaveGame save_game(fname);
-	sendRequest(save_game, PlayerColor::NEUTRAL);
 }
 
 void CClient::endNetwork()
@@ -183,10 +153,6 @@ void CClient::finishGameplay()
 
 void CClient::endGame()
 {
-#if SCRIPTING_ENABLED
-	clientScripts.reset();
-#endif
-
 	logNetwork->info("Ending current game!");
 	removeGUI();
 
@@ -276,6 +242,13 @@ void CClient::initPlayerInterfaces()
 				logNetwork->info("Player %s will be lead by human", color.toString());
 				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
+
+			if(!advInterfaceReadySent.contains(color))
+			{
+				advInterfaceReadySent.insert(color);
+				AdvInterfaceReady air;
+				sendRequest(air, color, /* waitTillRealize = */ false);
+			}
 		}
 	}
 
@@ -285,7 +258,7 @@ void CClient::initPlayerInterfaces()
 	}
 
 	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
-		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
+		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
 }
@@ -305,8 +278,8 @@ std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, b
 std::string CClient::aiNameForPlayer(bool battleAI, bool alliedToHuman) const
 {
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
-	std::string goodAdventureAI = alliedToHuman ? settings["server"]["alliedAI"].String() : settings["server"]["playerAI"].String();
-	std::string goodBattleAI = settings["server"]["neutralAI"].String();
+	std::string goodAdventureAI = alliedToHuman ? settings["ai"]["adventureAlliedAI"].String() : settings["ai"]["adventureEnemyAI"].String();
+	std::string goodBattleAI = settings["ai"]["combatNeutralAI"].String();
 	std::string goodAI = battleAI ? goodBattleAI : goodAdventureAI;
 	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
 
@@ -358,19 +331,29 @@ void CClient::handlePack(CPackForClient & pack)
 	logNetwork->trace("\tMade second apply on cl: %s", typeid(pack).name());
 }
 
-int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
+std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
-	static ui32 requestCounter = 1;
+	return playerint[player]->makeSurrenderRetreatDecision(battleID, battleState);
+}
 
+int CClient::sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize)
+{
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 
 	waitingRequest.pushBack(requestID);
 	request.requestID = requestID;
 	request.player = player;
-	GAME->server().logicConnection->sendPack(request);
+	GAME->server().sendGamePack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(&request, requestID);
+
+	if(waitTillRealize)
+	{
+		logGlobal->trace("We'll wait till request %d is answered.\n", requestID);
+		auto gsUnlocker = vstd::makeUnlockSharedGuard(CGameState::mutex);
+		waitingRequest.waitWhileContains(requestID);
+	}
 
 	return requestID;
 }
@@ -490,30 +473,6 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	}
 }
 
-
-
-vstd::RNG & CClient::getRandomGenerator()
-{
-	// Client should use CRandomGenerator::getDefault() for UI logic
-	// Gamestate should never call this method on client!
-	throw std::runtime_error("Illegal access to random number generator from client code!");
-}
-
-#if SCRIPTING_ENABLED
-scripting::Pool * CClient::getGlobalContextPool() const
-{
-	return clientScripts.get();
-}
-#endif
-
-void CClient::reinitScripting()
-{
-	clientEventBus = std::make_unique<events::EventBus>();
-#if SCRIPTING_ENABLED
-	clientScripts.reset(new scripting::PoolImpl(this));
-#endif
-}
-
 void CClient::removeGUI() const
 {
 	// CClient::endGame
@@ -524,25 +483,12 @@ void CClient::removeGUI() const
 	GAME->setInterfaceInstance(nullptr);
 }
 
-#ifdef VCMI_ANDROID
-extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
+void CClient::registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents, PlayerColor color)
 {
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-
-	logGlobal->info("Received emergency save game request");
-	if(!GAME->interface() || !GAME->interface()->cb)
-	{
-		logGlobal->info("... but no active player interface found!");
-		return false;
-	}
-
-	if (!GAME->server().logicConnection)
-	{
-		logGlobal->info("... but no active connection found!");
-		return false;
-	}
-
-	GAME->interface()->cb->save("Saves/_Android_Autosave");
-	return true;
+	additionalBattleInts[color].push_back(battleEvents);
 }
-#endif
+
+void CClient::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents, PlayerColor color)
+{
+	additionalBattleInts[color] -= battleEvents;
+}

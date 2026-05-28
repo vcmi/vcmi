@@ -24,6 +24,7 @@ VCMI_LIB_NAMESPACE_END
 class CButton;
 class CHeroWindow;
 class LClickableAreaHero;
+class LRClickableArea;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHeroMain;
@@ -33,6 +34,7 @@ class CToggleGroup;
 class CGStatusBar;
 class CTextBox;
 class CGarrisonInt;
+class CSlider;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
@@ -57,6 +59,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::shared_ptr<CPicture> listSelection;
 
 	std::shared_ptr<LRClickableAreaWText> portraitArea;
+	std::shared_ptr<LRClickableArea>     portraitWikiArea;
 	std::shared_ptr<CAnimImage> portraitImage;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
@@ -77,6 +80,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::vector< std::shared_ptr<CSecSkillPlace>> secSkills;
 	std::vector<std::shared_ptr<CLabel>> secSkillNames;
 	std::vector<std::shared_ptr<CLabel>> secSkillValues;
+	std::shared_ptr<CSlider> secSkillSlider;
 
 	std::shared_ptr<CButton> quitButton;
 	std::shared_ptr<CTextBox> dismissLabel;
@@ -99,7 +103,8 @@ public:
 
 	CHeroWindow(const CGHeroInstance * hero);
 
-	void update() override;
+	void updateArtifacts() override;
+	void keyPressed(EShortcut key) override;
 
 	void dismissCurrent(); //dismissed currently displayed hero (curHero)
 	void commanderWindow();

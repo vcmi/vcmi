@@ -11,79 +11,59 @@
 
 #include "BonusEnum.h"
 #include "BonusCustomTypes.h"
-#include "../constants/VariantIdentifier.h"
-#include "../constants/EntityIdentifiers.h"
+#include "Limiters.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct Bonus;
 class IBonusBearer;
-class CBonusSystemNode;
-class ILimiter;
 class IPropagator;
 class IUpdater;
-class BonusList;
 class CSelector;
 class IGameInfoCallback;
+class BonusParameters;
 
-using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
-using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
-using TLimiterPtr = std::shared_ptr<ILimiter>;
-using TPropagatorPtr = std::shared_ptr<IPropagator>;
-using TUpdaterPtr = std::shared_ptr<IUpdater>;
-
-class DLL_LINKAGE CAddInfo : public std::vector<si32>
-{
-public:
-	enum { NONE = -1 };
-
-	CAddInfo();
-	CAddInfo(si32 value);
-
-	bool operator==(si32 value) const;
-	bool operator!=(si32 value) const;
-
-	si32 & operator[](size_type pos);
-	si32 operator[](size_type pos) const;
-
-	std::string toString() const;
-	JsonNode toJsonNode() const;
-};
+using TPropagatorPtr = std::shared_ptr<const IPropagator>;
+using TUpdaterPtr = std::shared_ptr<const IUpdater>;
+using TBonusParametersPtr = std::shared_ptr<const BonusParameters>;
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
 {
 	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values - 2 bytes
-	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 	si32 val = 0;
+	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE; // 1 byte
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus - 1 byte
 	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE. - 1 byte
-	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
 	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; // 1 byte
-	// 3 bytes padding
+	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 2 bytes
 
 	BonusSubtypeID subtype;
 	BonusSourceID sid; //source id: id of object/artifact/spell
 	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
-	CAddInfo additionalInfo;
-
+	TBonusParametersPtr parameters;
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 	TUpdaterPtr updater;
 	TUpdaterPtr propagationUpdater;
 
+	ImagePath customIconPath;
 	MetaString description;
+	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
+
+	bool hidden = false;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
+	Bonus(const Bonus & inst, const BonusSourceID & sourceId);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -95,7 +75,21 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & val;
 		h & sid;
 		h & description;
-		h & additionalInfo;
+
+		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
+			h & customIconPath;
+		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
+			h & hidden;
+		if (h.hasFeature(Handler::Version::BONUS_TRIGGER))
+		{
+			h & parameters;
+		}
+		else
+		{
+			std::vector<int> oldAddInfo;
+			h & oldAddInfo;
+			convertAddInfo(oldAddInfo);
+		}
 		h & turnsRemain;
 		h & valType;
 		h & stacking;
@@ -107,11 +101,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & targetSourceType;
 	}
 
-	template <typename Ptr>
-	static bool compareByAdditionalInfo(const Ptr& a, const Ptr& b)
-	{
-		return a->additionalInfo < b->additionalInfo;
-	}
+	void convertAddInfo(const std::vector<int> & oldAddInfo);
+
 	static bool NDays(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::N_DAYS;
@@ -152,6 +143,16 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		auto set = hb->duration & BonusDuration::UNTIL_ATTACK;
 		return set != 0;
 	}
+	static bool UntilTakingIndirectDamage(const Bonus *hb)
+	{
+		auto set = hb->duration & BonusDuration::UNTIL_TAKING_INDIRECT_DAMAGE;
+		return set != 0;
+	}
+	static bool untilAfterAttackSequence(const Bonus *hb)
+	{
+		auto set = hb->duration & BonusDuration::UNTIL_AFTER_ATTACK_SEQUENCE;
+		return set != 0;
+	}
 	static bool UntilBeingAttacked(const Bonus *hb)
 	{
 		auto set = hb->duration & BonusDuration::UNTIL_BEING_ATTACKED;
@@ -182,6 +183,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	std::shared_ptr<Bonus> addLimiter(const TLimiterPtr & Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(const TPropagatorPtr & Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
+	std::shared_ptr<Bonus> addPropagationUpdater(const TUpdaterPtr & Updater); //returns this for convenient chain-calls
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

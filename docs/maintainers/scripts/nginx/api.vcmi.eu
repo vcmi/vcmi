@@ -1,0 +1,22 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name api.vcmi.eu;
+    access_log  /var/log/nginx/api.access.log;
+    client_max_body_size 40M;
+
+    ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
+    ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;
+    ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+    ssl_verify_client on;
+
+    location / {
+	add_header 'Access-Control-Allow-Origin'  '*';
+        proxy_pass http://127.0.0.1:3032;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

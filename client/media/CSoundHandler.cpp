@@ -12,8 +12,8 @@
 
 #include "../GameEngine.h"
 
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/CRandomGenerator.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/CRandomGenerator.h"
 
 #include <SDL_mixer.h>
 
@@ -47,7 +47,10 @@ CSoundHandler::CSoundHandler():
 	{
 		Mix_ChannelFinished([](int channel)
 		{
-			ENGINE->sound().soundFinishedCallback(channel);
+			// It is possible for this code to be executed during ENGINE destruction.
+			// In this scenario, ENGINE is already nullptr, but ~CSoundHandler is still running
+			if (ENGINE)
+				ENGINE->sound().soundFinishedCallback(channel);
 		});
 	}
 }
@@ -201,7 +204,7 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 
 	if(chunk)
 	{
-		channel = Mix_PlayChannel(-1, chunk, 0);
+		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if(channel == -1)
 		{
 			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), Mix_GetError());

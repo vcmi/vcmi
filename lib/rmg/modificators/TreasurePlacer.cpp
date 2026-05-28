@@ -30,9 +30,10 @@
 #include "../../mapObjects/CQuest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
-#include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../spells/CSpellHandler.h"
+
 
 #include <vstd/RNG.h>
 
@@ -108,8 +109,19 @@ void TreasurePlacer::addAllPossibleObjects()
 
 void TreasurePlacer::addCommonObjects()
 {
+	//objects with these IDs are added elsewhere, see addAllPossibleObjects()
+	std::set<MapObjectID> excludedIDs = {
+		Obj::PRISON,
+		Obj::CREATURE_GENERATOR1,
+		Obj::CREATURE_GENERATOR4,
+		Obj::SPELL_SCROLL,
+		Obj::PANDORAS_BOX,
+		Obj::SEER_HUT
+	};
 	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
+		if(excludedIDs.find(primaryID) != excludedIDs.end())
+			continue;
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
@@ -139,7 +151,11 @@ void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID obj
 {
 	oi.generateObject = [this, objid]() -> std::shared_ptr<CGObjectInstance>
 	{
-		return LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		auto obj = LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		// adjust ownership for ownable objects (such as dwellings)
+		if (obj->asOwnable() && obj->tempOwner == PlayerColor::UNFLAGGABLE)
+			obj->setOwner(PlayerColor::NEUTRAL);		
+		return obj;
 	};
 	oi.setTemplates(objid.primaryID, objid.secondaryID, zone.getTerrainType());
 }
@@ -237,19 +253,29 @@ void TreasurePlacer::addDwellings()
 			const auto * cre = creatures.front();
 			if(cre->getFactionID() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				// value increases, if there are more native zones for the faction
+				float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
-				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
-				oi.probability = 40;
-				
-				oi.generateObject = [this, secondaryID, dwellingType]() -> std::shared_ptr<CGObjectInstance>
+				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->getRMGInfo();
+				// rmg info set for dwelling
+				if(rmgInfo.value)
 				{
-					auto obj = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(map.mapInstance->cb, nullptr);
-					obj->tempOwner = PlayerColor::NEUTRAL;
-					return obj;
-				};
+					if (rmgInfo.value > zone.getMaxTreasureValue())
+						continue;
+					oi.value = rmgInfo.value * valueModifier;
+					oi.probability = rmgInfo.rarity;
+					if (rmgInfo.zoneLimit != std::numeric_limits<ui32>::max())
+						oi.maxPerZone = rmgInfo.zoneLimit;
+					// FIXME: rmgInfo.mapLimit is not allowed for dwellings
+				}
+				else
+				{
+					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
+					oi.probability = 40;
+				}
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}
@@ -277,7 +303,7 @@ void TreasurePlacer::addScrolls()
 				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i + 1)
 					out.push_back(spellID);
 			}
-			auto * a = map.mapInstance->createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
+			auto * a = mapProxy->createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
 			obj->setArtifactInstance(a);
 			return obj;
 		};
@@ -487,6 +513,7 @@ void TreasurePlacer::addSeerHuts()
 	//Seer huts with creatures or generic rewards
 
 	ObjectInfo oi(Obj::SEER_HUT, 0);
+	const auto seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
 
 	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
@@ -504,6 +531,7 @@ void TreasurePlacer::addSeerHuts()
 		
 		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
 		oi.maxPerZone = 1;
+		oi.value = seerHutPlacementValue;
 
 		std::vector<ObjectInfo> possibleSeerHuts;
 		//14 creatures per town + 4 for each of gold / exp reward
@@ -511,11 +539,11 @@ void TreasurePlacer::addSeerHuts()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
-		auto setRandomArtifact = [qap](CGSeerHut * obj)
+		auto setRandomArtifact = [qap](CGSeerHut * obj, ui32 rewardValue)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
 			obj->getQuest().mission.artifacts.push_back(artid);
-			qap->addQuestArtifact(artid);
+			qap->addQuestArtifact(artid, rewardValue);
 		};
 		auto destroyObject = [qap](CGObjectInstance & obj)
 		{
@@ -537,7 +565,14 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
+
+			if (rewardValue > zone.getMaxTreasureValue())
+			{
+				continue;
+			}
+
+			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(cb, nullptr));
@@ -546,23 +581,15 @@ void TreasurePlacer::addSeerHuts()
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 				
 				return obj;
 			};
 			oi.destroyObject = destroyObject;
 			oi.probability = 3;
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
-			if (oi.value > zone.getMaxTreasureValue())
-			{
-				continue;
-			}
-			else
-			{
-				if(!oi.templates.empty())
-					possibleSeerHuts.push_back(oi);
-			}
+			if(!oi.templates.empty())
+				possibleSeerHuts.push_back(oi);
 		}
 		
 		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
@@ -571,17 +598,16 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = generator.getConfig().questValues[i];
-			if (oi.value > zone.getMaxTreasureValue())
+			const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
+			if (rewardValue > zone.getMaxTreasureValue())
 			{
-				//Both variants have same value
 				continue;
 			}
 
 			oi.probability = 10;
 			oi.maxPerZone = 1;
 			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
@@ -590,7 +616,7 @@ void TreasurePlacer::addSeerHuts()
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 
 				return obj;
 			};
@@ -599,7 +625,7 @@ void TreasurePlacer::addSeerHuts()
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
@@ -609,7 +635,7 @@ void TreasurePlacer::addSeerHuts()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 				
 				return obj;
 			};
@@ -749,10 +775,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		if (oi->generateObject)
 		{
 			object = oi->generateObject();
+			object->rmgValue = oi->value;
 			if(oi->templates.empty())
 			{
 				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-				oi->destroyObject(*object);
+				if (oi->destroyObject)
+					oi->destroyObject(*object);
 				continue;
 			}
 		}
@@ -1146,7 +1174,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 			auto category = getObjectCategory(oi.getCompoundID());
 			if (categoriesSet.count(category))
 			{
-				logGlobal->info("Removing object %s from possible objects", oi.templates.front()->stringID);
+				logGlobal->debug("Removing object %s from possible objects", oi.templates.front()->stringID);
 				return true;
 			}
 			return false;
@@ -1159,10 +1187,11 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 			for (const auto & templ : object.templates)
 			{
 				CompoundMapObjectID key = object.getCompoundID();
-				if (bannedObjectsSet.count(key))
+				CompoundMapObjectID keyGroup( key.primaryID, -1);
+				if (bannedObjectsSet.count(key) || bannedObjectsSet.count(keyGroup))
 				{
 					// FIXME: Stopped working, nothing is banned
-					logGlobal->info("Banning object %s from possible objects", templ->stringID);
+					logGlobal->debug("Banning object %s from possible objects", templ->stringID);
 					return true;
 				}
 			}
@@ -1177,7 +1206,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	{
 		tp->setBasicProperties(object, object.getCompoundID());
 		addObject(object);
-		logGlobal->info("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
+		logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}
 	// TODO: Overwrite or add to possibleObjects
 
@@ -1224,8 +1253,7 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 			return ObjectConfig::EObjectCategory::NONE;
 		}
 
-		auto temp = handler->getTemplates().front();
-		auto info = handler->getObjectInfo(temp);
+		auto info = handler->getObjectInfo();
 
 		if (info->hasGuards())
 		{

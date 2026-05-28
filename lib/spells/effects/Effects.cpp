@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "Effects.h"
+#include "SpellEffectService.h"
 
 #include <vcmi/spells/Caster.h>
 
@@ -42,7 +43,7 @@ bool Effects::applicable(Problem & problem, const Mechanics * m) const
 
 	auto callback = [&](const Effect * e, bool & stop)
 	{
-		if(e->applicable(problem, m))
+		if(e->applicableGeneral(problem, m))
 		{
 			oneEffectApplicable = true;
 		}
@@ -72,9 +73,9 @@ bool Effects::applicable(Problem & problem, const Mechanics * m, const Target & 
 		if(e->indirect)
 			return;
 
-		EffectTarget target = e->transformTarget(m, aimPoint, spellTarget);
+		Target target = e->transformTarget(m, aimPoint, spellTarget);
 
-		if(e->applicable(problem, m, target))
+		if(e->applicableTarget(problem, m, target))
 		{
 			oneEffectApplicable = true;
 		}
@@ -118,7 +119,7 @@ Effects::EffectsToApply Effects::prepare(const Mechanics * m, const Target & aim
 
 		if(applyThis)
 		{
-			EffectTarget target = e->transformTarget(m, aimPoint, spellTarget);
+			Target target = e->transformTarget(m, aimPoint, spellTarget);
 			effectsToApply.push_back(std::make_pair(e, target));
 		}
 	};
@@ -128,7 +129,7 @@ Effects::EffectsToApply Effects::prepare(const Mechanics * m, const Target & aim
 	return effectsToApply;
 }
 
-void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & handler, const int level)
+void Effects::serializeJson(JsonSerializeFormat & handler, const int level, const std::string & spellScope, const std::string & spellIdentifier)
 {
 	assert(!handler.saving);
 
@@ -139,13 +140,16 @@ void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & han
 		const std::string & name = p.first;
 
 		auto guard = handler.enterStruct(name);
+		SpellEffectID effectID(*LIBRARY->identifiers()->getIdentifier("spellEffect", p.second["type"]));
 
-		std::string type;
-		handler.serializeString("type", type);
+		LIBRARY->spellEffects()->validateEffect(effectID, p.second, spellScope + ":" + spellIdentifier + " effect " + name);
 
-		auto effect = Effect::create(registry, type);
+		auto effect = LIBRARY->spellEffects()->create(effectID);
 		if(effect)
 		{
+			effect->name = name;
+			effect->spellScope = spellScope;
+			effect->spellIdentifier = spellIdentifier;
 			effect->serializeJson(handler);
 			add(name, effect, level);
 		}

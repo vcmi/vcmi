@@ -13,21 +13,25 @@
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 
 ShortcutHandler::ShortcutHandler()
 {
-	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
+	reloadShortcuts();
+}
 
-	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
-	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+void ShortcutHandler::reloadShortcuts()
+{
+	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 
-	for (auto const & entry : config["keyboard"].Struct())
+	for (auto const & entry : keyBindingsConfig["keyboard"].Struct())
 	{
 		EShortcut shortcutID = findShortcut(entry.first);
 		assert(!vstd::contains(assignedShortcuts, shortcutID));
@@ -117,6 +121,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
 		{"globalFullscreen",         EShortcut::GLOBAL_FULLSCREEN         },
+		{"globalScreenshot",         EShortcut::GLOBAL_SCREENSHOT         },
 		{"globalOptions",            EShortcut::GLOBAL_OPTIONS            },
 		{"globalBackspace",          EShortcut::GLOBAL_BACKSPACE          },
 		{"globalMoveFocus",          EShortcut::GLOBAL_MOVE_FOCUS         },
@@ -163,10 +168,13 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyToggleChat",          EShortcut::LOBBY_TOGGLE_CHAT         },
 		{"lobbyAdditionalOptions",   EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
 		{"lobbySelectScenario",      EShortcut::LOBBY_SELECT_SCENARIO     },
+		{"lobbyBattleMode",          EShortcut::LOBBY_BATTLE_MODE         },
 		{"gameEndTurn",              EShortcut::ADVENTURE_END_TURN        }, // compatibility ID - extra's use this string
 		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
 		{"adventureLoadGame",        EShortcut::ADVENTURE_LOAD_GAME       },
 		{"adventureSaveGame",        EShortcut::ADVENTURE_SAVE_GAME       },
+		{"adventureQuickSave",       EShortcut::ADVENTURE_QUICK_SAVE      },
+		{"adventureQuickLoad",       EShortcut::ADVENTURE_QUICK_LOAD      },
 		{"adventureRestartGame",     EShortcut::ADVENTURE_RESTART_GAME    },
 		{"adventureMainMenu",        EShortcut::ADVENTURE_TO_MAIN_MENU    },
 		{"adventureQuitGame",        EShortcut::ADVENTURE_QUIT_GAME       },
@@ -203,6 +211,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureViewWorld1",      EShortcut::ADVENTURE_VIEW_WORLD_X1   },
 		{"adventureViewWorld2",      EShortcut::ADVENTURE_VIEW_WORLD_X2   },
 		{"adventureViewWorld4",      EShortcut::ADVENTURE_VIEW_WORLD_X4   },
+		{"adventureViewStatistic",   EShortcut::ADVENTURE_VIEW_STATISTIC  },
 		{"adventureTrackHero",       EShortcut::ADVENTURE_TRACK_HERO,     },
 		{"adventureToggleMapLevel",  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{"adventureKingdomOverview", EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
@@ -215,6 +224,8 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureZoomReset",       EShortcut::ADVENTURE_ZOOM_RESET      },
 		{"adventureSearch",          EShortcut::ADVENTURE_SEARCH          },
 		{"adventureSearchContinue",  EShortcut::ADVENTURE_SEARCH_CONTINUE },
+		{"adventureDisembark",       EShortcut::ADVENTURE_DISEMBARK       },
+		{"adventureOpenWiki",        EShortcut::ADVENTURE_OPEN_WIKI       },
 		{"battleToggleHeroesStats",  EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
@@ -229,7 +240,6 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleConsoleDown",        EShortcut::BATTLE_CONSOLE_DOWN       },
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
-		{"battleSelectAction",       EShortcut::BATTLE_SELECT_ACTION      },
 		{"battleToggleQuickSpell",   EShortcut::BATTLE_TOGGLE_QUICKSPELL   },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },
@@ -306,10 +316,14 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyRandomTown",          EShortcut::LOBBY_RANDOM_TOWN         },
 		{"lobbyRandomTownVs",        EShortcut::LOBBY_RANDOM_TOWN_VS      },
 		{"lobbyHandicap",            EShortcut::LOBBY_HANDICAP            },
+		{"lobbyCampaignSets",        EShortcut::LOBBY_CAMPAIGN_SETS       },
 		{"mapsSizeS",                EShortcut::MAPS_SIZE_S               },
 		{"mapsSizeM",                EShortcut::MAPS_SIZE_M               },
 		{"mapsSizeL",                EShortcut::MAPS_SIZE_L               },
 		{"mapsSizeXl",               EShortcut::MAPS_SIZE_XL              },
+		{"mapsSizeH",                EShortcut::MAPS_SIZE_H               },
+		{"mapsSizeXh",               EShortcut::MAPS_SIZE_XH              },
+		{"mapsSizeG",                EShortcut::MAPS_SIZE_G               },
 		{"mapsSizeAll",              EShortcut::MAPS_SIZE_ALL             },
 		{"mapsSortPlayers",          EShortcut::MAPS_SORT_PLAYERS         },
 		{"mapsSortSize",             EShortcut::MAPS_SORT_SIZE            },

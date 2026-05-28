@@ -20,6 +20,10 @@
 #include <QImage>
 #include <QPixmap>
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 namespace BitmapHandler
 {
 	QImage loadH3PCX(ui8 * data, size_t size);
@@ -122,7 +126,9 @@ namespace BitmapHandler
 		}
 		else
 		{ //loading via QImage
-			QImage image(QString::fromStdString(fullpath->make_preferred().string()));
+			QImage image;
+			QByteArray byteArray(reinterpret_cast<const char *>(readFile.first.get()), readFile.second);
+			image.loadFromData(byteArray);
 			if(!image.isNull())
 			{
 				if(image.bitPlaneCount() == 1)
@@ -160,3 +166,7 @@ namespace BitmapHandler
 		return {};
 	}
 }
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif

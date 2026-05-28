@@ -24,9 +24,9 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
@@ -196,26 +196,12 @@ std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstac
 
 Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)
 {
-	int offset = obstacle.getAnimationYOffset(image->height());
-
 	Rect r = owner.fieldController->hexPositionLocal(obstacle.pos);
-	r.y += 42 - image->height() + offset;
-
-	return r.topLeft();
+	return r.bottomLeft() - Point(0, obstacle.getAnimationYOffset(image->height()));
 }
 
 Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const JsonNode & obstacle)
 {
-	auto animationYOffset = obstacle["animationYOffset"].Integer();
-	auto offset = image->height() % 42;
-
-	if(obstacle["needAnimationOffsetFix"].Bool() && offset > 37)
-		animationYOffset -= 42;
-
-	offset += animationYOffset;
-
 	Rect r = owner.fieldController->hexPositionLocal(obstacle["position"].Integer());
-	r.y += 42 - image->height() + offset;
-
-	return r.topLeft();
+	return r.bottomLeft() - Point(0, image->height());
 }

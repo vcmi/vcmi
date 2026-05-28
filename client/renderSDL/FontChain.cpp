@@ -115,8 +115,8 @@ size_t FontChain::getGlyphWidthScaled(const char * data) const
 
 std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(const std::string & data) const
 {
-	// U+FFFD - replacement character (question mark in rhombus)
-	static const std::string replacementCharacter = u8"�";
+	// U+FFFD - replacement character (question mark in rhombus, '�')
+	static const std::string replacementCharacter = reinterpret_cast<const char *>(u8"\ufffd");
 
 	std::vector<TextChunk> chunks;
 

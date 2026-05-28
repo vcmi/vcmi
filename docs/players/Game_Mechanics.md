@@ -1,3 +1,7 @@
+---
+# YAML header
+render_macros: false
+---
 # Game Mechanics
 
 ## List of features added in VCMI
@@ -40,10 +44,6 @@ Stack experience interface has been merged with regular creature window. Among o
 ### Commanders module
 
 VCMI offers native support for Commanders. Commanders are part of WoG mod for VCMI and require it to be enabled. However, once this is done, any new faction can use its own Commander, too.
-
-### Mithril module
-
-VCMI natively supports Mithril resource known from WoG. However, it is not currently used by any mod.
 
 ### Stack Artifact module
 

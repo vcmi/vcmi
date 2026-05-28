@@ -20,7 +20,7 @@ enum class EBattleFieldLayer {
 	WALLS         = 1,
 	HEROES        = 2,
 	STACKS        = 2, // after corpses, obstacles, walls
-	OBSTACLES     = 3, // after stacks
+	OBSTACLES     = 3, // after stacks FIXME: not correct for quicksands!
 	STACK_AMOUNTS = 3, // after stacks, obstacles, corpses
 	EFFECTS       = 4, // after obstacles, battlements
 };

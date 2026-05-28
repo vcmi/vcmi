@@ -1,0 +1,245 @@
+{
+	"catapult" : {
+		"type" : "builtin",
+		"script" : "Catapult",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"targetsToAttack" : { "type" : "number" },
+				"chanceToHitKeep" : { "type" : "number" },
+				"chanceToHitGate" : { "type" : "number" },
+				"chanceToHitTower" : { "type" : "number" },
+				"chanceToHitWall" : { "type" : "number" },
+				"chanceToNormalHit" : { "type" : "number" },
+				"chanceToCrit" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"clone" : { 
+		"type" : "builtin",
+		"script" : "Clone",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"maxTier" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"damage" : {
+		"type" : "builtin",
+		"script" : "Damage",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"killByPercentage" : { "type" : "boolean" },
+				"killByCount" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"demonSummon" : {
+		"type" : "luaUnit",
+		"script" : "demonSummon",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"dispel" : { 
+		"type" : "builtin",
+		"script" : "Dispel",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"dispelPositive" : { "type" : "boolean" },
+				"dispelNegative" : { "type" : "boolean" },
+				"dispelNeutral" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"heal" : { 
+		"type" : "builtin",
+		"script" : "Heal",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"sacrifice" : { 
+		"type" : "builtin",
+		"script" : "Sacrifice",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"moat" : { 
+		"type" : "builtin",
+		"script" : "Moat",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"dispellable" : { "type" : "boolean" },
+				"moatDamage" : { "type" : "number" },
+				"moatHexes" : { "type" : "array", "items" : { "type" : "array", "items" : { "type" : "number" } } },
+				"triggerAbility" : { "type" : "string" },
+				"defender" : {  },
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"obstacle" :
+	{ 
+		"type" : "builtin",
+		"script" : "Obstacle",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"passable" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"hideNative" : { "type" : "boolean" },
+				"patchCount" : { "type" : "number" },
+				"turnsRemaining" : { "type" : "number" },
+				"triggerAbility" : { "type" : "string" },
+				"attacker" : {  },
+				"defender" : {  }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"removeObstacle" : { 
+		"type" : "builtin",
+		"script" : "RemoveObstacle",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"removeAbsolute" : { "type" : "boolean" },
+				"removeUsual" : { "type" : "boolean" },
+				"removeAllSpells" : { "type" : "boolean" },
+				"removeSpells" : {  }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"summon" : {
+		"type" : "lua",
+		"script" : "summon.lua",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" },
+				"exclusive" : { "type" : "boolean" },
+				"summonByHealth" : { "type" : "boolean" },
+				"summonSameUnit" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"teleport" : { 
+		"type" : "builtin",
+		"script" : "Teleport",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"triggerObstacles" : { "type" : "boolean" },
+				"isWallPassable" : { "type" : "boolean" },
+				"isMoatPassable" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"timed" : { 
+		"type" : "builtin",
+		"script" : "Timed",
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"cumulative" : { "type" : "boolean" },
+				"battleLogMessage" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"properties" : {
+						"singular" : { "type" : "string" },
+						"plural" : { "type" : "string" }
+					}
+				},
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	}
+}

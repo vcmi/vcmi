@@ -17,15 +17,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
-	VideoPath prologVideo;
-	AudioPath prologMusic; // from CmpMusic.txt
+	std::pair<VideoPath, VideoPath> prologVideo;
+	AudioPath prologMusic;
 	AudioPath prologVoice;
 	MetaString prologText;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & hasPrologEpilog;
-		h & prologVideo;
+		if(h.version >= Handler::Version::CAMPAIGN_VIDEO)
+			h & prologVideo;
+		else
+			h & prologVideo.first;
 		h & prologMusic;
 		h & prologVoice;
 		h & prologText;

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/Rect.h"
+#include "../../lib/Rect.h"
 
 class MapViewModel
 {

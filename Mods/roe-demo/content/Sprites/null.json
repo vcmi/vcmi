@@ -1,0 +1,7 @@
+{
+	"basepath" : "",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "default.pcx" }
+	]
+}

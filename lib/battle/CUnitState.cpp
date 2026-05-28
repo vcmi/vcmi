@@ -15,6 +15,7 @@
 
 #include "../CCreatureHandler.h"
 
+#include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -453,6 +454,11 @@ int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, BonusSubtypeID(spell->getId()));
 }
 
+int64_t CUnitState::getEffectRange(const spells::Spell * spell) const
+{
+	return valOfBonuses(BonusType::SPECIFIC_SPELL_RANGE, BonusSubtypeID(spell->getId()));
+}
+
 PlayerColor CUnitState::getCasterOwner() const
 {
 	return env->unitEffectiveOwner(this);
@@ -495,7 +501,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))));
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
@@ -609,8 +615,8 @@ uint8_t CUnitState::getRangedFullDamageDistance() const
 	if(hasBonusOfType(BonusType::LIMITED_SHOOTING_RANGE))
 	{
 		auto bonus = this->getBonus(Selector::type()(BonusType::LIMITED_SHOOTING_RANGE));
-		if(bonus != nullptr && bonus->additionalInfo != CAddInfo::NONE)
-			return bonus->additionalInfo[0];
+		if(bonus != nullptr && bonus->parameters)
+			return bonus->parameters->toNumber();
 	}
 
 	if (hasBonusOfType(BonusType::NO_DISTANCE_PENALTY))
@@ -686,7 +692,7 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 		else
 			return BattlePhases::WAIT;
 	}
-	else if(creatureIndex() == CreatureID::CATAPULT || isTurret()) //catapult and turrets are first
+	else if(isCatapult() || isTurret()) //catapult and turrets are first
 	{
 		return BattlePhases::SIEGE;
 	}
@@ -846,12 +852,13 @@ void CUnitState::reset()
 	position = BattleHex::INVALID;
 }
 
-void CUnitState::save(JsonNode & data)
+JsonNode CUnitState::save()
 {
+	JsonNode data;
 	//TODO: use instance resolver
-	data.clear();
 	JsonSerializer ser(nullptr, data);
 	ser.serializeStruct("state", *this);
+	return data;
 }
 
 void CUnitState::load(const JsonNode & data)
@@ -926,6 +933,7 @@ void CUnitState::afterGetsTurn(BattleUnitTurnReason reason)
 	{
 		hadMorale = true;
 		castSpellThisTurn = false;
+		movedThisRound = false;
 	}
 }
 
@@ -948,9 +956,9 @@ CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBear
 {
 }
 
-TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
+TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
-	return bonus->getAllBonuses(selector, limit, cachingStr);
+	return bonus->getAllBonuses(selector, cachingStr);
 }
 
 int32_t CUnitStateDetached::getTreeVersion() const

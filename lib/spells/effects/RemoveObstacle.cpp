@@ -11,7 +11,6 @@
 
 #include "RemoveObstacle.h"
 
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
@@ -27,21 +26,21 @@ namespace spells
 namespace effects
 {
 
-bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
+bool RemoveObstacle::applicableGeneral(Problem & problem, const Mechanics * m) const
 {
-	if (getTargets(m, EffectTarget(), true).empty())
+	if (getTargets(m,Target(), true).empty())
 	{
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 	return true;
 }
 
-bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
+bool RemoveObstacle::applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const
 {
 	return !getTargets(m, target, false).empty();
 }
 
-void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
@@ -85,7 +84,7 @@ bool RemoveObstacle::canRemove(const CObstacleInstance * obstacle) const
 	return false;
 }
 
-std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const
+std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics * m, const Target & target, bool alwaysMassive) const
 {
 	std::set<const CObstacleInstance *> possibleTargets;
 	if(m->isMassive() || alwaysMassive)

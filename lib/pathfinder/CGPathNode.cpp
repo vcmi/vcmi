@@ -12,9 +12,9 @@
 
 #include "CPathfinder.h"
 
-#include "../gameState/CGameState.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,14 +42,29 @@ const CGPathNode & CGPath::lastNode() const
 	return nodes[0];
 }
 
+bool CGPath::hasNextNode() const
+{
+	return nodes.size() >= 2;
+}
+
 int3 CGPath::startPos() const
 {
-	return nodes[nodes.size()-1].coord;
+	return currNode().coord;
+}
+
+CGPath::ELayer CGPath::startLayer() const
+{
+	return nodes[nodes.size()-1].layer;
 }
 
 int3 CGPath::endPos() const
 {
-	return nodes[0].coord;
+	return lastNode().coord;
+}
+
+CGPath::ELayer CGPath::endLayer() const
+{
+	return nodes[0].layer;
 }
 
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
@@ -61,19 +76,21 @@ CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 
 CPathsInfo::~CPathsInfo() = default;
 
-const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile) const
+const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile, const ELayer layer) const
 {
 	assert(vstd::iswithin(tile.x, 0, sizes.x));
 	assert(vstd::iswithin(tile.y, 0, sizes.y));
 	assert(vstd::iswithin(tile.z, 0, sizes.z));
-
-	return getNode(tile);
+	if (layer < ELayer::NUM_LAYERS)
+		return getNode(tile, layer);
+	else
+		return getNode(tile);
 }
 
-bool CPathsInfo::getPath(CGPath & out, const int3 & dst) const
+bool CPathsInfo::getPath(CGPath & out, const int3 & dst, const ELayer layer) const
 {
 	out.nodes.clear();
-	const CGPathNode * curnode = getNode(dst);
+	const CGPathNode * curnode = layer < ELayer::NUM_LAYERS ? getNode(dst, layer) : getNode(dst);
 	if(!curnode->theNodeBefore)
 		return false;
 
@@ -100,7 +117,7 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void PathNodeInfo::setNode(const IGameInfoCallback & gameInfo, CGPathNode * n)
 {
 	node = n;
 	guarded = false;
@@ -110,14 +127,14 @@ void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 		assert(node->coord.isValid());
 
 		coord = node->coord;
-		tile = gs.getTile(coord);
+		tile = gameInfo.getTile(coord);
 		nodeObject = nullptr;
 		nodeHero = nullptr;
 
 		ObjectInstanceID topObjectID = tile->topVisitableObj();
 		if (topObjectID.hasValue())
 		{
-			nodeObject = gs.getObjInstance(topObjectID);
+			nodeObject = gameInfo.getObjInstance(topObjectID);
 
 			if (nodeObject->ID == Obj::HERO)
 			{
@@ -125,28 +142,28 @@ void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 				ObjectInstanceID bottomObjectID = tile->topVisitableObj(true);
 
 				if (bottomObjectID.hasValue())
-					nodeObject = gs.getObjInstance(bottomObjectID);
+					nodeObject = gameInfo.getObjInstance(bottomObjectID);
 			}
 		}
 	}
 
 }
 
-void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState & gs)
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, const IGameInfoCallback & gameInfo)
 {
-	if(gs.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
+	if(gameInfo.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
 		guarded = true;
 	}
 
 	if(nodeObject)
 	{
-		objectRelations = gs.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
+		objectRelations = gameInfo.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
 	}
 
 	if(nodeHero)
 	{
-		heroRelations = gs.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
+		heroRelations = gameInfo.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
 	}
 }
 
@@ -164,9 +181,9 @@ CDestinationNodeInfo::CDestinationNodeInfo():
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void CDestinationNodeInfo::setNode(const IGameInfoCallback & gameInfo, CGPathNode * n)
 {
-	PathNodeInfo::setNode(gs, n);
+	PathNodeInfo::setNode(gameInfo, n);
 
 	blocked = false;
 	action = EPathNodeAction::UNKNOWN;

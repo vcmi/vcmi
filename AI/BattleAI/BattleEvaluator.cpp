@@ -14,18 +14,21 @@
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
 #include "tbb/parallel_for.h"
+#include "SpellTargetsEvaluator.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
-#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/BattleSpellMechanics.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
-
 
 // TODO: remove
 // Eventually only IBattleInfoCallback and battle::Unit should be used,
@@ -128,35 +131,55 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
-std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack *stack)
+std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
+	if(!stack->canCast())
+		return std::nullopt;
+
+	std::vector<SpellID> spellsToCast;
+	TConstBonusListPtr bl = stack->getBonusesOfType(BonusType::SPELLCASTER);
+
 	//TODO: faerie dragon type spell should be selected by server
 	SpellID creatureSpellToCast = cb->getBattle(battleID)->getRandomCastedSpell(CRandomGenerator::getDefault(), stack);
 
-	if(stack->canCast() && creatureSpellToCast != SpellID::NONE)
+	for(const auto & bonus : *bl)
+		if(!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
+			spellsToCast.push_back(bonus->subtype.as<SpellID>());
+
+	if(creatureSpellToCast.hasValue())
+		spellsToCast.push_back(creatureSpellToCast);
+
+	std::vector<PossibleSpellcast> possibleCasts;
+
+	for(const auto spellID : spellsToCast)
 	{
-		const CSpell * spell = creatureSpellToCast.toSpell();
+		const CSpell * spell = spellID.toSpell();
 
-		if(spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+		if(!spell->canBeCast(cb->getBattle(battleID).get(), spells::Mode::CREATURE_ACTIVE, stack))
+			continue;
+
+		spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+		for(const auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 		{
-			std::vector<PossibleSpellcast> possibleCasts;
-			spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
-			for(auto & target : temp.findPotentialTargets())
-			{
-				PossibleSpellcast ps;
-				ps.dest = target;
-				ps.spell = spell;
-				evaluateCreatureSpellcast(stack, ps);
-				possibleCasts.push_back(ps);
-			}
-
-			std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
-			if(!possibleCasts.empty() && possibleCasts.front().value > 0)
-			{
-				return possibleCasts.front();
-			}
+			PossibleSpellcast ps;
+			ps.dest = target;
+			ps.spell = spell;
+			evaluateCreatureSpellcast(stack, ps);
+			possibleCasts.push_back(ps);
 		}
 	}
+
+	std::ranges::sort(
+		possibleCasts,
+		[&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs)
+		{
+			return lhs.value > rhs.value;
+		}
+	);
+
+	if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+		return possibleCasts.front();
+
 	return std::nullopt;
 }
 
@@ -302,6 +325,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 	if(score <= EvaluationResult::INEFFECTIVE_SCORE
 		&& !stack->hasBonusOfType(BonusType::FLYING)
+		&& stack->getMovementRange(0) != 0
 		&& stack->unitSide() == BattleSide::ATTACKER
 	   && cb->getBattle(battleID)->battleGetFortifications().hasMoat)
 	{
@@ -508,15 +532,13 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	LOGFL("I know how %d of them works.", possibleSpells.size());
 
-	//Get possible spell-target pairs
+	//Get viable spell-target pairs
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
 		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, spells::Mode::HERO, spell);
 
-		const bool FAST = true;
-
-		for(auto & target : temp.findPotentialTargets(FAST))
+		for(const auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 		{
 			PossibleSpellcast ps;
 			ps.dest = target;
@@ -889,6 +911,7 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 	}
 
+
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
@@ -918,6 +941,17 @@ void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSp
 		}
 
 		totalGain += healthDiff;
+	}
+
+	// consider the case in which spell summons units
+	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
+		{
+			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
+		});
+
+	for(auto unit : newUnits)
+	{
+		totalGain += unit->getAvailableHealth();
 	}
 
 	ps.value = totalGain;

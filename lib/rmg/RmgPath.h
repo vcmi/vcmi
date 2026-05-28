@@ -45,7 +45,9 @@ public:
 	
 	static Path invalid();
 	static MoveCostFunction createCurvedCostFunction(const Area & border);
+	static MoveCostFunction createBezierCostFunction(const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3);
 	static float nonEuclideanCostFunction(const int3& src, const int3& dst, const int3& center);
+	static float distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3);
 	
 private:
 	

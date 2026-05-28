@@ -52,13 +52,12 @@ enum class EResType
 	ARCHIVE_ZIP,
 	ARCHIVE_SND,
 	ARCHIVE_LOD,
+	ARCHIVE_PAK,
 	PALETTE,
 	SAVEGAME,
 	DIRECTORY,
-	ERM,
-	ERT,
-	ERS,
-	LUA,
+	LUA_SCRIPT,
+	AI_MODEL,
 	OTHER,
 	UNDEFINED,
 };
@@ -191,6 +190,7 @@ using TextPath = ResourcePathTempl<EResType::TEXT>;
 using JsonPath = ResourcePathTempl<EResType::JSON>;
 using VideoPath = ResourcePathTempl<EResType::VIDEO>;
 using AudioPath = ResourcePathTempl<EResType::SOUND>;
+using ScriptPath = ResourcePathTempl<EResType::LUA_SCRIPT>;
 
 namespace EResTypeHelper
 {

@@ -11,11 +11,12 @@
 #pragma once
 
 #include "../../lib/battle/Unit.h"
+#include "../../lib/json/JsonNode.h"
 
 class UnitMock : public battle::Unit
 {
 public:
-	MOCK_CONST_METHOD3(getAllBonuses, TConstBonusListPtr(const CSelector &, const CSelector &, const std::string &));
+	MOCK_CONST_METHOD2(getAllBonuses, TConstBonusListPtr(const CSelector &, const std::string &));
 	MOCK_CONST_METHOD0(getTreeVersion, int32_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());
@@ -26,6 +27,7 @@ public:
 	MOCK_CONST_METHOD1(getEffectPower, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD1(getEnchantPower, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD1(getEffectValue, int64_t(const spells::Spell *));
+	MOCK_CONST_METHOD1(getEffectRange, int64_t(const spells::Spell *));
 	MOCK_CONST_METHOD0(getCasterOwner, PlayerColor());
 	MOCK_CONST_METHOD1(getCasterName, void(MetaString &));
 	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const battle::Units &, MetaString &));
@@ -92,7 +94,7 @@ public:
 	MOCK_CONST_METHOD0(acquire, std::shared_ptr<battle::Unit>());
 	MOCK_CONST_METHOD0(acquireState, std::shared_ptr<battle::CUnitState>());
 
-	MOCK_METHOD1(save, void(JsonNode &));
+	MOCK_METHOD0(save, JsonNode());
 	MOCK_METHOD1(load, void(const JsonNode &));
 
 	MOCK_METHOD1(damage, void(int64_t &));

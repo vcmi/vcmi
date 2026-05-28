@@ -1,9 +1,24 @@
+import groovy.xml.XmlNodePrinter
+import groovy.xml.XmlParser
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+	repositories {
+		google()
+		mavenCentral()
+	}
 }
 rootProject.name = "VCMI"
 include ':vcmi-app'
+
+
+// when file is symlinked from source directory, relative path will be resolved against the source directory
+File absolutePath(String fileName) {
+	return new File(rootProject.projectDir, fileName)
+}
+
+// androiddeployqt requires presence of package attribute, but AGP 8.0+ requires it to be absent
+def xmlFile = absolutePath('AndroidManifest.xml')
+def xml = new XmlParser().parse(xmlFile)
+xml.attributes().remove('package')
+new XmlNodePrinter(new PrintWriter(new FileWriter(xmlFile))).print(xml)

@@ -16,8 +16,6 @@
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
 
-#include "../../CCallback.h"
-
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -36,6 +34,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../windows/wiki/WikiWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
@@ -89,6 +88,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
 	OBJECT_CONSTRUCTION;
+	addUsedEvents(KEYBOARD);
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -120,6 +120,12 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	
 	card = std::make_shared<InfoCard>();
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
+}
+
+void CSelectionBase::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::ADVENTURE_OPEN_WIKI)
+		ENGINE->windows().createAndPushWindow<WikiWindow>(WikiWindow::Style::BLUE);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -157,12 +163,13 @@ InfoCard::InfoCard()
 	pos.x += 393;
 	pos.y += 6;
 
-	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
-	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
+	labelSaveDate = std::make_shared<CLabel>(305, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+	labelMapSize = std::make_shared<CLabel>(327, 57, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 280);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
-	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
+	if(!ENGINE->isRoeData())
+		playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
 	chat = std::make_shared<CChatBox>(Rect(18, 126, 335, 143));
 	pvpBox = std::make_shared<PvPBox>(Rect(17, 396, 338, 105));
 
@@ -185,7 +192,8 @@ InfoCard::InfoCard()
 		parent->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
-		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 318, 22); //let it be custom size (frame 4) by default
+		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 0, 0, 313, 25);
+		iconsMapSizes->setFrame(iconsMapSizes->size() - 1); // use last available frame as "custom" icon
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
@@ -257,8 +265,15 @@ void InfoCard::changeSelection()
 
 	const CMapHeader * header = mapInfo->mapHeader.get();
 
-	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height));
-	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
+	std::string mapSizeText = std::to_string(header->width) + "x" + std::to_string(header->height);
+	if(header->levels() > 1)
+		mapSizeText += "x" + std::to_string(header->levels());
+	labelMapSize->setText(mapSizeText);
+	size_t mapSizeIconFrame = mapInfo->getMapSizeIconId();
+	if(const auto * selectionScreen = dynamic_cast<const CSelectionBase *>(SEL);
+	   mapInfo->isRandomMap && selectionScreen && selectionScreen->tabRand && selectionScreen->tabRand->isCustomMapSizeMode())
+		mapSizeIconFrame = selectionScreen->tabRand->getCustomMapSizeIconFrame();
+	iconsMapSizes->setFrame(std::min<size_t>(mapSizeIconFrame, iconsMapSizes->size() - 1));
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
 	labelVictoryConditionText->setText(header->victoryMessage.toString());
@@ -294,6 +309,24 @@ void InfoCard::changeSelection()
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
+}
+
+void InfoCard::clearSelection()
+{
+	labelSaveDate->setText("");
+	mapName->setText("");
+	mapDescription->setText("");
+
+	if(SEL->screenType == ESelectionScreen::campaignList)
+		return;
+
+	labelMapSize->setText("");
+
+	labelVictoryConditionText->setText("");
+	labelLossConditionText->setText("");
+	iconDifficulty->deactivate();
+	labelDifficulty->setText("");
+	labelDifficultyPercent->setText("");
 }
 
 void InfoCard::toggleChat()
@@ -332,7 +365,8 @@ void InfoCard::setChat(bool activateChat)
 			mapDescription->disable();
 			chat->enable();
 			pvpBox->enable();
-			playerListBg->enable();
+			if(playerListBg)
+				playerListBg->enable();
 		}
 		if (GAME->server().inLobbyRoom())
 		{
@@ -347,7 +381,8 @@ void InfoCard::setChat(bool activateChat)
 		mapDescription->enable();
 		chat->disable();
 		pvpBox->disable();
-		playerListBg->disable();
+		if(playerListBg)
+			playerListBg->disable();
 
 		if(SEL->screenType == ESelectionScreen::campaignList)
 		{

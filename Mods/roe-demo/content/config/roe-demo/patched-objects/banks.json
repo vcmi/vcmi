@@ -1,0 +1,306 @@
+{
+	"core:creatureBank" : {
+		"types" : {
+			"impCache" :  {
+				"rewards" : [
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" },
+							{ "amount" : 20, "type" : "imp" }
+						],
+						"resources" :
+						{
+							"gold" : 1000
+						}
+					},
+					{
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" },
+							{ "amount" : 30, "type" : "imp" }
+						],
+						"resources" :
+						{
+							"mercury" : 3,
+							"gold" : 1500
+						}
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" },
+							{ "amount" : 40, "type" : "imp" }
+						],
+						"resources" :
+						{
+							"mercury" : 4,
+							"gold" : 2000
+						}
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" },
+							{ "amount" : 60, "type" : "imp" }
+						],
+						"resources" :
+						{
+							"mercury" : 6,
+							"gold" : 3000
+						}
+					}
+				]
+			},
+			"nagaBank" : {
+				"rewards" : [
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 2, "type" : "masterGremlin" },
+							{ "amount" : 2, "type" : "masterGremlin" },
+							{ "amount" : 2, "type" : "masterGremlin" },
+							{ "amount" : 2, "type" : "masterGremlin" },
+							{ "amount" : 2, "type" : "masterGremlin" }
+						],
+						"resources" :
+						{
+							"gems" : 8,
+							"gold" : 4000
+						}
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 3, "type" : "masterGremlin" },
+							{ "amount" : 3, "type" : "masterGremlin" },
+							{ "amount" : 3, "type" : "masterGremlin" },
+							{ "amount" : 3, "type" : "masterGremlin" },
+							{ "amount" : 3, "type" : "masterGremlin" }
+						],
+						"resources" :
+						{
+							"gems" : 12,
+							"gold" : 6000
+						}
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 4, "type" : "masterGremlin" },
+							{ "amount" : 4, "type" : "masterGremlin" },
+							{ "amount" : 4, "type" : "masterGremlin" },
+							{ "amount" : 4, "type" : "masterGremlin" },
+							{ "amount" : 4, "type" : "masterGremlin" }
+						],
+						"resources" :
+						{
+							"gems" : 16,
+							"gold" : 8000
+						}
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 6, "type" : "masterGremlin" },
+							{ "amount" : 6, "type" : "masterGremlin" },
+							{ "amount" : 6, "type" : "masterGremlin" },
+							{ "amount" : 6, "type" : "masterGremlin" },
+							{ "amount" : 6, "type" : "masterGremlin" }
+						],
+						"resources" :
+						{
+							"gems" : 24,
+							"gold" : 12000
+						}
+					}
+				]
+			},
+			"dragonFlyHive" : {
+				"rewards" : [
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 6, "type" : "serpentFly" },
+							{ "amount" : 6, "type" : "serpentFly" },
+							{ "amount" : 6, "type" : "serpentFly" },
+							{ "amount" : 6, "type" : "serpentFly" },
+							{ "amount" : 6, "type" : "serpentFly" }
+						],
+						"creatures" : [ { "amount" : 40, "type" : "serpentFly" } ]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 9, "type" : "serpentFly" },
+							{ "amount" : 9, "type" : "serpentFly" },
+							{ "amount" : 9, "type" : "serpentFly" },
+							{ "amount" : 9, "type" : "serpentFly" },
+							{ "amount" : 9, "type" : "serpentFly" }
+						],
+						"creatures" : [ { "amount" : 60, "type" : "serpentFly" } ]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 12, "type" : "serpentFly" },
+							{ "amount" : 12, "type" : "serpentFly" },
+							{ "amount" : 12, "type" : "serpentFly" },
+							{ "amount" : 12, "type" : "serpentFly" },
+							{ "amount" : 12, "type" : "serpentFly" }
+						],
+						"creatures" : [ { "amount" : 80, "type" : "serpentFly" } ]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 18, "type" : "serpentFly" },
+							{ "amount" : 18, "type" : "serpentFly" },
+							{ "amount" : 18, "type" : "serpentFly" },
+							{ "amount" : 18, "type" : "serpentFly" },
+							{ "amount" : 18, "type" : "serpentFly" }
+						],
+						"creatures" : [ { "amount" : 120, "type" : "serpentFly" } ]
+					}
+				]
+			}
+		}
+	},
+	"core:dragonUtopia" : {
+		"types" : {
+			"dragonUtopia" : {
+				"rewards" : [
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 0, "max" : 30 },
+						"guards" : [
+							{ "amount" : 8, "type" : "redDragon" },
+							{ "amount" : 5, "type" : "ghostDragon" },
+							{ "amount" : 2, "type" : "boneDragon" },
+							{ "amount" : 1, "type" : "blackDragon" }
+						],
+						"resources" :
+						{
+							"gold" : 20000
+						},
+						"artifacts" : [
+							{ "class" : "TREASURE" },
+							{ "class" : "MINOR" },
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" }
+						]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 30, "max" : 60 },
+						"guards" : [
+							{ "amount" : 8, "type" : "redDragon" },
+							{ "amount" : 6, "type" : "ghostDragon" },
+							{ "amount" : 3, "type" : "boneDragon" },
+							{ "amount" : 2, "type" : "blackDragon" }
+						],
+						"resources" :
+						{
+							"gold" : 30000
+						},
+						"artifacts" : [
+							{ "class" : "MINOR" },
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 60, "max" : 90 },
+						"guards" : [
+							{ "amount" : 8, "type" : "redDragon" },
+							{ "amount" : 6, "type" : "ghostDragon" },
+							{ "amount" : 4, "type" : "boneDragon" },
+							{ "amount" : 3, "type" : "blackDragon" }
+						],
+						"resources" :
+						{
+							"gold" : 40000
+						},
+						"artifacts" : [
+							{ "class" : "MAJOR" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
+					},
+					{
+						"message" : 34,
+						"appearChance" : { "min" : 90, "max" : 100 },
+						"guards" : [
+							{ "amount" : 8, "type" : "boneDragon" },
+							{ "amount" : 7, "type" : "ghostDragon" },
+							{ "amount" : 6, "type" : "boneDragon" },
+							{ "amount" : 5, "type" : "blackDragon" }
+						],
+						"resources" :
+						{
+							"gold" : 50000
+						},
+						"artifacts" : [
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" },
+							{ "class" : "RELIC" }
+						]
+					}
+				]
+				
+	
+			}
+		}
+	},
+	"core:pyramid" : {
+		"types" : {
+			"pyramid" : {
+				"rewards" : [
+					{
+						"limiter" : {
+							"canLearnSpells" : [
+								"@gainedSpell"
+							]
+						},
+						"spells" : [
+							"@gainedSpell"
+						],
+						"message" : [ 106, "{%s}." ], // Upon defeating monsters, you learn new spell
+						"guards" : [
+							{ "amount" : 40, "type" : "ironGolem" },
+							{ "amount" : 10, "type" : "ironGolem" },
+							{ "amount" : 10, "type" : "ironGolem" }
+						]
+					}
+				]
+			}
+		}
+	}
+}

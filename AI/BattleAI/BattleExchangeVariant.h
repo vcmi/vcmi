@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "../../lib/AI_Base.h"
 #include "../../lib/battle/ReachabilityInfo.h"
 #include "PotentialTargets.h"
 #include "StackWithBonuses.h"

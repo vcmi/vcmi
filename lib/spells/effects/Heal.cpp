@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "Heal.h"
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
@@ -27,12 +26,29 @@ namespace spells
 namespace effects
 {
 
-void Heal::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Heal::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	apply(m->getEffectValue(), server, m, target);
 }
 
-void Heal::apply(int64_t value, ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+SpellEffectValue Heal::getHealthChange(const Mechanics * m, const Target & spellTarget) const
+{
+	SpellEffectValue result;
+
+	for(const auto & oneTarget : spellTarget)
+	{
+		const battle::Unit * unit = oneTarget.unitValue;
+
+		if(unit)
+		{
+			result += getHealEffectValue(m->getEffectValue(), m, unit);
+			result.unitType = unit->creatureId();
+		}
+	}
+	return result;
+}
+
+void Heal::apply(int64_t value, ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	BattleLogMessage logMessage;
 	logMessage.battleID = m->battle()->getBattle()->getBattleID();
@@ -104,7 +120,23 @@ void Heal::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 	handler.serializeInt("minFullUnits", minFullUnits);
 }
 
-void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+SpellEffectValue Heal::getHealEffectValue(int64_t value, const Mechanics * m, const battle::Unit * unit, std::shared_ptr<battle::Unit> newState) const
+{
+	SpellEffectValue result {};
+
+	result.hpDelta = value;
+
+	if(!newState)
+		newState = unit->acquire();
+	const auto countBeforeHeal = newState->getCount();
+	newState->heal(result.hpDelta, healLevel, healPower);
+
+	result.unitsDelta = std::max(0, newState->getCount() - countBeforeHeal);
+
+	return result;
+}
+
+void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const Target & target) const
 {
 	for(const auto & oneTarget : target)
 	{
@@ -112,40 +144,40 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 
 		if(unit)
 		{
-			auto unitHPgained = m->applySpellBonus(value, unit);
-
 			auto state = unit->acquire();
-			const auto countBeforeHeal = state->getCount();
-			state->heal(unitHPgained, healLevel, healPower);
+			SpellEffectValue healValue = getHealEffectValue(value, m, unit, state);
 
-			if(const auto resurrectedCount = std::max(0, state->getCount() - countBeforeHeal))
+			if(healValue.hpDelta > 0)
 			{
-				// %d %s rise from the dead!
-				// in the table first comes plural string, then the singular one
-				MetaString resurrectText;
-				state->addText(resurrectText, EMetaText::GENERAL_TXT, 116, resurrectedCount == 1);
-				state->addNameReplacement(resurrectText);
-				resurrectText.replaceNumber(resurrectedCount);
-				logMessage.lines.push_back(std::move(resurrectText));
-			}
-			else if (unitHPgained > 0 && m->caster->getHeroCaster() == nullptr) //Show text about healed HP if healed by unit
-			{
-				MetaString healText;
-				auto casterUnitID = m->caster->getCasterUnitId();
-				auto casterUnit = m->battle()->battleGetUnitByID(casterUnitID);
-				healText.appendLocalString(EMetaText::GENERAL_TXT, 414);
-				casterUnit->addNameReplacement(healText, false);
-				state->addNameReplacement(healText, false);
-				healText.replaceNumber((int)unitHPgained);
-				logMessage.lines.push_back(std::move(healText));
-			}
+				if(healValue.unitsDelta > 0)
+				{
+					// %d %s rise from the dead!
+					// in the table first comes plural string, then the singular one
+					MetaString resurrectText;
+					state->addText(resurrectText, EMetaText::GENERAL_TXT, 116, healValue.unitsDelta == 1);
+					state->addNameReplacement(resurrectText);
+					resurrectText.replaceNumber(healValue.unitsDelta);
+					logMessage.lines.push_back(std::move(resurrectText));
+				}
+				else if (healValue.hpDelta > 0 && m->caster->getHeroCaster() == nullptr) //Show text about healed HP if healed by unit
+				{
+					MetaString healText;
+					auto casterUnitID = m->caster->getCasterUnitId();
+					auto casterUnit = m->battle()->battleGetUnitByID(casterUnitID);
+					healText.appendLocalString(EMetaText::GENERAL_TXT, 414);
+					casterUnit->addNameReplacement(healText, false);
+					state->addNameReplacement(healText, false);
+					healText.replaceNumber((int)healValue.hpDelta);
+					logMessage.lines.push_back(std::move(healText));
+				}
 
-			if(unitHPgained > 0)
-			{
-				UnitChanges info(state->unitId(), UnitChanges::EOperation::RESET_STATE);
-				info.healthDelta = unitHPgained;
-				state->save(info.data);
-				pack.changedStacks.push_back(info);
+				if(healValue.hpDelta > 0)
+				{
+					UnitChanges info(state->unitId(), UnitChanges::EOperation::UPDATE);
+					info.healthDelta = healValue.hpDelta;
+					info.data = state->save();
+					pack.changedStacks.push_back(info);
+				}
 			}
 		}
 	}

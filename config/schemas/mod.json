@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
-	"required" : [ "name", "description", "modType", "version", "author", "contact" ],
+	"required" : [ "name", "modType", "version", "author" ],
 	"definitions" : {
 		"fileListOrObject" : {
 			"oneOf" : [
@@ -19,7 +19,6 @@
 		"localizable" : {
 			"type" : "object",
 			"additionalProperties" : false,
-			"required" : [ "name", "description" ],
 			"properties" : {
 				"name" : {
 					"type" : "string",
@@ -63,9 +62,13 @@
 			"type" : "string",
 			"description" : "More lengthy description of mod. No hard limit"
 		},
+		"descriptionURL" : {
+			"type" : "string",
+			"description" : "URL to location of external description of mod. No hard limit"
+		},
 		"modType" : {
 			"type" : "string",
-			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI" ],
+			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources", "Demo" ],
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
@@ -90,6 +93,7 @@
 		},
 		"version" : {
 			"type" : "string",
+			"format" : "version",
 			"description" : "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
 		},
 		"changelog" : {
@@ -146,7 +150,7 @@
 				{
 					"type" : "array",
 					"items" : { "type" : "string", "format" : "textFile" }
-				},
+				}
 			]
 		},
 		"filesystem" : {
@@ -175,7 +179,7 @@
 		"language" : {
 			"type" : "string",
 			"description" : "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "english", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "english", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
 		},
 		"belarusian" : {
 			"$ref" : "#/definitions/localizable"
@@ -189,7 +193,16 @@
 		"chinese" : {
 			"$ref" : "#/definitions/localizable"
 		},
+		"tchinese" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"dutch" : {
+			"$ref" : "#/definitions/localizable"
+		},
 		"english" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"filipino" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"finnish" : {
@@ -216,6 +229,9 @@
 		"korean" : {
 			"$ref" : "#/definitions/localizable"
 		},
+		"latvian" : {
+			"$ref" : "#/definitions/localizable"
+		},
 		"norwegian" : {
 			"$ref" : "#/definitions/localizable"
 		},
@@ -229,6 +245,9 @@
 			"$ref" : "#/definitions/localizable"
 		},
 		"russian" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"serbian" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"spanish" : {
@@ -270,8 +289,20 @@
 			"description" : "List of configuration files for creatures",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"campaignRegions" : {
+			"description" : "List of configuration files for campaign regions",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"artifacts" : {
 			"description" : "List of configuration files for artifacts",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"spellSchools" : {
+			"description" : "List of configuration files for spell schools",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"spellEffects" : {
+			"description" : "List of configuration files for spell effects",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"spells" : {
@@ -294,6 +325,10 @@
 			"description" : "List of configuration files for terrains",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"resources" : {
+			"description" : "List of configuration files for resources",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"roads" : {
 			"description" : "List of configuration files for roads",
 			"$ref" : "#/definitions/fileListOrObject"
@@ -310,12 +345,12 @@
 			"description" : "List of configuration files for obstacles",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
-		"templates" : {
-			"description" : "List of configuration files for RMG templates",
+		"mapLayers" : {
+			"description" : "List of configuration files for map layers",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
-		"scripts" : {
-			"description" : "List of configuration files for scripts",
+		"templates" : {
+			"description" : "List of configuration files for RMG templates",
 			"$ref" : "#/definitions/fileListOrObject"
 		}
 	}

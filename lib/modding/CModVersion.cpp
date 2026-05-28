@@ -18,29 +18,41 @@ CModVersion CModVersion::GameVersion()
 	return CModVersion(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
 }
 
-CModVersion CModVersion::fromString(std::string from)
+CModVersion CModVersion::fromString(const std::string & from)
 {
-	int major = Any;
-	int minor = Any;
-	int patch = Any;
+	std::vector<std::string> segments;
+	boost::split(segments, from, boost::is_any_of("."));
+
+	if (from.empty())
+		return CModVersion();
+
+	if (segments.size() > 3)
+		return CModVersion();
+
+	static const std::string whitelist = "1234567890.";
+
+	for (const auto & ch : from)
+		if (whitelist.find(ch) == std::string::npos)
+			return CModVersion();
+
 	try
 	{
-		auto pointPos = from.find('.');
-		major = std::stoi(from.substr(0, pointPos));
-		if(pointPos != std::string::npos)
-		{
-			from = from.substr(pointPos + 1);
-			pointPos = from.find('.');
-			minor = std::stoi(from.substr(0, pointPos));
-			if(pointPos != std::string::npos)
-				patch = std::stoi(from.substr(pointPos + 1));
-		}
+		int major = Any;
+		int minor = Any;
+		int patch = Any;
+
+		major = std::stoi(segments[0]);
+		if (segments.size() > 1)
+			minor = std::stoi(segments[1]);
+		if (segments.size() > 2)
+			patch = std::stoi(segments[2]);
+
+		return CModVersion(major, minor, patch);
 	}
-	catch(const std::invalid_argument &)
+	catch(const std::logic_error &)
 	{
 		return CModVersion();
 	}
-	return CModVersion(major, minor, patch);
 }
 
 std::string CModVersion::toString() const

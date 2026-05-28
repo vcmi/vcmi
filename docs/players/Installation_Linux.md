@@ -66,6 +66,24 @@ Latest public release build can be installed via Flatpak.
 Depending on your distribution, you may need to install flatpak itself. You can find guide for your distribution here: <https://flatpak.org/setup/>
 Once you have flatpak, you can install VCMI package which can be found here: <https://flathub.org/apps/details/eu.vcmi.VCMI>
 
+### AppImage (distribution-agnostic)
+
+Stable and [nightly](https://builds.vcmi.download/branch/) VCMI is also available as AppImage. It's currently built with Ubuntu 24.04 (should be compatible with distributions with glibc>=2.38).
+
+If you also want to use local files (e.g. to have different configurations on system) you can override paths manually if you launch VCMI over a small shell script:
+
+```sh
+#!/bin/sh
+
+BASE_DIR="$(pwd)"
+
+export XDG_DATA_HOME="$BASE_DIR/vcmi_data/data"
+export XDG_CACHE_HOME="$BASE_DIR/vcmi_data/cache"
+export XDG_CONFIG_HOME="$BASE_DIR/vcmi_data/config"
+
+./*vcmi*.AppImage
+```
+
 ### Other distributions
 
 For other distributions, VCMI can be installed from 3rd-party repositories listed below. Note that these repositories are not supported by vcmi team and may not be up to date.

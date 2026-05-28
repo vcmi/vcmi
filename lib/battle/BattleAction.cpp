@@ -56,6 +56,20 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const Bat
 	return ba;
 }
 
+/// This is for cases where target hex does not matter (for example berserk spell) and we did not calculate it (for example we only calculated closest attackable hex of two hex unit)
+BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom, bool returnAfterAttack)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
+	ba.actionType = EActionType::WALK_AND_ATTACK;
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(attackFrom);
+	ba.aimToUnit(target);
+	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
+		ba.aimToHex(stack->getPosition());
+	return ba;
+}
+
 BattleAction BattleAction::makeWait(const battle::Unit * stack)
 {
 	BattleAction ba;
@@ -83,6 +97,18 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	ba.setTarget(target);
 	ba.side = stack->unitSide();
 	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::WALK_AND_CAST;
+	ba.spell = spellID;
+	ba.side = stack->unitSide();
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(castFrom);
+	ba.aimToUnit(target);
 	return ba;
 }
 
@@ -201,16 +227,18 @@ bool BattleAction::isUnitAction() const
 		EActionType::CATAPULT,
 		EActionType::MONSTER_SPELL,
 		EActionType::BAD_MORALE,
-		EActionType::STACK_HEAL
+		EActionType::STACK_HEAL,
+		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);
 }
 
 bool BattleAction::isSpellAction() const
 {
-	static const std::array<EActionType, 2> actions = {
+	static const std::array<EActionType, 3> actions = {
 		EActionType::HERO_SPELL,
-		EActionType::MONSTER_SPELL
+		EActionType::MONSTER_SPELL,
+		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);
 }

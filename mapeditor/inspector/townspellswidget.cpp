@@ -17,6 +17,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/spells/CSpellHandler.h"
 
+
 TownSpellsWidget::TownSpellsWidget(CGTownInstance & town, QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::TownSpellsWidget),

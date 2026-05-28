@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "GameLibrary.h"
 #include "HighScore.h"
 #include "../CPlayerState.h"
 #include "../constants/StringConstants.h"
@@ -16,6 +17,8 @@
 #include "../mapping/CMapHeader.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -78,14 +81,16 @@ struct HighScoreCreature
 
 static std::vector<HighScoreCreature> getHighscoreCreaturesList()
 {
-	JsonNode configCreatures(JsonPath::builtin("CONFIG/highscoreCreatures.json"));
+	const auto path = JsonPath::builtin("CONFIG/highscoreCreatures.json");
+	std::string modSource = LIBRARY->modh->findResourceOrigin(path);
+	JsonNode configCreatures(path);
 
 	std::vector<HighScoreCreature> ret;
 
 	for(auto & json : configCreatures["creatures"].Vector())
 	{
 		HighScoreCreature entry;
-		entry.creature = CreatureID::decode(json["creature"].String());
+		entry.creature = *LIBRARY->identifiers()->getIdentifier(modSource, "creature", json["creature"].String());
 		entry.max = json["max"].isNull() ? std::numeric_limits<int>::max() : json["max"].Integer();
 		entry.min = json["min"].isNull() ? std::numeric_limits<int>::min() : json["min"].Integer();
 

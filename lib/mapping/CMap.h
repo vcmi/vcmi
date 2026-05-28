@@ -10,11 +10,13 @@
 
 #pragma once
 
-#include "CMapDefines.h"
+#include "CMapEvent.h"
 #include "CMapHeader.h"
+#include "TerrainTile.h"
+#include "MapTilesStorage.h"
 
 #include "../mapObjects/CGObjectInstance.h"
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -75,12 +77,14 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 	/// Precomputed indices of all heroes on map. Does not includes heroes in prisons
 	std::vector<ObjectInstanceID> heroesOnMap;
 
+	void deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > &);
+
 public:
 	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	/// TODO: make private
 	std::vector<std::shared_ptr<CGObjectInstance>> objects;
 
-	explicit CMap(IGameCallback *cb);
+	explicit CMap(IGameInfoCallback *cb);
 	~CMap();
 	void initTerrain();
 
@@ -95,6 +99,7 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const;
 
 	void calculateGuardingGreaturePositions();
+	void calculateGuardingGreaturePositions(int3 topleft, int3 bottomright);
 
 	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
 
@@ -156,6 +161,7 @@ public:
 	/// Returns pointer to old object, which can be manipulated or dropped
 	std::shared_ptr<CGObjectInstance> eraseObject(ObjectInstanceID oldObject);
 
+	bool isHeroOnMap(const ObjectInstanceID &heroId) const;
 	void heroAddedToMap(const CGHeroInstance * hero);
 	void heroRemovedFromMap(const CGHeroInstance * hero);
 	void townAddedToMap(const CGTownInstance * town);
@@ -221,7 +227,6 @@ public:
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
-	void banWaterHeroes();
 	void banHero(const HeroTypeID& id);
 	void unbanHero(const HeroTypeID & id);
 	void banWaterSpells();
@@ -233,13 +238,14 @@ public:
 
 	/// Returns pointer to hero of specified type if hero is present on map
 	CGHeroInstance * getHero(HeroTypeID heroId);
+	const CGHeroInstance * getHero(HeroTypeID heroId) const;
 
 	/// Returns ID's of all heroes that are currently present on map
 	/// Includes all garrisoned and imprisoned heroes
-	const std::vector<ObjectInstanceID> & getHeroesOnMap();
+	const std::vector<ObjectInstanceID> & getHeroesOnMap() const;
 
 	/// Returns ID's of all towns present on map
-	const std::vector<ObjectInstanceID> & getAllTowns();
+	const std::vector<ObjectInstanceID> & getAllTowns() const;
 
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
@@ -259,9 +265,8 @@ public:
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
-
 	std::unique_ptr<CMapEditManager> editManager;
-	boost::multi_array<int3, 3> guardingCreaturePositions;
+	MapTilesStorage<int3> guardingCreaturePositions;
 
 	std::map<std::string, std::shared_ptr<CGObjectInstance> > instanceNames;
 
@@ -271,7 +276,6 @@ public:
 	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
 
 	std::vector<ArtifactID> townMerchantArtifacts;
-	std::vector<TradeItemBuy> townUniversitySkills;
 
 	void overrideGameSettings(const JsonNode & input);
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
@@ -279,11 +283,12 @@ public:
 
 	void saveCompatibilityStoreAllocatedArtifactID();
 	void parseUidCounter();
+	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
 private:
 
-	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	boost::multi_array<TerrainTile, 3> terrain;
+	/// a 3-dimensional array of terrain tiles
+	MapTilesStorage<TerrainTile> terrain;
 
 	si32 uidCounter; 
 
@@ -307,7 +312,15 @@ public:
 			std::vector< std::shared_ptr<CQuest> > quests;
 			h & quests;
 		}
-		h & heroesPool;
+
+		if (h.saving)
+			h & heroesPool;
+		else
+		{
+			std::vector<std::shared_ptr<CGHeroInstance> > poolFromSave;
+			h & poolFromSave;
+			deserializeHeroPool(poolFromSave);
+		}
 
 		//TODO: viccondetails
 		h & terrain;
@@ -344,7 +357,11 @@ public:
 		h & obeliskCount;
 		h & obelisksVisited;
 		h & townMerchantArtifacts;
-		h & townUniversitySkills;
+		if (!h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+		{
+			std::vector<TradeItemBuy> townUniversitySkills;
+			h & townUniversitySkills;
+		}
 
 		h & instanceNames;
 		h & *gameSettings;
@@ -366,19 +383,19 @@ inline bool CMap::isInTheMap(const int3 & pos) const
 	return
 		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
 		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-		static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
+		static_cast<uint32_t>(pos.z) <= levels() - 1;
 }
 
 inline TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 inline const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 VCMI_LIB_NAMESPACE_END

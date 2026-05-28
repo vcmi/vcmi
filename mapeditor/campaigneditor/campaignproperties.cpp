@@ -13,6 +13,7 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/campaign/CampaignRegionsHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/json/JsonNode.h"
@@ -23,7 +24,6 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	regions(campaignState->campaignRegions)
 {
 	ui->setupUi(this);
-
 	setWindowTitle(tr("Campaign Properties"));
 	
 	setWindowModality(Qt::ApplicationModal);
@@ -36,14 +36,25 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->lineEditCampaignVersion->setText(QString::fromStdString(campaignState->campaignVersion.toString()));
 	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
 	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
+	ui->lineEditLoadingBackground->setText(QString::fromStdString(campaignState->loadingBackground.getName()));
+	ui->checkBoxVideoRim->setChecked(campaignState->videoRim != ImagePath::builtin("NONE"));
+	ui->lineEditVideoRim->setText(QString::fromStdString(campaignState->videoRim.getName()));
+	ui->lineEditVideoRim->setEnabled(ui->checkBoxVideoRim->isChecked());
+	ui->lineEditIntroVideo->setText(QString::fromStdString(campaignState->introVideo.getName()));
+	ui->lineEditOutroVideo->setText(QString::fromStdString(campaignState->outroVideo.getName()));
 	
-	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaign_regions.json"));
-	int legacyRegionNumber = legacyRegionConfig["campaign_regions"].Vector().size();
+	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaignRegions.json"));
+	auto legacyRegions = legacyRegionConfig.Struct();
+	int legacyRegionNumber = legacyRegions.size();
 
 	for (int i = 0; i < legacyRegionNumber; i++)
-		ui->comboBoxRegionPreset->insertItem(i, QString::fromStdString(LIBRARY->generaltexth->translate("core.camptext.names", i)));
+	{
+		auto it = legacyRegions.begin();
+		std::advance(it, i);
+		ui->comboBoxRegionPreset->insertItem(i, QString::fromStdString(it->first));
+	}
 	ui->comboBoxRegionPreset->insertItem(legacyRegionNumber, tr("Custom"));
-	ui->comboBoxRegionPreset->setCurrentIndex(20);
+	ui->comboBoxRegionPreset->setCurrentIndex(ui->comboBoxRegionPreset->count() - 1);
 
 	loadRegion();
 
@@ -81,6 +92,10 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 		campaignState->campaignVersion = MetaString::createFromRawString(ui->lineEditCampaignVersion->text().toStdString());
 		campaignState->music = AudioPath::builtin(ui->lineEditMusic->text().toStdString());
 		campaignState->difficultyChosenByPlayer = ui->checkBoxScenarioDifficulty->isChecked();
+		campaignState->loadingBackground = ImagePath::builtin(ui->lineEditLoadingBackground->text().toStdString());
+		campaignState->videoRim = ImagePath::builtin(ui->lineEditVideoRim->text().toStdString());
+		campaignState->introVideo = VideoPath::builtin(ui->lineEditIntroVideo->text().toStdString());
+		campaignState->outroVideo = VideoPath::builtin(ui->lineEditOutroVideo->text().toStdString());
 		accept();
 	}
 	close();
@@ -88,8 +103,8 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 
 void CampaignProperties::on_comboBoxRegionPreset_currentIndexChanged(int index)
 {
-	if(ui->comboBoxRegionPreset->count() == 21 && ui->comboBoxRegionPreset->currentIndex() != 20)
-		regions = CampaignRegions::getLegacy(ui->comboBoxRegionPreset->currentIndex());
+	if(ui->comboBoxRegionPreset->currentIndex() != ui->comboBoxRegionPreset->count() - 1)
+		regions = *LIBRARY->campaignRegions->getByIndex(index);
 	
 	loadRegion();
 }
@@ -110,6 +125,12 @@ void CampaignProperties::on_pushButtonRegionRemove_clicked()
 	int rows = ui->tableWidgetRegions->rowCount() - 1;
 	ui->tableWidgetRegions->removeRow(rows);
 	ui->tableWidgetRegions->setRowCount(rows);
+}
+
+void CampaignProperties::on_checkBoxVideoRim_toggled(bool checked)
+{
+	ui->lineEditVideoRim->setEnabled(checked);
+	ui->lineEditVideoRim->setText(checked ? "" : "NONE");
 }
 
 void CampaignProperties::loadRegion()

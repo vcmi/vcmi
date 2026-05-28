@@ -71,13 +71,13 @@
 		{
 			"type" : "dropDownTimers",
 			"name": "timerPresetSelector",
-			"position": {"x": 160, "y": 78},
+			"position": {"x": 170, "y": 78},
 			"dropDownPosition": {"x": 0, "y": 20}
 		},
 		{
 			"type" : "dropDownSimturns",
 			"name": "simturnsPresetSelector",
-			"position": {"x": 160, "y": 98},
+			"position": {"x": 170, "y": 98},
 			"dropDownPosition": {"x": 0, "y": 20}
 		},
 		

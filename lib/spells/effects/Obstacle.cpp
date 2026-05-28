@@ -11,7 +11,6 @@
 
 #include "Obstacle.h"
 
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
@@ -91,13 +90,11 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("appearSound", appearSound);
 	handler.serializeStruct("appearAnimation", appearAnimation);
 	handler.serializeStruct("animation", animation);
-
-	handler.serializeInt("offsetY", offsetY);
 }
 
 void Obstacle::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
-	EffectTarget effectTarget = transformTarget(m, spellTarget, spellTarget);
+	Target effectTarget = transformTarget(m, spellTarget, spellTarget);
 
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
@@ -116,15 +113,15 @@ void Obstacle::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, 
 	}
 }
 
-bool Obstacle::applicable(Problem & problem, const Mechanics * m) const
+bool Obstacle::applicableGeneral(Problem & problem, const Mechanics * m) const
 {
-	if(hidden && !hideNative && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
+	if(hidden && hideNative && m->battle()->battleHasNativeStack(m->battle()->otherSide(m->casterSide)))
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 
-	return LocationEffect::applicable(problem, m);
+	return LocationEffect::applicableGeneral(problem, m);
 }
 
-bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
+bool Obstacle::applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const
 {
 	if(!m->isMassive())
 	{
@@ -148,14 +145,14 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 		}
 	}
 
-	return LocationEffect::applicable(problem, m, target);
+	return LocationEffect::applicableTarget(problem, m, target);
 }
 
-EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
+Target Obstacle::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
-	EffectTarget ret;
+	Target ret;
 
 	if(!m->isMassive())
 	{
@@ -176,7 +173,7 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 	return ret;
 }
 
-void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Obstacle::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	if(patchCount > 0)
 	{
@@ -196,7 +193,7 @@ void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectT
 
 		availableTiles.shuffle(*server->getRNG());
 		const int patchesToPut = std::min(patchCount, static_cast<int>(availableTiles.size()));
-		EffectTarget randomTarget;
+		Target randomTarget;
 		randomTarget.reserve(patchesToPut);
 		for(int i = 0; i < patchesToPut; i++)
 			randomTarget.emplace_back(availableTiles.at(i));
@@ -268,19 +265,14 @@ bool Obstacle::noRoomToPlace(Problem & problem, const Mechanics * m)
 	return false;
 }
 
-void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
 	BattleObstaclesChanged pack;
 	pack.battleID = m->battle()->getBattle()->getBattleID();
 
-	auto all = m->battle()->battleGetAllObstacles(BattleSide::ALL_KNOWING);
-
-	int obstacleIdToGive = 1;
-	for(auto & one : all)
-		if(one->uniqueID >= obstacleIdToGive)
-			obstacleIdToGive = one->uniqueID + 1;
+	int obstacleIdToGive = m->battle()->nextObstacleId();
 
 	for(const Destination & destination : target)
 	{
@@ -305,8 +297,6 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
 		obstacle.animation = options.animation;
-
-		obstacle.animationYOffset = options.offsetY;
 
 		obstacle.customSize.clear();
 

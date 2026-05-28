@@ -25,7 +25,8 @@ enum class EShortcut
 	GLOBAL_ACCEPT,     // Return - Accept query
 	GLOBAL_CANCEL,     // Escape - Cancel query
 	GLOBAL_RETURN,     // Enter, Escape - Close current window and return to previous view
-	GLOBAL_FULLSCREEN, // F4 - TODO: remove hardcoded check for key
+	GLOBAL_FULLSCREEN, // F4
+	GLOBAL_SCREENSHOT, // F3
 	GLOBAL_OPTIONS,    // 'O' - Open System Options dialog
 	GLOBAL_BACKSPACE,  // Backspace - erase last symbol in text input
 	GLOBAL_MOVE_FOCUS, // Tab - move focus to next text input
@@ -97,11 +98,16 @@ enum class EShortcut
 	LOBBY_RANDOM_TOWN,
 	LOBBY_RANDOM_TOWN_VS,
 	LOBBY_HANDICAP,
+	LOBBY_CAMPAIGN_SETS,
+	LOBBY_BATTLE_MODE,
 
 	MAPS_SIZE_S,
 	MAPS_SIZE_M,
 	MAPS_SIZE_L,
 	MAPS_SIZE_XL,
+	MAPS_SIZE_H,
+	MAPS_SIZE_XH,
+	MAPS_SIZE_G,
 	MAPS_SIZE_ALL,
 
 	MAPS_SORT_PLAYERS,
@@ -147,6 +153,7 @@ enum class EShortcut
 	ADVENTURE_VIEW_WORLD_X1,
 	ADVENTURE_VIEW_WORLD_X2,
 	ADVENTURE_VIEW_WORLD_X4,
+	ADVENTURE_VIEW_STATISTIC,
 	ADVENTURE_TRACK_HERO,
 	ADVENTURE_TOGGLE_MAP_LEVEL,
 	ADVENTURE_KINGDOM_OVERVIEW,
@@ -161,12 +168,16 @@ enum class EShortcut
 	ADVENTURE_END_TURN,
 	ADVENTURE_LOAD_GAME,
 	ADVENTURE_SAVE_GAME,
+	ADVENTURE_QUICK_SAVE,
+	ADVENTURE_QUICK_LOAD,
 	ADVENTURE_NEW_GAME,
 	ADVENTURE_RESTART_GAME,
 	ADVENTURE_TO_MAIN_MENU,
 	ADVENTURE_QUIT_GAME,
 	ADVENTURE_SEARCH,
 	ADVENTURE_SEARCH_CONTINUE,
+	ADVENTURE_DISEMBARK,
+	ADVENTURE_OPEN_WIKI, // Opens the in-game Glossary / Wiki window
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,
@@ -192,7 +203,6 @@ enum class EShortcut
 	BATTLE_CONSOLE_DOWN,
 	BATTLE_TACTICS_NEXT,
 	BATTLE_TACTICS_END,
-	BATTLE_SELECT_ACTION, // Alternative actions toggle
 	BATTLE_TOGGLE_HEROES_STATS,
 	BATTLE_OPEN_ACTIVE_UNIT,
 	BATTLE_OPEN_HOVERED_UNIT,

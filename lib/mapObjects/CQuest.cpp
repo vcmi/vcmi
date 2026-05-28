@@ -16,21 +16,25 @@
 #include "../CSoundBase.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
-#include "../IGameCallback.h"
+#include "../IGameSettings.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../spells/CSpellHandler.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
-#include "../spells/CSpellHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -101,29 +105,7 @@ const std::string & CQuest::missionState(int state)
 
 bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 {
-	std::vector<CStackBasicDescriptor>::const_iterator cre;
-	TSlots::const_iterator it;
-	ui32 count = 0;
-	ui32 slotsCount = 0;
-	bool hasExtraCreatures = false;
-	for(cre = q->mission.creatures.begin(); cre != q->mission.creatures.end(); ++cre)
-	{
-		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
-		{
-			if(it->second->getType() == cre->getType())
-			{
-				count += it->second->getCount();
-				slotsCount++;
-			}
-		}
-
-		if(static_cast<TQuantity>(count) < cre->getCount()) //not enough creatures of this kind
-			return false;
-
-		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->getCount();
-	}
-
-	return hasExtraCreatures || slotsCount < army->Slots().size();
+	return army->hasUnits(q->mission.creatures, true);
 }
 
 bool CQuest::checkQuest(const CGHeroInstance * h) const
@@ -140,45 +122,35 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 	return true;
 }
 
-void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
+void CQuest::completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance *h, bool allowFullArmyRemoval) const
 {
 	// FIXME: this should be part of 'reward', and not hacking into limiter state that should only limit access to such reward
 
 	for(auto & elem : mission.artifacts)
 	{
-		if(h->hasArt(elem))
+		// hero does not have such artifact alone, but he might have it as part of assembled artifact
+		if(!h->hasArt(elem))
 		{
-			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
-			continue;
-		}
-
-		// perhaps artifact is part of a combined artifact?
-		const auto * assembly = h->getCombinedArtWithPart(elem);
-		if (assembly)
-		{
-			auto parts = assembly->getPartsInfo();
-
-			// Remove the assembly
-			cb->removeArtifact(ArtifactLocation(h->id, h->getArtPos(assembly)));
-
-			// Disassemble this backpack artifact
-			for(const auto & ci : parts)
+			const auto * assembly = h->getCombinedArtWithPart(elem);
+			if (assembly)
 			{
-				if(ci.getArtifact()->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.getArtifact()->getTypeId(), ArtifactPosition::BACKPACK_START);
+				DisassembledArtifact da;
+				da.al = ArtifactLocation(h->id, h->getArtPos(assembly));
+				gameEvents.sendAndApply(da);
 			}
-
-			continue;
 		}
 
-		logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(LIBRARY)->getJsonKey(), h->getHeroTypeID());
+		if(h->hasArt(elem))
+			gameEvents.removeArtifact(ArtifactLocation(h->id, h->getArtPos(elem, false)));
+		else
+			logGlobal->error("Failed to find artifact %s in inventory of hero %s", elem.toEntity(LIBRARY)->getJsonKey(), h->getHeroTypeID());
 	}
 
-	cb->takeCreatures(h->id, mission.creatures);
-	cb->giveResources(h->getOwner(), -mission.resources);
+	gameEvents.takeCreatures(h->id, mission.creatures, allowFullArmyRemoval);
+	gameEvents.giveResources(h->getOwner(), -mission.resources);
 }
 
-void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -252,7 +224,7 @@ void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text
 	if(mission.resources.nonZero())
 	{
 		MetaString loot;
-		for(auto i : GameResID::ALL_RESOURCES())
+		for(auto i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if(mission.resources[i])
 			{
@@ -277,7 +249,7 @@ void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text
 		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(const CGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -293,7 +265,7 @@ void CQuest::getVisitText(const CGameInfoCallback * cb, MetaString &iwText, std:
 	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(const CGameInfoCallback * cb, MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -306,7 +278,7 @@ void CQuest::getRolloverText(const CGameInfoCallback * cb, MetaString &ms, bool 
 	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(const CGameInfoCallback * cb, MetaString &iwText) const
+void CQuest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
@@ -391,11 +363,9 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		if(missionType == "Resources")
 		{
 			auto r = handler.enterStruct("resources");
-
-			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-			{
-				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mission.resources[idx], 0);
-			}
+			
+			for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+				handler.serializeInt(idx.toResource()->getJsonKey(), mission.resources[idx], 0);
 		}
 		
 		if(missionType == "Hero")
@@ -457,17 +427,18 @@ void CGSeerHut::init(vstd::RNG & rand)
 	seerName = LIBRARY->generaltexth->translate(seerNameID);
 	getQuest().textOption = rand.nextInt(2);
 	getQuest().completedOption = rand.nextInt(1, 3);
-	
+	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
+
 	configuration.canRefuse = true;
 	configuration.visitMode = Rewardable::EVisitMode::VISIT_ONCE;
 	configuration.selectMode = Rewardable::ESelectMode::SELECT_PLAYER;
 }
 
-void CGSeerHut::initObj(vstd::RNG & rand)
+void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 {
-	init(rand);
+	init(gameRandomizer.getDefault());
 	
-	CRewardableObject::initObj(rand);
+	CRewardableObject::initObj(gameRandomizer);
 	
 	setObjToKill();
 	getQuest().defineQuestName();
@@ -477,7 +448,7 @@ void CGSeerHut::initObj(vstd::RNG & rand)
 	
 	if(getQuest().questName == getQuest().missionName(EQuestMission::NONE))
 	{
-		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", getQuest().completedOption).get());
+		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
 	}
 	else
 	{
@@ -570,16 +541,16 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CGSeerHut::newTurn(vstd::RNG & rand) const
+void CGSeerHut::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
-	CRewardableObject::newTurn(rand);
+	CRewardableObject::newTurn(gameEvents, gameRandomizer);
 	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getDate() - 1) //time is up
 	{
-		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
+		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
 	}
 }
 
-void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
+void CGSeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
@@ -590,23 +561,23 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 
 		if(firstVisit)
 		{
-			cb->setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
+			gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
 			aq.quest = QuestInfo(id);
 			aq.player = h->tempOwner;
-			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
+			gameEvents.sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
 
 		if(firstVisit || failRequirements)
 		{
 			getVisitText (iw.text, iw.components, firstVisit, h);
 
-			cb->showInfoDialog(&iw);
+			gameEvents.showInfoDialog(&iw);
 		}
 		if(!failRequirements) // propose completion, also on first visit
 		{
-			CRewardableObject::onHeroVisit(h);
+			CRewardableObject::onHeroVisit(gameEvents, h);
 			return;
 		}
 	}
@@ -615,7 +586,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 		iw.text.appendRawString(LIBRARY->generaltexth->seerEmpty[getQuest().completedOption]);
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
-		cb->showInfoDialog(&iw);
+		gameEvents.showInfoDialog(&iw);
 	}
 }
 
@@ -667,14 +638,21 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	return dynamic_cast<const CGCreature *>(o);
 }
 
-void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+bool CGSeerHut::allowsFullArmyRemoval() const
 {
-	CRewardableObject::blockingDialogAnswered(hero, answer);
+	bool seerGivesUnits = !configuration.info.empty() && !configuration.info.back().reward.creatures.empty();
+	bool h3BugSettingEnabled = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
+	return seerGivesUnits || h3BugSettingEnabled;
+}
+
+void CGSeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+{
 	if(answer)
 	{
-		getQuest().completeQuest(cb, hero);
-		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
+		getQuest().completeQuest(gameEvents, hero, allowsFullArmyRemoval());
+		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
+	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
 }
 
 void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -714,9 +692,9 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "mana")
 			reward.manaDiff = val;
 		if(metaTypeName == "morale")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		if(metaTypeName == "luck")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		if(metaTypeName == "resource")
 		{
 			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
@@ -735,7 +713,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "artifact")
 		{
 			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.artifacts.push_back(rawId);
+			reward.grantedArtifacts.push_back(rawId);
 		}
 		if(metaTypeName == "spell")
 		{
@@ -758,6 +736,7 @@ void CGQuestGuard::init(vstd::RNG & rand)
 	blockVisit = true;
 	getQuest().textOption = rand.nextInt(3, 5);
 	getQuest().completedOption = rand.nextInt(4, 5);
+	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
@@ -765,12 +744,12 @@ void CGQuestGuard::init(vstd::RNG & rand)
 	configuration.canRefuse = true;
 }
 
-void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
+void CGQuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(!getQuest().isCompleted)
-		CGSeerHut::onHeroVisit(h);
+		CGSeerHut::onHeroVisit(gameEvents, h);
 	else
-		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
+		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
 }
 
 bool CGQuestGuard::passableFor(PlayerColor color) const
@@ -809,24 +788,24 @@ bool CGKeymasterTent::wasVisited (PlayerColor player) const
 	return wasMyColorVisited (player);
 }
 
-void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
+void CGKeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
 		ChangeObjectVisitors cow;
-		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
+		cow.mode = ChangeObjectVisitors::VISITOR_ADD_PLAYER;
 		cow.hero = h->id;
 		cow.object = id;
-		cb->sendAndApply(cow);
+		gameEvents.sendAndApply(cow);
 		txt_id=19;
 	}
 	else
 		txt_id=20;
-	h->showInfoDialog(txt_id);
+	h->showInfoDialog(gameEvents, txt_id);
 }
 
-void CGBorderGuard::initObj(vstd::RNG & rand)
+void CGBorderGuard::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 }
@@ -851,43 +830,43 @@ bool CGBorderGuard::checkQuest(const CGHeroInstance * h) const
 	return wasMyColorVisited (h->tempOwner);
 }
 
-void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
+void CGBorderGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if (wasMyColorVisited (h->getOwner()) )
 	{
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
-		cb->showBlockingDialog (this, &bd);
+		gameEvents.showBlockingDialog (this, &bd);
 	}
 	else
 	{
-		h->showInfoDialog(18);
+		h->showInfoDialog(gameEvents, 18);
 
 		AddQuest aq;
 		aq.quest = QuestInfo(id);
 		aq.player = h->tempOwner;
-		cb->sendAndApply(aq);
+		gameEvents.sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
 	}
 }
 
-void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGBorderGuard::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if (answer)
-		cb->removeObject(this, hero->getOwner());
+		gameEvents.removeObject(this, hero->getOwner());
 }
 
-void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passability
+void CGBorderGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const //TODO: passability
 {
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		h->showInfoDialog(18);
+		h->showInfoDialog(gameEvents, 18);
 
 		AddQuest aq;
 		aq.quest = QuestInfo(id);
 		aq.player = h->tempOwner;
-		cb->sendAndApply(aq);
+		gameEvents.sendAndApply(aq);
 	}
 }
 

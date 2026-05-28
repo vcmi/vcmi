@@ -11,16 +11,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace EArtifactClass
+enum class EArtifactClass
 {
-	enum Type
-	{
-		ART_SPECIAL = 1,
-		ART_TREASURE = 2,
-		ART_MINOR = 4,
-		ART_MAJOR = 8,
-		ART_RELIC = 16
-	};
-}
+	ART_SPECIAL = 1,
+	ART_TREASURE = 2,
+	ART_MINOR = 4,
+	ART_MAJOR = 8,
+	ART_RELIC = 16
+};
 
 VCMI_LIB_NAMESPACE_END

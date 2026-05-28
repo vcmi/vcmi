@@ -44,12 +44,13 @@ public:
 
 	ui8 getTacticDist() const override;
 	BattleSide getTacticsSide() const override;
+	int32_t getRound() const override;
 
 	const CGTownInstance * getDefendedTown() const override;
 	EWallState getWallState(EWallPart partOfWall) const override;
 	EGateState getGateState() const override;
 
-	uint32_t getCastSpells(BattleSide side) const override;
+	int32_t getCastSpells(BattleSide side) const override;
 	int32_t getEnchanterCounter(BattleSide side) const override;
 
 	const IBonusBearer * getBonusBearer() const override;

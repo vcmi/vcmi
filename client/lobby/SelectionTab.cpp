@@ -12,12 +12,15 @@
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
+#include "../GameChatHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Buttons.h"
@@ -32,8 +35,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
-
-#include "../../CCallback.h"
+#include "../mainmenu/CCampaignScreen.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
@@ -49,6 +51,43 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/json/JsonNode.h"
+
+class ScenarioTabConfigurable : public InterfaceObjectConfigurable
+{
+public:
+	explicit ScenarioTabConfigurable(SelectionTab & owner)
+		: InterfaceObjectConfigurable()
+	{
+		addCallback("filterMapSize", [&owner](int filterIndex)
+		{
+			owner.filter(filterIndex, true);
+		});
+
+		build(JsonNode(JsonPath::builtin("config/widgets/scenarioTab.json")));
+	}
+
+	std::shared_ptr<CLabel> mapSizeFilterLabel() const
+	{
+		return widget<CLabel>("labelMapSizes");
+	}
+
+	std::shared_ptr<CToggleGroup> mapSizeFilterGroup() const
+	{
+		return widget<CToggleGroup>("groupMapSizeFilters");
+	}
+
+	void setMapSizeLabelVisible(bool visible) const
+	{
+		if(auto label = mapSizeFilterLabel())
+		{
+			if(visible)
+				label->enable();
+			else
+				label->disable();
+		}
+	}
+};
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -58,8 +97,10 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (aaa->isFolder > bbb->isFolder);
 		else
 		{
-			if(boost::algorithm::starts_with(aaa->folderName, "..") || boost::algorithm::starts_with(bbb->folderName, ".."))
-				return boost::algorithm::starts_with(aaa->folderName, "..");
+			const bool aParent = boost::algorithm::starts_with(aaa->folderName, "..");
+			const bool bParent = boost::algorithm::starts_with(bbb->folderName, "..");
+			if(aParent != bParent)
+				return aParent;
 			return TextOperations::compareLocalizedStrings(aaa->folderName, bbb->folderName);
 		}
 	}
@@ -156,36 +197,52 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false), deleteMode(false)
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK)
+	, callOnSelect(nullptr)
+	, tabType(Type)
+	, selectionPos(0)
+	, sortModeAscending(true)
+	, inputNameRect{32, 539, 350, 20}
+	, curFolder("")
+	, currentMapSizeFilter(0)
+	, showRandom(false)
+	, deleteMode(false)
+	, enableUiEnhancements(settings["general"]["enableUiEnhancements"].Bool())
+	, campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 {
 	OBJECT_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
 	sortingBy = _format;
 
-	bool enableUiEnhancements = settings["general"]["enableUiEnhancements"].Bool();
-
 	if(tabType != ESelectionScreen::campaignList)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
+		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), ENGINE->isRoeData() ? 36 : 0, 6);
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
-		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[510]);
 
-		// TODO: Global constants?
-		constexpr std::array sizes = {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, 0};
-		constexpr std::array filterIconNmes = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
-		constexpr std::array filterShortcuts = { EShortcut::MAPS_SIZE_S, EShortcut::MAPS_SIZE_M, EShortcut::MAPS_SIZE_L, EShortcut::MAPS_SIZE_XL, EShortcut::MAPS_SIZE_ALL };
+		scenarioTabConfigurable = std::make_shared<ScenarioTabConfigurable>(*this);
+		addChild(scenarioTabConfigurable.get(), false);
+		if(ENGINE->isRoeData())
+		{
+			if(auto group = scenarioTabConfigurable->mapSizeFilterGroup())
+				group->moveBy(Point(-36, 0));
+			if(auto label = scenarioTabConfigurable->mapSizeFilterLabel())
+				label->moveBy(Point(-18, 0));
+		}
+		scenarioTabConfigurable->setMapSizeLabelVisible(!CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT.DEF")));
 
-		for(int i = 0; i < 5; i++)
-			buttonsSortBy.push_back(std::make_shared<CButton>(Point(158 + 47 * i, 46), AnimationPath::builtin(filterIconNmes[i]), LIBRARY->generaltexth->zelp[54 + i], std::bind(&SelectionTab::filter, this, sizes[i], true), filterShortcuts[i]));
-
-		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
+		std::array xpos = {23, 55, 88, 121, 306, 339};
+		if(ENGINE->isRoeData())
+			xpos = {20, 52, 0, 85, 270, 303};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		constexpr std::array sortShortcuts = { EShortcut::MAPS_SORT_PLAYERS, EShortcut::MAPS_SORT_SIZE, EShortcut::MAPS_SORT_FORMAT, EShortcut::MAPS_SORT_NAME, EShortcut::MAPS_SORT_VICTORY, EShortcut::MAPS_SORT_DEFEAT };
 		for(int i = 0; i < 6; i++)
 		{
+			if(ENGINE->isRoeData() && i == 2)
+				continue;
+
 			ESortBy criteria = (ESortBy)i;
 			if(criteria == _name)
 				criteria = generalSortingBy;
@@ -229,13 +286,13 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
+		auto sortByDate = std::make_shared<CButton>(Point(371 - (ENGINE->isRoeData() ? 36 : 0), 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
-			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
+			buttonDeleteMode = std::make_shared<CButton>(Point(367 - (ENGINE->isRoeData() ? 36 : 0), 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
 				deleteMode = !deleteMode;
 				if(deleteMode)
 					labelTabTitle->setText(tabTitleDelete);
@@ -246,14 +303,53 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			if(tabType == ESelectionScreen::newGame)
 				buttonDeleteMode->setEnabled(false);
 		}
+
+		if(tabType == ESelectionScreen::campaignList)
+		{
+			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{
+				std::vector<std::pair<si64, std::pair<std::string, std::string>>> namesWithIndex;
+				for (auto const & set : campaignSets.Struct())
+				{
+					bool oneCampaignExists = false;
+					for (auto const & item : set.second["items"].Vector())
+						if(CResourceHandler::get()->existsResource(ResourcePath(item["file"].String(), EResType::CAMPAIGN)))
+							oneCampaignExists = true;
+
+					if(oneCampaignExists)
+						namesWithIndex.push_back({set.second["index"].isNull() ? std::numeric_limits<si64>::max() : set.second["index"].Integer(), { set.first, set.second["text"].isNull() ? set.first : LIBRARY->generaltexth->translate(set.second["text"].String()) }});
+				}
+
+				std::sort(namesWithIndex.begin(), namesWithIndex.end(), [](const std::pair<si64, std::pair<std::string, std::string>>& a, const std::pair<si64, std::pair<std::string, std::string>>& b)
+				{
+					if (a.first != b.first) return a.first < b.first;
+					return a.second.second < b.second.second;
+				});
+
+				std::vector<std::string> namesIdentifier;
+				for (const auto& pair : namesWithIndex)
+					namesIdentifier.push_back(pair.second.first);
+				std::vector<std::string> namesTranslated;
+				for (const auto& pair : namesWithIndex)
+					namesTranslated.push_back(pair.second.second);
+
+				auto window = std::make_shared<CObjectListWindow>(namesTranslated, nullptr, LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), [this, namesIdentifier](int index){
+					GAME->server().sendClientDisconnecting();
+					(static_cast<CLobbyScreen *>(parent))->close();
+					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, namesIdentifier[index]);
+				}, 0, std::vector<std::shared_ptr<IImage>>(), true, true);
+				ENGINE->windows().pushWindow(window);
+			}, EShortcut::LOBBY_CAMPAIGN_SETS);
+			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);
+		}
 	}
 
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
 
-	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
-	slider = std::make_shared<CSlider>(Point(372, 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	labelTabTitle = std::make_shared<CLabel>(205 - (ENGINE->isRoeData() ? 18 : 0), 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
+	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(24);
+	slider->setInertiaEnabled(true);
 
 	// create scroll bounds that encompass all area in this UI element to the left of slider (including area of slider itself)
 	// entire screen can't be used in here since map description might also have slider
@@ -279,6 +375,7 @@ void SelectionTab::toggleMode()
 				inputName->disable();
 				auto files = getFiles("Maps/", EResType::MAP);
 				files.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
+				files.erase(ResourcePath("Maps/BattleOnlyMode.vmap", EResType::MAP));
 				parseMaps(files);
 				break;
 			}
@@ -519,6 +616,12 @@ auto SelectionTab::checkSubfolder(std::string path)
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
 // selMaps with the relevant data.
+void SelectionTab::filter(int size, size_t requiredHumanPlayersCount, bool selectFirst)
+{
+	setRequiredHumanPlayers(requiredHumanPlayersCount);
+	filter(size, selectFirst);
+}
+
 void SelectionTab::filter(int size, bool selectFirst)
 {
 	if(size == -1)
@@ -530,10 +633,18 @@ void SelectionTab::filter(int size, bool selectFirst)
 	if(buttonDeleteMode)
 		buttonDeleteMode->setEnabled(tabType != ESelectionScreen::newGame || showRandom);
 
+	hiddenIncompatibleMapsCount = 0;
+
 	for(auto elem : allItems)
 	{
 		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
 		{
+			if(!isMapCompatibleWithLobbyPlayerCount(*elem))
+			{
+				++hiddenIncompatibleMapsCount;
+				continue;
+			}
+
 			if(showRandom)
 				curFolder = "RandomMaps/";
 
@@ -566,6 +677,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				curItems.push_back(elem);
 		}
 	}
+
 
 	if(curItems.size())
 	{
@@ -762,8 +874,10 @@ void SelectionTab::selectFileName(std::string fname)
 		if(boost::to_upper_copy(allItems[i]->fileURI) == fname)
 		{
 			auto [folderName, baseFolder, parentExists, fileInFolder] = checkSubfolder(allItems[i]->originalFileURI);
-			curFolder = baseFolder != "" ? baseFolder + "/" : "";
+			// Keep scenario selection on the root list: random maps are accessed via dedicated UI path.
+			curFolder = (baseFolder != "" && baseFolder != "RandomMaps") ? baseFolder + "/" : "";
 		}
+
 	}
 
 	filter(-1);
@@ -778,7 +892,16 @@ void SelectionTab::selectFileName(std::string fname)
 		}
 	}
 
-	selectAbs(-1);
+	int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	if(firstPos < curItems.size())
+	{
+		slider->scrollTo(firstPos);
+		selectAbs(firstPos);
+	}
+	else if(callOnSelect)
+	{
+		callOnSelect(nullptr);
+	}
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
 		inputName->setText(LIBRARY->generaltexth->translate("core.genrltxt.11"));
@@ -804,24 +927,25 @@ std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
 
 void SelectionTab::rememberCurrentSelection()
 {
-	if(getSelectedMapInfo()->isFolder)
+	const auto selectedMapInfo = getSelectedMapInfo();
+	if(!selectedMapInfo || selectedMapInfo->isFolder)
 		return;
 		
 	// TODO: this can be more elegant
 	if(tabType == ESelectionScreen::newGame)
 	{
 		Settings lastMap = settings.write["general"]["lastMap"];
-		lastMap->String() = getSelectedMapInfo()->fileURI;
+		lastMap->String() = selectedMapInfo->fileURI;
 	}
 	else if(tabType == ESelectionScreen::loadGame)
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
-		lastSave->String() = getSelectedMapInfo()->fileURI;
+		lastSave->String() = selectedMapInfo->fileURI;
 	}
 	else if(tabType == ESelectionScreen::campaignList)
 	{
 		Settings lastCampaign = settings.write["general"]["lastCampaign"];
-		lastCampaign->String() = getSelectedMapInfo()->fileURI;
+		lastCampaign->String() = selectedMapInfo->fileURI;
 	}
 }
 
@@ -863,6 +987,38 @@ bool SelectionTab::isMapSupported(const CMapInfo & info)
 			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
 	}
 	return false;
+}
+
+bool SelectionTab::isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const
+{
+	if(tabType != ESelectionScreen::newGame || GAME->server().loadMode != ELoadMode::MULTI || !info.mapHeader)
+		return true;
+
+	const auto requiredHumanPlayersCount = getRequiredHumanPlayers();
+	size_t supportedHumanPlayers = 0;
+
+	for(const auto & player : info.mapHeader->players)
+	{
+		if(player.canHumanPlay)
+			++supportedHumanPlayers;
+	}
+
+	return supportedHumanPlayers >= requiredHumanPlayersCount;
+}
+
+size_t SelectionTab::getRequiredHumanPlayers() const
+{
+	return requiredHumanPlayers;
+}
+
+void SelectionTab::setRequiredHumanPlayers(size_t players)
+{
+	requiredHumanPlayers = players;
+}
+
+size_t SelectionTab::getHiddenIncompatibleMapsCount() const
+{
+	return hiddenIncompatibleMapsCount;
 }
 
 void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
@@ -963,9 +1119,6 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	auto campaignSets = JsonUtils::assembleFromFiles("config/campaignSets.json");
-	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
-
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
@@ -979,22 +1132,13 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 			if(info->campaign)
 			{
 				// skip campaigns organized in sets
-				std::string foundInSet = "";
+				bool foundInSet = false;
 				for (auto const & set : campaignSets.Struct())
 					for (auto const & item : set.second["items"].Vector())
 						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = set.first;
+							foundInSet = true;
 
-				// set has to be used in main menu
-				bool setInMainmenu = false;
-				if(!foundInSet.empty())
-					for (auto const & item : mainmenu["window"]["items"].Vector())
-						if(item["name"].String() == "campaign")
-							for (auto const & button : item["buttons"].Vector())
-								if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
-									setInMainmenu = true;
-
-				if(!setInMainmenu)
+				if(!foundInSet || !enableUiEnhancements)
 					allItems.push_back(info);
 			}
 		}
@@ -1025,20 +1169,22 @@ SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
 {
 	OBJECT_CONSTRUCTION;
-	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
-	labelName = std::make_shared<CLabel>(LABEL_POS_X, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
+	if(!ENGINE->isDemoData())
+		pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
+	labelName = std::make_shared<CLabel>(LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
-	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelAmountOfPlayers = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
-	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelNumberOfCampaignMaps->setAutoRedraw(false);
-	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelMapSizeLetter = std::make_shared<CLabel>(41 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
-	iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
-	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
-	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
+	if(!ENGINE->isRoeData())
+		iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
+	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277 - (ENGINE->isRoeData() ? 36 : 0), -12);
+	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310 - (ENGINE->isRoeData() ? 36 : 0), -12);
 }
 
 void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool selected)
@@ -1048,8 +1194,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1063,8 +1211,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->enable();
-		pictureEmptyLine->enable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->enable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1073,12 +1223,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
 		{
 			labelName->alignment = ETextAlignment::CENTERLEFT;
-			labelName->moveTo(Point(pos.x + 80, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + 80 - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		else
 		{
 			labelName->alignment = ETextAlignment::CENTER;
-			labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
@@ -1091,8 +1241,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
@@ -1102,7 +1254,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	else
 	{
@@ -1116,16 +1268,20 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->enable();
-		iconFormat->setFrame(info->getMapSizeFormatIconId());
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+		{
+			iconFormat->enable();
+			iconFormat->setFrame(info->getMapSizeFormatIconId());
+		}
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	labelName->setText(info->name);
 	labelName->setColor(color);

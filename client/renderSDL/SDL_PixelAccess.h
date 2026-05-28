@@ -21,20 +21,20 @@ namespace Channels
 	// channel not present in this format
 	struct channel_empty
 	{
-		static STRONG_INLINE void set(uint8_t*, uint8_t) {}
-		static STRONG_INLINE uint8_t get(const uint8_t *) { return 255;}
+		static inline void set(uint8_t*, uint8_t) {}
+		static inline uint8_t get(const uint8_t *) { return 255;}
 	};
 
 	// channel which uses whole pixel
 	template<int offset>
 	struct channel_pixel
 	{
-		static STRONG_INLINE void set(uint8_t *ptr, uint8_t value)
+		static inline void set(uint8_t *ptr, uint8_t value)
 		{
 			ptr[offset] = value;
 		}
 
-		static STRONG_INLINE uint8_t get(const uint8_t *ptr)
+		static inline uint8_t get(const uint8_t *ptr)
 		{
 			return ptr[offset];
 		}
@@ -45,14 +45,14 @@ namespace Channels
 	struct channel_subpx
 	{
 
-		static void STRONG_INLINE set(uint8_t *ptr, uint8_t value)
+		static void inline set(uint8_t *ptr, uint8_t value)
 		{
 			auto * const pixel = (uint16_t *)ptr;
 			uint8_t subpx = value >> (8 - bits);
 			*pixel = (*pixel & ~mask) | ((subpx << shift) & mask );
 		}
 
-		static uint8_t STRONG_INLINE get(const uint8_t *ptr)
+		static uint8_t inline get(const uint8_t *ptr)
 		{
 			uint8_t subpx = (*((uint16_t *)ptr) & mask) >> shift;
 			return (subpx << (8 - bits)) | (subpx >> (2*bits - 8));
@@ -114,20 +114,20 @@ namespace Channels
 template<int bpp>
 struct ColorPutter
 {
-	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
-	static STRONG_INLINE void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
-	static STRONG_INLINE void PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
-	static STRONG_INLINE void PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color);
+	static inline void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B);
+	static inline void PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static inline void PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A);
+	static inline void PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color);
 };
 
 template<int bpp>
-STRONG_INLINE void ColorPutter<bpp>::PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color)
+inline void ColorPutter<bpp>::PutColorAlpha(uint8_t *&ptr, const SDL_Color & Color)
 {
 	PutColor(ptr, Color.r, Color.g, Color.b, Color.a);
 }
 
 template<int bpp>
-STRONG_INLINE void ColorPutter<bpp>::PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
+inline void ColorPutter<bpp>::PutColorAlphaSwitch(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
 	switch (A)
 	{
@@ -149,7 +149,7 @@ STRONG_INLINE void ColorPutter<bpp>::PutColorAlphaSwitch(uint8_t *&ptr, const ui
 }
 
 template<int bpp>
-STRONG_INLINE void ColorPutter<bpp>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
+inline void ColorPutter<bpp>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B, const uint8_t & A)
 {
 	PutColor(ptr, ((((uint32_t)R - (uint32_t)Channels::px<bpp>::r.get(ptr))*(uint32_t)A) >> 8 ) + (uint32_t)Channels::px<bpp>::r.get(ptr),
 				  ((((uint32_t)G - (uint32_t)Channels::px<bpp>::g.get(ptr))*(uint32_t)A) >> 8 ) + (uint32_t)Channels::px<bpp>::g.get(ptr),
@@ -157,7 +157,7 @@ STRONG_INLINE void ColorPutter<bpp>::PutColor(uint8_t *&ptr, const uint8_t & R, 
 }
 
 template<int bpp>
-STRONG_INLINE void ColorPutter<bpp>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B)
+inline void ColorPutter<bpp>::PutColor(uint8_t *&ptr, const uint8_t & R, const uint8_t & G, const uint8_t & B)
 {
 	Channels::px<bpp>::r.set(ptr, R);
 	Channels::px<bpp>::g.set(ptr, G);

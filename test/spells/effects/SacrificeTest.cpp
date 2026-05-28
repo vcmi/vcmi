@@ -68,6 +68,7 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(mechanicsMock, isNegativeSpell()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, alwaysHitFirstTarget()).WillRepeatedly(Return(false));
 
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtLeast(1)).WillRepeatedly(Return(true));
@@ -77,16 +78,16 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).Times(AtLeast(1)).WillRepeatedly(Return(true));
 
 
-	EffectTarget aimPoint;
+	Target aimPoint;
 	aimPoint.emplace_back(&unit, BattleHex());
 	aimPoint.emplace_back(&victim, BattleHex());
 
-	EffectTarget spellTarget;
+	Target spellTarget;
 	spellTarget.emplace_back(&unit, BattleHex());
 
-	EffectTarget transformed = subject->transformTarget(&mechanicsMock, aimPoint, spellTarget);
+	Target transformed = subject->transformTarget(&mechanicsMock, aimPoint, spellTarget);
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, transformed));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, transformed));
 }
 
 #if 0
@@ -115,10 +116,10 @@ TEST_F(SacrificeTest, NotApplicableWithoutVictim)
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
 
-	EffectTarget aimPoint;
+	Target aimPoint;
 	aimPoint.emplace_back(&unit, BattleHex());
 
-	EffectTarget transformed = subject->transformTarget(&mechanicsMock, aimPoint, aimPoint);
+	Target transformed = subject->transformTarget(&mechanicsMock, aimPoint, aimPoint);
 
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, transformed));
 }
@@ -154,7 +155,7 @@ protected:
 	}
 };
 
-TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
+TEST_F(SacrificeApplyTest, ResurrectsTarget)
 {
 	using namespace ::battle;
 
@@ -177,7 +178,8 @@ TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
 
 	EXPECT_CALL(mechanicsMock, getEffectPower()).Times(AtLeast(1)).WillRepeatedly(Return(effectPower));
-	EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
+	// NOTE: seems to be incorrect assumption? Sacrifice is not affected by Sorcery, which is what applySpellBonus does
+	//EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
 	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(_,_)).WillOnce(Return(effectValue));
 
 	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
@@ -188,7 +190,7 @@ TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 
 	victim.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, victimUnitHP, BonusSourceID()));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Eq(expectedHealValue))).Times(1);
 
 	EXPECT_CALL(*battleFake, removeUnit(Eq(victimId))).Times(1);
 
@@ -208,7 +210,7 @@ TEST_F(SacrificeApplyTest, DISABLED_ResurrectsTarget)
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 	target.emplace_back(&victim, BattleHex());
 

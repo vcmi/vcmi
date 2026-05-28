@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 #include "GameEngine.h"
+#include "GameLibrary.h"
+#include "Discord.h"
 
 #include "gui/CIntObject.h"
 #include "gui/CursorHandler.h"
@@ -35,6 +37,8 @@
 
 #include "../lib/AsyncRunner.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/texts/TextOperations.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 #include <SDL_render.h>
 
@@ -68,6 +72,8 @@ GameEngine::GameEngine()
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance and shortcutsHandlerInstance
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
+	discordInstance = std::make_unique<Discord>();
 
 #ifndef ENABLE_VIDEO
 	videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();
@@ -125,8 +131,8 @@ void GameEngine::updateFrame()
 	handleEvents();
 	windows().simpleRedraw();
 
-	if (settings["video"]["showfps"].Bool())
-		drawFPSCounter();
+	if (settings["video"]["performanceOverlay"]["show"].Bool())
+		drawPerformanceOverlay();
 
 	screenHandlerInstance->updateScreenTexture();
 
@@ -184,14 +190,57 @@ Point GameEngine::screenDimensions() const
 	return screenHandlerInstance->getLogicalResolution();
 }
 
-void GameEngine::drawFPSCounter()
+bool GameEngine::isRoeData() const
 {
-	Canvas target = screenHandler().getScreenCanvas();
-	Rect targetArea(0, screenDimensions().y - 20, 48, 11);
-	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+	return LIBRARY->isRoeData();
+}
 
-	target.drawColor(targetArea, ColorRGBA(10, 10, 10));
-	target.drawText(targetArea.center(), EFonts::FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, fps);
+bool GameEngine::isDemoData() const
+{
+	return LIBRARY->isDemoData();
+}
+
+void GameEngine::drawPerformanceOverlay()
+{
+	auto font = EFonts::FONT_SMALL;
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
+
+	Canvas target = screenHandler().getScreenCanvas();
+
+	auto powerState = ENGINE->input().getPowerState();
+	std::string powerSymbol = ""; // add symbol if emoji are supported (e.g. VCMI extras)
+	if(powerState.powerState == PowerStateMode::ON_BATTERY)
+		powerSymbol = fontPtr->canRepresentCharacter("🔋") ? "🔋 " : (LIBRARY->generaltexth->translate("vcmi.overlay.battery") + " ");
+	else if(powerState.powerState == PowerStateMode::CHARGING)
+		powerSymbol = fontPtr->canRepresentCharacter("🔌") ? "🔌 " : (LIBRARY->generaltexth->translate("vcmi.overlay.charging") + " ");
+
+	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+	std::string time = TextOperations::getFormattedTimeLocal(std::time(nullptr));
+	std::string power = powerState.powerState == PowerStateMode::UNKNOWN ? "" : powerSymbol + std::to_string(powerState.percent) + "%";
+
+	std::string textToDisplay = time + (power.empty() ? "" : " | " + power) + " | " + fps;
+
+	maxPerformanceOverlayTextWidth = std::max(maxPerformanceOverlayTextWidth, static_cast<int>(fontPtr->getStringWidth(textToDisplay))); // do not get smaller (can cause graphical glitches)
+
+	Rect targetArea;
+	std::string edge = settings["video"]["performanceOverlay"]["edge"].String();
+	int marginTopBottom = settings["video"]["performanceOverlay"]["marginTopBottom"].Integer();
+	int marginLeftRight = settings["video"]["performanceOverlay"]["marginLeftRight"].Integer();
+
+	Point boxSize(maxPerformanceOverlayTextWidth + 6, fontPtr->getLineHeight() + 2);
+
+	if (edge == "topleft")
+		targetArea = Rect(marginLeftRight, marginTopBottom, boxSize.x, boxSize.y);
+	else if (edge == "topright")
+		targetArea = Rect(screenDimensions().x - marginLeftRight - boxSize.x, marginTopBottom, boxSize.x, boxSize.y);
+	else if (edge == "bottomleft")
+		targetArea = Rect(marginLeftRight, screenDimensions().y - marginTopBottom - boxSize.y, boxSize.x, boxSize.y);
+	else if (edge == "bottomright")
+		targetArea = Rect(screenDimensions().x - marginLeftRight - boxSize.x, screenDimensions().y - marginTopBottom - boxSize.y, boxSize.x, boxSize.y);
+
+	target.drawColor(targetArea.resize(1), Colors::BRIGHT_YELLOW);
+	target.drawColor(targetArea, ColorRGBA(0, 0, 0));
+	target.drawText(targetArea.center(), font, Colors::WHITE, ETextAlignment::CENTER, textToDisplay);
 }
 
 bool GameEngine::amIGuiThread()
@@ -245,10 +294,11 @@ void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 	currentStatusBar = newStatusBar;
 }
 
-void GameEngine::onScreenResize(bool resolutionChanged)
+void GameEngine::onScreenResize(bool resolutionChanged, bool windowResized)
 {
 	if(resolutionChanged)
-		screenHandler().onScreenResize();
+		if(!screenHandler().onScreenResize(windowResized))
+			return;
 
 	windows().onScreenResize();
 	ENGINE->cursor().onScreenResize();

@@ -11,32 +11,24 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../GameLibrary.h"
+#include "BattleSpellMechanics.h"
+#include "TargetCondition.h"
+#include "Problem.h"
+#include "CSpell.h"
 
+#include "adventure/AdventureSpellMechanics.h"
+#include "effects/Effects.h"
+#include "effects/Damage.h"
+#include "effects/Timed.h"
+
+#include "../GameLibrary.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
-
 #include "../mapObjects/CGHeroInstance.h"
-
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
-
-#include "TargetCondition.h"
-#include "Problem.h"
-
-#include "AdventureSpellMechanics.h"
-#include "BattleSpellMechanics.h"
-
-#include "effects/Effects.h"
-#include "effects/Registry.h"
-#include "effects/Damage.h"
-#include "effects/Timed.h"
-
-#include "CSpellHandler.h"
-
-#include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
 
 #include <vstd/RNG.h>
@@ -76,7 +68,7 @@ protected:
 	void loadEffects(const JsonNode & config, const int level)
 	{
 		JsonDeserializer deser(nullptr, config);
-		effects->serializeJson(LIBRARY->spellEffects(), deser, level);
+		effects->serializeJson(deser, level, spell->modScope, spell->identifier);
 	}
 private:
 	std::shared_ptr<IReceptiveCheck> targetCondition;
@@ -143,20 +135,6 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 	mode(mode_),
 	smart(boost::logic::indeterminate),
 	massive(boost::logic::indeterminate)
-{
-}
-
-BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
-	: spell(orig.spell),
-	cb(orig.cb),
-	caster(caster_),
-	mode(Mode::MAGIC_MIRROR),
-	magicSkillLevel(orig.magicSkillLevel),
-	effectPower(orig.effectPower),
-	effectDuration(orig.effectDuration),
-	effectValue(orig.effectValue),
-	smart(true),
-	massive(false)
 {
 }
 
@@ -246,51 +224,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 	auto m = spell->battleMechanics(this);
 
-	const battle::Unit * mainTarget = nullptr;
-
-	if(target.front().unitValue)
-	{
-		mainTarget = target.front().unitValue;
-	}
-	else if(target.front().hexValue.isValid())
-	{
-		mainTarget = cb->battleGetUnitByPos(target.front().hexValue, true);
-	}
-
-	bool tryMagicMirror = (mainTarget != nullptr) && (mode == Mode::HERO || mode == Mode::CREATURE_ACTIVE);//TODO: recheck
-	tryMagicMirror = tryMagicMirror && (mainTarget->unitOwner() != caster->getCasterOwner()) && !spell->isPositive();//TODO: recheck
-
 	m->cast(server, target);
-
-	//Magic Mirror effect
-	if(tryMagicMirror)
-	{
-		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
-
-		const int mirrorChance = mainTarget->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
-
-		if(server->getRNG()->nextInt(0, 99) < mirrorChance)
-		{
-			auto mirrorTargets = cb->battleGetUnitsIf([this](const battle::Unit * unit)
-			{
-				//Get all caster stacks. Magic mirror can reflect to immune creature (with no effect)
-				return unit->unitOwner() == caster->getCasterOwner() && unit->isValidTarget(true);
-			});
-
-
-			if(!mirrorTargets.empty())
-			{
-				const auto * mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
-
-				Target mirrorTarget;
-				mirrorTarget.emplace_back(mirrorDestination);
-
-				BattleCast mirror(*this, mainTarget);
-				mirror.cast(server, mirrorTarget);
-			}
-		}
-	}
 }
 
 void BattleCast::castEval(ServerCallback * server, Target target)
@@ -314,65 +248,6 @@ bool BattleCast::castIfPossible(ServerCallback * server, Target target)
 		return true;
 	}
 	return false;
-}
-
-std::vector<Target> BattleCast::findPotentialTargets(bool fast) const
-{
-	//TODO: for more than 2 destinations per target much more efficient algorithm is required
-
-	auto m = spell->battleMechanics(this);
-
-	auto targetTypes = m->getTargetTypes();
-
-
-	if(targetTypes.empty() || targetTypes.size() > 2)
-	{
-		return std::vector<Target>();
-	}
-	else
-	{
-		std::vector<Target> previous;
-		std::vector<Target> next;
-
-		for(size_t index = 0; index < targetTypes.size(); index++)
-		{
-			std::swap(previous, next);
-			next.clear();
-
-			std::vector<Destination> destinations;
-
-			if(previous.empty())
-			{
-				Target empty;
-				destinations = m->getPossibleDestinations(index, targetTypes.at(index), empty, fast);
-
-				for(auto & destination : destinations)
-				{
-					Target target;
-					target.emplace_back(destination);
-					next.push_back(target);
-				}
-			}
-			else
-			{
-				for(const Target & current : previous)
-				{
-					destinations = m->getPossibleDestinations(index, targetTypes.at(index), current, fast);
-
-					for(auto & destination : destinations)
-					{
-						Target target = current;
-						target.emplace_back(destination);
-						next.push_back(target);
-					}
-				}
-			}
-
-			if(next.empty())
-				break;
-		}
-		return next;
-	}
 }
 
 ///ISpellMechanicsFactory
@@ -583,6 +458,11 @@ bool BaseMechanics::isPositiveSpell() const
 	return owner->isPositive();
 }
 
+bool BaseMechanics::isNeutralSpell() const
+{
+	return owner->isNeutral();
+}
+
 bool BaseMechanics::isMagicalEffect() const
 {
 	return owner->isMagical();
@@ -608,14 +488,19 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
+Target BaseMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return aim;
+}
+
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
-    return ownerMatches(unit, owner->getPositiveness());
+	return ownerMatches(unit, owner->getPositiveness());
 }
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
 {
-    return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
+	return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const
@@ -648,6 +533,11 @@ PlayerColor BaseMechanics::getCasterColor() const
 	return caster->getCasterOwner();
 }
 
+const CGHeroInstance * BaseMechanics::getHeroCaster() const
+{
+	return caster->getHeroCaster();
+}
+
 std::vector<AimType> BaseMechanics::getTargetTypes() const
 {
 	std::vector<AimType> ret;
@@ -673,12 +563,10 @@ const CreatureService * BaseMechanics::creatures() const
 	return LIBRARY->creatures(); //todo: redirect
 }
 
-#if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
 	return LIBRARY->scripts(); //todo: redirect
 }
-#endif
 
 const Service * BaseMechanics::spells() const
 {
@@ -690,6 +578,10 @@ const CBattleInfoCallback * BaseMechanics::battle() const
 	return cb;
 }
 
+BattleID BaseMechanics::getBattleID() const
+{
+	return cb->getBattle()->getBattleID();
+}
 
 } //namespace spells
 
@@ -701,28 +593,10 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch(s->id.toEnum())
-	{
-	case SpellID::SUMMON_BOAT:
-		return std::make_unique<SummonBoatMechanics>(s);
-	case SpellID::SCUTTLE_BOAT:
-		return std::make_unique<ScuttleBoatMechanics>(s);
-	case SpellID::DIMENSION_DOOR:
-		return std::make_unique<DimensionDoorMechanics>(s);
-	case SpellID::FLY:
-	case SpellID::WATER_WALK:
-	case SpellID::VISIONS:
-	case SpellID::DISGUISE:
-		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
-	case SpellID::TOWN_PORTAL:
-		return std::make_unique<TownPortalMechanics>(s);
-	case SpellID::VIEW_EARTH:
-		return std::make_unique<ViewEarthMechanics>(s);
-	case SpellID::VIEW_AIR:
-		return std::make_unique<ViewAirMechanics>(s);
-	default:
-		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
-	}
+	if (s->isCombat())
+		return nullptr;
+
+	return std::make_unique<AdventureSpellMechanics>(s);
 }
 
 VCMI_LIB_NAMESPACE_END

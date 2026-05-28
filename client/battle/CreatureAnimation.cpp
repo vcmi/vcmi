@@ -110,6 +110,8 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 	case ECreatureAnimType::MOVE_START:
 	case ECreatureAnimType::MOVE_END:
+	case ECreatureAnimType::TELEPORT_START:
+	case ECreatureAnimType::TELEPORT_END:
 		return speed;
 
 	case ECreatureAnimType::DEAD:
@@ -389,8 +391,10 @@ bool CreatureAnimation::isIdle() const
 bool CreatureAnimation::isMoving() const
 {
 	return getType() == ECreatureAnimType::MOVE_START
+		|| getType() == ECreatureAnimType::TELEPORT_START
 		|| getType() == ECreatureAnimType::MOVING
 		|| getType() == ECreatureAnimType::MOVE_END
+		|| getType() == ECreatureAnimType::TELEPORT_END
 		|| getType() == ECreatureAnimType::TURN_L
 		|| getType() == ECreatureAnimType::TURN_R;
 }

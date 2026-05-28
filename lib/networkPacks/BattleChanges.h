@@ -19,13 +19,12 @@ public:
 	enum class EOperation : si8
 	{
 		ADD,
-		RESET_STATE,
 		UPDATE,
 		REMOVE,
 	};
 
 	JsonNode data;
-	EOperation operation = EOperation::RESET_STATE;
+	EOperation operation = EOperation::UPDATE;
 
 	BattleChanges() = default;
 	explicit BattleChanges(EOperation operation_)

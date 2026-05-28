@@ -19,7 +19,6 @@
 #include "../CConfigHandler.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
-#include "../ScriptHandler.h"
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
@@ -237,12 +236,34 @@ void CModHandler::initializeConfig()
 void CModHandler::loadTranslation(const TModID & modName)
 {
 	const auto & mod = getModInfo(modName);
+	JsonParsingSettings settings;
+	settings.strict	= true; // weblate requirement
 
 	std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 	std::string modBaseLanguage = getModInfo(modName).getBaseLanguage();
 
-	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()["translations"]);
-	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()[preferredLanguage]["translations"]);
+	JsonNode baseTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()["translations"], settings);
+	JsonNode extraTranslation = JsonUtils::assembleFromFiles(mod.getLocalConfig()[preferredLanguage]["translations"], settings);
+
+	// Per-key English fallback: for any key missing in the preferred-language
+	// translation, substitute the base-language (typically English) string so
+	// the player sees readable text instead of a raw key identifier.
+	// This handles both completely untranslated mods and partially translated ones.
+	if(preferredLanguage != modBaseLanguage)
+	{
+		JsonNode baseLangFallback = JsonUtils::assembleFromFiles(
+			mod.getLocalConfig()[modBaseLanguage]["translations"]);
+		if(!baseLangFallback.isNull())
+		{
+			// Start with the fallback, then let the preferred-language strings
+			// overwrite any keys that have already been translated.
+			// Guard: merge(dest, null) would clear dest, so skip when there is
+			// nothing to overlay from the preferred language.
+			if(!extraTranslation.isNull())
+				JsonUtils::merge(baseLangFallback, extraTranslation);
+			extraTranslation = std::move(baseLangFallback);
+		}
+	}
 
 	LIBRARY->generaltexth->loadTranslationOverrides(modName, modBaseLanguage, baseTranslation);
 	LIBRARY->generaltexth->loadTranslationOverrides(modName, preferredLanguage, extraTranslation);
@@ -289,10 +310,6 @@ void CModHandler::load()
 		if (!isValid)
 			validationPassed.erase(modName);
 	}
-
-#if SCRIPTING_ENABLED
-	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
-#endif
 
 	content->loadCustom();
 

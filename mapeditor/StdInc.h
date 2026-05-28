@@ -12,6 +12,11 @@
 #include "../Global.h"
 
 #include <QtWidgets>
+#ifdef ENABLE_TEMPLATE_EDITOR
+#include <QtSvg>
+#include <QSvgRenderer>
+#include <QDomDocument>
+#endif
 #include <QStringList>
 #include <QSet>
 #include <QVector>

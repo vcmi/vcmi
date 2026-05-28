@@ -179,49 +179,13 @@ void LobbyServer::broadcastActiveAccounts()
 		jsonEntry["status"].String() = "In Lobby"; // TODO: in room status, in match status, offline status(?)
 		reply["accounts"].Vector().push_back(jsonEntry);
 	}
+	
+	const auto & bytes = reply.toBytes();
+	logGlobal->info("Sending message of type %s", reply["type"].String());
+	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
 
 	for(const auto & connection : activeAccounts)
-		sendMessage(connection.first, reply);
-}
-
-static JsonNode loadLobbyAccountToJson(const LobbyAccount & account)
-{
-	JsonNode jsonEntry;
-	jsonEntry["accountID"].String() = account.accountID;
-	jsonEntry["displayName"].String() = account.displayName;
-	return jsonEntry;
-}
-
-static JsonNode loadLobbyGameRoomToJson(const LobbyGameRoom & gameRoom)
-{
-	static constexpr std::array LOBBY_ROOM_STATE_NAMES = {
-		"idle",
-		"public",
-		"private",
-		"busy",
-		"cancelled",
-		"closed"
-	};
-
-	JsonNode jsonEntry;
-	jsonEntry["gameRoomID"].String() = gameRoom.roomID;
-	jsonEntry["hostAccountID"].String() = gameRoom.hostAccountID;
-	jsonEntry["hostAccountDisplayName"].String() = gameRoom.hostAccountDisplayName;
-	jsonEntry["description"].String() = gameRoom.description;
-	jsonEntry["version"].String() = gameRoom.version;
-	jsonEntry["status"].String() = LOBBY_ROOM_STATE_NAMES[vstd::to_underlying(gameRoom.roomState)];
-	jsonEntry["playerLimit"].Integer() = gameRoom.playerLimit;
-	jsonEntry["ageSeconds"].Integer() = gameRoom.age.count();
-	if (!gameRoom.modsJson.empty()) // not present in match history
-		jsonEntry["mods"] = JsonNode(reinterpret_cast<const std::byte *>(gameRoom.modsJson.data()), gameRoom.modsJson.size(), "<lobby "+gameRoom.roomID+">");
-
-	for(const auto & account : gameRoom.participants)
-		jsonEntry["participants"].Vector().push_back(loadLobbyAccountToJson(account));
-
-	for(const auto & account : gameRoom.invited)
-		jsonEntry["invited"].Vector().push_back(loadLobbyAccountToJson(account));
-
-	return jsonEntry;
+		connection.first->sendPacket(bytes);
 }
 
 void LobbyServer::sendMatchesHistory(const NetworkConnectionPtr & target)
@@ -234,7 +198,7 @@ void LobbyServer::sendMatchesHistory(const NetworkConnectionPtr & target)
 	reply["matchesHistory"].Vector(); // force creation of empty vector
 
 	for(const auto & gameRoom : matchesHistory)
-		reply["matchesHistory"].Vector().push_back(loadLobbyGameRoomToJson(gameRoom));
+		reply["matchesHistory"].Vector().push_back(gameRoom.toJsonFull());
 
 	sendMessage(target, reply);
 }
@@ -247,18 +211,37 @@ JsonNode LobbyServer::prepareActiveGameRooms()
 	reply["gameRooms"].Vector(); // force creation of empty vector
 
 	for(const auto & gameRoom : activeGameRoomStats)
-		reply["gameRooms"].Vector().push_back(loadLobbyGameRoomToJson(gameRoom));
+		reply["gameRooms"].Vector().push_back(gameRoom.toJsonFull());
 
 	return reply;
 }
 
 void LobbyServer::broadcastActiveGameRooms()
 {
-	auto reply = prepareActiveGameRooms();
+	const auto & reply = prepareActiveGameRooms();
+	const auto & bytes = reply.toBytes();
+	logGlobal->info("Sending message of type %s", reply["type"].String());
+	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
 
 	for(const auto & connection : activeAccounts)
-		sendMessage(connection.first, reply);
+		connection.first->sendPacket(bytes);
 }
+
+void LobbyServer::broadcastGameRoomDescription(const std::string & gameRoomID)
+{
+	const auto & roomData = database->getGameRoom(gameRoomID);
+	JsonNode reply;
+	reply["type"].String() = "updateGameRoom";
+	reply["room"] = roomData.toJsonFull();
+
+	const auto & bytes = reply.toBytes();
+	logGlobal->info("Sending message of type %s", reply["type"].String());
+	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
+
+	for(const auto & connection : activeAccounts)
+		connection.first->sendPacket(bytes);
+}
+
 
 void LobbyServer::sendAccountJoinsRoom(const NetworkConnectionPtr & target, const std::string & accountID)
 {
@@ -323,6 +306,8 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 		activeGameRooms.erase(connection);
 	}
 
+	vstd::erase_if(awaitingProxies, [&connection](const AwaitingProxyState & p) { return p.roomConnection.lock() == connection || p.accountConnection.lock() == connection; });
+
 	if(activeProxies.count(connection))
 	{
 		const auto otherConnection = activeProxies.at(connection);
@@ -342,13 +327,13 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 {
 	JsonParsingSettings parserSettings;
 	parserSettings.mode = JsonParsingSettings::JsonFormatMode::JSON;
-	parserSettings.maxDepth = 2;
+	parserSettings.maxDepth = 4;
 	parserSettings.strict = true;
 
 	JsonNode json;
 	try
 	{
-		JsonNode jsonTemp(message.data(), message.size(), "<lobby message>");
+		JsonNode jsonTemp(message.data(), message.size(), parserSettings, "<lobby message>");
 		json = std::move(jsonTemp);
 	}
 	catch (const JsonFormatException & e)
@@ -387,6 +372,7 @@ void LobbyServer::onPacketReceived(const NetworkConnectionPtr & connection, cons
 			return lockedPtr->sendPacket(message);
 
 		logGlobal->info("Received unexpected message for inactive proxy!");
+		return;
 	}
 
 	JsonNode json = parseAndValidateMessage(message);
@@ -602,6 +588,16 @@ void LobbyServer::receiveClientLogin(const NetworkConnectionPtr & connection, co
 
 	std::string displayName = database->getAccountDisplayName(accountID);
 
+	// drop existing connection of this account, if any
+	for (const auto & account : activeAccounts)
+	{
+		if (account.second == accountID)
+		{
+			account.first->close();
+			break;
+		}
+	}
+
 	activeAccounts[connection] = accountID;
 
 	logGlobal->info("%s: Logged in as %s", accountID, displayName);
@@ -641,11 +637,17 @@ void LobbyServer::receiveServerLogin(const NetworkConnectionPtr & connection, co
 	}
 	else
 	{
-		std::string modListString = json["mods"].isNull() ? "[]" : json["mods"].toCompactString();
-		database->insertGameRoom(gameRoomID, accountID, version, modListString);
+		database->insertGameRoom(gameRoomID, accountID, version);
+		for (const auto & modJson : json["mods"].Vector())
+		{
+			std::string modID = modJson["modId"].String();
+			std::string modName = modJson["modName"].String();
+			std::string modVersion = modJson["version"].String();
+			database->insertGameRoomMod(gameRoomID, modID, modName, modVersion);
+		}
+
 		activeGameRooms[connection] = gameRoomID;
 		sendServerLoginSuccess(connection, accountCookie);
-		broadcastActiveGameRooms();
 	}
 }
 
@@ -739,7 +741,7 @@ void LobbyServer::receiveActivateGameRoom(const NetworkConnectionPtr & connectio
 
 	database->updateRoomPlayerLimit(gameRoomID, playerLimit);
 	database->insertPlayerIntoGameRoom(accountID, gameRoomID);
-	broadcastActiveGameRooms();
+	broadcastActiveGameRooms(); //FIXME: use broadcastGameRoomDescription when there are no 1.7.3 clients
 	sendJoinRoomSuccess(connection, gameRoomID, false);
 }
 
@@ -774,7 +776,7 @@ void LobbyServer::receiveJoinGameRoom(const NetworkConnectionPtr & connection, c
 	sendAccountJoinsRoom(targetRoom, accountID);
 	//No reply to client - will be sent once match server establishes proxy connection with lobby
 
-	broadcastActiveGameRooms();
+	broadcastActiveGameRooms(); //FIXME: use broadcastGameRoomDescription when there are no 1.7.3 clients
 }
 
 void LobbyServer::receiveChangeRoomDescription(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -783,7 +785,7 @@ void LobbyServer::receiveChangeRoomDescription(const NetworkConnectionPtr & conn
 	std::string description = json["description"].String();
 
 	database->updateRoomDescription(gameRoomID, description);
-	broadcastActiveGameRooms();
+	broadcastGameRoomDescription(gameRoomID);
 }
 
 void LobbyServer::receiveGameStarted(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -791,7 +793,7 @@ void LobbyServer::receiveGameStarted(const NetworkConnectionPtr & connection, co
 	std::string gameRoomID = activeGameRooms[connection];
 
 	database->setGameRoomStatus(gameRoomID, LobbyRoomState::BUSY);
-	broadcastActiveGameRooms();
+	broadcastActiveGameRooms(); //FIXME: use broadcastGameRoomDescription when there are no 1.7.3 clients
 }
 
 void LobbyServer::receiveLeaveGameRoom(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -804,7 +806,7 @@ void LobbyServer::receiveLeaveGameRoom(const NetworkConnectionPtr & connection, 
 
 	database->deletePlayerFromGameRoom(accountID, gameRoomID);
 
-	broadcastActiveGameRooms();
+	broadcastActiveGameRooms(); //FIXME: use broadcastGameRoomDescription when there are no 1.7.3 clients
 }
 
 void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, const JsonNode & json)
@@ -829,7 +831,7 @@ void LobbyServer::receiveSendInvite(const NetworkConnectionPtr & connection, con
 
 	database->insertGameRoomInvite(accountID, gameRoomID);
 	sendInviteReceived(targetAccountConnection, senderName, gameRoomID);
-	broadcastActiveGameRooms();
+	broadcastActiveGameRooms(); //FIXME: use broadcastGameRoomDescription when there are no 1.7.3 clients
 }
 
 LobbyServer::~LobbyServer() = default;
@@ -841,6 +843,16 @@ LobbyServer::LobbyServer(const boost::filesystem::path & databasePath)
 {
 }
 
+LobbyDatabase * LobbyServer::getDatabase() const
+{
+	return database.get();
+}
+
+NetworkContext & LobbyServer::getNetworkContext()
+{
+	return networkHandler->getContext();
+}
+
 void LobbyServer::start(uint16_t port)
 {
 	networkServer->start(port);
@@ -848,5 +860,13 @@ void LobbyServer::start(uint16_t port)
 
 void LobbyServer::run()
 {
+	onTimer();
 	networkHandler->run();
+}
+
+void LobbyServer::onTimer()
+{
+	static constexpr auto statisticsDumpInterval = std::chrono::milliseconds(24*60*60*1000);
+	database->printPerformanceStatistics();
+	networkHandler->createTimer(*this, statisticsDumpInterval);
 }

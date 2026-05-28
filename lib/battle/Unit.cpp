@@ -11,9 +11,10 @@
 
 #include "Unit.h"
 
+#include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
-
+#include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
@@ -36,6 +37,57 @@ bool Unit::isDead() const
 bool Unit::isTurret() const
 {
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
+}
+
+bool Unit::isCatapult() const
+{
+	return unitType()->warMachine == ArtifactID::CATAPULT;
+}
+
+bool Unit::isBallista() const
+{
+	return unitType()->warMachine == ArtifactID::BALLISTA;
+}
+
+bool Unit::isFirstAidTent() const
+{
+	return unitType()->warMachine == ArtifactID::FIRST_AID_TENT;
+}
+
+bool Unit::isAmmoCart() const
+{
+	return unitType()->warMachine == ArtifactID::AMMO_CART;
+}
+
+bool Unit::isSummoned() const
+{
+	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
+}
+
+
+bool Unit::hasImmunity(SpellID spell) const
+{
+	const auto & bonuses = getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(spell));
+	return !bonuses->empty();
+}
+
+bool Unit::hasAbsoluteImmunity(SpellID spell) const
+{
+	const auto & bonuses = getBonusesOfType(BonusType::SPELL_IMMUNITY, BonusSubtypeID(spell));
+		for (const auto & bonus : *bonuses)
+		if (bonus->parameters && bonus->parameters->toNumber() == 1)
+			return true;
+	return false;
+}
+
+bool Unit::isMeleeAttacker() const
+{
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return false;
+
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
+	return true;
 }
 
 std::string Unit::getDescription() const
@@ -68,27 +120,46 @@ const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & position, boo
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	const BattleHexArray & defenderHexes = getHexes();
-	
-	BattleHexArray targetableHexes;
-
-	for(const auto & defenderHex : defenderHexes)
+	if (!attacker->doubleWide())
 	{
-		auto hexes = battle::Unit::getHexes(defenderHex);
-
-		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
-			hexes.pop_back();
-
-		for(const auto & hex : hexes)
-			targetableHexes.insert(hex.getNeighbouringTiles());
+		return getSurroundingHexes();
 	}
+	else
+	{
+		BattleHexArray result;
 
-	return targetableHexes;
+		for (const auto & attackOrigin : getSurroundingHexes())
+		{
+			BattleHex occupiedHex = attacker->occupiedHex(attackOrigin); 
+			if (!coversPos(occupiedHex) && occupiedHex.isAvailable())
+				result.insert(attackOrigin);
+
+			BattleHex headHex = attackOrigin.cloneInDirection(attacker->headDirection());
+			if (!coversPos(headHex) && headHex.isAvailable())
+				result.insert(headHex);
+		}
+		return result;
+	}
 }
 
 bool Unit::coversPos(const BattleHex & pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
+}
+
+BattleHex::EDir Unit::headDirection() const
+{
+	if(doubleWide())
+	{
+		if(unitSide() == BattleSide::ATTACKER)
+			return BattleHex::EDir::RIGHT;
+		else
+			return BattleHex::EDir::LEFT;
+	}
+	else
+	{
+		return BattleHex::EDir::NONE;
+	}
 }
 
 const BattleHexArray & Unit::getHexes() const
@@ -231,14 +302,14 @@ void UnitInfo::save(JsonNode & data)
 {
 	data.clear();
 	JsonSerializer ser(nullptr, data);
-	ser.serializeStruct("newUnitInfo", *this);
+	serializeJson(ser);
 }
 
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("newUnitInfo", *this);
+	JsonDeserializer deser(nullptr, data);
+	serializeJson(deser);
 }
 
 }

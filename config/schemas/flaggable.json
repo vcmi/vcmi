@@ -25,27 +25,20 @@
 			"description" : "Message that will be shown to player on capturing this object",
 			"anyOf" : [
 				{
-					"type" : "string",
+					"type" : "string"
 				},
 				{
-					"type" : "number",
+					"type" : "number"
 				}
 			]
 		},
 
 		"dailyIncome" : {
 			"type" : "object",
-			"additionalProperties" : false,
+			"additionalProperties" : {
+				"type" : "number"
+			},
 			"description" : "Daily income that this building provides to owner, if any",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
 		},
 
 		// Properties that might appear since this node is shared with object config

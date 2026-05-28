@@ -7,7 +7,7 @@ set(clientapp_HEADERS
 		StdInc.h
 )
 
-if(APPLE_IOS)
+if(IOS)
 	set(clientapp_SRCS ${clientapp_SRCS}
 		CFocusableHelper.cpp
 		ios/GameChatKeyboardHandler.m
@@ -28,8 +28,13 @@ if(ANDROID)
 	set_target_properties(vcmiclient PROPERTIES
 		OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
 	)
+	# ffmpeg requires -Bsymbolic on 64-bit Android for assembler functions to compile
+	if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "x86_64")
+		target_link_options(vcmiclient PRIVATE -Wl,-Bsymbolic)
+	endif()
 else()
 	add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
+	vcmi_create_exe_shim(vcmiclient)
 endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
@@ -38,12 +43,21 @@ if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 endif()
 
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_EDITOR)
+	target_link_libraries(vcmiclient PRIVATE vcmieditor)
+endif()
+
 target_include_directories(vcmiclient
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if(WIN32)
-	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
+	set(VCMI_FILE_DESCRIPTION "VCMI Client")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_client.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/icons/vcmi.ico\"")
+	set(client_VERSIONINFO_RC "${CMAKE_CURRENT_BINARY_DIR}/VCMI_client_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${client_VERSIONINFO_RC}" @ONLY)
+	target_sources(vcmiclient PRIVATE "${client_VERSIONINFO_RC}")
 	set_target_properties(vcmiclient
 		PROPERTIES
 			OUTPUT_NAME "VCMI_client"
@@ -55,16 +69,7 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-
-	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
-	if(MSVC)
-		add_custom_command(TARGET vcmiclient POST_BUILD
-			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
-			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb12.dll tbb12.dll
-		)
-	endif()
-elseif(APPLE_IOS)
+elseif(IOS)
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
 		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
@@ -89,8 +94,7 @@ endif()
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
 
-if(APPLE_IOS)
-	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+if(IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
 		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
@@ -103,11 +107,10 @@ elseif(ANDROID)
 	find_program(androidDeployQt androiddeployqt
 		PATHS "${qtBinDir}"
 	)
-	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
-
 	add_custom_target(android_deploy ALL
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${androidQtBuildDir}"
-		COMMAND "${androidDeployQt}" --input "${CMAKE_BINARY_DIR}/androiddeployqt.json" --output "${androidQtBuildDir}" --android-platform "android-${ANDROID_TARGET_SDK_VERSION}" --verbose $<$<NOT:$<CONFIG:Debug>>:--release> ${ANDROIDDEPLOYQT_OPTIONS}
+		COMMAND ${CMAKE_COMMAND} -E env "ORG_GRADLE_PROJECT_SDL_JAVA_SRC_DIR=${SDL_JAVA_SRC_DIR}" --
+			"${androidDeployQt}" --input "${CMAKE_BINARY_DIR}/androiddeployqt.json" --output "${androidQtBuildDir}" --android-platform "android-${ANDROID_TARGET_SDK_VERSION}" --verbose $<$<NOT:$<CONFIG:Debug>>:--release> ${ANDROIDDEPLOYQT_OPTIONS}
 		COMMAND_EXPAND_LISTS
 		VERBATIM
 		COMMENT "Create android package"

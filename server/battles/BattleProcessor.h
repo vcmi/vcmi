@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../../lib/GameConstants.h"
+#include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/constants/Enumerations.h"
 #include "../../lib/battle/BattleSide.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

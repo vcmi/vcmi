@@ -14,14 +14,13 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/TextControls.h"
+#include "../Buttons.h"
+#include "../TextControls.h"
 
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/IMarket.h"
@@ -34,7 +33,7 @@ CAltarCreatures::CAltarCreatures(const IMarket * market, const CGHeroInstance * 
 	OBJECT_CONSTRUCTION;
 
 	deal = std::make_shared<CButton>(dealButtonPosWithSlider, AnimationPath::builtin("ALTSACR.DEF"),
-		LIBRARY->generaltexth->zelp[584], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[585], [this]() {CAltarCreatures::makeDeal();}, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 		boost::str(boost::format(LIBRARY->generaltexth->allTexts[272]) % hero->getNameTranslated())));
 	labels.emplace_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[479]));

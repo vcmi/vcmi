@@ -13,6 +13,8 @@
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 	class HeroSpellWidget;
 }
@@ -31,6 +33,7 @@ public:
 
 private slots:
 	void on_customizeSpells_toggled(bool checked);
+	void on_filter_textChanged(const QString & keyword);
 
 private:
 	Ui::HeroSpellWidget * ui;
@@ -38,6 +41,10 @@ private:
 	CGHeroInstance & hero;
 
 	void initSpellLists();
+	void showItemIfMatches(const QString & match);
+	void hideItemIfMatches(const QString & match);
+	void toggleHiddenForItemIfMatches(const QString & match, bool hidden);
+	void hideEmptySpellLists();
 };
 
 class HeroSpellDelegate : public BaseInspectorItemDelegate

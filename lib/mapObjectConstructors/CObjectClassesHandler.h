@@ -45,7 +45,7 @@ public:
 };
 
 /// Main class responsible for creation of all adventure map objects
-class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase, boost::noncopyable
+class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 {
 	/// list of object handlers, each of them handles only one type
 	std::vector< std::unique_ptr<ObjectClass> > mapObjectTypes;

@@ -102,7 +102,7 @@ private:
 };
 
 // TODO: Instantiate ObstacleSetHandler
-class DLL_LINKAGE ObstacleSetHandler : public IHandlerBase, boost::noncopyable
+class DLL_LINKAGE ObstacleSetHandler : public IHandlerBase
 {
 public:
 

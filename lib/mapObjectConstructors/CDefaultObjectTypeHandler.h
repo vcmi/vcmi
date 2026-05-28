@@ -17,18 +17,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
-	void configureObject(CGObjectInstance * object, vstd::RNG & rng) const final
+	void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const final
 	{
 		ObjectType * castedObject = dynamic_cast<ObjectType*>(object);
 
 		if(castedObject == nullptr)
 			throw std::runtime_error("Unexpected object type!");
 
-		randomizeObject(castedObject, rng);
+		randomizeObject(castedObject, gameRandomizer);
 	}
 
-	std::shared_ptr<CGObjectInstance> create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const final
+	std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const final
 	{
+		assert(cb);
+
 		auto result = createObject(cb);
 
 		preInitObject(result.get());
@@ -43,9 +45,11 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 
 protected:
 	virtual void initializeObject(ObjectType * object) const {}
-	virtual void randomizeObject(ObjectType * object, vstd::RNG & rng) const {}
-	virtual std::shared_ptr<ObjectType> createObject(IGameCallback * cb) const
+	virtual void randomizeObject(ObjectType * object, IGameRandomizer & gameRandomizer) const {}
+	virtual std::shared_ptr<ObjectType> createObject(IGameInfoCallback * cb) const
 	{
+		assert(cb);
+
 		return std::make_shared<ObjectType>(cb);
 	}
 };

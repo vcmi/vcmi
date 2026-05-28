@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
@@ -41,6 +43,7 @@ class AdventureMapShortcuts
 	void worldViewScale1x();
 	void worldViewScale2x();
 	void worldViewScale4x();
+	void viewStatistic();
 	void switchMapLevel();
 	void showQuestlog();
 	void toggleTrackHero();
@@ -64,8 +67,11 @@ class AdventureMapShortcuts
 	void quitGame();
 	void saveGame();
 	void loadGame();
+	void quickSaveGame();
+	void quickLoadGame();
 	void digGrail();
 	void viewPuzzleMap();
+	void replayTurn();
 	void restartGame();
 	void visitObject();
 	void openObject();
@@ -76,6 +82,8 @@ class AdventureMapShortcuts
 	void zoom( int distance);
 	void search(bool next);
 	void moveHeroDirectional(const Point & direction);
+	void enterDisembarkMode();
+	void showWiki();
 
 public:
 	explicit AdventureMapShortcuts(AdventureMapInterface & owner);
@@ -84,7 +92,7 @@ public:
 
 	bool optionCanViewQuests();
 	bool optionCanToggleLevel();
-	bool optionMapLevelSurface();
+	int optionMapLevel();
 	bool optionHeroSleeping();
 	bool optionHeroAwake();
 	bool optionHeroSelected();
@@ -96,8 +104,17 @@ public:
 	bool optionInMapView();
 	bool optionInWorldView();
 	bool optionSidePanelActive();
+	bool optionLobbyActive();
 	bool optionMapScrollingActive();
 	bool optionMapViewActive();
+	bool optionMarketplace();
+	bool optionHeroBoat(const EPathfindingLayer & layer);
+	bool optionHeroDig();
+	bool optionViewStatistic();
+	bool optionIsLocal();
+	bool optionQuickSaveLoad();
+	bool optionCanDisembark();
+	bool optionDisembarking();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;

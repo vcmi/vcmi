@@ -12,15 +12,16 @@
 #include "MiscObjects.h"
 
 #include "../bonuses/Propagators.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CSoundBase.h"
 #include "../CSkillHandler.h"
-#include "../spells/CSpellHandler.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
@@ -28,12 +29,12 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../mapObjects/CGHeroInstance.h"
-#include "../modding/ModScope.h"
+#include "../mapObjectConstructors/CommonConstructors.h"
+#include "CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
-#include "../lib/gameState/UpgradeInfo.h"
+#include "../gameState/UpgradeInfo.h"
 
 #include <vstd/RNG.h>
 
@@ -73,13 +74,20 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 }
 
 //CGMine
-void CGMine::onHeroVisit( const CGHeroInstance * h ) const
+std::shared_ptr<MineInstanceConstructor> CGMine::getResourceHandler() const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<MineInstanceConstructor>(baseHandler);
+	return ourHandler;
+}
+
+void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
+{
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
-		cb->showGarrisonDialog(id,h->id,true);
+		gameEvents.showGarrisonDialog(id, h->id, true, MetaString());
 		return;
 	}
 	else if (relations == PlayerRelations::ALLIES)//ally
@@ -89,27 +97,39 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text.appendLocalString(EMetaText::ADVOB_TXT, isAbandoned() ? 84 : 187);
-		cb->showBlockingDialog(this, &ynd);
+		// ownedGuardedMessage applies to any owned mine with guards.
+		const bool useOwnedGuardedMessage = tempOwner != PlayerColor::NEUTRAL;
+		const std::string guardedMessageTextID = useOwnedGuardedMessage ? getResourceHandler()->getOwnedGuardedMessageTextID() : getResourceHandler()->getOnGuardedMessageTextID();
+		if(!guardedMessageTextID.empty())
+			ynd.text.appendTextID(guardedMessageTextID);
+		else
+			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 187);
+
+		gameEvents.showBlockingDialog(this, &ynd);
 		return;
 	}
 
-	flagMine(h->tempOwner);
+	flagMine(gameEvents, h->tempOwner);
 }
 
-void CGMine::initObj(vstd::RNG & rand)
+void CGMine::initObj(IGameRandomizer & gameRandomizer)
 {
+	const auto configuredGuards = getResourceHandler()->getGuards(cb, gameRandomizer);
+	if(!configuredGuards.empty())
+	{
+		for(const auto & stack : configuredGuards)
+		{
+			auto guards = std::make_unique<CStackInstance>(cb, stack.getId(), stack.getCount());
+			putStack(SlotID(stacksCount()), std::move(guards));
+		}
+	}
+
 	if(isAbandoned())
 	{
-		//set guardians
-		int howManyTroglodytes = rand.nextInt(100, 199);
-		auto troglodytes = std::make_unique<CStackInstance>(cb, CreatureID::TROGLODYTES, howManyTroglodytes);
-		putStack(SlotID(0), std::move(troglodytes));
-
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())
 		{
-			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, gameRandomizer.getDefault());
 		}
 		else
 		{
@@ -119,14 +139,17 @@ void CGMine::initObj(vstd::RNG & rand)
 	}
 	else
 	{
-		producedResource = GameResID(getObjTypeIndex().getNum());
+		if(getResourceHandler()->getResourceType() == GameResID::NONE) // fallback
+			producedResource = GameResID(getObjTypeIndex().getNum());
+		else
+			producedResource = getResourceHandler()->getResourceType();
 	}
 	producedQuantity = defaultResProduction();
 }
 
 bool CGMine::isAbandoned() const
 {
-	return subID.getNum() >= 7;
+	return subID.getNum() >= 7 && getResourceHandler()->getResourceType() == GameResID::NONE;
 }
 
 const IOwnableObject * CGMine::asOwnable() const
@@ -142,6 +165,10 @@ std::vector<CreatureID> CGMine::providedCreatures() const
 ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
+
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
+		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
 	result[producedResource] += defaultResProduction();
 
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());
@@ -152,7 +179,10 @@ ResourceSet CGMine::dailyIncome() const
 
 std::string CGMine::getObjectName() const
 {
-	return LIBRARY->generaltexth->translate("core.minename", getObjTypeIndex());
+	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
+		return LIBRARY->generaltexth->translate("core.minename", getObjTypeIndex());
+	else
+		return getResourceHandler()->getNameTranslated();
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -160,7 +190,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + LIBRARY->generaltexth->restypes[producedResource.getNum()] + ")";
+		hoverName += "\n(" + producedResource.toResource()->getNameTranslated() + ")";
 
 	if(stacksCount())
 	{
@@ -172,31 +202,39 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	return hoverName;
 }
 
-void CGMine::flagMine(const PlayerColor & player) const
+void CGMine::flagMine(IGameEventCallback & gameEvents, const PlayerColor & player) const
 {
 	assert(tempOwner != player);
-	cb->setOwner(this, player); //not ours? flag it!
+	gameEvents.setOwner(this, player); //not ours? flag it!
 
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
-	iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
+	const auto descriptionTextID = getResourceHandler()->getDescriptionTextID();
+	if(!descriptionTextID.empty())
+		iw.text.appendTextID(descriptionTextID);
+	else
+		iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get());
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
-	cb->showInfoDialog(&iw);
+	gameEvents.showInfoDialog(&iw);
 }
 
 ui32 CGMine::defaultResProduction() const
 {
-	switch(producedResource.toEnum())
+	if(isAbandoned())
 	{
-	case EGameResID::WOOD:
-	case EGameResID::ORE:
-		return 2;
-	case EGameResID::GOLD:
-		return 1000;
-	default:
-		return 1;
+		switch(producedResource.toEnum())
+		{
+		case EGameResID::WOOD:
+		case EGameResID::ORE:
+			return 2;
+		case EGameResID::GOLD:
+			return 1000;
+		default:
+			return 1;
+		}
 	}
+	return getResourceHandler()->getDefaultQuantity();
 }
 
 ui32 CGMine::getProducedQuantity() const
@@ -206,22 +244,30 @@ ui32 CGMine::getProducedQuantity() const
 	return vstd::divideAndCeil(producedQuantity * playerSettings->handicap.percentIncome, 100);
 }
 
-void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER) //attacker won
 	{
 		if(isAbandoned())
 		{
-			hero->showInfoDialog(85);
+			const auto onCaptureMessageTextID = getResourceHandler()->getOnCaptureMessageTextID();
+			if(!onCaptureMessageTextID.empty())
+			{
+				InfoWindow iw;
+				iw.type = EInfoWindowMode::AUTO;
+				iw.player = hero->tempOwner;
+				iw.text.appendTextID(onCaptureMessageTextID);
+				gameEvents.showInfoDialog(&iw);
+			}
 		}
-		flagMine(hero->tempOwner);
+		flagMine(gameEvents, hero->tempOwner);
 	}
 }
 
-void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattle(hero, this);
+		gameEvents.startBattle(hero, this);
 }
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -229,32 +275,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 	CArmedInstance::serializeJsonOptions(handler);
 	serializeJsonOwner(handler);
 	if(isAbandoned())
-	{
-		if(handler.saving)
-		{
-			JsonNode node;
-			for(const auto & resID : abandonedMineResources)
-				node.Vector().emplace_back(GameConstants::RESOURCE_NAMES[resID.getNum()]);
-
-			handler.serializeRaw("possibleResources", node, std::nullopt);
-		}
-		else
-		{
-			auto guard = handler.enterArray("possibleResources");
-			const JsonNode & node = handler.getCurrent();
-
-			auto names = node.convertTo<std::vector<std::string>>();
-
-			for(const std::string & s : names)
-			{
-				int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
-				if(raw_res < 0)
-					logGlobal->error("Invalid resource name: %s", s);
-				else
-					abandonedMineResources.emplace(raw_res);
-			}
-		}
-	}
+		handler.serializeIdArray<GameResID>("possibleResources", abandonedMineResources);
 }
 
 bool CGTeleport::isEntrance() const
@@ -295,11 +316,11 @@ std::vector<ObjectInstanceID> CGTeleport::getAllExits(bool excludeCurrent) const
 	return ret;
 }
 
-ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
+ObjectInstanceID CGTeleport::getRandomExit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	auto passableExits = getPassableExits(cb->gameState(), h, getAllExits(true));
 	if(!passableExits.empty())
-		return *RandomGeneratorUtil::nextItem(passableExits, cb->gameState().getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(passableExits, gameEvents.getRandomGenerator());
 
 	return ObjectInstanceID();
 }
@@ -321,10 +342,10 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	ObjectInstanceID topObjectID = gs.getMap().getTile(obj->visitablePos()).topVisitableObj();
-	const CGObjectInstance * topObject = gs.getObjInstance(topObjectID);
+	ObjectInstanceID topObjectID = gameInfo.getTile(obj->visitablePos())->topVisitableObj();
+	const CGObjectInstance * topObject = gameInfo.getObjInstance(topObjectID);
 
 	if(topObject->ID == Obj::HERO)
 	{
@@ -332,7 +353,7 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
+		if(gameInfo.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -342,11 +363,11 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{
-		return !isExitPassable(gs, h, gs.getObj(exit));
+		return !isExitPassable(gameInfo, h, gameInfo.getObj(exit));
 	});
 	return exits;
 }
@@ -385,7 +406,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObj
 	return TeleportChannelID();
 }
 
-void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
+void CGMonolith::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	TeleportDialog td(h->id, channel);
 	if(isEntrance())
@@ -404,19 +425,19 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), anchorPos().toString());
 			td.impassable = true;
 		}
-		else if(getRandomExit(h) == ObjectInstanceID())
+		else if(getRandomExit(gameEvents, h) == ObjectInstanceID())
 			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), anchorPos().toString());
 	}
 	else
-		h->showInfoDialog(70);
+		h->showInfoDialog(gameEvents, 70);
 
-	cb->showTeleportDialog(&td);
+	gameEvents.showTeleportDialog(&td);
 }
 
-void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
+void CGMonolith::teleportDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
 	int3 dPos;
-	auto randomExit = getRandomExit(hero);
+	auto randomExit = getRandomExit(gameEvents, hero);
 	auto realExits = getAllExits(true);
 	if(!isEntrance() // Do nothing if hero visited exit only object
 		|| (exits.empty() && realExits.empty()) // Do nothing if there no exits on this channel
@@ -429,10 +450,10 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	else
 		dPos = cb->getObj(randomExit)->visitablePos();
 
-	cb->moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
+	gameEvents.moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
-void CGMonolith::initObj(vstd::RNG & rand)
+void CGMonolith::initObj(IGameRandomizer & gameRandomizer)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
@@ -459,40 +480,37 @@ void CGMonolith::initObj(vstd::RNG & rand)
 	addToChannel(cb->gameState().getMap().teleportChannels, this);
 }
 
-void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
+void CGSubterraneanGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
-		h->showInfoDialog(153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
+		h->showInfoDialog(gameEvents, 153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
 	else
 	{
-		auto exit = getRandomExit(h);
+		auto exit = getRandomExit(gameEvents, h);
 		td.exits.push_back(std::make_pair(exit, cb->getObj(exit)->visitablePos()));
 	}
 
-	cb->showTeleportDialog(&td);
+	gameEvents.showTeleportDialog(&td);
 }
 
-void CGSubterraneanGate::initObj(vstd::RNG & rand)
+void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean gates into pairs
 {
-	//split on underground and surface gates
-	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
-	for(auto gate : cb->gameState().getMap().getObjects<CGSubterraneanGate>())
-	{
-		gatesSplit[gate->visitablePos().z].push_back(gate);
-	}
+	// for > 2 layers it's still choosing the nearest in x/y axis independent from level
+	// collect all gates
+	auto allGates = cb->gameState().getMap().getObjects<CGSubterraneanGate>();
 
-	//sort by position
-	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
+	// sort by position for deterministic behavior
+	std::sort(allGates.begin(), allGates.end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
 		return a->visitablePos() < b->visitablePos();
 	});
@@ -506,21 +524,36 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 		}
 	};
 
-	for(size_t i = 0; i < gatesSplit[0].size(); i++)
+	for(size_t i = 0; i < allGates.size(); i++)
 	{
-		CGSubterraneanGate * objCurrent = gatesSplit[0][i];
+		CGSubterraneanGate * objCurrent = allGates[i];
 
-		//find nearest underground exit
+		if(objCurrent->channel != TeleportChannelID())
+			continue;
+
+		// find nearest gate on any other layer
 		std::pair<int, si32> best(-1, std::numeric_limits<si32>::max()); //pair<pos_in_vector, distance^2>
-		for(int j = 0; j < gatesSplit[1].size(); j++)
+		for(size_t j = 0; j < allGates.size(); j++)
 		{
-			CGSubterraneanGate *checked = gatesSplit[1][j];
+			if(i == j)
+				continue;
+
+			CGSubterraneanGate * checked = allGates[j];
+
 			if(checked->channel != TeleportChannelID())
 				continue;
+
+			// Prefer pairing surface → underground
+			if(objCurrent->visitablePos().z > checked->visitablePos().z)
+				continue;
+
+			if(checked->visitablePos().z == objCurrent->visitablePos().z)
+				continue;
+
 			si32 hlp = checked->visitablePos().dist2dSQ(objCurrent->visitablePos());
 			if(hlp < best.second)
 			{
-				best.first = j;
+				best.first = static_cast<int>(j);
 				best.second = hlp;
 			}
 		}
@@ -528,17 +561,17 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 		assignToChannel(objCurrent);
 		if(best.first >= 0) //found pair
 		{
-			gatesSplit[1][best.first]->channel = objCurrent->channel;
-			addToChannel(cb->gameState().getMap().teleportChannels, gatesSplit[1][best.first]);
+			allGates[best.first]->channel = objCurrent->channel;
+			addToChannel(cb->gameState().getMap().teleportChannels, allGates[best.first]);
 		}
 	}
 
-	// we should assign empty channels to underground gates if they don't have matching overground gates
-	for(auto & i : gatesSplit[1])
+	// assign empty channels to any remaining unpaired gates
+	for(auto & i : allGates)
 		assignToChannel(i);
 }
 
-void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
+void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	TeleportDialog td(h->id, channel);
 	if(cb->isTeleportChannelImpassable(channel))
@@ -546,7 +579,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
-	else if(getRandomExit(h) == ObjectInstanceID())
+	else if(getRandomExit(gameEvents, h) == ObjectInstanceID())
 		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), anchorPos().toString());
 
 	if(!isProtected(h))
@@ -566,8 +599,8 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
-		cb->showInfoDialog(&iw);
-		cb->changeStackCount(StackLocation(h->id, targetstack), -countToTake);
+		gameEvents.showInfoDialog(&iw);
+		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
 	}
 	else
 	{
@@ -580,10 +613,10 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 
-	cb->showTeleportDialog(&td);
+	gameEvents.showTeleportDialog(&td);
 }
 
-void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
+void CGWhirlpool::teleportDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const
 {
 	int3 dPos;
 	auto realExits = getAllExits();
@@ -593,17 +626,17 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 		dPos = exits[answer].second;
 	else
 	{
-		auto exit = getRandomExit(hero);
+		auto exit = getRandomExit(gameEvents, hero);
 
 		if(exit == ObjectInstanceID())
 			return;
 
 		const auto * obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = *RandomGeneratorUtil::nextItem(tiles, cb->gameState().getRandomGenerator());
+		dPos = *RandomGeneratorUtil::nextItem(tiles, gameEvents.getRandomGenerator());
 	}
 
-	cb->moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
+	gameEvents.moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)
@@ -615,6 +648,9 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 
 const CArtifactInstance * CGArtifact::getArtifactInstance() const
 {
+	if(!storedArtifact.hasValue())
+		return nullptr;
+
 	return cb->getArtInstance(storedArtifact);
 }
 
@@ -622,28 +658,29 @@ ArtifactID CGArtifact::getArtifactType() const
 {
 	if(ID == Obj::SPELL_SCROLL)
 		return ArtifactID::SPELL_SCROLL;
-	else
-		return getObjTypeIndex().getNum();
+
+	assert(ID == Obj::ARTIFACT);
+	return getObjTypeIndex().getNum();
 }
 
-void CGArtifact::pickRandomObject(vstd::RNG & rand)
+void CGArtifact::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE | EArtifactClass::ART_MINOR | EArtifactClass::ART_MAJOR | EArtifactClass::ART_RELIC);
+			subID = gameRandomizer.rollArtifact();
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_RELIC);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_RELIC);
 			break;
 	}
 
@@ -661,8 +698,9 @@ void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
 	storedArtifact = instance->getId();
 }
 
-void CGArtifact::initObj(vstd::RNG & rand)
+void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 {
+	assert(ID == Obj::ARTIFACT || ID == Obj::SPELL_SCROLL);
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
@@ -680,7 +718,11 @@ void CGArtifact::initObj(vstd::RNG & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+	if(ID == Obj::SPELL_SCROLL || ID == Obj::ARTIFACT)
+		return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
+
+	// random artifact
+	return CGObjectInstance::getObjectName();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const
@@ -708,7 +750,7 @@ std::vector<Component> CGArtifact::getPopupComponents(PlayerColor player) const
 	};
 }
 
-void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
+void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(!stacksCount())
 	{
@@ -748,8 +790,8 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		{
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 2);
 		}
-		cb->showInfoDialog(&iw);
-		pick(h);
+		gameEvents.showInfoDialog(&iw);
+		pick(gameEvents, h);
 	}
 	else
 	{
@@ -769,7 +811,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					ynd.text.replaceRawString(getArmyDescription());
 					ynd.text.replaceLocalString(EMetaText::GENERAL_TXT, 43); // creatures
 				}
-				cb->showBlockingDialog(this, &ynd);
+				gameEvents.showBlockingDialog(this, &ynd);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -779,20 +821,20 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
 					ynd.text = message;
-					cb->showBlockingDialog(this, &ynd);
+					gameEvents.showBlockingDialog(this, &ynd);
 				}
 				else
-					blockingDialogAnswered(h, true);
+					blockingDialogAnswered(gameEvents, h, true);
 			}
 			break;
 		}
 	}
 }
 
-void CGArtifact::pick(const CGHeroInstance * h) const
+void CGArtifact::pick(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), getArtifactInstance()->getId()))
-		cb->removeObject(this, h->getOwner());
+	if(gameEvents.putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), getArtifactInstance()->getId()))
+		gameEvents.removeObject(this, h->getOwner());
 }
 
 BattleField CGArtifact::getBattlefield() const
@@ -800,16 +842,16 @@ BattleField CGArtifact::getBattlefield() const
 	return BattleField::NONE;
 }
 
-void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGArtifact::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER) //attacker won
-		pick(hero);
+		pick(gameEvents, hero);
 }
 
-void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattle(hero, this);
+		gameEvents.startBattle(hero, this);
 }
 
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
@@ -828,13 +870,13 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	}
 }
 
-void CGSignBottle::initObj(vstd::RNG & rand)
+void CGSignBottle::initObj(IGameRandomizer & gameRandomizer)
 {
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
 		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
-		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
+		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, gameRandomizer.getDefault());
 		message.appendTextID(messageIdentifier);
 	}
 
@@ -844,15 +886,15 @@ void CGSignBottle::initObj(vstd::RNG & rand)
 	}
 }
 
-void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
+void CGSignBottle::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
 	iw.text = message;
-	cb->showInfoDialog(&iw);
+	gameEvents.showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
-		cb->removeObject(this, h->getOwner());
+		gameEvents.removeObject(this, h->getOwner());
 }
 
 void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
@@ -867,7 +909,11 @@ const IOwnableObject * CGGarrison::asOwnable() const
 
 ResourceSet CGGarrison::dailyIncome() const
 {
-	return {};
+	ResourceSet result;
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
+		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
+	return result;
 }
 
 std::vector<CreatureID> CGGarrison::providedCreatures() const
@@ -875,20 +921,20 @@ std::vector<CreatureID> CGGarrison::providedCreatures() const
 	return {};
 }
 
-void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
+void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
-		cb->startBattle(h, this);
+		gameEvents.startBattle(h, this);
 		return;
 	}
 
 	//New owner.
 	if (relations == PlayerRelations::ENEMIES)
-		cb->setOwner(this, h->tempOwner);
+		gameEvents.setOwner(this, h->tempOwner);
 
-	cb->showGarrisonDialog(id, h->id, removableUnits);
+	gameEvents.showGarrisonDialog(id, h->id, removableUnits, MetaString());
 }
 
 bool CGGarrison::passableFor(PlayerColor player) const
@@ -905,10 +951,10 @@ bool CGGarrison::passableFor(PlayerColor player) const
 	return false;
 }
 
-void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGGarrison::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == BattleSide::ATTACKER)
-		onHeroVisit(hero);
+		onHeroVisit(gameEvents, hero);
 }
 
 void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
@@ -918,7 +964,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGGarrison::initObj(vstd::RNG &rand)
+void CGGarrison::initObj(IGameRandomizer & gameRandomizer)
 {
 	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
 		addAntimagicGarrisonBonus();
@@ -930,22 +976,22 @@ void CGGarrison::addAntimagicGarrisonBonus()
 	bonus->type = BonusType::BLOCK_ALL_MAGIC;
 	bonus->source = BonusSource::OBJECT_TYPE;
 	bonus->sid = BonusSourceID(this->ID);
-	bonus->propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	bonus->propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::BATTLE_WIDE);
 	bonus->duration = BonusDuration::PERMANENT;
 	this->addNewBonus(bonus);
 }
 
-void CGMagi::initObj(vstd::RNG & rand)
+void CGMagi::initObj(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::EYE_OF_MAGI)
 		blockVisit = true;
 }
 
-void CGMagi::onHeroVisit(const CGHeroInstance * h) const
+void CGMagi::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
-		h->showInfoDialog(61);
+		h->showInfoDialog(gameEvents, 61);
 
 		std::vector<const CGObjectInstance *> eyes;
 
@@ -969,24 +1015,25 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			for(const auto & eye : eyes)
 			{
 				cb->getTilesInRange (fw.tiles, eye->visitablePos(), 10, ETileVisibility::HIDDEN, h->tempOwner);
-				cb->sendAndApply(fw);
+				gameEvents.sendAndApply(fw);
 				cv.pos = eye->visitablePos();
 
-				cb->sendAndApply(cv);
+				gameEvents.sendAndApply(cv);
 			}
 			cv.pos = h->visitablePos();
 			cv.focusTime = 0;
-			cb->sendAndApply(cv);
+			gameEvents.sendAndApply(cv);
 		}
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
 	{
-		h->showInfoDialog(48);
+		h->showInfoDialog(gameEvents, 48);
 	}
 }
 
-CGBoat::CGBoat(IGameCallback * cb)
+CGBoat::CGBoat(IGameInfoCallback * cb)
 	: CGObjectInstance(cb)
+	, CBonusSystemNode(BonusNodeType::BOAT)
 {
 	direction = 4;
 	layer = EPathfindingLayer::SAIL;
@@ -1013,7 +1060,7 @@ const CGHeroInstance * CGBoat::getBoardedHero() const
 		return nullptr;
 }
 
-void CGSirens::initObj(vstd::RNG & rand)
+void CGSirens::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 }
@@ -1023,7 +1070,7 @@ std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 	return getObjectName() + " " + visitedTxt(hero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID)));
 }
 
-void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
+void CGSirens::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
@@ -1034,7 +1081,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		giveDummyBonus(h->id, BonusDuration::ONE_BATTLE);
+		giveDummyBonus(gameEvents, h->id, BonusDuration::ONE_BATTLE);
 		TExpType xp = 0;
 
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
@@ -1048,7 +1095,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(drown)
 			{
-				cb->changeStackCount(StackLocation(h->id, i->first), -drown);
+				gameEvents.changeStackCount(StackLocation(h->id, i->first), -drown, ChangeValueMode::RELATIVE);
 				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}
@@ -1058,14 +1105,14 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(static_cast<int>(xp));
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT,132);
 			iw.text.replaceNumber(static_cast<int>(xp));
-			cb->giveExperience(h, xp);
+			gameEvents.giveExperience(h, xp);
 		}
 		else
 		{
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT,134);
 		}
 	}
-	cb->showInfoDialog(&iw);
+	gameEvents.showInfoDialog(&iw);
 }
 
 void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
@@ -1094,10 +1141,10 @@ const IObjectInterface * CGShipyard::getObject() const
 	return this;
 }
 
-void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
+void CGShipyard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
-		cb->setOwner(this, h->tempOwner);
+	if(cb->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
+		gameEvents.setOwner(this, h->tempOwner);
 
 	if(shipyardStatus() != IBoatGenerator::GOOD)
 	{
@@ -1105,11 +1152,11 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = tempOwner;
 		getProblemText(iw.text, h);
-		cb->showInfoDialog(&iw);
+		gameEvents.showInfoDialog(&iw);
 	}
 	else
 	{
-		cb->showObjectWindow(this, EOpenWindowMode::SHIPYARD_WINDOW, h, false);
+		gameEvents.showObjectWindow(this, EOpenWindowMode::SHIPYARD_WINDOW, h, false);
 	}
 }
 
@@ -1121,6 +1168,26 @@ void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 BoatId CGShipyard::getBoatType() const
 {
 	return createdBoat;
+}
+
+EPathfindingLayer CGShipyard::getBoatLayer() const
+{
+	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, getBoatType());
+	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	return boatConstructor->getLayer();
+}
+
+void CGShipyard::getBoatCost(ResourceSet & cost) const
+{
+	if (getBoatLayer() == EPathfindingLayer::AVIATE)
+	{
+		cost[EGameResID::WOOD] = 20;
+		cost[EGameResID::GOLD] = 5000;
+	}
+	else
+	{
+		IShipyard::getBoatCost(cost);
+	}
 }
 
 const IOwnableObject * CGShipyard::asOwnable() const
@@ -1138,44 +1205,44 @@ std::vector<CreatureID> CGShipyard::providedCreatures() const
 	return {};
 }
 
-void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
+void CGDenOfthieves::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	cb->showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);
+	gameEvents.showObjectWindow(this, EOpenWindowMode::THIEVES_GUILD, h, false);
 }
 
-void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
+void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	TeamState *ts = cb->gameState().getPlayerTeam(h->tempOwner);
+	const TeamState *ts = cb->getPlayerTeam(h->tempOwner);
 	assert(ts);
 	TeamID team = ts->id;
 
 	if(!wasVisited(team))
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 96);
-		cb->sendAndApply(iw);
+		gameEvents.sendAndApply(iw);
 
 		// increment general visited obelisks counter
-		cb->setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
-		cb->showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
+		gameEvents.setObjPropertyID(id, ObjProperty::OBELISK_VISITED, team);
+		gameEvents.showObjectWindow(this, EOpenWindowMode::PUZZLE_MAP, h, false);
 
 		// mark that particular obelisk as visited for all players in the team
 		for(const auto & color : ts->players)
 		{
-			cb->setObjPropertyID(id, ObjProperty::VISITED, color);
+			gameEvents.setObjPropertyID(id, ObjProperty::VISITED, color);
 		}
 	}
 	else
 	{
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 97);
-		cb->sendAndApply(iw);
+		gameEvents.sendAndApply(iw);
 	}
 
 }
 
-void CGObelisk::initObj(vstd::RNG & rand)
+void CGObelisk::initObj(IGameRandomizer & gameRandomizer)
 {
 	cb->gameState().getMap().obeliskCount++;
 }
@@ -1213,9 +1280,9 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void HillFort::onHeroVisit(const CGHeroInstance * h) const
+void HillFort::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	cb->showObjectWindow(this, EOpenWindowMode::HILL_FORT_WINDOW, h, false);
+	gameEvents.showObjectWindow(this, EOpenWindowMode::HILL_FORT_WINDOW, h, false);
 }
 
 void HillFort::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const

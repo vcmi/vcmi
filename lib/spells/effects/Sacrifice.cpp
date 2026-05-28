@@ -10,7 +10,6 @@
 #include "StdInc.h"
 
 #include "Sacrifice.h"
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
@@ -26,7 +25,7 @@ namespace spells
 namespace effects
 {
 
-void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types) const
+void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types, const Mechanics * m) const
 {
 	if(!types.empty())
 	{
@@ -48,20 +47,18 @@ void Sacrifice::adjustTargetTypes(std::vector<TargetType> & types) const
 	}
 }
 
-bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
+bool Sacrifice::applicableGeneral(Problem & problem, const Mechanics * m) const
 {
-	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, true, _1);
-	auto predicate = std::bind(&UnitEffect::eraseByImmunityFilter, this, m, _1);
-
+	auto mainFilter = [this, m](const battle::Unit * unit){ return applicableUnit(m, unit, true, false);};
 	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
-	vstd::erase_if(targets, predicate);
 
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
 
-	for(auto & target : targets)
+	for(const battle::Unit * target : targets)
 	{
-		if(target->alive())
+		auto unit = target->acquire();
+		if(target->alive() && unit->isLiving() && !unit->hasBonusOfType(BonusType::MECHANICAL))
 			targetToSacrificeExists = true;
 		else if(target->isDead())
 			targetExists = true;
@@ -76,17 +73,20 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
 	return true;
 }
 
-bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
+bool Sacrifice::applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const
 {
 	//TODO: support for multiple targets?
 
 	if(target.empty())
 		return false;
 
-	EffectTarget healTarget;
+	Target healTarget;
 	healTarget.emplace_back(target.front());
 
-	if(!Heal::applicable(problem, m, healTarget))
+	if(!Heal::applicableTarget(problem, m, healTarget))
+		return false;
+
+	if(healTarget.front().unitValue->alive())
 		return false;
 
 	if(target.size() == 2)
@@ -94,14 +94,14 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 		const auto *victim = target.at(1).unitValue;
 		if(!victim)
 			return false;
-		
-		return victim->alive() && getStackFilter(m, false, victim) && isReceptive(m, victim);
+
+		return victim->alive() && applicableUnit(m, victim, false, false);
 	}
 
 	return true;
 }
 
-void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	if(target.size() != 2)
 	{
@@ -109,15 +109,15 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 		return;
 	}
 
-    const battle::Unit * victim = target.back().unitValue;
+	const battle::Unit * victim = target.back().unitValue;
 
-    if(!victim)
+	if(!victim)
 	{
 		logGlobal->error("No unit to Sacrifice");
 		return;
 	}
 
-	EffectTarget healTarget;
+	Target healTarget;
 	healTarget.emplace_back(target.front());
 
 	Heal::apply(calculateHealEffectValue(m, victim), server, m, healTarget);
@@ -133,9 +133,9 @@ bool Sacrifice::isValidTarget(const Mechanics * m, const battle::Unit * unit) co
 	return unit->isValidTarget(true);
 }
 
-EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
+Target Sacrifice::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
-	EffectTarget res = Heal::transformTarget(m, aimPoint, spellTarget);
+	Target res = Heal::transformTarget(m, aimPoint, spellTarget);
 
 	//ignore spell range for now, arbitrary range support requires redesign
 	res.resize(1);
@@ -144,11 +144,35 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 	if(aimPoint.size() >= 2)
 	{
 		const auto *victim = aimPoint.at(1).unitValue;
-		if(victim && getStackFilter(m, false, victim) && isReceptive(m, victim))
+		if(victim && applicableUnit(m, victim, false, false))
 			res.emplace_back(victim);
 	}
 
 	return res;
+}
+
+SpellEffectValue Sacrifice::getHealthChange(const Mechanics * m, const Target & spellTarget) const
+{
+	SpellEffectValue result{};
+
+	if(spellTarget.empty())
+		return result;
+
+	const battle::Unit * target = spellTarget.front().unitValue;
+
+	result.unitType = target->creatureId();
+
+	if(!target->alive())
+	{
+		result.hpDelta = target->unitBaseAmount() * target->getMaxHealth();
+		result.unitsDelta = target->unitBaseAmount();
+		return result;
+	}
+
+	result.hpDelta = calculateHealEffectValue(m, target);
+	result.unitsDelta = -target->getCount();
+
+	return result;
 }
 
 int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) 

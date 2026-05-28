@@ -87,7 +87,7 @@ void TownBuildingVisitQuery::onAdded(PlayerColor color)
 	{
 		visitingHero = visitedBuilding.back().hero->id;
 		const auto & building = visitedTown->rewardableBuildings.at(visitedBuilding.back().building);
-		building->onHeroVisit(visitedBuilding.back().hero);
+		building->onHeroVisit(*gh, visitedBuilding.back().hero);
 		visitedBuilding.pop_back();
 	}
 

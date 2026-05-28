@@ -24,6 +24,11 @@ class InputSourceMouse
 	Point middleClickPosition;
 	int mouseButtonsMask = 0;
 	const int mouseToleranceDistance;
+
+	float motionAccumulatedX;
+	float motionAccumulatedY;
+	float wheelAccumulatedX;
+	float wheelAccumulatedY;
 public:
 	InputSourceMouse();
 

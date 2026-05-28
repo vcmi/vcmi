@@ -14,12 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#define BONUS_NAME(x) { #x, BonusType::x },
-	const std::map<std::string, BonusType> bonusNameMap = {
-		BONUS_LIST
-	};
-#undef BONUS_NAME
-
 #define BONUS_VALUE(x) { #x, BonusValueType::x },
 	const std::map<std::string, BonusValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE
@@ -42,6 +36,8 @@ const std::map<std::string, BonusDuration::Type> bonusDurationMap =
 	BONUS_ITEM(STACK_GETS_TURN)
 	BONUS_ITEM(COMMANDER_KILLED)
 	BONUS_ITEM(UNTIL_OWN_ATTACK)
+	BONUS_ITEM(UNTIL_TAKING_INDIRECT_DAMAGE)
+	BONUS_ITEM(UNTIL_AFTER_ATTACK_SEQUENCE)
 	{ "UNITL_BEING_ATTACKED", BonusDuration::UNTIL_BEING_ATTACKED }//typo, but used in some mods
 };
 #undef BONUS_ITEM

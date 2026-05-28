@@ -1,0 +1,16 @@
+{
+	"core:admiralsHat" : { "class" : "SPECIAL" },
+	"core:angelicAlliance" : { "class" : "SPECIAL" },
+	"core:armageddonsBlade" : { "class" : "SPECIAL" },
+	"core:armorOfTheDamned" : { "class" : "SPECIAL" },
+	"core:bowOfTheSharpshooter" : { "class" : "SPECIAL" },
+	"core:cloakOfTheUndeadKing" : { "class" : "SPECIAL" },
+	"core:cornucopia" : { "class" : "SPECIAL" },
+	"core:elixirOfLife" : { "class" : "SPECIAL" },
+	"core:powerOfTheDragonFather" : { "class" : "SPECIAL" },
+	"core:ringOfTheMagi" : { "class" : "SPECIAL" },
+	"core:statueOfLegion" : { "class" : "SPECIAL" },
+	"core:titansThunder" : { "class" : "SPECIAL" },
+	"core:vialOfDragonBlood" : { "class" : "SPECIAL" },
+	"core:wizardsWell" : { "class" : "SPECIAL" }
+}

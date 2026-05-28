@@ -273,6 +273,7 @@
 		"handler": "mine",
 		"lastReservedIndex" : 7,
 		"base" : {
+			"ownedGuardedMessage" : 187,
 			"sounds" : {
 				"visit" : ["FLAGMINE"]
 			}
@@ -280,46 +281,59 @@
 		"types" : {
 			"sawmill" : {
 				"index" : 0,
+				"description" : "@core.mineevnt.0",
 				"aiValue" : 1500,
 				"rmg" : {
 					"value" : 1500
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				}
+				},
+				"resource" : "wood",
+				"defaultQuantity": 2
 			},
 			"alchemistLab" : {
 				"index" : 1,
+				"description" : "@core.mineevnt.1",
 				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				}
+				},
+				"resource" : "mercury",
+				"defaultQuantity": 1
 			},
 			"orePit" : {
 				"index" : 2,
+				"description" : "@core.mineevnt.2",
 				"aiValue" : 1500,
 				"rmg" : {
 					"value" : 1500
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"resource" : "ore",
+				"defaultQuantity": 2
 			},
 			"sulfurDune" : {
 				"index" : 3,
+				"description" : "@core.mineevnt.3",
 				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"resource" : "sulfur",
+				"defaultQuantity": 1
 			},
 			"crystalCavern" : {
 				"index" : 4,
+				"description" : "@core.mineevnt.4",
 				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
@@ -327,20 +341,26 @@
 				"sounds" : {
 					"ambient" : ["LOOPCRYS"]
 				},
-				"battleground": "subterranean"
+				"battleground": "subterranean",
+				"resource" : "crystal",
+				"defaultQuantity": 1
 			},
 			"gemPond" : {
 				"index" : 5,
+				"description" : "@core.mineevnt.5",
 				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				}
+				},
+				"resource" : "gems",
+				"defaultQuantity": 1
 			},
 			"goldMine" : {
 				"index" : 6,
+				"description" : "@core.mineevnt.6",
 				"aiValue" : 7000,
 				"rmg" : {
 					"value" : 7000
@@ -348,10 +368,21 @@
 				"sounds" : {
 					"ambient" : ["LOOPMINE"]
 				},
-				"battleground": "subterranean"
+				"battleground": "subterranean",
+				"resource" : "gold",
+				"defaultQuantity": 1000
 			},
 			"abandoned" :	{
 				"index" : 7,
+				"description" : "@core.mineevnt.7",
+					"guards" : [{
+						"type" : "troglodyte",
+						"min" : 100,
+						"max" : 249
+					}],
+				"onGuardedMessage" : 84,
+				"ownedGuardedMessage" : 187,
+				"onCaptureMessage" : 85,
 				"aiValue" : 3500,
 				"sounds" : {
 					"ambient" : ["LOOPCAVE"],
@@ -372,7 +403,19 @@
 			}
 		},
 		"types" : {
-			"mine" : { "index" : 7, "battleground": "subterranean" }
+			"mine" : {
+				"index" : 7,
+				"description" : "@core.mineevnt.7",
+				"battleground": "subterranean",
+				"guards" : [{
+					"type" : "troglodyte",
+					"min" : 100,
+					"max" : 249
+				}],
+				"onGuardedMessage" : 84,
+				"ownedGuardedMessage" : 187,
+				"onCaptureMessage" : 85
+			}
 		}
 	},
 

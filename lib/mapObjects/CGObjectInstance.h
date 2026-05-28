@@ -45,7 +45,7 @@ public:
 
 	std::string instanceName;
 
-	CGObjectInstance(IGameCallback *cb);
+	CGObjectInstance(IGameInfoCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;
@@ -59,6 +59,7 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 	bool removable;
+	ui32 rmgValue = 0; // Value assigned during random map generation (not serialized)
 
 	PlayerColor getOwner() const override
 	{
@@ -131,9 +132,9 @@ public:
 
 	/** OVERRIDES OF IObjectInterface **/
 
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ObjProperty what, ObjPropertyID identifier) final;
 
@@ -170,7 +171,7 @@ protected:
 	void setType(MapObjectID ID, MapObjectSubID subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
-	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
+	void giveDummyBonus(IGameEventCallback & gameEvents, const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
 
 	///Serialize object-type specific options
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);

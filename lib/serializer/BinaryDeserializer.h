@@ -12,6 +12,7 @@
 #include "CSerializer.h"
 #include "ESerializationVersion.h"
 #include "SerializerReflection.h"
+#include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,7 +24,7 @@ public:
 	using Version = ESerializationVersion;
 	static constexpr bool saving = false;
 
-	IGameCallback * cb = nullptr;
+	IGameInfoCallback * cb = nullptr;
 	Version version = Version::NONE;
 	bool loadingGamestate = false;
 	bool reverseEndianness = false; //if source has different endianness than us, we reverse bytes
@@ -135,6 +136,12 @@ private:
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const_t<T> nonConstT;
 		auto & hlp = const_cast<nonConstT &>(data);
+
+		if constexpr(std::is_base_of_v<IGameInfoCallback, std::remove_pointer_t<nonConstT>>)
+		{
+			cb = &data;
+		}
+
 		hlp.serialize(*this);
 	}
 	template<typename T, typename std::enable_if_t<std::is_array_v<T>, int> = 0>
@@ -148,6 +155,17 @@ private:
 	void load(Version & data)
 	{
 		this->read(static_cast<void *>(&data), sizeof(data));
+	}
+
+	void load(BonusType & data)
+	{
+		int32_t read;
+		load(read);
+
+		if (!hasFeature(Version::RANDOMIZATION_REWORK))
+			read += 1;
+
+		data = static_cast<BonusType>(read);
 	}
 
 	template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
@@ -187,15 +205,6 @@ private:
 		uint32_t length = readAndCheckLength();
 		data.resize(length);
 		for (uint32_t i = 0; i < length; i++)
-			load(data[i]);
-	}
-
-	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
-	void load(std::deque<T> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		data.resize(length);
-		for(uint32_t i = 0; i < length; i++)
 			load(data[i]);
 	}
 
@@ -315,7 +324,8 @@ private:
 		T * internalPtr;
 		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
-		loadedUniquePointers.insert(internalPtr);
+		if (internalPtr != nullptr)
+			loadedUniquePointers.insert(internalPtr);
 	}
 
 	template<typename T, size_t N>
@@ -347,19 +357,6 @@ private:
 		{
 			load(ins);
 			data.insert(ins);
-		}
-	}
-
-	template<typename T>
-	void load(std::list<T> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		data.clear();
-		T ins;
-		for(uint32_t i = 0; i < length; i++)
-		{
-			load(ins);
-			data.push_back(ins);
 		}
 	}
 
@@ -430,12 +427,11 @@ private:
 	{
 		int32_t which;
 		load(which);
-		assert(which < sizeof...(TN));
 
 		// Create array of variants that contains all default-constructed alternatives
-		const std::variant<TN...> table[] = { TN{ }... };
+		std::array<std::variant<TN...>, sizeof...(TN)> table{ TN{}... };
 		// use appropriate alternative for result
-		data = table[which];
+		data = table.at(which);
 		// perform actual load via std::visit dispatch
 		std::visit([&](auto& o) { load(o); }, data);
 	}
@@ -458,21 +454,6 @@ private:
 		}
 	}
 
-	template<typename T>
-	void load(boost::multi_array<T, 3> & data)
-	{
-		uint32_t length = readAndCheckLength();
-		uint32_t x;
-		uint32_t y;
-		uint32_t z;
-		load(x);
-		load(y);
-		load(z);
-		data.resize(boost::extents[x][y][z]);
-		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
-		for(uint32_t i = 0; i < length; i++)
-			load(data.data()[i]);
-	}
 	template<std::size_t T>
 	void load(std::bitset<T> & data)
 	{

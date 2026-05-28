@@ -28,21 +28,19 @@ For animations VCMI supports .def format from Heroes III as well as alternative 
 
 For sounds VCMI currently supports:
 
-- .ogg/vorbis format - preferred for mods. Unlike wav, vorbis uses compression which may cause some data loss, however even 128kbit is generally undistinguishable from lossless formats
+- .ogg/vorbis and ogg/opus format - preferred for mods. Unlike wav, vorbis uses compression which may cause some data loss, however even 128kbit is generally undistinguishable from lossless formats
 - .wav format. This is format used by H3. It is supported by vcmi, but it may result in large file sizes (and as result - large mods)
 
 Generally, VCMI will support any audio parameters, however you might want to use high-bitrate versions, such as 44100 Hz or 48000 Hz, 32 bit, 1 or 2 channels
 
-Support for additional formats, such as ogg/opus or flac may be added in future
+Support for additional formats, such as flac may be added in future
 
 ### Music
 
 For music VCMI currently supports:
 
-- .ogg/vorbis format - preferred for mods. Generally offers better quality and lower sizes compared to mp3
+- .ogg/vorbis and ogg/opus format - preferred for mods. Generally offers better quality and lower sizes compared to mp3
 - .mp3 format. This is format used by H3
-
-Support for additional formats, such as ogg/opus may be added in future
 
 ### Video
 
@@ -59,8 +57,7 @@ Supported video codecs:
 - theora - used by Heroes III: HD Edition
 - vp8 - modern format with way better compression compared to formats used by Heroes III
 - vp9 - recommended, this format is improvement of vp9 format and should be used as a default option
-
-Support for av1 video codec is likely to be added in future.
+- av1 - recommended, modernest format but takes some time to encode
 
 Supported audio codecs:
 

@@ -1,6 +1,9 @@
 {
 	"core:summonDemons" : {
-		"name": "Summon Demons"
+		"name": "Summon Demons",
+		"graphics" : {
+			"iconEffect" : "battle/actionGenie.png" 
+		},
 	},
 	"core:firstAid" : {
 		"name": "First Aid"

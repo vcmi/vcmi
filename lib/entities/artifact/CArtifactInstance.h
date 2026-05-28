@@ -10,7 +10,7 @@
 #pragma once
 
 #include "bonuses/CBonusSystemNode.h"
-#include "GameCallbackHolder.h"
+#include "callback/GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,18 +22,24 @@ class DLL_LINKAGE CCombinedArtifactInstance : public GameCallbackHolder
 {
 protected:
 	using GameCallbackHolder::GameCallbackHolder;
-public:
-	using ArtPlacementMap = std::map<const CArtifactInstance*, ArtifactPosition>;
 
-	struct PartInfo : public GameCallbackHolder
+public:
+	using ArtPlacementMap = std::map<const CArtifactInstance *, ArtifactPosition>;
+
+	struct PartInfo
 	{
-		explicit PartInfo(IGameCallback * cb);
+	private:
+		const CArtifactInstance * artifactPtr = nullptr;
+		ArtifactInstanceID artifactID;
+	public:
+
+		PartInfo() = default;
 		PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot);
 
-		ArtifactInstanceID artifactID;
 		ArtifactPosition slot;
 
 		const CArtifactInstance * getArtifact() const;
+		ArtifactInstanceID getArtifactID() const;
 
 		template <typename Handler>
 		void serialize(Handler & h);
@@ -69,16 +75,27 @@ public:
 	void growingUp();
 };
 
+class DLL_LINKAGE CChargedArtifactInstance
+{
+protected:
+	CChargedArtifactInstance() = default;
+public:
+	void discharge(const uint16_t charges);
+	void addCharges(const uint16_t charges);
+	uint16_t getCharges() const;
+};
+
 class DLL_LINKAGE CArtifactInstance final
-	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
+	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance, public CChargedArtifactInstance
 {
 	ArtifactInstanceID id;
 	ArtifactID artTypeID;
 
+	void init();
+
 public:
-	CArtifactInstance(IGameCallback *cb, const CArtifact * art);
-	CArtifactInstance(IGameCallback *cb);
-	void setType(const CArtifact * art);
+	CArtifactInstance(IGameInfoCallback *cb, const CArtifact * art);
+	CArtifactInstance(IGameInfoCallback *cb);
 	std::string nodeName() const override;
 	ArtifactID getTypeId() const;
 	const CArtifact * getType() const;
@@ -102,8 +119,9 @@ public:
 		h & id;
 
 		if(!h.saving && h.loadingGamestate)
-			setType(artTypeID.toArtifact());
-
+		{
+			init();
+		}
 	}
 };
 

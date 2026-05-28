@@ -73,6 +73,7 @@ class CButton : public ButtonBase
 
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
 	std::optional<ColorRGBA> borderColor; // mapping of button state to border color
+	std::optional<ColorRGBA> highlightedBorderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
 	bool actOnDown; //runs when mouse is pressed down over it, not when up
@@ -88,6 +89,7 @@ protected:
 public:
 	// sets the same border color for all button states.
 	void setBorderColor(std::optional<ColorRGBA> borderColor);
+	void setHighlightedBorderColor(std::optional<ColorRGBA> borderColor);
 
 	/// adds one more callback to on-click actions
 	void addCallback(const std::function<void()> & callback);

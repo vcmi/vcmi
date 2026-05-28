@@ -65,6 +65,11 @@ void JsonUpdater::serializeInternal(const std::string & fieldName, std::vector<s
 	// TODO
 }
 
+void JsonUpdater::serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value)
+{
+	// TODO
+}
+
 void JsonUpdater::serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
@@ -206,7 +211,6 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 				&& mask->val == b->val
 				&& mask->sid == b->sid
 				&& mask->valType == b->valType
-				&& mask->additionalInfo == b->additionalInfo
 				&& mask->effectRange == b->effectRange;
 			};
 

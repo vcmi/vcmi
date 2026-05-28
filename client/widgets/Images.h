@@ -27,6 +27,7 @@ enum class EImageBlitMode : uint8_t;
 class CPicture : public CIntObject
 {
 	std::shared_ptr<IImage> bg;
+	std::function<void()> lCallback;
 	std::function<void()> rCallback;
 
 public:
@@ -60,10 +61,12 @@ public:
 	void scaleTo(Point size);
 	void setPlayerColor(PlayerColor player);
 
+	void addLClickCallback(const std::function<void()> & callback);
 	void addRClickCallback(const std::function<void()> & callback);
 
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void clickPressed(const Point & cursorPosition) override;
 	void showPopupWindow(const Point & cursorPosition) override;
 };
 

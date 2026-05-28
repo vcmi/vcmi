@@ -40,7 +40,6 @@ TEST_F(CArtifactTest, RegistersIcons)
 	};
 
 	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "ARTIFACT", "Test1"));
-	EXPECT_CALL(*this, registarCb(Eq(4242), Eq(0), "ARTIFACTLARGE", "Test2"));
 
 	subject->registerIcons(cb);
 }

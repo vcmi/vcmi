@@ -376,7 +376,7 @@ FFMpegStream::~FFMpegStream()
 
 	// for some reason, buffer is managed (e.g. reallocated) by FFmpeg
 	// however, it must still be freed manually by user
-	if (context->buffer)
+	if (context && context->buffer)
 		av_free(context->buffer);
 	av_free(context);
 }

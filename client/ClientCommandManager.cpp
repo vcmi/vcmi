@@ -17,32 +17,37 @@
 #include "CServerHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
+#include "battle/BattleFieldController.h"
+#include "battle/BattleInterface.h"
+#include "battle/BattleObstacleController.h"
+#include "battle/CObstacleInstance.h"
 #include "gui/WindowHandler.h"
+#include "render/CanvasImage.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/callback/CGlobalAI.h"
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/callback/EditorCallback.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
-#include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/ObstacleHandler.h"
 #include "../lib/logging/VisualLogger.h"
-#include "../lib/serializer/Connection.h"
-
-#ifdef SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
-#endif
 
 void ClientCommandManager::handleQuitCommand()
 {
@@ -59,7 +64,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->server().client->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename, false);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -88,7 +93,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
@@ -101,9 +106,9 @@ void ClientCommandManager::handleGoSoloCommand()
 		
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->getPlayerSettings(color), false, false);
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
 				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
@@ -168,7 +173,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	{
 		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
-			Settings neutralAI = settings.write["server"]["neutralAI"];
+			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;
 			printCommandMessage("Setting changed, from now the battle ai will be " + aiName + "!\n");
 		}
@@ -187,7 +192,7 @@ void ClientCommandManager::handleRedrawCommand()
 
 void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
-	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
@@ -197,7 +202,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 	{
 		JsonNode output;
 
-		for(const auto & stringEntry : modEntry.second)
+		for(const auto & stringEntry : modEntry.second.strings)
 		{
 			if(boost::algorithm::starts_with(stringEntry.first, "map."))
 				continue;
@@ -209,13 +214,16 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 
 		if (!output.isNull())
 		{
-			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::string filename = modEntry.first;
+			boost::range::replace(filename, '.', '_');
+			const boost::filesystem::path filePath = outPath / (filename + ".json");
 			std::ofstream file(filePath.c_str());
 			file << output.toString();
 		}
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleTranslateMapsCommand()
@@ -236,8 +244,9 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		try
 		{
+			EditorCallback cb(nullptr);
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
+			loadedMaps.push_back(mapService.loadMap(mapName, &cb));
 		}
 		catch(std::exception & e)
 		{
@@ -258,7 +267,10 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, nullptr);
+			{
+				EditorCallback cb(nullptr);
+				loadedCampaigns.back()->getMap(part, &cb);
+			}
 		}
 		catch(std::exception & e)
 		{
@@ -266,7 +278,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		}
 	}
 
-	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
@@ -276,7 +288,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		JsonNode output;
 
-		for(const auto & stringEntry : modEntry.second)
+		for(const auto & stringEntry : modEntry.second.strings)
 		{
 			if(boost::algorithm::starts_with(stringEntry.first, "map."))
 				output[stringEntry.first].String() = stringEntry.second;
@@ -294,6 +306,8 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+
 }
 
 void ClientCommandManager::handleGetConfigCommand()
@@ -337,28 +351,27 @@ void ClientCommandManager::handleGetConfigCommand()
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
-void ClientCommandManager::handleGetScriptsCommand()
+void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
 {
-#if SCRIPTING_ENABLED
-	printCommandMessage("Command accepted.\t");
+	std::string commandName;
+	singleWordBuffer >> commandName;
 
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "scripts";
-
-	boost::filesystem::create_directories(outPath);
-
-	for(const auto & kv : LIBRARY->scriptHandler->objects)
+	if (commandName == "on")
 	{
-		std::string name = kv.first;
-		boost::algorithm::replace_all(name,":","_");
-
-		const scripting::ScriptImpl * script = kv.second.get();
-		boost::filesystem::path filePath = outPath / (name + ".lua");
-		std::ofstream file(filePath.c_str());
-		file << script->getSource();
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now enabled.\n");
 	}
-	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
-#endif
+	else if (commandName == "off")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now disabled.\n");
+	}
+	else
+	{
+		printCommandMessage("Unexpected syntax. Supported forms:\n");
+		printCommandMessage("'antilag on'\n");
+		printCommandMessage("'antilag off'\n");
+	}
 }
 
 void ClientCommandManager::handleGetTextCommand()
@@ -417,6 +430,59 @@ void ClientCommandManager::handleExtractCommand(std::istringstream& singleWordBu
 		printCommandMessage("File not found!", ELogLevel::ERROR);
 }
 
+void ClientCommandManager::handleObstaclesDebugCommand()
+{
+	auto cellBorder = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLGRD.BMP"), EImageBlitMode::COLORKEY);
+	auto cellShade = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
+	auto & battleInt = GAME->interface()->battleInt;
+	if (!battleInt)
+		return;
+
+	auto & obstacleController = battleInt->obstacleController;
+
+	for (const auto & obstacle : LIBRARY->obstacleHandler->objects)
+	{
+		if (obstacle->isAbsoluteObstacle)
+		{
+			continue; // TODO?
+		}
+		else
+		{
+			BattleHex position(0, obstacle->height - 1);
+			BattleHex bottomRightHex(obstacle->width, obstacle->height);
+			CObstacleInstance testObstacle;
+			testObstacle.obstacleType = CObstacleInstance::USUAL;
+			testObstacle.pos = position;
+			testObstacle.ID = obstacle->getIndex();
+			obstacleController->loadObstacleImage(testObstacle);
+
+			Point bottomRightCorner = battleInt->fieldController->hexPositionLocal(bottomRightHex).bottomRight();
+			CanvasImage canvas(bottomRightCorner, CanvasScalingPolicy::IGNORE);
+			auto image = obstacleController->getObstacleImage(testObstacle);
+
+			if (!image)
+				continue;
+
+			canvas.getCanvas().drawColor(Rect(Point(), canvas.dimensions()), ColorRGBA(0,255,255,255));
+			canvas.getCanvas().draw(image, obstacleController->getObstaclePosition(image, testObstacle));
+			canvas.getCanvas().drawBorder(Rect(obstacleController->getObstaclePosition(image, testObstacle), image->dimensions()), ColorRGBA(255, 0, 0, 255));
+
+			for (int y = 0; y < obstacle->height; ++y)
+				for (int x = 0; x < obstacle->width; ++x)
+					canvas.getCanvas().draw(cellBorder, battleInt->fieldController->hexPositionLocal(BattleHex(x,y)).topLeft());
+
+			for (const auto & blockedHex : obstacle->getBlocked(position))
+				canvas.getCanvas().draw(cellShade, battleInt->fieldController->hexPositionLocal(blockedHex).topLeft());
+
+			std::string modID = obstacle->getModScope();
+			std::string obstacleID = obstacle->identifier;
+			auto fullPath = VCMIDirs::get().userExtractedPath() / "obstacles" / modID;
+			boost::filesystem::create_directories(fullPath);
+			canvas.exportBitmap(fullPath / (obstacleID + ".png"));
+		}
+	}
+}
+
 void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordBuffer)
 {
 	if(currentCallFromIngameConsole)
@@ -438,14 +504,14 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		return ss.str();
 	};
 		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		GAME->interface()->localState->getCurrentArmy()->getParents(parents);
+		GAME->interface()->localState->getCurrentArmy()->getDirectParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
-		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all)) + "\n");
 	}
 }
 
@@ -468,7 +534,7 @@ void ClientCommandManager::handleTellCommand(std::istringstream& singleWordBuffe
 void ClientCommandManager::handleMpCommand()
 {
 	if(const CGHeroInstance* h = GAME->interface()->localState->getCurrentHero())
-		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit(true)) + "/" + std::to_string(h->movementPointsLimit(false)) + "\n");
+		printCommandMessage(std::to_string(h->movementPointsRemaining()) + "; max: " + std::to_string(h->movementPointsLimit()) + "\n");
 }
 
 void ClientCommandManager::handleSetCommand(std::istringstream& singleWordBuffer)
@@ -594,6 +660,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(commandName == "setBattleAI")
 		handleSetBattleAICommand(singleWordBuffer);
 
+	else if(commandName == "antilag")
+		handleAntilagCommand(singleWordBuffer);
+
 	else if(commandName == "redraw")
 		handleRedrawCommand();
 
@@ -609,9 +678,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 	else if(message=="get config")
 		handleGetConfigCommand();
 
-	else if(message=="get scripts")
-		handleGetScriptsCommand();
-
 	else if(message=="get txt")
 		handleGetTextCommand();
 
@@ -623,6 +689,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "bonuses")
 		handleBonusesCommand(singleWordBuffer);
+
+	else if(message == "obstacles debug")
+		handleObstaclesDebugCommand();
 
 	else if(commandName == "tell")
 		handleTellCommand(singleWordBuffer);

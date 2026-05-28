@@ -11,6 +11,8 @@
 
 #include "modstate.h"
 
+#include <QMap>
+
 VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 class ModManager;
@@ -41,6 +43,7 @@ public:
 	bool isModInstalled(QString modName) const;
 	bool isModEnabled(QString modName) const;
 	bool isModSettingEnabled(QString rootModName, QString modSettingName) const;
+	QMap<QString, bool> getModSettings(QString rootModName) const;
 	bool isModUpdateAvailable(QString modName) const;
 	bool isModVisible(QString modName) const;
 

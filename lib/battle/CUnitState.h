@@ -180,6 +180,7 @@ public:
 	int32_t getEffectPower(const spells::Spell * spell) const override;
 	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
+	int64_t getEffectRange(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;
@@ -240,7 +241,7 @@ public:
 	int getAttack(bool ranged) const override;
 	int getDefense(bool ranged) const override;
 
-	void save(JsonNode & data) override;
+	JsonNode save() override;
 	void load(const JsonNode & data) override;
 
 	void damage(int64_t & amount) override;
@@ -278,7 +279,7 @@ public:
 
 	CUnitStateDetached & operator= (const CUnitState & other);
 
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector & selector, const std::string & cachingStr = "") const override;
 
 	int32_t getTreeVersion() const override;
 

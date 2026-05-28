@@ -30,7 +30,8 @@ protected:
 	//To display border
 	void updateShadow();
 	void setBackground(const ImagePath & filename);
-	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, bool playerColored);
+	std::shared_ptr<CPicture> createBg(const ImagePath & imageName, int windowOptions);
+	std::shared_ptr<CPicture> createPlayerColoredBorderedStatusbar(const std::shared_ptr<CPicture> & image, PlayerColor playerColor);
 public:
 	enum EOptions
 	{
@@ -38,7 +39,8 @@ public:
 		RCLICK_POPUP=2, // window will behave as right-click popup
 		BORDERED=4, // window will have border if current resolution is bigger than size of window
 		SHADOW_DISABLED=8, //this window won't display any shadow
-		NEEDS_ANIMATED_BACKGROUND=16 //there are videos in the background that have to be played
+		NEEDS_ANIMATED_BACKGROUND=16, //there are videos in the background that have to be played
+		PLAYER_COLORED_BORDERED_STATUSBAR=32 //composite player-colored bordered frame for statusbar dialogs
 	};
 
 	/*

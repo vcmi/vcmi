@@ -18,6 +18,8 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 static const int FIRST_DAY_FOR_EVENT = 1;
 static const int LAST_DAY_FOR_EVENT = 999;
@@ -79,9 +81,9 @@ void TownEventDialog::initPlayers()
 
 void TownEventDialog::initResources()
 {
-	ui->resourcesTable->setRowCount(GameConstants::RESOURCE_QUANTITY);
+	ui->resourcesTable->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	auto resourcesMap = params.value("resources").toMap();
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
@@ -91,7 +93,7 @@ void TownEventDialog::initResources()
 		item->setText(name);
 		ui->resourcesTable->setItem(i, 0, item);
 
-		int val = resourcesMap.value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
+		int val = resourcesMap.value(QString::fromStdString(i.toResource()->getJsonKey())).toInt();
 		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
@@ -228,9 +230,9 @@ QVariant TownEventDialog::playersToVariant()
 QVariantMap TownEventDialog::resourcesToVariant()
 {
 	auto res = params.value("resources").toMap();
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		auto itemType = QString::fromStdString(i.toResource()->getJsonKey());
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
 		res[itemType] = QVariant::fromValue(itemQty->value());

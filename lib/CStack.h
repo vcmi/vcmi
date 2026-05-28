@@ -23,7 +23,7 @@ struct BattleStackAttacked;
 class BattleInfo;
 
 //Represents STACK_BATTLE nodes
-class DLL_LINKAGE CStack final : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
+class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
 private:
 	ui32 ID = -1; //unique ID of stack
@@ -66,8 +66,6 @@ public:
 	static BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 	static bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
-	BattleHex::EDir destShiftDir() const;
-
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
 								vstd::RNG & rand,
@@ -83,6 +81,7 @@ public:
 	bool doubleWide() const override { return doubleWideCached;};
 
 	std::string getDescription() const override;
+	const BattleInfo * getBattle() const { return battle;}
 
 	bool unitHasAmmoCart(const battle::Unit * unit) const override;
 	PlayerColor unitEffectiveOwner(const battle::Unit * unit) const override;

@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CZonePlacer.h"
+#include "CZoneGridPlacer.h"
 
 #include "../TerrainHandler.h"
 #include "../entities/faction/CFaction.h"
@@ -18,6 +19,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../GameLibrary.h"
 #include "CMapGenOptions.h"
+#include "CRmgTemplate.h"
 #include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"
@@ -25,9 +27,9 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
+#include <limits>
 
-//#define ZONE_PLACEMENT_LOG true
+VCMI_LIB_NAMESPACE_BEGIN
 
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), mapSize(0),
@@ -106,200 +108,6 @@ void CZonePlacer::findPathsBetweenZones()
 	}
 }
 
-void CZonePlacer::placeOnGrid(vstd::RNG* rand)
-{
-	auto zones = map.getZones();
-	assert(zones.size());
-
-	//Make sure there are at least as many grid fields as the number of zones
-	size_t gridSize = std::ceil(std::sqrt(zones.size()));
-
-	typedef boost::multi_array<std::shared_ptr<Zone>, 2> GridType;
-	GridType grid(boost::extents[gridSize][gridSize]);
-
-	TZoneVector zonesVector(zones.begin(), zones.end());
-
-	//Place first zone
-
-	auto firstZone = zonesVector[0].second;
-	size_t x = 0;
-	size_t y = 0;
-
-	auto getRandomEdge = [rand, gridSize](size_t& x, size_t& y)
-	{
-		switch (rand->nextInt(0, 3) % 4)
-		{
-		case 0:
-			x = 0;
-			y = gridSize / 2;
-			break;
-		case 1:
-			x = gridSize - 1;
-			y = gridSize / 2;
-			break;
-		case 2:
-			x = gridSize / 2;
-			y = 0;
-			break;
-		case 3:
-			x = gridSize / 2;
-			y = gridSize - 1;
-			break;
-		}
-	};
-
-	switch (firstZone->getType())
-	{
-		case ETemplateZoneType::PLAYER_START:
-		case ETemplateZoneType::CPU_START:
-			if (firstZone->getConnectedZoneIds().size() > 2)
-			{
-				getRandomEdge(x, y);
-			}
-			else
-			{
-				//Random corner
-				if (rand->nextInt(0, 1) == 1)
-				{
-					x = 0;
-				}
-				else
-				{
-					x = gridSize - 1;
-				}
-				if (rand->nextInt(0, 1) == 1)
-				{
-					y = 0;
-				}
-				else
-				{
-					y = gridSize - 1;
-				}
-			}
-			break;
-		case ETemplateZoneType::TREASURE:
-			if (gridSize & 1) //odd
-			{
-				x = y = (gridSize / 2);
-			}
-			else
-			{
-				//One of 4 squares in the middle
-				x = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-				y = (gridSize / 2) - 1 + rand->nextInt(0, 1);
-			}
-			break;
-		case ETemplateZoneType::JUNCTION:
-			getRandomEdge(x, y);
-			break;
-	}
-	grid[x][y] = firstZone;
-
-	//Ignore z placement for simplicity
-
-	for (size_t i = 1; i < zones.size(); i++)
-	{
-		auto zone = zonesVector[i].second;
-		auto connectedZoneIds = zone->getConnectedZoneIds();
-
-		float maxDistance = -1000.0;
-		int3 mostDistantPlace;
-
-		//Iterate over free positions
-		for (size_t freeX = 0; freeX < gridSize; ++freeX)
-		{
-			for (size_t freeY = 0; freeY < gridSize; ++freeY)
-			{
-				if (!grid[freeX][freeY])
-				{
-					//There is free space left here
-					int3 potentialPos(freeX, freeY, 0);
-					
-					//Compute distance to every existing zone
-
-					float distance = 0;
-					for (size_t existingX = 0; existingX < gridSize; ++existingX)
-					{
-						for (size_t existingY = 0; existingY < gridSize; ++existingY)
-						{
-							auto existingZone = grid[existingX][existingY];
-							if (existingZone)
-							{
-								//There is already zone here
-								float localDistance = 0.0f;
-
-								auto graphDistance = distancesBetweenZones[zone->getId()][existingZone->getId()];
-								if (graphDistance > 1)
-								{
-									//No direct connection
-									localDistance = potentialPos.dist2d(int3(existingX, existingY, 0)) * graphDistance;
-								}
-								else
-								{
-									//Has direct connection - place as close as possible
-									localDistance = -potentialPos.dist2d(int3(existingX, existingY, 0));
-								}
-
-								localDistance *= scaleForceBetweenZones(zone, existingZone);
-
-								distance += localDistance;
-							}
-						}
-					}
-					if (distance > maxDistance)
-					{
-						maxDistance = distance;
-						mostDistantPlace = potentialPos;
-					}
-				}
-			}
-		}
-
-		//Place in a free slot
-		grid[mostDistantPlace.x][mostDistantPlace.y] = zone;
-	}
-
-	//TODO: toggle with a flag
-#ifdef ZONE_PLACEMENT_LOG
-	logGlobal->trace("Initial zone grid:");
-	for (size_t x = 0; x < gridSize; ++x)
-	{
-		std::string s;
-		for (size_t y = 0; y < gridSize; ++y)
-		{
-			if (grid[x][y])
-			{
-				s += (boost::format("%3d ") % grid[x][y]->getId()).str();
-			}
-			else
-			{
-				s += " -- ";
-			}
-		}
-		logGlobal->trace(s);
-	}
-#endif
-
-	//Set initial position for zones - random position in square centered around (x, y)
-	for (size_t x = 0; x < gridSize; ++x)
-	{
-		for (size_t y = 0; y < gridSize; ++y)
-		{
-			auto zone = grid[x][y];
-			if (zone)
-			{
-				//i.e. for grid size 5 we get range (0.25 - 4.75)
-				auto targetX = rand->nextDouble(x + 0.25f, x + 0.75f);
-				vstd::abetween(targetX, 0.5, gridSize - 0.5);
-				auto targetY = rand->nextDouble(y + 0.25f, y + 0.75f);
-				vstd::abetween(targetY, 0.5, gridSize - 0.5);
-
-				zone->setCenter(float3(targetX / gridSize, targetY / gridSize, zone->getPos().z));
-			}
-		}
-	}
-}
-
 float CZonePlacer::scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const
 {
 	if (zoneA->getOwner() && zoneB->getOwner()) //Players participate in game
@@ -329,17 +137,9 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	{
 		return pr.second->getType() == ETemplateZoneType::WATER;
 	});
-	bool underground = map.getMapGenOptions().getHasTwoLevels();
+	int mapLevels = map.getMapGenOptions().getLevels();
 
 	findPathsBetweenZones();
-	placeOnGrid(rand);
-
-	/*
-	Fruchterman-Reingold algorithm
-
-	Let's assume we try to fit N circular zones with radius = size on a map
-	Connected zones attract, intersecting zones and map boundaries push back
-	*/
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -347,7 +147,16 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
 
 	//0. set zone sizes and surface / underground level
-	prepareZones(zones, zonesVector, underground, rand);
+	prepareZones(zones, zonesVector, mapLevels, rand);
+
+	CZoneGridPlacer gridPlacer(
+		map,
+		distancesBetweenZones,
+		[this](const std::shared_ptr<Zone> & zoneA, const std::shared_ptr<Zone> & zoneB)
+		{
+			return scaleForceBetweenZones(zoneA, zoneB);
+		});
+	gridPlacer.placeOnGrid(zones, rand);
 
 	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
@@ -441,85 +250,138 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	}
 }
 
-void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, vstd::RNG * rand)
+void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const int mapLevels, vstd::RNG * rand)
 {
-	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
+	std::map<int, float> totalSize; //make sure that sum of zone sizes on surface and uderground match size of the map
 
-	int zonesOnLevel[2] = { 0, 0 };
+	std::map<int, int> zonesOnLevel;
+	for (int i = 0; i < mapLevels; i++)
+		zonesOnLevel[i] = 0;
 
 	//even distribution for surface / underground zones. Surface zones always have priority.
 
 	TZoneVector zonesToPlace;
 	std::map<TRmgTemplateZoneId, int> levels;
 
+	auto addZoneEqually = [&](auto & zone, bool ignoreUnderground = false) {
+		int chosenLevel = -1;
+		int minCount = std::numeric_limits<int>::max();
+
+		for (const auto& [level, count] : zonesOnLevel) {
+			if (ignoreUnderground && level == 1)
+				continue;
+
+			if (count < minCount ||
+				(count == minCount && level == 0) ||
+				(count == minCount && chosenLevel != 0 && level < chosenLevel))
+			{
+				chosenLevel = level;
+				minCount = count;
+			}
+		}
+
+		levels[zone.first] = chosenLevel;
+		zonesOnLevel[chosenLevel]++;
+	};
+
 	//first pass - determine fixed surface for zones
 	for(const auto & zone : zonesVector)
 	{
-		if (!underground) //this step is ignored
-			zonesToPlace.push_back(zone);
-		else //place players depending on their factions
+		if (mapLevels == 1) //this step is ignored
 		{
-			if(std::optional<int> owner = zone.second->getOwner())
-			{
-				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
-				FactionID faction = FactionID::RANDOM;
-				if (playerSettings.size() > player.getNum())
-				{
-					faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
-				}
-				else
-				{
-					logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
-				}
+			zonesToPlace.push_back(zone);
+			continue;
+		}
 
-				if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+		// Check if zone has forced level assignment
+		auto forcedLevel = zone.second->getForcedLevel();
+		if (forcedLevel == EZoneLevel::SURFACE)
+		{
+			// Force to surface (level 0)
+			levels[zone.first] = 0;
+			zonesOnLevel[0]++;
+			continue;
+		}
+		else if (forcedLevel == EZoneLevel::UNDERGROUND)
+		{
+			// Force to underground (level 1)
+			// mapLevels > 1 is guaranteed here since mapLevels == 1 was handled above
+			levels[zone.first] = 1;
+			zonesOnLevel[1]++;
+			continue;
+		}
+		// forcedLevel == AUTOMATIC - continue with normal logic
+
+		//place players depending on their factions
+		if(std::optional<int> owner = zone.second->getOwner())
+		{
+			auto player = PlayerColor(*owner - 1);
+			auto playerSettings = map.getMapGenOptions().getPlayersSettings();
+			FactionID faction = FactionID::RANDOM;
+			if (playerSettings.size() > player.getNum())
+			{
+				faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
+			}
+			else
+			{
+				logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
+			}
+
+			if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+				zonesToPlace.push_back(zone);
+			else
+			{
+				const auto & factionObject = (*LIBRARY->townh)[faction];
+				const auto & nativeTerrains = factionObject->nativeTerrains;
+				if(nativeTerrains.empty())
+				{
+					//any / random
 					zonesToPlace.push_back(zone);
+				}
 				else
 				{
-					auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
-					if(tt == ETerrainId::NONE)
+					bool hasUndergroundTerrain = false;
+					bool hasSurfaceTerrain = false;
+					for (const auto & terrainId : nativeTerrains)
 					{
-						//any / random
-						zonesToPlace.push_back(zone);
+						const auto & terrainType = LIBRARY->terrainTypeHandler->getById(terrainId);
+						if (terrainType->isUnderground())
+							hasUndergroundTerrain = true;
+						if (terrainType->isSurface())
+							hasSurfaceTerrain = true;
 					}
-					else
+
+					if(hasUndergroundTerrain && !hasSurfaceTerrain)
 					{
-						const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
-						if(terrainType->isUnderground() && !terrainType->isSurface())
+						// underground only
+						if (mapLevels > 1)
 						{
-							//underground only
 							zonesOnLevel[1]++;
 							levels[zone.first] = 1;
 						}
 						else
 						{
-							//surface
-							zonesOnLevel[0]++;
 							levels[zone.first] = 0;
 						}
 					}
+					else
+					{
+						// surface-only or mixed surface+underground
+						// mixed should not be forced to surface
+						addZoneEqually(zone, !hasUndergroundTerrain);
+					}
 				}
 			}
-			else //no starting zone or no underground altogether
-			{
-				zonesToPlace.push_back(zone);
-			}
+		}
+		else //no starting zone or no underground altogether
+		{
+			zonesToPlace.push_back(zone);
 		}
 	}
 	for(const auto & zone : zonesToPlace)
 	{
-		if (underground) //only then consider underground zones
-		{
-			int level = 0;
-			if (zonesOnLevel[1] < zonesOnLevel[0]) //only if there are less underground zones
-				level = 1;
-			else
-				level = 0;
-
-			levels[zone.first] = level;
-			zonesOnLevel[level]++;
-		}
+		if (mapLevels > 1) //only then consider underground zones
+			addZoneEqually(zone);
 		else
 			levels[zone.first] = 0;
 	}
@@ -541,8 +403,8 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	prescaler = sqrt((WH)/(sum(n^2)*pi))
 	*/
 
-	std::vector<float> prescaler = { 0, 0 };
-	for (int i = 0; i < 2; i++)
+	std::map<int, float> prescaler;
+	for (int i = 0; i < mapLevels; i++)
 		prescaler[i] = std::sqrt((width * height) / (totalSize[i] * PI_CONSTANT));
 	mapSize = static_cast<float>(sqrt(width * height));
 	for(const auto & zone : zones)
@@ -1003,6 +865,24 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+void CZonePlacer::RemoveRoadsForWideConnections()
+{
+	auto zones = map.getZones();
+	
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{
+			if(connection.getConnectionType() == rmg::EConnectionType::WIDE)
+			{
+				zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+			}
+		}
+	}
+}
+
+
 
 const TDistanceMap& CZonePlacer::getDistanceMap()
 {

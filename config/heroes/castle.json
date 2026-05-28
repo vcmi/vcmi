@@ -10,16 +10,7 @@
 			{ "skill" : "archery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"archery" : {
-					"type" : "PERCENTAGE_DAMAGE_BOOST",
-					"subtype" : "damageTypeRanged",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "archery"
 		}
 	},
 	"valeska":
@@ -62,13 +53,19 @@
 		],
 		"specialty" : {
 			"bonuses" : {
-				"navigation" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"subtype" : "heroMovementSea",
+				"navigationSpecialty" : {
 					"type" : "MOVEMENT",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
+					"subtype" : "heroMovementSea",
+					"updater" : {
+						"type" : "GROWS_WITH_LEVEL",
+						"valPer20" : 1500,
+						"stepSize" : 1
+					},
+					"limiters" : {
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "navigation"
+					}
 				}
 			}
 		}
@@ -84,16 +81,7 @@
 			{ "skill" : "estates", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"estates" : {
-					"subtype" : "resource.gold",
-					"type" : "GENERATE_RESOURCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "estates"
 		}
 	},
 	"sorsha":
@@ -121,7 +109,8 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"tyris":
@@ -150,16 +139,7 @@
 			{ "skill" : "firstAid", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"firstAid" : {
-					"subtype" : "spell.firstAid",
-					"type" : "SPECIFIC_SPELL_POWER",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "firstAid"
 		}
 	},
 	"adela":
@@ -180,14 +160,8 @@
 					"limiters" : [
 						{
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
-							"parameters" : [
-								null,
-								null,
-								{
-									"type" : "SPELL_EFFECT",
-									"id" : "spell.bless"
-								}
-							]
+							"bonusSourceType" : "SPELL_EFFECT",
+							"bonusSourceID" : "spell.bless"
 						}
 					],
 					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",
@@ -265,15 +239,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"loynis":

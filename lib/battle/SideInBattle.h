@@ -10,11 +10,12 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
+class CGTownInstance;
 class CArmedInstance;
 
 struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
@@ -28,8 +29,10 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 	uint32_t castSpellsCount = 0; //how many spells each side has been cast this turn
 	std::vector<SpellID> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
 	int32_t enchanterCounter = 0; //tends to pass through 0, so sign is needed
+	int32_t initialMana = 0;
+	int32_t additionalMana = 0;
 
-	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
+	void init(const CGHeroInstance * Hero, const CArmedInstance * Army, const CGTownInstance * town);
 	const CArmedInstance * getArmy() const;
 	const CGHeroInstance * getHero() const;
 
@@ -41,6 +44,8 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 		h & castSpellsCount;
 		h & usedSpellsHistory;
 		h & enchanterCounter;
+		h & initialMana;
+		h & additionalMana;
 	}
 };
 

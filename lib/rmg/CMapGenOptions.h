@@ -90,8 +90,8 @@ public:
 	si32 getHeight() const;
 	void setHeight(si32 value);
 
-	bool getHasTwoLevels() const;
-	void setHasTwoLevels(bool value);
+	int getLevels() const;
+	void setLevels(int value);
 
 	/// The count of all (human or computer) players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
 	/// this method, all player settings are reset to default settings.
@@ -170,7 +170,7 @@ private:
 
 	si32 width;
 	si32 height;
-	bool hasTwoLevels;
+	si32 levels;
 	si8 humanOrCpuPlayerCount;
 	si8 teamCount;
 	si8 compOnlyPlayerCount;
@@ -190,7 +190,22 @@ public:
 	{
 		h & width;
 		h & height;
-		h & hasTwoLevels;
+		if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+			h & levels;
+		else
+		{
+			if (h.saving)
+			{
+				bool hasTwoLevels = levels == 2;
+				h & hasTwoLevels;
+			}
+			else
+			{
+				bool hasTwoLevels;
+				h & hasTwoLevels;
+				levels = hasTwoLevels ? 2 : 1;
+			}
+		}
 		h & humanOrCpuPlayerCount;
 		h & teamCount;
 		h & compOnlyPlayerCount;

@@ -15,8 +15,8 @@
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
-#include "../gui/ShortcutHandler.h"
-#include "../gui/Shortcut.h"
+#include "ShortcutHandler.h"
+#include "Shortcut.h"
 #include "../render/Graphics.h"
 #include "../render/IFont.h"
 #include "../render/IRenderHandler.h"
@@ -413,6 +413,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 	loadToggleButtonCallback(button, config["callback"]);
+	loadButtonHotkey(button, config["hotkey"]);
 	return button;
 }
 

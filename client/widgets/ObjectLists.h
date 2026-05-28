@@ -108,6 +108,8 @@ public:
 	virtual void moveToPrev();
 
 	size_t getPos();
+
+	std::function<void()> onScroll;
 };
 
 class CListBoxWithCallback : public CListBox

@@ -44,6 +44,8 @@ void ModSettings::initialize(MapController & c)
 	QMap<QString, QTreeWidgetItem*> addedMods;
 	QSet<QString> modsToProcess;
 	ui->treeMods->blockSignals(true);
+	ui->treeMods->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	ui->treeMods->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
 	auto createModTreeWidgetItem = [&](QTreeWidgetItem * parent, const ModDescription & modInfo)
 	{
@@ -59,6 +61,8 @@ void ModSettings::initialize(MapController & c)
 
 	for(const auto & modName : LIBRARY->modh->getActiveMods())
 	{
+		if(modName == "core")
+			continue;
 		QString qmodName = QString::fromStdString(modName);
 		if(qmodName.split(".").size() == 1)
 		{
@@ -115,13 +119,21 @@ void ModSettings::update()
 	}
 }
 
-void ModSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods)
+void ModSettings::updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged)
 {
 	//Mod management
 	auto widgetAction = [&](QTreeWidgetItem * item)
 	{
 		auto modName = item->data(0, Qt::UserRole).toString().toStdString();
-		item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+		if(leaveCheckedUnchanged)
+		{
+			if(mods.count(modName))
+				item->setCheckState(0, Qt::Checked);
+		}
+		else
+		{
+			item->setCheckState(0, mods.count(modName) ? Qt::Checked : Qt::Unchecked);
+		}
 	};
 
 	for (int i = 0; i < ui->treeMods->topLevelItemCount(); ++i)

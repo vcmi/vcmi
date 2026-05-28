@@ -11,25 +11,25 @@
 
 #include "CArtifactSet.h"
 
-#include "../../GameCallbackHolder.h"
+#include "../../callback/GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 // Used to try on artifacts before the claimed changes have been applied
 class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallbackHolder
 {
-	IGameCallback * getCallback() const final
+	IGameInfoCallback * getCallback() const final
 	{
 		return cb;
 	}
 
 public:
-	CArtifactFittingSet(IGameCallback * cb, ArtBearer::ArtBearer Bearer);
+	CArtifactFittingSet(IGameInfoCallback * cb, ArtBearer Bearer);
 	explicit CArtifactFittingSet(const CArtifactSet & artSet);
-	ArtBearer::ArtBearer bearerType() const override;
+	ArtBearer bearerType() const override;
 
 protected:
-	ArtBearer::ArtBearer bearer;
+	ArtBearer bearer;
 };
 
 VCMI_LIB_NAMESPACE_END

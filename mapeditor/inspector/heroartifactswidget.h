@@ -14,6 +14,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 class HeroArtifactsWidget;
 }
@@ -37,6 +39,10 @@ private slots:
  	void on_addButton_clicked();
 
 	void on_removeButton_clicked();
+
+	void onSaveButtonClicked();
+
+	void onCancelButtonClicked();
 
 private:
 	enum Column

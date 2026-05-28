@@ -19,6 +19,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+bool CGeneralTextHandler::isRoEData()
+{
+	return !CResourceHandler::get("core")->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
+}
+
 /// Detects language and encoding of H3 text files based on matching against pregenerated footprints of H3 file
 void CGeneralTextHandler::detectInstallParameters()
 {
@@ -109,10 +114,19 @@ void CGeneralTextHandler::detectInstallParameters()
 
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
+	bool resExists = CResourceHandler::get()->existsResource(ResourcePath(sourceName));
+	if(!resExists && roeMapping["newLines"][sourceName].isVector())
+		return;
+
 	CLegacyConfigParser parser(TextPath::builtin(sourceName));
 	size_t index = 0;
 	do
 	{
+		while(vstd::contains_if(roeMapping["newLines"][sourceName].Vector(), [index](JsonNode item) -> bool {
+			return item.Integer() == index;
+		}))
+			index += 1;
+
 		registerString( "core", {sourceID, index}, parser.readString());
 		index += 1;
 	}
@@ -139,8 +153,12 @@ CGeneralTextHandler::CGeneralTextHandler():
 	// pseudo-array, that don't have H3 file with same name
 	seerEmpty        (*this, "core.seerhut.empty"  ),
 	seerNames        (*this, "core.seerhut.names"  ),
-	capColors        (*this, "vcmi.capitalColors"  )
+	capColors        (*this, "vcmi.capitalColors"  ),
+
+	roeMapping()
 {
+	if(isRoEData())
+		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));
 	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
 	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
 	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
@@ -159,7 +177,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
 	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
 	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
-	readToVector("core.cmpmusic", "DATA/CMPMUSIC.TXT" );
 	readToVector("core.minename", "DATA/MINENAME.TXT" );
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
@@ -185,6 +202,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 		size_t index = 0;
 		do
 		{
+			while(vstd::contains_if(roeMapping["newLines"]["DATA/GENRLTXT.TXT"].Vector(), [index](JsonNode item) -> bool {
+				return item.Integer() == index;
+			}))
+				index += 1;
+
 			registerString("core", {"core.genrltxt", index}, parser.readString());
 			index += 1;
 		}
@@ -195,6 +217,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 		size_t index = 0;
 		do
 		{
+			while(vstd::contains_if(roeMapping["newLines"]["DATA/HELP.TXT"].Vector(), [index](JsonNode item) -> bool {
+				return item.Integer() == index;
+			}))
+				index += 1;
+
 			std::string first = parser.readString();
 			std::string second = parser.readString();
 			registerString("core", "core.help." + std::to_string(index) + ".hover", first);
@@ -288,8 +315,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 				}
 			}
 			while (parser.endLine() && !text.empty());
-
-			scenariosCountPerCampaign.push_back(region);
 		}
 	}
 }
@@ -304,15 +329,6 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 		return textIndex;
 
 	return textIndex + 1;
-}
-
-size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
-{
-	assert(campaignID < scenariosCountPerCampaign.size());
-
-	if(campaignID < scenariosCountPerCampaign.size())
-		return scenariosCountPerCampaign[campaignID];
-	return 0;
 }
 
 std::string CGeneralTextHandler::getPreferredLanguage()

@@ -106,19 +106,9 @@ BoatId CFaction::getBoatType() const
 	return boatType;
 }
 
-TerrainId CFaction::getNativeTerrain() const
+bool CFaction::isNativeTerrain(TerrainId terrain) const
 {
-	return nativeTerrain;
-}
-
-void CFaction::updateFrom(const JsonNode & data)
-{
-
-}
-
-void CFaction::serializeJson(JsonSerializeFormat & handler)
-{
-
+	return vstd::contains(nativeTerrains, terrain);
 }
 
 VCMI_LIB_NAMESPACE_END

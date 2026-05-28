@@ -11,15 +11,55 @@
 #include "TextOperations.h"
 
 #include "../GameLibrary.h"
-#include "../texts/CGeneralTextHandler.h"
+#include "CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 
 #include <vstd/DateUtils.h>
 
-#include <boost/locale/encoding.hpp>
+#include <iconv.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+template<typename FromString, typename DestString>
+FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
+{
+	constexpr auto fromCharSize = sizeof(typename DestString::value_type);
+	constexpr auto destCharSize = sizeof(typename FromString::value_type);
+
+	iconv_t cd = iconv_open(destEncoding.c_str(), fromEncoding.c_str());
+	if(cd == reinterpret_cast<iconv_t>(-1))
+	{
+		logGlobal->error("Encoding coversion failure. Invalid encoding %s -> %s", fromEncoding, destEncoding);
+		return {};
+	}
+
+	FromString destString;
+	// reserve large enough destination storage
+	// worst-case scenario: each input single-byte character is mapped to 4-byte long utf8 sequence
+	destString.resize(fromString.size() * 4);
+
+	// use const_cast to get char * - since iconv api for some reason requests non-const input
+	char * fromData = const_cast<char *>(reinterpret_cast<const char *>(fromString.data()));
+	char * destData = reinterpret_cast<char *>(destString.data());
+	size_t fromLeft = fromString.size() * fromCharSize;
+	size_t destLeft = destString.size() * destCharSize;
+
+	size_t ret = iconv(cd, &fromData, &fromLeft, &destData, &destLeft);
+	iconv_close(cd);
+
+	if(ret == static_cast<size_t>(-1))
+	{
+		if constexpr (fromCharSize == 1)
+			logGlobal->error("Encoding coversion failure. Failed to convert text: %s", fromString);
+		else
+			logGlobal->error("Encoding coversion failure. Failed to convert text.");
+		return {};
+	}
+
+	destString.resize(destString.size() - destLeft / destCharSize);
+	return destString;
+}
 
 size_t TextOperations::getUnicodeCharacterSize(char firstByte)
 {
@@ -44,7 +84,7 @@ size_t TextOperations::getUnicodeCharacterSize(char firstByte)
 		return 4;
 
 	assert(0);// invalid unicode sequence
-	return 4;
+	return 1;
 }
 
 bool TextOperations::isValidUnicodeCharacter(const char * character, size_t maxSize)
@@ -162,24 +202,7 @@ uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & enco
 
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)
 {
-	try {
-		return boost::locale::conv::to_utf<char>(text, encoding);
-	}
-	catch (const boost::locale::conv::conversion_error &)
-	{
-		throw std::runtime_error("Failed to convert text '" + text + "' from encoding " + encoding );
-	}
-}
-
-std::string TextOperations::fromUnicode(const std::string &text, const std::string &encoding)
-{
-	try {
-		return boost::locale::conv::from_utf<char>(text, encoding);
-	}
-	catch (const boost::locale::conv::conversion_error &)
-	{
-		throw std::runtime_error("Failed to convert text '" + text + "' to encoding " + encoding );
-	}
+	return convertTextEncoding<std::string>(text, encoding, "UTF-8");
 }
 
 void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
@@ -257,6 +280,7 @@ static const std::locale & getLocale()
 {
 	auto getLocale = []() -> std::locale
 	{
+#ifndef ENABLE_MINIMAL_LIB
 		const std::string & baseLocaleName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 		const std::string fallbackLocale = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).localeName;
 
@@ -274,6 +298,7 @@ static const std::locale & getLocale()
 				logGlobal->warn("Failed to set locale '%s'", localeName);
 			}
 		}
+#endif
 		return std::locale();
 	};
 
@@ -408,7 +433,7 @@ std::optional<int> TextOperations::textSearchSimilarityScore(const std::string &
 std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& path)
 {
 #ifdef VCMI_WINDOWS
-	return boost::locale::conv::utf_to_utf<char>(path.native());
+	return convertTextEncoding<std::string>(path.native(), "UTF-16LE", "UTF-8");
 #else
 	return path.string();
 #endif
@@ -417,10 +442,24 @@ std::string TextOperations::filesystemPathToUtf8(const boost::filesystem::path& 
 boost::filesystem::path TextOperations::Utf8TofilesystemPath(const std::string& path)
 {
 #ifdef VCMI_WINDOWS
-	return boost::filesystem::path(boost::locale::conv::utf_to_utf<wchar_t>(path));
+	return boost::filesystem::path(convertTextEncoding<std::wstring>(path, "UTF-8", "UTF-16LE"));
 #else
 	return boost::filesystem::path(path);
 #endif
+}
+
+std::string TextOperations::convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+	boost::algorithm::erase_all(input, ".");
+
+	size_t slashPos = input.find_last_of('/');
+
+	if(slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
 }
 
 VCMI_LIB_NAMESPACE_END

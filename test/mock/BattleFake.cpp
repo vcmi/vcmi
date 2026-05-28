@@ -34,13 +34,13 @@ void UnitFake::makeDead()
 
 void UnitFake::redirectBonusesToFake()
 {
-	ON_CALL(*this, getAllBonuses(_, _, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));
+	ON_CALL(*this, getAllBonuses(_, _)).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getAllBonuses));
 	ON_CALL(*this, getTreeVersion()).WillByDefault(Invoke(&bonusFake, &BonusBearerMock::getTreeVersion));
 }
 
 void UnitFake::expectAnyBonusSystemCall()
 {
-	EXPECT_CALL(*this, getAllBonuses(_, _, _)).Times(AtLeast(0));
+	EXPECT_CALL(*this, getAllBonuses(_, _)).Times(AtLeast(0));
 	EXPECT_CALL(*this, getTreeVersion()).Times(AtLeast(0));
 }
 
@@ -76,14 +76,7 @@ void UnitsFake::setDefaultBonusExpectations()
 
 BattleFake::~BattleFake() = default;
 
-#if SCRIPTING_ENABLED
-BattleFake::BattleFake(std::shared_ptr<scripting::PoolMock> pool_):
-	pool(pool_)
-{
-}
-#else
 BattleFake::BattleFake() = default;
-#endif
 
 void BattleFake::setUp()
 {
@@ -95,13 +88,6 @@ void BattleFake::setupEmptyBattlefield()
 	EXPECT_CALL(*this, getAllObstacles()).WillRepeatedly(Return(IBattleInfo::ObstacleCList()));
 	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BattleField(0)));
 }
-
-#if SCRIPTING_ENABLED
-scripting::Pool * BattleFake::getContextPool() const
-{
-	return pool.get();
-}
-#endif
 
 }
 }

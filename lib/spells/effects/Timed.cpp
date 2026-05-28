@@ -10,17 +10,18 @@
 #include "StdInc.h"
 
 #include "Timed.h"
-#include "Registry.h"
 #include "../ISpellMechanics.h"
 
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../json/JsonBonus.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../networkPacks/SetStackEffect.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,75 +30,42 @@ namespace spells
 namespace effects
 {
 
-static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) 
+static void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target, const std::string & battleLogMessageSingular, const std::string & battleLogMessagePlural)
 {
-	auto addLogLine = [&](const int32_t baseTextID, const boost::logic::tribool & plural)
-	{
-		MetaString line;
-		target->addText(line, EMetaText::GENERAL_TXT, baseTextID, plural);
-		target->addNameReplacement(line, plural);
-		log.push_back(std::move(line));
-	};
-
-	if(m->getSpellIndex() == SpellID::DISEASE)
-	{
-		addLogLine(553, boost::logic::indeterminate);
-		return;
-	}
-
 	for(const auto & bonus : bonuses)
 	{
-		switch(bonus.type)
+		if(bonus.type == BonusType::STACK_HEALTH && bonus.val < 0)
 		{
-		case BonusType::NOT_ACTIVE:
-			{
-				switch(bonus.subtype.as<SpellID>().toEnum())
-				{
-				case SpellID::STONE_GAZE:
-					addLogLine(558, boost::logic::indeterminate);
-					return;
-				case SpellID::PARALYZE:
-					addLogLine(563, boost::logic::indeterminate);
-					return;
-				default:
-					break;
-				}
-			}
-			break;
-		case BonusType::POISON:
-			addLogLine(561, boost::logic::indeterminate);
+			BonusList unitHealth = *target->getBonuses(Selector::type()(BonusType::STACK_HEALTH));
+
+			auto oldHealth = unitHealth.totalValue();
+			unitHealth.push_back(std::make_shared<Bonus>(bonus));
+			auto newHealth = unitHealth.totalValue();
+
+			//"The %s shrivel with age, and lose %d hit points."
+			MetaString line;
+			target->addText(line, EMetaText::GENERAL_TXT, 551);
+			target->addNameReplacement(line);
+
+			line.replaceNumber(oldHealth - newHealth);
+			log.push_back(std::move(line));
 			return;
-		case BonusType::BIND_EFFECT:
-			addLogLine(-560, true);
-			return;
-		case BonusType::STACK_HEALTH:
-			{
-				if(bonus.val < 0)
-				{
-					BonusList unitHealth = *target->getBonuses(Selector::type()(BonusType::STACK_HEALTH));
-
-					auto oldHealth = unitHealth.totalValue();
-					unitHealth.push_back(std::make_shared<Bonus>(bonus));
-					auto newHealth = unitHealth.totalValue();
-
-					//"The %s shrivel with age, and lose %d hit points."
-					MetaString line;
-					target->addText(line, EMetaText::GENERAL_TXT, 551);
-					target->addNameReplacement(line);
-
-					line.replaceNumber(oldHealth - newHealth);
-					log.push_back(std::move(line));
-					return;
-				}
-			}
-			break;
-		default:
-			break;
 		}
+	}
+
+	if(!battleLogMessagePlural.empty())
+	{
+		MetaString line;
+		if(!battleLogMessageSingular.empty() && target->getCount() == 1)
+			line.appendTextID(battleLogMessageSingular);
+		else
+			line.appendTextID(battleLogMessagePlural);
+		target->addNameReplacement(line, boost::logic::indeterminate);
+		log.push_back(std::move(line));
 	}
 }
 
-void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
+void Timed::apply(ServerCallback * server, const Mechanics * m, const Target & target) const
 {
 	const bool describe = server->describeChanges();
 	int32_t duration = m->getEffectDuration();
@@ -139,15 +107,15 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 			continue;
 
 		if(describe)
-			describeEffect(blm.lines, m, converted, affected);
+			describeEffect(blm.lines, m, converted, affected, battleLogMessageSingular, battleLogMessagePlural);
 
 
 		//Apply hero specials - peculiar enchants
 		const auto tier = std::max(affected->creatureLevel(), 1); //don't divide by 0 for certain creatures (commanders, war machines)
-		if(peculiarBonus)
+		if(peculiarBonus && peculiarBonus->parameters)
 		{
 			si32 power = 0;
-			switch (peculiarBonus->additionalInfo[0])
+			switch (peculiarBonus->parameters->toNumber())
 			{
 			case 0: //normal
 				switch (tier)
@@ -183,18 +151,18 @@ void Timed::apply(ServerCallback * server, const Mechanics * m, const EffectTarg
 
 		}
 
-		if(addedValueBonus)
+		if(addedValueBonus && addedValueBonus->parameters)
 		{
 			for(Bonus & b : buffer)
 			{
-				b.val += addedValueBonus->additionalInfo[0];
+				b.val += addedValueBonus->parameters->toNumber();
 			}
 		}
-		if(fixedValueBonus)
+		if(fixedValueBonus && fixedValueBonus->parameters)
 		{
 			for(Bonus & b : buffer)
 			{
-				b.val = fixedValueBonus->additionalInfo[0];
+				b.val = fixedValueBonus->parameters->toNumber();
 			}
 		}
 
@@ -232,7 +200,7 @@ void Timed::convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bo
 			nb.val = 100 - nb.val;
 		//we need to know who cast Bind
 		else if(nb.sid.as<SpellID>() == SpellID::BIND && nb.type == BonusType::BIND_EFFECT && m->caster->getHeroCaster() == nullptr)
-			nb.additionalInfo = m->caster->getCasterUnitId();
+			nb.parameters = std::make_shared<BonusParameters>(m->caster->getCasterUnitId());
 
 		converted.push_back(nb);
 	}
@@ -245,6 +213,23 @@ void Timed::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
 	assert(!handler.saving);
 	handler.serializeBool("cumulative", cumulative, false);
+	{
+		const JsonNode & messageNode = handler.getCurrent()["battleLogMessage"];
+		if(messageNode.isStruct())
+		{
+			auto resolveField = [&](const std::string & field) -> std::string
+			{
+				const std::string & value = messageNode[field].String();
+				if(value.empty())
+					return {};
+				if(value.at(0) == '@')
+					return value.substr(1);
+				return TextIdentifier("spell", spellScope, spellIdentifier, name, "battleLogMessage", field).get();
+			};
+			battleLogMessageSingular = resolveField("singular");
+			battleLogMessagePlural = resolveField("plural");
+		}
+	}
 	{
 		auto guard = handler.enterStruct("bonus");
 		const JsonNode & data = handler.getCurrent();

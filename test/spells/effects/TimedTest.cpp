@@ -90,7 +90,7 @@ TEST_P(TimedApplyTest, DISABLED_ChangesBonuses)
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, creatureLevel()).WillRepeatedly(Return(1));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	std::vector<Bonus> actualBonus;

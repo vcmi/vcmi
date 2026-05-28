@@ -6,13 +6,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
+import eu.vcmi.vcmi.util.ActivityHelper;
+import eu.vcmi.vcmi.util.FileUtil;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import androidx.core.content.FileProvider;
 
 import eu.vcmi.vcmi.VcmiSDLActivity;
-import eu.vcmi.vcmi.util.FileUtil;
 
 import org.libsdl.app.SDL;
 
@@ -31,32 +40,67 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         super.onCreate(savedInstanceState);
         justLaunched = savedInstanceState == null;
         SDL.setContext(this);
+
+        ActivityHelper.applyImmersiveFullscreen(this);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent resultData)
+    public void onWindowFocusChanged(boolean hasFocus)
     {
-        if (requestCode == PICK_EXTERNAL_VCMI_DATA_TO_COPY && resultCode == Activity.RESULT_OK)
-        {
-            if (resultData != null && FileUtil.copyData(resultData.getData(), this))
-                NativeMethods.heroesDataUpdate();
-            return;
-        }
+        super.onWindowFocusChanged(hasFocus);
 
-        super.onActivityResult(requestCode, resultCode, resultData);
+        if (hasFocus)
+            ActivityHelper.applyImmersiveFullscreen(this);
     }
 
-    public void copyHeroesData()
+    public void keepScreenOn(boolean isEnabled)
     {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI,
-            Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "vcmi-data"))
-        );
-        startActivityForResult(intent, PICK_EXTERNAL_VCMI_DATA_TO_COPY);
+        if (isEnabled)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void onLaunchGameBtnPressed()
     {
         startActivity(new Intent(ActivityLauncher.this, VcmiSDLActivity.class));
+    }
+
+    public void openMapEditor()
+    {
+        startActivity(new Intent(ActivityLauncher.this, ActivityMapEditor.class));
+    }
+
+    public void shareFile(String filePath)
+    {
+        File src = new File(filePath);
+        if (!src.exists())
+            return;
+
+        // copy to cache so we can share via FileProvider
+        File dest = new File(getCacheDir(), src.getName());
+        try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dest))
+        {
+            FileUtil.copyStream(in, out);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return;
+        }
+
+        try
+        {
+            android.net.Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", dest);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("application/zip");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Share"));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../lib/Rect.h"
+#include "../../lib/Rect.h"
 
 #include <tbb/concurrent_queue.h>
 
@@ -30,6 +30,19 @@ enum class InputMode
 	KEYBOARD_AND_MOUSE,
 	TOUCH,
 	CONTROLLER
+};
+
+enum class PowerStateMode
+{
+	UNKNOWN,
+	CHARGING,
+	ON_BATTERY
+};
+
+struct PowerState {
+	PowerStateMode powerState;
+	int seconds;
+	int percent;
 };
 
 class InputHandler
@@ -58,6 +71,13 @@ class InputHandler
 	std::unique_ptr<InputSourceTouch> fingerHandler;
 	std::unique_ptr<InputSourceText> textHandler;
 	std::unique_ptr<InputSourceGameController> gameControllerHandler;
+
+	// Cached power state updated asynchronously via TBB
+	std::atomic<int> cachedPowerStateMode;
+	std::atomic<int> cachedPowerStateSeconds;
+	std::atomic<int> cachedPowerStatePercent;
+	uint32_t powerStateFrameCounter;
+	void updatePowerState();
 
 public:
 	InputHandler();
@@ -111,4 +131,5 @@ public:
 	InputMode getCurrentInputMode();
 
 	void copyToClipBoard(const std::string & text);
+	PowerState getPowerState();
 };

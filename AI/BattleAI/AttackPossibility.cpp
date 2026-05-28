@@ -12,12 +12,15 @@
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used, 
                               // CUnitState should be private and CStack should be removed completely
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
 
 #include "../../lib/GameLibrary.h"
+
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+
 
 uint64_t averageDmg(const DamageRange & range)
 {
@@ -232,9 +235,9 @@ float AttackPossibility::calculateDamageReduce(
 			{
 				return u->unitSide() != defender->unitSide()
 					&& !u->isTurret()
-					&& u->creatureId() != CreatureID::CATAPULT
-					&& u->creatureId() != CreatureID::BALLISTA
-					&& u->creatureId() != CreatureID::FIRST_AID_TENT
+					&& !u->isCatapult()
+					&& !u->isBallista()
+					&& !u->isFirstAidTent()
 					&& u->getCount();
 			});
 

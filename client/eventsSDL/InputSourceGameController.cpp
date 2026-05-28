@@ -140,12 +140,13 @@ double InputSourceGameController::getRealAxisValue(int value) const
 	return clampedValue;
 }
 
-void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue)
+void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue, std::string axisName)
 {
 	if(getRealAxisValue(axisValue) > configTriggerThreshold)
 	{
 		if(!pressedAxes.count(axisID))
 		{
+			ENGINE->events().dispatchKeyPressed(axisName);
 			ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 			pressedAxes.insert(axisID);
 		}
@@ -154,6 +155,7 @@ void InputSourceGameController::dispatchAxisShortcuts(const std::vector<EShortcu
 	{
 		if(pressedAxes.count(axisID))
 		{
+			ENGINE->events().dispatchKeyReleased(axisName);
 			ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 			pressedAxes.erase(axisID);
 		}
@@ -189,7 +191,7 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_ControllerAxisEv
 		}
 	}
 
-	dispatchAxisShortcuts(buttonActions, axisID, axis.value);
+	dispatchAxisShortcuts(buttonActions, axisID, axis.value, axisName);
 }
 
 void InputSourceGameController::tryToConvertCursor()
@@ -208,6 +210,8 @@ void InputSourceGameController::handleEventButtonDown(const SDL_ControllerButton
 {
 	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
 	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	
+	ENGINE->events().dispatchKeyPressed(buttonName);
 	ENGINE->events().dispatchShortcutPressed(shortcutsVector);
 }
 
@@ -215,6 +219,7 @@ void InputSourceGameController::handleEventButtonUp(const SDL_ControllerButtonEv
 {
 	std::string buttonName = SDL_GameControllerGetStringForButton(static_cast<SDL_GameControllerButton>(button.button));
 	const auto & shortcutsVector = ENGINE->shortcuts().translateJoystickButton(buttonName);
+	ENGINE->events().dispatchKeyReleased(buttonName);
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }
 

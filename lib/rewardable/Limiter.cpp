@@ -11,14 +11,14 @@
 #include "StdInc.h"
 #include "Limiter.h"
 
-#include "../IGameCallback.h"
 #include "../CPlayerState.h"
+#include "../CSkillHandler.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../constants/StringConstants.h"
-#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,7 +29,11 @@ Rewardable::Limiter::Limiter()
 	, heroLevel(-1)
 	, manaPercentage(0)
 	, manaPoints(0)
+	, movePercentage(0)
+	, movePoints(0)
 	, canLearnSkills(false)
+	, commanderAlive(false)
+	, hasExtraCreatures(false)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
 }
@@ -40,20 +44,27 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 {
 	return l.dayOfWeek == r.dayOfWeek
 	&& l.daysPassed == r.daysPassed
-	&& l.heroLevel == r.heroLevel
 	&& l.heroExperience == r.heroExperience
+	&& l.heroLevel == r.heroLevel
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
-	&& l.secondary == r.secondary
+	&& l.movePoints == r.manaPoints
+	&& l.movePercentage == r.manaPercentage
 	&& l.canLearnSkills == r.canLearnSkills
-	&& l.creatures == r.creatures
-	&& l.spells == r.spells
-	&& l.artifacts == r.artifacts
-	&& l.players == r.players
-	&& l.heroes == r.heroes
-	&& l.heroClasses == r.heroClasses
+	&& l.commanderAlive == r.commanderAlive
+	&& l.hasExtraCreatures == r.hasExtraCreatures
 	&& l.resources == r.resources
 	&& l.primary == r.primary
+	&& l.secondary == r.secondary
+	&& l.artifacts == r.artifacts
+	&& l.availableSlots == r.availableSlots
+	&& l.scrolls == r.scrolls
+	&& l.spells == r.spells
+	&& l.canLearnSpells == r.canLearnSpells
+	&& l.creatures == r.creatures
+	&& l.heroes == r.heroes
+	&& l.heroClasses == r.heroClasses
+	&& l.players == r.players
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -78,16 +89,25 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	for(const auto & reqStack : creatures)
+	if (commanderAlive)
 	{
-		size_t count = 0;
-		for(const auto & slot : hero->Slots())
-		{
-			const auto & heroStack = slot.second;
-			if (heroStack->getType() == reqStack.getType())
-				count += heroStack->getCount();
-		}
-		if (count < reqStack.getCount()) //not enough creatures of this kind
+		if (!hero->getCommander() || !hero->getCommander()->alive)
+			return false;
+	}
+
+	if (!creatures.empty())
+	{
+		if (!hero->hasUnits(creatures, hasExtraCreatures))
+			return false;
+	}
+
+	if (!canReceiveCreatures.empty())
+	{
+		CCreatureSet setToTest;
+		for (const auto & unitToGive : canReceiveCreatures)
+			setToTest.addToSlot(setToTest.getSlotFor(unitToGive.getCreature()), unitToGive.getId(), unitToGive.getCount());
+
+		if (!hero->canBeMergedWith(setToTest))
 			return false;
 	}
 
@@ -103,10 +123,16 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	if(manaPoints > hero->mana)
 		return false;
 
+	if(movePoints > hero->movementPointsRemaining())
+		return false;
+
 	if (canLearnSkills && !hero->canLearnSkill())
 		return false;
 
 	if (hero->manaLimit() != 0 && manaPercentage > 100 * hero->mana / hero->manaLimit())
+		return false;
+
+	if (hero->movementPointsLimit() != 0 && movePercentage > 100 * hero->movementPointsRemaining()/ hero->movementPointsLimit())
 		return false;
 
 	for(size_t i=0; i<primary.size(); i++)
@@ -130,6 +156,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	for(const auto & spell : canLearnSpells)
 	{
 		if (!hero->canLearnSpell(spell.toEntity(LIBRARY), true))
+			return false;
+	}
+
+	for(const auto & scroll : scrolls)
+	{
+		if (!hero->hasScroll(scroll, false))
+			return false;
+	}
+
+	for(const auto & slot : availableSlots)
+	{
+		if (hero->getSlot(slot)->artifactID.hasValue())
 			return false;
 	}
 
@@ -253,13 +291,15 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("dayOfWeek", dayOfWeek);
 	handler.serializeInt("daysPassed", daysPassed);
 	resources.serializeJson(handler, "resources");
-	handler.serializeInt("manaPercentage", manaPercentage);
 	handler.serializeInt("heroExperience", heroExperience);
 	handler.serializeInt("heroLevel", heroLevel);
 	handler.serializeIdArray("heroes", heroes);
 	handler.serializeIdArray("heroClasses", heroClasses);
 	handler.serializeIdArray("colors", players);
 	handler.serializeInt("manaPoints", manaPoints);
+	handler.serializeInt("manaPercentage", manaPercentage);
+	handler.serializeInt("movePoints", movePoints);
+	handler.serializeInt("movePercentage", movePercentage);
 	handler.serializeIdArray("artifacts", artifacts);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);

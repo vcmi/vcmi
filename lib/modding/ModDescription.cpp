@@ -15,8 +15,34 @@
 
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
+{
+	std::vector<std::string> sections;
+	boost::algorithm::iter_split(sections, fullDescription, boost::algorithm::first_finder("\n# "));
+
+	for (const auto & section : sections)
+	{
+		size_t endOfFirstLine = section.find('\n', 1);
+		if (endOfFirstLine == std::string::npos)
+			continue;
+
+		std::string firstLine = section.substr(0, endOfFirstLine);
+
+		for (const auto & language : Languages::getLanguageList())
+		{
+			if (firstLine.find(language.identifier) == std::string::npos)
+			   continue;
+
+			modConfig[language.identifier]["description"].String() = section.substr(endOfFirstLine + 1);
+
+			break;
+		}
+	}
+}
 
 ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConfig, const JsonNode & repositoryConfig)
 	: identifier(fullID)
@@ -30,7 +56,11 @@ ModDescription::ModDescription(const TModID & fullID, const JsonNode & localConf
 		dependencies.emplace("core");
 
 	if (!getParentID().empty())
+	{
 		dependencies.emplace(getParentID());
+		if (getTopParentID() != getParentID())
+			dependencies.emplace(getTopParentID());
+	}
 }
 
 ModDescription::~ModDescription() = default;
@@ -118,6 +148,22 @@ const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) 
 		return localizedValue;
 }
 
+const JsonNode & ModDescription::getLocalizedDescription() const
+{
+	const std::string language = CGeneralTextHandler::getPreferredLanguage();
+	const JsonNode & localizedValue = getValue(language)["description"];
+	const JsonNode & englishValue = getValue("english")["description"];
+	const JsonNode & baseValue = getValue("description");
+
+	if (!localizedValue.isNull())
+		return localizedValue;
+
+	if (!englishValue.isNull())
+		return englishValue;
+
+	return baseValue;
+}
+
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
 {
 	if (!isInstalled() || isUpdateAvailable())
@@ -154,7 +200,7 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 
 bool ModDescription::isCompatible() const
 {
-	const JsonNode & compatibility = getValue("compatibility");
+	const JsonNode & compatibility = getLocalValue("compatibility");
 
 	if (compatibility.isNull())
 		return true;
@@ -179,6 +225,11 @@ bool ModDescription::isTranslation() const
 	return getValue("modType").String() == "Translation";
 }
 
+bool ModDescription::isDemoSupport() const
+{
+	return getValue("modType").String() == "Demo";
+}
+
 bool ModDescription::keepDisabled() const
 {
 	return getValue("keepDisabled").Bool();
@@ -200,6 +251,7 @@ bool ModDescription::affectsGameplay() const
 		"heroes",
 		"objects",
 		"obstacles",
+		"mapLayers",
 		"rivers",
 		"roads",
 		"settings",

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "FactionMember.h"
+#include "scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +35,7 @@ class DLL_LINKAGE CreatureEntity : public EntityT<IdType>, public ACreature
 {
 };
 
-class DLL_LINKAGE Creature : public CreatureEntity<CreatureID>
+class DLL_LINKAGE Creature : public CreatureEntity<CreatureID>, public scripting::ApiRawPointer<Creature>
 {
 protected:
 	// use getNamePlural/Singular instead
@@ -66,7 +67,7 @@ public:
 	virtual int32_t getBaseShots() const = 0;
 
 	virtual int32_t getRecruitCost(GameResID resIndex) const = 0;
-	virtual ResourceSet getFullRecruitCost() const = 0;
+	virtual const ResourceSet & getFullRecruitCost() const = 0;
 	
 	virtual bool hasUpgrades() const = 0;
 

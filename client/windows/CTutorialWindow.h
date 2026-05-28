@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../windows/CWindowObject.h"
+#include "CWindowObject.h"
 
 class CFilledTexture;
 class CButton;

@@ -21,6 +21,8 @@ class CGObjectInstance;
 
 VCMI_LIB_NAMESPACE_END
 
+VCMI_LIB_USING_NAMESPACE
+
 class PickObjectDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT

@@ -61,7 +61,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	h3Data.reserve(dataSize);
 
 	#define ART_POS(x) #x ,
-	const std::vector<std::string> artSlots = { ART_POS_LIST };
+	std::vector<std::string> artSlots = { ART_POS_LIST };
 	#undef ART_POS
 
 	static const std::map<char, std::string> classes =
@@ -71,11 +71,30 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	CLegacyConfigParser events(TextPath::builtin("DATA/ARTEVENT.TXT"));
 
 	parser.endLine(); // header
+	for(int i = 0; i < 7; i++)
+		parser.readString();
+	bool isRoe = parser.readString() != "Misc 5";
 	parser.endLine();
+
+	if(isRoe)
+		artSlots.erase(artSlots.begin() + 5);
+
+	JsonNode roeMapping;
+	if(isRoe)
+		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));
+	const JsonVector & artNewLines = roeMapping["newLines"]["DATA/ARTRAITS.TXT"].Vector();
 
 	for (size_t i = 0; i < dataSize; i++)
 	{
 		JsonNode artData;
+
+		if(isRoe && vstd::contains_if(artNewLines, [i](const JsonNode & item) -> bool {
+			return item.Integer() == static_cast<int64_t>(i);
+		}))
+		{
+			h3Data.push_back(artData);
+			continue;
+		}
 
 		artData["text"]["name"].String() = parser.readString();
 		artData["text"]["event"].String() = events.readString();
@@ -112,7 +131,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 	objects.emplace_back(object);
 
-	registerObject(scope, "artifact", name, object->id.getNum());
+	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -124,7 +143,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
-	registerObject(scope, "artifact", name, object->id.getNum());
+	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
 const std::vector<std::string> & CArtHandler::getTypeNames() const
@@ -142,16 +161,12 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-		{
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->bonusesPerLevel.back().second);
-		}
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
+
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-		{
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->thresholdBonuses.back().second);
-		}
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
 	}
+
 	art->id = ArtifactID(index);
 	art->identifier = identifier;
 	art->modScope = scope;
@@ -165,10 +180,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
 
-	if(!graphics["large"].isNull())
-		art->large = graphics["large"].String();
+	if(!graphics["scenarioBonus"].isNull())
+		art->scenarioBonus = graphics["scenarioBonus"].String();
 	else
-		art->large = art->image;
+		art->scenarioBonus = art->image; // MOD COMPATIBILITY fallback for pre-1.7 mods
 
 	art->advMapDef = graphics["map"].String();
 
@@ -180,16 +195,44 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	loadType(art.get(), node);
 	loadComponents(art.get(), node);
 
-	for(const auto & b : node["bonuses"].Vector())
+	if (node["bonuses"].isVector())
 	{
-		auto bonus = JsonUtils::parseBonus(b);
-		art->addNewBonus(bonus);
+		for(const auto & b : node["bonuses"].Vector())
+		{
+			auto bonus = JsonUtils::parseBonus(b);
+			bonus->sid = art->getId();
+			art->addNewBonus(bonus);
+		}
+	}
+	else
+	{
+		for(const auto & b : node["bonuses"].Struct())
+		{
+			if (b.second.isNull())
+				continue;
+			auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+			bonus->sid = art->getId();
+			art->addNewBonus(bonus);
+		}
+	}
+
+	for(const auto & b : node["instanceBonuses"].Struct())
+	{
+		if (b.second.isNull())
+			continue;
+		auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+		bonus->sid = art->getId();
+		bonus->source = BonusSource::ARTIFACT;
+		bonus->duration = BonusDuration::PERMANENT;
+		bonus->description.appendTextID(art->getNameTextID());
+		bonus->description.appendRawString(" %+d");
+		art->instanceBonuses.push_back(bonus);
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
+		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [art](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -198,7 +241,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		});
 	}
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [scope, art](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -220,6 +263,35 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(art->isTradable())
 		art->possibleSlots.at(ArtBearer::ALTAR).push_back(ArtifactPosition::ALTAR);
 
+	if(!node["charged"].isNull())
+	{
+		art->setCondition(stringToDischargeCond(node["charged"]["usageType"].String()));
+		if(!node["charged"]["removeOnDepletion"].isNull())
+			art->setRemoveOnDepletion(node["charged"]["removeOnDepletion"].Bool());
+		if(!node["charged"]["startingCharges"].isNull())
+		{
+			const auto charges = node["charged"]["startingCharges"].Integer();
+			if(charges < 0)
+				logMod->warn("Warning! Charged artifact %s number of charges cannot be less than zero %d!", art->getNameTranslated(), charges);
+			else
+				art->setDefaultStartCharges(charges);
+		}
+	}
+
+	// Some bonuses must be located in the instance.
+	for(const auto & b : art->getExportedBonusList())
+	{
+		if(std::dynamic_pointer_cast<const HasChargesLimiter>(b->limiter))
+		{
+			b->source = BonusSource::ARTIFACT;
+			b->duration = BonusDuration::PERMANENT;
+			b->description.appendTextID(art->getNameTextID());
+			b->description.appendRawString(" %+d");
+			art->instanceBonuses.push_back(b);
+			art->removeBonus(b);
+		}
+	}
+
 	return art;
 }
 
@@ -233,6 +305,20 @@ int32_t ArtifactPositionBase::decode(const std::string & slotName)
 		return it->second;
 	else
 		return PRE_FIRST;
+}
+
+std::string ArtifactPositionBase::encode(int32_t index)
+{
+#define ART_POS(x) #x ,
+	const std::vector<std::string> artSlots = { ART_POS_LIST };
+#undef ART_POS
+
+	return artSlots.at(index);
+}
+
+std::string ArtifactPositionBase::entityType()
+{
+	return "artifactSlot";
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
@@ -278,9 +364,9 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node) const
 	}
 }
 
-EArtifactClass::Type CArtHandler::stringToClass(const std::string & className)
+EArtifactClass CArtHandler::stringToClass(const std::string & className)
 {
-	static const std::map<std::string, EArtifactClass::Type> artifactClassMap =
+	static const std::map<std::string, EArtifactClass> artifactClassMap =
 	{
 		{"TREASURE", EArtifactClass::ART_TREASURE},
 		{"MINOR", EArtifactClass::ART_MINOR},
@@ -297,6 +383,17 @@ EArtifactClass::Type CArtHandler::stringToClass(const std::string & className)
 	return EArtifactClass::ART_SPECIAL;
 }
 
+DischargeArtifactCondition CArtHandler::stringToDischargeCond(const std::string & cond) const
+{
+	const std::unordered_map<std::string, DischargeArtifactCondition> growingConditionsMap =
+	{
+		{"SPELLCAST", DischargeArtifactCondition::SPELLCAST},
+		{"BATTLE", DischargeArtifactCondition::BATTLE},
+		//{"BUILDING", DischargeArtifactCondition::BUILDING},
+	};
+	return growingConditionsMap.at(cond);
+}
+
 void CArtHandler::loadClass(CArtifact * art, const JsonNode & node) const
 {
 	art->aClass = stringToClass(node["class"].String());
@@ -305,7 +402,7 @@ void CArtHandler::loadClass(CArtifact * art, const JsonNode & node) const
 void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 {
 #define ART_BEARER(x) { #x, ArtBearer::x },
-	static const std::map<std::string, int> artifactBearerMap = { ART_BEARER_LIST };
+	static const std::map<std::string, ArtBearer> artifactBearerMap = { ART_BEARER_LIST };
 #undef ART_BEARER
 
 	for (const JsonNode & b : node["type"].Vector())
@@ -313,7 +410,7 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 		auto it = artifactBearerMap.find (b.String());
 		if (it != artifactBearerMap.end())
 		{
-			int bearerType = it->second;
+			ArtBearer bearerType = it->second;
 			switch (bearerType)
 			{
 				case ArtBearer::HERO://TODO: allow arts having several possible bearers
@@ -374,7 +471,6 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 bool CArtHandler::legalArtifact(const ArtifactID & id) const
 {
 	auto art = id.toArtifact();
-	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 
 	if(art->isCombined())
 		return false; //no combo artifacts spawning

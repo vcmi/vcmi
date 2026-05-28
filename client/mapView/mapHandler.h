@@ -72,6 +72,4 @@ public:
 	/// blocking wait until all ongoing animatins are over
 	void waitForOngoingAnimations();
 	void endNetwork();
-
-	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };

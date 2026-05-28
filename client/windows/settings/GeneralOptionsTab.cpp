@@ -152,9 +152,10 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		selectLongTouchDuration();
 	});
-	addCallback("framerateChanged", [](bool value)
+	addCallback("performanceOverlayChanged", [](bool value)
 	{
-		setBoolSetting("video", "showfps", value);
+		Settings gameRes = settings.write["video"]["performanceOverlay"];
+		gameRes["show"].Bool() = value;
 	});
 	addCallback("hapticFeedbackChanged", [](bool value)
 	{
@@ -225,8 +226,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	if (fullscreenExclusiveCheckbox)
 		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
 
-	std::shared_ptr<CToggleButton> framerateCheckbox = widget<CToggleButton>("framerateCheckbox");
-	framerateCheckbox->setSelected(settings["video"]["showfps"].Bool());
+	std::shared_ptr<CToggleButton> infoboxCheckbox = widget<CToggleButton>("performanceOverlayCheckbox");
+	infoboxCheckbox->setSelected(settings["video"]["performanceOverlay"]["show"].Bool());
 
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)
@@ -335,7 +336,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -359,7 +360,7 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	updateResolutionSelector();
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -418,7 +419,7 @@ void GeneralOptionsTab::setGameScaling(int index)
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 

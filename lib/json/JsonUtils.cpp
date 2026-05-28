@@ -19,6 +19,26 @@ VCMI_LIB_USING_NAMESPACE
 
 static const JsonNode nullNode;
 
+static std::optional<int> getIndexSafe(const JsonNode & node, const std::string & keyName)
+{
+	try {
+		int index = std::stoi(keyName);
+		if (index <= 0 || index > node.Vector().size())
+			throw std::out_of_range("dummy");
+		return index - 1; // 1-based index -> 0-based index
+	}
+	catch(const std::invalid_argument &)
+	{
+		logMod->warn("Failed to interpret key '%s' when replacing individual items in array. Expected 'appendItem', 'appendItems', 'modify@NUM' or 'insert@NUM", keyName);
+		return std::nullopt;
+	}
+	catch(const std::out_of_range & )
+	{
+		logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exist in targeted array of %d items", keyName, node.Vector().size());
+		return std::nullopt;
+	}
+};
+
 static JsonNode getDefaultValue(const JsonNode & schema, std::string fieldName)
 {
 	const JsonNode & fieldProps = schema["properties"][fieldName];
@@ -107,6 +127,19 @@ bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, 
 {
 	JsonValidator validator;
 	std::string log = validator.check(schemaName, node);
+	if (!log.empty())
+	{
+		logMod->warn("Data in %s is invalid!", dataName);
+		logMod->warn(log);
+		logMod->trace("%s json: %s", dataName, node.toCompactString());
+	}
+	return log.empty();
+}
+
+bool JsonUtils::validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName)
+{
+	JsonValidator validator;
+	std::string log = validator.check(schema, node);
 	if (!log.empty())
 	{
 		logMod->warn("Data in %s is invalid!", dataName);
@@ -218,26 +251,6 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 				}
 				if (dest.isVector())
 				{
-					auto getIndexSafe = [&dest](const std::string & keyName) -> std::optional<int>
-					{
-						try {
-							int index = std::stoi(keyName);
-							if (index <= 0 || index > dest.Vector().size())
-								throw std::out_of_range("dummy");
-							return index - 1; // 1-based index -> 0-based index
-						}
-						catch(const std::invalid_argument &)
-						{
-							logMod->warn("Failed to interpret key '%s' when replacing individual items in array. Expected 'appendItem', 'appendItems', 'modify@NUM' or 'insert@NUM", keyName);
-							return std::nullopt;
-						}
-						catch(const std::out_of_range & )
-						{
-							logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exists in targeted array of %d items", keyName, dest.Vector().size());
-							return std::nullopt;
-						}
-					};
-
 					for(auto & node : source.Struct())
 					{
 						if (node.first == "append")
@@ -247,19 +260,20 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 						else if (node.first == "appendItems")
 						{
 							assert(node.second.isVector());
-							std::move(dest.Vector().begin(), dest.Vector().end(), std::back_inserter(dest.Vector()));
+							auto& srcVec = node.second.Vector();
+							std::move(srcVec.begin(), srcVec.end(), std::back_inserter(dest.Vector()));
 						}
 						else if (boost::algorithm::starts_with(node.first, "insert@"))
 						{
 							constexpr int numberPosition = std::char_traits<char>::length("insert@");
-							auto index = getIndexSafe(node.first.substr(numberPosition));
+							auto index = getIndexSafe(dest, node.first.substr(numberPosition));
 							if (index)
 								dest.Vector().insert(dest.Vector().begin() + index.value(), std::move(node.second));
 						}
 						else if (boost::algorithm::starts_with(node.first, "modify@"))
 						{
 							constexpr int numberPosition = std::char_traits<char>::length("modify@");
-							auto index = getIndexSafe(node.first.substr(numberPosition));
+							auto index = getIndexSafe(dest,	node.first.substr(numberPosition));
 							if (index)
 								merge(dest.Vector().at(index.value()), node.second, ignoreOverride);
 						}
@@ -285,13 +299,19 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	std::swap(descendant, inheritedNode);
 }
 
-JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, settings, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings, bool & isValid)
 {
 	if (files.isVector())
 	{
 		assert(!files.getModScope().empty());
 		auto configList = files.convertTo<std::vector<std::string> >();
-		JsonNode result = JsonUtils::assembleFromFiles(configList, files.getModScope(), isValid);
+		JsonNode result = JsonUtils::assembleFromFiles(configList, files.getModScope(), {}, isValid);
 
 		return result;
 	}
@@ -305,16 +325,16 @@ JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
 JsonNode JsonUtils::assembleFromFiles(const JsonNode & files)
 {
 	bool isValid = false;
-	return assembleFromFiles(files, isValid);
+	return assembleFromFiles(files, {}, isValid);
 }
 
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
 	bool isValid = false;
-	return assembleFromFiles(files, "", isValid);
+	return assembleFromFiles(files, "", {}, isValid);
 }
 
-JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, std::string modName, bool & isValid)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, std::string modName, const JsonParsingSettings & settings, bool & isValid)
 {
 	isValid = true;
 	JsonNode result;
@@ -326,7 +346,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, st
 		if (CResourceHandler::get(modName)->existsResource(path))
 		{
 			bool isValidFile = false;
-			JsonNode section(JsonPath::builtinTODO(file), modName, isValidFile);
+			JsonNode section(JsonPath::builtinTODO(file), settings, modName, isValidFile);
 			merge(result, section);
 			isValid |= isValidFile;
 		}
@@ -355,6 +375,9 @@ JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 
 void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const JsonNode & right, const std::string & keyName)
 {
+	assert(!left.getModScope().empty());
+	assert(!right.getModScope().empty());
+
 	switch (left.getType())
 	{
 		case JsonNode::JsonType::DATA_NULL:
@@ -362,10 +385,32 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 		case JsonNode::JsonType::DATA_FLOAT:
 		case JsonNode::JsonType::DATA_INTEGER:
 		case JsonNode::JsonType::DATA_STRING:
-		case JsonNode::JsonType::DATA_VECTOR: // NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
 		{
-			result[keyName][left.getModScope()] = left;
+			//result[keyName][left.getModScope()] = left;
 			result[keyName][right.getModScope()] = right;
+			return;
+		}
+		case JsonNode::JsonType::DATA_VECTOR:
+		{
+			if (right.isStruct())
+			{
+				for(const auto & node : right.Struct())
+				{
+					if (boost::algorithm::starts_with(node.first, "modify@"))
+					{
+						constexpr int numberPosition = std::char_traits<char>::length("modify@");
+						auto index = getIndexSafe(left, node.first.substr(numberPosition));
+						if (index)
+							detectConflicts(result, left[*index], node.second, keyName + "/" + node.first.substr(numberPosition));
+					}
+				}
+			}
+			else
+			{
+				// NOTE: comparing vectors as whole - since merge will overwrite it in its entirety
+			//	result[keyName][left.getModScope()] = left;
+				result[keyName][right.getModScope()] = right;
+			}
 			return;
 		}
 		case JsonNode::JsonType::DATA_STRUCT:

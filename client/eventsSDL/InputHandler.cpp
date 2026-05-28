@@ -28,11 +28,13 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CConfigHandler.h"
 
 #include <SDL_events.h>
 #include <SDL_timer.h>
 #include <SDL_clipboard.h>
+#include <SDL_power.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -44,6 +46,10 @@ InputHandler::InputHandler()
 	, fingerHandler(std::make_unique<InputSourceTouch>())
 	, textHandler(std::make_unique<InputSourceText>())
 	, gameControllerHandler(std::make_unique<InputSourceGameController>())
+	, cachedPowerStateMode(static_cast<int>(PowerStateMode::UNKNOWN))
+	, cachedPowerStateSeconds(-1)
+	, cachedPowerStatePercent(-1)
+	, powerStateFrameCounter(0)
 {
 }
 
@@ -148,6 +154,32 @@ void InputHandler::copyToClipBoard(const std::string & text)
 	SDL_SetClipboardText(text.c_str());
 }
 
+void InputHandler::updatePowerState()
+{
+	int seconds;
+	int percent;
+	auto sdlPowerState = SDL_GetPowerInfo(&seconds, &percent);
+
+	PowerStateMode powerState = PowerStateMode::UNKNOWN;
+	if(sdlPowerState == SDL_POWERSTATE_ON_BATTERY)
+		powerState = PowerStateMode::ON_BATTERY;
+	else if(sdlPowerState == SDL_POWERSTATE_CHARGING || sdlPowerState == SDL_POWERSTATE_CHARGED)
+		powerState = PowerStateMode::CHARGING;
+
+	cachedPowerStateMode.store(static_cast<int>(powerState), std::memory_order_relaxed);
+	cachedPowerStateSeconds.store(seconds, std::memory_order_relaxed);
+	cachedPowerStatePercent.store(percent, std::memory_order_relaxed);
+}
+
+PowerState InputHandler::getPowerState()
+{
+	return PowerState{
+		static_cast<PowerStateMode>(cachedPowerStateMode.load(std::memory_order_relaxed)),
+		cachedPowerStateSeconds.load(std::memory_order_relaxed),
+		cachedPowerStatePercent.load(std::memory_order_relaxed)
+	};
+}
+
 std::vector<SDL_Event> InputHandler::acquireEvents()
 {
 	std::unique_lock<std::mutex> lock(eventsMutex);
@@ -159,6 +191,18 @@ std::vector<SDL_Event> InputHandler::acquireEvents()
 
 void InputHandler::processEvents()
 {
+	
+	// Update power state every ~300 frames (approx 5 seconds at 60 FPS)
+	if (++powerStateFrameCounter >= 300)
+	{
+		const auto updateTask = [this]()
+		{
+			updatePowerState();
+		};
+		ENGINE->async().run(updateTask);
+		powerStateFrameCounter = 0;
+	}
+	
 	std::vector<SDL_Event> eventsToProcess = acquireEvents();
 
 	for(const auto & currentEvent : eventsToProcess)
@@ -201,6 +245,12 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 		return;
 	}
+	else if(ev.type == SDL_APP_WILLENTERBACKGROUND)
+	{
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		ENGINE->user().onAppPaused();
+		return;
+	}
 	else if(ev.type == SDL_KEYDOWN)
 	{
 		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
@@ -232,17 +282,19 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(false);
+				ENGINE->onScreenResize(false, false);
 			}
 #endif
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-#ifdef VCMI_MOBILE
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(true);
-			}
+#ifdef VCMI_MOBILE
+				ENGINE->onScreenResize(true, false);
+#else
+				ENGINE->onScreenResize(true, true);
 #endif
+			}
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
@@ -289,12 +341,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		return;
 	}
 
+#ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
+#endif
 
 	{
 		std::unique_lock<std::mutex> lock(eventsMutex);
@@ -424,7 +478,10 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 	std::unique_ptr<std::function<void()>> task;
 
 	if (!dispatchedTasks.try_pop(task))
-		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
+	{
+		logGlobal->error("InputHandler::handleUserEvent received without active task!");
+		return;
+	}
 
 	(*task)();
 }

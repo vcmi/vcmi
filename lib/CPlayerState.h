@@ -12,12 +12,13 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "GameCallbackHolder.h"
+#include "callback/GameCallbackHolder.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "mapObjects/CGObjectInstance.h"
+#include "mapping/MapTilesStorage.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -56,7 +57,7 @@ class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player, public G
 
 public:
 	PlayerColor color;
-	bool human; //true if human controlled player, false for AI
+	bool human = false; //true if human controlled player, false for AI
 	TeamID team;
 	TResources resources;
 
@@ -75,7 +76,7 @@ public:
 	std::optional<ui8> daysWithoutCastle;
 	TurnTimerInfo turnTimer;
 
-	PlayerState(IGameCallback *cb);
+	PlayerState(IGameInfoCallback *cb);
 	~PlayerState();
 
 	std::string nodeName() const override;
@@ -148,8 +149,8 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
-	//TODO: boost::array, bool if possible
-	boost::multi_array<ui8, 3> fogOfWarMap; //[z][x][y] true - visible, false - hidden
+	//TODO: bool if possible
+	MapTilesStorage<uint8_t> fogOfWarMap; //true - visible, false - hidden
 
 	std::set<ObjectInstanceID> scoutedObjects;
 

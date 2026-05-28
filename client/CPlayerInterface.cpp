@@ -12,6 +12,7 @@
 
 #include <vcmi/Artifact.h>
 
+#include "Client.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -23,7 +24,7 @@
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
 #include "battle/BattleInterface.h"
-#include "battle/BattleInterfaceClasses.h"
+#include "battle/BattleResultWindow.h"
 #include "battle/BattleWindow.h"
 
 #include "eventsSDL/InputHandler.h"
@@ -36,6 +37,7 @@
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CHighScoreScreen.h"
+#include "mainmenu/CStatisticScreen.h"
 
 #include "mapView/mapHandler.h"
 
@@ -45,6 +47,7 @@
 #include "render/CAnimation.h"
 #include "render/IImage.h"
 #include "render/IRenderHandler.h"
+#include "render/IScreenHandler.h"
 
 #include "widgets/Buttons.h"
 #include "widgets/CComponent.h"
@@ -64,9 +67,9 @@
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../CCallback.h"
-
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
@@ -80,9 +83,13 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/VCMIDirs.h"
 
+#include "../lib/battle/CPlayerBattleCallback.h"
+
 #include "../lib/bonuses/Limiters.h"
 #include "../lib/bonuses/Propagators.h"
 #include "../lib/bonuses/Updaters.h"
+
+#include "../lib/callback/CCallback.h"
 
 #include "../lib/gameState/CGameState.h"
 
@@ -91,6 +98,7 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapHeader.h"
 
 #include "../lib/networkPacks/PacksForClient.h"
@@ -104,9 +112,11 @@
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/ESerializationVersion.h"
 
-#include "../lib/spells/CSpellHandler.h"
+#include "../lib/spells/CSpell.h"
 
 #include "../lib/texts/TextOperations.h"
+
+#include "../lib/filesystem/Filesystem.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -137,6 +147,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
+	hasQuickSave = checkQuickLoadingGame();
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -158,6 +169,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
+	adventureInt->onCurrentPlayerChanged(playerID);
 }
 
 std::shared_ptr<const CPathsInfo> CPlayerInterface::getPathsInfo(const CGHeroInstance * h)
@@ -271,7 +283,7 @@ void CPlayerInterface::performAutosave()
 		int autosaveCountLimit = settings["general"]["autosaveCountLimit"].Integer();
 		if(autosaveCountLimit > 0)
 		{
-			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount));
+			cb->save("Saves/Autosave/" + prefix + std::to_string(autosaveCount), false);
 			autosaveCount %= autosaveCountLimit;
 		}
 		else
@@ -280,7 +292,7 @@ void CPlayerInterface::performAutosave()
 					+ std::to_string(cb->getDate(Date::WEEK))
 					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
 
-			cb->save("Saves/Autosave/" + prefix + stringifiedDate);
+			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
 		}
 	}
 }
@@ -378,8 +390,9 @@ void CPlayerInterface::acceptTurn(QueryID queryID, bool hotseatWait)
 		else
 			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
-	
-	cb->selectionMade(0, queryID);
+
+	if (queryID.hasValue())
+		cb->selectionMade(0, queryID);
 	movementController->onPlayerTurnStarted();
 }
 
@@ -457,18 +470,17 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	ENGINE->windows().pushWindow(newCastleInt);
 }
 
+void CPlayerInterface::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	for(auto ctw : ENGINE->windows().findWindows<IMarketHolder>())
+		ctw->updateExperience();
+}
+
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (which == PrimarySkill::EXPERIENCE)
-	{
-		for(auto ctw : ENGINE->windows().findWindows<IMarketHolder>())
-			ctw->updateExperience();
-	}
-	else
-	{
-		adventureInt->onHeroChanged(hero);
-	}
+	adventureInt->onHeroChanged(hero);
 }
 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
@@ -494,6 +506,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
 	invalidatePaths();
+	localState->verifyPath(hero);
 }
 void CPlayerInterface::receivedResource()
 {
@@ -511,6 +524,9 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -522,6 +538,9 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
 	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
+		if(queryID < 0)
+			return;
+
 		cb->selectionMade(selection, queryID);
 	});
 }
@@ -652,20 +671,12 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool();
+	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool() || GAME->map().getMap()->battleOnly;
 	bool forceQuickCombat = settings["adventure"]["forceQuickCombat"].Bool();
 
 	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
 	{
-		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-
-		AutocombatPreferences autocombatPreferences = AutocombatPreferences();
-		autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
-
-		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
-		autofightingAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, false);
-		isAutoFightOn = true;
-		cb->registerBattleInterface(autofightingAI);
+		prepareAutoFightingAI(battleID, army1, army2, tile, hero1, hero2, side);
 	}
 
 	waitForAllDialogs();
@@ -682,7 +693,7 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 	{
 		switch(info.operation)
 		{
-		case UnitChanges::EOperation::RESET_STATE:
+		case UnitChanges::EOperation::UPDATE:
 			{
 				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id );
 
@@ -802,9 +813,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
-
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 	}
 
 	assert(battleInt);
@@ -823,8 +832,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 	if(isAutoFightOn || autofightingAI)
 	{
 		isAutoFightOn = false;
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 
 		if(!battleInt)
 		{
@@ -891,7 +899,7 @@ void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const Batt
 
 	battleInt->effectsController->battleTriggerEffect(bte);
 
-	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
+	if(bte.effect == BonusType::MANA_DRAIN)
 	{
 		const CGHeroInstance * manaDrainedHero = GAME->interface()->cb->getHero(ObjectInstanceID(bte.additionalInfo));
 		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);
@@ -942,6 +950,7 @@ void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttac
 	info.unlucky = ba->unlucky();
 	info.deathBlow = ba->deathBlow();
 	info.lifeDrain = ba->lifeDrain();
+	info.playCustomAnimation = ba->playCustomAnimation();
 	info.tile = ba->tile;
 	info.spellEffect = SpellID::NONE;
 
@@ -1135,16 +1144,6 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	auto selectCallback = [this, askID](int selection)
-	{
-		cb->sendQueryReply(selection, askID);
-	};
-
-	auto cancelCallback = [this, askID]()
-	{
-		cb->sendQueryReply(std::nullopt, askID);
-	};
-
 	const std::string localTitle = title.toString();
 	const std::string localDescription = description.toString();
 
@@ -1173,6 +1172,16 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		}
 	}
 
+	auto selectCallback = [this, askID, objectGuiOrdered](int selection)
+	{
+		cb->sendQueryReply(objectGuiOrdered[selection], askID);
+	};
+
+	auto cancelCallback = [this, askID]()
+	{
+		cb->sendQueryReply(std::nullopt, askID);
+	};
+
 	auto wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback, 0, images);
 	wnd->onExit = cancelCallback;
 	wnd->onPopup = [this, objectGuiOrdered](int index) { CRClickPopup::createAndPush(cb->getObj(objectGuiOrdered[index]), ENGINE->getCursorPosition()); };
@@ -1180,14 +1189,14 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	ENGINE->windows().pushWindow(wnd);
 }
 
-void CPlayerInterface::tileRevealed(const std::unordered_set<int3> &pos)
+void CPlayerInterface::tileRevealed(const FowTilesType &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	adventureInt->onMapTilesChanged(pos);
 }
 
-void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
+void CPlayerInterface::tileHidden(const FowTilesType &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onMapTilesChanged(pos);
@@ -1230,11 +1239,10 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 		return;
 
 	adventureInt->onHeroChanged(hero);
-	if ((bonus.type == BonusType::FLYING_MOVEMENT || bonus.type == BonusType::WATER_WALKING) && !gain)
-	{
-		//recalculate paths because hero has lost bonus influencing pathfinding
-		localState->erasePath(hero);
-	}
+
+	//recalculate paths because hero has lost or gained bonus influencing pathfinding
+	if (bonus.type == BonusType::FLYING_MOVEMENT || bonus.type == BonusType::WATER_WALKING || bonus.type == BonusType::ROUGH_TERRAIN_DISCOUNT || bonus.type == BonusType::NO_TERRAIN_PENALTY)
+		localState->verifyPath(hero);
 }
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
@@ -1260,7 +1268,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	movementController->requestMovementStart(h, path);
 }
 
-void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
+void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [this, queryID](){ cb->selectionMade(0, queryID); };
@@ -1273,7 +1281,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 
 	waitForAllDialogs();
 
-	auto cgw = std::make_shared<CGarrisonWindow>(up, down, removableUnits);
+	auto cgw = std::make_shared<CGarrisonWindow>(up, down, removableUnits, customTitle);
 	cgw->quit->addCallback(onEnd);
 	ENGINE->windows().pushWindow(cgw);
 }
@@ -1338,7 +1346,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 		//redraw minimap if owner changed
 		std::set<int3> pos = obj->getBlockedPos();
-		std::unordered_set<int3> upos(pos.begin(), pos.end());
+		FowTilesType upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);
 
 		assert(cb->getTownsInfo().size() == localState->getOwnedTowns().size());
@@ -1479,7 +1487,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false)
+		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false && !GAME->map().getMap()->battleOnly)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
@@ -1597,9 +1605,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, SpellID sp
 
 	if(ENGINE->windows().topWindow<CSpellWindow>())
 		ENGINE->windows().popWindows(1);
-
-	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-		localState->erasePath(caster);
 
 	auto castSoundPath = spellID.toSpell()->getCastSound();
 	if(!castSoundPath.empty())
@@ -1737,12 +1742,14 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
+	garrisonsChanged(al.artHolder, ObjectInstanceID());
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(al.artHolder));
+	garrisonsChanged(al.artHolder, ObjectInstanceID());
 	artifactController->artifactRemoved();
 }
 
@@ -1750,6 +1757,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onHeroChanged(cb->getHero(dst.artHolder));
+	garrisonsChanged(src.artHolder, dst.artHolder);
 	artifactController->artifactMoved();
 }
 
@@ -1798,6 +1806,60 @@ void CPlayerInterface::proposeLoadingGame()
 	);
 }
 
+void CPlayerInterface::quickSaveGame()
+{
+	// notify player about saving
+	MetaString txt;
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");
+	txt.replaceRawString(QUICKSAVE_PATH);
+	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
+	GAME->interface()->cb->save(QUICKSAVE_PATH, false);
+	hasQuickSave = true;
+	if(adventureInt)
+		adventureInt->updateActiveState();
+}
+
+bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
+{
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	{
+		if(verbose)
+			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+		else
+			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+		hasQuickSave = false;
+		if(cb && adventureInt)
+			adventureInt->updateActiveState();
+		return false;
+	}
+	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	if(error)
+	{
+		if(verbose)
+			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		else
+			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		hasQuickSave = false;
+		if(cb && adventureInt)
+			adventureInt->updateActiveState();
+		return false;
+	}
+	return true;
+}
+
+void CPlayerInterface::proposeQuickLoadingGame()
+{
+	if(!checkQuickLoadingGame(true))
+		return;
+
+	auto onYes = [this]() -> void
+	{
+		GAME->server().quickLoadGame(QUICKSAVE_PATH);
+	};
+
+	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
+}
+
 bool CPlayerInterface::capturedAllEvents()
 {
 	if(movementController->isHeroMoving())
@@ -1818,13 +1880,49 @@ bool CPlayerInterface::capturedAllEvents()
 	return false;
 }
 
+void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
+{
+	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
+
+	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
+	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();
+
+	autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
+	autofightingAI->battleStart(bid, army1, army2, tile, hero1, hero2, side, false);
+	isAutoFightOn = true;
+	registerBattleInterface(autofightingAI);
+}
+
 void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->openWorldView(objectPositions, showTerrain );
 }
 
+void CPlayerInterface::setColorScheme(ColorScheme scheme)
+{
+	ENGINE->screenHandler().setColorScheme(scheme);
+}
+
 std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	return std::nullopt;
+}
+
+void CPlayerInterface::registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	autofightingAI = battleEvents;
+	GAME->server().client->registerBattleInterface(battleEvents, playerID);
+}
+
+void CPlayerInterface::unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	assert(battleEvents == autofightingAI);
+	GAME->server().client->unregisterBattleInterface(autofightingAI, playerID);
+	autofightingAI.reset();
+}
+
+void CPlayerInterface::responseStatistic(StatisticDataSet & statistic)
+{
+	ENGINE->windows().createAndPushWindow<CStatisticScreen>(statistic);
 }

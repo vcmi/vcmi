@@ -93,14 +93,25 @@ JsonNode::JsonNode(const JsonMap & map)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const std::string & fileName)
-	: JsonNode(data, datasize, JsonParsingSettings(), fileName)
+JsonNode::JsonNode(const std::byte * stringData, size_t dataSize, const std::string & fileName)
+	: JsonNode(stringData, dataSize, JsonParsingSettings(), fileName)
 {
 }
 
-JsonNode::JsonNode(const std::byte * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+JsonNode::JsonNode(const std::byte * stringData, size_t dataSize, const JsonParsingSettings & parserSettings, const std::string & fileName)
 {
-	JsonParser parser(data, datasize, parserSettings);
+	JsonParser parser(stringData, dataSize, parserSettings);
+	*this = parser.parse(fileName);
+}
+
+JsonNode::JsonNode(const char * stringData, size_t dataSize, const std::string & fileName)
+	: JsonNode(stringData, dataSize, JsonParsingSettings(), fileName)
+{
+}
+
+JsonNode::JsonNode(const char * stringData, size_t dataSize, const JsonParsingSettings & parserSettings, const std::string & fileName)
+{
+	JsonParser parser(stringData, dataSize, parserSettings);
 	*this = parser.parse(fileName);
 }
 
@@ -125,11 +136,11 @@ JsonNode::JsonNode(const JsonPath & fileURI, const std::string & modName)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI, const std::string & modName, bool & isValidSyntax)
+JsonNode::JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings, const std::string & modName, bool & isValidSyntax)
 {
 	auto file = CResourceHandler::get(modName)->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, parserSettings);
 	*this = parser.parse(fileURI.getName());
 	isValidSyntax = parser.isValid();
 }
@@ -242,6 +253,11 @@ bool JsonNode::isNull() const
 	return getType() == JsonType::DATA_NULL;
 }
 
+bool JsonNode::isBool() const
+{
+	return getType() == JsonType::DATA_BOOL;
+}
+
 bool JsonNode::isNumber() const
 {
 	return getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT;
@@ -304,28 +320,6 @@ bool JsonNode::isCompact() const
 		default:
 			return true;
 	}
-}
-
-bool JsonNode::TryBoolFromString(bool & success) const
-{
-	success = true;
-	if(getType() == JsonNode::JsonType::DATA_BOOL)
-		return Bool();
-
-	success = getType() == JsonNode::JsonType::DATA_STRING;
-	if(success)
-	{
-		auto boolParamStr = String();
-		boost::algorithm::trim(boolParamStr);
-		boost::algorithm::to_lower(boolParamStr);
-		success = boolParamStr == "true";
-
-		if(success)
-			return true;
-
-		success = boolParamStr == "false";
-	}
-	return false;
 }
 
 void JsonNode::clear()

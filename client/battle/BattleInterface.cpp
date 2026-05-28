@@ -10,31 +10,31 @@
 #include "StdInc.h"
 #include "BattleInterface.h"
 
-#include "BattleAnimationClasses.h"
 #include "BattleActionsController.h"
-#include "BattleInterfaceClasses.h"
-#include "CreatureAnimation.h"
-#include "BattleProjectileController.h"
+#include "BattleAnimationClasses.h"
+#include "BattleConsole.h"
 #include "BattleEffectsController.h"
-#include "BattleObstacleController.h"
-#include "BattleSiegeController.h"
 #include "BattleFieldController.h"
-#include "BattleWindow.h"
-#include "BattleStacksController.h"
+#include "BattleHero.h"
+#include "BattleObstacleController.h"
+#include "BattleProjectileController.h"
 #include "BattleRenderer.h"
+#include "BattleResultWindow.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
+#include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/AdventureMapInterface.h"
-
-#include "../../CCallback.h"
+#include "../windows/CTutorialWindow.h"
 
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
@@ -43,9 +43,12 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
+#include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
@@ -230,7 +233,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 {
 	stacksController->stacksAreAttacked(attackedInfos);
 
-	BattleSideArray<int> killedBySide;
+	BattleSideArray<int> killedBySide{0,0};
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
@@ -265,6 +268,12 @@ void BattleInterface::newRound()
 
 void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, SpellID spell)
 {
+	std::vector<BattleHex> tiles = {tile};
+	giveCommand(action, tiles, spell);
+}
+
+void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHex> & tiles,  SpellID spell)
+{
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
 	{
@@ -281,7 +290,9 @@ void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, Sp
 	BattleAction ba;
 	ba.side = side;
 	ba.actionType = action;
-	ba.aimToHex(tile);
+
+	for(auto & tile : tiles)
+		ba.aimToHex(tile);
 	ba.spell = spell;
 
 	sendCommand(ba, actor);
@@ -362,6 +373,8 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
+	waitForAnimations();
+
 	// Do not deactivate anything in tactics mode
 	// This is battlefield setup spells
 	if(!tacticsMode)
@@ -402,6 +415,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
+			if (stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
+			{
+				addToAnimationStage(EAnimationEvents::MOVEMENT, [this, casterStack]()
+				{
+					stacksController->addNewAnim(new ReverseAnimation(*this, casterStack, casterStack->getPosition()));
+				});
+			}
+
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, casterStack, targetedTile, spell]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));
@@ -508,9 +529,9 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 	}
 }
 
-void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, const BattleHex & destinationTile, bool isHit)
+void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const SpellAnimationQueue & q, const BattleHex & destinationTile, bool isHit)
 {
-	for(const CSpell::TAnimation & animation : q)
+	for(const auto & animation : q)
 	{
 		if(animation.pause > 0)
 			stacksController->addNewAnim(new DummyAnimation(*this, animation.pause));

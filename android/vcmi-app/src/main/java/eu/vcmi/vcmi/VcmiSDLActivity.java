@@ -12,8 +12,11 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import org.libsdl.app.SDLActivity;
+
+import java.lang.reflect.Method;
 
 import eu.vcmi.vcmi.util.LibsLoader;
 import eu.vcmi.vcmi.util.Log;
@@ -21,6 +24,9 @@ import eu.vcmi.vcmi.util.Log;
 public class VcmiSDLActivity extends SDLActivity
 {
     protected static final int COMMAND_USER = 0x8000;
+
+    private static final long INPUT_FOCUS_RETRY_DELAY_MS = 200;
+    private static final int INPUT_FOCUS_RETRY_COUNT = 4;
 
     final Messenger mClientMessenger = new Messenger(
             new IncomingServerMessageHandler(
@@ -77,7 +83,7 @@ public class VcmiSDLActivity extends SDLActivity
 
     @Override
     protected String[] getLibraries() {
-        // SDL is linked statically, no need to load anything
+        // app main library and SDL are loaded when launcher starts, no extra work to do
         return new String[] {
         };
     }
@@ -114,25 +120,68 @@ public class VcmiSDLActivity extends SDLActivity
     @Override
     protected void onDestroy()
     {
-        try
-        {
-            // since android can kill the activity unexpectedly (e.g. memory is low or device is inactive for some time), let's try creating
-            // an autosave so user might be able to resume the game; this isn't a very good impl (we shouldn't really sleep here and hope that the
-            // save is created, but for now it might suffice
-            // (better solution: listen for game's confirmation that the save has been created -- this would allow us to inform the users
-            // on the next app launch that there is an automatic save that they can use)
-            if (NativeMethods.tryToSaveTheGame())
-            {
-                Thread.sleep(1000L);
-            }
-        }
-        catch (final InterruptedException ignored)
-        {
-        }
-
         unbindServer();
 
         super.onDestroy();
+
+        finishAffinity();
+        System.exit(0);
+    }
+
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        scheduleInputFocusRestore();
+    }
+
+    @Override
+    public void onWindowFocusChanged(final boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)
+            scheduleInputFocusRestore();
+    }
+
+    private void scheduleInputFocusRestore()
+    {
+        if (mSurface == null)
+            return;
+
+        // Some devices restore lockscreen / immersive state asynchronously.
+        // Retry a few times after resume/focus to make sure SDL input gets reattached.
+        for (int attempt = 0; attempt < INPUT_FOCUS_RETRY_COUNT; ++attempt)
+            mSurface.postDelayed(this::ensureInputFocusNow, INPUT_FOCUS_RETRY_DELAY_MS * attempt);
+    }
+
+    private void ensureInputFocusNow()
+    {
+        if (mSurface == null)
+            return;
+
+        VcmiSDLActivity.this.setWindowStyle(true);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+        mSurface.setFocusable(true);
+        mSurface.setFocusableInTouchMode(true);
+        mSurface.requestFocus();
+
+        notifySdlFocusChanged();
+    }
+
+    private void notifySdlFocusChanged()
+    {
+        try
+        {
+            final Method onNativeFocusChanged = SDLActivity.class.getDeclaredMethod("onNativeFocusChanged", boolean.class);
+            onNativeFocusChanged.setAccessible(true);
+            onNativeFocusChanged.invoke(null, true);
+        }
+        catch (ReflectiveOperationException ignored)
+        {
+            // Older/newer SDL Java wrappers may not expose onNativeFocusChanged.
+        }
     }
 
     private void initService()
