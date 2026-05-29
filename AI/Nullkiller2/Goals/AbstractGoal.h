@@ -190,7 +190,7 @@ namespace Goals
 	};
 }
 
-class deferExecutionException : public std::exception
+class DeferExecutionException : public std::exception
 {
 	public:
 	const char * what() const noexcept override
