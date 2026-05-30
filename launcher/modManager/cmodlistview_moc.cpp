@@ -41,6 +41,64 @@
 
 #include <future>
 
+static QStringList findInstalledModsDependingOnUpdatedMod(const std::shared_ptr<ModStateModel> & modStateModel, const QString & updatedMod)
+{
+	// Updating a mod temporarily uninstalls it. Dependency resolver then disables
+	// every active mod that depends on the missing mod. Remember all installed
+	// reverse dependencies so their user-selected state can be restored after reinstall.
+	QStringList allMods = modStateModel->getAllMods();
+	QSet<QString> installedMods;
+	QMap<QString, QStringList> reverseDependencies;
+
+	for(const auto & mod : allMods)
+	{
+		if(!modStateModel->isModInstalled(mod))
+			continue;
+
+		installedMods.insert(mod);
+
+		for(const auto & dependency : modStateModel->getMod(mod).getDependencies())
+			reverseDependencies[dependency].push_back(mod);
+	}
+
+	QSet<QString> processedDependencies;
+	QSet<QString> result;
+	QStringList candidates;
+	candidates.push_back(updatedMod);
+
+	for(const auto & mod : installedMods)
+		if(mod.startsWith(updatedMod + '.'))
+			candidates.push_back(mod);
+
+	while(!candidates.empty())
+	{
+		const QString dependency = candidates.back();
+		candidates.pop_back();
+
+		if(processedDependencies.contains(dependency))
+			continue;
+		processedDependencies.insert(dependency);
+
+		for(const auto & dependentMod : reverseDependencies.value(dependency))
+		{
+			if(dependentMod == updatedMod || dependentMod.startsWith(updatedMod + '.'))
+				continue;
+
+			if(result.contains(dependentMod))
+				continue;
+
+			result.insert(dependentMod);
+			candidates.push_back(dependentMod);
+		}
+	}
+
+	QStringList resultList;
+	for(const auto & mod : result)
+		resultList.push_back(mod);
+
+	return resultList;
+}
+
 void CModListView::setupModModel()
 {
 	static const QString repositoryCachePath = CLauncherDirs::downloadsPath() + "/repositoryCache.json";
@@ -1150,6 +1208,7 @@ void CModListView::installMods(QStringList archives)
 	QStringList modNames;
 	QStringList modsToEnable;
 	QMap<QString, QMap<QString, bool>> submodStateBeforeUpdate;
+	QMap<QString, bool> dependentModStateBeforeUpdate;
 
 	for(QString archive : archives)
 	{
@@ -1176,6 +1235,14 @@ void CModListView::installMods(QStringList archives)
 			const auto modSettings = modStateModel->getModSettings(mod);
 			for(const auto & settingID : modSettings.keys())
 				submodStateBeforeUpdate[mod][mod + '.' + settingID] = modSettings.value(settingID);
+
+			// Save state of external dependents before uninstalling this mod. They may be
+			// automatically disabled once their dependency disappears during update.
+			for(const auto & dependentMod : findInstalledModsDependingOnUpdatedMod(modStateModel, mod))
+			{
+				if(!dependentModStateBeforeUpdate.contains(dependentMod))
+					dependentModStateBeforeUpdate[dependentMod] = modStateModel->isModEnabled(dependentMod);
+			}
 
 			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
 			if(modStateModel->isModEnabled(mod))
@@ -1233,6 +1300,23 @@ void CModListView::installMods(QStringList archives)
 			else if(!wasEnabled && modStateModel->isModEnabled(submod))
 				manager->disableMod(submod);
 		}
+	}
+
+	// Restore previously enabled dependents one by one. A mod update can remove or
+	// rename a dependency, and one no-longer-enableable dependent should not block
+	// restoring all other valid dependents.
+	for(const auto & mod : dependentModStateBeforeUpdate.keys())
+	{
+		if(dependentModStateBeforeUpdate.value(mod) && modStateModel->isModExists(mod) && !modStateModel->isModEnabled(mod))
+			manager->enableMods({mod});
+	}
+
+	// Also restore mods that used to be disabled in case they were pulled in as
+	// dependencies while re-enabling the updated mod or other restored dependents.
+	for(const auto & mod : dependentModStateBeforeUpdate.keys())
+	{
+		if(!dependentModStateBeforeUpdate.value(mod) && modStateModel->isModExists(mod) && modStateModel->isModEnabled(mod))
+			manager->disableMod(mod);
 	}
 
 	checkManagerErrors();
