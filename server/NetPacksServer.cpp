@@ -17,7 +17,6 @@
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
-#include "queries/BattleQueries.h"
 
 #include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -252,11 +251,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	const CGHeroInstance * hero = gh.gameInfo().getHero(pack.heroId);
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 
-	const bool resourceTradeDuringBattle = pack.mode == EMarketMode::RESOURCE_RESOURCE && std::dynamic_pointer_cast<CBattleQuery>(gh.queries->topQuery(pack.player));
-
 	gh.throwIfWrongPlayer(connection, &pack);
-	if(!resourceTradeDuringBattle)
-		gh.throwIfPlayerNotActive(connection, &pack);
 
 	if(!object)
 		gh.throwAndComplain(connection, "Invalid market object");
