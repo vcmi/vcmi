@@ -232,7 +232,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool responseStatistic(PlayerColor player);
-	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess);
+	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit = 0);
 	void load(const StartInfo &info);
 
 	void onPlayerTurnStarted(PlayerColor which);

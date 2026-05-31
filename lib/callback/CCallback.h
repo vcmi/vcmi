@@ -79,7 +79,7 @@ public:
 	void setTactics(const CGHeroInstance * hero, bool enabled) override;
 	void setTownName(const CGTownInstance * town, std::string & name) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero=HeroTypeID::NONE) override;
-	void save(const std::string &fname, bool notifySuccess) override;
+	void save(const std::string &fname, bool notifySuccess, int autosaveCountLimit = 0) override;
 	void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) override;
 	void gamePause(bool pause) override;
 	void buildBoat(const IShipyard *obj) override;

@@ -73,7 +73,7 @@ public:
 	virtual void setTactics(const CGHeroInstance * hero, bool enabled)=0;
 	virtual void setTownName(const CGTownInstance * town, std::string & name)=0;
 
-	virtual void save(const std::string &fname, bool notifySuccess) = 0;
+	virtual void save(const std::string &fname, bool notifySuccess, int autosaveCountLimit = 0) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void gamePause(bool pause) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;

@@ -317,9 +317,9 @@ void CCallback::saveLocalState(const JsonNode & data)
 	sendRequest(state);
 }
 
-void CCallback::save( const std::string &fname, bool notifySuccess )
+void CCallback::save( const std::string &fname, bool notifySuccess, int autosaveCountLimit )
 {
-	SaveGame save_game(fname, notifySuccess);
+	SaveGame save_game(fname, notifySuccess, autosaveCountLimit);
 	sendRequest(save_game);
 }
 
