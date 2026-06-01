@@ -61,6 +61,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::shared_ptr<LRClickableAreaWText> portraitArea;
 	std::shared_ptr<LRClickableArea>     portraitWikiArea;
 	std::shared_ptr<CAnimImage> portraitImage;
+	std::shared_ptr<CAnimImage> fullImage;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
 	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;

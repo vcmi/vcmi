@@ -73,18 +73,19 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(ENGINE->isRoeData() ? "HeroScr3" : "HeroScr4"))
 {
+	
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 
 	OBJECT_CONSTRUCTION;
 	curHero = hero;
-
-	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), GAME->interface()->playerID.getNum(), 0, 606, 8);
+	
+	banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), GAME->interface()->playerID.getNum(), 0, background->getSurface()->width()-66, 8);
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 559, 660, 19), 7, 559));
 
-	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
+	quitButton = std::make_shared<CButton>(Point(background->getSurface()->width()-63, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
 
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
@@ -113,11 +114,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	//right list of heroes
 	for(int i=0; i < std::min(GAME->interface()->cb->howManyHeroes(false), 8); i++)
-		heroList.push_back(std::make_shared<CHeroSwitcher>(this, Point(612, 87 + i * 54), GAME->interface()->cb->getHeroBySerial(i, false)));
+		heroList.push_back(std::make_shared<CHeroSwitcher>(this, Point(background->getSurface()->width()-60, 87 + i * 54), GAME->interface()->cb->getHeroBySerial(i, false)));
 
 	//areas
 	portraitArea = std::make_shared<LRClickableAreaWText>(Rect(18, 18, 58, 64));
 	portraitImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), 0, 0, 19, 19);
+	fullImage = std::make_shared<CAnimImage>(AnimationPath::builtin("FullBodyImage"), 0, 0, 607, 18);
 
 	portraitWikiArea = std::make_shared<LRClickableArea>(Rect(18, 18, 58, 64), [this]()
 	{
@@ -225,6 +227,7 @@ void CHeroWindow::updateArtifacts()
 	portraitArea->hoverText = boost::str(boost::format(LIBRARY->generaltexth->allTexts[15]) % curHero->getNameTranslated() % curHero->getClassNameTranslated());
 	portraitArea->text = curHero->getBiographyTranslated();
 	portraitImage->setFrame(curHero->getIconIndex());
+	fullImage->setFrame(curHero->getIconIndex());
 
 	{
 		if(!garr)
@@ -252,7 +255,7 @@ void CHeroWindow::updateArtifacts()
 
 		listSelection.reset();
 		if(serial >= 0)
-			listSelection = std::make_shared<CPicture>(ImagePath::builtin("HPSYYY"), 612, 33 + serial * 54);
+			listSelection = std::make_shared<CPicture>(ImagePath::builtin("HPSYYY"), background->getSurface()->width()-60, 33 + serial * 54);
 	}
 
 	//primary skills support
