@@ -139,10 +139,14 @@ void MainWindow::ensureWindowVisibleOnExistingScreen()
 {
 #ifndef VCMI_MOBILE
 	// Work with frame geometry so native window decorations are kept on-screen too.
-	// If Qt has already associated the window with a screen, clamp the frame to that
-	// screen; otherwise fall back to the primary screen and persist that safe position.
+	// Prefer the screen containing the saved/current frame center: before show(), Qt may
+	// still report the primary screen via windowHandle(), even when the saved position
+	// belongs to another connected monitor. If no screen contains the frame, fall back
+	// to the window handle screen and then to the primary screen.
 	QRect windowGeometry = frameGeometry();
-	auto * targetScreen = windowHandle() ? windowHandle()->screen() : nullptr;
+	auto * targetScreen = QGuiApplication::screenAt(windowGeometry.center());
+	if(targetScreen == nullptr && windowHandle())
+		targetScreen = windowHandle()->screen();
 
 	if(targetScreen == nullptr)
 		targetScreen = QGuiApplication::primaryScreen();
