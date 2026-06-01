@@ -100,19 +100,30 @@ MainWindow::MainWindow(QWidget * parent)
 	ui->startGameButton->setIcon(QIcon{":/icons/menu-game.png"});
 
 #ifndef VCMI_MOBILE
+
+	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
+	{
+		QTimer::singleShot(0, this, [this]()
+		{
+			saveWindowSettings();
+		});
+	});
+
 	//load window settings
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	auto size = s.value("MainWindow/WindowSize").toSize();
 	if(size.isValid())
-	{
 		resize(size);
-	}
-	auto position = s.value("MainWindow/WindowPosition").toPoint();
-	if(!position.isNull())
+
+	if(s.contains("MainWindow/WindowPosition"))
 	{
+		auto position = s.value("MainWindow/WindowPosition").toPoint();
 		move(position);
 	}
+
+	ensureWindowVisibleOnExistingScreen();
+
 #endif
 
 	computeSidePanelSizes();
@@ -128,6 +139,73 @@ MainWindow::MainWindow(QWidget * parent)
 	
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
+}
+
+void MainWindow::ensureWindowVisibleOnExistingScreen()
+{
+#ifndef VCMI_MOBILE
+	const auto screens = QGuiApplication::screens();
+	if(screens.isEmpty())
+		return;
+
+	QRect windowGeometry(pos(), size());
+	QScreen * targetScreen = nullptr;
+	int bestIntersectionArea = 0;
+
+	for(QScreen * screen : screens)
+	{
+		const QRect intersection = screen->availableGeometry().intersected(windowGeometry);
+		const int intersectionArea = intersection.isEmpty() ? 0 : intersection.width() * intersection.height();
+		if(intersectionArea > bestIntersectionArea)
+		{
+			bestIntersectionArea = intersectionArea;
+			targetScreen = screen;
+		}
+	}
+
+	if(targetScreen == nullptr)
+		targetScreen = QGuiApplication::primaryScreen();
+
+	if(targetScreen == nullptr)
+		return;
+
+	const QRect availableGeometry = targetScreen->availableGeometry();
+	if(!availableGeometry.isValid())
+		return;
+
+	QSize windowSize = size();
+	if(windowSize.width() > availableGeometry.width() || windowSize.height() > availableGeometry.height())
+	{
+		windowSize = windowSize.boundedTo(availableGeometry.size());
+		resize(windowSize);
+	}
+
+	QPoint windowPosition = pos();
+	if(windowSize.width() >= availableGeometry.width())
+		windowPosition.setX(availableGeometry.left());
+	else
+		windowPosition.setX(qBound(availableGeometry.left(), windowPosition.x(), availableGeometry.right() - windowSize.width() + 1));
+
+	if(windowSize.height() >= availableGeometry.height())
+		windowPosition.setY(availableGeometry.top());
+	else
+		windowPosition.setY(qBound(availableGeometry.top(), windowPosition.y(), availableGeometry.bottom() - windowSize.height() + 1));
+
+	if(windowPosition != pos())
+		move(windowPosition);
+#endif
+}
+
+void MainWindow::saveWindowSettings()
+{
+#ifndef VCMI_MOBILE
+	ensureWindowVisibleOnExistingScreen();
+
+	//save window settings
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
+	s.setValue("MainWindow/WindowSize", size());
+	s.setValue("MainWindow/WindowPosition", pos());
+#endif
 }
 
 void MainWindow::detectPreferredLanguage()
@@ -202,12 +280,7 @@ void MainWindow::changeEvent(QEvent * event)
 
 MainWindow::~MainWindow()
 {
-#ifndef VCMI_MOBILE
-	//save window settings
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	s.setValue("MainWindow/WindowSize", size());
-	s.setValue("MainWindow/WindowPosition", pos());
-#endif
+	saveWindowSettings();
 
 	delete ui;
 }
