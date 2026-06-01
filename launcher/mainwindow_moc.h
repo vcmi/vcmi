@@ -68,7 +68,6 @@ public:
 	void computeSidePanelSizes();
 
 	void ensureWindowVisibleOnExistingScreen();
-	void saveWindowSettings();
 
 	void detectPreferredLanguage();
 	void enterSetup();
@@ -86,8 +85,9 @@ protected:
 	void changeEvent(QEvent * event) override;
 
 public slots:
+	void saveWindowSettings();
 	void on_startGameButton_clicked();
-	
+
 private slots:
 	void on_modslistButton_clicked();
 	void on_settingsButton_clicked();

@@ -103,10 +103,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
 	{
-		QTimer::singleShot(0, this, [this]()
-		{
-			saveWindowSettings();
-		});
+		QTimer::singleShot(0, this, &saveWindowSettings);
 	});
 
 	//load window settings
@@ -116,11 +113,8 @@ MainWindow::MainWindow(QWidget * parent)
 	if(size.isValid())
 		resize(size);
 
-	if(s.contains("MainWindow/WindowPosition"))
-	{
-		auto position = s.value("MainWindow/WindowPosition").toPoint();
-		move(position);
-	}
+	if(const auto position = s.value("MainWindow/WindowPosition"); position.isValid())
+		move(position.toPoint());
 
 	ensureWindowVisibleOnExistingScreen();
 
@@ -144,24 +138,11 @@ MainWindow::MainWindow(QWidget * parent)
 void MainWindow::ensureWindowVisibleOnExistingScreen()
 {
 #ifndef VCMI_MOBILE
-	const auto screens = QGuiApplication::screens();
-	if(screens.isEmpty())
-		return;
-
-	QRect windowGeometry(pos(), size());
-	QScreen * targetScreen = nullptr;
-	int bestIntersectionArea = 0;
-
-	for(QScreen * screen : screens)
-	{
-		const QRect intersection = screen->availableGeometry().intersected(windowGeometry);
-		const int intersectionArea = intersection.isEmpty() ? 0 : intersection.width() * intersection.height();
-		if(intersectionArea > bestIntersectionArea)
-		{
-			bestIntersectionArea = intersectionArea;
-			targetScreen = screen;
-		}
-	}
+	// Work with frame geometry so native window decorations are kept on-screen too.
+	// If Qt has already associated the window with a screen, clamp the frame to that
+	// screen; otherwise fall back to the primary screen and persist that safe position.
+	QRect windowGeometry = frameGeometry();
+	auto * targetScreen = windowHandle() ? windowHandle()->screen() : nullptr;
 
 	if(targetScreen == nullptr)
 		targetScreen = QGuiApplication::primaryScreen();
@@ -173,14 +154,15 @@ void MainWindow::ensureWindowVisibleOnExistingScreen()
 	if(!availableGeometry.isValid())
 		return;
 
-	QSize windowSize = size();
+	QSize windowSize = windowGeometry.size();
 	if(windowSize.width() > availableGeometry.width() || windowSize.height() > availableGeometry.height())
 	{
 		windowSize = windowSize.boundedTo(availableGeometry.size());
+		windowGeometry.setSize(windowSize);
 		resize(windowSize);
 	}
 
-	QPoint windowPosition = pos();
+	QPoint windowPosition = windowGeometry.topLeft();
 	if(windowSize.width() >= availableGeometry.width())
 		windowPosition.setX(availableGeometry.left());
 	else
@@ -191,8 +173,7 @@ void MainWindow::ensureWindowVisibleOnExistingScreen()
 	else
 		windowPosition.setY(qBound(availableGeometry.top(), windowPosition.y(), availableGeometry.bottom() - windowSize.height() + 1));
 
-	if(windowPosition != pos())
-		move(windowPosition);
+	move(windowPosition);
 #endif
 }
 
