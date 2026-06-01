@@ -103,7 +103,7 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
 	{
-		QTimer::singleShot(0, this, &saveWindowSettings);
+		QTimer::singleShot(0, this, &MainWindow::saveWindowSettings);
 	});
 
 	//load window settings
