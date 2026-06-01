@@ -850,13 +850,36 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					}
 				}
 
-				if (vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
+				if(vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
 				{
 					ps.value = damageToFriendliesScore + damageToHostilesScore;
 				}
 				else
 				{
-					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
+					// Check if physical attack can wipe out target
+					bool canWipeOutTarget = cachedAttack.ap && cachedAttack.ap->defenderDead;
+
+					// Check if spell is offensive
+					bool isDamageSpell = damageToHostilesScore > 0 || ps.spell->isOffensive();
+
+					if(canWipeOutTarget && isDamageSpell)
+					{
+						// Evaluate damage spell on its own merits without physical score bonus
+						ps.value = damageToFriendliesScore + damageToHostilesScore;
+
+#if BATTLE_TRACE_LEVEL >= 1
+						logAi->trace(
+							"Target will be wiped out by physical attack. Stripping physical score from spell %s. True Spell Value: %2f",
+							ps.spell->getJsonKey(),
+							ps.value
+						);
+#endif
+					}
+					else
+					{
+						// Combine physical and spell scores for normal evaluation
+						ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
+					}
 				}
 
 #if BATTLE_TRACE_LEVEL >= 1
