@@ -22,6 +22,7 @@ class MainWindow;
 const QString appName = "launcher";
 }
 
+class QScreen;
 class QTableWidgetItem;
 class CModList;
 class CModListView;
@@ -48,6 +49,8 @@ class MainWindow : public QMainWindow
 #endif
 
 	void load();
+	void ensureWindowVisibleOnExistingScreen(bool centerWindow = false,	bool preferCurrentGeometryScreen = true, QScreen * forcedTargetScreen = nullptr);
+	void saveWindowSettingsUnchecked();
 
 	enum TabRows
 	{
@@ -66,8 +69,6 @@ public:
 
 	void updateTranslation();
 	void computeSidePanelSizes();
-
-	void ensureWindowVisibleOnExistingScreen();
 
 	void detectPreferredLanguage();
 	void enterSetup();

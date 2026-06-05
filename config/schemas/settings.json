@@ -710,6 +710,7 @@
 			"default" : {},
 			"additionalProperties" : false,
 			"required" : [ 
+				"mainWindow",
 				"setupCompleted", 
 				"defaultRepositoryEnabled",
 				"defaultRepositoryURL",
@@ -770,6 +771,27 @@
 					"defaultAndroid": false,
 					"defaultDesktop" : true
 
+				},
+				"mainWindow" : {
+					"type" : "object",
+					"default" : {},
+					"additionalProperties" : false,
+					"required" : [ "geometry" ],
+					"properties" : {
+						"geometry" : {
+							"type" : "object",
+							"default" : {},
+							"additionalProperties" : false,
+							"required" : [ "valid", "x", "y", "width", "height" ],
+							"properties" : {
+								"valid" : { "type" : "boolean", "default" : false },
+								"x" : { "type" : "integer", "default" : 0 },
+								"y" : { "type" : "integer", "default" : 0 },
+								"width" : { "type" : "integer", "default" : 0 },
+								"height" : { "type" : "integer", "default" : 0 }
+							}
+						}
+					}
 				}
 			}
 		},
