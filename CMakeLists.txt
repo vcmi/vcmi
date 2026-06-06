@@ -476,6 +476,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	endif()
 endif()
 
+# Qt build-time tools (e.g. rcc.exe) depend on zlib dll
+# this lets opening Visual Studio without modifying PATH env var
+if(MSVC AND CONAN_ZLIB_DIR)
+	set(CMAKE_MSVCIDE_RUN_PATH ${CONAN_ZLIB_DIR})
+endif()
+
 # Check if some platform-specific libraries are needed for linking
 if(HAIKU)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
