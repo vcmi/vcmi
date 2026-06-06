@@ -332,6 +332,7 @@ void CSlider::setAmount( int to )
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
 		int track = length - 32;
+		vstd::amax(track, 0);
 		if(to > 0)
 			barLength = (track * capacity) / to;
 		else
