@@ -175,6 +175,16 @@ struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 	}
 };
 
+/// Sent by client to query current lobby state without joining as a player
+struct DLL_LINKAGE LobbyQueryState : public CLobbyPackToServer
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+	}
+};
+
 struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;

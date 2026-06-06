@@ -24,6 +24,8 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
@@ -687,6 +689,14 @@ void CVCMIServer::updateAndPropagateLobbyState()
 
 	LobbyUpdateState lus;
 	lus.state = *static_cast<LobbyState*>(this);
+
+	// Include server's active mod list for client compatibility verification
+	for(const auto & modId : LIBRARY->modh->getActiveMods())
+		lus.state.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
+
+	// Report server version for client compatibility validation
+	lus.state.version = VCMI_VERSION_STRING;
+
 	announcePack(lus);
 }
 

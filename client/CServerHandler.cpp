@@ -20,6 +20,7 @@
 #include "Discord.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+#include "globalLobby/GlobalLobbyRoomWindow.h"
 
 #include "gui/WindowHandler.h"
 
@@ -286,7 +287,16 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 	logicConnection = std::make_shared<GameConnection>(netConnection);
 	logicConnection->uuid = uuid;
 	logicConnection->enterLobbyConnectionMode();
-	sendClientConnecting();
+
+	if(lobbyPreviewMode)
+	{
+		LobbyQueryState lqs;
+		sendLobbyPack(lqs);
+	}
+	else
+	{
+		sendClientConnecting();
+	}
 }
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
@@ -1071,4 +1081,58 @@ void CServerHandler::sendGamePack(const CPackForServer & pack) const
 		networkLagCompensator->tryPredictReply(pack);
 
 	logicConnection->sendPack(pack);
+}
+
+void CServerHandler::startLobbyPreview(const std::string & addr, ui16 port, std::function<void()> onJoin)
+{
+	lobbyPreviewMode = true;
+	onLobbyPreviewJoin = std::move(onJoin);
+	connectToServer(addr, port);
+}
+
+void CServerHandler::onLobbyPreviewResponse(LobbyState & state)
+{
+	lobbyPreviewMode = false;
+
+	// Close the temporary query connection
+	if(networkConnection)
+	{
+		networkConnection->close();
+		networkConnection.reset();
+	}
+	logicConnection.reset();
+
+	GlobalLobbyRoom roomDescription;
+	roomDescription.gameVersion = state.version;
+	roomDescription.statusID = "open";
+	roomDescription.playerLimit = 8;
+	roomDescription.modList = state.mods;
+	roomDescription.description = "";
+
+	// Populate participant list from server state (excludes the querying client)
+	for(const auto & [playerId, player] : state.playerNames)
+	{
+		GlobalLobbyAccount participant;
+		participant.displayName = player.name;
+		roomDescription.participants.push_back(participant);
+
+		if(player.connection == state.hostClientId)
+			roomDescription.hostAccountDisplayName = player.name;
+	}
+
+	ENGINE->windows().createAndPushWindow<GlobalLobbyRoomWindow>(
+		roomDescription,
+		[this]()
+		{
+			ENGINE->windows().popWindows(1);
+			if(onLobbyPreviewJoin)
+				onLobbyPreviewJoin();
+		},
+		[]()
+		{
+			ENGINE->windows().popWindows(1);
+			// Also close the CSimpleJoinScreen that was underneath the preview
+			if(auto w = ENGINE->windows().topWindow<CSimpleJoinScreen>())
+				ENGINE->windows().popWindows(1);
+		});
 }

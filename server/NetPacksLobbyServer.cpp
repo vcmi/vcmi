@@ -15,6 +15,8 @@
 
 #include "../lib/StartInfo.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
@@ -39,6 +41,38 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	{
 		srv.updateAndPropagateLobbyState();
 	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Anyone can query lobby state without being a registered player
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Respond with current lobby state directly to the querying connection
+	LobbyUpdateState lus;
+	lus.state = *static_cast<LobbyState*>(&srv);
+
+	for(const auto & modId : LIBRARY->modh->getActiveMods())
+		lus.state.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
+
+	// Report server version for client compatibility validation
+	lus.state.version = VCMI_VERSION_STRING;
+
+	// Clear map/start info to avoid identifier resolution errors on the client
+	// (the client may not have mods referenced in the map header or player settings)
+	lus.state.mi.reset();
+	lus.state.si.reset();
+
+	connection->sendPack(lus);
+	result = false;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Do nothing - query response is sent directly, no broadcast needed
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)

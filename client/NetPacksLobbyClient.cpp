@@ -207,6 +207,13 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress 
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
+	// If we're in preview mode (querying lobby state without joining), handle it separately
+	if(handler.lobbyPreviewMode)
+	{
+		handler.onLobbyPreviewResponse(pack.state);
+		return;
+	}
+
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
 	if(handler.mapToStart && handler.mi)
