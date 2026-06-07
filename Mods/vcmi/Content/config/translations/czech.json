@@ -282,6 +282,7 @@
 	"vcmi.adventureOptions.infoBarPick.hover": "Zobrazit zprávy v panelu informací",
 	"vcmi.adventureOptions.leftButtonDrag.help": "{Posun levým tlačítkem}\n\nPosouvání mapy tažením myši se stisknutým levým tlačítkem.",
 	"vcmi.adventureOptions.leftButtonDrag.hover": "Posun levým tlač.",
+	"vcmi.adventureOptions.mapDraggingGroup": "Posouvání a tažení mapy",
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Nastavit posouvání mapy na velmi pomalé",
 	"vcmi.adventureOptions.mapScrollSpeed1.hover": "Nastavit posouvání mapy na velmi pomalé",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Nastavit posouvání mapy na velmi rychlé",

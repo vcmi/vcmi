@@ -304,9 +304,6 @@
 					"text": "vcmi.adventureOptions.hideBackground.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
-				},
-				{
 					"text": "vcmi.keyBindings.button.hover"
 				}
 			]
@@ -343,11 +340,6 @@
 					"callback": "hideBackgroundChanged"
 				},
 				{
-					"name": "minimapShowHeroesCheckbox",
-					"help": "vcmi.adventureOptions.minimapShowHeroes",
-					"callback": "minimapShowHeroesChanged"
-				},
-				{
 					"name": "shortcutButton",
 					"type": "buttonGear",
 					"help": "vcmi.keyBindings.button",
@@ -355,11 +347,74 @@
 				}
 			]
 		},
+/////////////////////////////////////// Left section - Map Scrolling and Dragging
+		{
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 235},
+			"text": "vcmi.adventureOptions.mapDraggingGroup"
+		},
+		{
+			"name": "lineMapDraggingEnd",
+			"type": "horizontalLine",
+			"rect": { "x" : 5, "y" : 384, "w": 365, "h": 3}
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "labelDescription",
+			"position": {"x": 45, "y": 265},
+			"items":
+			[
+				{
+					"text": "vcmi.adventureOptions.borderScroll.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.smoothDragging.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
+					"created" : "keyboardMouse"
+				},
+				{
+					"text": "vcmi.adventureOptions.rightButtonDrag.hover",
+					"created" : "keyboardMouse"
+				}
+			]
+		},
+		{
+			"type": "verticalLayout",
+			"customType": "checkbox",
+			"position": {"x": 10, "y": 263},
+			"items":
+			[
+				{
+					"name": "borderScrollCheckbox",
+					"help": "vcmi.adventureOptions.borderScroll",
+					"callback": "borderScrollChanged"
+				},
+				{
+					"name": "smoothDraggingCheckbox",
+					"help": "vcmi.adventureOptions.smoothDragging",
+					"callback": "smoothDraggingChanged"
+				},
+				{
+					"name": "leftButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.leftButtonDrag",
+					"callback": "leftButtonDragChanged",
+					"created" : "keyboardMouse"
+				},
+				{
+					"name": "rightButtonDragCheckbox",
+					"help": "vcmi.adventureOptions.rightButtonDrag",
+					"callback": "rightButtonDragChanged",
+					"created" : "keyboardMouse"
+				}
+			]
+		},
 /////////////////////////////////////// Bottom section - VCMI Options
 		{
 			"type": "verticalLayout",
 			"customType": "labelDescription",
-			"position": {"x": 45, "y": 235},
+			"position": {"x": 45, "y": 390},
 			"items":
 			[
 				{
@@ -375,36 +430,17 @@
 					"text": "vcmi.adventureOptions.infoBarPick.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.borderScroll.hover"
-				},
-				{
 					"text": "vcmi.adventureOptions.infoBarCreatureManagement.hover"
 				},
 				{
-					"text": "vcmi.adventureOptions.leftButtonDrag.hover",
-					"created" : "keyboardMouse"
-				},
-				{
-					"text": "vcmi.adventureOptions.smoothDragging.hover"
-				}
-			]
-		},
-		{
-			"type": "verticalLayout",
-			"customType": "labelDescription",
-			"position": {"x": 225, "y": 415},
-			"items":
-			[
-				{
-					"text": "vcmi.adventureOptions.rightButtonDrag.hover",
-					"created" : "keyboardMouse"
+					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
 				}
 			]
 		},
 		{
 			"type": "verticalLayout",
 			"customType": "checkbox",
-			"position": {"x": 10, "y": 233},
+			"position": {"x": 10, "y": 388},
 			"items":
 			[
 				{
@@ -428,39 +464,14 @@
 					"callback": "infoBarPickChanged"
 				},
 				{
-					"name": "borderScrollCheckbox",
-					"help": "vcmi.adventureOptions.borderScroll",
-					"callback": "borderScrollChanged"
-				},
-				{
 					"name": "infoBarCreatureManagementCheckbox",
 					"help": "vcmi.adventureOptions.infoBarCreatureManagement",
 					"callback": "infoBarCreatureManagementChanged"
 				},
 				{
-					"name": "leftButtonDragCheckbox",
-					"help": "vcmi.adventureOptions.leftButtonDrag",
-					"callback": "leftButtonDragChanged",
-					"created" : "keyboardMouse"
-				},
-				{
-					"name": "smoothDraggingCheckbox",
-					"help": "vcmi.adventureOptions.smoothDragging",
-					"callback": "smoothDraggingChanged"
-				}
-			]
-		},
-		{
-			"type": "verticalLayout",
-			"customType": "checkbox",
-			"position": {"x": 190, "y": 413},
-			"items":
-			[
-				{
-					"name": "rightButtonDragCheckbox",
-					"help": "vcmi.adventureOptions.rightButtonDrag",
-					"callback": "rightButtonDragChanged",
-					"created" : "keyboardMouse"
+					"name": "minimapShowHeroesCheckbox",
+					"help": "vcmi.adventureOptions.minimapShowHeroes",
+					"callback": "minimapShowHeroesChanged"
 				}
 			]
 		}
