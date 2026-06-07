@@ -194,16 +194,47 @@ void MainWindow::restoreWindowSettings()
 {
 #ifndef VCMI_MOBILE
 	const auto & windowGeometry = settings["launcher"]["mainWindow"]["geometry"];
-	QSize windowSize(windowGeometry["width"].Integer(), windowGeometry["height"].Integer());
-	if(windowSize.isValid())
+	const QSize windowSize(windowGeometry["width"].Integer(), windowGeometry["height"].Integer());
+
+	// Missing geometry receives zero-valued schema defaults. QSize::isValid considers 0x0
+	// valid, but it does not represent a previously saved window size.
+	if(!windowSize.isEmpty())
 	{
 		resize(windowSize);
 		move(windowGeometry["x"].Integer(), windowGeometry["y"].Integer());
+
+		// Keep the saved monitor when it still exists, but always start centered on it.
+		QScreen * screen = QGuiApplication::screenAt(frameGeometry().center());
+		centerWindowOnScreen(screen ? screen : QGuiApplication::primaryScreen());
+		return;
 	}
 
-	// Keep the saved monitor when it still exists, but always start centered on it.
-	QScreen * screen = QGuiApplication::screenAt(frameGeometry().center());
-	centerWindowOnScreen(screen ? screen : QGuiApplication::primaryScreen());
+	// When no saved window geometry is available, ensure there is enough room for
+	// all controls. On screens where the minimum window would not fit with window
+	// decorations, use the entire screen instead.
+	static const QSize minimumLauncherSize(800, 600);
+	QScreen * screen = QGuiApplication::primaryScreen();
+	if(screen == nullptr)
+		return;
+
+	const QSize availableSize = screen->availableSize();
+	if(availableSize.width() <= minimumLauncherSize.width() || availableSize.height() <= minimumLauncherSize.height())
+	{
+		setWindowState(windowState() | Qt::WindowFullScreen);
+		return;
+	}
+
+	// Use a common widescreen size on larger displays. On smaller displays, limit
+	// the initial window size to 90% of the available screen area while respecting
+	// the minimum launcher size, so the window keeps a visible margin and does not
+	// look fullscreen.
+	static const QSize widescreenLauncherSize(1366, 768);
+	const QSize screenSize = screen->geometry().size();
+	const bool isWidescreen = screenSize.width() * 3 > screenSize.height() * 4;
+	const QSize preferredSize = isWidescreen ? widescreenLauncherSize : minimumLauncherSize;
+	const QSize maximumInitialSize(availableSize.width() * 9 / 10, availableSize.height() * 9 / 10);
+	resize(preferredSize.boundedTo(maximumInitialSize).expandedTo(minimumLauncherSize));
+	centerWindowOnScreen(screen);
 #endif
 }
 
