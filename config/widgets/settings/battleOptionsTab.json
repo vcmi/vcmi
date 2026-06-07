@@ -9,7 +9,7 @@
 		{
 			"name": "lineAnimationSpeed",
 			"type": "horizontalLine",
-			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 444, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -189,23 +189,23 @@
 			"name": "frameAnimationSpeed",
 			"type": "picture",
 			"image": "settingsWindow/frameMovement",
-			"position": {"x": 6, "y": 350 }
+			"position": {"x": 6, "y": 445 }
 		},
 		{
 			"name": "animationSpeedLabel",
 			"type": "labelCentered",
 			"text": "core.genrltxt.393",
-			"position": {"x": 150, "y": 362}
+			"position": {"x": 150, "y": 457}
 		},
 		{
 			"name": "animationSpeedValueLabel",
 			"type": "labelCentered",
-			"position": {"x": 324, "y": 390}
+			"position": {"x": 324, "y": 485}
 		},
 		{
 			"name": "animationSpeedPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 373},
+			"position": {"x": 10, "y": 468},
 			"items":
 			[
 				{
@@ -312,7 +312,7 @@
 			"name": "frameQueueSize",
 			"type": "picture",
 			"image": "settingsWindow/frameStackQueue",
-			"position": {"x": 6, "y": 410 }
+			"position": {"x": 6, "y": 505 }
 		},
 
 		{
@@ -322,13 +322,13 @@
 			"alignment": "center",
 			"color": "yellow",
 			"text": "vcmi.battleOptions.queueSizeLabel.hover",
-			"position": {"x": 170, "y": 422}
+			"position": {"x": 170, "y": 517}
 		},
 
 		{
 			"name": "queueSizePicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 434},
+			"position": {"x": 10, "y": 529},
 			"items":
 			[
 				{

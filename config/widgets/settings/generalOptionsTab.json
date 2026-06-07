@@ -9,7 +9,7 @@
 		{
 			"name": "lineLabelsEnd",
 			"type": "horizontalLine",
-			"rect": { "x" : 5, "y" : 349, "w": 365, "h": 3}
+			"rect": { "x" : 5, "y" : 294, "w": 365, "h": 3}
 		},
 		{
 			"type" : "labelTitle",
@@ -23,7 +23,17 @@
 		},
 		{
 			"type" : "labelTitle",
-			"position": {"x": 10, "y": 355},
+			"position": {"x": 10, "y": 300},
+			"text": "vcmi.systemOptions.spellbookGroup"
+		},
+		{
+			"name": "lineSpellbookEnd",
+			"type": "horizontalLine",
+			"rect": { "x" : 5, "y" : 444, "w": 365, "h": 3}
+		},
+		{
+			"type" : "labelTitle",
+			"position": {"x": 10, "y": 450},
 			"text": "vcmi.systemOptions.townsGroup"
 		},
 /////////////////////////////////////// Left section - Video Settings
@@ -51,12 +61,6 @@
 				},
 				{
 					"text": "vcmi.systemOptions.performanceOverlayButton.hover"
-				},
-				{
-					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
-				},
-				{
-					"text": "core.genrltxt.577"
 				},
 				{
 					"name": "longTouchLabel",
@@ -91,10 +95,6 @@
 					"created" : "desktop"
 				},
 				{},
-				{},
-				{
-					"name": "spellbookAnimationCheckboxPlaceholder"
-				},
 				{
 					"created" : "touchscreen"
 				},
@@ -141,16 +141,6 @@
 					"callback": "performanceOverlayChanged"
 				},
 				{
-					"name": "enableLargeSpellbookCheckbox",
-					"help": "vcmi.systemOptions.enableLargeSpellbookButton",
-					"callback": "enableLargeSpellbookChanged"
-				},
-				{
-					"name": "spellbookAnimationCheckbox",
-					"help": "core.help.364",
-					"callback": "spellbookAnimationChanged"
-				},
-				{
 					"name": "longTouchButton",
 					"type": "buttonGear",
 					"help": "vcmi.systemOptions.longTouchButton",
@@ -174,6 +164,60 @@
 					"callback": "enableUiEnhancementsChanged"
 				}
 			]
+		},
+/////////////////////////////////////// Left section - Spell Book
+		{
+			"type" : "verticalLayout",
+			"customType" : "labelDescription",
+			"position" : {"x": 45, "y": 330},
+			"items" : [
+				{
+					"text": "core.genrltxt.577"
+				},
+				{
+					"text": "vcmi.systemOptions.smallSpellbookButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
+				},
+				{
+					"text": "vcmi.systemOptions.extraLargeSpellbookButton.hover"
+				}
+			]
+		},
+		{
+			"name": "spellbookAnimationCheckbox",
+			"type": "checkbox",
+			"help": "core.help.364",
+			"position": {"x": 10, "y": 328},
+			"callback": "spellbookAnimationChanged"
+		},
+		{
+			"name": "spellbookSizePicker",
+			"type": "toggleGroup",
+			"position": {"x": 10, "y": 358},
+			"items":
+			[
+				{
+					"index": 0,
+					"type": "checkbox",
+					"help": "vcmi.systemOptions.smallSpellbookButton",
+					"position": {"x": 0, "y": 0}
+				},
+				{
+					"index": 1,
+					"type": "checkbox",
+					"help": "vcmi.systemOptions.enableLargeSpellbookButton",
+					"position": {"x": 0, "y": 30}
+				},
+				{
+					"index": 2,
+					"type": "checkbox",
+					"help": "vcmi.systemOptions.extraLargeSpellbookButton",
+					"position": {"x": 0, "y": 60}
+				}
+			],
+			"callback": "spellbookSizeChanged"
 		},
 /////////////////////////////////////// Right section - Audio Settings
 		{
@@ -254,7 +298,7 @@
 		{
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 385},
+			"position": {"x": 45, "y": 480},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover",
@@ -267,7 +311,7 @@
 		{
 			"name": "availableCreaturesAsDwellingPicker",
 			"type": "toggleGroup",
-			"position": {"x": 10, "y": 383},
+			"position": {"x": 10, "y": 478},
 			"items":
 			[
 				{
@@ -289,7 +333,7 @@
 			"name": "compactTownCreatureInfoLabel",
 			"type" : "verticalLayout",
 			"customType" : "labelDescription",
-			"position": {"x": 45, "y": 445},
+			"position": {"x": 45, "y": 540},
 			"items" : [
 				{
 					"text": "vcmi.otherOptions.compactTownCreatureInfo.hover",
@@ -300,7 +344,7 @@
 			"name": "compactTownCreatureInfoCheckbox",
 			"type": "checkbox",
 			"help": "vcmi.otherOptions.compactTownCreatureInfo",
-			"position": {"x": 10, "y": 443},
+			"position": {"x": 10, "y": 538},
 			"callback": "compactTownCreatureInfoChanged"
 		}
 	]
