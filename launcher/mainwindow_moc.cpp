@@ -90,35 +90,25 @@ MainWindow::MainWindow(QWidget * parent)
 	ui->setupUi(this);
 
 #ifndef VCMI_MOBILE
-	auto scheduleRelocateToRemainingScreen = [this](bool forceCenterOnRemainingScreen)
+	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
 	{
-		auto relocateToRemainingScreen = [this, forceCenterOnRemainingScreen]()
-		{
-			QScreen * targetScreen = nullptr;
-			if(forceCenterOnRemainingScreen)
-			{
-				const auto screens = QGuiApplication::screens();
-				targetScreen = QGuiApplication::primaryScreen();
-
-				if(targetScreen == nullptr || !screens.contains(targetScreen))
-					targetScreen = screens.isEmpty() ? nullptr : screens.front();
-			}
-
-			ensureWindowVisibleOnExistingScreen(forceCenterOnRemainingScreen, !forceCenterOnRemainingScreen, targetScreen);
-			saveWindowSettingsUnchecked();
-		};
-
-		QTimer::singleShot(250, this, relocateToRemainingScreen);
-	};
-
-	connect(qApp, &QGuiApplication::screenRemoved, this, [this, scheduleRelocateToRemainingScreen](QScreen * removedScreen)
-	{
-		const bool launcherWasOnRemovedScreen = removedScreen != nullptr && removedScreen->geometry().contains(frameGeometry().center());
-		scheduleRelocateToRemainingScreen(launcherWasOnRemovedScreen);
+		// Some platforms update the window's screen association after screenRemoved
+		QTimer::singleShot(250, this, &MainWindow::handleScreenRemoved);
 	});
-	connect(qApp, &QGuiApplication::primaryScreenChanged, this, [scheduleRelocateToRemainingScreen](QScreen *)
+	connect(qApp, &QGuiApplication::screenAdded, this, [this](QScreen *)
 	{
-		scheduleRelocateToRemainingScreen(false);
+		// A newly connected screen only changes the available choices. Do not move
+		// the launcher: its current screen and geometry are still valid.
+		QTimer::singleShot(0, ui->settingsView, &CSettingsView::setDisplayList);
+	});
+	// The native window handle is created after the widget enters the event loop.
+	QTimer::singleShot(0, this, [this]()
+	{
+		if(auto * handle = windowHandle())
+		{
+			connect(handle, &QWindow::screenChanged, this, &MainWindow::updateDisplayIndex);
+			updateDisplayIndex(handle->screen());
+		}
 	});
 #endif
 
@@ -131,18 +121,7 @@ MainWindow::MainWindow(QWidget * parent)
 	ui->startGameButton->setIcon(QIcon{":/icons/menu-game.png"});
 
 #ifndef VCMI_MOBILE
-	//load window settings
-	const auto & windowGeometry = settings["launcher"]["mainWindow"]["geometry"];
-	const bool hasSavedWindowGeometry = windowGeometry["valid"].Bool();
-	if(hasSavedWindowGeometry)
-	{
-		QSize windowSize(windowGeometry["width"].Integer(), windowGeometry["height"].Integer());
-		if(windowSize.isValid())
-			resize(windowSize);
-
-		move(windowGeometry["x"].Integer(), windowGeometry["y"].Integer());
-	}
-	ensureWindowVisibleOnExistingScreen(true, hasSavedWindowGeometry);
+	restoreWindowSettings();
 #endif
 
 	computeSidePanelSizes();
@@ -160,77 +139,97 @@ MainWindow::MainWindow(QWidget * parent)
 		UpdateDialog::showUpdateDialog(false);
 }
 
-void MainWindow::ensureWindowVisibleOnExistingScreen(bool centerWindow, bool preferCurrentGeometryScreen, QScreen * forcedTargetScreen)
+void MainWindow::centerWindowOnScreen(QScreen * screen)
 {
 #ifndef VCMI_MOBILE
-	// Work with frame geometry so native window decorations are kept on-screen too.
-	// Prefer the screen containing the saved/current frame center: before show(), Qt may
-	// still report the primary screen via windowHandle(), even when the saved position
-	// belongs to another connected monitor. If no screen contains the frame, fall back
-	// to the window handle screen and then to the primary screen. In that fallback case
-	// the old coordinates belong to a missing display, so center the window instead of
-	// pinning it to the nearest edge. The caller can also force centering on the
-	// selected screen, e.g. for startup or when the launcher's screen was removed.
-	// Screen removal passes the remaining screen explicitly because windowHandle()
-	// can still point to the removed screen during the hotplug transition.
-
-	const auto screens = QGuiApplication::screens();
-	QRect windowGeometry = frameGeometry();
-	QScreen * targetScreen = forcedTargetScreen;
-
-	if(targetScreen != nullptr && !screens.contains(targetScreen))
-		targetScreen = nullptr;
-
-	if(targetScreen == nullptr && preferCurrentGeometryScreen)
-		targetScreen = QGuiApplication::screenAt(windowGeometry.center());
-
-	bool savedScreenIsMissing = preferCurrentGeometryScreen && targetScreen == nullptr;
-
-	if(targetScreen == nullptr && !centerWindow && windowHandle())
-	{
-		targetScreen = windowHandle()->screen();
-		if(targetScreen != nullptr && !screens.contains(targetScreen))
-			targetScreen = nullptr;
-	}
-
-	if(targetScreen == nullptr)
-		targetScreen = QGuiApplication::primaryScreen();
-
-	if(targetScreen != nullptr && !screens.contains(targetScreen))
-		targetScreen = nullptr;
-
-	centerWindow = centerWindow || savedScreenIsMissing;
-
-	if(targetScreen == nullptr)
+	if(screen == nullptr)
 		return;
 
-	const QRect availableGeometry = targetScreen->availableGeometry();
-	if(!availableGeometry.isValid())
-		return;
-
-	QSize windowSize = windowGeometry.size();
-	if(windowSize.width() > availableGeometry.width() || windowSize.height() > availableGeometry.height())
-	{
-		windowSize = windowSize.boundedTo(availableGeometry.size());
-		windowGeometry.setSize(windowSize);
+	// Use frame geometry so native window decorations stay inside the screen too.
+	const QRect availableGeometry = screen->availableGeometry();
+	const QSize currentWindowSize = frameGeometry().size();
+	QSize windowSize = currentWindowSize.boundedTo(availableGeometry.size());
+	if(windowSize != currentWindowSize)
 		resize(windowSize);
+
+	move(availableGeometry.center() - QPoint(windowSize.width() / 2, windowSize.height() / 2));
+#endif
+}
+
+void MainWindow::ensureWindowVisibleOnExistingScreen()
+{
+#ifndef VCMI_MOBILE
+	// The frame center identifies the monitor on which most of the window belongs.
+	const QRect windowGeometry = frameGeometry();
+	QScreen * screen = QGuiApplication::screenAt(windowGeometry.center());
+	if(screen == nullptr)
+	{
+		centerWindowOnScreen(QGuiApplication::primaryScreen());
+		return;
 	}
 
-	QPoint windowPosition = windowGeometry.topLeft();
-	if(centerWindow)
-		windowPosition = QPoint(availableGeometry.left() + (availableGeometry.width() - windowSize.width()) / 2, availableGeometry.top() + (availableGeometry.height() - windowSize.height()) / 2);
+	const QRect availableGeometry = screen->availableGeometry();
+	QSize windowSize = windowGeometry.size().boundedTo(availableGeometry.size());
+	if(windowSize != windowGeometry.size())
+		resize(windowSize);
 
-	if(windowSize.width() >= availableGeometry.width())
-		windowPosition.setX(availableGeometry.left());
-	else
-		windowPosition.setX(qBound(availableGeometry.left(), windowPosition.x(), availableGeometry.right() - windowSize.width() + 1));
-
-	if(windowSize.height() >= availableGeometry.height())
-		windowPosition.setY(availableGeometry.top());
-	else
-		windowPosition.setY(qBound(availableGeometry.top(),	windowPosition.y(), availableGeometry.bottom() - windowSize.height() + 1));
-
+	QPoint windowPosition(
+		qBound(availableGeometry.left(), windowGeometry.left(), availableGeometry.right() - windowSize.width() + 1),
+		qBound(availableGeometry.top(), windowGeometry.top(), availableGeometry.bottom() - windowSize.height() + 1));
 	move(windowPosition);
+#endif
+}
+
+void MainWindow::handleScreenRemoved()
+{
+#ifndef VCMI_MOBILE
+	ensureWindowVisibleOnExistingScreen();
+	updateDisplayIndex(QGuiApplication::screenAt(frameGeometry().center()));
+	saveWindowSettings();
+	ui->settingsView->setDisplayList();
+#endif
+}
+
+void MainWindow::restoreWindowSettings()
+{
+#ifndef VCMI_MOBILE
+	const auto & windowGeometry = settings["launcher"]["mainWindow"]["geometry"];
+	QSize windowSize(windowGeometry["width"].Integer(), windowGeometry["height"].Integer());
+	if(windowSize.isValid())
+	{
+		resize(windowSize);
+		move(windowGeometry["x"].Integer(), windowGeometry["y"].Integer());
+	}
+
+	// Keep the saved monitor when it still exists, but always start centered on it.
+	QScreen * screen = QGuiApplication::screenAt(frameGeometry().center());
+	centerWindowOnScreen(screen ? screen : QGuiApplication::primaryScreen());
+#endif
+}
+
+void MainWindow::updateDisplayIndex(QScreen * screen)
+{
+#ifndef VCMI_MOBILE
+	// QGuiApplication screen order is the order exposed by the display-index setting.
+	const int screenIndex = QGuiApplication::screens().indexOf(screen);
+	if(screenIndex < 0 || screenIndex == settings["video"]["displayIndex"].Integer())
+		return;
+
+	Settings node = settings.write["video"]["displayIndex"];
+	node->Integer() = screenIndex;
+	ui->settingsView->setDisplayList();
+#endif
+}
+
+void MainWindow::moveToScreen(int screenIndex)
+{
+#ifndef VCMI_MOBILE
+	const auto screens = QGuiApplication::screens();
+	if(screenIndex < 0 || screenIndex >= screens.size())
+		return;
+
+	centerWindowOnScreen(screens[screenIndex]);
+	saveWindowSettings();
 #endif
 }
 
@@ -238,16 +237,8 @@ void MainWindow::saveWindowSettings()
 {
 #ifndef VCMI_MOBILE
 	ensureWindowVisibleOnExistingScreen();
-	saveWindowSettingsUnchecked();
-#endif
-}
 
-void MainWindow::saveWindowSettingsUnchecked()
-{
-#ifndef VCMI_MOBILE
-	//save window settings
 	Settings windowGeometry = settings.write["launcher"]["mainWindow"]["geometry"];
-	windowGeometry["valid"].Bool() = true;
 	windowGeometry["x"].Integer() = pos().x();
 	windowGeometry["y"].Integer() = pos().y();
 	windowGeometry["width"].Integer() = size().width();

@@ -81,10 +81,18 @@ static constexpr std::array downscalingFilterTypes =
 
 void CSettingsView::setDisplayList()
 {
+	// Rebuilding the list must not be interpreted as a user-selected display change.
+	QSignalBlocker guard(ui->comboBoxDisplayIndex);
 	QStringList list;
 
-	for (const auto screen : QGuiApplication::screens())
+	for(const auto screen : QGuiApplication::screens())
 		list << QString{"%1 - %2"}.arg(screen->name(), resolutionToString(screen->size()));
+
+	ui->comboBoxDisplayIndex->clear();
+	ui->comboBoxDisplayIndex->addItems(list);
+
+	if(list.isEmpty())
+		return;
 
 	int displayIndex = settings["video"]["displayIndex"].Integer();
 	if(displayIndex < 0 || displayIndex >= list.count())
@@ -94,18 +102,9 @@ void CSettingsView::setDisplayList()
 		node->Integer() = displayIndex;
 	}
 
-	if(list.count() < 2)
-	{
-		ui->comboBoxDisplayIndex->hide();
-		ui->labelDisplayIndex->hide();
-		fillValidResolutionsForScreen(displayIndex);
-	}
-	else
-	{
-		ui->comboBoxDisplayIndex->addItems(list);
-		// calls fillValidResolutions() in slot
-		ui->comboBoxDisplayIndex->setCurrentIndex(displayIndex);
-	}
+	ui->comboBoxDisplayIndex->setCurrentIndex(displayIndex);
+	fillValidResolutionsForScreen(displayIndex);
+	fillValidScalingRange();
 }
 
 void CSettingsView::setCheckbuttonState(QToolButton * button, bool checked)
@@ -428,20 +427,6 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 	return result;
 }
 
-static QSize findDesktopResolution(int displayIndex)
-{
-	SDL_Init(SDL_INIT_VIDEO);
-
-	SDL_DisplayMode mode;
-	QSize result;
-	if(SDL_GetDesktopDisplayMode(displayIndex, &mode) == 0)
-		result = QSize(mode.w, mode.h);
-
-	SDL_Quit();
-
-	return result;
-}
-
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	QSignalBlocker guard(ui->comboBoxResolution); // avoid saving wrong resolution after adding first item from the list
@@ -462,8 +447,12 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 		// Windowed mode allows custom resolutions, but only while they still fit on
 		// the selected display. This prevents stale 4K TV resolutions from keeping
 		// oversized scaling ranges after switching to a smaller monitor.
-		QSize desktopResolution = findDesktopResolution(screenIndex);
-		bool currentWindowedResolutionFits = !fullscreen && desktopResolution.isValid()	&& currentRes.width() <= desktopResolution.width() && currentRes.height() <= desktopResolution.height();
+		const auto screens = QGuiApplication::screens();
+		QSize desktopResolution;
+		if(screenIndex >= 0 && screenIndex < screens.size())
+			desktopResolution = screens[screenIndex]->geometry().size() * screens[screenIndex]->devicePixelRatio();
+
+		bool currentWindowedResolutionFits = !fullscreen && desktopResolution.isValid() && currentRes.width() <= desktopResolution.width() && currentRes.height() <= desktopResolution.height();
 
 		if(currentWindowedResolutionFits && !resolutions.contains(currentRes))
 			resolutions.append(currentRes);
@@ -586,6 +575,9 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 
 	fillValidResolutionsForScreen(index);
 	fillValidScalingRange();
+
+	if(auto * mainWindow = Helper::getMainWindow())
+		mainWindow->moveToScreen(index);
 }
 
 void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
