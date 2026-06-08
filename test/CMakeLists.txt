@@ -144,6 +144,12 @@ if(ENABLE_BATTLE_AI)
 
 endif()
 
+if(ENABLE_NULLKILLER2_AI)
+	list(APPEND test_SRCS
+		nullkiller2/Goals/BuyArmyTest.cpp
+	)
+endif()
+
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
 set(mock_HEADERS
