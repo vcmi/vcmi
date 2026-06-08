@@ -40,8 +40,8 @@ namespace Goals
 
 		static bool needsFreeSlotToRecruit(const CCreatureSet * army, CreatureID creatureID)
 		{
-			static_cast<void>(creatureID);
-			return army->stacksCount() == GameConstants::ARMY_SIZE;
+			return army->stacksCount() == GameConstants::ARMY_SIZE
+				&& !army->getSlotFor(creatureID).validSlot();
 		}
 
 		std::string toString() const override;
