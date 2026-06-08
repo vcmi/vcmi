@@ -36,7 +36,7 @@ namespace Goals
 
 		static float evaluateTileScore(int tilesDiscovered, float movementCost)
 		{
-			return static_cast<float>(tilesDiscovered) / std::min(0.1f, movementCost);
+			return static_cast<float>(tilesDiscovered) / std::max(0.1f, movementCost);
 		}
 
 		void accept(AIGateway * aiGw) override;
