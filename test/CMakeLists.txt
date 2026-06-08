@@ -147,6 +147,7 @@ endif()
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
 		nullkiller2/Goals/BuyArmyTest.cpp
+		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
 	)
 endif()
 
