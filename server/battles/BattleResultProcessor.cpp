@@ -355,7 +355,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if (winnerHero)
 		{
 			gameHandler->giveExperienceWithoutLevelUp(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
-			battleQuery->heroesWithDeferredLevelUp.push_back(winnerHero->id);
+			typedBattleQuery->heroesWithDeferredLevelUp.push_back(winnerHero->id);
 		}
 	}
 
