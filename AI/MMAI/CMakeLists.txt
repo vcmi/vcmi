@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 
+# Re-enable CMP0177 after it is reset by MMAI.
 if(POLICY CMP0177)
-  cmake_policy(SET CMP0177 NEW)
+	cmake_policy(SET CMP0177 NEW)
 endif()
 
 set(MMAI_FILES

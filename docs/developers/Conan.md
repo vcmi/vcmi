@@ -113,9 +113,9 @@ Conan needs to generate CMake toolchain file to make dependencies available to C
 
 Make sure that you've cloned VCMI repository with submodules! (or initialized them afterwards)
 
-In terminal `cd` to the VCMI source directory and run the following command (it's written in Bash syntax, for other shells like Cmd or Powershell use appropriate line continuation character instead of `\` or type everything on a single line). Also check subsections for additional requirements on consuming prebuilt binaries.
+In terminal `cd` to the VCMI source directory and run the following command (it's written in Bash syntax, use the appropriate line continuation character for your shell or type everything on a single line). Also check subsections for additional requirements on consuming prebuilt binaries.
 
-*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the below command.
+*Note*: if you're going to build for Windows MSVC, use an elevated Cmd shell.
 
 <pre>
 conan install . \
@@ -214,10 +214,8 @@ conan install . ^
   --output-folder=conan-msvc ^
   --build=never ^
   --profile=dependencies\conan_profiles\msvc-x64 ^
-  -s "&:build_type=RelWithDebInfo"
+  -s "&:build_type=Debug"
 
-REM this is important!
-conan-msvc\conanrun.bat
 
 cmake -S . -B build ^
   --toolchain conan-msvc\conan_toolchain.cmake

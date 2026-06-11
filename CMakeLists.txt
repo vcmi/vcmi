@@ -16,14 +16,19 @@ if(APPLE AND NOT IOS)
 	set(MACOS 1)
 endif()
 
+# Use Visual Studio's latest debugger information format settings.
 if(POLICY CMP0142)
-  cmake_policy(SET CMP0142 NEW)
+	cmake_policy(SET CMP0142 NEW)
 endif()
+
+# Use the new FindBoost behavior and prefer Boost's own CMake package.
 if(POLICY CMP0167)
-  cmake_policy(SET CMP0167 NEW)
+	cmake_policy(SET CMP0167 NEW)
 endif()
+
+# Normalize install() destination paths before processing them.
 if(POLICY CMP0177)
-  cmake_policy(SET CMP0177 NEW)
+	cmake_policy(SET CMP0177 NEW)
 endif()
 
 ############################################
@@ -79,7 +84,7 @@ if(IOS)
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
-if(WIN32)
+if(MSVC)
 	option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 	option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
 endif()
