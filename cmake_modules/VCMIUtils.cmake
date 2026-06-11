@@ -167,7 +167,11 @@ function(vcmi_deploy_qt_runtime targetBinary)
 	find_program(TOOL_WINDEPLOYQT NAMES windeployqt PATHS "${qtBinDir}")
 	if(TOOL_WINDEPLOYQT)
 		add_custom_command(TARGET ${targetBinary} POST_BUILD
-			COMMAND "${TOOL_WINDEPLOYQT}" --no-compiler-runtime --no-translations "$<TARGET_FILE:${targetBinary}>"
+			COMMAND ${CMAKE_COMMAND}
+				"-DLOCK_FILE=${CMAKE_BINARY_DIR}/windeployqt.lock"
+				"-DWINDEPLOYQT=${TOOL_WINDEPLOYQT}"
+				"-DTARGET_FILE=$<TARGET_FILE:${targetBinary}>"
+				-P "${CMAKE_SOURCE_DIR}/cmake_modules/RunWinDeployQtLocked.cmake"
 			VERBATIM
 		)
 	else()
