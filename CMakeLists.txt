@@ -545,6 +545,24 @@ if(ENABLE_LOBBY)
 	find_package(SQLite3 REQUIRED)
 endif()
 
+if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
+	file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" conanRuntimeLibs)
+
+	set(conanRuntimeDirs)
+	foreach(runtimeLib IN LISTS conanRuntimeLibs)
+		cmake_path(GET runtimeLib PARENT_PATH runtimeLibDir)
+		if(runtimeLibDir)
+			list(APPEND conanRuntimeDirs "${runtimeLibDir}")
+		endif()
+	endforeach()
+
+	if(conanRuntimeDirs)
+		list(REMOVE_DUPLICATES conanRuntimeDirs)
+		list(JOIN conanRuntimeDirs ";" conanRuntimePath)
+		set(ENV{PATH} "${conanRuntimePath};$ENV{PATH}")
+	endif()
+endif()
+
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)

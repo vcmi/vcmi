@@ -2,7 +2,7 @@
 
 ## Preparations
 
-Windows builds can be made in more than one way and with more than one tool. This guide will show how to do it using Microsoft Visual Studio 2022 (MSVC compiler) and MSYS2 (MinGW compiler).
+Windows builds can be made in more than one way and with more than one tool. This guide will show how to do it using Microsoft Visual Studio (MSVC compiler) and MSYS2 (MinGW compiler).
 
 ## Prerequisites
 
@@ -39,21 +39,43 @@ We use Conan package manager to build/consume dependencies, find detailed usage 
 
 On the step where you need to replace **PROFILE**, choose:
 
-- `msvc-x64` to build for Intel 64-bit (x64 / x86_64)
+- `msvc-x64` to build for 64-bit (x64 / x86_64)
+- `msvc-x86` to build for 32-bit (x86)
 - `msvc-arm64` to build for ARM 64-bit (arm64)
-- `msvc-x86` to build for Intel 32-bit (x86)
+
+The prebuilt dependencies are built using:
+
+- MSVC v142 (VS 2019), specifically with compiler v19.29 - for proper Windows 7 builds
+- MSVC v143 (VS 2022), with compiler v19.4X (whatever is the latest at the build time) - for ARM64 CPU
+
+and our Conan profiles reference that. Most likely you're using a newer Visual Studio version / compiler version, so when you'll be running `cmake` in the next step, you'll probably get an error like
+
+> The build tools for Visual Studio 2019 (Platform Toolset = 'v142') cannot be found. To build using the v142 build tools, please install Visual Studio 2019 build tools.
+
+To avoid that, you should pass additional parameters to the `conan install` command:
+
+1. `-s "&:compiler.version=195"` where **195** is your MSVC compiler version that you want to use (you can install multiple MSVC compiler versions alongside). In this example 195 means v19.5X, to find the right value you can:
+    - check your Conan build profile (usually located at `%USERPROFILE%\.conan2\profiles\default`) - it contains the value in `compiler.version` obtained from your environment when you run `conan profile detect` for the first time
+    - refer to [this table](https://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html)
+    - simply run `cl` in MSVC developer environment (aka Developer Command Prompt) to see the current compiler version
+    - check MSVC documentation
+2. `-s "&:compiler.update=~"` to use the latest available compiler in the given toolset (requires Conan v2.22+). But you can also set a digit (say, 2) instead of `~` here, for the above example it'd try to use specific compiler version - 19.52 - instead of "latest".
+
+Alternatively, you may of course install the required toolset from the Visual Studio Installer. For example, for Windows 7 that would be *MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.29-16.11)*.
 
 *Note*: we recommend using CMD (`cmd.exe`) for the next steps. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the `conan install` command.
 
-## Install CCache
+## Install CCache (optional)
 
-Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in.
+Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in or simply put it into %WinDir%\system32
 
 ## Build VCMI
 
 ### Clone VCMI repository
 
 #### From Git GUI
+
+Example for SourceTree app:
 
 1. Open SourceTree
 2. File -> Clone
@@ -73,32 +95,20 @@ git clone --recursive https://github.com/vcmi/vcmi.git %VCMI_DIR%/source
 
 #### Generate solution
 
-1. Open command line prompt (`cmd.exe`)
-2. Execute `cd %VCMI_DIR%`
-3. Now you need to run a script* from the Conan directory that you passed to `conan install` (the one that you passed in `--output-folder` parameter). For example, if you passed `conan-msvc`, then the script will be in `source\conan-msvc`.
-    - for CMD: `source\conan-msvc\conanrun.bat`
-    - for Powershell: `source\conan-msvc\conanrun.ps1`. If it gives an error, also run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted`
-4. Create VS solution: `cmake -S source -B build --toolchain source\conan-msvc\conan_toolchain.cmake`
+The following steps assume that you're in `%VCMI_DIR%` in the terminal.
 
-\* This script sets up `PATH` required for Qt tools (`moc`, `uic` etc.) that run during CMake configure and build steps. Those tools depend on `zlib.dll` that was built with Conan, therefore its directory must be in `PATH`. As an alternative to modifying `PATH` you may try [this workaround](https://github.com/kambala-decapitator/ExeWrapper).
+1. Create VS solution: `cmake -S source -B build --toolchain source\conan-generated\conan_toolchain.cmake`
 
 #### Build solution
 
-You must launch Visual Studio in a modified `PATH` environment, see `*` in the previous subsection. You can launch it right from the current shell by pasting path to `devenv.exe` (Visual Studio executable, e.g. `"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"`). To launch it later with correct environment, you can create batch script (a file with `bat` extension) which you can double-click, here's an example (use your own path on the first line):
-
-```batchfile
-call "c:\Users\kamba\source\repos\vcmi\conan-msvc\conanrun.bat"
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"
-```
-
 1. Open `%VCMI_DIR%/build/VCMI.sln` in Visual Studio
-2. Select `RelWithDebInfo` build type in the combobox
+2. Select `Debug` build type in the combobox
 3. If you want to use ccache:
     - Select `Manage Configurations...` in the combobox
     - Specify the following CMake variable: `ENABLE_CCACHE=ON`
     - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
 4. Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer. You can also build individual targets if you want.
-5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. To launch the built executables from a file manager, use respective `bat` files, e.g. `VCMI_launcher.bat`.
+5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `Debug`.
 
 ### Compile VCMI with MinGW64 or UCRT64 via MSYS2
 
@@ -128,18 +138,6 @@ Make sure you have:
 
 * Installed Heroes III from disk or using GOG installer
 * Copied `Data`, `Maps` and `Mp3` folders from Heroes III to: `%USERPROFILE%\Documents\My Games\vcmi\`
-
-### VCMI won't run since some library is missing
-
-**If you open solution using vcmi.sln** Try to build INSTALL target and see if its output works as expected. Copy missing libraries or even all libraries from there to your build directory. Or run cpack and use produced installer and see if you can get libs from there. cpack -V will give more info. If cpack complains that it can not find dumpbin try Visual Studio Command Prompt (special version of cmd provided with Visual Studio with additional PATH) or modify PATH to have this tool available. Another alternative if you use prebuilt vcpkg package is to download latest msvc build, install it and copy missing/all libraries from there.
-
-### Debug build is very slow
-
-Debug builds with MSVC are generally extremely slow since it's not just VCMI binaries are built as debug, but every single dependency too and this usually means no optimizations at all. Debug information that available for release builds is often sufficient so just avoid full debug builds unless absolutely necessary. Instead use RelWithDebInfo configuration, optionally with Optimization Disabled (/Od) to avoid variables being optimized away. Also Debug configuration might have some compilation issues because it is not checked via CI for now.
-
-### I got crash within library XYZ.dll
-
-VCPKG generated projects quite often have both debug and regular libs available to linker so it can select wrong lib. For stable RelWithDebInfo build you may try to remove debug folder from VCPKG/installed/x64-windows. Same is done on CI. Also it reduces package size at least twice.
 
 ## Legacy instructions for Vcpkg package manager
 
