@@ -338,7 +338,6 @@ Use this setup only if you specifically need a MinGW build. It does not use Cona
      mingw-w64-ucrt-x86_64-onnxruntime
    ```
 
-
 5. Clone and build VCMI from the UCRT64 shell:
 
    ```sh
