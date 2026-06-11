@@ -57,7 +57,6 @@ option(ENABLE_MMAI "Enable compilation of MMAI AI library" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
-option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 
@@ -78,6 +77,11 @@ endif()
 if(IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+endif()
+
+if(WIN32)
+	option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+	option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
 endif()
 
 include(CMakeDependentOption)
@@ -415,11 +419,6 @@ if(MINGW OR MSVC)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 		endif()
 
-		# Workaround: Visual Studio has issues with exports of classes that inherit templates
-		# https://stackoverflow.com/questions/44960760/msvc-dll-exporting-class-that-inherits-from-template-cause-lnk2005-already-defin
-		# Reported to Microsoft here:
-		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 	endif(MSVC)
 endif(MINGW OR MSVC)
 
@@ -470,6 +469,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	if(UNIX)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 	endif()
+endif()
+
+# Qt build-time tools (e.g. rcc.exe) depend on zlib dll
+# this lets opening Visual Studio without modifying PATH env var
+if(MSVC AND CONAN_ZLIB_DIR)
+	set(CMAKE_MSVCIDE_RUN_PATH ${CONAN_ZLIB_DIR})
 endif()
 
 # Check if some platform-specific libraries are needed for linking
