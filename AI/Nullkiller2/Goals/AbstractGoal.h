@@ -97,7 +97,7 @@ namespace Goals
 
 	DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
 	DLL_EXPORT TTask taskptr(const AbstractGoal & tmp);
-	
+
 	class DLL_EXPORT AbstractGoal
 	{
 	public:
@@ -150,7 +150,7 @@ namespace Goals
 		{
 			return goalType == EGoals::INVALID;
 		}
-		
+
 		// virtual bool operator==(const AbstractGoal & g) const;
 		virtual bool operator==(const AbstractGoal & g) const { return false; }
 
@@ -164,7 +164,7 @@ namespace Goals
 		{
 			throw std::runtime_error("Abstract goal is not a task");
 		}
-		
+
 		bool operator!=(const AbstractGoal & g) const
 		{
 			return !(*this == g);
@@ -189,6 +189,15 @@ namespace Goals
 		virtual std::vector<ObjectInstanceID> getAffectedObjects() const = 0;
 	};
 }
+
+class DeferExecutionException : public std::exception
+{
+	public:
+	const char * what() const noexcept override
+	{
+		return "Deferred execution (waiting for queries/battle/movement/visit)";
+	}
+};
 
 class cannotFulfillGoalException : public std::exception
 {

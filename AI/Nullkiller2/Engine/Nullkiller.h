@@ -73,6 +73,13 @@ public:
 	void mergeAndFilter(const Goals::TSubgoal& task);
 };
 
+enum class TaskStatus : uint8_t
+{
+	Done,
+	Failed,
+	Deferred
+};
+
 class Nullkiller
 {
 private:
@@ -147,7 +154,7 @@ private:
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlanAndFilter(Goals::TGoalVec & tasks, int priorityTier) const;
-	bool executeTask(const Goals::TTask & task) const;
+	TaskStatus executeTask(const Goals::TTask & task) const;
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	void tracePlayerStatus(bool beginning) const;

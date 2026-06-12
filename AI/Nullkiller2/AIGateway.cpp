@@ -35,6 +35,7 @@
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
+#include "ScopeGuard.h"
 
 namespace NK2AI
 {
@@ -531,12 +532,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterruption.reset();
 
-	asyncTasks->run([this]()
-	{
-		ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
-		status.waitTillFree();
-		makeTurn();
-	});
+	schedulePlanningResume();
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -791,6 +787,11 @@ void AIGateway::makeTurn()
 
 		endTurn();
 	}
+	catch (const deferExecutionException &)
+	{
+		logAi->debug("NK2 makeTurn deferred due to pending blocking state; will resume when free.");
+		return;
+	}
 	catch (const InterruptionRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
@@ -1007,12 +1008,6 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	}
 }
 
-void AIGateway::waitTillFree()
-{
-	auto unlock = vstd::makeUnlockSharedGuard(CGameState::mutex);
-	status.waitTillFree();
-}
-
 std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
@@ -1037,7 +1032,30 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 	auto afterMovementCheck = [&]() -> void
 	{
-		waitTillFree(); //movement may cause battle or blocking dialog
+		if(!status.isReadyToContinue())
+		{
+			deferUntilReadyToContinue([this, heroPtr]()
+			{
+				asyncTasks->run([this, heroPtr]()
+				{
+					ScopedThreadName guard("NK2AI::AIGateway::afterMovementCheck");
+
+					if(!heroPtr.isVerified())
+					{
+						lostHero(heroPtr);
+						teleportChannelProbingList.clear();
+						if(status.channelProbing())
+							status.setChannelProbing(false);
+
+						logAi->warn("Hero was lost after movement (deferred check).");
+					}
+				});
+			});
+
+			// ensure planner resumes after dialog/battle
+			throw deferExecutionException();
+		}
+
 		if(!heroPtr.isVerified())
 		{
 			lostHero(heroPtr);
@@ -1348,6 +1366,8 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
+	shuttingDown = true;
+
 	nullkiller->makingTurnInterruption.interruptThread();
 
 	if (asyncTasks)
@@ -1447,6 +1467,7 @@ void AIStatus::setBattle(BattleState BS)
 	LOG_TRACE_PARAMS(logAi, "battle state=%d", (int)BS);
 	battle = BS;
 	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 BattleState AIStatus::getBattle()
@@ -1471,19 +1492,37 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 	remainingQueries[ID] = description;
 
 	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
+
 	logAi->debug("Adding query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
 }
 
 void AIStatus::removeQuery(QueryID ID)
 {
-	std::unique_lock<std::mutex> lock(mx);
-	assert(vstd::contains(remainingQueries, ID));
+	bool shouldKick = false;
+	std::string description;
 
-	std::string description = remainingQueries[ID];
-	remainingQueries.erase(ID);
+	{
+		std::unique_lock<std::mutex> lock(mx);
+		assert(vstd::contains(remainingQueries, ID));
 
-	cv.notify_all();
-	logAi->debug("Removing query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
+		logGlobal->warn("AIStatus::removeQuery -> Removing query %d. Total queries count before removing: %d", ID.getNum(), (int)remainingQueries.size());
+
+		description = remainingQueries[ID];
+		remainingQueries.erase(ID);
+
+		cv.notify_all();
+
+		// If we just became free during our turn, resume planner.
+		shouldKick = havingTurn && isReadyToContinueLocked();
+
+		fireDeferredCallbacksIfReadyLocked(lock);
+
+		logAi->debug("Removing query %d - %s. Total queries count: %d", ID.getNum(), description.c_str(), (int)remainingQueries.size());
+	}
+
+	if(shouldKick)
+		aiGw->schedulePlanningResume();
 }
 
 int AIStatus::getQueriesCount()
@@ -1497,6 +1536,7 @@ void AIStatus::startedTurn()
 	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = true;
 	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 void AIStatus::madeTurn()
@@ -1504,22 +1544,29 @@ void AIStatus::madeTurn()
 	std::unique_lock<std::mutex> lock(mx);
 	havingTurn = false;
 	cv.notify_all();
-}
-
-void AIStatus::waitTillFree()
-{
-	std::unique_lock<std::mutex> lock(mx);
-	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-	{
-		cv.wait_for(lock, std::chrono::milliseconds(10));
-		aiGw->nullkiller->makingTurnInterruption.interruptionPoint();
-	}
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 bool AIStatus::haveTurn()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	return havingTurn;
+}
+
+bool AIStatus::trySchedulePlanningResume()
+{
+	std::unique_lock<std::mutex> lock(mx);
+	if(resumeScheduled)
+		return false;
+
+	resumeScheduled = true;
+	return true;
+}
+
+void AIStatus::markMakeTurnDone()
+{
+	std::unique_lock<std::mutex> lock(mx);
+	resumeScheduled = false;
 }
 
 void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
@@ -1533,18 +1580,47 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 
 void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 {
-	assert(vstd::contains(requestToQueryID, answerRequestID));
-	QueryID query = requestToQueryID[answerRequestID];
-	assert(vstd::contains(remainingQueries, query));
-	requestToQueryID.erase(answerRequestID);
+	QueryID queryID;
+	std::string description;
+
+	{
+		std::unique_lock<std::mutex> lock(mx);
+
+		auto requestIt = requestToQueryID.find(answerRequestID);
+		assert(requestIt != requestToQueryID.end());
+		if(requestIt == requestToQueryID.end())
+		{
+			logGlobal->error("Received answer confirmation for unknown request id=%d, result=%d",
+				answerRequestID, result);
+			return;
+		}
+
+		queryID = requestIt->second;
+		requestToQueryID.erase(requestIt);
+
+		auto queryIt = remainingQueries.find(queryID);
+		assert(queryIt != remainingQueries.end());
+		if(queryIt == remainingQueries.end())
+		{
+			logGlobal->error("Received answer confirmation for request id=%d mapped to unknown query id=%d, result=%d",
+				answerRequestID, queryID.getNum(), result);
+			return;
+		}
+
+		description = queryIt->second;
+	}
+
+	logGlobal->warn("Received answer confirmation: request id=%d -> query=%d, result=%d",
+		answerRequestID, queryID.getNum(), result);
 
 	if(result)
 	{
-		removeQuery(query);
+		removeQuery(queryID);
 	}
 	else
 	{
-		logAi->error("Something went really wrong, failed to answer query %d : %s", query.getNum(), remainingQueries[query]);
+		logGlobal->error("Answer confirmation treated as failure for query %d : %s",
+			queryID.getNum(), description.c_str());
 		//TODO safely retry
 	}
 }
@@ -1572,6 +1648,7 @@ void AIStatus::setMove(bool ongoing)
 	std::unique_lock<std::mutex> lock(mx);
 	ongoingHeroMovement = ongoing;
 	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 void AIStatus::setChannelProbing(bool ongoing)
@@ -1579,6 +1656,7 @@ void AIStatus::setChannelProbing(bool ongoing)
 	std::unique_lock<std::mutex> lock(mx);
 	ongoingChannelProbing = ongoing;
 	cv.notify_all();
+	fireDeferredCallbacksIfReadyLocked(lock);
 }
 
 bool AIStatus::channelProbing()
@@ -1790,4 +1868,124 @@ void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const C
 		equipBest(h, other, false);
 }
 
+bool AIStatus::isReadyToContinueLocked() const
+{
+	return battle == NO_BATTLE && remainingQueries.empty() && objectsBeingVisited.empty() && !ongoingHeroMovement;
 }
+
+void AIStatus::fireDeferredCallbacksIfReadyLocked(std::unique_lock<std::mutex> & lock)
+{
+	// Execute queued callbacks on 'busy' -> 'ready to continue' transition without holding the mutex.
+	if(!isReadyToContinueLocked() || deferredCallbacks.empty())
+		return;
+
+	logGlobal->warn("AIStatus is now ready to continue, firing %zu callbacks", deferredCallbacks.size());
+	auto callbacks = std::move(deferredCallbacks);
+	deferredCallbacks.clear();
+
+	lock.unlock();
+	for(auto & cb : callbacks)
+		cb();
+	lock.lock();
+}
+
+void AIStatus::whenReadyToContinue(std::function<void()> callback)
+{
+	std::unique_lock<std::mutex> lock(mx);
+
+	// If already ready to continue, run immediately (but outside the lock).
+	if(isReadyToContinueLocked())
+	{
+		lock.unlock();
+		callback();
+		return;
+	}
+
+	deferredCallbacks.push_back(std::move(callback));
+}
+
+bool AIStatus::isReadyToContinue() const
+{
+	std::unique_lock<std::mutex> lock(mx);
+	return isReadyToContinueLocked();
+}
+
+void AIGateway::schedulePlanningResume()
+{
+	if(shuttingDown)
+		return;
+
+	if(!status.trySchedulePlanningResume())
+		return;
+
+	status.whenReadyToContinue(
+		[this]()
+		{
+			if(!asyncTasks)
+			{
+				logAi->warn("scheduleMakeTurn whenReadyToContinue ABORT: executor unavailable, clearing flag");
+
+				status.markMakeTurnDone();
+				return;
+			}
+			asyncTasks->run(
+				[this]()
+				{
+					ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
+					auto onExit = vstd::makeScopeGuard([this]()
+					{
+						status.markMakeTurnDone();
+					});
+
+					makeTurn();
+
+					if(!status.isReadyToContinue() && status.haveTurn())
+						status.whenReadyToContinue([this](){ schedulePlanningResume(); });
+				}
+			);
+		}
+	);
+}
+
+void AIGateway::deferUntilReadyToContinue(std::function<void()> callback)
+{
+	status.whenReadyToContinue(
+		[this, callback = std::move(callback)]() mutable
+		{
+			callback();
+
+			if(status.haveTurn())
+				schedulePlanningResume();
+		}
+	);
+}
+
+void AIGateway::requestPlanningResume()
+{
+	if(!status.haveTurn())
+		return;
+
+	if(status.isReadyToContinue())
+	{
+		schedulePlanningResume();
+		return;
+	}
+
+	if(!status.isResumeScheduled())
+	{
+		status.whenReadyToContinue(
+			[this]()
+			{
+				schedulePlanningResume();
+			}
+		);
+	}
+}
+
+bool AIStatus::isResumeScheduled() const
+{
+	return resumeScheduled;
+}
+
+}
+
