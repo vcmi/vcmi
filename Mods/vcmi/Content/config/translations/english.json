@@ -429,7 +429,7 @@
 	"vcmi.client.errors.modLoadingFailure": "{Mod loading failure}\n\nCritical issues found when loading mods! Game may not work correctly or crash! Please update or disable following mods:\n\n",
 	"vcmi.client.screenShot": "Screenshot saved to %s",
 	"vcmi.commander.insufficientResources": "You do not have enough resources to resurrect your commander.",
-	"vcmi.commander.resurrectionOffer": "Your commander has fallen in battle.\nDo you wish to resurrect them?",
+	"vcmi.commander.resurrectionOffer": "Your commander has fallen in battle. Do you wish to resurrect your commander?",
 	"vcmi.commanderWindow.artifactMessage": "Do you want to return this artifact to the hero?",
 	"vcmi.creatureWindow.returnArtifact.help": "Click this button to return the artifact to the hero's backpack.",
 	"vcmi.creatureWindow.returnArtifact.hover": "Return artifact",
