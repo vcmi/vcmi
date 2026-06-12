@@ -22,6 +22,7 @@
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
 #include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "texts/CGeneralTextHandler.h"
@@ -448,6 +449,8 @@ void CCreatureHandler::loadCommanders()
 	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
+	
+	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"]);
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{

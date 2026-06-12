@@ -426,6 +426,8 @@
 	"vcmi.client.errors.invalidMap": "{Neplatná mapa nebo kampaň}\n\nChyba při startu hry! Vybraná mapa nebo kampaň může být neplatná nebo poškozená. Důvod:\n%s",
 	"vcmi.client.errors.modLoadingFailure": "{Chyba při načítání modifikací}\n\nPři načítání modifikací byly nalezeny kritické problémy! Hra nemusí fungovat správně nebo může spadnout! Aktualizujte nebo deaktivujte následující modifikace:\n\n",
 	"vcmi.client.screenShot": "Snímek obrazovky uložen do %s",
+	"vcmi.commander.insufficientResources": "Nemáte dostatek surovin k oživení velitele.",
+	"vcmi.commander.resurrectionOffer": "Váš velitel padl v boji.\nPřejete si ho oživit?",
 	"vcmi.commanderWindow.artifactMessage": "Chcete tento artefakt vrátit hrdinovi?",
 	"vcmi.creatureWindow.returnArtifact.help": "Klikněte na toto tlačítko pro vrácení artefaktu do batohu hrdiny.",
 	"vcmi.creatureWindow.returnArtifact.hover": "Vrátit artefakt",

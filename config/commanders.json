@@ -1,5 +1,7 @@
 
 {
+	// Resources paid to resurrect a commander in town
+	"resurrectionPrice": { "gold": 1500 },
 	//Commander receives these bonuses on level-up
 	"bonusPerLevel":
 	[

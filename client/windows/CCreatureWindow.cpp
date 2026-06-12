@@ -603,6 +603,12 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	};
 
 	animation = std::make_shared<CCreaturePic>(5, 41, parent->info->creature);
+	if(parent->info->commander && !parent->info->commander->alive)
+	{
+		deadCommanderOverlay = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/dead-commander-overlay.png"));
+		deadCommanderOverlay->needRefresh = true;
+		deadCommanderOverlay->moveTo(Point(animation->pos.x + (animation->pos.w - deadCommanderOverlay->pos.w) / 2, animation->pos.y + (animation->pos.h - deadCommanderOverlay->pos.h) / 2));
+	}
 	{
 		const CCreature * cre = parent->info->creature;
 		animationArea = std::make_shared<LRClickableArea>(Rect(5, 41, 100, 130), [cre]()
