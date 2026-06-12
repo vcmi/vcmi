@@ -345,10 +345,11 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 			dialog.player = h->tempOwner;
 			dialog.text.appendTextID("vcmi.commander.resurrectionOffer");
 			dialog.components.emplace_back(ComponentType::CREATURE, h->getCommander()->getId(), h->getCommander()->getCount());
+			const auto & resurrectionPrice = LIBRARY->creh->getCommanderResurrectionPrice(h->getCommander()->getCreature());
 			for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
 			{
-				if(LIBRARY->creh->commanderResurrectionPrice[resource] > 0)
-					dialog.components.emplace_back(ComponentType::RESOURCE, resource, -LIBRARY->creh->commanderResurrectionPrice[resource]);
+				if(resurrectionPrice[resource] > 0)
+					dialog.components.emplace_back(ComponentType::RESOURCE, resource, -resurrectionPrice[resource]);
 			}
 			gameEvents.showBlockingDialog(this, &dialog);
 		}
@@ -360,7 +361,7 @@ void CGTownInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, con
 	if(!answer || !hero->getCommander() || hero->getCommander()->alive)
 		return;
 
-	const auto & resurrectionPrice = LIBRARY->creh->commanderResurrectionPrice;
+	const auto & resurrectionPrice = LIBRARY->creh->getCommanderResurrectionPrice(hero->getCommander()->getCreature());
 	if(!cb->getPlayerState(hero->tempOwner)->resources.canAfford(resurrectionPrice))
 	{
 		InfoWindow dialog;

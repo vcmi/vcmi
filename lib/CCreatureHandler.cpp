@@ -592,6 +592,11 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	cre->serializeJson(handler);
 
 	cre->cost.resolveFromJson(node["cost"]);
+	if(!node["resurrectionPrice"].isNull())
+	{
+		cre->commanderResurrectionPrice.emplace();
+		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"]);
+	}
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
 	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
@@ -1311,6 +1316,14 @@ CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & p : skillRequirements)
 		p.first.clear();
+}
+
+const ResourceSet & CCreatureHandler::getCommanderResurrectionPrice(const CCreature * commander) const
+{
+	if(commander && commander->commanderResurrectionPrice)
+		return *commander->commanderResurrectionPrice;
+
+	return commanderResurrectionPrice;
 }
 
 void CCreatureHandler::afterLoadFinalization()
