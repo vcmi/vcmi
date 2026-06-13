@@ -87,6 +87,7 @@ public:
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestSent(const CPackForServer *pack, int requestID){};
 	virtual void requestRealized(PackageApplied *pa){};
+	virtual void queryResolved(QueryID queryID){}; // query-backed dialog (eg. level-up) was resolved and removed
 	virtual void beforeObjectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj, const PlayerColor & initiator){}; //eg. collected resource, picked artifact, beaten hero

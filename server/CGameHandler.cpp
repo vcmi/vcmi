@@ -1547,6 +1547,12 @@ void CGameHandler::sendAndApply(CPackForClient & pack)
 	gameServer().applyPack(pack);
 }
 
+void CGameHandler::sendQueryResolved(QueryID queryID)
+{
+	QueryResolved pack(queryID);
+	sendAndApply(pack);
+}
+
 void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
 {
 	sendAndApply(static_cast<CPackForClient &>(pack));

@@ -929,6 +929,11 @@ void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
 }
 
+void ApplyClientNetPackVisitor::visitQueryResolved(QueryResolved & pack)
+{
+	callAllInterfaces(cl, &IGameEventsReceiver::queryResolved, pack.queryID);
+}
+
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
 	// usually used to receive error messages from server

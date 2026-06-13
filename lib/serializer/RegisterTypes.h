@@ -127,6 +127,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CObstacleInstance>(79);
 	s.template registerType<SpellCreatedObstacle>(80);
 	s.template registerType<CPack>(82);
+	s.template registerType<QueryResolved>(83);
 	s.template registerType<PackageApplied>(84);
 	s.template registerType<SystemMessage>(85);
 	s.template registerType<PlayerBlocked>(86);

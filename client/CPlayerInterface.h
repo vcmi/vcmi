@@ -145,6 +145,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	void requestRealized(PackageApplied *pa) override;
+	void queryResolved(QueryID queryID) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void centerView (int3 pos, int focusTime) override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;

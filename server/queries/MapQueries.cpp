@@ -236,6 +236,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const Her
 void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
+	gh->sendQueryResolved(queryID);
 	if(hlu.skills.empty())
 	{
 		logGlobal->trace("Completing hero level-up query. %s gains no secondary skill", hero->getObjectName());
@@ -304,6 +305,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner,
 void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
+	gh->sendQueryResolved(queryID);
 	if(clu.skills.empty())
 	{
 		logGlobal->trace("Completing commander level-up query. Commander of hero %s gains no skill", hero->getObjectName());

@@ -1365,10 +1365,16 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
-		if(pendingLevelUpRequestID == static_cast<int>(pa->requestID))
-			closePendingLevelUpDialog();
 		movementController->onQueryReplyApplied();
 	}
+}
+
+void CPlayerInterface::queryResolved(QueryID queryID)
+{
+	if(queryID.getNum() < 0)
+		return;
+
+	closePendingLevelUpDialog();
 }
 
 void CPlayerInterface::closePendingLevelUpDialog()
@@ -1968,8 +1974,12 @@ bool CPlayerInterface::capturedAllEvents()
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && GAME->map().hasOngoingAnimations();
 	bool quickCombatOngoing = isAutoFightOn && !battleInt;
+	bool waitingForQueuedDialogResolution =
+		!showingDialog->isBusy() &&
+		!dialogs.empty() &&
+		dialogs.front().state == PendingDialog::State::AwaitingQueryResolution;
 
-	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
+	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing || waitingForQueuedDialogResolution)
 	{
 		ENGINE->input().ignoreEventsUntilInput();
 		return true;
