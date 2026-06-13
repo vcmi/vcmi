@@ -232,7 +232,7 @@ void MainWindow::restoreWindowSettings()
 	const QSize screenSize = screen->geometry().size();
 	const bool isWidescreen = screenSize.width() * 3 > screenSize.height() * 4;
 	const QSize preferredSize = isWidescreen ? widescreenLauncherSize : minimumLauncherSize;
-	const QSize maximumInitialSize(availableSize.width() * 9 / 10, availableSize.height() * 9 / 10);
+	const QSize maximumInitialSize = availableSize * 0.9;
 	resize(preferredSize.boundedTo(maximumInitialSize).expandedTo(minimumLauncherSize));
 	centerWindowOnScreen(screen);
 #endif
