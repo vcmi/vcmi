@@ -22,8 +22,6 @@
 #include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
-#include "modding/ModVerificationInfo.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapGenOptions;
@@ -209,9 +207,6 @@ struct DLL_LINKAGE LobbyState
 	// Before start both go into CCampaignState that is part of StartInfo
 	CampaignScenarioID campaignMap;
 	int campaignBonus;
-	ModCompatibilityInfo mods; // active mods on the server, for client compatibility verification
-	std::string version; // VCMI version string of the server
-
 	LobbyState() : si(new StartInfo()), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h)
@@ -222,8 +217,6 @@ struct DLL_LINKAGE LobbyState
 		h & hostClientId;
 		h & campaignMap;
 		h & campaignBonus;
-		h & mods;
-		h & version;
 	}
 };
 

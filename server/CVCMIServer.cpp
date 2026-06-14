@@ -689,14 +689,6 @@ void CVCMIServer::updateAndPropagateLobbyState()
 
 	LobbyUpdateState lus;
 	lus.state = *static_cast<LobbyState*>(this);
-
-	// Include server's active mod list for client compatibility verification
-	for(const auto & modId : LIBRARY->modh->getActiveMods())
-		lus.state.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
-
-	// Report server version for client compatibility validation
-	lus.state.version = VCMI_VERSION_STRING;
-
 	announcePack(lus);
 }
 

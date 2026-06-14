@@ -51,22 +51,21 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryStat
 
 void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 {
-	// Respond with current lobby state directly to the querying connection
-	LobbyUpdateState lus;
-	lus.state = *static_cast<LobbyState*>(&srv);
+	LobbyModsCheck lms;
+	lms.serializationVersion = ESerializationVersion::CURRENT;
+	lms.vcmiVersion = VCMI_VERSION_STRING;
 
 	for(const auto & modId : LIBRARY->modh->getActiveMods())
-		lus.state.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
+		lms.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
 
-	// Report server version for client compatibility validation
-	lus.state.version = VCMI_VERSION_STRING;
+	for(const auto & [playerId, player] : srv.playerNames)
+	{
+		lms.participantNames.push_back(player.name);
+		if(player.connection == srv.hostClientId)
+			lms.hostAccountDisplayName = player.name;
+	}
 
-	// Clear map/start info to avoid identifier resolution errors on the client
-	// (the client may not have mods referenced in the map header or player settings)
-	lus.state.mi.reset();
-	lus.state.si.reset();
-
-	connection->sendPack(lus);
+	connection->sendPack(lms);
 	result = false;
 }
 

@@ -1090,7 +1090,7 @@ void CServerHandler::startLobbyPreview(const std::string & addr, ui16 port, std:
 	connectToServer(addr, port);
 }
 
-void CServerHandler::onLobbyPreviewResponse(LobbyState & state)
+void CServerHandler::onLobbyPreviewResponse(LobbyModsCheck & pack)
 {
 	lobbyPreviewMode = false;
 
@@ -1103,21 +1103,18 @@ void CServerHandler::onLobbyPreviewResponse(LobbyState & state)
 	logicConnection.reset();
 
 	GlobalLobbyRoom roomDescription;
-	roomDescription.gameVersion = state.version;
+	roomDescription.gameVersion = pack.vcmiVersion;
 	roomDescription.statusID = "open";
 	roomDescription.playerLimit = 8;
-	roomDescription.modList = state.mods;
+	roomDescription.modList = pack.mods;
+	roomDescription.hostAccountDisplayName = pack.hostAccountDisplayName;
 	roomDescription.description = "";
 
-	// Populate participant list from server state (excludes the querying client)
-	for(const auto & [playerId, player] : state.playerNames)
+	for(const auto & name : pack.participantNames)
 	{
-		GlobalLobbyAccount participant;
-		participant.displayName = player.name;
-		roomDescription.participants.push_back(participant);
-
-		if(player.connection == state.hostClientId)
-			roomDescription.hostAccountDisplayName = player.name;
+		GlobalLobbyAccount account;
+		account.displayName = name;
+		roomDescription.participants.push_back(account);
 	}
 
 	ENGINE->windows().createAndPushWindow<GlobalLobbyRoomWindow>(

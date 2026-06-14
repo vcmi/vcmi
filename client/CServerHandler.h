@@ -30,6 +30,7 @@ struct ClientPlayer;
 struct CPackForLobby;
 struct CPackForServer;
 struct CPackForClient;
+struct LobbyModsCheck;
 
 class HighScoreParameter;
 
@@ -233,5 +234,5 @@ public:
 	void sendGamePack(const CPackForServer & pack) const;
 
 	void startLobbyPreview(const std::string & addr, ui16 port, std::function<void()> onJoin);
-	void onLobbyPreviewResponse(LobbyState & state);
+	void onLobbyPreviewResponse(LobbyModsCheck & pack);
 };
