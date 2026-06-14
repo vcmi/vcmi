@@ -64,13 +64,26 @@ class CPlayerInterface : public CGameInterface
 
 	struct PendingDialog
 	{
+		enum class Type : std::uint8_t { NonBlocking, Blocking };
+
+		enum class State : std::uint8_t { Queued, AwaitingQueryResolution };
+
 		bool dropOnTurnEnd = false;
-		std::function<void()> show;
+		Type blockingPolicy = Type::Blocking;
+		QueryID queryID = QueryID::NONE;
+		State state = State::Queued;
+		std::function<void()> showCallback;
+
+		bool isLevelUpDialog() const
+		{
+			// queryID means we are dealing with hero or commander level up dialog
+			return queryID != QueryID::NONE;
+		}
 	};
 
 	std::list<PendingDialog> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-	std::shared_ptr<WindowBase> pendingLevelUpDialog;
-	int pendingLevelUpRequestID = -1;
+	bool delayQueuedDialogsUntilInputSettles = false;
+	bool levelUpChainPendingContinuation = false;
 
 	std::unique_ptr<HeroMovementController> movementController;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
@@ -246,7 +259,11 @@ private:
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
-	void closePendingLevelUpDialog();
+	void closeActiveLevelUpDialog();
+	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QueryID queryID = QueryID::NONE);
+	std::list<PendingDialog>::iterator findQueryBackedDialogInsertionPoint();
+	void tryShowNextPendingDialog();
+	std::list<PendingDialog>::iterator findPendingDialog(QueryID queryID);
 	void townRemoved(const CGTownInstance* town);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);

@@ -200,7 +200,6 @@ class CStackWindow : public CWindowObject
 	void submitSelection();
 
 	void init();
-	void close() override;
 	void showStackExperienceDetailsWindow();
 
 	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);
@@ -219,12 +218,17 @@ public:
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
 	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
+	void updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, std::function<void(ui32)> callback);
+	void setFreeOnSelection(bool value);
 	void setCloseOnSelection(bool value);
+	bool isCommanderLevelUpDialog() const;
+	void close() override;
 
 	void keyPressed(EShortcut key) override;
 	~CStackWindow();
 
 private:
+	bool freeOnSelection = true;
 	bool closeOnSelection = true;
 	bool selectionSubmitted = false;
 };

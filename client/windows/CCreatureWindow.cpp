@@ -862,6 +862,18 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	: CWindowObject(BORDERED),
 	info(std::make_unique<UnitView>())
 {
+	updateCommanderLevelUpData(commander, skills, callback);
+}
+
+CStackWindow::~CStackWindow() = default;
+
+void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, std::function<void(ui32)> callback)
+{
+	OBJECT_CONSTRUCTION;
+
+	GAME->interface()->showingDialog->setBusy();
+	selectionSubmitted = false;
+
 	info->stackNode = commander;
 	info->creature = commander->getCreature();
 	info->commander = commander;
@@ -870,14 +882,62 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
 	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
-	init();
+
+	if(!background)
+	{
+		init();
+		return;
+	}
+
+	fakeNode.reset();
+	activeBonuses.clear();
+
+	if(mainSection)
+		removeChild(mainSection.get());
+	if(activeSpellsSection)
+		removeChild(activeSpellsSection.get());
+	if(bonusesSection)
+		removeChild(bonusesSection.get());
+	if(buttonsSection)
+		removeChild(buttonsSection.get());
+	if(commanderTab)
+		removeChild(commanderTab.get());
+
+	switchButtons.clear();
+	mainSection.reset();
+	activeSpellsSection.reset();
+	commanderMainSection.reset();
+	commanderBonusesSection.reset();
+	bonusesSection.reset();
+	buttonsSection.reset();
+	commanderTab.reset();
+
+	selectedIcon = nullptr;
+	selectedSkill = skills.empty() ? -1 : skills.front();
+	activeTab = 0;
+
+	pos = Rect();
+	initBonusesList();
+	initSections();
+	background->pos = pos;
+
+	setRedrawParent(true);
+	redraw();
 }
 
-CStackWindow::~CStackWindow() = default;
+void CStackWindow::setFreeOnSelection(bool value)
+{
+	freeOnSelection = value;
+}
 
 void CStackWindow::setCloseOnSelection(bool value)
 {
 	closeOnSelection = value;
+}
+
+bool CStackWindow::isCommanderLevelUpDialog() const
+{
+	return info && info->commander && info->levelupInfo.has_value();
 }
 
 void CStackWindow::submitSelection()
@@ -893,15 +953,12 @@ void CStackWindow::submitSelection()
 		}
 
 		selectionSubmitted = true;
-
-		if(!closeOnSelection)
-		{
-			deactivate();
-			return;
-		}
+		if(freeOnSelection)
+			GAME->interface()->showingDialog->setFree();
 	}
 
-	close();
+	if(closeOnSelection)
+		close();
 }
 
 void CStackWindow::close()

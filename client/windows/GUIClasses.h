@@ -164,12 +164,15 @@ class CLevelWindow : public CWindowObject
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	void updateLevelUpData(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback);
 	void setCloseOnSelection(bool value);
+	void setFreeOnSelection(bool value);
 
 	void close() override;
 
 private:
 	bool closeOnSelection = true;
+	bool freeOnSelection = true;
 	bool selectionSubmitted = false;
 };
 

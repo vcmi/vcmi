@@ -478,15 +478,24 @@ void CSplitWindow::sliderMoved(int to)
 
 CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
-	cb(callback),
-	skills(skills),
-	hero(hero),
 	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
 	GAME->interface()->showingDialog->setBusy();
+	updateLevelUpData(hero, pskill, skills, callback);
+}
 
+void CLevelWindow::updateLevelUpData(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
+{
+	OBJECT_CONSTRUCTION;
+
+	GAME->interface()->showingDialog->setBusy();
+	selectionSubmitted = false;
+	this->hero = hero;
+	cb = callback;
+	this->skills = skills;
+	skillViewOffset = 0;
 	sortedSkills = skills;
 	std::sort(sortedSkills.begin(), sortedSkills.end(), [hero](auto a, auto b) {
 		if(hero->getSecSkillLevel(a) == hero->getSecSkillLevel(b))
@@ -494,18 +503,46 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 		return hero->getSecSkillLevel(a) > hero->getSecSkillLevel(b);
 	});
 
+	if(box)
+		removeChild(box.get());
+	if(buttonLeft)
+		removeChild(buttonLeft.get());
+	if(buttonRight)
+		removeChild(buttonRight.get());
+	if(portrait)
+		removeChild(portrait.get());
+	if(ok)
+		removeChild(ok.get());
+	if(mainTitle)
+		removeChild(mainTitle.get());
+	if(levelTitle)
+		removeChild(levelTitle.get());
+	if(skillIcon)
+		removeChild(skillIcon.get());
+	if(skillValue)
+		removeChild(skillValue.get());
+
 	createSkillBox();
+	buttonLeft.reset();
+	buttonRight.reset();
+	portrait.reset();
+	ok.reset();
+	mainTitle.reset();
+	levelTitle.reset();
+	skillIcon.reset();
+	skillValue.reset();
+
 	if(skills.size() > 3)
 	{
-		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this, skills](){
+		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this](){
 			if(skillViewOffset > 0)
 				skillViewOffset--;
 			else
-				skillViewOffset = skills.size() - 1;
+				skillViewOffset = this->skills.size() - 1;
 			createSkillBox();
 		}, EShortcut::MOVE_LEFT);
-		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this, skills](){
-			if(skillViewOffset < skills.size() - 1)
+		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this](){
+			if(skillViewOffset < this->skills.size() - 1)
 				skillViewOffset++;
 			else
 				skillViewOffset = 0;
@@ -528,10 +565,11 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
-
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
-
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
+
+	setRedrawParent(true);
+	redraw();
 }
 
 std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& skills, int offset, int count)
@@ -555,6 +593,8 @@ void CLevelWindow::createSkillBox()
 {
 	OBJECT_CONSTRUCTION;
 
+	box.reset();
+
 	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(sortedSkills, skillViewOffset, 3) : sortedSkills;
 	if(!skillsToShow.empty())
 	{
@@ -576,6 +616,11 @@ void CLevelWindow::createSkillBox()
 void CLevelWindow::setCloseOnSelection(bool value)
 {
 	closeOnSelection = value;
+}
+
+void CLevelWindow::setFreeOnSelection(bool value)
+{
+	freeOnSelection = value;
 }
 
 void CLevelWindow::submitSelection()
@@ -610,16 +655,12 @@ void CLevelWindow::submitSelection()
 		}
 
 		selectionSubmitted = true;
-		GAME->interface()->showingDialog->setFree();
-
-		if(!closeOnSelection)
-		{
-			deactivate();
-			return;
-		}
+		if(freeOnSelection)
+			GAME->interface()->showingDialog->setFree();
 	}
 
-	close();
+	if(closeOnSelection)
+		close();
 }
 
 void CLevelWindow::close()
