@@ -21,6 +21,7 @@
 #include "../../lib/entities/artifact/EArtifactClass.h"
 #include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -137,6 +138,9 @@ CreatureID GameRandomizer::rollCreature(int tier)
 	{
 		const auto * creaturePtr = creatureID.toCreature();
 		if(creaturePtr->excludeFromRandomization)
+			continue;
+
+		if (!LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum()))
 			continue;
 
 		if(creaturePtr->getLevel() == tier)
