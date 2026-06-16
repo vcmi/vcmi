@@ -1,6 +1,6 @@
 server {
-	listen 443 ssl default_server;
-	listen [::]:443 ssl default_server;
+	listen 443 ssl;
+	listen [::]:443 ssl;
 
         ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
         ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;

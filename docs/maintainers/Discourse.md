@@ -13,80 +13,58 @@ Admin access:
 - SXX
 - Warmonger
 
-Additional accounts can be given admin rights via admin panel. Or, if none are available - directly via server console (requires root access to server)
+Additional accounts can be given admin rights via admin panel. Or, if none are available - directly via server console (requires root access to server).
 
 ## Configuration
 
 - Located at `/var/discourse`.
-- Configuration file is at `/var/discourse/containers/app.yml`
-- For administration typical approach is `cd /var/discourse; ./launcher enter app`. However most commands are also available in web UI
-- To apply configuration changes, `cd /var/discourse; ./launcher rebuild app`. WARNING: this will also perform update of Discourse itself!
-
-## Setup
+- Configuration file is at `/var/discourse/containers/app.yml`. The template lives in [`scripts/discourse/app.yml`](scripts/discourse/) and is rendered from environment variables by `setup.sh`.
+- For administration typical approach is `cd /var/discourse; ./launcher enter app`. However most commands are also available in web UI.
 
 References:
 
-- [official docs](https://github.com/discourse/discourse/blob/main/docs/INSTALL-cloud.md):
+- [Official install docs](https://github.com/discourse/discourse/blob/main/docs/INSTALL-cloud.md)
 - [nginx multi-server configuration](https://meta.discourse.org/t/run-other-websites-on-the-same-machine-as-discourse/17247)
 
-```sh
-wget -qO- https://raw.githubusercontent.com/discourse/discourse_docker/main/install-discourse | sudo bash
-```
+## Setup
 
-Configure Discourse to run through nginx outside of container, to allow multiple sites to be hosted on same server.
+All operational scripts live in [`scripts/discourse/`](scripts/discourse/). Copy the directory to `/root/discourse/` on the target server.
 
-1. Install nginx
-2. Edit configuration at `/var/discourse/containers/app.yml`:
-3. Configure nginx server
-4. Rebuild app and restart nginx
+1. Place certificates in `/root/certs/` on the server (`forum.vcmi.eu.pem`, `forum.vcmi.eu.key`, `cloudflare-client.crt`).
+2. `scp -r scripts/discourse root@new-server:/root/`
+3. On the server:
+   ```sh
+   cd /root/discourse
+   ./prepare.sh
+   DISCOURSE_DEVELOPER_EMAILS='saven.ivan@gmail.com'  \
+   DISCOURSE_SMTP_USER_NAME='...'                     \
+   DISCOURSE_SMTP_PASSWORD='...'                      \
+       ./setup.sh
+   ```
 
-Modified configuration file:
+`prepare.sh` installs nginx + certs and runs the official Discourse install script (downloads Docker, sets up `/var/discourse`). `setup.sh` renders the templated `app.yml`, writes it to `/var/discourse/containers/app.yml`, and runs `./launcher rebuild app`.
 
-```text
-  - "templates/postgres.template.yml"
-  - "templates/redis.template.yml"
-  - "templates/web.template.yml"
-  - "templates/web.ratelimited.template.yml"
-  - "templates/web.socketed.template.yml"  # <-- Added
-#   - "templates/web.ssl.template.yml" # remove - https will be handled by outer nginx
-#   - "templates/web.letsencrypt.ssl.template.yml" # remove -- https will be handled by outer nginx
-# expose: # comment out entire section by putting a # in front of each line
-# - "80:80"   # http
-# - "443:443" # https  
-```
-
-Approximate order of commands:
-
-```sh
-cd /var/discourse
-apt install nginx
-nano containers/app.yml
-
-cd /etc/nginx/sites-available
-cp default forum.vcmi.eu
-cd ../sites-enabled
-ln -s ../sites-available/forum.vcmi.eu
-
-./launcher rebuild app
-sudo service nginx reload
-```
+The bundled `app.yml` runs Discourse via the `web.socketed.template.yml` Unix socket and disables Discourse's own SSL templates — HTTPS is terminated by host nginx using the Cloudflare Origin cert.
 
 ## Upgrade
 
-```sh
-cd /var/discourse
-./launcher rebuild app
-```
+`./upgrade.sh` runs `./launcher rebuild app`. Causes ~5 minutes of downtime.
 
-Alternatively can be done in UI, but untested
+Alternatively can be done in the admin UI, but untested.
 
 ## Migration
 
-When setting up Discourse, it needs to be already located on target domain name, so it might be a good idea to do operations in following order:
+DNS cutover goes **last** to minimise visible downtime — the new instance is
+fully restored and serving before users are pointed at it. (Discourse itself
+knows its hostname from `DISCOURSE_HOSTNAME` in `app.yml`, not from DNS, so a
+restore against the new container works before the A record moves.)
 
-- create backup on old server (or pick latest weekly backup)
-- switch domain name to new IP & wait for DNS to propagate
-- ensure that ports 80 and 443 are open on new server
-- setup Discourse on new server
-- restore backup either in web interface or in console on new server
-- adjust or migrate configuration file from old server to new one
+1. On the old server: `./export.sh` — produces `/root/discourse-backup.tar.gz`.
+2. Set up Discourse on the new server (Setup steps above).
+3. Transfer the backup directly between servers using your workstation's SSH agent for auth:
+   ```sh
+   ssh -A root@old-server "scp /root/discourse-backup.tar.gz root@new-server:/root/"
+   ```
+   Or, if agent forwarding is not available, route through the workstation: `scp -3 root@old:/root/discourse-backup.tar.gz root@new:/root/`.
+4. On the new server: `./import.sh /root/discourse-backup.tar.gz`.
+5. Switch the DNS A record for `forum.vcmi.eu` to the new server IP.

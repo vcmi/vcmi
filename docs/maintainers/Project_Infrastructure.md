@@ -7,7 +7,6 @@
 3. Verify VCMI.eu domain name expiration date with Tow
 4. Verify VCMI.download domain name expiration date with SXX
 5. Verify Google Apps (G Suite) status with Tow
-6. Restore firewall which for some reason is disabled on DO
 
 ## Services and accounts
 
@@ -18,7 +17,7 @@
 | [GitHub](https://github.com/vcmi/) | Code hosting, bug tracker, pull requests, website hosting | - | Tow, AVS, Ivan, Warmonger, SXX | - |
 | [VCMI.eu domain name](https://vcmi.eu) | Main domain for services | Tow | - | Renewal date **unknown** |
 | [VCMI.download domain name](https://vcmi.download) | Secondary domain name for downloads | SXX | - | Paid until **November 2026**. Registered on GANDI; **can be renewed by anyone without account access** |
-| [DigitalOcean](https://cloud.digitalocean.com/) | Hosting sponsor for all our self-hosted services | - | SXX, Warmonger, Ivan, AVS, Tow | - |
+| [Hetzner](https://console.hetzner.com/) | Hosting sponsor for all our self-hosted services | - | Ivan | - |
 | [CloudFlare](https://www.cloudflare.com/a/overview) | DNS & CDN for our web services | - | SXX, Ivan | All our web services are behind CloudFlare and use Cloudflare SSL certificates |
 | [Weblate](https://hosted.weblate.org/projects/vcmi/) | Game translations | - | Ivan | Hosts translations for VCMI itself (not including mods & website). Uses free "Gratis" plan |
 | [Google Play Console](https://play.google.com/apps/publish/) | VCMI Android App | SXX | Warmonger, AVS, Ivan, Fay | - |
@@ -26,6 +25,7 @@
 | [Launchpad PPA](https://launchpad.net/~vcmi) | Ubuntu package repository | Mantas Kriaučiūnas | Ivan, SXX, AVS | Contains daily builds and latest releases PPA's for Ubuntu |
 | [Sonar Cloud](https://sonarcloud.io/project/overview?id=vcmi_vcmi) | Code analysis | - | Shares credentials with Github | Integrated into Github pull requests |
 | [Discord Team](https://discord.com/developers/teams/1467529815450976543/information/) | Discord app holder | Ivan | Laserlicht, dydzio, Warmonger | Holds ownership of [Discord VCMI app](https://discord.com/developers/applications/1416538363254669455/information) that is used to display rich presence when people are playing VCMI |
+| [DigitalOcean](https://cloud.digitalocean.com/) | Former hosting sponsor for all our self-hosted services | - | SXX, Warmonger, Ivan, AVS, Tow | - |
 | [Snapcraft Dashboard](https://dashboard.snapcraft.io/) | Snap package distribution | - | SXX | Abandoned in favor of Flatpaks and PPA |
 | [Coverity Scan](https://scan.coverity.com/projects/vcmi) | Code analysis | - | SXX, Warmonger, AVS | Abandoned in favor of Sonar Cloud |
 | [OpenHub](https://www.openhub.net/p/VCMI) | Code statistics | - | Tow | - |
@@ -33,15 +33,15 @@
 | [GitLab](https://gitlab.com/vcmi/) | Code repository | - | SXX | Reserve account, not used |
 | [BitBucket](https://bitbucket.org/vcmi/) | Code repository | - | SXX | Reserve account, not used |
 
-Note: "Owner" refers to services that require one (and only one) account to have special superuser-like status, potentially - with legal and/or biling information. If service has no such requirement, this field is left blanc.
+Note: "Owner" refers to services that require one (and only one) account to have special superuser-like status, potentially - with legal and/or biling information. If service has no such requirement, this field is left blank.
 
-When possible at least two of active core developers must have access to them in case of emergency.
+When possible at least two active core developers must have access to them in case of emergency.
 
 #### Communities with page managed by VCMI Team
 
 | Service Name | Owner | Administrators | Notes |
 | ------------ | ----- | -------------- | ----- |
-| [Discord](https://discord.com/) | dydzio | SXX, Warmonger, Ivan... | Main communication platform |
+| [Discord](https://discord.com/) | dydzio | Ivan, OriginMD, Warmonger | Main communication platform |
 | [Facebook page](https://www.facebook.com/VCMIOfficial) | — | SXX, Warmonger | Active |
 | [Reddit](https://reddit.com/r/vcmi/) | — | SXX | Abandoned in favor of general H3 subreddits |
 | [Twitter account](https://twitter.com/VCMIOfficial) | — | SXX | Abandoned, User access via TweetDeck |
@@ -65,45 +65,36 @@ This section dedicated to explain specific configurations of our servers for any
 
 ### VPS configuration
 
-At the moment, most our services are hosted by Digital Ocean. Current approach is to keep services on separate VPS (called "droplets" by Digital Ocean) for better isolation & to allow independent restarts / upgrades. This also allows us to measure performance & system load of each service independently. All droplets can only be accessed using ssh login with public key. Currently access to all droplets is granted to:
-
-- Ivan Savenko
-- Alexvins
-- Warmonger
-- Tow
-- SXX
-- kambala (`vcmi-artifactory` droplet)
-
-Lobby is currently hosted on Hetzner, with migration of other services to Hetzner in plans. Login is via public key, currently granted to:
+All our services are currently hosted by Hetzner, with only some backups remaining on our old hoster, Digital Ocean (DO). Login is via public key, currently granted to:
 
 - Ivan Savenko
 
 | VPS | Location | Specifications | Services |
 | --- | -------- | -------------- | -------- |
-| `vcmi-forum` | DO Droplet | 2 Gb / 1 CPU / 25 Gb / $12 (+20%) | [Discourse forum](https://forum.vcmi.eu/). Note: 25 Gb droplet - ssd can be expanded, or we can downscale entire droplet to 1 Gb config |
-| `vcmi-weblate` | DO Droplet | 4 Gb / 2 CPU / 50 Gb / $24 (+20%) | [Weblate](https://weblate.vcmi.eu/) |
-| `vcmi-web` | DO Droplet | 512 Mb / 1 CPU / 10 Gb + 100 Gb / $4 (+20%) + $10 | Builds uploading from Github, [Build download page](http://download.vcmi.eu/), [Legacy download page](https://builds.vcmi.download/). Also contains nginx server for redirecting [old bug tracker](https://bugs.vcmi.eu/), [old wiki](https://wiki.vcmi.eu/), and [old slack invite page](https://slack.vcmi.eu/) |
-| `vcmi-lobby` | Hetzner Server | 4 Gb / 2 CPU / 40 Gb / €4 (+20%) | Multiplayer lobby (lobby.vcmi.eu or beholder.vcmi.eu - deprecated) as we ll as [API endpoint](https://api.vcmi.eu/) |
-| `vcmi-artifactory` | DO Snapshot | 4 Gb / 2 CPU / 80 Gb / $24 | [Conan Artifactory server](https://artifactory.vcmi.eu/) |
+| `vcmi-lobby` | Hetzner Server | 4 Gb / 2 CPU / 40 Gb / €4 (+20%) | Multiplayer lobby (lobby.vcmi.eu or beholder.vcmi.eu - deprecated) as well as [API endpoint](https://api.vcmi.eu/) |
+| `vcmi-web` | Hetzner Server | 8 Gb / 4 CPU / 80 Gb / €6.5 (+20%) + €5.72 | All our web-based services not related to lobby |
+| `vcmi-web (DO)` | DO Snapshot | 512 Mb / 1 CPU / 10 Gb / $1 | Build uploading |
+| `vcmi-weblate` | DO Snapshot | 4 Gb / 2 CPU / 50 Gb / $1 | [Weblate](https://weblate.vcmi.eu/). Migrated to Hetzner |
+| `vcmi-forum` | DO Snapshot | 2 Gb / 1 CPU / 25 Gb / $1 | Note: 25 Gb droplet - ssd can be expanded, or we can downscale entire droplet to 1 Gb config |
+| `vcmi-artifactory` | DO Snapshot | 4 Gb / 2 CPU / 80 Gb / $1 | [Conan Artifactory server](https://artifactory.vcmi.eu/) |
 | `vcmi-main` | DO Snapshot | ??? / $1 | Contains old bugtracker, forum, and wiki |
 | `vcmi-second` | DO Snapshot | ??? / $1 | Contains old MP lobby and builds uploader |
 
 Notes:
 
-- All active VPS run Ubuntu 24.04
+- `vcmi-web` runs Ubuntu 26.04
+- `vcmi-lobby` runs Ubuntu 24.04
+- All DO snapshots Ubuntu 24.04
 - VPS with deployed and tested services have backups enabled (+20% costs)
-- In addition, we have separate 100 Gb volume for builds ($10 / month), currently attached to `vcmi-web`
+- In addition, we have separate 100 Gb volume for builds (€5.72 / month), currently attached to `vcmi-web`
 
 ### Rules to stick to
 
 - SSH authentication by public key only.
-- Incoming connections to all ports except SSH (22) must be blocked.
-- Exception for HTTP(S) connection on ports 80 / 443 from [CloudFlare IP Ranges](https://www.cloudflare.com/ips/).
 - No one except core developers should ever know real server IPs.
 - Droplet hostname should never be valid host. Otherwise it's exposed in [reverse DNS](https://en.wikipedia.org/wiki/Reverse_DNS).
-- If some non-web service need to listen for external connections, it needs to use "Reserve IP" for it. If new services added firewall rules can be adjusted in [DO control panel](https://cloud.digitalocean.com/networking/firewalls).
 
-## Domain names
+## Domain names/
 
 | Domain | Content | Hosted on | Notes |
 | ------ | ------- | --------- | ----- |
@@ -112,14 +103,14 @@ Notes:
 | [upload.vcmi.eu](https://upload.vcmi.eu) | Domain name for uploading daily builds from Github | `vcmi-web` | No http services |
 | [beholder.vcmi.eu](https://beholder.vcmi.eu) | Multiplayer lobby | `vcmi-lobby` | No http services. Used for VCMI 1.7.3 lobby and older. Deprecated in favor of `lobby` |
 | [lobby.vcmi.eu](https://lobby.vcmi.eu) | Multiplayer lobby | `vcmi-lobby` | No http services |
-| [api.vcmi.eu](https://lobby.vcmi.eu) | Multiplayer lobby API endpoint | `vcmi-lobby` | nginx acts as proxy to provide https wrapper for http-only REST API |
-| [forum.vcmi.eu](https://forum.vcmi.eu) | Discourse forum | `vcmi-forum` | - |
+| [api.vcmi.eu](https://api.vcmi.eu) | Multiplayer lobby API endpoint | `vcmi-lobby` | nginx acts as proxy to provide https wrapper for http-only REST API |
+| [forum.vcmi.eu](https://forum.vcmi.eu) | Discourse forum | `vcmi-web` | - |
 | [bugs.vcmi.eu](https://bugs.vcmi.eu) | Bug tracker | `vcmi-web` | Redirects to [Github Issues](https://github.com/vcmi/vcmi/issues) |
 | [slack.vcmi.eu](https://slack.vcmi.eu) | Slack invite page | `vcmi-web` | Redirects to [main page](https://vcmi.eu/) |
-| [weblate.vcmi.eu](https://weblate.vcmi.eu) | Weblate translation service | `vcmi-weblate` | - |
+| [weblate.vcmi.eu](https://weblate.vcmi.eu) | Weblate translation service | `vcmi-web (Hetzner)` | - |
 | [wiki.vcmi.eu](https://wiki.vcmi.eu) | Wiki | `vcmi-web` | Redirects to [main page](https://vcmi.eu/) |
 | [vcmi.download](https://vcmi.download) | Main page redirect | CNAME | No content, redirects to [main page](https://vcmi.eu/) |
-| [builds.vcmi.download](https://builds.vcmi.download) | Public downloads | `vcmi-second` | Redirects to [download.vcmi.eu](https://download.vcmi.eu) |
+| [builds.vcmi.download](https://builds.vcmi.download) | Public downloads | `vcmi-web` | Redirects to [download.vcmi.eu](https://download.vcmi.eu) |
 
 ## Self-hosted services
 
@@ -132,9 +123,9 @@ Currenly we have following services deployed:
 
 Potential addition for the future:
 
-- Conan Artifactory
-- Crash reporter tool, such as [GlitchTip](https://glitchtip.com/)
-- (long-term) Expanded multiplayer lobby with cheat-proof game hosting
+- Conan Artifactory (full-fledged artifactory is likely too resource-heavy, we can consider low-end conan server instead)
+- Crash reporter tool, such as [GlitchTip](https://glitchtip.com/) (Tested, not functional enough) or [Sentry](https://sentry.io/for/open-source/) (Self-hosted option is too resources-heavy, but they offer hosting for open-source)
+- (long-term) Expanded multiplayer lobby with cheat-proof game hosting (likely on a separate, isolated VPS to prevent performance issues)
 
 ### Web Hosting
 

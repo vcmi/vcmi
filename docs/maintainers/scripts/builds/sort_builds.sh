@@ -12,13 +12,15 @@
 SOURCE_BASE_DIRECTORY="/home/downloader/tmp"
 TARGET_BASE_DIRECTORY="/home/downloader/www"
 
+shopt -s nullglob
+
 for fullpath in "${SOURCE_BASE_DIRECTORY}"/*.*
 do
 	echo "Full path: ${fullpath}"
 	filename=${fullpath##*/}
 	echo "Filename: ${filename}"
 
-	if [[ $filename =~ ^([0-9^\-]+)\-vcmi\-(branch|PR)\-([^-]+)\-([a-f0-9]+)(-[^.]+)? ]]
+	if [[ $filename =~ ^([0-9]+)\-vcmi\-(branch|PR)\-([^-]+)\-([a-f0-9]+)(-[^.]+)? ]]
 	then
 		jobidentifier=${BASH_REMATCH[1]} # unique Github job identifier, unused
 		category=${BASH_REMATCH[2]}      # branch or PR. Only branches are uploaded right now
