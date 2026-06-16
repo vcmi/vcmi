@@ -700,6 +700,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 void CServerHandler::endGameplay()
 {
+	client->endNetwork();
 	client->finishGameplay();
 
 	// Game is ending
