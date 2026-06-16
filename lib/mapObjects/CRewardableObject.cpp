@@ -265,6 +265,9 @@ std::string CRewardableObject::getPopupText(const CGHeroInstance * hero) const
 
 std::string CRewardableObject::getScoutedDescriptionMessage(const CGHeroInstance * hero) const
 {
+	if (configuration.info.empty())
+		return {};
+
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty() || !configuration.info[0].description.empty())
 		return configuration.info[0].description.toString();
