@@ -146,7 +146,7 @@ class MovementAnimation : public StackMoveAnimation
 private:
 	int moveSoundHandler; // sound handler used when moving a unit
 
-	const BattleHexArray & destTiles; //full path, includes already passed hexes
+	BattleHexArray destTiles; //full path, includes already passed hexes
 	ui32 currentMoveIndex; // index of nextHex in destTiles
 
 	double begX, begY; // starting position
