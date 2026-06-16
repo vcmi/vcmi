@@ -88,6 +88,16 @@ elseif(IOS)
 		endif()
 	endforeach()
 
+	if(BUNDLE_DEMO_DATA)
+		set(BUNDLE_DEMO_PATH "${CMAKE_SOURCE_DIR}/ios/h3demo.run")
+		if(EXISTS "${BUNDLE_DEMO_PATH}")
+			target_sources(vcmiclient PRIVATE "${BUNDLE_DEMO_PATH}")
+			set_source_files_properties("${BUNDLE_DEMO_PATH}" PROPERTIES
+				MACOSX_PACKAGE_LOCATION Resources
+			)
+		endif()
+	endif()
+
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 

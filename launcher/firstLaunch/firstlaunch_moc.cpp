@@ -26,6 +26,10 @@
 #include "../demo.h"
 #include "progressoverlay.h"
 
+#ifdef VCMI_IOS
+#	include "iOS_utils.h"
+#endif
+
 // Create and show overlay immediately
 static ProgressOverlay* createOverlayWidget(QWidget *parent, const QString &title, bool indeterminate = true)
 {
@@ -144,8 +148,25 @@ void FirstLaunchView::on_pushButtonGogInstall_clicked()
 	MessageBoxCustom::showDialog(this, [this]{extractGogData();});
 }
 
+void FirstLaunchView::startLocalDemoInstall(const QString & path)
+{
+	demoOverlay = createOverlay(tr("Installing Heroes III Demo..."), false);
+	demoOverlay->setRange(100);
+
+	demo = std::make_unique<DemoInstaller>(this);
+	demo->install(path);
+}
+
 void FirstLaunchView::on_pushButtonDemo_clicked()
 {
+#ifdef BUNDLE_DEMO_DATA
+	QString localDemoPath = QString::fromStdString(std::string(iOS_utils::bundlePath()) + "/h3demo.run");
+	if(QFile::exists(localDemoPath))
+	{
+		startLocalDemoInstall(localDemoPath);
+		return;
+	}
+#endif
 	demoOverlay = createOverlay(tr("Downloading Heroes III Demo..."), false);
 	demoOverlay->setRange(100);
 	demoOverlay->setValue(0);
@@ -156,9 +177,13 @@ void FirstLaunchView::on_pushButtonDemo_clicked()
 
 void FirstLaunchView::onInstallFinished()
 {
+	Settings node = settings.write["launcher"]["demoAutoInstalled"];
+	node->Bool() = true;
+
 	demoOverlay->deleteLater();
 	demoOverlay = nullptr;
-	heroesDataUpdate(true);
+	if(heroesDataUpdate(true))
+		activateTabModPreset();
 }
 
 void FirstLaunchView::onInstallError()
@@ -206,6 +231,13 @@ void FirstLaunchView::activateTabHeroesData()
 	if(heroesDataUpdate(false))
 	{
 		activateTabModPreset();
+		return;
+	}
+
+	// Auto-install bundled demo on first launch if no full game data present
+	if(hasBundledDemo())
+	{
+		autoInstallBundledDemo();
 		return;
 	}
 
@@ -312,6 +344,31 @@ void FirstLaunchView::heroesDataDetected()
 	demoDataActive = CModListView::isDemoDataPresent();
 
 	CGeneralTextHandler::detectInstallParameters();
+}
+
+bool FirstLaunchView::hasBundledDemo()
+{
+#ifdef BUNDLE_DEMO_DATA
+	QString demoPath = QString::fromStdString(std::string(iOS_utils::bundlePath()) + "/h3demo.run");
+	return QFile::exists(demoPath);
+#else
+	return false;
+#endif
+}
+
+void FirstLaunchView::autoInstallBundledDemo()
+{
+#ifdef BUNDLE_DEMO_DATA
+	if(settings["launcher"]["demoAutoInstalled"].Bool())
+	{
+		heroesDataMissing();
+		return;
+	}
+
+	QString demoPath = QString::fromStdString(std::string(iOS_utils::bundlePath()) + "/h3demo.run");
+	if(QFile::exists(demoPath))
+		startLocalDemoInstall(demoPath);
+#endif
 }
 
 // Tab Heroes III Data

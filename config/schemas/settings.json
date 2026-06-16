@@ -743,6 +743,10 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"demoAutoInstalled" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"ignoreSslErrors" : {
 					"type" : "boolean",
 					"default" : false

@@ -51,6 +51,10 @@ class FirstLaunchView : public QWidget, public IDemoInstallerCallback
 	void heroesDataMissing();
 	void heroesDataDetected();
 
+	static bool hasBundledDemo();
+	void autoInstallBundledDemo();
+	void startLocalDemoInstall(const QString & path);
+
 	QString getHeroesInstallDir();
 	void extractGogData();
 	void extractGogDataAsync(QString filePathBin, QString filePathExe);

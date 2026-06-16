@@ -78,6 +78,7 @@ endif()
 if(IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+	option(BUNDLE_DEMO_DATA "Bundle Heroes III demo data in app bundle (iOS only)" OFF)
 endif()
 
 include(CMakeDependentOption)

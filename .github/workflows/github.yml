@@ -57,6 +57,18 @@ jobs:
             conan_prebuilts: dependencies-ios
             conan_options: --profile=dependencies/conan_profiles/base/apple-system
 
+          - platform: ios-demo
+            os: macos-15
+            pack: 1
+            upload: 1
+            pack_type: RelWithDebInfo
+            extension: ipa
+            before_install: macos.sh
+            preset: ios-demo-release-conan-ccache
+            conan_profile: ios-arm64
+            conan_prebuilts: dependencies-ios
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
+
           - platform: msvc-x64
             arch: x64
             toolset: '14.29'
@@ -348,6 +360,19 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
+    - uses: actions/cache@v5
+      id: cache-demo
+      if: ${{ matrix.platform == 'ios-demo' }}
+      with:
+        path: ${{ github.workspace }}/ios/h3demo.run
+        key: ios-demo-h3demo
+
+    - name: Download Demo Data (iOS Demo)
+      if: ${{ matrix.platform == 'ios-demo' && steps.cache-demo.outputs.cache-hit != 'true' }}
+      run: |
+        mkdir -p "${{github.workspace}}/ios"
+        wget --progress=dot:giga "http://updates.lokigames.com/loki_demos/heroes3-demo.run" -O "${{github.workspace}}/ios/h3demo.run"
+
     - name: Configure (non-MSVC)
       if: ${{ !startsWith(matrix.platform, 'msvc') }}
       run: |
@@ -458,7 +483,7 @@ jobs:
             ${{github.workspace}}/**/*.pdb
 
     - name: Create iOS AppStore debug symbols
-      if: ${{ matrix.platform == 'ios' }}
+      if: ${{ matrix.platform == 'ios' || matrix.platform == 'ios-demo' }}
       run: |
         IOS_APPSTORE_SYMBOLS_DIR='${{ github.workspace }}/Symbols'
         mkdir "$IOS_APPSTORE_SYMBOLS_DIR"
@@ -466,7 +491,7 @@ jobs:
         xcrun symbols -arch all -symbolsPackageDir "$IOS_APPSTORE_SYMBOLS_DIR" $dsyms
         echo IOS_APPSTORE_SYMBOLS_DIR="$IOS_APPSTORE_SYMBOLS_DIR" >> $GITHUB_ENV
     - name: Upload iOS AppStore debug symbols
-      if: ${{ matrix.platform == 'ios' }}
+      if: ${{ matrix.platform == 'ios' || matrix.platform == 'ios-demo' }}
       uses: actions/upload-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}-symbols

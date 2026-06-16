@@ -351,6 +351,17 @@
             }
         },
         {
+            "name": "ios-demo-release-conan-ccache",
+            "displayName": "iOS demo+Conan release using ccache",
+            "description": "VCMI iOS demo release using Conan and ccache",
+            "inherits": "ios-release-conan",
+            "cacheVariables": {
+                "ENABLE_PCH" : "OFF",
+                "ENABLE_CCACHE": "ON",
+                "BUNDLE_DEMO_DATA": "ON"
+            }
+        },
+        {
             "name": "android-conan-ninja-release",
             "displayName": "Android release",
             "description": "VCMI Android Ninja using Conan",
@@ -535,6 +546,11 @@
         {
             "name": "ios-release-conan-ccache",
             "configurePreset": "ios-release-conan-ccache",
+            "inherits": "ios-release-conan"
+        },
+        {
+            "name": "ios-demo-release-conan-ccache",
+            "configurePreset": "ios-demo-release-conan-ccache",
             "inherits": "ios-release-conan"
         },
         {

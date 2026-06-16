@@ -271,6 +271,14 @@ if(IOS)
 		"-framework UniformTypeIdentifiers"
 	)
 
+	if(BUNDLE_DEMO_DATA)
+		if(EXISTS "${CMAKE_SOURCE_DIR}/ios/h3demo.run")
+			target_compile_definitions(vcmilauncher PRIVATE BUNDLE_DEMO_DATA)
+		else()
+			message(WARNING "BUNDLE_DEMO_DATA is ON but h3demo.run not found at ${CMAKE_SOURCE_DIR}/ios/h3demo.run")
+		endif()
+	endif()
+
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
 		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
