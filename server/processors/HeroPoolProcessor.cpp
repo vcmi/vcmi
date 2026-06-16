@@ -86,7 +86,7 @@ void HeroPoolProcessor::onHeroEscaped(const PlayerColor & color, const CGHeroIns
 	sah.player = color;
 	sah.hid = hero->getHeroTypeID();
 	sah.army.clearSlots();
-	sah.army.setCreature(SlotID(0), hero->getHeroType()->initialArmy.at(0).creature, 1);
+	sah.army.setCreature(SlotID(0), hero->getHeroType()->defaultCreature(), 1);
 	sah.replenishPoints = false;
 
 	gameHandler->sendAndApply(sah);
@@ -127,7 +127,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 		{
 			sah.roleID = TavernSlotRole::SINGLE_UNIT;
 			sah.army.clearSlots();
-			sah.army.setCreature(SlotID(0), newHero->getHeroType()->initialArmy[0].creature, 1);
+			sah.army.setCreature(SlotID(0), newHero->getHeroType()->defaultCreature(), 1);
 		}
 	}
 	else
