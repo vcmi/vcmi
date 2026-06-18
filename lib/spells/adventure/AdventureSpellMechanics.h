@@ -37,6 +37,8 @@ public:
 	~AdventureSpellMechanics();
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const final;
+	int getCastsAlreadyPerformed(const spells::Caster * caster) const final;
 
 private:
 	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;

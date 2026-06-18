@@ -59,6 +59,7 @@ set(test_SRCS
 #TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
+		spells/AdventureSpellEffectTest.cpp
 		spells/CSpellTest.cpp
  		spells/TargetConditionTest.cpp
 
