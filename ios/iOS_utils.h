@@ -33,6 +33,7 @@ const char *frameworksPath();
 const char *bundleIdentifier();
 
 bool isOsVersionAtLeast(unsigned int osMajorVersion);
+bool isTestFlightInstalled();
 void keepScreenOn(bool isEnabled);
 bool isIPad();
 }

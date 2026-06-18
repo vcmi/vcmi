@@ -719,6 +719,7 @@
 				"fullModExtraction",
 				"ignoreSslErrors",
 				"updateOnStartup",
+				"testingBuilds",
 				"updateConfigUrl",
 				"trackClipboardState"
 			],
@@ -759,9 +760,13 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"testingBuilds" : {
+					"type" : "boolean",
+					"default" : false
+				},
 				"updateConfigUrl" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/"
 				},
 				"trackClipboardState" : {
 					"type" : "boolean",

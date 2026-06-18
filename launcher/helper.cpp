@@ -194,15 +194,22 @@ bool canUseFolderPicker()
 #if defined(VCMI_ANDROID)
 	// Folder picker is available on API >= 21.
 	// Android/Google TV usually lacks DocumentsUI — hide this option.
+	const QAndroidJniObject context = QtAndroid::androidContext();
+	if(!context.isValid())
+		return false;
 
-	QAndroidJniObject context = QtAndroid::androidContext();
-	QAndroidJniObject uiModeMgr = context.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;", QAndroidJniObject::fromString("uimode").object<jstring>());
+	const QAndroidJniObject uiModeMgr = context.callObjectMethod(
+		"getSystemService",
+		"(Ljava/lang/String;)Ljava/lang/Object;",
+		QAndroidJniObject::fromString("uimode").object<jstring>());
 
 	if(uiModeMgr.isValid())
 	{
-		jint mode = uiModeMgr.callMethod<jint>("getCurrentModeType", "()I");
-		jint TV = QAndroidJniObject::getStaticField<jint>("android/content/res/Configuration", "UI_MODE_TYPE_TELEVISION");
-		if(mode == TV)
+		const jint mode = uiModeMgr.callMethod<jint>("getCurrentModeType", "()I");
+		const jint tvMode = QAndroidJniObject::getStaticField<jint>(
+			"android/content/res/Configuration",
+			"UI_MODE_TYPE_TELEVISION");
+		if(mode == tvMode)
 			return false;
 	}
 

@@ -14,6 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace GameConstants
 {
 const char GIT_SHA1[] = "@GIT_SHA1@";
+const char GIT_BRANCH[] = "@GIT_BRANCH@";
 }
 
 VCMI_LIB_NAMESPACE_END

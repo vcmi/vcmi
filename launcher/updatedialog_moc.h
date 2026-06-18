@@ -10,6 +10,12 @@
 #pragma once
 #include <QDialog>
 #include <QNetworkAccessManager>
+#include <QUrl>
+#include <QPixmap>
+
+class QResizeEvent;
+class QPaintEvent;
+class QShowEvent;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,18 +37,73 @@ public:
 	
 	static void showUpdateDialog(bool isManually);
 
+	QString releaseUrl;
+	QString testingUrl;
+	QString releaseVersion;
+	QString testingVersion;
+
+
+protected:
+	void resizeEvent(QResizeEvent * event) override;
+	void paintEvent(QPaintEvent * event) override;
+	void showEvent(QShowEvent * event) override;
+
 private slots:
     void on_checkOnStartup_stateChanged(int state);
+    void on_testingBuilds_stateChanged(int state);
+    void on_testingBuilds_clicked(bool checked);
+
+	void on_buildChannel_currentIndexChanged(int index);
+	void on_tabWidget_currentChanged(int index);
+
+	void on_installButton_clicked();
+	void on_closeButton_clicked();
+	void on_infoButton_clicked();
 
 private:
+	struct TestingBuildState
+	{
+		QString channel;
+		QString version;
+		QString commit;
+		QString buildDate;
+		QString downloadUrl;
+		QString changelog;
+		bool valid = false;
+	};
+
 	Ui::UpdateDialog *ui;
 	
 	std::string currentVersion;
-	std::string platformParameter = "other";
+	std::string currentCommit;
+	std::string currentBranch;
 	
 	QNetworkAccessManager networkManager;
-	
+	TestingBuildState betaState;
+	TestingBuildState developState;
+	QString selectedTestingCommit;
+	QString selectedTestingBuildDate;
+	QString selectedTestingChannel;
+	QString releaseBuildDate;
+	bool releaseOffer = false;
+	bool testingOffer = false;
+	bool testingChannelAutoSelectPending = true;
+
 	bool calledManually;
-	
-	void loadFromJson(const JsonNode & node);
+	QPixmap mobileBackdrop;
+	bool mobileBackdropCaptureScheduled = false;
+
+	void loadFromJson(const JsonNode & node, bool testing = false, const QString &channel = QString());
+	void fetchChannel(const QString& channel);
+	void refreshTestingBuildFromNewest();
+	void applySelectedTestingChannel();
+	void updateAvailabilityNotice();
+	bool handleIosInstallFlow();
+	QString selectedChannelDownloadUrl();
+	bool selectedChannelIsTesting() const;
+	void startSelectedDownload(const QString &url);
+	void startDownloadToCacheAndRun(const QUrl& url, const QString& target = QString(), bool targetIsFile = false);
+	void updateMobileBackdrop();
+	void ensureMobileBackdropCaptured();
+	void updateMobileHostGeometry();
 };

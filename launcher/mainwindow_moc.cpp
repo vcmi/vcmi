@@ -125,8 +125,8 @@ MainWindow::MainWindow(QWidget * parent)
 		enterSetup();
 
 	ui->settingsView->setDisplayList();
-	
-	if(settings["launcher"]["updateOnStartup"].Bool())
+
+	if(h3DataFound && setupCompleted && settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
 }
 
