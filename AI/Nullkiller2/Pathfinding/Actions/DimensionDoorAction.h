@@ -44,6 +44,8 @@ namespace NK2AI::AIPathfinding
 		int plannedSourceMoveRemains = 0;
 		int plannedSourceMoveLimit = 1;
 		int plannedDimensionDoorCasts = 0;
+		uint64_t guardedLandingDanger = 0;
+		uint64_t guardedLandingArmyLoss = 0;
 	};
 
 	class DimensionDoorAction : public SpecialAction
@@ -58,6 +60,8 @@ namespace NK2AI::AIPathfinding
 		int plannedSourceMoveRemains;
 		int plannedSourceMoveLimit;
 		int plannedDimensionDoorCasts;
+		uint64_t guardedLandingDanger;
+		uint64_t guardedLandingArmyLoss;
 
 	public:
 		explicit DimensionDoorAction(const DimensionDoorActionParameters & parameters);

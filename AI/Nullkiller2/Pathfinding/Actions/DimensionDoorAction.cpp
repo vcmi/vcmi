@@ -46,6 +46,8 @@ namespace NK2AI::AIPathfinding
 		, plannedSourceMoveRemains(parameters.plannedSourceMoveRemains)
 		, plannedSourceMoveLimit(parameters.plannedSourceMoveLimit)
 		, plannedDimensionDoorCasts(parameters.plannedDimensionDoorCasts)
+		, guardedLandingDanger(parameters.guardedLandingDanger)
+		, guardedLandingArmyLoss(parameters.guardedLandingArmyLoss)
 	{
 	}
 
@@ -90,6 +92,8 @@ namespace NK2AI::AIPathfinding
 		dstNode->theNodeBefore = source.node;
 		dstNode->moveRemains = std::max(0, plannedSourceMoveRemains - movementPointsTaken);
 		dstNode->setCost(srcNode->getCost() + static_cast<float>(std::min(plannedSourceMoveRemains, movementPointsTaken)) / plannedSourceMoveLimit);
+		dstNode->armyLoss += guardedLandingArmyLoss;
+		dstNode->danger = std::max(dstNode->danger, guardedLandingDanger);
 		destinationInfo.cost = dstNode->getCost();
 		destinationInfo.movementLeft = dstNode->moveRemains;
 	}

@@ -1176,7 +1176,12 @@ void AINodeStorage::calculateDimensionDoorTeleportationsForSpell(
 			if(!isDimensionDoorDestinationValid(source, hero, destination, plan))
 				continue;
 
-			addDimensionDoorTeleportation(neighbours, source, srcNode, destination, plan);
+			auto landing = getDimensionDoorLandingInfo(srcNode, hero, destination);
+
+			if(!landing.canLand)
+				continue;
+
+			addDimensionDoorTeleportation(neighbours, source, srcNode, destination, plan, landing);
 		}
 	}
 }
@@ -1191,14 +1196,47 @@ bool AINodeStorage::isDimensionDoorDestinationValid(
 		&& plan.effect->isValidTargetFrom(aiNk->cc.get(), hero, source.node->coord, destination);
 }
 
+AINodeStorage::DimensionDoorLandingInfo AINodeStorage::getDimensionDoorLandingInfo(
+	const AIPathNode * srcNode,
+	const CGHeroInstance * hero,
+	const int3 & destination) const
+{
+	DimensionDoorLandingInfo landing;
+	landing.destinationActor = srcNode->actor->castActor;
+
+	if(!aiNk->cc->getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS)
+		|| !aiNk->cc->isTileGuardedUnchecked(destination))
+	{
+		return landing;
+	}
+
+	landing.guardedLandingDanger = aiNk->dangerEvaluator->evaluateDanger(destination, hero, true);
+
+	if(landing.guardedLandingDanger == 0)
+		return landing;
+
+	const uint64_t actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
+	landing.guardedLandingArmyLoss = evaluateArmyLoss(hero, actualArmyValue, landing.guardedLandingDanger);
+
+	if(landing.guardedLandingArmyLoss >= actualArmyValue)
+	{
+		landing.canLand = false;
+		return landing;
+	}
+
+	landing.destinationActor = landing.destinationActor->battleActor;
+	return landing;
+}
+
 void AINodeStorage::addDimensionDoorTeleportation(
 	std::vector<CGPathNode *> & neighbours,
 	const PathNodeInfo & source,
 	const AIPathNode * srcNode,
 	const int3 & destination,
-	const DimensionDoorSpellPlan & plan)
+	const DimensionDoorSpellPlan & plan,
+	const DimensionDoorLandingInfo & landing)
 {
-	auto nodeOptional = getOrCreateNode(destination, source.node->layer, srcNode->actor->castActor);
+	auto nodeOptional = getOrCreateNode(destination, source.node->layer, landing.destinationActor);
 	if(!nodeOptional)
 	{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
@@ -1225,6 +1263,8 @@ void AINodeStorage::addDimensionDoorTeleportation(
 	parameters.plannedSourceMoveRemains = plan.plannedSourceMoveRemains;
 	parameters.plannedSourceMoveLimit = plan.plannedSourceMoveLimit;
 	parameters.plannedDimensionDoorCasts = plan.plannedDimensionDoorCasts;
+	parameters.guardedLandingDanger = landing.guardedLandingDanger;
+	parameters.guardedLandingArmyLoss = landing.guardedLandingArmyLoss;
 
 	node->specialAction = std::make_shared<AIPathfinding::DimensionDoorAction>(parameters);
 	neighbours.push_back(node);

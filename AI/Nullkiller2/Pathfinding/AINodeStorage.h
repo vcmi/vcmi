@@ -357,6 +357,14 @@ private:
 		float destinationCost = 0.f;
 	};
 
+	struct DimensionDoorLandingInfo
+	{
+		const ChainActor * destinationActor = nullptr;
+		uint64_t guardedLandingDanger = 0;
+		uint64_t guardedLandingArmyLoss = 0;
+		bool canLand = true;
+	};
+
 	void calculateObjectTeleportations(
 		std::vector<CGPathNode *> & neighbours,
 		const PathNodeInfo & source,
@@ -393,12 +401,18 @@ private:
 		const int3 & destination,
 		const DimensionDoorSpellPlan & plan) const;
 
+	DimensionDoorLandingInfo getDimensionDoorLandingInfo(
+		const AIPathNode * srcNode,
+		const CGHeroInstance * hero,
+		const int3 & destination) const;
+
 	void addDimensionDoorTeleportation(
 		std::vector<CGPathNode *> & neighbours,
 		const PathNodeInfo & source,
 		const AIPathNode * srcNode,
 		const int3 & destination,
-		const DimensionDoorSpellPlan & plan);
+		const DimensionDoorSpellPlan & plan,
+		const DimensionDoorLandingInfo & landing);
 
 	template<class TVector>
 	void calculateTownPortal(
