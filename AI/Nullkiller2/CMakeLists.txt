@@ -11,6 +11,7 @@ set(Nullkiller2_SRCS
 		Pathfinding/Actions/WhirlpoolAction.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
 		Pathfinding/Actions/AdventureSpellCastMovementActions.cpp
+		Pathfinding/Actions/DimensionDoorAction.cpp
 		Pathfinding/Rules/AILayerTransitionRule.cpp
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
@@ -83,6 +84,7 @@ set(Nullkiller2_HEADERS
 		Pathfinding/Actions/WhirlpoolAction.h
 		Pathfinding/Actions/TownPortalAction.h
 		Pathfinding/Actions/AdventureSpellCastMovementActions.h
+		Pathfinding/Actions/DimensionDoorAction.h
 		Pathfinding/Rules/AILayerTransitionRule.h
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
@@ -116,8 +118,9 @@ set(Nullkiller2_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Goals/StayAtTown.h
-		Goals/ExploreNeighbourTile.h
-		Helpers/HeroMap.h
+			Goals/ExploreNeighbourTile.h
+			Helpers/DimensionDoorUtils.h
+			Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h

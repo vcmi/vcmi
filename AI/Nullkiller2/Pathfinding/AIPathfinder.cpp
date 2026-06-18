@@ -88,7 +88,11 @@ void AIPathfinder::updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSetti
 		storage->setTownsAndDwellings(aiNk->cc->getTownsInfo(), aiNk->memory->visitableIdsToObjsSet(*aiNk->cc));
 	}
 
-	const auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(aiNk, storage, pathfinderSettings.allowBypassObjects);
+	const auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(
+		aiNk,
+		storage,
+		pathfinderSettings.allowBypassObjects,
+		pathfinderSettings.useDimensionDoor);
 	logAi->trace("Recalculate paths pass %d", pass++);
 	aiNk->cc->calculatePaths(config);
 

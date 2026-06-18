@@ -80,6 +80,9 @@ struct DLL_LINKAGE PathfinderOptions
 	/// </summary>
 	bool canUseCast;
 
+	/// Dimension Door creates explicit teleport edges in AI path search instead of enabling a movement layer.
+	bool useDimensionDoor;
+
 	/// <summary>
 	/// For AI. AI pathfinder needs to ignore this rule as it simulates battles on the way
 	/// </summary>

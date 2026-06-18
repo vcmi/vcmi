@@ -22,6 +22,8 @@
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIGateway.h"
+#include "../Helpers/DimensionDoorUtils.h"
+#include "Actions/DimensionDoorAction.h"
 #include "Actions/TownPortalAction.h"
 #include "Actions/WhirlpoolAction.h"
 
@@ -334,6 +336,7 @@ void AINodeStorage::commit(
 	destination->turns = turn;
 	destination->armyLoss = source->armyLoss;
 	destination->manaCost = source->manaCost;
+	destination->dimensionDoorCasts = destination->turns == source->turns ? source->dimensionDoorCasts : 0;
 	destination->danger = source->danger;
 	destination->theNodeBefore = source->theNodeBefore;
 	destination->chainOther = nullptr;
@@ -357,10 +360,7 @@ void AINodeStorage::commit(
 		committedTiles.insert(destination->coord);
 	}
 
-	if(destination->turns == source->turns)
-	{
-		destination->dayFlags = source->dayFlags;
-	}
+	destination->dayFlags = destination->turns == source->turns ? source->dayFlags : DayFlags::NONE;
 }
 
 void AINodeStorage::calculateNeighbours(
@@ -1028,31 +1028,206 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
+	auto srcNode = getAINode(source.node);
 
-	if(source.isNodeObjectVisitable())
-	{
-		auto accessibleExits = pathfinderHelper->getTeleportExits(source);
-		auto srcNode = getAINode(source.node);
+	calculateObjectTeleportations(neighbours, source, pathfinderHelper, srcNode);
 
-		for(auto & neighbour : accessibleExits)
-		{
-			std::optional<AIPathNode *> node = getOrCreateNode(neighbour, source.node->layer, srcNode->actor);
-			if(!node)
-			{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
-				logAi->warn(
-					"P:Step3 AINodeStorage::calculateTeleportations Failed to allocate node at %s[%d]",
-					neighbour.toString(),
-					static_cast<int32_t>(source.node->layer));
-#endif
-				continue;
-			}
-
-			neighbours.push_back(node.value());
-		}
-	}
+	if(canCalculateDimensionDoorTeleportations(source, pathfinderConfig, srcNode))
+		calculateDimensionDoorTeleportations(neighbours, source, pathfinderHelper, srcNode);
 
 	return neighbours;
+}
+
+void AINodeStorage::calculateObjectTeleportations(
+	std::vector<CGPathNode *> & neighbours,
+	const PathNodeInfo & source,
+	const CPathfinderHelper * pathfinderHelper,
+	const AIPathNode * srcNode)
+{
+	if(!source.isNodeObjectVisitable())
+		return;
+
+	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
+
+	for(auto & neighbour : accessibleExits)
+	{
+		std::optional<AIPathNode *> node = getOrCreateNode(neighbour, source.node->layer, srcNode->actor);
+		if(!node)
+		{
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+			logAi->warn(
+				"P:Step3 AINodeStorage::calculateTeleportations Failed to allocate node at %s[%d]",
+				neighbour.toString(),
+				static_cast<int32_t>(source.node->layer));
+#endif
+			continue;
+		}
+
+		neighbours.push_back(node.value());
+	}
+}
+
+bool AINodeStorage::canCalculateDimensionDoorTeleportations(
+	const PathNodeInfo & source,
+	const PathfinderConfig * pathfinderConfig,
+	const AIPathNode * srcNode) const
+{
+	return pathfinderConfig->options.canUseCast
+		&& pathfinderConfig->options.useDimensionDoor
+		&& srcNode->actor
+		&& srcNode->actor->hero
+		&& srcNode->actor->castActor
+		&& source.node->layer != EPathfindingLayer::AIR;
+}
+
+void AINodeStorage::calculateDimensionDoorTeleportations(
+	std::vector<CGPathNode *> & neighbours,
+	const PathNodeInfo & source,
+	const CPathfinderHelper * pathfinderHelper,
+	const AIPathNode * srcNode)
+{
+	const auto * hero = srcNode->actor->hero;
+
+	forEachDimensionDoorSpell(hero, [&](const CSpell * spell, const auto &, const DimensionDoorEffect *)
+	{
+		auto plan = getDimensionDoorSpellPlan(source, pathfinderHelper, srcNode, hero, spell);
+
+		if(!plan)
+			return;
+
+		calculateDimensionDoorTeleportationsForSpell(neighbours, source, srcNode, *plan);
+	});
+}
+
+std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimensionDoorSpellPlan(
+	const PathNodeInfo & source,
+	const CPathfinderHelper * pathfinderHelper,
+	const AIPathNode * srcNode,
+	const CGHeroInstance * hero,
+	const CSpell * spell) const
+{
+	const auto & mechanics = spell->getAdventureMechanics();
+	const auto * effect = mechanics.getEffectAs<DimensionDoorEffect>(hero);
+
+	if(!effect)
+		return std::nullopt;
+
+	const int3 mapSize = aiNk->cc->getMapSize();
+	const int manaCost = hero->getSpellCost(spell);
+	const int castsLimit = mechanics.getCastsLimit(hero, mapSize);
+	const int plannedSourceTurn = pathfinderHelper->turn;
+	const int plannedSourceMoveLimit = pathfinderHelper->getMaxMovePoints(source.node->layer);
+	const int plannedSourceMoveRemains = plannedSourceTurn == source.node->turns
+		? source.node->moveRemains
+		: plannedSourceMoveLimit;
+	const int plannedDimensionDoorCasts = plannedSourceTurn == source.node->turns ? srcNode->dimensionDoorCasts : 0;
+	const int castsAlreadyPerformed = plannedSourceTurn == 0 ? mechanics.getCastsAlreadyPerformed(hero) : 0;
+
+	if(!AIPathfinding::canUseDimensionDoorAction({
+		hero,
+		spell,
+		manaCost,
+		srcNode->manaCost,
+		plannedSourceMoveRemains,
+		effect->getMovementPointsRequired(),
+		castsLimit,
+		castsAlreadyPerformed,
+		plannedDimensionDoorCasts
+	}))
+	{
+		return std::nullopt;
+	}
+
+	const int movementPointsTaken = std::min(plannedSourceMoveRemains, effect->getMovementPointsTaken());
+	const float movementCost = static_cast<float>(movementPointsTaken) / plannedSourceMoveLimit;
+
+	DimensionDoorSpellPlan plan;
+	plan.spell = spell;
+	plan.effect = effect;
+	plan.manaCost = manaCost;
+	plan.plannedSourceTurn = plannedSourceTurn;
+	plan.plannedSourceMoveLimit = plannedSourceMoveLimit;
+	plan.plannedSourceMoveRemains = plannedSourceMoveRemains;
+	plan.plannedDimensionDoorCasts = plannedDimensionDoorCasts;
+	plan.destinationCost = source.node->getCost() + movementCost;
+
+	return plan;
+}
+
+void AINodeStorage::calculateDimensionDoorTeleportationsForSpell(
+	std::vector<CGPathNode *> & neighbours,
+	const PathNodeInfo & source,
+	const AIPathNode * srcNode,
+	const DimensionDoorSpellPlan & plan)
+{
+	const auto * hero = srcNode->actor->hero;
+	const int3 mapSize = aiNk->cc->getMapSize();
+	const int minX = std::max(0, source.node->coord.x - plan.effect->getRangeX());
+	const int maxX = std::min(mapSize.x - 1, source.node->coord.x + plan.effect->getRangeX());
+	const int minY = std::max(0, source.node->coord.y - plan.effect->getRangeY());
+	const int maxY = std::min(mapSize.y - 1, source.node->coord.y + plan.effect->getRangeY());
+
+	for(int x = minX; x <= maxX; ++x)
+	{
+		for(int y = minY; y <= maxY; ++y)
+		{
+			const int3 destination(x, y, source.node->coord.z);
+
+			if(!isDimensionDoorDestinationValid(source, hero, destination, plan))
+				continue;
+
+			addDimensionDoorTeleportation(neighbours, source, srcNode, destination, plan);
+		}
+	}
+}
+
+bool AINodeStorage::isDimensionDoorDestinationValid(
+	const PathNodeInfo & source,
+	const CGHeroInstance * hero,
+	const int3 & destination,
+	const DimensionDoorSpellPlan & plan) const
+{
+	return destination != source.node->coord
+		&& plan.effect->isValidTargetFrom(aiNk->cc.get(), hero, source.node->coord, destination);
+}
+
+void AINodeStorage::addDimensionDoorTeleportation(
+	std::vector<CGPathNode *> & neighbours,
+	const PathNodeInfo & source,
+	const AIPathNode * srcNode,
+	const int3 & destination,
+	const DimensionDoorSpellPlan & plan)
+{
+	auto nodeOptional = getOrCreateNode(destination, source.node->layer, srcNode->actor->castActor);
+	if(!nodeOptional)
+	{
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+		logAi->warn(
+			"P:Step6 AINodeStorage::calculateTeleportations Failed to allocate Dimension Door node at %s[%d]",
+			destination.toString(),
+			static_cast<int32_t>(source.node->layer));
+#endif
+		return;
+	}
+
+	AIPathNode * node = nodeOptional.value();
+
+	if(node->locked || node->getCost() <= plan.destinationCost)
+		return;
+
+	AIPathfinding::DimensionDoorActionParameters parameters;
+	parameters.usedSpell = plan.spell->id;
+	parameters.destination = destination;
+	parameters.manaCost = plan.manaCost;
+	parameters.movementPointsRequired = plan.effect->getMovementPointsRequired();
+	parameters.movementPointsTaken = plan.effect->getMovementPointsTaken();
+	parameters.plannedSourceTurn = plan.plannedSourceTurn;
+	parameters.plannedSourceMoveRemains = plan.plannedSourceMoveRemains;
+	parameters.plannedSourceMoveLimit = plan.plannedSourceMoveLimit;
+	parameters.plannedDimensionDoorCasts = plan.plannedDimensionDoorCasts;
+
+	node->specialAction = std::make_shared<AIPathfinding::DimensionDoorAction>(parameters);
+	neighbours.push_back(node);
 }
 
 struct TownPortalFinder

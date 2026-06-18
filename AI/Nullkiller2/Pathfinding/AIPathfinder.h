@@ -28,12 +28,14 @@ struct PathfinderSettings
 	uint8_t scoutTurnDistanceLimit;
 	uint8_t mainTurnDistanceLimit;
 	bool allowBypassObjects;
+	bool useDimensionDoor;
 
 	PathfinderSettings()
 		:useHeroChain(false),
 		scoutTurnDistanceLimit(MaxTurnDistanceLimit),
 		mainTurnDistanceLimit(MaxTurnDistanceLimit),
-		allowBypassObjects(true)
+		allowBypassObjects(true),
+		useDimensionDoor(true)
 	{ }
 };
 

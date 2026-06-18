@@ -35,6 +35,7 @@ PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	, oneTurnSpecialLayersLimit(true)
 	, turnLimit(std::numeric_limits<uint8_t>::max())
 	, canUseCast(false)
+	, useDimensionDoor(false)
 	, allowLayerTransitioningAfterBattle(false)
 	, forceUseTeleportWhirlpool(false)
 {
