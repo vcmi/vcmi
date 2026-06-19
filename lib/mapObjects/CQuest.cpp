@@ -59,7 +59,7 @@ CQuest::CQuest():
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
-	return LIBRARY->generaltexth->allTexts[id];
+	return LIBRARY->generaltexth->translate("core.genrltxt", id);
 }
 
 const std::string & CQuest::missionName(EQuestMission mission)
@@ -308,7 +308,7 @@ void CQuest::addKillTargetReplacements(MetaString &out) const
 	if(stackToKill != CreatureID::NONE)
 	{
 		out.replaceNamePlural(stackToKill);
-		out.replaceRawString(LIBRARY->generaltexth->arraytxt[147+stackDirection]);
+		out.replaceTextID(TextIdentifier("core", "arraytxt", 147 + stackDirection).get());
 	}
 }
 
@@ -475,7 +475,7 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	std::string hoverName = getObjectName();
 	if(ID == Obj::SEER_HUT && getQuest().activeForPlayers.count(player))
 	{
-		hoverName = LIBRARY->generaltexth->allTexts[347];
+		hoverName = LIBRARY->generaltexth->translate("core.genrltxt", 347);
 		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
 
@@ -581,7 +581,7 @@ void CGSeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 	else
 	{
-		iw.text.appendRawString(LIBRARY->generaltexth->seerEmpty[getQuest().completedOption]);
+		iw.text.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
 		gameEvents.showInfoDialog(&iw);
@@ -773,7 +773,7 @@ std::string CGKeys::getHoverText(PlayerColor player) const
 
 std::string CGKeys::getObjectName() const
 {
-	return LIBRARY->generaltexth->tentColors[subID.getNum()] + " " + CGObjectInstance::getObjectName();
+	return LIBRARY->generaltexth->translate("core.tentcolr", subID.getNum()) + " " + CGObjectInstance::getObjectName();
 }
 
 std::string CGKeys::getObjectDescription(PlayerColor player) const
@@ -810,14 +810,14 @@ void CGBorderGuard::initObj(IGameRandomizer & gameRandomizer)
 
 void CGBorderGuard::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	text.appendLocalString(EMetaText::ADVOB_TXT, 18);
+	text.appendTextID(TextIdentifier("core", "advevent", 18).get());
 }
 
 void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
 {
 	if (!onHover)
 	{
-		text.appendRawString(LIBRARY->generaltexth->tentColors[subID.getNum()]);
+		text.appendTextID(TextIdentifier("core", "tentcolr", subID.getNum()).get());
 		text.appendRawString(" ");
 		text.appendRawString(LIBRARY->objtypeh->getObjectName(Obj::KEYMASTER, subID));
 	}
@@ -834,7 +834,7 @@ void CGBorderGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIns
 	{
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
-		bd.text.appendLocalString (EMetaText::ADVOB_TXT, 17);
+		bd.text.appendTextID(TextIdentifier("core", "advevent", 17).get());
 		gameEvents.showBlockingDialog (this, &bd);
 	}
 	else
