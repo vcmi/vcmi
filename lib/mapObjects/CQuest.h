@@ -225,7 +225,6 @@ public:
 
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
-	QuestInstanceID qid;
 public:
 	using CGKeys::CGKeys;
 
