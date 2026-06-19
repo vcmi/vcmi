@@ -63,6 +63,7 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.heroes == r.heroes
 	&& l.heroClasses == r.heroClasses
 	&& l.players == r.players
+	&& l.requiredKeys == r.requiredKeys
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -213,8 +214,13 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	
 	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->getHeroClassID()))
 		return false;
-		
-	
+
+	for(const auto & keySubID : requiredKeys)
+	{
+		if(!hero->cb->getPlayerState(hero->getOwner())->visitedObjectsGlobal.count({Obj::KEYMASTER, keySubID}))
+			return false;
+	}
+
 	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))

@@ -96,6 +96,9 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// only player colors can pass limiter
 	std::vector<PlayerColor> players;
 
+	/// keymaster tent colours (subIDs) whose key the player must have collected to pass
+	std::vector<MapObjectSubID> requiredKeys;
+
 	/// sub-limiters, all must pass for this limiter to pass
 	LimitersList allOf;
 
