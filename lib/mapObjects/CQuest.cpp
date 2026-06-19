@@ -383,9 +383,9 @@ bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 	return getQuest().checkQuest(h);
 }
 
-void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+void CGQuestSource::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	getQuest().getVisitText(cb, text, components, FirstVisit, h);
+	activeQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
 // Map a position into the seer-hut compass text slot (1-9), matching the

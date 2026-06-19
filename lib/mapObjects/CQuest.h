@@ -150,10 +150,28 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGSeerHut : public CRewardableObject, public IQuestObject
+/// Abstract base for rewardable objects that gate a reward behind a CQuest.
+class DLL_LINKAGE CGQuestSource : public CRewardableObject, public IQuestObject
 {
 public:
 	using CRewardableObject::CRewardableObject;
+
+	/// The quest currently relevant for visiting / quest-log display.
+	virtual const CQuest & activeQuest() const { return getQuest(); }
+
+	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CRewardableObject&>(*this);
+		h & static_cast<IQuestObject&>(*this);
+	}
+};
+
+class DLL_LINKAGE CGSeerHut : public CGQuestSource
+{
+public:
+	using CGQuestSource::CGQuestSource;
 
 	std::string seerName;
 
@@ -167,7 +185,6 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
@@ -177,8 +194,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & static_cast<CRewardableObject&>(*this);
-		h & static_cast<IQuestObject&>(*this);
+		h & static_cast<CGQuestSource&>(*this);
 		h & seerName;
 	}
 protected:
