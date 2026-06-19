@@ -3454,7 +3454,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
 				int32_t difficultyMask = reader->readUInt32();
 				assert(difficultyMask > 0 && difficultyMask < 32);
-				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
+				guard->getQuest().mission.allowedDifficulties = MapDifficultySet(static_cast<uint8_t>(difficultyMask));
 				break;
 			}
 			if(missionSubID == 3)
