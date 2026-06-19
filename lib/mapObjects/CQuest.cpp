@@ -64,7 +64,7 @@ static std::string visitedTxt(const bool visited)
 
 const std::string & CQuest::missionName(EQuestMission mission)
 {
-	static const std::array<std::string, 14> names = {
+	static const std::array<std::string, 16> names = {
 		"empty",
 		"heroLevel",
 		"primarySkill",
@@ -78,7 +78,9 @@ const std::string & CQuest::missionName(EQuestMission mission)
 		"hotaINVALID", // only used for h3m parsing
 		"keymaster",
 		"heroClass",
-		"reachDate"
+		"reachDate",
+		"gameDifficulty",
+		"scripted"
 	};
 
 	if(static_cast<size_t>(mission) < names.size())
