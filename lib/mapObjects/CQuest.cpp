@@ -44,7 +44,6 @@ CQuest::CQuest():
 	qid(-1),
 	isCompleted(false),
 	lastDay(-1),
-	killTarget(ObjectInstanceID::NONE),
 	textOption(0),
 	completedOption(0),
 	stackDirection(0),
@@ -110,16 +109,7 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 
 bool CQuest::checkQuest(const CGHeroInstance * h) const
 {
-	if(!mission.heroAllowed(h))
-		return false;
-	
-	if(killTarget.hasValue())
-	{
-		PlayerColor owner = h->getOwner();
-		if (!h->cb->getPlayerState(owner)->destroyedObjects.count(killTarget))
-			return false;
-	}
-	return true;
+	return mission.heroAllowed(h);
 }
 
 void CQuest::completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance *h, bool allowFullArmyRemoval) const
@@ -184,13 +174,13 @@ void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text
 			text.replaceRawString(loot.buildList());
 	}
 	
-	if(killTarget != ObjectInstanceID::NONE && !heroName.empty())
+	if(!mission.destroyedObjects.empty() && !heroName.empty())
 	{
 		components.emplace_back(ComponentType::HERO_PORTRAIT, heroPortrait);
 		addKillTargetReplacements(text);
 	}
-	
-	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE)
+
+	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE)
 	{
 		components.emplace_back(ComponentType::CREATURE, stackToKill);
 		addKillTargetReplacements(text);
@@ -292,8 +282,8 @@ void CQuest::defineQuestName()
 	questName = CQuest::missionName(EQuestMission::NONE);
 	if(mission.heroLevel > 0) questName = CQuest::missionName(EQuestMission::LEVEL);
 	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(EQuestMission::PRIMARY_SKILL);
-	if(killTarget != ObjectInstanceID::NONE && !heroName.empty()) questName = CQuest::missionName(EQuestMission::KILL_HERO);
-	if(killTarget != ObjectInstanceID::NONE && stackToKill != CreatureID::NONE) questName = CQuest::missionName(EQuestMission::KILL_CREATURE);
+	if(!mission.destroyedObjects.empty() && !heroName.empty()) questName = CQuest::missionName(EQuestMission::KILL_HERO);
+	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE) questName = CQuest::missionName(EQuestMission::KILL_CREATURE);
 	if(!mission.artifacts.empty()) questName = CQuest::missionName(EQuestMission::ARTIFACT);
 	if(!mission.creatures.empty()) questName = CQuest::missionName(EQuestMission::ARMY);
 	if(mission.resources.nonZero()) questName = CQuest::missionName(EQuestMission::RESOURCES);
@@ -333,7 +323,13 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 	
 	handler.serializeInt("timeLimit", lastDay, -1);
 	handler.serializeStruct("limiter", mission);
+
+	// kill quests have a single target; kept as a scalar "killTarget" key for map
+	// compatibility, but stored in the limiter as mission.destroyedObjects
+	ObjectInstanceID killTarget = mission.destroyedObjects.empty() ? ObjectInstanceID::NONE : mission.destroyedObjects.front();
 	handler.serializeInstance("killTarget", killTarget, ObjectInstanceID::NONE);
+	if(!handler.saving && killTarget.hasValue())
+		mission.destroyedObjects.push_back(killTarget);
 
 	if(!handler.saving) //compatibility with legacy vmaps
 	{
@@ -404,9 +400,9 @@ void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &component
 
 void CGSeerHut::setObjToKill()
 {
-	if(getQuest().killTarget == ObjectInstanceID::NONE)
+	if(getQuest().mission.destroyedObjects.empty())
 		return;
-	
+
 	if(getCreatureToKill(true))
 	{
 		getQuest().stackToKill = getCreatureToKill(false)->getCreatureID();
@@ -444,7 +440,7 @@ void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 	setObjToKill();
 	getQuest().defineQuestName();
 	
-	if(getQuest().mission == Rewardable::Limiter{} && getQuest().killTarget == ObjectInstanceID::NONE)
+	if(getQuest().mission == Rewardable::Limiter{})
 		getQuest().isCompleted = true;
 	
 	if(getQuest().questName == getQuest().missionName(EQuestMission::NONE))
@@ -483,8 +479,7 @@ std::string CGSeerHut::getHoverText(PlayerColor player) const
 	}
 
 	if(getQuest().activeForPlayers.count(player)
-	   && (getQuest().mission != Rewardable::Limiter{}
-		   || getQuest().killTarget != ObjectInstanceID::NONE)) //rollover when the quest is active
+	   && getQuest().mission != Rewardable::Limiter{}) //rollover when the quest is active
 	{
 		MetaString ms;
 		getRolloverText (ms, true);
@@ -625,7 +620,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObj(getQuest().killTarget);
+	const CGObjectInstance *o = getQuest().mission.destroyedObjects.empty() ? nullptr : cb->getObj(getQuest().mission.destroyedObjects.front());
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGHeroInstance *>(o);
@@ -633,7 +628,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObj(getQuest().killTarget);
+	const CGObjectInstance *o = getQuest().mission.destroyedObjects.empty() ? nullptr : cb->getObj(getQuest().mission.destroyedObjects.front());
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGCreature *>(o);

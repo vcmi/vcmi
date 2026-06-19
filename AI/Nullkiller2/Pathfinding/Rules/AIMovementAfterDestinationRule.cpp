@@ -169,8 +169,7 @@ namespace AIPathfinding
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-		   && questObj->getQuest().mission == Rewardable::Limiter{}
-		   && questObj->getQuest().killTarget == ObjectInstanceID::NONE)
+		   && questObj->getQuest().mission == Rewardable::Limiter{})
 		{
 			return false;
 		}

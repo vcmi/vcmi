@@ -138,7 +138,8 @@ TEST_F(QuestLoaderKillTest, SeerKillCreature)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 	const auto * seer    = expectAt<CGSeerHut> (s.questPos);
 	const auto * monster = expectAt<CGCreature>(s.secondHeroPos);
-	EXPECT_EQ(seer->getQuest().killTarget, monster->id);
+	ASSERT_FALSE(seer->getQuest().mission.destroyedObjects.empty());
+	EXPECT_EQ(seer->getQuest().mission.destroyedObjects.front(), monster->id);
 }
 
 TEST_F(QuestLoaderKillTest, SeerKillHero)
@@ -147,5 +148,6 @@ TEST_F(QuestLoaderKillTest, SeerKillHero)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 	const auto * seer   = expectAt<CGSeerHut>     (s.questPos);
 	const auto * target = expectAt<CGHeroInstance>(s.secondHeroPos);
-	EXPECT_EQ(seer->getQuest().killTarget, target->id);
+	ASSERT_FALSE(seer->getQuest().mission.destroyedObjects.empty());
+	EXPECT_EQ(seer->getQuest().mission.destroyedObjects.front(), target->id);
 }

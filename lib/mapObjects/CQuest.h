@@ -52,7 +52,6 @@ public:
 	QuestInstanceID qid;
 
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
-	ObjectInstanceID killTarget;
 	Rewardable::Limiter mission;
 	bool repeatedQuest;
 	bool isCompleted;
@@ -112,7 +111,14 @@ public:
 		h & completedOption;
 		h & questName;
 		h & mission;
+		// legacy single kill target; now stored in mission.destroyedObjects. Kept at this
+		// wire position for save compatibility (formalised in the QUEST_REWORK pass).
+		ObjectInstanceID killTarget;
+		if(h.saving)
+			killTarget = mission.destroyedObjects.empty() ? ObjectInstanceID::NONE : mission.destroyedObjects.front();
 		h & killTarget;
+		if(!h.saving && killTarget.hasValue())
+			mission.destroyedObjects.push_back(killTarget);
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);

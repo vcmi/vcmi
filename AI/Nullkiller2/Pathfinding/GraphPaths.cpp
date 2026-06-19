@@ -84,8 +84,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 				auto questInfo = QuestInfo(node.obj->id);
 
 				if(node.obj->ID == Obj::QUEST_GUARD
-					&& questObj->getQuest().mission == Rewardable::Limiter{}
-					&& questObj->getQuest().killTarget == ObjectInstanceID::NONE)
+					&& questObj->getQuest().mission == Rewardable::Limiter{})
 				{
 					continue;
 				}

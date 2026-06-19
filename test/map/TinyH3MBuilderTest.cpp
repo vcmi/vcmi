@@ -295,6 +295,6 @@ TEST(TinyH3MBuilderTest, KillCreatureQuest)
 	ASSERT_NE(guard, nullptr);
 	EXPECT_EQ(guard->getQuest().lastDay, 10);
 	// Loader resolves the uint32 wire id to an ObjectInstanceID in afterRead;
-	// the resolved target lives on quest.killTarget once mapping completes.
-	EXPECT_TRUE(guard->getQuest().killTarget.hasValue());
+	// the resolved target lives in quest.mission.destroyedObjects once mapping completes.
+	EXPECT_FALSE(guard->getQuest().mission.destroyedObjects.empty());
 }

@@ -103,6 +103,9 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// game difficulties on which this limiter is active; default (all set) means no restriction
 	MapDifficultySet allowedDifficulties;
 
+	/// objects (by instance id) that the player must have destroyed to pass
+	std::vector<ObjectInstanceID> destroyedObjects;
+
 	/// sub-limiters, all must pass for this limiter to pass
 	LimitersList allOf;
 

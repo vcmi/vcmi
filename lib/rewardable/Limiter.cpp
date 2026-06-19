@@ -66,6 +66,7 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.players == r.players
 	&& l.requiredKeys == r.requiredKeys
 	&& l.allowedDifficulties == r.allowedDifficulties
+	&& l.destroyedObjects == r.destroyedObjects
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -225,6 +226,12 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	if(!allowedDifficulties.contains(hero->cb->getStartInfo()->getDifficulty()))
 		return false;
+
+	for(const auto & destroyed : destroyedObjects)
+	{
+		if(!hero->cb->getPlayerState(hero->getOwner())->destroyedObjects.count(destroyed))
+			return false;
+	}
 
 	for(const auto & sublimiter : noneOf)
 	{

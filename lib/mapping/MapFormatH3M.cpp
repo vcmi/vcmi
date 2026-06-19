@@ -3763,5 +3763,5 @@ void CMapLoaderH3M::afterRead()
 	}
 
 	for (auto & quest : questsToResolve)
-		quest.first->getQuest().killTarget = questIdentifierToId.at(quest.second);
+		quest.first->getQuest().mission.destroyedObjects.push_back(questIdentifierToId.at(quest.second));
 }

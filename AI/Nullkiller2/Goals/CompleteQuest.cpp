@@ -53,7 +53,7 @@ TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 	if(quest->mission.resources.nonZero())
 		return missionResources(aiNk);
 
-	if(quest->killTarget != ObjectInstanceID::NONE)
+	if(!quest->mission.destroyedObjects.empty())
 		return missionDestroyObj(aiNk);
 
 	for(auto & s : quest->mission.primary)
@@ -196,25 +196,22 @@ TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 {
-	const auto obj = aiNk->cc->getObj(q.getQuest(aiNk->cc.get())->killTarget);
-	if(!obj)
-		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
+	const auto * killQuest = q.getQuest(aiNk->cc.get());
 
-	const auto relations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
-
-	//if(relations == PlayerRelations::SAME_PLAYER)
-	//{
-	//	auto heroToProtect = cb->getHero(obj->id);
-
-	//	//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
-	//}
-	//else
-	if(relations == PlayerRelations::ENEMIES)
+	TGoalVec solutions;
+	for(const auto & targetId : killQuest->mission.destroyedObjects)
 	{
-		return CaptureObjectsBehavior(obj).decompose(aiNk);
-	}
+		const auto obj = aiNk->cc->getObj(targetId);
+		if(!obj)
+		{
+			vstd::concatenate(solutions, CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk));
+			continue;
+		}
 
-	return TGoalVec();
+		if(aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
+			vstd::concatenate(solutions, CaptureObjectsBehavior(obj).decompose(aiNk));
+	}
+	return solutions;
 }
 
 }
