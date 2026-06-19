@@ -3245,9 +3245,6 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			missionType = EQuestMission::ARTIFACT;
 		}
 		hut->getQuest().lastDay = -1; //no timeout
-		hut->getQuest().isCustomFirst = false;
-		hut->getQuest().isCustomNext = false;
-		hut->getQuest().isCustomComplete = false;
 	}
 
 	if(missionType != EQuestMission::NONE)
@@ -3477,9 +3474,6 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 	guard->getQuest().firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
 	guard->getQuest().nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
 	guard->getQuest().completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
-	guard->getQuest().isCustomFirst = !guard->getQuest().firstVisitText.empty();
-	guard->getQuest().isCustomNext = !guard->getQuest().nextVisitText.empty();
-	guard->getQuest().isCustomComplete = !guard->getQuest().completedText.empty();
 	return missionId;
 }
 

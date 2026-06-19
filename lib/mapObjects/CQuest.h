@@ -70,9 +70,6 @@ public:
 	MetaString firstVisitText;
 	MetaString nextVisitText;
 	MetaString completedText;
-	bool isCustomFirst;
-	bool isCustomNext;
-	bool isCustomComplete;
 
 	CQuest(); //TODO: Remove constructor
 
@@ -105,6 +102,11 @@ public:
 		h & firstVisitText;
 		h & nextVisitText;
 		h & completedText;
+		// legacy "text was customized" flags; now derived on the fly from text
+		// emptiness in initObj. Kept on the wire for save compatibility.
+		bool isCustomFirst = !firstVisitText.empty();
+		bool isCustomNext = !nextVisitText.empty();
+		bool isCustomComplete = !completedText.empty();
 		h & isCustomFirst;
 		h & isCustomNext;
 		h & isCustomComplete;

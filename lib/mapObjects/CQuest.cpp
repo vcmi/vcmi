@@ -47,9 +47,6 @@ CQuest::CQuest():
 	textOption(0),
 	completedOption(0),
 	stackDirection(0),
-	isCustomFirst(false),
-	isCustomNext(false),
-	isCustomComplete(false),
 	repeatedQuest(false),
 	missionKind(EQuestMission::NONE)
 {
@@ -314,13 +311,6 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 	handler.serializeStruct("completedText", completedText);
 	handler.serializeBool("repeatedQuest", repeatedQuest, false);
 
-	if(!handler.saving)
-	{
-		isCustomFirst = !firstVisitText.empty();
-		isCustomNext = !nextVisitText.empty();
-		isCustomComplete = !completedText.empty();
-	}
-	
 	handler.serializeInt("timeLimit", lastDay, -1);
 	handler.serializeStruct("limiter", mission);
 
@@ -450,11 +440,11 @@ void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 	else
 	{
 		const std::string & questName = CQuest::missionName(getQuest().missionKind);
-		if(!getQuest().isCustomFirst)
+		if(getQuest().firstVisitText.empty())
 			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(0), getQuest().textOption).get());
-		if(!getQuest().isCustomNext)
+		if(getQuest().nextVisitText.empty())
 			getQuest().nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(1), getQuest().textOption).get());
-		if(!getQuest().isCustomComplete)
+		if(getQuest().completedText.empty())
 			getQuest().completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(2), getQuest().textOption).get());
 	}
 	
