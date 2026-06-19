@@ -13,6 +13,7 @@
 
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
+#include "../StartInfo.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -64,6 +65,7 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.heroClasses == r.heroClasses
 	&& l.players == r.players
 	&& l.requiredKeys == r.requiredKeys
+	&& l.allowedDifficulties == r.allowedDifficulties
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -220,6 +222,9 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		if(!hero->cb->getPlayerState(hero->getOwner())->visitedObjectsGlobal.count({Obj::KEYMASTER, keySubID}))
 			return false;
 	}
+
+	if(!allowedDifficulties.contains(hero->cb->getStartInfo()->getDifficulty()))
+		return false;
 
 	for(const auto & sublimiter : noneOf)
 	{

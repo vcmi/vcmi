@@ -13,6 +13,7 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include "../mapping/MapDifficulty.h"
 #include "../serializer/Serializeable.h"
 
 class CGHeroInstance;
@@ -98,6 +99,9 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 
 	/// keymaster tent colours (subIDs) whose key the player must have collected to pass
 	std::vector<MapObjectSubID> requiredKeys;
+
+	/// game difficulties on which this limiter is active; default (all set) means no restriction
+	MapDifficultySet allowedDifficulties;
 
 	/// sub-limiters, all must pass for this limiter to pass
 	LimitersList allOf;

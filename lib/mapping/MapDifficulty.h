@@ -36,6 +36,17 @@ public:
 		return (1 << static_cast<uint8_t>(difficulty)) & mask;
 	}
 
+	/// true in the default state, when every difficulty is allowed (i.e. no restriction)
+	bool allowsAll() const
+	{
+		return mask == allDifficultiesMask;
+	}
+
+	bool operator==(const MapDifficultySet & other) const
+	{
+		return mask == other.mask;
+	}
+
 	template <typename Handler>
 	void serialize(Handler & h)
 	{

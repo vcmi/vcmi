@@ -301,6 +301,7 @@ void CQuest::defineQuestName()
 	if(!mission.players.empty()) questName = CQuest::missionName(EQuestMission::PLAYER);
 	if(mission.daysPassed > 0) questName = CQuest::missionName(EQuestMission::HOTA_REACH_DATE);
 	if(!mission.heroClasses.empty()) questName = CQuest::missionName(EQuestMission::HOTA_HERO_CLASS);
+	if(!mission.allowedDifficulties.allowsAll()) questName = CQuest::missionName(EQuestMission::HOTA_GAME_DIFFICULTY);
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
