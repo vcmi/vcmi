@@ -443,6 +443,8 @@
 	"vcmi.credits.vcmi": "VCMI",
 	"vcmi.credits.website": "Internetové stránky",
 	"vcmi.dimensionDoor.seaToLandError": "Pomocí dimenzní brány není možné se teleportovat z moře na pevninu nebo naopak.",
+	"vcmi.garrison.cannotMoveUnit": "Tuto jednotku nelze přesunout z posádky k hrdinovi.",
+	"vcmi.garrison.leave": "Opustit posádku",
 	"vcmi.heroOverview.secondarySkills": "Druhotné schopnosti",
 	"vcmi.heroOverview.spells": "Kouzla",
 	"vcmi.heroOverview.startingArmy": "Počáteční jednotky",

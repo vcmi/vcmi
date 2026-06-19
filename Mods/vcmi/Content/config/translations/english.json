@@ -445,6 +445,8 @@
 	"vcmi.credits.vcmi": "VCMI",
 	"vcmi.credits.website": "Website",
 	"vcmi.dimensionDoor.seaToLandError": "It's not possible to teleport from sea to land or vice versa with a Dimension Door.",
+	"vcmi.garrison.cannotMoveUnit": "This unit cannot be moved from the garrison to the hero.",
+	"vcmi.garrison.leave": "Leave the garrison",
 	"vcmi.heroOverview.secondarySkills": "Secondary Skills",
 	"vcmi.heroOverview.spells": "Spells",
 	"vcmi.heroOverview.startingArmy": "Starting Units",
