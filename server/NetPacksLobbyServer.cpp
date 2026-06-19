@@ -52,7 +52,6 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryStat
 void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
 {
 	LobbyModsCheck lms;
-	lms.serializationVersion = ESerializationVersion::CURRENT;
 	lms.vcmiVersion = VCMI_VERSION_STRING;
 
 	for(const auto & modId : LIBRARY->modh->getActiveMods())

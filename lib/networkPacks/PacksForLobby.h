@@ -189,7 +189,6 @@ struct DLL_LINKAGE LobbyQueryState : public CLobbyPackToServer
 /// Server response to LobbyQueryState with compatibility info for preview
 struct DLL_LINKAGE LobbyModsCheck : public CPackForLobby
 {
-	ESerializationVersion serializationVersion = ESerializationVersion::CURRENT;
 	std::string vcmiVersion;
 	ModCompatibilityInfo mods;
 	std::string hostAccountDisplayName;
@@ -199,7 +198,6 @@ struct DLL_LINKAGE LobbyModsCheck : public CPackForLobby
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & serializationVersion;
 		h & vcmiVersion;
 		h & mods;
 		h & hostAccountDisplayName;
