@@ -27,7 +27,10 @@ enum class EQuestMission {
 	RESOURCES = 7,
 	HERO = 8,
 	PLAYER = 9,
-	HOTA_MULTI = 10,
+	/// Parse-time only: appears solely in CMapLoaderH3M::readQuest, which rewrites it
+	/// to HOTA_HERO_CLASS / HOTA_REACH_DATE / HOTA_GAME_DIFFICULTY / HOTA_SCRIPTED
+	/// before returning. No in-memory CQuest ever holds this value.
+	HOTA_MULTI_PLACEHOLDER = 10,
 	// end of H3 missions
 
 	KEYMASTER = 11,

@@ -3429,7 +3429,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			guard->getQuest().mission.players.push_back(reader->readPlayer());
 			break;
 		}
-		case EQuestMission::HOTA_MULTI:
+		case EQuestMission::HOTA_MULTI_PLACEHOLDER:
 		{
 			uint32_t missionSubID = reader->readUInt32();
 			assert(missionSubID < 4);
