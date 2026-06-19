@@ -388,6 +388,19 @@ void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &component
 	getQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
+// Map a position into the seer-hut compass text slot (1-9), matching the
+// core.arraytxt direction strings ("in the north", "in the north-east", …).
+static int compassDirection(const int3 & pos, const int3 & mapSize)
+{
+	// thirds of the map: x/size < 1/3 and < 2/3, kept as integer comparisons
+	if(3 * pos.x < mapSize.x) //north
+		return 3 * pos.y < mapSize.y ? 8 : (3 * pos.y < 2 * mapSize.y ? 1 : 2);
+	if(3 * pos.x < 2 * mapSize.x) //horizontal
+		return 3 * pos.y < mapSize.y ? 7 : (3 * pos.y < 2 * mapSize.y ? 9 : 3);
+	//south
+	return 3 * pos.y < mapSize.y ? 6 : (3 * pos.y < 2 * mapSize.y ? 5 : 4);
+}
+
 void CGSeerHut::setObjToKill()
 {
 	if(getQuest().mission.destroyedObjects.empty())
@@ -397,7 +410,7 @@ void CGSeerHut::setObjToKill()
 	{
 		getQuest().stackToKill = getCreatureToKill(false)->getCreatureID();
 		assert(getQuest().stackToKill != CreatureID::NONE);
-		getQuest().stackDirection = checkDirection();
+		getQuest().stackDirection = compassDirection(getCreatureToKill(false)->visitablePos(), cb->getMapSize());
 	}
 	else if(getHeroToKill(true))
 	{
@@ -574,38 +587,6 @@ void CGSeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
 		gameEvents.showInfoDialog(&iw);
-	}
-}
-
-int CGSeerHut::checkDirection() const
-{
-	int3 cord = getCreatureToKill(false)->visitablePos();
-	if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.34) //north
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //northwest
-			return 8;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //north
-			return 1;
-		else //northeast
-			return 2;
-	}
-	else if(static_cast<double>(cord.x) / static_cast<double>(cb->getMapSize().x) < 0.67) //horizontal
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //west
-			return 7;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //central
-			return 9;
-		else //east
-			return 3;
-	}
-	else //south
-	{
-		if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.34) //southwest
-			return 6;
-		else if(static_cast<double>(cord.y) / static_cast<double>(cb->getMapSize().y) < 0.67) //south
-			return 5;
-		else //southeast
-			return 4;
 	}
 }
 
