@@ -171,13 +171,13 @@ void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text
 			text.replaceRawString(loot.buildList());
 	}
 	
-	if(!mission.destroyedObjects.empty() && !heroName.empty())
+	if(missionKind == EQuestMission::KILL_HERO)
 	{
 		components.emplace_back(ComponentType::HERO_PORTRAIT, heroPortrait);
 		addKillTargetReplacements(text);
 	}
 
-	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE)
+	if(missionKind == EQuestMission::KILL_CREATURE)
 	{
 		components.emplace_back(ComponentType::CREATURE, stackToKill);
 		addKillTargetReplacements(text);

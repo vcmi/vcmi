@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/army/CStackBasicDescriptor.h"
+#include "../../lib/mapping/MapDifficulty.h"
 
 // What survives the .h3m → CQuest mapping pipeline. Each test loads a SOD
 // scenario and asserts the resulting CQuest::mission matches the limiter the
@@ -150,4 +151,35 @@ TEST_F(QuestLoaderKillTest, SeerKillHero)
 	const auto * target = expectAt<CGHeroInstance>(s.secondHeroPos);
 	ASSERT_FALSE(seer->getQuest().mission.destroyedObjects.empty());
 	EXPECT_EQ(seer->getQuest().mission.destroyedObjects.front(), target->id);
+}
+
+// Pure classification check: defineQuestName must map the limiter shape (plus the
+// kill-target backups) to the right EQuestMission. No map fixture needed.
+
+namespace
+{
+EQuestMission classify(const std::function<void(CQuest &)> & setup)
+{
+	CQuest q;
+	setup(q);
+	q.defineQuestName();
+	return q.missionKind;
+}
+}
+
+TEST(QuestKind, classifiedByLimiterShape)
+{
+	EXPECT_EQ(classify([](CQuest &){}),                                                                        EQuestMission::NONE);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.heroLevel = 5; }),                                            EQuestMission::LEVEL);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.primary[0] = 3; }),                                           EQuestMission::PRIMARY_SKILL);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.destroyedObjects.emplace_back(0); q.heroName = "Bob"; }),     EQuestMission::KILL_HERO);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.destroyedObjects.emplace_back(0); q.stackToKill = CreatureID(0); }), EQuestMission::KILL_CREATURE);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.artifacts.push_back(ArtifactID(0)); }),                       EQuestMission::ARTIFACT);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.creatures.emplace_back(CreatureID(0), 1); }),                 EQuestMission::ARMY);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.resources[GameResID::GOLD] = 1000; }),                        EQuestMission::RESOURCES);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.heroes.push_back(HeroTypeID(0)); }),                          EQuestMission::HERO);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.players.push_back(PlayerColor(0)); }),                        EQuestMission::PLAYER);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.daysPassed = 10; }),                                          EQuestMission::HOTA_REACH_DATE);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.heroClasses.push_back(HeroClassID(0)); }),                    EQuestMission::HOTA_HERO_CLASS);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.allowedDifficulties = MapDifficultySet(1); }),               EQuestMission::HOTA_GAME_DIFFICULTY);
 }
