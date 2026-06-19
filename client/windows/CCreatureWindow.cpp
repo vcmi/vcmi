@@ -862,12 +862,24 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	: CWindowObject(BORDERED),
 	info(std::make_unique<UnitView>())
 {
-	updateCommanderLevelUpData(commander, skills, callback);
+	GAME->interface()->showingDialog->setBusy();
+	selectionSubmitted = false;
+
+	info->stackNode = commander;
+	info->creature = commander->getCreature();
+	info->commander = commander;
+	info->creatureCount = 1;
+	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
+	info->levelupInfo->skills = skills;
+	info->levelupInfo->callback = callback;
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
+
+	init();
 }
 
 CStackWindow::~CStackWindow() = default;
 
-void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, std::function<void(ui32)> callback)
+void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -1279,4 +1291,3 @@ void CStackWindow::setCloseOnSelection(bool value)
 {
 	closeOnSelection = value;
 }
-
