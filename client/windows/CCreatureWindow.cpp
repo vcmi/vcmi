@@ -646,7 +646,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 		dmgMultiply += battleStack->valOfBonuses(bonusSelector);
 	}
-		
+
 	static const std::array<std::string, 8> iconNames = {
 		"stackWindow/iconAttack", "stackWindow/iconDefense", "stackWindow/iconShots", "stackWindow/iconDamage",
 		"stackWindow/iconHealth", "stackWindow/iconHealthLeft", "stackWindow/iconSpeed", "stackWindow/iconMana"
@@ -838,7 +838,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 		info->upgradeInfo = std::make_optional(UnitView::StackUpgradeInfo(upgradeInfo));
 		info->upgradeInfo->callback = callback;
 	}
-	
+
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
 	info->dismissInfo->callback = dismiss;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->getArmy());
@@ -925,16 +925,6 @@ void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * command
 	redraw();
 }
 
-void CStackWindow::setFreeOnSelection(bool value)
-{
-	freeOnSelection = value;
-}
-
-void CStackWindow::setCloseOnSelection(bool value)
-{
-	closeOnSelection = value;
-}
-
 bool CStackWindow::isCommanderLevelUpDialog() const
 {
 	return info && info->commander && info->levelupInfo.has_value();
@@ -953,8 +943,7 @@ void CStackWindow::submitSelection()
 		}
 
 		selectionSubmitted = true;
-		if(freeOnSelection)
-			GAME->interface()->showingDialog->setFree();
+		GAME->interface()->showingDialog->setFree();
 	}
 
 	if(closeOnSelection)
@@ -1286,3 +1275,8 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 		redraw();
 	}
 }
+void CStackWindow::setCloseOnSelection(bool value)
+{
+	closeOnSelection = value;
+}
+

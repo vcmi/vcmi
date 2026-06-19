@@ -548,7 +548,6 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 		// Free the visible-dialog gate as soon as the player makes a choice.
 		// The query-backed dialog queue still keeps manual input blocked until the
 		// server resolves this level-up step and advances the chain.
-		levelWindow->setFreeOnSelection(true);
 		levelWindow->setCloseOnSelection(queryID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
@@ -578,7 +577,6 @@ void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, s
 		// Free the visible-dialog gate as soon as the player makes a choice.
 		// The query-backed dialog queue still keeps manual input blocked until the
 		// server resolves this level-up step and advances the chain.
-		levelWindow->setFreeOnSelection(true);
 		levelWindow->setCloseOnSelection(queryID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
@@ -1065,6 +1063,7 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 		}
 
 		waitWhileDialog(); //Fix for mantis #98
+		closeActiveLevelUpDialog();
 		showInfoBox(true);
 		return;
 	}
@@ -1121,6 +1120,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
 	{
+		closeActiveLevelUpDialog();
 		showDialog();
 	}
 	else
@@ -1152,6 +1152,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
+	closeActiveLevelUpDialog();
 
 	movementController->requestMovementAbort();
 	ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
@@ -1931,10 +1932,7 @@ void CPlayerInterface::createAndQueueDialog(PendingDialog::Type blockingPolicy, 
 	dialog.showCallback = std::move(showCallback);
 
 	if(dialog.isLevelUpDialog() && (levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog())))
-	{
 		dialogs.insert(findQueryBackedDialogInsertionPoint(), std::move(dialog));
-		levelUpChainPendingContinuation = false;
-	}
 	else
 		dialogs.push_back(std::move(dialog));
 }
@@ -1977,10 +1975,6 @@ void CPlayerInterface::tryShowNextPendingDialog()
 		{
 			levelUpChainPendingContinuation = false;
 			closeActiveLevelUpDialog();
-		}
-		else
-		{
-			levelUpChainPendingContinuation = false;
 		}
 
 		dialog.showCallback();

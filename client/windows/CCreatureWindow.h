@@ -219,7 +219,6 @@ public:
 	CStackWindow(const CCommanderInstance * commander, bool popup);
 	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
 	void updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, std::function<void(ui32)> callback);
-	void setFreeOnSelection(bool value);
 	void setCloseOnSelection(bool value);
 	bool isCommanderLevelUpDialog() const;
 	void close() override;
@@ -228,7 +227,6 @@ public:
 	~CStackWindow();
 
 private:
-	bool freeOnSelection = true;
 	bool closeOnSelection = true;
 	bool selectionSubmitted = false;
 };
