@@ -30,6 +30,7 @@ class IGameSettings;
 namespace spells
 {
 	class Service;
+	class SchoolService;
 
 	namespace effects
 	{
@@ -60,6 +61,7 @@ public:
 	virtual const ObstacleService * obstacles() const = 0;
 	virtual const IGameSettings * engineSettings() const = 0;
 	virtual const spells::effects::SpellEffectService * spellEffects() const = 0;
+	virtual const spells::SchoolService * spellSchools() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

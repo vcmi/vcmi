@@ -208,6 +208,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	initPlayerStates();
 	if (campaign)
 		campaign->placeCampaignHeroes(randomGenerator);
+	map->resolveHeroPlaceholderObjectives();
 	removeHeroPlaceholders();
 	initGrailPosition(randomGenerator);
 	initRandomFactionsForPlayers(randomGenerator);
@@ -215,6 +216,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	placeStartingHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
+	adjustObjectsToMapBounds();
 	initHeroes(gameRandomizer);
 	initStartingBonus(gameRandomizer);
 	initTowns(randomGenerator);
@@ -232,6 +234,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
+	rebuildObjectControlHistory();
 }
 
 void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -397,10 +400,10 @@ void CGameState::initDifficulty()
 	logGlobal->debug("\tLoading difficulty settings");
 	JsonNode config = JsonUtils::assembleFromFiles("config/difficulty.json");
 	config.setModScope(ModScope::scopeGame()); // FIXME: should be set to actual mod
-	
+
 	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
-	
+
 	auto setDifficulty = [this](PlayerState & state, const JsonNode & json)
 	{
 		//set starting resources
@@ -409,17 +412,17 @@ void CGameState::initDifficulty()
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
 		state.resources += ps.handicap.startBonus;
-		
+
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())
 			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
 				state.addNewBonus(bonus);
-		
+
 		//set battle bonuses
 		for(auto & jsonBonus : json["battleBonuses"].Vector())
 			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
 				state.battleBonuses.push_back(*bonus);
-		
+
 	};
 
 	for (auto & elem : players)
@@ -521,6 +524,21 @@ void CGameState::randomizeMapObjects(IGameRandomizer & gameRandomizer)
 			map->eraseObject(obj->id);
 }
 
+void CGameState::rebuildObjectControlHistory()
+{
+	for(const auto & object : map->getObjects())
+	{
+		if(!object)
+			continue;
+
+		const auto owner = object->getOwner();
+		if(!owner.isValidPlayer())
+			continue;
+
+		markObjectControlled(owner, object->id);
+	}
+}
+
 void CGameState::initOwnedObjects()
 {
 	for(const auto & object : map->getObjects())
@@ -607,6 +625,24 @@ void CGameState::removeHeroPlaceholders()
 	}
 }
 
+void CGameState::adjustObjectsToMapBounds()
+{
+	for(auto & obj : map->getObjects())
+	{
+		if(!obj->isVisitable())
+			continue;
+
+		const auto oldVisitablePos = obj->visitablePos();
+		if(!map->adjustToMapBounds(obj))
+			continue;
+
+		const auto newVisitablePos = obj->visitablePos();
+		logGlobal->warn(
+			"Object %s has out of map bounds visitable position %s. Shifted to %s.",
+			obj->getObjectName(), oldVisitablePos.toString(), newVisitablePos.toString());
+	}
+}
+
 void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 {
 	//heroes instances initialization
@@ -626,7 +662,16 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 	for (auto heroID : map->getHeroesOnMap())
 	{
 		auto hero = getHero(heroID);
-		assert(map->isInTheMap(hero->visitablePos()));
+		const auto pos = hero->visitablePos();
+
+		if(!map->isInTheMap(pos))
+		{
+			logGlobal->warn(
+				"initHeroes: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
+				hero->getNameTranslated(), pos.toString());
+			continue;
+		}
+
 		const auto & tile = map->getTile(hero->visitablePos());
 
 		if (hero->ID == Obj::PRISON)
@@ -1067,7 +1112,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));
-	
+
 	auto currentLayer = map->mapLayers.at(tile.z);
 	const auto & terrainBattlefields = t.getTerrain()->battleFields;
 
@@ -1218,14 +1263,16 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 	if (p->enteredLosingCheatCode)
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 
-	for (const TriggeredEvent & event : map->triggeredEvents)
+	for(const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if (event.trigger.test(evaluateEvent))
+		if(event.effect.type == EventEffect::VICTORY)
 		{
-			if (event.effect.type == EventEffect::VICTORY)
+			if(event.trigger.test(evaluateEvent))
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
-
-			if (event.effect.type == EventEffect::DEFEAT)
+		}
+		else if(event.effect.type == EventEffect::DEFEAT)
+		{
+			if(event.trigger.test(evaluateEvent))
 				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 		}
 	}
@@ -1240,7 +1287,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & p
 bool CGameState::checkForVictory(const PlayerColor & player, const EventCondition & condition) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayerState(player);
-	switch (condition.condition)
+	switch(condition.condition)
 	{
 		case EventCondition::STANDARD_WIN:
 		{
@@ -1259,12 +1306,12 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 			// NOTE: only heroes & towns are checked, in line with H3.
 			// Garrisons, mines, and guards of owned dwellings(!) are excluded
 			int totalCreatures = 0;
-			for (const auto & hero : p->getHeroes())
+			for(const auto & hero : p->getHeroes())
 				for(const auto & elem : hero->Slots()) //iterate through army
 					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
 						totalCreatures += elem.second->getCount();
 
-			for (const auto & town : p->getTowns())
+			for(const auto & town : p->getTowns())
 				for(const auto & elem : town->Slots()) //iterate through army
 					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
 						totalCreatures += elem.second->getCount();
@@ -1277,16 +1324,16 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::HAVE_BUILDING:
 		{
-			if (condition.objectID != ObjectInstanceID::NONE) // specific town
+			if(condition.objectID != ObjectInstanceID::NONE) // specific town
 			{
 				const auto * t = getTown(condition.objectID);
 				return (t->tempOwner == player && t->hasBuilt(condition.objectType.as<BuildingID>()));
 			}
 			else // any town
 			{
-				for (const CGTownInstance * t : p->getTowns())
+				for(const CGTownInstance * t : p->getTowns())
 				{
-					if (t->hasBuilt(condition.objectType.as<BuildingID>()))
+					if(t->hasBuilt(condition.objectType.as<BuildingID>()))
 						return true;
 				}
 				return false;
@@ -1294,9 +1341,13 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::DESTROY:
 		{
-			if (condition.objectID != ObjectInstanceID::NONE) // mode A - destroy specific object of this type
+			// Preserve hero-placeholder objectives as in HotA / OH3 so the map remains playable.
+			if(condition.objectType.as<MapObjectID>() == Obj::HERO_PLACEHOLDER)
+				return false;
+
+			if(condition.objectID != ObjectInstanceID::NONE) // mode A - destroy specific object of this type
 			{
-				return p->destroyedObjects.count(condition.objectID);
+				return p->destroyedObjects.contains(condition.objectID);
 			}
 			else
 			{
@@ -1310,28 +1361,54 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::CONTROL:
 		{
-			// list of players that need to control object to fulfull condition
-			// NOTE: CGameInfoCallback specified explicitly in order to get const version
 			const auto * team = CGameInfoCallback::getPlayerTeam(player);
 
-			if (condition.objectID != ObjectInstanceID::NONE) // mode A - flag one specific object, like town
+			// Preserve hero-placeholder objectives as in HotA / OH3 so the map remains playable.
+			if(condition.objectType.as<MapObjectID>() == Obj::HERO_PLACEHOLDER)
+				return true;
+
+			if(condition.objectID != ObjectInstanceID::NONE)
 			{
 				const auto * object = getObjInstance(condition.objectID);
 
-				if (!object)
-					return false;
-				return team->players.count(object->getOwner()) != 0;
+				if(!object)
+					return !hasEverControlled(player, condition.objectID);
+
+				if(team->players.contains(object->getOwner()))
+					return true;
+
+				return !hasEverControlled(player, condition.objectID);
 			}
-			else
+
+			for(const auto & elem : map->getObjects())
 			{
-				for(const auto & elem : map->getObjects()) // mode B - flag all objects of this type
-				{
-					 //check not flagged objs
-					if ( elem && elem->ID == condition.objectType.as<MapObjectID>() && team->players.count(elem->getOwner()) == 0 )
-						return false;
-				}
+				if(elem && elem->ID == condition.objectType.as<MapObjectID>() && !team->players.contains(elem->getOwner()))
+					return false;
+			}
+
 				return true;
 			}
+		case EventCondition::CONTROL_CURRENT:
+		{
+			const auto * team = CGameInfoCallback::getPlayerTeam(player);
+
+			// Preserve hero-placeholder objectives as in HotA / OH3 so the map remains playable.
+			if(condition.objectType.as<MapObjectID>() == Obj::HERO_PLACEHOLDER)
+				return true;
+
+			if(condition.objectID != ObjectInstanceID::NONE)
+			{
+				const auto * object = getObjInstance(condition.objectID);
+				return object && team->players.contains(object->getOwner());
+			}
+
+			for(const auto & elem : map->getObjects())
+			{
+				if(elem && elem->ID == condition.objectType.as<MapObjectID>() && !team->players.contains(elem->getOwner()))
+					return false;
+			}
+
+			return true;
 		}
 		case EventCondition::TRANSPORT:
 		{
@@ -1351,7 +1428,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::DAYS_WITHOUT_TOWN:
 		{
-			if (p->daysWithoutCastle)
+			if(p->daysWithoutCastle)
 				return p->daysWithoutCastle >= condition.value;
 			else
 				return false;
@@ -1403,9 +1480,21 @@ bool CGameState::checkForStandardLoss(const PlayerColor & player) const
 	return pState.checkVanquished();
 }
 
+void CGameState::markObjectControlled(PlayerColor player, ObjectInstanceID id)
+{
+	if(auto * playerState = getPlayerState(player))
+		playerState->markObjectControlled(id);
+}
+
+bool CGameState::hasEverControlled(PlayerColor player, ObjectInstanceID id) const
+{
+	const auto * playerState = getPlayerState(player);
+	return playerState && playerState->hasEverControlled(id);
+}
+
 void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 {
-	auto playerInactive = [&](const PlayerColor & color) 
+	auto playerInactive = [&](const PlayerColor & color)
 	{
 		 return color == PlayerColor::NEUTRAL || players.at(color).status != EPlayerStatus::INGAME;
 	};
@@ -1555,6 +1644,8 @@ void CGameState::restoreBonusSystemTree()
 
 	if (campaign)
 		campaign->setGamestate(this);
+
+	rebuildObjectControlHistory();
 
 	// WORKAROUND FOR 1.6 SAVES
 	static_assert(ESerializationVersion::RELEASE_160 == ESerializationVersion::MINIMAL, "Please remove this code after dropping 1.6 save compat");

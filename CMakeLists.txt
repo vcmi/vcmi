@@ -8,7 +8,7 @@ project(VCMI)
 # - Cleanup remove_directory copy_directory if performance will be a problem.
 # We can use some macro over copy_if_different since it's only work for single file.
 # - Find a way to move add_custom_command for assets deploy out of "lib/CMakeLists.txt"
-# - Consider to remove M_DATA_DIR, DM_BIN_DIR, DM_LIB_DIR and not use them in code as well
+# - Consider to remove M_DATA_DIR, M_BIN_DIR and not use them in code as well
 # - Try to get rid of FOLDER override with define_property
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 
@@ -75,7 +75,7 @@ if(ANDROID)
 	set(ENABLE_STATIC_LIBS ON)
 	set(ENABLE_LAUNCHER ON)
 else()
-	option(ENABLE_STATIC_LIBS "Build library and all components such as AI statically" OFF)
+	option(ENABLE_STATIC_LIBS "Link libvcmi statically into client/server applications" OFF)
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
@@ -109,30 +109,32 @@ else()
 	option(ENABLE_SINGLE_APP_BUILD "Builds client and launcher as single executable" OFF)
 	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 	option(ENABLE_LOBBY "Enable compilation of lobby server" OFF)
-
-	include(CheckCXXCompilerFlag)
-	if(MSVC)
-		check_cxx_compiler_flag("/std:c++23" COMPILER_SUPPORTS_CXX23)
-		if(NOT COMPILER_SUPPORTS_CXX23)
-			check_cxx_compiler_flag("/std:c++23preview" COMPILER_SUPPORTS_CXX23_PREVIEW)
-			set(COMPILER_SUPPORTS_CXX23 ${COMPILER_SUPPORTS_CXX23_PREVIEW})
-		endif()
-	else()
-		check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
-	endif()
-
 	option(ENABLE_DISCORD "Enable compilation of discord integration" ON)
 
-	# Determine if Glaze can be used
-	set(DISCORD_RPC_NO_GLAZE OFF)
-	if(
-		(MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "10.15")
-		OR
-		(IOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
-		OR
-		(NOT COMPILER_SUPPORTS_CXX23)
-	)
-		set(DISCORD_RPC_NO_GLAZE ON)
+	if (ENABLE_DISCORD)
+		include(CheckCXXCompilerFlag)
+		if(MSVC)
+			check_cxx_compiler_flag("/std:c++23" COMPILER_SUPPORTS_CXX23)
+			if(NOT COMPILER_SUPPORTS_CXX23)
+				check_cxx_compiler_flag("/std:c++23preview" COMPILER_SUPPORTS_CXX23_PREVIEW)
+				set(COMPILER_SUPPORTS_CXX23 ${COMPILER_SUPPORTS_CXX23_PREVIEW})
+			endif()
+		else()
+			check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
+		endif()
+
+
+		# Determine if Glaze can be used
+		set(DISCORD_RPC_NO_GLAZE OFF)
+		if(
+			(MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "10.15")
+			OR
+			(IOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
+			OR
+			(NOT COMPILER_SUPPORTS_CXX23)
+		)
+	        set(DISCORD_RPC_NO_GLAZE ON)
+		endif()
 	endif()
 endif()
 
@@ -147,9 +149,8 @@ option(VCMI_PORTMASTER "PortMaster build" OFF)
 #        Miscellaneous options             #
 ############################################
 
-if (ENABLE_STATIC_LIBS AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
+# OBJECT libs are linked into the shared (or PIE-executable-embedded) facade, so every TU must be PIC.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_COLORIZED_COMPILER_OUTPUT)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -663,7 +664,6 @@ else()
 		# following constants only used for platforms using XDG (Linux, BSD, etc)
 		add_definitions(-DM_DATA_DIR="${DATA_DIR}")
 		add_definitions(-DM_BIN_DIR="${BIN_DIR}")
-		add_definitions(-DM_LIB_DIR="${LIB_DIR}")
 
 		set(CMAKE_INSTALL_RPATH "$ORIGIN/")
 	else()
@@ -671,7 +671,7 @@ else()
 			set(BIN_DIR "${CMAKE_INSTALL_BINDIR}" CACHE STRING "Where to install binaries")
 		endif()
 		if(NOT LIB_DIR)
-			set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
+			set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Where to install main library")
 		endif()
 		if(NOT DATA_DIR)
 			set(DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/vcmi" CACHE STRING "Where to install data files")
@@ -680,19 +680,7 @@ else()
 		# following constants only used for platforms using XDG (Linux, BSD, etc)
 		add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
 		add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
-		add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
-
-		set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 	endif()
-endif()
-
-# iOS/Android have flat libs directory structure
-if(IOS OR ANDROID)
-	set(AI_LIB_DIR "${LIB_DIR}")
-	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
-else()
-	set(AI_LIB_DIR "${LIB_DIR}/AI")
-	set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 endif()
 
 # common Qt paths
@@ -710,18 +698,20 @@ if(IOS)
 	add_subdirectory(ios)
 endif()
 
+add_subdirectory(lib)
+
 if (ENABLE_CLIENT)
 	add_subdirectory_with_folder("AI" AI)
 endif()
 
-add_subdirectory(lib)
+if(NOT ENABLE_MINIMAL_LIB)
+	add_subdirectory(luascript)
+endif()
+
+add_subdirectory(libFacade)
 
 if (ENABLE_CLIENT OR ENABLE_SERVER)
 	add_subdirectory(server)
-endif()
-
-if(NOT ENABLE_MINIMAL_LIB)
-	add_subdirectory(luascript)
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)

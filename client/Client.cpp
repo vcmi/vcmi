@@ -27,7 +27,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/CPlayerBattleCallback.h"
 #include "../lib/callback/CCallback.h"
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/callback/CGlobalAI.h"
 #include "../lib/callback/IGameInfoCallback.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -235,7 +235,7 @@ void CClient::initPlayerInterfaces()
 
 				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
 				logNetwork->info("Player %s will be lead by %s", color.toString(), AiToGive);
-				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				installNewPlayerInterface(AIFactory::createAdventureAI(AiToGive), color);
 			}
 			else
 			{
@@ -258,19 +258,15 @@ void CClient::initPlayerInterfaces()
 	}
 
 	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
-		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
+		installNewBattleInterface(AIFactory::createBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
 {
-	if(ps.name.size())
-	{
-		const boost::filesystem::path aiPath = VCMIDirs::get().fullLibraryPath("AI", ps.name);
-		if(boost::filesystem::exists(aiPath))
-			return ps.name;
-	}
+	if(ps.name.size() && AIFactory::isAvailableAdventureAI(ps.name))
+		return ps.name;
 
 	return aiNameForPlayer(battleAI, alliedToHuman);
 }

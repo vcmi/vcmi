@@ -103,7 +103,15 @@ class CModFilterModel final : public QSortFilterProxyModel
 
 public:
 	void setTypeFilter(ModFilterMask filterMask);
-	void reloadFilter() { invalidateFilter(); }
+	void reloadFilter()
+	{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+		beginFilterChange();
+		endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+		invalidateFilter();
+#endif
+	}
 
 	CModFilterModel(ModStateItemModel * model, QObject * parent = nullptr);
 };

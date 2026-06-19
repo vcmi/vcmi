@@ -35,8 +35,8 @@ public:
 	ArtifactID readArtifact8();
 	ArtifactID readArtifact32();
 	BuildingID readBuilding32(std::optional<FactionID> faction);
-	CreatureID readCreature32();
-	CreatureID readCreature();
+	CreatureID readCreature32(const std::string & context = {});
+	CreatureID readCreature(const std::string & context = {});
 	HeroTypeID readHero();
 	HeroTypeID readHero32();
 	HeroTypeID readHeroPortrait();

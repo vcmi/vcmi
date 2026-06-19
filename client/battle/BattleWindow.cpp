@@ -47,7 +47,6 @@
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/callback/CDynLibHandler.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"

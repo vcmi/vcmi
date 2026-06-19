@@ -15,6 +15,8 @@
 
 #include "../../LuaCallWrapper.h"
 
+#include "../adventure/HeroInstance.h"
+
 #include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
@@ -23,11 +25,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace scripting::api
 {
 
-const std::vector<IGameInfoCallbackProxy::CustomRegType> IGameInfoCallbackProxy::REGISTER_CUSTOM =
+void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getHero", LuaMethodWrapper<&GameCb::getHero>::invoke, false},
-	{"getObj",  LuaMethodWrapper<&GameCb::getObj>::invoke,  false},
-};
+	R.method<&GameCb::getHero>("getHero",
+		{{"objectID", "Map object identifier of the hero to fetch."}}, {},
+		"Returns the hero by its object identifier, or nil if not found.");
+	R.method<&GameCb::getObj>("getObj",
+		{
+			{"objectID", "Map object identifier of the object to fetch."},
+			{"verbose",  "Pass true to log a warning when the object isn't found."}
+		}, {},
+		"Returns the map object by its identifier, or nil if not found.");
+}
 
 }
 

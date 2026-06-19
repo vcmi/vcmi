@@ -194,6 +194,7 @@ public:
 		EXPECT_CALL(creatureServiceMock, getById(Eq(toSummon))).WillRepeatedly(Return(&toSummonType));
 		EXPECT_CALL(creatureServiceMock, getByIndex(Eq(toSummon.getNum()))).WillRepeatedly(Return(&toSummonType));
 		EXPECT_CALL(creatureServiceMock, getByName(_)).WillRepeatedly(Return(&toSummonType));
+		EXPECT_CALL(toSummonType, getId()).WillRepeatedly(Return(toSummon));
 		EXPECT_CALL(toSummonType, getMaxHealth()).WillRepeatedly(Return(unitHealth));
 		EXPECT_CALL(toSummonType, getJsonKey()).WillRepeatedly(Return("core:airElemental"));
 

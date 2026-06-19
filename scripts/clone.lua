@@ -24,13 +24,13 @@ function Script:apply(mechanics, server, target)
 		local hex = battle:getAvailableHex(
 			creature,
 			mechanics:getCasterSide(),
-			unit:getPosition():toInteger()
+			unit:getPosition()
 		)
 		if not hex:isValid() then break end
 
 		local cloneUnit = server:addUnit(battle, {
 			count    = unit:getCount(),
-			type     = creature:getJsonKey(),
+			type     = creature,
 			side     = mechanics:getCasterSide(),
 			position = hex,
 			summoned = true

@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "abstractsettings.h"
 #include "../mapcontroller.h"
+#include "../../lib/entities/hero/CHero.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -106,6 +107,16 @@ std::string AbstractSettings::getHeroName(const CMap & map, int objectIdx)
 	{
 		name = hero->getNameTranslated();
 	}
+	else if(auto placeholder = dynamic_cast<const CGHeroPlaceholder*>(map.objects.at(objectIdx).get()))
+	{
+		if(placeholder->heroType.has_value())
+			name = placeholder->heroType->toHeroType()->getNameTranslated();
+		else if(placeholder->powerRank.has_value())
+			name = boost::str(boost::format(QObject::tr("Hero placeholder (power rank %1)").toStdString()) % placeholder->powerRank.value());
+		else
+			// Hero placeholders are expected to be initialized with either heroType or powerRank.
+			assert(0);
+	}
 	return name;
 }
 
@@ -117,6 +128,47 @@ std::string AbstractSettings::getMonsterName(const CMap & map, int objectIdx)
 		name = boost::str(boost::format("%1% at %2%") % monster->getObjectName() % monster->anchorPos().toString());
 	}
 	return name;
+}
+
+std::vector<int> AbstractSettings::getHeroTargetObjectIndexes(const CMap & map)
+{
+	std::vector<int> result = getObjectIndexes<const CGHeroInstance>(map);
+	for(const auto * placeholder : map.getObjects<CGHeroPlaceholder>())
+		result.push_back(placeholder->id.getNum());
+
+	return result;
+}
+
+int AbstractSettings::getHeroTargetObjectByPos(const CMap & map, const int3 & pos)
+{
+	for(const auto * hero : map.getObjects<CGHeroInstance>())
+	{
+		const bool matchesPosition =
+			hero->anchorPos() == pos ||
+			(hero->isVisitable() && hero->visitableAt(pos)) ||
+			hero->coveringAt(pos);
+
+		if(matchesPosition)
+			return hero->id.getNum();
+	}
+
+	for(const auto * placeholder : map.getObjects<CGHeroPlaceholder>())
+	{
+		const bool matchesPosition =
+			placeholder->anchorPos() == pos ||
+			(placeholder->isVisitable() && placeholder->visitableAt(pos)) ||
+			placeholder->coveringAt(pos);
+
+		if(matchesPosition)
+			return placeholder->id.getNum();
+	}
+
+	return -1;
+}
+
+bool AbstractSettings::isHeroTargetObject(const CGObjectInstance * obj)
+{
+	return dynamic_cast<const CGHeroInstance *>(obj) || dynamic_cast<const CGHeroPlaceholder *>(obj);
 }
 
 JsonNode AbstractSettings::conditionToJson(const EventCondition & event)

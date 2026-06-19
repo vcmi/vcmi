@@ -10,12 +10,15 @@
 
 #pragma once
 
-#include <typeinfo>
+#include <typeindex>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
+
+class MethodRegistrar;
+class FieldDocRegistrar;
 
 /// Interface implemented by each proxy wrapper type; pushes the Lua metatable (and static table) for that type.
 class Registar
@@ -24,6 +27,19 @@ public:
 	virtual ~Registar() = default;
 
 	virtual void pushMetatable(lua_State * L) const = 0;
+
+	/// Drives the proxy's `registerMethods` against the given visitor. Used by the docs
+	/// exporter and the coverage test to introspect bindings without touching a lua_State.
+	virtual void collectDocs(MethodRegistrar & sink) const = 0;
+
+	/// Drives `serializeScript` against the given field visitor for ApiSerializable types.
+	/// Default is no-op — proxy wrappers (which expose methods, not fields) keep it empty.
+	virtual void collectFields(FieldDocRegistrar &) const { }
+
+	/// Returns the proxy's class-level description (the `luaDescription` constant).
+	/// Used by the docs exporter and coverage test. Required to be non-empty for every
+	/// type exposed to scripts — empty is allowed only as an explicit "no docs" marker.
+	virtual std::string_view getDescription() const = 0;
 };
 
 /// Singleton that maps C++ type names to their Registar; used by LuaStack to attach metatables and by LuaContext to expose all types.
@@ -51,9 +67,16 @@ public:
 	{
 		return typeid(T).name();
 	}
+
+	/// Returns the Lua-facing name for a C++ type. Throws std::runtime_error if the type was
+	/// not registered — every non-primitive C++ type that appears in a binding signature must
+	/// be registered either via a proxy (registerPrivate / registerSerializable) or via an
+	/// explicit alias call in the constructor.
+	std::string lookupLuaName(std::type_index t) const;
 private:
 	RegistryData privateData;
 	RegistryData publicData;
+	std::unordered_map<std::type_index, std::string> luaNameByType;
 
 	Registry();
 
@@ -61,11 +84,22 @@ private:
 	void addPrivate(const std::string & name, const std::shared_ptr<Registar> & item);
 
 	template<typename T>
-	void registerPrivate(const std::string & name)
+	void registerLuaName(std::string_view name)
+	{
+		[[maybe_unused]] auto inserted = luaNameByType.try_emplace(std::type_index(typeid(T)), std::string(name));
+		assert(inserted.second);
+	}
+
+	template<typename T>
+	void registerPrivate()
 	{
 		auto r = std::make_shared<T>();
-		addPrivate(name, r);
+		addPrivate(std::string(T::luaName), r);
+		registerLuaName<typename T::ObjectType>(T::luaName);
 	}
+
+	template<typename T>
+	void registerSerializable();
 };
 
 }

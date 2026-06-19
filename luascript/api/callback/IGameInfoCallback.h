@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 #include "../../../lib/callback/IGameInfoCallback.h"
 
@@ -18,16 +19,21 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGObjectInstance;
+
 namespace scripting::api
 {
 
 class IGameInfoCallbackProxy : public RawPointerWrapper<const GameCb, IGameInfoCallbackProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const GameCb, IGameInfoCallbackProxy>;
+	static constexpr std::string_view luaName = "Game";
+	static constexpr std::string_view luaDescription =
+		"Adventure-map query interface. Provides world-level "
+		"lookups: current date, players, towns, heroes, and map objects accessible to the "
+		"calling script's owner.";
 
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
-
+	static void registerMethods(MethodRegistrar & R);
 };
 
 }

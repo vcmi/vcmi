@@ -24,7 +24,8 @@ For platform-specific build and test instructions see [`docs/developers/Building
 
 ### Directory Structure
 
-- **lib/** - Shared library (VCMI_lib) with core game logic and data structures
+- **lib/** - Core static library `vcmiMain` with core game logic and data structures.
+  - Aggregated into the shipped shared library `vcmi` (`VCMI_lib.dll` / `libvcmi.so`) by the **libFacade/** target along with all AI implementations and `vcmiLua`. Consumers always link the facade target `vcmi`, not `vcmiMain` directly.
   - **battle/** - Battle system (damage calculation, pathfinding, unit state)
   - **bonuses/** - Bonus system (core mechanics for granting attributes to units/heroes)
   - **callback/** - Interfaces for accessing game state (used by AI and client)
@@ -69,10 +70,11 @@ For platform-specific build and test instructions see [`docs/developers/Building
 - **lobby/** - Standalone global lobby server (SQLite-backed, separate from game server)
 - **launcher/** - Qt-based game launcher
 - **mapeditor/** - Qt-based map editor
-- **luascript/** - Lua scripting module host
+- **luascript/** - Lua scripting host, built as the static library `vcmiLua` and aggregated into `vcmi` by libFacade
+- **libFacade/** - Tiny aggregator target that produces the shipped `vcmi` shared library by linking `vcmiMain` + `vcmiLua` + every enabled AI
 - **config/** - Game configuration file (json-with-comments format)
 - **scripts/** - Lua scripts used by the game
-- **AI/** - AI modules
+- **AI/** - AI modules, each built as a static archive and linked into the `vcmi` facade. They are constructed by name through `AIFactory` in `lib/callback/AIFactory.h`; there is no dynamic library loading.
   - **BattleAI/** - combat AI (default)
   - **Nullkiller2/** - Modern adventure map AI (default)
   - **MMAI/** - Machine-learning-based combat AI (experimental)
@@ -139,7 +141,7 @@ See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for
 
 ### Namespace Wrapping (iOS/Android Considerations)
 
-On mobile systems, the lib is built as a static library and linked into a single process with both client and server. The lib symbols must be wrapped in a namespace. This is handled by:
+On mobile systems, all binaries are built into a single executable & linked statically. The lib symbols are wrapped in a namespace to keep them isolated. This is handled by:
 
 - `VCMI_LIB_NAMESPACE_BEGIN` / `VCMI_LIB_NAMESPACE_END` macros in lib code
 - Forward declarations of lib symbols in external code must also use these macros

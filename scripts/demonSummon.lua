@@ -55,7 +55,7 @@ function Script:apply(mechanics, server, target)
 		local hex = battle:getAvailableHex(
 			creatureType,
 			mechanics:getCasterSide(),
-			targetStack:getPosition():toInteger()
+			targetStack:getPosition()
 		)
 
 		if not hex:isValid() then
@@ -74,7 +74,7 @@ function Script:apply(mechanics, server, target)
 			battle,
 			{
 				count    = finalAmount,
-				type     = creatureType:getJsonKey(),
+				type     = creatureType,
 				side     = mechanics:getCasterSide(),
 				position = hex,
 				summoned = not self.permanent

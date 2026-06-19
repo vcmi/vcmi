@@ -11,7 +11,9 @@
 
 #include "Problem.h"
 
+#include "../Enums.h"
 #include "../LuaMetaString.h"
+#include "Mechanics.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/texts/MetaString.h"
 
@@ -37,12 +39,21 @@ void ProblemProxy::addStandard(Problem & problem, const Mechanics & mechanics, E
 	mechanics.adaptProblem(spellProblem, problem);
 }
 
-const std::vector<ProblemProxy::CustomRegType> ProblemProxy::REGISTER_CUSTOM =
+void ProblemProxy::registerMethods(MethodRegistrar & R)
 {
-	{"addCustom",   LuaFunctionWrapper<&ProblemProxy::addCustom>::invoke,   false},
-	{"addGeneric",  LuaFunctionWrapper<&ProblemProxy::addGeneric>::invoke,  false},
-	{"addStandard", LuaFunctionWrapper<&ProblemProxy::addStandard>::invoke, false},
-};
+	R.function<&ProblemProxy::addCustom>("addCustom",
+		{{"config", "MetaString that describes the custom problem message."}}, {},
+		"Adds a custom-message problem entry built from the given MetaString config.");
+	R.function<&ProblemProxy::addGeneric>("addGeneric",
+		{{"mechanics", "Mechanics of the spell being cast."}}, {},
+		"Adds the generic 'cannot cast' problem entry derived from the given mechanics.");
+	R.function<&ProblemProxy::addStandard>("addStandard",
+		{
+			{"mechanics",     "Mechanics of the spell being cast."},
+			{"spellProblem",  "Standard problem code to surface."}
+		}, {},
+		"Adds a standard problem entry with the requested SpellCastProblem value.");
+}
 
 }
 

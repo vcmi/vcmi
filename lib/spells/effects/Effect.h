@@ -59,9 +59,9 @@ struct SpellEffectValue : public scripting::ApiSerializable<SpellEffectValue>
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("hpDelta", hpDelta);
-		s("unitsDelta", unitsDelta);
-		s("unitType", unitType);
+		s("hpDelta",    hpDelta,    "Signed change in unit health (negative for damage, positive for healing).");
+		s("unitsDelta", unitsDelta, "Signed change in stack count (creatures killed or resurrected).");
+		s("unitType",   unitType,   "Creature type associated with the effect, if any.");
 	}
 };
 

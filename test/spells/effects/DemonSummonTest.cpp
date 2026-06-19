@@ -149,6 +149,7 @@ TEST_P(DemonSummonApplyTest, SpawnsNewUnitAndRemovesCorpse)
 	EXPECT_CALL(corpse, unitId()).WillRepeatedly(Return(corpseId));
 
 	EXPECT_CALL(creatureServiceMock, getByName(demonId)).WillRepeatedly(Return(&demonType));
+	EXPECT_CALL(demonType, getId()).WillRepeatedly(Return(CreatureID::AIR_ELEMENTAL));
 	EXPECT_CALL(demonType, getMaxHealth()).WillRepeatedly(Return(demonMaxHealth));
 	EXPECT_CALL(demonType, getJsonKey()).WillRepeatedly(Return(demonId));
 	EXPECT_CALL(demonType, isDoubleWide()).WillRepeatedly(Return(false));

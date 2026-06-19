@@ -12,23 +12,31 @@
 
 #include "Obstacle.h"
 
+#include "../Enums.h"
 #include "../../LuaStack.h"
 #include "../../LuaCallWrapper.h"
 #include "../Registry.h"
 
+#include "BattleHex.h"
+#include "../library/Spell.h"
+
 #include "../../../lib/constants/EntityIdentifiers.h"
+#include "../../../lib/GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
 
-const std::vector<ObstacleProxy::CustomRegType> ObstacleProxy::REGISTER_CUSTOM =
+void ObstacleProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getObstacleType", LuaFunctionWrapper<&ObstacleProxy::getObstacleType>::invoke, false},
-	{"getPosition",     LuaFunctionWrapper<&ObstacleProxy::getPosition>::invoke,     false},
-	{"getSpellKey",     LuaFunctionWrapper<&ObstacleProxy::getSpellKey>::invoke,     false},
-};
+	R.function<&ObstacleProxy::getObstacleType>("getObstacleType", {},
+		"Returns the obstacle category: usual, absolute, moat, or spell-created.");
+	R.function<&ObstacleProxy::getPosition>("getPosition", {},
+		"Returns the hex that serves as anchor of the obstacle, usually - located in bottom-left corner of the obstacle");
+	R.function<&ObstacleProxy::getSpell>("getSpell", {},
+		"Returns the Spell that created this obstacle, or nil for non-spell obstacles.");
+}
 
 CObstacleInstance::EObstacleType ObstacleProxy::getObstacleType(std::shared_ptr<const CObstacleInstance> obstacle)
 {
@@ -40,11 +48,11 @@ BattleHex ObstacleProxy::getPosition(std::shared_ptr<const CObstacleInstance> ob
 	return obstacle->pos;
 }
 
-std::string ObstacleProxy::getSpellKey(std::shared_ptr<const CObstacleInstance> obstacle)
+const spells::Spell * ObstacleProxy::getSpell(std::shared_ptr<const CObstacleInstance> obstacle)
 {
 	if(obstacle->obstacleType != CObstacleInstance::SPELL_CREATED)
-		throw LuaApiException("Not a spell created obstacle!");
-	return SpellID::encode(obstacle->ID);
+		return nullptr;
+	return SpellID(obstacle->ID).toEntity(LIBRARY);
 }
 
 }

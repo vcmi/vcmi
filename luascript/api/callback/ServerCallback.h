@@ -13,6 +13,7 @@
 #include <vcmi/ServerCallback.h>
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 #include "../../../lib/battle/BattleHex.h"
 #include "../../../lib/battle/IBattleInfoCallback.h"
 #include "../../../lib/bonuses/BonusList.h"
@@ -35,9 +36,14 @@ struct SpellObstacleDescriptor;
 class ServerCallbackProxy : public RawPointerWrapper<ServerCallback, ServerCallbackProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<ServerCallback, ServerCallbackProxy>;
+	static constexpr std::string_view luaName = "Server";
+	static constexpr std::string_view luaDescription =
+		"The authoritative-side mutation interface. Available only to scripts running on the "
+		"server: spawn or remove battle units, move them, deal damage, alter bonuses, drop "
+		"obstacles, append to the combat log, draw from the seeded RNG. Every call emits a "
+		"network pack so clients receive the resulting state change.";
 
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static void registerMethods(MethodRegistrar & R);
 
 	static const battle::Unit * addUnit(ServerCallback & object, const IBattleInfoCallback & battle, const battle::UnitInfo & info);
 	static void removeUnit(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit);

@@ -319,7 +319,6 @@ CUnitState::CUnitState():
 	env(nullptr),
 	cloned(false),
 	defending(false),
-	defendingAnim(false),
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
@@ -348,7 +347,6 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 
 	cloned = other.cloned;
 	defending = other.defending;
-	defendingAnim = other.defendingAnim;
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
@@ -793,7 +791,6 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("cloned", cloned);
 	handler.serializeBool("defending", defending);
-	handler.serializeBool("defendingAnim", defendingAnim);
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
@@ -830,7 +827,6 @@ void CUnitState::reset()
 {
 	cloned = false;
 	defending = false;
-	defendingAnim = false;
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;

@@ -20,11 +20,6 @@ set(lualib_SRCS
 		api/battle/Obstacle.cpp
 		api/battle/SpellObstacleDescriptor.cpp
 
-		api/events/BattleEvents.cpp
-		api/events/EventBus.cpp
-		api/events/GenericEvents.cpp
-		api/events/SubscriptionRegistry.cpp
-
 		api/spells/Mechanics.cpp
 		api/spells/Problem.cpp
 
@@ -38,10 +33,12 @@ set(lualib_SRCS
 		api/library/Services.cpp
 		api/library/Skill.cpp
 		api/library/Spell.cpp
+		api/library/SpellSchool.cpp
 
 		api/callback/IBattleInfoCallback.cpp
 		api/Enums.cpp
 		api/LuaMetaString.cpp
+		api/DocExport.cpp
 		api/callback/IGameInfoCallback.cpp
 		api/Registry.cpp
 		api/callback/ServerCallback.cpp
@@ -69,48 +66,49 @@ set(lualib_HDRS
 		api/battle/Obstacle.h
 		api/battle/SpellObstacleDescriptor.h
 
-		api/events/BattleEvents.h
-		api/events/EventBus.h
-		api/events/GenericEvents.h
-		api/events/SubscriptionRegistry.h
-
 		api/library/Artifact.h
 		api/library/Bonus.h
+		api/library/BonusBearerBindings.h
 		api/library/BonusDescriptor.h
 		api/library/Creature.h
+		api/library/EntityBindings.h
 		api/library/Faction.h
 		api/library/HeroClass.h
 		api/library/HeroType.h
 		api/library/Services.h
 		api/library/Skill.h
 		api/library/Spell.h
+		api/library/SpellSchool.h
 
 		api/spells/Mechanics.h
 		api/spells/Problem.h
 
 		api/callback/IBattleInfoCallback.h
+		api/DocExport.h
+		api/DocRegistrar.h
 		api/Enums.h
+		api/FieldDocRegistrar.h
 		api/LuaMetaString.h
 		api/callback/IGameInfoCallback.h
+		api/LuaRegistrar.h
+		api/MethodRegistrar.h
 		api/Registry.h
+		api/SerializableRegistar.h
+		api/SignatureOf.h
 		api/callback/ServerCallback.h
 )
 
 assign_source_group(${lualib_SRCS} ${lualib_HDRS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(vcmiLua STATIC ${lualib_SRCS} ${lualib_HDRS})
-else()
-	add_library(vcmiLua SHARED ${lualib_SRCS} ${lualib_HDRS})
-	install(TARGETS vcmiLua RUNTIME DESTINATION ${SCRIPTING_LIB_DIR} LIBRARY DESTINATION ${SCRIPTING_LIB_DIR})
-endif()
+add_library(vcmiLua OBJECT ${lualib_SRCS} ${lualib_HDRS})
+target_compile_definitions(vcmiLua PRIVATE VCMI_DLL=1)
 
 if(TARGET luajit::luajit)
-	target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
+	target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmiMain)
 elseif(TARGET lua::lua)
-	target_link_libraries(vcmiLua Boost::boost lua::lua vcmi)
+	target_link_libraries(vcmiLua Boost::boost lua::lua vcmiMain)
 else()
-	target_link_libraries(vcmiLua Boost::boost Lua::Lua vcmi)
+	target_link_libraries(vcmiLua Boost::boost Lua::Lua vcmiMain)
 endif()
 
 vcmi_set_output_dir(vcmiLua "scripting")

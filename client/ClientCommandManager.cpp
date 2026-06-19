@@ -27,7 +27,7 @@
 #include "ClientNetPackVisitors.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/callback/CGlobalAI.h"
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -110,7 +110,7 @@ void ClientCommandManager::handleGoSoloCommand()
 			{
 				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
-				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				GAME->server().client->installNewPlayerInterface(AIFactory::createAdventureAI(AiToGive), color);
 			}
 		}
 
@@ -171,7 +171,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	printCommandMessage("Will try loading that AI to see if it is correct name...\n");
 	try
 	{
-		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
+		if(auto ai = AIFactory::createBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
 			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;

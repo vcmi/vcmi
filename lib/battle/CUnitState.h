@@ -130,7 +130,6 @@ class DLL_LINKAGE CUnitState : public Unit
 public:
 	bool cloned;
 	bool defending;
-	bool defendingAnim;
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;

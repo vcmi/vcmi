@@ -105,8 +105,6 @@ class CHeroGSlot : public CIntObject
 	const CGHeroInstance * hero;
 	int upg; //0 - up garrison, 1 - down garrison
 
-	auto getUpgradableSlots(const CArmedInstance *obj) const;
-
 public:
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner);
 	~CHeroGSlot();
@@ -242,6 +240,7 @@ class CCastleInterface final : public CStatusbarWindow, public IGarrisonHolder, 
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
 	std::shared_ptr<LRClickableArea> fastWiki;
+	std::shared_ptr<CIntObject> townRadialArea;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 

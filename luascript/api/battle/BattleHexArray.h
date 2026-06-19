@@ -12,6 +12,7 @@
 
 #include "../../../lib/battle/BattleHexArray.h"
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,8 +22,13 @@ namespace scripting::api
 class BattleHexArrayProxy : public CopyableWrapper<const BattleHexArray, BattleHexArrayProxy>
 {
 public:
-	using Wrapper = CopyableWrapper<const BattleHexArray, BattleHexArrayProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "BattleHexArray";
+	static constexpr std::string_view luaDescription =
+		"A list of BattleHex values. Used wherever the engine returns or accepts a set of tiles "
+		"(reachable hexes, area-of-effect, obstacle footprint, …). Supports indexed access, "
+		"insertion, and erasure; iteration order matches insertion order";
+
+	static void registerMethods(MethodRegistrar & R);
 
 	static int insert(lua_State * L);
 	static int erase(lua_State * L);

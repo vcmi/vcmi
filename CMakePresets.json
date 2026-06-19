@@ -32,7 +32,7 @@
             "name": "default-release",
             "inherits": "base-release",
             "hidden": true,
-			"generator": "Ninja"
+            "generator": "Ninja"
         },
         {
             "name" : "linux-release",
@@ -49,7 +49,7 @@
             "hidden": true,
             "cacheVariables": {
                 "ENABLE_LOBBY": "ON",
-				"ENABLE_TEST": "ON"
+                "ENABLE_TEST": "ON"
             }
         },
         {
@@ -84,18 +84,18 @@
             }
         },
         {
-			"name": "linux-gcc-release-lobby",
+            "name": "linux-gcc-release-lobby",
             "displayName": "GCC x86_64-pc-linux-gnu (lobby only)",
             "description": "VCMI Linux GCC",
             "inherits": "linux-release",
             "cacheVariables": {
-				"ENABLE_CLIENT" : "OFF",
-				"ENABLE_SERVER" : "OFF",
-				"ENABLE_EDITOR" : "OFF",
-				"ENABLE_LAUNCHER" : "OFF",
-				"ENABLE_MINIMAL_LIB" : "ON",
-				"ENABLE_STATIC_LIBS" : "ON",
-				"ENABLE_LOBBY" : "ON",
+                "ENABLE_CLIENT" : "OFF",
+                "ENABLE_SERVER" : "OFF",
+                "ENABLE_EDITOR" : "OFF",
+                "ENABLE_LAUNCHER" : "OFF",
+                "ENABLE_MINIMAL_LIB" : "ON",
+                "ENABLE_STATIC_LIBS" : "ON",
+                "ENABLE_LOBBY" : "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
@@ -107,9 +107,7 @@
             "inherits": ["linux-release", "build-with-conan"],
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
-                "CMAKE_CXX_COMPILER": "g++",
-                "ENABLE_STATIC_LIBS": "ON",
-                "FORCE_BUNDLED_FL": "ON"
+                "CMAKE_CXX_COMPILER": "g++"
             }
         },
         {
@@ -119,9 +117,7 @@
             "inherits": ["linux-release", "build-with-conan"],
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
-                "CMAKE_CXX_COMPILER": "g++",
-                "ENABLE_STATIC_LIBS": "ON",
-                "FORCE_BUNDLED_FL": "ON"
+                "CMAKE_CXX_COMPILER": "g++"
             }
         },
         {

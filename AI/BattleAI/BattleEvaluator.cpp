@@ -12,7 +12,6 @@
 #include "BattleExchangeVariant.h"
 
 #include "StackWithBonuses.h"
-#include "EnemyInfo.h"
 #include "tbb/parallel_for.h"
 #include "SpellTargetsEvaluator.h"
 #include "../../lib/CStopWatch.h"

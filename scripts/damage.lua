@@ -22,7 +22,10 @@ function Script:isReceptive(mechanics, unit)
 	end
 	for _, school in ipairs(spell:getSchools()) do
 		if self:sumBonusVal(unit, function(b)
-			return b:getType() == "SPELL_DAMAGE_REDUCTION" and b:getSubtype() == school
+			local sub = b:getSubtype()
+			if sub == "any" then return false end
+			return b:getType() == "SPELL_DAMAGE_REDUCTION"
+				and LIBRARY:getSpellSchoolByName(sub) == school
 		end) >= 100 then
 			return false
 		end
@@ -96,13 +99,13 @@ function Script:describeEffect(server, battle, mechanics, firstUnit, kills, dama
 		if kills > 1 then
 			server:appendLog(battle, {
 				append         = { "core.genrltxt.119" },
-				replaceStrings = { firstUnit:getCreature():getNamePluralTextID(), casterNameID },
+				replaceStrings = { firstUnit:getCreature():getNameTextID(0), casterNameID },
 				replaceNumbers = { kills }
 			})
 		else
 			server:appendLog(battle, {
 				append         = { "core.genrltxt.118" },
-				replaceStrings = { firstUnit:getCreature():getNameSingularTextID(), casterNameID }
+				replaceStrings = { firstUnit:getCreature():getNameTextID(1), casterNameID }
 			})
 		end
 
@@ -118,7 +121,7 @@ function Script:describeEffect(server, battle, mechanics, firstUnit, kills, dama
 	elseif spellKey:find("thunderbolt") and not multiple then
 		server:appendLog(battle, {
 			append         = { "core.genrltxt.367" },
-			replaceStrings = { firstUnit:getCreature():getNamePluralTextID() }
+			replaceStrings = { firstUnit:getCreature():getNameTextID(0) }
 		})
 		server:appendLog(battle, {
 			append         = { "core.genrltxt.343" },
@@ -136,14 +139,14 @@ function Script:describeEffect(server, battle, mechanics, firstUnit, kills, dama
 				server:appendLog(battle, {
 					append         = { "core.genrltxt.379" },
 					replaceStrings = { multiple and "core.genrltxt.43"
-					                            or firstUnit:getCreature():getNamePluralTextID() },
+					                            or firstUnit:getCreature():getNameTextID(0) },
 					replaceNumbers = { kills }
 				})
 			else
 				server:appendLog(battle, {
 					append         = { "core.genrltxt.378" },
 					replaceStrings = { multiple and "core.genrltxt.42"
-					                            or firstUnit:getCreature():getNameSingularTextID() }
+					                            or firstUnit:getCreature():getNameTextID(1) }
 				})
 			end
 		end

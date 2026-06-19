@@ -44,21 +44,8 @@ public:
 	// Full path to server executable, including name (e.g. /usr/bin/vcmiserver)
 	virtual boost::filesystem::path serverPath() const = 0;
 
-	// Path where vcmi libraries can be found (in AI and Scripting subdirectories)
-	virtual boost::filesystem::path libraryPath() const = 0;
-
-	// absolute path to passed library (needed due to android libs being placed in single dir, not respecting original lib dirs;
-	// by default just concats libraryPath, given folder and libraryName
-	virtual boost::filesystem::path fullLibraryPath(const std::string & desiredFolder,
-													const std::string & baseLibName) const;
-
 	// Path where vcmi binaries can be found
 	virtual boost::filesystem::path binaryPath() const = 0;
-
-	// Returns system-specific name for dynamic libraries ( StupidAI => "libStupidAI.so" or "StupidAI.dll")
-	virtual std::string libraryName(const std::string & basename) const = 0;
-	// virtual std::string libraryName(const char* basename) const = 0; ?
-	// virtual std::string libraryName(std::string&& basename) const = 0;?
 
 	virtual std::string genHelpString() const;
 

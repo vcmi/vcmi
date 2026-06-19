@@ -28,6 +28,7 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
@@ -116,6 +117,8 @@ void QuickSpellPanel::create()
 			tooltip.replaceName(id);
 			hoverText = tooltip.toString();
 		}
+		else
+			hoverText = LIBRARY->generaltexth->translate("vcmi.battleWindow.quickSpell.emptySlot");
 
 		const auto & callback = [this, id, hero]()
 		{

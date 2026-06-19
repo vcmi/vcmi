@@ -25,6 +25,7 @@ class CArtifactInstance;
 class CArtifactSet;
 class CGObjectInstance;
 class CGHeroInstance;
+class CGHeroPlaceholder;
 class CCommanderInstance;
 class CGameState;
 class CGCreature;
@@ -142,6 +143,10 @@ public:
 	/// Throws in invalid object instance ID
 	void moveObject(ObjectInstanceID target, const int3 & dst);
 
+	/// Clamps visitable x/y into the map and shifts anchor by the same delta.
+	/// Returns true if object position was changed.
+	bool adjustToMapBounds(CGObjectInstance * obj);
+
 	/// Hides object from map without actually removing it from object list
 	void hideObject(CGObjectInstance * obj);
 
@@ -235,6 +240,8 @@ public:
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(const int3 & pos, Obj type);
+	const CGHeroPlaceholder * findHeroPlaceholder(const int3 & position) const;
+	const CGHeroPlaceholder * isHeroPlaceholderObjective(const EventCondition & condition) const;
 
 	/// Returns pointer to hero of specified type if hero is present on map
 	CGHeroInstance * getHero(HeroTypeID heroId);
@@ -248,6 +255,7 @@ public:
 	const std::vector<ObjectInstanceID> & getAllTowns() const;
 
 	/// Sets the victory/loss condition objectives ??
+	void resolveHeroPlaceholderObjectives();
 	void checkForObjectives();
 
 	void resolveQuestIdentifiers();

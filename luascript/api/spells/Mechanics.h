@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -20,13 +21,18 @@ namespace scripting::api
 	class MechanicsProxy : public RawPointerWrapper<::spells::Mechanics, MechanicsProxy>
 	{
 	public:
-		using Wrapper = RawPointerWrapper<::spells::Mechanics, MechanicsProxy>;
+		static constexpr std::string_view luaName = "SpellMechanics";
+		static constexpr std::string_view luaDescription =
+			"Per-cast spell context: which Spell is being cast, who is casting it, at what "
+			"power and level. Lua spell scripts receive this as the entry point to their cast "
+			"logic and consult it for caster identity, target validation, and damage formulas.";
 
-		static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+		static void registerMethods(MethodRegistrar & R);
 
 		static bool ownerMatchesUnit(const ::spells::Mechanics & m, const battle::Unit & unit);
 		static std::string getPluralFormTextID(const ::spells::Mechanics & m, const std::string & baseTextID, int32_t count);
 	};
+
 }
 
 VCMI_LIB_NAMESPACE_END

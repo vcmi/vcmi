@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/BonusEnum.h"
@@ -23,8 +24,14 @@ namespace scripting::api
 class BonusProxy : public CopyableWrapper<Bonus, BonusProxy>
 {
 public:
-	using Wrapper = CopyableWrapper<Bonus, BonusProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "Bonus";
+	static constexpr std::string_view luaDescription =
+		"A single effect contributing to target abilities (e.g. +5 attack, "
+		"immunity to fire spells). Carries type, value, source, duration, stacking key. "
+		"Scripts read bonuses through `getBonuses(...)` and construct new ones via "
+		"addUnitBonus or addBattleBonus in ServerCallback.";
+
+	static void registerMethods(MethodRegistrar & R);
 
 	static std::string getType(const Bonus & b);
 	static si32 getVal(const Bonus & b);
@@ -42,8 +49,13 @@ public:
 class BonusListProxy : public CopyableWrapper<BonusList, BonusListProxy>
 {
 public:
-	using Wrapper = CopyableWrapper<BonusList, BonusListProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "BonusList";
+	static constexpr std::string_view luaDescription =
+		"A collection of Bonus values returned by `getBonuses(...)`. Use `size()` and "
+		"`getBonus(index)` to iterate. A copy of the engine's internal list at the moment of "
+		"the call — changes to holder afterwards will not affect this snapshot.";
+
+	static void registerMethods(MethodRegistrar & R);
 
 	static int32_t size(const BonusList & list);
 	static Bonus getBonus(const BonusList & list, int32_t index);

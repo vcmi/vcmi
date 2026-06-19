@@ -11,21 +11,18 @@
 
 #include "Skill.h"
 
+#include "EntityBindings.h"
 #include "../Registry.h"
-
-#include "../../LuaStack.h"
-#include "../../LuaCallWrapper.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
 
-const std::vector<SkillProxy::CustomRegType> SkillProxy::REGISTER_CUSTOM =
+void SkillProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getJsonKey",   LuaMethodWrapper<&Entity::getJsonKey, Skill>::invoke,        false},
-	{"getName",      LuaMethodWrapper<&Entity::getNameTranslated, Skill>::invoke, false},
-};
+	EntityBindings<Skill>::registerMethods(R);
+}
 
 }
 

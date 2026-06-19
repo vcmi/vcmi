@@ -140,6 +140,9 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
+	void markObjectControlled(PlayerColor player, ObjectInstanceID id);
+	bool hasEverControlled(PlayerColor player, ObjectInstanceID id) const;
+
 	//fills tgi with info about other players that is available at given level of thieves' guild
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level) const;
 	const IGameSettings & getSettings() const override;
@@ -231,11 +234,13 @@ private:
 	void initRandomFactionsForPlayers(vstd::RNG & randomGenerator);
 	void initOwnedObjects();
 	void randomizeMapObjects(IGameRandomizer & gameRandomizer);
+	void rebuildObjectControlHistory();
 	void initPlayerStates();
 	void placeStartingHeroes(vstd::RNG & randomGenerator);
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void removeHeroPlaceholders();
 	void initDifficulty();
+	void adjustObjectsToMapBounds();
 	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
 	void initFogOfWar();

@@ -13,8 +13,7 @@
 #include "CBattleCallback.h"
 #include "IGameActionCallback.h"
 
-// in static AI build this file gets included into libvcmi
-#ifdef STATIC_AI
+#ifdef VCMI_LIB_NAMESPACE
 VCMI_LIB_USING_NAMESPACE
 #endif
 
@@ -31,11 +30,11 @@ class DLL_LINKAGE CCallback final : public CPlayerSpecificInfoCallback, public C
 
 public:
 	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, IClient * C);
-	virtual ~CCallback();
+	~CCallback();
 
 	//client-specific functionalities (pathfinding)
-	virtual bool canMoveBetween(const int3 &a, const int3 &b);
-	virtual int3 getGuardingCreaturePosition(int3 tile);
+	bool canMoveBetween(const int3 &a, const int3 &b);
+	int3 getGuardingCreaturePosition(int3 tile);
 
 	std::optional<PlayerColor> getPlayerID() const override;
 

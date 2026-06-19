@@ -14,6 +14,8 @@
 #include "LuaScriptPool.h"
 #include "LuaSpellEffect.h"
 
+#include "api/DocExport.h"
+
 #include "../lib/GameLibrary.h"
 #include "../lib/spells/effects/SpellEffectService.h"
 
@@ -52,6 +54,11 @@ std::unique_ptr<Pool> LuaModule::createPoolInstance(const Environment * ENV) con
 	auto result = std::make_unique<LuaScriptPool>(*this, ENV);
 	luaSpellEffects->registerScripts(result.get());
 	return result;
+}
+
+void LuaModule::exportDocs(const boost::filesystem::path & outDir) const
+{
+	api::exportLuaApiDocs(outDir);
 }
 
 }

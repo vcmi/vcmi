@@ -27,6 +27,7 @@
 
 #include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
+#include <vcmi/spells/SchoolService.h>
 
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
@@ -659,12 +660,17 @@ std::string SpellSchool::encode(const si32 index)
 	if (index == ANY.getNum())
 		return "any";
 
-	return LIBRARY->spellSchoolHandler->getById(SpellSchool(index))->getJsonKey();
+	return SpellSchool(index).toEntity(LIBRARY)->getJsonKey();
 }
 
 std::string SpellSchool::entityType()
 {
 	return "spellSchool";
+}
+
+const spells::SpellSchoolType * SpellSchool::toEntity(const Services * services) const
+{
+	return services->spellSchools()->getByIndex(getNum());
 }
 
 si32 GameResID::decode(const std::string & identifier)

@@ -83,9 +83,9 @@ set(lib_MAIN_SRCS
 
 	callback/CAdventureAI.cpp
 	callback/Calendar.cpp
+	callback/AIFactory.cpp
 	callback/CBattleCallback.cpp
 	callback/CCallback.cpp
-	callback/CDynLibHandler.cpp
 	callback/CGameInfoCallback.cpp
 	callback/CNonConstInfoCallback.cpp
 	callback/CPlayerSpecificInfoCallback.cpp
@@ -485,8 +485,8 @@ set(lib_MAIN_HEADERS
 	callback/Calendar.h
 	callback/CBattleCallback.h
 	callback/CBattleGameInterface.h
+	callback/AIFactory.h
 	callback/CCallback.h
-	callback/CDynLibHandler.h
 	callback/CGameInfoCallback.h
 	callback/CGameInterface.h
 	callback/CGlobalAI.h
@@ -820,70 +820,31 @@ endif()
 
 assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(vcmi STATIC ${lib_SRCS} ${lib_HEADERS})
-else()
-	add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
-endif()
+add_library(vcmiMain OBJECT ${lib_SRCS} ${lib_HEADERS})
 
-set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
-target_link_libraries(vcmi PUBLIC
+target_compile_definitions(vcmiMain PRIVATE "VCMI_DLL=1")
+target_link_libraries(vcmiMain PUBLIC
 	minizip::minizip ZLIB::ZLIB Iconv::Iconv
 	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::date_time
 )
 
 if (NOT ENABLE_MINIMAL_LIB)
-	target_link_libraries(vcmi PUBLIC TBB::tbb)
-endif()
-
-if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
-	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE EmptyAI)
-	target_link_libraries(vcmi PRIVATE vcmiLua)
-
-	if(ENABLE_NULLKILLER2_AI)
-		target_link_libraries(vcmi PRIVATE Nullkiller2)
-	endif()
-
-	if(ENABLE_STUPID_AI)
-		target_link_libraries(vcmi PRIVATE StupidAI)
-	endif()
-
-	if(ENABLE_BATTLE_AI)
-		target_link_libraries(vcmi PRIVATE BattleAI)
-	endif()
-
-	if(ENABLE_MMAI)
-		target_link_libraries(vcmi PRIVATE MMAI)
-	endif()
+	target_link_libraries(vcmiMain PUBLIC TBB::tbb)
 endif()
 
 if(IOS)
-	target_link_libraries(vcmi PUBLIC iOS_utils)
+	target_link_libraries(vcmiMain PUBLIC iOS_utils)
 endif()
 
-target_include_directories(vcmi
+target_include_directories(vcmiMain
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC ${CMAKE_SOURCE_DIR}
 	PUBLIC ${CMAKE_SOURCE_DIR}/include
 )
 
-if(WIN32)
-	set(VCMI_FILE_DESCRIPTION "VCMI Core Library")
-	set(VCMI_ORIGINAL_FILENAME "VCMI_lib.dll")
-	set(VCMI_ICON_RESOURCE "")
-	set(vcmi_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_lib_versioninfo.rc")
-	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${vcmi_ICON}" @ONLY)
-	target_sources(vcmi PRIVATE ${vcmi_ICON})
-	set_target_properties(vcmi
-		PROPERTIES
-			OUTPUT_NAME "VCMI_lib"
-			PROJECT_LABEL "VCMI_lib"
-	)
-	if (MINGW)
-		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
-		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
-	endif()
+if(MINGW)
+	# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+	target_link_libraries(vcmiMain PRIVATE ws2_32 mswsock dbghelp)
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files
@@ -896,72 +857,13 @@ if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()
 
-vcmi_set_output_dir(vcmi "")
+enable_pch(vcmiMain)
 
-enable_pch(vcmi)
-
-# We want to deploy assets into build directory for easier debugging without install
-if(COPY_CONFIG_ON_BUILD)
-	add_custom_command(TARGET vcmi POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/scripts
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-		COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake_modules/create_link.cmake ${CMAKE_SOURCE_DIR}/scripts ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/scripts
-	)
-endif()
-
-# Update version before vcmi compiling
+# Update version before vcmiMain compiling
 if(TARGET update_version)
-	add_dependencies(vcmi update_version)
-endif()
-
-if(NOT ENABLE_STATIC_LIBS)
-	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
-endif()
-
-if(IOS AND NOT USING_CONAN)
-	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
-
-	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)
-	foreach(LINKED_LIB IN LISTS LINKED_LIBS)
-		if(NOT TARGET ${LINKED_LIB})
-			if(LINKED_LIB MATCHES "\\${CMAKE_SHARED_LIBRARY_SUFFIX}$")
-				install(FILES ${LINKED_LIB} DESTINATION ${LIB_DIR})
-			endif()
-			continue()
-		endif()
-
-		get_target_property(LIB_TYPE ${LINKED_LIB} TYPE)
-		if(NOT LIB_TYPE STREQUAL "SHARED_LIBRARY")
-			continue()
-		endif()
-
-		get_target_property(_aliased ${LINKED_LIB} ALIASED_TARGET)
-		if(_aliased)
-			set(LINKED_LIB_REAL ${_aliased})
-		else()
-			set(LINKED_LIB_REAL ${LINKED_LIB})
-		endif()
-
-		get_target_property(_imported ${LINKED_LIB_REAL} IMPORTED)
-		if(_imported)
-			set(INSTALL_TYPE IMPORTED_RUNTIME_ARTIFACTS)
-			get_target_property(BOOST_DEPENDENCIES ${LINKED_LIB_REAL} INTERFACE_LINK_LIBRARIES)
-			foreach(BOOST_DEPENDENCY IN LISTS BOOST_DEPENDENCIES)
-				get_target_property(BOOST_DEPENDENCY_TYPE ${BOOST_DEPENDENCY} TYPE)
-				if(BOOST_DEPENDENCY_TYPE STREQUAL "SHARED_LIBRARY")
-					install(IMPORTED_RUNTIME_ARTIFACTS ${BOOST_DEPENDENCY} LIBRARY DESTINATION ${LIB_DIR})
-				endif()
-			endforeach()
-		else()
-			set(INSTALL_TYPE TARGETS)
-		endif()
-		install(${INSTALL_TYPE} ${LINKED_LIB_REAL} LIBRARY DESTINATION ${LIB_DIR})
-	endforeach()
+	add_dependencies(vcmiMain update_version)
 endif()
 
 if(VCMI_PORTMASTER)
-	target_compile_definitions(vcmi PRIVATE VCMI_PORTMASTER)
+	target_compile_definitions(vcmiMain PRIVATE VCMI_PORTMASTER)
 endif()

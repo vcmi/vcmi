@@ -47,6 +47,8 @@ set(test_SRCS
 
 		netpacks/NetPackFixture.cpp
 
+#TODO		scripting/BindingsCoverageTest.cpp
+
 		spells/AbilityCasterTest.cpp
 		spells/CSpellTest.cpp
  		spells/TargetConditionTest.cpp
@@ -144,6 +146,10 @@ set(mock_HEADERS
 if(MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
 endif()
+check_cxx_compiler_flag(-Wcharacter-conversion CHARCONV)
+if(CHARCONV)
+	add_compile_options(-Wno-error=character-conversion) #Used in googletest
+endif()
 check_cxx_compiler_flag(-Wimplicit-int-float-conversion CONV)
 if(CONV)
 	add_compile_options(-Wno-error=implicit-int-float-conversion) #Used in googletest
@@ -160,10 +166,6 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
-target_link_libraries(vcmitest PRIVATE vcmiLua)
-if(ENABLE_NULLKILLER2_AI)
-	target_link_libraries(vcmitest PUBLIC Nullkiller2)
-endif()
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

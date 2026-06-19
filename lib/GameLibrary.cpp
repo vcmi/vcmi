@@ -20,7 +20,7 @@
 #include "MapLayerHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
-#include "callback/CDynLibHandler.h"
+#include "../luascript/LuaModule.h"
 #include "entities/artifact/CArtHandler.h"
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
@@ -128,6 +128,11 @@ const IGameSettings * GameLibrary::engineSettings() const
 	return settingsHandler.get();
 }
 
+const spells::SchoolService * GameLibrary::spellSchools() const
+{
+	return spellSchoolHandler.get();
+}
+
 void GameLibrary::loadFilesystem(bool extractArchives)
 {
 	CStopWatch loadTime;
@@ -226,8 +231,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
 
-	boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
-	scriptHandler = CDynLibHandler::getNewScriptingModule(filePath);
+	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(spellEffectHandler.get());
 	modh->load();
 	modh->afterLoad();

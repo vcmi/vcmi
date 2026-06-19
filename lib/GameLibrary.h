@@ -75,6 +75,7 @@ public:
 	const ObstacleService * obstacles() const override;
 	const IGameSettings * engineSettings() const override;
 	const spells::effects::SpellEffectService * spellEffects() const override;
+	const spells::SchoolService * spellSchools() const override;
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 

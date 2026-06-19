@@ -8,15 +8,22 @@
  *
  */
 #include "StdInc.h"
-
-#include "GameLibrary.h"
 #include "ServerCallback.h"
 
+#include "GameLibrary.h"
+#include "IBattleInfoCallback.h"
+
+#include "../Enums.h"
 #include "../LuaMetaString.h"
 #include "../Registry.h"
 #include "../battle/UnitState.h"
 #include "../battle/SpellObstacleDescriptor.h"
 #include "../library/BonusDescriptor.h"
+
+#include "../battle/BattleHex.h"
+#include "../battle/Obstacle.h"
+#include "../battle/Unit.h"
+#include "../library/Bonus.h"
 
 #include "../../LuaStack.h"
 #include "../../../lib/battle/SiegeInfo.h"
@@ -41,24 +48,110 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace scripting::api
 {
 
-const std::vector<ServerCallbackProxy::CustomRegType> ServerCallbackProxy::REGISTER_CUSTOM =
+void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 {
-	{ "addUnit",           LuaFunctionWrapper<&ServerCallbackProxy::addUnit>::invoke,           false },
-	{ "healUnit",          LuaCallWrapper<&ServerCallbackProxy::healUnit>::invoke,              false },
-	{ "changeUnit",        LuaCallWrapper<&ServerCallbackProxy::changeUnit>::invoke,            false },
-	{ "damageUnit",        LuaCallWrapper<&ServerCallbackProxy::damageUnit>::invoke,            false },
-	{ "removeUnit",        LuaFunctionWrapper<&ServerCallbackProxy::removeUnit>::invoke,        false },
-	{ "removeObstacle",    LuaFunctionWrapper<&ServerCallbackProxy::removeObstacle>::invoke,    false },
-	{ "moveUnit",          LuaFunctionWrapper<&ServerCallbackProxy::moveUnit>::invoke,          false },
-	{ "appendLog",         LuaFunctionWrapper<&ServerCallbackProxy::appendLog>::invoke,         false },
-	{ "describeChanges",   LuaFunctionWrapper<&ServerCallbackProxy::describeChanges>::invoke,   false },
-	{ "removeUnitBonuses", LuaFunctionWrapper<&ServerCallbackProxy::removeUnitBonuses>::invoke, false },
-	{ "addUnitBonus",      LuaFunctionWrapper<&ServerCallbackProxy::addUnitBonus>::invoke,      false },
-	{ "addBattleBonus",    LuaFunctionWrapper<&ServerCallbackProxy::addBattleBonus>::invoke,    false },
-	{ "addObstacle",       LuaFunctionWrapper<&ServerCallbackProxy::addObstacle>::invoke,       false },
-	{ "catapultAttack",    LuaFunctionWrapper<&ServerCallbackProxy::catapultAttack>::invoke,    false },
-	{ "rngInt",            LuaCallWrapper<&ServerCallbackProxy::rngInt>::invoke,                false },
-};
+	R.function<&ServerCallbackProxy::addUnit>("addUnit",
+		{
+			{"battle", "Battle in which the unit is created."},
+			{"info",   "Descriptor of the unit to spawn (creature type, side, position, ...)."}
+		}, {},
+		"Spawns a new battle unit described by the given UnitInfo. Returns the created unit.");
+	R.cfunction<&ServerCallbackProxy::healUnit>("healUnit",
+		{
+			{"battle",      "Battle",     "Battle in which the unit is healed."},
+			{"unit",        "Unit",       "Target unit."},
+			{"amount",      "integer",    "Hit points to restore."},
+			{"level",       "HealLevel",  "Heal tier (heal / resurrect / overheal)."},
+			{"power",       "HealPower",  "Persistence — one-battle vs permanent."}
+		},
+		{"integer, integer", "Healed hit points, and the count of creatures resurrected."},
+		"Heals the given unit by the provided amount of health points.");
+	R.cfunction<&ServerCallbackProxy::changeUnit>("changeUnit",
+		{
+			{"battle",      "Battle",      "Battle in which the unit is modified."},
+			{"unitState",   "UnitState",   "New unit state to apply (returned by `Unit:copy`)."},
+			{"healthDelta", "integer?",    "Optional health delta — positive heals, negative damages."}
+		}, {},
+		"Applies a UnitState mutation to the unit, optionally adjusting current health.");
+	R.cfunction<&ServerCallbackProxy::damageUnit>("damageUnit",
+		{
+			{"battle", "Battle",  "Battle in which damage is dealt."},
+			{"unit",   "Unit",    "Target unit."},
+			{"damage", "integer", "Damage points to deal (will be clamped to remaining health)."}
+		},
+		{"integer, integer", "Damage actually dealt, and the count of killed creatures."},
+		"Damages the unit, returning the actual damage dealt and the number of killed creatures.");
+	R.function<&ServerCallbackProxy::removeUnit>("removeUnit",
+		{
+			{"battle", "Battle the unit belongs to."},
+			{"unit",   "Unit (alive or as corpse) to remove."}
+		}, {},
+		"Removes the unit or its corpse from the battlefield.");
+	R.function<&ServerCallbackProxy::removeObstacle>("removeObstacle",
+		{
+			{"battle",   "Battle the obstacle belongs to."},
+			{"obstacle", "Obstacle to remove."}
+		}, {},
+		"Removes the given obstacle from the battlefield.");
+	R.function<&ServerCallbackProxy::moveUnit>("moveUnit",
+		{
+			{"battle",      "Battle in which the unit is moved."},
+			{"unit",        "Unit to move."},
+			{"destination", "Target hex of the move."},
+			{"isTeleport",  "Pass true to use teleport semantics (no path walk)."}
+		}, {},
+		"Moves the unit to the destination hex.");
+	R.function<&ServerCallbackProxy::appendLog>("appendLog",
+		{
+			{"battle",  "Battle whose log is being appended."},
+			{"message", "Formatted log line (use `MetaString`)."}
+		}, {},
+		"Appends a formatted log entry to the battle log.");
+	R.function<&ServerCallbackProxy::describeChanges>("describeChanges", {},
+		"Returns whether netpack changes should be described in the battle log.");
+	R.function<&ServerCallbackProxy::removeUnitBonuses>("removeUnitBonuses",
+		{
+			{"battle",    "Battle the unit belongs to."},
+			{"unit",      "Unit whose bonuses are removed."},
+			{"bonusList", "Bonuses to remove from the unit."}
+		}, {},
+		"Removes the listed bonuses from the unit.");
+	R.function<&ServerCallbackProxy::addUnitBonus>("addUnitBonus",
+		{
+			{"battle",     "Battle the unit belongs to."},
+			{"unit",       "Unit to add the bonus to."},
+			{"descriptor", "BonusDescriptor that creates the bonus."},
+			{"cumulative", "Pass true to stack with existing same-source bonus, false to update in-place."}
+		}, {},
+		"Adds a bonus described by the descriptor to the unit.");
+	R.function<&ServerCallbackProxy::addBattleBonus>("addBattleBonus",
+		{
+			{"battle",     "Battle to attach the bonus to."},
+			{"descriptor", "BonusDescriptor that creates the bonus."}
+		}, {},
+		"Adds a bonus to the battle-wide bonus set.");
+	R.function<&ServerCallbackProxy::addObstacle>("addObstacle",
+		{
+			{"battle",     "Battle the obstacle is placed in."},
+			{"descriptor", "SpellObstacleDescriptor describing the obstacle to create."}
+		}, {},
+		"Creates a new obstacle described by the descriptor on the battlefield.");
+	R.function<&ServerCallbackProxy::catapultAttack>("catapultAttack",
+		{
+			{"battle",       "Battle in which the catapult attack happens."},
+			{"attacker",     "Unit performing the catapult attack."},
+			{"attackedPart", "Wall section to attack."},
+			{"damageDealt",  "Damage to apply to the wall section."}
+		}, {},
+		"Performs a catapult attack against the given wall section, dealing the supplied damage.");
+	R.cfunction<&ServerCallbackProxy::rngInt>("rngInt",
+		{
+			{"low",  "integer", "Inclusive lower bound."},
+			{"high", "integer", "Inclusive upper bound."}
+		},
+		{"integer", "Random integer in [low, high]."},
+		"Returns a server-side random integer in the inclusive range [low, high].");
+}
 
 bool ServerCallbackProxy::describeChanges(ServerCallback & object)
 {

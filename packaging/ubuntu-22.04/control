@@ -1,0 +1,29 @@
+Source: vcmi
+Section: games
+Priority: optional
+Maintainer: Ivan Savenko <saven.ivan@gmail.com>
+Build-Depends: debhelper-compat (= 13), cmake, gettext, libsdl2-dev, libsdl2-image-dev, libsdl2-ttf-dev, libsdl2-mixer-dev, zlib1g-dev, libavformat-dev, libswscale-dev, libboost-dev, libboost-date-time-dev, libboost-program-options-dev, libboost-filesystem-dev, libboost-iostreams-dev, libtbb-dev, libminizip-dev, liblzma-dev, libsquish-dev, libfmt-dev, libluajit-5.1-dev, qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools, libqt5svg5-dev
+Standards-Version: 4.6.2
+Homepage: https://vcmi.eu
+Vcs-Git: https://github.com/vcmi/vcmi.git
+Vcs-Browser: https://github.com/vcmi/vcmi
+
+Package: vcmi-1.8
+Architecture: any
+Conflicts: vcmi-1.7
+Replaces: vcmi-1.7
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Rewrite of the Heroes of Might and Magic 3 engine
+ The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
+ scratch, giving it new and extended possibilities. It will help to support
+ mods and new towns already made by fans but abandoned because of game code
+ limitations.
+ .
+ In its current state it already supports maps of any sizes, higher
+ resolutions and extended engine limits.
+
+Package: vcmi
+Architecture: any
+Depends: vcmi-1.8
+Description: Metapackage for latest VCMI release
+ Installs the latest stable VCMI release. Currently points to vcmi-1.8.

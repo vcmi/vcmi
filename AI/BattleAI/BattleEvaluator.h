@@ -21,8 +21,6 @@ class BattleAction;
 
 VCMI_LIB_NAMESPACE_END
 
-class EnemyInfo;
-
 struct CachedAttack
 {
 	std::optional<AttackPossibility> ap;

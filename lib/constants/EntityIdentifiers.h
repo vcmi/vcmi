@@ -40,6 +40,8 @@ namespace spells
 {
 	class Spell;
 	class Service;
+	class SchoolService;
+	class SpellSchoolType;
 }
 
 class CArtifact;
@@ -1067,6 +1069,8 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const spells::SpellSchoolType * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE SpellEffectID : public StaticIdentifier<SpellEffectID>

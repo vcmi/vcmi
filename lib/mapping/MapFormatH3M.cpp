@@ -451,7 +451,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::CAPTURECITY:
 			{
-				EventCondition cond(EventCondition::CONTROL);
+				EventCondition cond(EventCondition::CONTROL_CURRENT);
 				cond.objectType = MapObjectID(MapObjectID::TOWN);
 				cond.position = reader->readInt3();
 
@@ -479,8 +479,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::TAKEDWELLINGS:
 			{
 				EventExpression::OperatorAll oper;
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR1)));
-				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL, 0, Obj(Obj::CREATURE_GENERATOR4)));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL_CURRENT, 0, Obj(Obj::CREATURE_GENERATOR1)));
+				oper.expressions.emplace_back(EventCondition(EventCondition::CONTROL_CURRENT, 0, Obj(Obj::CREATURE_GENERATOR4)));
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.289");
 				specialVictory.onFulfill.appendTextID("core.genrltxt.288");
@@ -491,7 +491,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::TAKEMINES:
 			{
-				EventCondition cond(EventCondition::CONTROL);
+				EventCondition cond(EventCondition::CONTROL_CURRENT);
 				cond.objectType = MapObjectID(MapObjectID::MINE);
 
 				specialVictory.effect.toOtherMessage.appendTextID("core.genrltxt.291");
@@ -1829,7 +1829,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	size_t gcre = reader->readUInt8(); //number of gained creatures
 	for(size_t oo = 0; oo < gcre; ++oo)
 	{
-		auto rId = reader->readCreature();
+		auto rId = reader->readCreature("reward at " + mapPosition.toString());
 		auto rVal = reader->readUInt16();
 
 		reward.creatures.emplace_back(rId, rVal);
@@ -2078,7 +2078,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGarrison(const int3 & mapPo
 	auto object = std::make_shared<CGGarrison>(map->cb);
 
 	setOwnerAndValidate(mapPosition, object.get(), reader->readPlayer32());
-	readCreatureSet(object.get(), idToBeGiven);
+	readCreatureSet(object.get(), idToBeGiven, mapPosition);
 	if(features.levelAB)
 		object->removableUnits = reader->readBool();
 	else
@@ -2164,7 +2164,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 		bool hasCustomGuards = reader->readBool();
 		if (hasCustomGuards)
 		{
-			object->abandonedMineGuards.creature = reader->readCreature32();
+			object->abandonedMineGuards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
 			object->abandonedMineGuards.minAmount = reader->readInt32();
 			object->abandonedMineGuards.maxAmount = reader->readInt32();
 		}
@@ -2935,14 +2935,15 @@ void CMapLoaderH3M::readObjects()
 	}
 }
 
-void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven, const int3 & position)
 {
 	constexpr int unitsToRead = 7;
 	out->id = idToBeGiven;
+	const std::string creatureContext = "army at " + position.toString();
 
 	for(int index = 0; index < unitsToRead; ++index)
 	{
-		CreatureID creatureID = reader->readCreature();
+		CreatureID creatureID = reader->readCreature(creatureContext);
 		int count = reader->readUInt16();
 
 		// Empty slot
@@ -3081,7 +3082,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 	bool hasGarison = reader->readBool();
 	if(hasGarison)
-		readCreatureSet(object.get(), objectInstanceID);
+		readCreatureSet(object.get(), objectInstanceID, mapPosition);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
@@ -3329,7 +3330,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::CREATURE:
 			{
-				auto rId = reader->readCreature();
+				auto rId = reader->readCreature("seer hut at " + position.toString());
 				auto rVal = reader->readUInt16();
 
 				reward.creatures.emplace_back(rId, rVal);
@@ -3408,7 +3409,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			guard->getQuest().mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->getQuest().mission.creatures[hh].setType(reader->readCreature().toCreature());
+				guard->getQuest().mission.creatures[hh].setType(reader->readCreature("quest at " + position.toString()).toCreature());
 				guard->getQuest().mission.creatures[hh].setCount(reader->readUInt16());
 			}
 			break;
@@ -3505,7 +3506,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	bool hasGarrison = reader->readBool();
 	if(hasGarrison)
-		readCreatureSet(object.get(), idToBeGiven);
+		readCreatureSet(object.get(), idToBeGiven, position);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
 	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
@@ -3710,7 +3711,7 @@ void CMapLoaderH3M::readMessageAndGuards(MetaString & message, CArmedInstance * 
 		message.appendTextID(readLocalizedString(TextIdentifier("guards", position.x, position.y, position.z, "message")));
 		bool hasGuards = reader->readBool();
 		if(hasGuards)
-			readCreatureSet(guards, idToBeGiven);
+			readCreatureSet(guards, idToBeGiven, position);
 
 		reader->skipZero(4);
 	}

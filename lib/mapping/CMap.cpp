@@ -39,6 +39,51 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+const CGHeroPlaceholder * CMap::findHeroPlaceholder(const int3 & position) const
+{
+	for(const auto * placeholder : getObjects<CGHeroPlaceholder>())
+	{
+		if(placeholder->coveringAt(position))
+			return placeholder;
+	}
+
+	return nullptr;
+}
+
+const CGHeroPlaceholder * CMap::isHeroPlaceholderObjective(const EventCondition & condition) const
+{
+	if((condition.condition != EventCondition::CONTROL &&
+		condition.condition != EventCondition::CONTROL_CURRENT &&
+		condition.condition != EventCondition::DESTROY) ||
+		condition.objectType.as<MapObjectID>() != Obj::HERO)
+		return nullptr;
+
+	return findHeroPlaceholder(condition.position);
+}
+
+void CMap::resolveHeroPlaceholderObjectives()
+{
+	for(TriggeredEvent & event : triggeredEvents)
+	{
+		auto patcher = [this, &event](EventCondition cond) -> EventExpression::Variant
+		{
+			if(const auto * placeholder = isHeroPlaceholderObjective(cond))
+			{
+				const std::string placeholderName = placeholder->heroType.has_value() ?
+					placeholder->heroType->toHeroType()->getNameTranslated() :
+					placeholder->instanceName;
+				cond.objectType = MapObjectID(Obj::HERO_PLACEHOLDER);
+				logGlobal->warn("Objective '%s': hero objective at %s points to hero placeholder '%s'; condition will remain unresolved until placeholder replacement is supported for normal maps",
+					event.identifier, cond.position.toString(), placeholderName);
+			}
+
+			return cond;
+		};
+
+		event.trigger = event.trigger.morph(patcher);
+	}
+}
+
 void Rumor::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("name", name);
@@ -414,40 +459,19 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type
 		if (object->ID == type)
 			return object;
 	}
-	// There is weird bug because of which sometimes heroes will not be found properly despite having correct position
-	// Try to workaround that and find closest object that we can use
 
 	logGlobal->error("Failed to find object of type %d at %s", type.getNum(), pos.toString());
-	logGlobal->error("Will try to find closest matching object");
-
-	CGObjectInstance * bestMatch = nullptr;
-	for (const auto & object : objects)
-	{
-		if (object && object->ID == type)
-		{
-			if (bestMatch == nullptr)
-				bestMatch = object.get();
-			else
-			{
-				if (object->anchorPos().dist2dSQ(pos) < bestMatch->anchorPos().dist2dSQ(pos))
-					bestMatch = object.get();// closer than one we already found
-			}
-		}
-	}
-	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
-
-	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->anchorPos().toString());
-	return bestMatch;
+	return nullptr;
 }
 
 void CMap::checkForObjectives()
 {
 	// NOTE: probably should be moved to MapFormatH3M.cpp
-	for (TriggeredEvent & event : triggeredEvents)
+	for(TriggeredEvent & event : triggeredEvents)
 	{
 		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
-			switch (cond.condition)
+			switch(cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
 					event.onFulfill.replaceTextID(cond.objectType.as<ArtifactID>().toEntity(LIBRARY)->getNameTextID());
@@ -465,37 +489,71 @@ void CMap::checkForObjectives()
 
 				case EventCondition::HAVE_BUILDING:
 					if (isInTheMap(cond.position))
-						cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
+					{
+						if(const auto * object = getObjectiveObjectFrom(cond.position, Obj::TOWN))
+							cond.objectID = object->id;
+						else
+							logGlobal->warn("Objective '%s': failed to resolve town target for building objective at %s", event.identifier, cond.position.toString());
+					}
 					break;
 
 				case EventCondition::CONTROL:
-					if (isInTheMap(cond.position))
-						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
+					if(event.effect.type == EventEffect::VICTORY)
+						cond.condition = EventCondition::CONTROL_CURRENT;
+					[[fallthrough]];
+				case EventCondition::CONTROL_CURRENT:
+					if(isInTheMap(cond.position))
+					{
+						for(const auto & objID : getTile(cond.position).visitableObjects)
+						{
+							const auto * object = getObject(objID);
+							if(object->ID == cond.objectType.as<MapObjectID>())
+							{
+								cond.objectID = object->id;
+								break;
+							}
+						}
+					}
 
-					if (cond.objectID != ObjectInstanceID::NONE)
+					if(cond.objectID != ObjectInstanceID::NONE)
 					{
 						const auto * town = dynamic_cast<const CGTownInstance *>(objects[cond.objectID].get());
-						if (town)
+						if(town)
 							event.onFulfill.replaceRawString(town->getNameTranslated());
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
-						if (hero)
+						if(hero)
 							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
 					break;
 
 				case EventCondition::DESTROY:
-					if (isInTheMap(cond.position))
-						cond.objectID = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>())->id;
+					// Placeholder-targeted "defeat hero" objectives stay unresolved until normal-map placeholder replacement is supported.
+					if(cond.objectType.as<MapObjectID>() == Obj::HERO_PLACEHOLDER)
+						break;
 
-					if (cond.objectID != ObjectInstanceID::NONE)
+					if(isInTheMap(cond.position))
+					{
+						if(const auto * object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>()))
+							cond.objectID = object->id;
+						else
+							logGlobal->warn("Objective '%s': failed to resolve destroy target of type %d at %s",
+								event.identifier,
+								cond.objectType.as<MapObjectID>().getNum(),
+								cond.position.toString());
+					}
+
+					if(cond.objectID != ObjectInstanceID::NONE)
 					{
 						const auto * hero = dynamic_cast<const CGHeroInstance *>(objects[cond.objectID].get());
-						if (hero)
+						if(hero)
 							event.onFulfill.replaceRawString(hero->getNameTranslated());
 					}
 					break;
 				case EventCondition::TRANSPORT:
-					cond.objectID = getObjectiveObjectFrom(cond.position, Obj::TOWN)->id;
+					if(const auto * object = getObjectiveObjectFrom(cond.position, Obj::TOWN))
+						cond.objectID = object->id;
+					else
+						logGlobal->warn("Objective '%s': failed to resolve town target for transport objective at %s", event.identifier, cond.position.toString());
 					break;
 				//break; case EventCondition::DAYS_PASSED:
 				//break; case EventCondition::IS_HUMAN:
@@ -588,6 +646,32 @@ void CMap::moveObject(ObjectInstanceID target, const int3 & dst)
 	hideObject(obj);
 	obj->setAnchorPos(dst);
 	showObject(obj);
+}
+
+bool CMap::adjustToMapBounds(CGObjectInstance * obj)
+{
+	if(!obj || !obj->isVisitable())
+		return false;
+
+	const auto oldVisitablePos = obj->visitablePos();
+	if(isInTheMap(oldVisitablePos))
+		return false;
+
+	int3 newVisitablePos = oldVisitablePos;
+	newVisitablePos.x = std::clamp(newVisitablePos.x, 0, width - 1);
+	newVisitablePos.y = std::clamp(newVisitablePos.y, 0, height - 1);
+
+	if(!isInTheMap(newVisitablePos))
+		return false;
+
+	// Keep object shape unchanged by translating anchor with the clamped visitable tile delta.
+	const int3 newAnchorPos = obj->anchorPos() + (newVisitablePos - oldVisitablePos);
+	if(obj->id.hasValue() && obj->id.getNum() < objects.size() && objects.at(obj->id.getNum()).get() == obj)
+		moveObject(obj->id, newAnchorPos);
+	else
+		obj->setAnchorPos(newAnchorPos);
+
+	return true;
 }
 
 std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)

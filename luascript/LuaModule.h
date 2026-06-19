@@ -26,7 +26,7 @@ class LuaScriptInstance;
 
 /// Top-level Lua scripting service loaded as a DLL plugin by ScriptingHandler; owns script factories and creates script pools.
 /// Entry point exposed to the engine via GetNewModule() and GetAiName() C exports.
-class LuaModule final : public Service
+class DLL_LINKAGE LuaModule final : public Service
 {
 public:
 	LuaModule();
@@ -35,6 +35,8 @@ public:
 	void installScripting(spells::effects::SpellEffectService * spellEffects) override;
 
 	std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const override;
+
+	void exportDocs(const boost::filesystem::path & outDir) const override;
 
 private:
 	using ScriptPtr = std::shared_ptr<LuaScriptInstance>;

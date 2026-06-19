@@ -243,7 +243,7 @@ private:
 	 * @param out the loaded creature set
 	 * @param number the count of creatures to read
 	 */
-	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven);
+	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven, const int3 & position);
 
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);

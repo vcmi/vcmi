@@ -140,7 +140,7 @@ local function buildDescriptor(self, mechanics, side, hex, customSize)
 	local spell = mechanics:getSpell()
 	local opts  = sideOptions(self, side)
 	return {
-		pos              = hex:toInteger(),
+		pos              = hex,
 		obstacleType     = ENUM.ObstacleType.spellCreated,
 		spell            = spell,
 		casterSpellPower = mechanics:getEffectPower(),
@@ -219,7 +219,7 @@ function Script:apply(mechanics, server, target)
 		local customSize = {}
 		for _, shape in ipairs(shapes) do
 			local shaped = applyShape(hex, shape)
-			customSize[#customSize+1] = shaped:toInteger()
+			customSize[#customSize+1] = shaped
 		end
 		local descriptor = buildDescriptor(self, mechanics, side, hex, customSize)
 		server:addObstacle(battle, descriptor)

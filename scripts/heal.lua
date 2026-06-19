@@ -91,8 +91,8 @@ function Script:apply(mechanics, server, target)
 				server:appendLog(battle, {
 					append         = { "core.genrltxt.414" },
 					replaceStrings = {
-						casterUnit:getCreature():getNameSingularTextID(),
-						unit:getCreature():getNameSingularTextID()
+						casterUnit:getCreature():getNameTextID(1),
+						unit:getCreature():getNameTextID(1)
 					},
 					replaceNumbers = { healedHP }
 				})

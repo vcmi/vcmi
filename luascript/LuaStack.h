@@ -15,11 +15,18 @@
 #include "vcmi/scripting/ApiTags.h"
 #include <boost/core/demangle.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+namespace scripting::api { template<typename E> struct EnumGroup; }
+VCMI_LIB_NAMESPACE_END
+
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class BattleHex;
 class JsonNode;
 class int3;
+class CreatureID;
+class Creature;
 
 namespace scripting
 {
@@ -83,6 +90,7 @@ public:
 	}
 
 	void push(const int3 & value);
+	void push(const CreatureID & value);
 
 	template<typename T, typename std::enable_if_t< std::is_base_of_v<IdentifierBase, T>, int> = 0>
 	void push(const T & value)
@@ -179,6 +187,19 @@ public:
 		}
 	}
 
+	template<typename E>
+	void push(const api::EnumGroup<E> & group)
+	{
+		lua_newtable(L);
+		int tableIndex = lua_gettop(L);
+
+		for(const auto & item : group.items)
+		{
+			push(item.value);
+			lua_setfield(L, tableIndex, item.key.c_str());
+		}
+	}
+
 	template<typename T, typename std::enable_if_t<std::is_base_of_v<scripting::TagSerializable, T>, int> = 0>
 	void push(const T & value)
 	{
@@ -188,7 +209,7 @@ public:
 		// get non-const value - ugly, but required since same template method is used for deserialization
 		T & nonConstValue = const_cast<T&>(value);
 
-		const auto & luaSerializer = [this, tableIndex]<typename Field>(const std::string &keyName, const Field & data)
+		const auto & luaSerializer = [this, tableIndex]<typename Field>(const std::string &keyName, const Field & data, std::string_view /*description*/)
 		{
 			push(data);
 			lua_setfield(L, tableIndex, keyName.c_str());
@@ -234,6 +255,8 @@ public:
 	}
 
 	void get(int position, int3 & value);
+	void get(int position, BattleHex & value);
+	void get(int position, CreatureID & value);
 
 	void get(int position, double & value);
 	void get(int position, std::string & value);
@@ -261,7 +284,7 @@ public:
 	template<typename T, typename std::enable_if_t<std::is_base_of_v<scripting::TagSerializable, T>, int> = 0>
 	inline void get(int position, T & value)
 	{
-		const auto & deserializer = [this, position]<typename Data>(const std::string &keyName, Data & data)
+		const auto & deserializer = [this, position]<typename Data>(const std::string &keyName, Data & data, std::string_view /*description*/)
 		{
 			if (!lua_istable(L, position))
 				throw LuaApiException("value at index is not a table");

@@ -14,10 +14,12 @@
 #include "../../../lib/battle/IBattleInfoCallback.h"
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CObstacleInstance;
+class CBattleInfoCallback;
 
 namespace scripting::api
 {
@@ -25,9 +27,13 @@ namespace scripting::api
 class IBattleInfoCallbackProxy : public RawPointerWrapper<const IBattleInfoCallback, IBattleInfoCallbackProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const IBattleInfoCallback, IBattleInfoCallbackProxy>;
+	static constexpr std::string_view luaName = "Battle";
+	static constexpr std::string_view luaDescription =
+		"Battlefield query interface. The handle scripts receive whenever they are passed a "
+		"battle context — enumerate units and obstacles, test hex accessibility and shooting "
+		"penalties, inspect wall state on siege maps. Read-only; mutations go through Server.";
 
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static void registerMethods(MethodRegistrar & R);
 
 	static int getAvailableHex(lua_State * L);
 	static int getUnitsIf(lua_State * L);

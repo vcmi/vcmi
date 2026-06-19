@@ -365,6 +365,7 @@
 	"vcmi.battleWindow.healValuePreview.2": "%d bodů zdraví bude vyléčeno",
 	"vcmi.battleWindow.killed": "Zabito",
 	"vcmi.battleWindow.pressKeyToSkipIntro": "Stiskněte jakoukoliv klávesu pro okamžité zahájení bitvy",
+	"vcmi.battleWindow.quickSpell.emptySlot": "Kliknutím pravým tlačítkem přiřadíte kouzlo.",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.0": "získáte %d bod zdraví",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.1": "získáte %d body zdraví",
 	"vcmi.battleWindow.sacrificeAcquiredHealth.2": "získáte %d bodů zdraví",

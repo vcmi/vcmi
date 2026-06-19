@@ -63,7 +63,7 @@ function Script:applicableGeneral(mechanics, problem)
 					append         = { "core.genrltxt.538" },
 					replaceStrings = {
 						hero:getNameTextID(),
-						elemental:getCreature():getNamePluralTextID(),
+						elemental:getCreature():getNameTextID(0),
 						himHer
 					}
 				})
@@ -100,7 +100,7 @@ function Script:apply(mechanics, server, target)
 				battle,
 				{
 					count = self:summonedCreatureAmount(mechanics),
-					type = creature:getJsonKey(),
+					type = creature,
 					side = mechanics:getCasterSide(),
 					position = dest.hex,
 					summoned = not self.permanent

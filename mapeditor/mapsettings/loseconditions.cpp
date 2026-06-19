@@ -76,11 +76,11 @@ void LoseConditions::initialize(MapController & c)
 									loseTypeWidget->setCurrentIndex(idx);
 								}
 							}
-							if(objectType == Obj::HERO)
+							if(objectType == Obj::HERO || objectType == Obj::HERO_PLACEHOLDER)
 							{
 								ui->loseComboBox->setCurrentIndex(2);
 								assert(loseTypeWidget);
-								int heroIdx = getObjectByPos<const CGHeroInstance>(*controller->map(), posFromJson(json["position"]));
+								int heroIdx = getHeroTargetObjectByPos(*controller->map(), posFromJson(json["position"]));
 								if(heroIdx >= 0)
 								{
 									auto idx = loseTypeWidget->findData(heroIdx);
@@ -263,7 +263,7 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 		case 1: { //EventCondition::CONTROL (Obj::HERO)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			for(int i : getObjectIndexes<const CGHeroInstance>(*controller->map()))
+			for(int i : getHeroTargetObjectIndexes(*controller->map()))
 				loseTypeWidget->addItem(QString::fromStdString(getHeroName(*controller->map(), i).c_str()), QVariant::fromValue(i));
 			pickObjectButton = new QToolButton;
 			connect(pickObjectButton, &QToolButton::clicked, this, &LoseConditions::onObjectSelect);
@@ -301,7 +301,7 @@ void LoseConditions::onObjectSelect()
 			}
 				
 			case 1: { //EventCondition::CONTROL (Obj::HERO)
-				l.highlight<const CGHeroInstance>();
+				l.highlight([](const CGObjectInstance * obj){ return AbstractSettings::isHeroTargetObject(obj); });
 				break;
 			}
 			default:

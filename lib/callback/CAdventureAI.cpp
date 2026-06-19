@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "CAdventureAI.h"
 
-#include "CDynLibHandler.h"
+#include "AIFactory.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,7 +34,7 @@ void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * a
 {
 	assert(!battleAI);
 	assert(cbc);
-	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
+	battleAI = AIFactory::createBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
 	battleAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }

@@ -11,22 +11,21 @@
 
 #include "Faction.h"
 
+#include "EntityBindings.h"
 #include "../Registry.h"
-
-#include "../../LuaStack.h"
-#include "../../LuaCallWrapper.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
 
-const std::vector<FactionProxy::CustomRegType> FactionProxy::REGISTER_CUSTOM =
+void FactionProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getJsonKey",   LuaMethodWrapper<&Entity::getJsonKey, Faction>::invoke,        false},
-	{"getName",      LuaMethodWrapper<&Entity::getNameTranslated, Faction>::invoke, false},
-	{"hasTown",      LuaMethodWrapper<&Faction::hasTown>::invoke,                   false},
-};
+	EntityBindings<Faction>::registerMethods(R);
+
+	R.method<&Faction::hasTown>("hasTown", {},
+		"True if this faction has town belonging to it in the game. Usually true for all factions other than neutral");
+}
 
 }
 

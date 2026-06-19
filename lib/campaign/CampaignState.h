@@ -67,6 +67,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	HeroTypeID yogWizardID;
 	HeroTypeID gemSorceressID;
 
+	int hotaVersion = 0; // not serialized - loading only
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
 	bool restrictGarrisonsAI = false;

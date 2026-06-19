@@ -12,6 +12,7 @@
 
 #include "Bonus.h"
 
+#include "../Enums.h"
 #include "../Registry.h"
 #include "../../LuaStack.h"
 #include "../../LuaCallWrapper.h"
@@ -26,20 +27,31 @@ namespace scripting::api
 
 // --- BonusProxy ---
 
-const std::vector<BonusProxy::CustomRegType> BonusProxy::REGISTER_CUSTOM =
+void BonusProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getType",               LuaFunctionWrapper<&BonusProxy::getType>::invoke,               false},
-	{"getVal",                LuaFunctionWrapper<&BonusProxy::getVal>::invoke,                false},
-	{"getSubtype",            LuaFunctionWrapper<&BonusProxy::getSubtype>::invoke,            false},
-	{"getSourceID",           LuaFunctionWrapper<&BonusProxy::getSourceID>::invoke,           false},
-	{"getSource",             LuaFunctionWrapper<&BonusProxy::getSource>::invoke,             false},
-	{"getDuration",           LuaFunctionWrapper<&BonusProxy::getDuration>::invoke,           false},
-	{"getValType",            LuaFunctionWrapper<&BonusProxy::getValType>::invoke,            false},
-	{"getStacking",           LuaFunctionWrapper<&BonusProxy::getStacking>::invoke,           false},
-	{"getTurnsRemain",        LuaFunctionWrapper<&BonusProxy::getTurnsRemain>::invoke,        false},
-	{"isHidden",              LuaFunctionWrapper<&BonusProxy::isHidden>::invoke,              false},
-	{"getParametersAsNumber", LuaFunctionWrapper<&BonusProxy::getParametersAsNumber>::invoke, false},
-};
+	R.function<&BonusProxy::getType>("getType", {},
+		"Returns the bonus type as its JSON key.");
+	R.function<&BonusProxy::getVal>("getVal", {},
+		"Returns the integer magnitude of the bonus.");
+	R.function<&BonusProxy::getSubtype>("getSubtype", {},
+		"Returns the bonus subtype as a JSON key (the meaning depends on getType).");
+	R.function<&BonusProxy::getSourceID>("getSourceID", {},
+		"Returns the JSON key identifying the entity that granted this bonus.");
+	R.function<&BonusProxy::getSource>("getSource", {},
+		"Returns the source category (artifact, creature ability, spell, ...) of the bonus.");
+	R.function<&BonusProxy::getDuration>("getDuration", {},
+		"Returns the list of duration flags currently set on the bonus.");
+	R.function<&BonusProxy::getValType>("getValType", {},
+		"Returns how the value combines with other bonuses (additive, percent, base number, ...).");
+	R.function<&BonusProxy::getStacking>("getStacking", {},
+		"Returns the stacking key — bonuses with the same key from the same source do not stack.");
+	R.function<&BonusProxy::getTurnsRemain>("getTurnsRemain", {},
+		"Returns the remaining turns until the bonus expires (0 if not turn-limited, only active if duration is set accordingly).");
+	R.function<&BonusProxy::isHidden>("isHidden", {},
+		"True if the bonus is hidden from the player's interface display.");
+	R.function<&BonusProxy::getParametersAsNumber>("getParametersAsNumber", {},
+		"Returns the bonus's extra parameters encoded as a single integer (0 if none).");
+}
 
 std::string BonusProxy::getType(const Bonus & b)
 {
@@ -82,11 +94,15 @@ std::vector<BonusDuration::BonusDuration> BonusProxy::getDuration(const Bonus & 
 
 // --- BonusListProxy ---
 
-const std::vector<BonusListProxy::CustomRegType> BonusListProxy::REGISTER_CUSTOM =
+void BonusListProxy::registerMethods(MethodRegistrar & R)
 {
-	{"size",     LuaFunctionWrapper<&BonusListProxy::size>::invoke,     false},
-	{"getBonus", LuaFunctionWrapper<&BonusListProxy::getBonus>::invoke, false},
-};
+	R.function<&BonusListProxy::size>("size", {},
+		"Returns the number of bonuses in this list.");
+	R.function<&BonusListProxy::getBonus>("getBonus",
+		{{"index", "1-based position of the bonus to fetch."}},
+		{"Bonus stored at the given position."},
+		"Returns the bonus at the given 1-based index. Throws if the index is out of range.");
+}
 
 int32_t BonusListProxy::size(const BonusList & list)
 {

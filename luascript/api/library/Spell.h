@@ -13,8 +13,11 @@
 #include <vcmi/spells/Spell.h>
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+namespace spells { class SpellSchoolType; }
 
 namespace scripting::api
 {
@@ -22,10 +25,14 @@ namespace scripting::api
 class SpellProxy : public RawPointerWrapper<const ::spells::Spell, SpellProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const ::spells::Spell, SpellProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "Spell";
+	static constexpr std::string_view luaDescription =
+		"A spell definition (Fire Bolt, Slow, Town Portal, …). Identifies kind and metadata "
+		"(schools, level). Cast resolution and per-cast state live on SpellMechanics.";
 
-	static std::vector<std::string> getSchools(const ::spells::Spell & spell);
+	static void registerMethods(MethodRegistrar & R);
+
+	static std::vector<const spells::SpellSchoolType *> getSchools(const ::spells::Spell & spell);
 };
 
 }

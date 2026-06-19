@@ -67,8 +67,10 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedIns
 	exchangingArmies[0] = up;
 	exchangingArmies[1] = down;
 
-	addPlayer(up->tempOwner);
-	addPlayer(down->tempOwner);
+	if(up->tempOwner.isValidPlayer())
+		addPlayer(up->tempOwner);
+	if(down->tempOwner.isValidPlayer())
+		addPlayer(down->tempOwner);
 }
 
 bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const

@@ -1,0 +1,20 @@
+<!-- TODO before publishing: replace X.Y / PREV-TAG / CUR-TAG / anchor; toggle "shortly" lines -->
+Note: saved games from X.Y release can be loaded in X.Y
+
+### Changelog
+- Player Changelog: [PREV-TAG -> CUR-TAG](https://github.com/vcmi/vcmi/blob/master/ChangeLog.md#anchor)
+- Full Changelog: https://github.com/vcmi/vcmi/compare/PREV-TAG..CUR-TAG
+
+### Additional builds
+<!-- - Android release will be available on Google Play shortly -->
+<!-- - Linux release will be available on Flathub shortly -->
+<!-- - Ubuntu release will be available on VCMI PPA shortly -->
+<!-- - Android release is available on [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi) -->
+<!-- - Linux release is available on [Flathub](https://flathub.org/apps/eu.vcmi.VCMI) -->
+<!-- - Ubuntu release is available on [VCMI PPA](https://launchpad.net/~vcmi/+archive/ubuntu/ppa) -->
+
+- Android release is available on [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi) and [F-Droid](https://f-droid.org/en/packages/is.xyz.vcmi/)
+- iOS release is available on [TestFlight](https://testflight.apple.com/join/pJWHSbmu) (AppStore version coming soon)
+- Linux release is available on [Flathub](https://flathub.org/apps/eu.vcmi.VCMI)
+- Ubuntu release is available on [VCMI PPA](https://launchpad.net/~vcmi/+archive/ubuntu/ppa)
+- macOS release can be installed via Homebrew: `brew install --cask vcmi` (official) or `brew install --cask vcmi/vcmi/vcmi` (from our tap)

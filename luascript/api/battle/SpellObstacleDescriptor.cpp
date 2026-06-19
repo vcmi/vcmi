@@ -22,7 +22,7 @@ namespace scripting::api
 SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 {
 	SpellCreatedObstacle obstacle;
-	obstacle.pos              = BattleHex(static_cast<si16>(pos));
+	obstacle.pos              = pos;
 	obstacle.obstacleType     = obstacleType;
 	obstacle.ID               = spell ? spell->getId() : SpellID(SpellID::NONE);
 	obstacle.turnsRemaining   = turnsRemaining;
@@ -43,8 +43,8 @@ SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 	obstacle.appearAnimation = AnimationPath::builtin(appearAnimation);
 	obstacle.animation       = AnimationPath::builtin(animation);
 
-	for(si16 hex : customSize)
-		obstacle.customSize.insert(BattleHex(hex));
+	for(const BattleHex & hex : customSize)
+		obstacle.customSize.insert(hex);
 
 	return obstacle;
 }

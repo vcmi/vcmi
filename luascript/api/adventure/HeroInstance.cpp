@@ -12,26 +12,31 @@
 #include "HeroInstance.h"
 
 #include "../Registry.h"
-#include "../library/Bonus.h"
+#include "../library/BonusBearerBindings.h"
 
-#include "../../LuaStack.h"
-#include "../../LuaCallWrapper.h"
-
-#include "../../../lib/bonuses/BonusSelector.h"
+#include "StackInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
-const std::vector<HeroInstanceProxy::CustomRegType> HeroInstanceProxy::REGISTER_CUSTOM =
+
+void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getStack",      LuaMethodWrapper<&CCreatureSet::getStackPtr, CGHeroInstance>::invoke, false},
-	{"getOwner",      LuaMethodWrapper<&CGObjectInstance::getOwner, CGHeroInstance>::invoke, false},
-	{"getNameTextID", LuaMethodWrapper<&CGHeroInstance::getNameTextID>::invoke, false},
-	{"isMale",        LuaFunctionWrapper<&HeroInstanceProxy::isMale>::invoke,   false},
-	{"isFemale",      LuaFunctionWrapper<&HeroInstanceProxy::isFemale>::invoke, false},
-	{"getBonuses",    LuaCallWrapper<&HeroInstanceProxy::getBonuses>::invoke,    false},
-};
+	BonusBearerBindings<CGHeroInstance>::registerMethods(R);
+
+	R.method<&CCreatureSet::getStackPtr, CGHeroInstance>("getStack",
+		{{"slot", "Army slot to query (1-based)."}}, {},
+		"Returns the stack instance in the given army slot, or nil if the slot is empty.");
+	R.method<&CGObjectInstance::getOwner, CGHeroInstance>("getOwner", {},
+		"Returns the player color that owns this hero.");
+	R.method<&CGHeroInstance::getNameTextID>("getNameTextID", {},
+		"Returns the text ID of the hero's name.");
+	R.function<&HeroInstanceProxy::isMale>("isMale", {},
+		"True if the hero's gender is male.");
+	R.function<&HeroInstanceProxy::isFemale>("isFemale", {},
+		"True if the hero's gender is female.");
+}
 
 bool HeroInstanceProxy::isMale(const CGHeroInstance & hero)
 {
@@ -41,37 +46,6 @@ bool HeroInstanceProxy::isMale(const CGHeroInstance & hero)
 bool HeroInstanceProxy::isFemale(const CGHeroInstance & hero)
 {
 	return hero.gender == EHeroGender::FEMALE;
-}
-
-int HeroInstanceProxy::getBonuses(lua_State * L)
-{
-	LuaStack S(L);
-	const CGHeroInstance * hero = nullptr;
-	S.get(1, hero);
-
-	if(!hero || !lua_isfunction(L, 2))
-	{
-		S.clear();
-		return 0;
-	}
-
-	auto allBonuses = hero->getAllBonuses(Selector::all);
-
-	BonusList result;
-	for(const auto & bonus : *allBonuses)
-	{
-		lua_pushvalue(L, 2);
-		S.push(*bonus);
-		lua_call(L, 1, 1);
-		bool keep = lua_toboolean(L, -1);
-		lua_pop(L, 1);
-		if(keep)
-			result.push_back(bonus);
-	}
-
-	S.clear();
-	S.push(result);
-	return 1;
 }
 
 }

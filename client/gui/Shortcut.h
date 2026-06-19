@@ -248,7 +248,11 @@ enum class EShortcut
 	TOWN_OPEN_HERO,
 	TOWN_OPEN_VISITING_HERO,
 	TOWN_OPEN_GARRISONED_HERO,
+	TOWN_OPEN_BLACKSMITH,
+	TOWN_OPEN_SHIPYARD,
 	TOWN_SWAP_ARMIES, // Swap garrisoned and visiting armies
+	TOWN_UPGRADE_GARRISON, // Upgrade all creatures in town garrison
+	TOWN_UPGRADE_VISITING, // Upgrade all creatures of visiting hero
 
 	// Creature & creature recruitment screen
 	RECRUITMENT_MAX, // Set number of creatures to recruit to max

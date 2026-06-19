@@ -324,9 +324,15 @@ std::string CComponent::getSubtitle() const
 				return "{#A9A9A9|" + LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated() + "}";
 			else
 				return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
-		case ComponentType::NONE:
 		case ComponentType::MORALE:
+			if(settings["general"]["enableUiEnhancements"].Bool())
+				return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[384] % data.value.value_or(0));
+			return "";
 		case ComponentType::LUCK:
+			if(settings["general"]["enableUiEnhancements"].Bool())
+				return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[385] % data.value.value_or(0));
+			return "";
+		case ComponentType::NONE:
 		case ComponentType::HERO_PORTRAIT:
 			return "";
 		case ComponentType::BUILDING:

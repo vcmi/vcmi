@@ -13,6 +13,11 @@
 
 #include "../lib/json/JsonNode.h"
 #include "../lib/int3.h"
+#include "../lib/battle/BattleHex.h"
+#include "../lib/constants/EntityIdentifiers.h"
+#include "../lib/GameLibrary.h"
+
+#include <vcmi/Creature.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -201,6 +206,32 @@ void LuaStack::get(int position, int3 & value)
 	get(position,   value.x);
 	get(position+1, value.y);
 	get(position+2, value.z);
+}
+
+void LuaStack::get(int position, BattleHex & value)
+{
+	if(lua_isnumber(L, position))
+	{
+		lua_Integer temp;
+		getInteger(position, temp);
+		value = BattleHex(static_cast<si16>(temp));
+	}
+	else
+	{
+		getUData<BattleHex>(position, value);
+	}
+}
+
+void LuaStack::push(const CreatureID & value)
+{
+	push(value.toEntity(LIBRARY));
+}
+
+void LuaStack::get(int position, CreatureID & value)
+{
+	const Creature * creature = nullptr;
+	get(position, creature);
+	value = creature ? creature->getId() : CreatureID(CreatureID::NONE);
 }
 
 void LuaStack::get(int position, JsonNode & value)

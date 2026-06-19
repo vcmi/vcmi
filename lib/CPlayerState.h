@@ -104,6 +104,8 @@ public:
 
 	void addOwnedObject(CGObjectInstance * object);
 	void removeOwnedObject(CGObjectInstance * object);
+	void markObjectControlled(ObjectInstanceID objectID);
+	bool hasEverControlled(ObjectInstanceID objectID) const;
 
 	bool checkVanquished() const
 	{
@@ -141,7 +143,12 @@ public:
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & destroyedObjects;
+		if(h.hasFeature(Handler::Version::CONTROL_LOSS_TRACKING))
+			h & everControlledObjects;
 	}
+
+	private:
+		std::set<ObjectInstanceID> everControlledObjects;
 };
 
 struct DLL_LINKAGE TeamState : public CBonusSystemNode

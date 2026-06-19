@@ -13,6 +13,7 @@
 #include <vcmi/Faction.h>
 
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -22,8 +23,12 @@ namespace scripting::api
 class FactionProxy : public RawPointerWrapper<const Faction, FactionProxy>
 {
 public:
-	using Wrapper = RawPointerWrapper<const Faction, FactionProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "Faction";
+	static constexpr std::string_view luaDescription =
+		"A town/army faction definition (Castle, Rampart, Inferno, …). Identifies the kind, "
+		"not a placed town; use Game lookups for the latter.";
+
+	static void registerMethods(MethodRegistrar & R);
 };
 
 }

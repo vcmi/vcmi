@@ -10,11 +10,13 @@
 
 #include "StdInc.h"
 #include "callback/CBattleCallback.h"
-#include "callback/CDynLibHandler.h"
 #include "callback/IGameInfoCallback.h"
 #include "filesystem/Filesystem.h"
 #include "lib/CRandomGenerator.h"
 #include "json/JsonUtils.h"
+
+#include "../../BattleAI/BattleAI.h"
+#include "../../StupidAI/StupidAI.h"
 
 #include "BAI/factory.h"
 #include "BAI/fallback/scripted_model.h"
@@ -314,12 +316,12 @@ void Router::battleStart(
 		case Schema::ModelType::SCRIPTED:
 			if(model->getName() == "StupidAI")
 			{
-				bai = CDynLibHandler::getNewBattleAI("StupidAI");
+				bai = std::make_shared<CStupidAI>();
 				bai->initBattleInterface(env, cb, autocombatPreferences);
 			}
 			else if(model->getName() == "BattleAI")
 			{
-				bai = CDynLibHandler::getNewBattleAI("BattleAI");
+				bai = std::make_shared<CBattleAI>();
 				bai->initBattleInterface(env, cb, autocombatPreferences);
 			}
 			else

@@ -67,7 +67,7 @@
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -1959,7 +1959,7 @@ bool CPlayerInterface::capturedAllEvents()
 
 void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
 {
-	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
+	autofightingAI = AIFactory::createBattleAI(settings["ai"]["combatAlliedAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
 	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();

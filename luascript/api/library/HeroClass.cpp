@@ -11,21 +11,18 @@
 
 #include "HeroClass.h"
 
+#include "EntityBindings.h"
 #include "../Registry.h"
-
-#include "../../LuaStack.h"
-#include "../../LuaCallWrapper.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace scripting::api
 {
 
-const std::vector<HeroClassProxy::CustomRegType> HeroClassProxy::REGISTER_CUSTOM =
+void HeroClassProxy::registerMethods(MethodRegistrar & R)
 {
-	{"getJsonKey",   LuaMethodWrapper<&Entity::getJsonKey, HeroClass>::invoke,        false},
-	{"getName",      LuaMethodWrapper<&Entity::getNameTranslated, HeroClass>::invoke, false},
-};
+	EntityBindings<HeroClass>::registerMethods(R);
+}
 
 }
 

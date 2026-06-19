@@ -1,0 +1,25 @@
+#! /usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_MINIMAL_LIB=ON \
+		-DENABLE_CLIENT=OFF \
+		-DENABLE_EDITOR=OFF \
+		-DENABLE_LAUNCHER=OFF \
+		-DENABLE_SERVER=OFF \
+		-DENABLE_LOBBY=ON \
+		-DENABLE_MMAI=OFF \
+		-DENABLE_GOLDMASTER=ON \
+		-DBIN_DIR=games \
+		-DENABLE_STATIC_LIBS=ON \
+		-DFORCE_BUNDLED_FL=OFF \
+		-DENABLE_TEST=0
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/vcmi-lobby
+override_dh_installdocs:
+	dh_installdocs --link-doc=vcmi-lobby

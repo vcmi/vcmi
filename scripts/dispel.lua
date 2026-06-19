@@ -35,7 +35,7 @@ function Script:apply(mechanics, server, target)
 				if positiveOnly and server:describeChanges() then
 					server:appendLog(battle, {
 						append         = { "core.genrltxt.555" },
-						replaceStrings = { unit:getCreature():getNamePluralTextID() }
+						replaceStrings = { unit:getCreature():getNameTextID(0) }
 					})
 				end
 				server:removeUnitBonuses(battle, unit, bonuses)

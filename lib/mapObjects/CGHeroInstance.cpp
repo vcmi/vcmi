@@ -1710,8 +1710,8 @@ bool CGHeroInstance::isMissionCritical() const
 
 		auto const & testFunctor = [&](const EventCondition & condition)
 		{
-			if ((condition.condition == EventCondition::CONTROL) && condition.objectID != ObjectInstanceID::NONE)
-				return (id != condition.objectID);
+				if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::CONTROL_CURRENT) && condition.objectID != ObjectInstanceID::NONE)
+					return (id != condition.objectID);
 
 			if (condition.condition == EventCondition::HAVE_ARTIFACT)
 			{

@@ -16,6 +16,7 @@
 #include "../../../lib/battle/CUnitState.h"
 #include "../../../lib/battle/BattleHexArray.h"
 #include "../../LuaWrapper.h"
+#include "../MethodRegistrar.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -57,7 +58,6 @@ public:
 
 	// Mutable API
 	void setDefending(bool v);
-	void setDefendingAnim(bool v);
 	void setCloned(bool v);
 	void setDrainedMana(bool v);
 	void setFear(bool v);
@@ -81,8 +81,13 @@ public:
 class LuaUnitStateProxy : public CopyableWrapper<LuaUnitState, LuaUnitStateProxy>
 {
 public:
-	using Wrapper = CopyableWrapper<LuaUnitState, LuaUnitStateProxy>;
-	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
+	static constexpr std::string_view luaName = "UnitState";
+	static constexpr std::string_view luaDescription =
+		"Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields "
+		"(position, defending, clone, summoned, …) and inflict damage locally, then hand the "
+		"result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.";
+
+	static void registerMethods(MethodRegistrar & R);
 
 	static bool hasAbsoluteImmunity(const LuaUnitState & state, const spells::Spell & spell);
 	static const Creature * getCreature(const LuaUnitState & state);
