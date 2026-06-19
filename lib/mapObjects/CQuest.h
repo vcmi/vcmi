@@ -47,7 +47,7 @@ public:
 	static const std::string & missionName(EQuestMission index);
 	static const std::string & missionState(int index);
 	
-	std::string questName;
+	EQuestMission missionKind;
 
 	QuestInstanceID qid;
 
@@ -109,6 +109,11 @@ public:
 		h & isCustomNext;
 		h & isCustomComplete;
 		h & completedOption;
+		// legacy serialized field; in memory the kind is the derived missionKind enum,
+		// recomputed from the limiter below. Kept on the wire for save compatibility.
+		std::string questName;
+		if(h.saving)
+			questName = missionName(missionKind);
 		h & questName;
 		h & mission;
 		// legacy single kill target; now stored in mission.destroyedObjects. Kept at this
@@ -119,6 +124,8 @@ public:
 		h & killTarget;
 		if(!h.saving && killTarget.hasValue())
 			mission.destroyedObjects.push_back(killTarget);
+		if(!h.saving)
+			defineQuestName();
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);

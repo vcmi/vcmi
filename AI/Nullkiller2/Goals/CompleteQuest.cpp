@@ -97,7 +97,7 @@ std::string CompleteQuest::questToString() const
 		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(&cc)->subID] + " keymaster tent";
 	}
 
-	if(q.getQuest(&cc)->questName == CQuest::missionName(EQuestMission::NONE))
+	if(q.getQuest(&cc)->missionKind == EQuestMission::NONE)
 		return "inactive quest";
 
 	MetaString ms;

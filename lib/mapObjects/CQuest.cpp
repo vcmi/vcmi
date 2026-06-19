@@ -51,7 +51,7 @@ CQuest::CQuest():
 	isCustomNext(false),
 	isCustomComplete(false),
 	repeatedQuest(false),
-	questName(CQuest::missionName(EQuestMission::NONE))
+	missionKind(EQuestMission::NONE)
 {
 }
 
@@ -262,7 +262,7 @@ void CQuest::getRolloverText(const IGameInfoCallback * cb, MetaString &ms, bool 
 
 	std::string questState = missionState(onHover ? 3 : 4);
 
-	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, questState, textOption).get());
+	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), questState, textOption).get());
 
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
@@ -279,19 +279,19 @@ void CQuest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText)
 void CQuest::defineQuestName()
 {
 	//standard quests
-	questName = CQuest::missionName(EQuestMission::NONE);
-	if(mission.heroLevel > 0) questName = CQuest::missionName(EQuestMission::LEVEL);
-	for(auto & s : mission.primary) if(s) questName = CQuest::missionName(EQuestMission::PRIMARY_SKILL);
-	if(!mission.destroyedObjects.empty() && !heroName.empty()) questName = CQuest::missionName(EQuestMission::KILL_HERO);
-	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE) questName = CQuest::missionName(EQuestMission::KILL_CREATURE);
-	if(!mission.artifacts.empty()) questName = CQuest::missionName(EQuestMission::ARTIFACT);
-	if(!mission.creatures.empty()) questName = CQuest::missionName(EQuestMission::ARMY);
-	if(mission.resources.nonZero()) questName = CQuest::missionName(EQuestMission::RESOURCES);
-	if(!mission.heroes.empty()) questName = CQuest::missionName(EQuestMission::HERO);
-	if(!mission.players.empty()) questName = CQuest::missionName(EQuestMission::PLAYER);
-	if(mission.daysPassed > 0) questName = CQuest::missionName(EQuestMission::HOTA_REACH_DATE);
-	if(!mission.heroClasses.empty()) questName = CQuest::missionName(EQuestMission::HOTA_HERO_CLASS);
-	if(!mission.allowedDifficulties.allowsAll()) questName = CQuest::missionName(EQuestMission::HOTA_GAME_DIFFICULTY);
+	missionKind = EQuestMission::NONE;
+	if(mission.heroLevel > 0) missionKind = EQuestMission::LEVEL;
+	for(auto & s : mission.primary) if(s) missionKind = EQuestMission::PRIMARY_SKILL;
+	if(!mission.destroyedObjects.empty() && !heroName.empty()) missionKind = EQuestMission::KILL_HERO;
+	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE) missionKind = EQuestMission::KILL_CREATURE;
+	if(!mission.artifacts.empty()) missionKind = EQuestMission::ARTIFACT;
+	if(!mission.creatures.empty()) missionKind = EQuestMission::ARMY;
+	if(mission.resources.nonZero()) missionKind = EQuestMission::RESOURCES;
+	if(!mission.heroes.empty()) missionKind = EQuestMission::HERO;
+	if(!mission.players.empty()) missionKind = EQuestMission::PLAYER;
+	if(mission.daysPassed > 0) missionKind = EQuestMission::HOTA_REACH_DATE;
+	if(!mission.heroClasses.empty()) missionKind = EQuestMission::HOTA_HERO_CLASS;
+	if(!mission.allowedDifficulties.allowsAll()) missionKind = EQuestMission::HOTA_GAME_DIFFICULTY;
 }
 
 void CQuest::addKillTargetReplacements(MetaString &out) const
@@ -443,18 +443,19 @@ void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 	if(getQuest().mission == Rewardable::Limiter{})
 		getQuest().isCompleted = true;
 	
-	if(getQuest().questName == getQuest().missionName(EQuestMission::NONE))
+	if(getQuest().missionKind == EQuestMission::NONE)
 	{
 		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
 	}
 	else
 	{
+		const std::string & questName = CQuest::missionName(getQuest().missionKind);
 		if(!getQuest().isCustomFirst)
-			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest().questName, getQuest().missionState(0), getQuest().textOption).get());
+			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(0), getQuest().textOption).get());
 		if(!getQuest().isCustomNext)
-			getQuest().nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest().questName, getQuest().missionState(1), getQuest().textOption).get());
+			getQuest().nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(1), getQuest().textOption).get());
 		if(!getQuest().isCustomComplete)
-			getQuest().completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest(). questName, getQuest().missionState(2), getQuest().textOption).get());
+			getQuest().completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(2), getQuest().textOption).get());
 	}
 	
 	getQuest().getCompletionText(cb, configuration.onSelect);
