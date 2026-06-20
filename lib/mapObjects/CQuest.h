@@ -49,8 +49,6 @@ public:
 	
 	EQuestMission missionKind = EQuestMission::NONE;
 
-	QuestInstanceID qid;
-
 	si32 lastDay = -1; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 	Rewardable::Limiter mission;
 	bool repeatedQuest = false;
@@ -81,14 +79,13 @@ public:
 	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
-	bool operator== (const CQuest & quest) const
-	{
-		return (quest.qid == qid);
-	}
-
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & qid;
+		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
+		{
+			si32 legacyQuestInstanceID = 0; // removed CQuest::qid
+			h & legacyQuestInstanceID;
+		}
 		h & isCompleted;
 		h & activeForPlayers;
 		h & lastDay;
@@ -116,14 +113,15 @@ public:
 			questName = missionName(missionKind);
 		h & questName;
 		h & mission;
-		// legacy single kill target; now stored in mission.destroyedObjects. Kept at this
-		// wire position for save compatibility (formalised in the QUEST_REWORK pass).
-		ObjectInstanceID killTarget;
-		if(h.saving)
-			killTarget = mission.destroyedObjects.empty() ? ObjectInstanceID::NONE : mission.destroyedObjects.front();
-		h & killTarget;
-		if(!h.saving && killTarget.hasValue())
-			mission.destroyedObjects.push_back(killTarget);
+		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
+		{
+			// legacy single kill target; QUEST_REWORK stores the full
+			// mission.destroyedObjects vector in the limiter instead
+			ObjectInstanceID killTarget;
+			h & killTarget;
+			if(killTarget.hasValue())
+				mission.destroyedObjects.push_back(killTarget);
+		}
 		if(!h.saving)
 			defineQuestName();
 	}
@@ -215,6 +213,19 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
+/// Reads the pre-QUEST_REWORK CGBorderGuard/CGBorderGate byte layout
+/// (a CQuest pointer followed by the CGObjectInstance base) into a quest source,
+/// synthesising the requiredKeys limiter from the object's colour subID.
+template<typename Handler>
+void loadLegacyBorderGuard(Handler & h, CGQuestSource & object)
+{
+	std::shared_ptr<CQuest> quest;
+	h & quest;
+	h & static_cast<CGObjectInstance&>(object);
+	object.getQuest() = *quest;
+	object.getQuest().mission.requiredKeys.push_back(object.subID);
+}
+
 /// Key/toll gate: stays in place, passable for a player once its limiter is met
 /// (border gates require the matching keymaster key).
 class DLL_LINKAGE CGQuestGate : public CGQuestSource
@@ -228,7 +239,11 @@ public:
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & static_cast<CGQuestSource&>(*this);
+		// type id 12 served the legacy CGBorderGate; pre-QUEST_REWORK saves carry its layout
+		if(h.hasFeature(Handler::Version::QUEST_REWORK))
+			h & static_cast<CGQuestSource&>(*this);
+		else
+			loadLegacyBorderGuard(h, *this);
 	}
 };
 

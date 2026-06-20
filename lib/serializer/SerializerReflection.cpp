@@ -62,6 +62,28 @@ public:
 	}
 };
 
+/// Loads pre-QUEST_REWORK CGBorderGuard instances (type id 10, removed in the quest
+/// rework) as CGQuestGuard, reading the old CGKeys-based layout and synthesising
+/// the requiredKeys limiter from the object's colour. Load-only.
+class BorderGuardCompatibility final : public ISerializerReflection
+{
+public:
+	Serializeable * createPtr(BinaryDeserializer & ar, IGameInfoCallback * cb) const override
+	{
+		return ClassObjectCreator<CGQuestGuard>::invoke(cb);
+	}
+
+	void loadPtr(BinaryDeserializer & ar, IGameInfoCallback * cb, Serializeable * data) const override
+	{
+		loadLegacyBorderGuard(ar, *dynamic_cast<CGQuestGuard*>(data));
+	}
+
+	void savePtr(BinarySerializer & s, const Serializeable * data) const override
+	{
+		throw std::runtime_error("Legacy CGBorderGuard must never be saved!");
+	}
+};
+
 template<typename Type>
 void CSerializationApplier::registerType(uint16_t ID)
 {
@@ -72,6 +94,8 @@ void CSerializationApplier::registerType(uint16_t ID)
 CSerializationApplier::CSerializationApplier()
 {
 	registerTypes(*this);
+	// legacy: pre-QUEST_REWORK CGBorderGuard (type id 10) loads as a CGQuestGuard
+	apps[10].reset(new BorderGuardCompatibility());
 }
 
 CSerializationApplier & CSerializationApplier::getInstance()

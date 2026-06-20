@@ -94,7 +94,7 @@ std::string CompleteQuest::questToString() const
 {
 	if(isKeyMaster(q, cc))
 	{
-		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(&cc)->subID] + " keymaster tent";
+		return "find " + LIBRARY->generaltexth->translate("core.tentcolr", q.getObject(&cc)->subID.getNum()) + " keymaster tent";
 	}
 
 	if(q.getQuest(&cc)->missionKind == EQuestMission::NONE)

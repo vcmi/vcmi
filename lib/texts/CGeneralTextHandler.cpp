@@ -144,13 +144,10 @@ CGeneralTextHandler::CGeneralTextHandler():
 	tavernInfo       (*this, "core.tvrninfo" ),
 	turnDurations    (*this, "core.turndur"  ),
 	heroscrn         (*this, "core.heroscrn" ),
-	tentColors       (*this, "core.tentcolr" ),
 	levels           (*this, "core.skilllev" ),
 	zelp             (*this, "core.help"     ),
 	allTexts         (*this, "core.genrltxt" ),
 	// pseudo-array, that don't have H3 file with same name
-	seerEmpty        (*this, "core.seerhut.empty"  ),
-	seerNames        (*this, "core.seerhut.names"  ),
 	capColors        (*this, "vcmi.capitalColors"  ),
 
 	roeMapping()

@@ -170,6 +170,7 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 					requiredKeys.emplace_back(key);
 
 			h & allowedDifficulties;
+			h & destroyedObjects;
 		}
 	}
 	
