@@ -144,6 +144,11 @@ public:
 	CQuest & getQuest() { return *quest; }
 	virtual bool checkQuest(const CGHeroInstance * h) const;
 
+	// Per-colour keymaster key state, shared by keymaster tents and border guards/gates.
+	// TODO: review whether CGQuestSource is the right home/form for these.
+	static bool hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player);
+	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
+
 	/// The quest currently relevant for visiting / quest-log display.
 	virtual const CQuest & activeQuest() const { return getQuest(); }
 	const CQuest * activeQuestForLog() const override { return &activeQuest(); }
@@ -229,29 +234,17 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
+class DLL_LINKAGE CGKeymasterTent : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;
 
 	bool wasMyColorVisited(const PlayerColor & player) const;
+	bool wasVisited(PlayerColor player) const override;
 
 	std::string getObjectName() const override;
 	std::string getObjectDescription(PlayerColor player) const;
 	std::string getHoverText(PlayerColor player) const override;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGKeymasterTent : public CGKeys
-{
-public:
-	using CGKeys::CGKeys;
-
-	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h)

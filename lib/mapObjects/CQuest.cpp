@@ -771,22 +771,32 @@ void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	getQuest().serializeJson(handler, "quest");
 }
 
-bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
+bool CGQuestSource::hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player)
 {
-	return cb->getPlayerState(player)->visitedObjectsGlobal.count({Obj::KEYMASTER, subID}) != 0;
+	return keyObject->cb->getPlayerState(player)->visitedObjectsGlobal.count({Obj::KEYMASTER, keyObject->subID}) != 0;
 }
 
-std::string CGKeys::getHoverText(PlayerColor player) const
+std::string CGQuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
+{
+	return visitedTxt(hasVisitedKeymaster(keyObject, player));
+}
+
+bool CGKeymasterTent::wasMyColorVisited(const PlayerColor & player) const
+{
+	return CGQuestSource::hasVisitedKeymaster(this, player);
+}
+
+std::string CGKeymasterTent::getHoverText(PlayerColor player) const
 {
 	return getObjectName() + "\n" + visitedTxt(wasMyColorVisited(player));
 }
 
-std::string CGKeys::getObjectName() const
+std::string CGKeymasterTent::getObjectName() const
 {
 	return LIBRARY->generaltexth->translate("core.tentcolr", subID.getNum()) + " " + CGObjectInstance::getObjectName();
 }
 
-std::string CGKeys::getObjectDescription(PlayerColor player) const
+std::string CGKeymasterTent::getObjectDescription(PlayerColor player) const
 {
 	return visitedTxt(wasMyColorVisited(player));
 }

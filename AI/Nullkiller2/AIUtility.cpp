@@ -200,9 +200,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 
 	if(obj->ID == Obj::BORDER_GATE)
 	{
-		auto quest = dynamic_cast<const CGKeys *>(obj);
-
-		if(quest->wasMyColorVisited(playerColor))
+		if(CGQuestSource::hasVisitedKeymaster(obj, playerColor))
 			return true;
 	}
 
@@ -591,7 +589,7 @@ bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * 
 		return true;
 	case Obj::BORDER_GATE:
 	case Obj::BORDERGUARD:
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(playerID); //FIXME: they could be revisited sooner than in a week
+		return CGQuestSource::hasVisitedKeymaster(obj, playerID); //FIXME: they could be revisited sooner than in a week
 	}
 	return false;
 }
@@ -639,7 +637,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		return true; //we don't have this quest yet
 	}
 	case Obj::BORDERGUARD: //open borderguard if possible
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(aiNk->playerID);
+		return CGQuestSource::hasVisitedKeymaster(obj, aiNk->playerID);
 	case Obj::SEER_HUT:
 	{
 		for(auto q : aiNk->cc->getMyQuests())

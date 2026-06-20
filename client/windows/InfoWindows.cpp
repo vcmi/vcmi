@@ -470,7 +470,7 @@ TeleporterPopup::TeleporterPopup(const Point & position, const CGTeleport * tele
 	fitToScreen(10);
 }
 
-KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard)
+KeymasterPopup::KeymasterPopup(const Point & position, const CGObjectInstance * keyObject)
 	: AdventureMapPopup(BORDERED | RCLICK_POPUP)
 {
 	OBJECT_CONSTRUCTION;
@@ -478,8 +478,8 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 	pos.h = 220 + (GAME->interface()->cb->getMapSize().z > 2 ? 21 : 0);
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keymasterOrGuard->getObjectName());
-	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, keymasterOrGuard->getObjectDescription(GAME->interface()->playerID));
+	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keyObject->getObjectName());
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGQuestSource::keymasterVisitedText(keyObject, GAME->interface()->playerID));
 	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
 
 	const auto allObjects = GAME->interface()->cb->getAllVisitableObjs();
@@ -492,15 +492,15 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGKeys * keymasterO
 		switch (mapObject->ID)
 		{
 			case Obj::KEYMASTER:
-				if (mapObject->subID == keymasterOrGuard->subID)
+				if (mapObject->subID == keyObject->subID)
 					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/keymaster"));
 				break;
 			case Obj::BORDERGUARD:
-				if (mapObject->subID == keymasterOrGuard->subID)
+				if (mapObject->subID == keyObject->subID)
 					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/borderguard"));
 				break;
 			case Obj::BORDER_GATE:
-				if (mapObject->subID == keymasterOrGuard->subID)
+				if (mapObject->subID == keyObject->subID)
 					minimap->addIcon(mapObject->visitablePos(), ImagePath::builtin("minimapIcons/bordergate"));
 				break;
 		}
@@ -598,7 +598,7 @@ CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * sp
 		case Obj::KEYMASTER:
 		case Obj::BORDERGUARD:
 		case Obj::BORDER_GATE:
-			return std::make_shared<KeymasterPopup>(position, dynamic_cast<const CGKeys *>(specific));
+			return std::make_shared<KeymasterPopup>(position, specific);
 		case Obj::OBELISK:
 			return std::make_shared<ObeliskPopup>(position, dynamic_cast<const CGObelisk *>(specific));
 		default:

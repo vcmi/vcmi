@@ -59,7 +59,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSubterraneanGate>(5);
 	s.template registerType<CGWhirlpool>(6);
 	s.template registerType<CGSignBottle>(7);
-	s.template registerType<CGKeys>(8);
 	s.template registerType<CGKeymasterTent>(9);
 	s.template registerType<CGQuestGate>(12);
 	s.template registerType<CGBoat>(13);
