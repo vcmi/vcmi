@@ -133,38 +133,27 @@ public:
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
-class DLL_LINKAGE IQuestObject
-{
-	std::shared_ptr<CQuest> quest; // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
-public:
-	IQuestObject();
-	virtual ~IQuestObject();
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const = 0;
-	virtual bool checkQuest (const CGHeroInstance * h) const;
-	virtual const CQuest & getQuest() const { return *quest; }
-	virtual CQuest & getQuest() { return *quest; }
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & quest;
-	}
-};
-
 /// Abstract base for rewardable objects that gate a reward behind a CQuest.
-class DLL_LINKAGE CGQuestSource : public CRewardableObject, public IQuestObject
+class DLL_LINKAGE CGQuestSource : public CRewardableObject
 {
+	std::shared_ptr<CQuest> quest = std::make_shared<CQuest>(); // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
 public:
 	using CRewardableObject::CRewardableObject;
 
+	const CQuest & getQuest() const { return *quest; }
+	CQuest & getQuest() { return *quest; }
+	virtual bool checkQuest(const CGHeroInstance * h) const;
+
 	/// The quest currently relevant for visiting / quest-log display.
 	virtual const CQuest & activeQuest() const { return getQuest(); }
+	const CQuest * activeQuestForLog() const override { return &activeQuest(); }
 
-	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
+	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
-		h & static_cast<IQuestObject&>(*this);
+		h & quest;
 	}
 };
 

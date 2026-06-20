@@ -30,7 +30,6 @@ class CGCreature;
 class CQuest;
 class CGTownInstance;
 class IModableArt;
-class IQuestObject;
 class CInputStream;
 class CMapEditManager;
 class JsonSerializeFormat;

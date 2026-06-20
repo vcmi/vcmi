@@ -21,7 +21,7 @@ class CArtifactInstance;
 class CArmedInstance;
 class CGObjectInstance;
 class CGSeerHut;
-class IQuestObject;
+class CGQuestSource;
 class CGTownInstance;
 class CCreatureSet;
 class CInputStream;
@@ -253,7 +253,7 @@ private:
 	 *
 	 * @param guard the quest guard where that quest should be applied to
 	 */
-	EQuestMission readQuest(IQuestObject * guard, const int3 & position);
+	EQuestMission readQuest(CGQuestSource * guard, const int3 & position);
 
 	void readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
@@ -286,7 +286,7 @@ private:
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
-	std::map<IQuestObject*, si32> questsToResolve;
+	std::map<CGQuestSource*, si32> questsToResolve;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

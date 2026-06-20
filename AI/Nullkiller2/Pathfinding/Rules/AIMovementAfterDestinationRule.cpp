@@ -164,12 +164,11 @@ namespace AIPathfinding
 		CPathfinderHelper * pathfinderHelper) const
 	{
 		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
-		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
 		auto questInfo = QuestInfo(destination.nodeObject->id);
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-		   && questObj->getQuest().mission == Rewardable::Limiter{})
+		   && destination.nodeObject->activeQuestForLog()->mission == Rewardable::Limiter{})
 		{
 			return false;
 		}

@@ -373,13 +373,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 
 }
 
-IQuestObject::IQuestObject()
-	:quest(std::make_shared<CQuest>())
-{}
-
-IQuestObject::~IQuestObject() = default;
-
-bool IQuestObject::checkQuest(const CGHeroInstance* h) const
+bool CGQuestSource::checkQuest(const CGHeroInstance* h) const
 {
 	return getQuest().checkQuest(h);
 }

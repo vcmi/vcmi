@@ -15,10 +15,10 @@
 
 const CQuest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
-	auto questObject = dynamic_cast<const IQuestObject*>(getObject(cb));
-	assert(questObject);
+	const CQuest * quest = getObject(cb)->activeQuestForLog();
+	assert(quest);
 
-	return &questObject->getQuest();
+	return quest;
 }
 
 const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const

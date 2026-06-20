@@ -3347,7 +3347,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(CGQuestSource * guard, const int3 & position)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 

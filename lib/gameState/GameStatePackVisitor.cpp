@@ -432,8 +432,7 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
-	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
-	if (quest)
+	if (obj->activeQuestForLog())
 	{
 		for (auto &player : gs.players)
 		{

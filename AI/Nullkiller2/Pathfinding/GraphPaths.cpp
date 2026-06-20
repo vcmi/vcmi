@@ -80,11 +80,10 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 				|| node.obj->ID == Obj::BORDERGUARD
 				|| node.obj->ID == Obj::BORDER_GATE)
 			{
-				auto questObj = dynamic_cast<const IQuestObject *>(node.obj);
 				auto questInfo = QuestInfo(node.obj->id);
 
 				if(node.obj->ID == Obj::QUEST_GUARD
-					&& questObj->getQuest().mission == Rewardable::Limiter{})
+					&& node.obj->activeQuestForLog()->mission == Rewardable::Limiter{})
 				{
 					continue;
 				}

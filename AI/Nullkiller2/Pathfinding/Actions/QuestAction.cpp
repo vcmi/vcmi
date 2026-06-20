@@ -35,7 +35,7 @@ namespace AIPathfinding
 		auto quest = questInfo.getQuest(aiNk->cc.get());
 		if(object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD)
 		{
-			return dynamic_cast<const IQuestObject *>(object)->checkQuest(hero);
+			return quest->checkQuest(hero);
 		}
 
 		auto notActivated = !object->wasVisited(aiNk->playerID)
