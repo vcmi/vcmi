@@ -57,10 +57,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	mapHeader = std::make_unique<CMapHeader>();
 	scenarioOptionsOfSave = std::make_unique<StartInfo>();
 	lf.load(*mapHeader);
-	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
-		lf.load(*scenarioOptionsOfSave);
-	else
-		lf.load(scenarioOptionsOfSave);
+	lf.load(*scenarioOptionsOfSave);
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case

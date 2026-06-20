@@ -37,22 +37,6 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & obj;
-		}
-		else
-		{
-			std::shared_ptr<CQuest> questUnused;
-			std::shared_ptr<CGObjectInstance> objectPtr;
-			int3 tileUnused;
-			h & questUnused;
-			h & objectPtr;
-			h & tileUnused;
-
-			if (objectPtr)
-				obj = objectPtr->id;
-		}
+		h & obj;
 	}
 };

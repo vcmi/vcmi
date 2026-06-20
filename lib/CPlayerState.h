@@ -119,15 +119,7 @@ public:
 		h & status;
 		h & turnTimer;
 		h & *playerLocalSettings;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & ownedObjects;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				ownedObjects.push_back(ptr->id);
-		}
+		h & ownedObjects;
 
 		h & quests;
 		h & visitedObjects;

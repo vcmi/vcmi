@@ -256,10 +256,7 @@ public:
 		h & *turnOrder;
 		h & *turnTimerHandler;
 
-		if (h.hasFeature(Handler::Version::SERVER_STATISTICS))
-		{
-			h & *statistics;
-		}
+		h & *statistics;
 	}
 
 	void sendAndApply(CPackForClient & pack) override;

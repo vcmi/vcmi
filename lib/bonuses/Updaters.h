@@ -74,8 +74,7 @@ public:
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
-		if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
-			h & stepSize;
+		h & stepSize;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;

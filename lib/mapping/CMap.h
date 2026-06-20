@@ -99,8 +99,6 @@ public:
 	void calculateGuardingGreaturePositions();
 	void calculateGuardingGreaturePositions(int3 topleft, int3 bottomright);
 
-	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
-
 	/// Creates instance of spell scroll artifact with provided spell
 	CArtifactInstance * createScroll(const SpellID & spellId);
 
@@ -286,7 +284,6 @@ public:
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
 	const IGameSettings & getSettings() const;
 
-	void saveCompatibilityStoreAllocatedArtifactID();
 	void parseUidCounter();
 	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
@@ -311,13 +308,6 @@ public:
 		h & grailPos;
 		h & artInstances;
 
-		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			saveCompatibilityStoreAllocatedArtifactID();
-			std::vector< std::shared_ptr<CQuest> > quests;
-			h & quests;
-		}
-
 		if (h.saving)
 			h & heroesPool;
 		else
@@ -332,53 +322,19 @@ public:
 		h & guardingCreaturePositions;
 
 		h & objects;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & heroesOnMap;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				heroesOnMap.push_back(ptr->id);
-
-			for (auto & ptr : heroesPool)
-				if (vstd::contains(objects, ptr))
-					ptr = nullptr;
-		}
+		h & heroesOnMap;
 
 		h & teleportChannels;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & towns;
-		else
-		{
-			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
-			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
-				towns.push_back(ptr->id);
-		}
+		h & towns;
 		h & artInstances;
 
 		// static members
 		h & obeliskCount;
 		h & obelisksVisited;
 		h & townMerchantArtifacts;
-		if (!h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
-		{
-			std::vector<TradeItemBuy> townUniversitySkills;
-			h & townUniversitySkills;
-		}
-
 		h & instanceNames;
 		h & *gameSettings;
-		if (!h.hasFeature(Handler::Version::STORE_UID_COUNTER_IN_CMAP))
-		{
-			if (!h.saving)
-				parseUidCounter();
-		}
-		else
-		{
-			h & uidCounter;
-		}
+		h & uidCounter;
 	}
 };
 

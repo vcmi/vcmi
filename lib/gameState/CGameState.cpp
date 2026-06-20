@@ -1644,15 +1644,6 @@ void CGameState::restoreBonusSystemTree()
 		campaign->setGamestate(this);
 
 	rebuildObjectControlHistory();
-
-	// WORKAROUND FOR 1.6 SAVES
-	static_assert(ESerializationVersion::RELEASE_160 == ESerializationVersion::MINIMAL, "Please remove this code after dropping 1.6 save compat");
-	if (globalEffects.valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN) == 0)
-	{
-		const auto newBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN, BonusSource::GLOBAL, 1, BonusSourceID());
-		newBonus->valType = BonusValueType::INDEPENDENT_MAX;
-		globalEffects.addNewBonus(newBonus);
-	}
 }
 
 void CGameState::buildGlobalTeamPlayerTree()
@@ -1750,36 +1741,13 @@ void CGameState::loadGame(CLoadFile & file)
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
-	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
-	{
-		StartInfo dummyStartInfo;
-		file.load(dummyStartInfo);
-		file.load(dummyActiveMods);
-		file.load(*this);
-	}
-	else
-	{
-		auto dummyStartInfo = std::make_shared<StartInfo>();
-		bool dummyA = false;
-		uint32_t dummyB = 0;
-		uint16_t dummyC = 0;
-		file.load(dummyStartInfo);
-		file.load(dummyActiveMods);
-		file.load(dummyA);
-		file.load(dummyB);
-		file.load(dummyC);
-		file.load(*this);
-	}
+	StartInfo dummyStartInfo;
+	file.load(dummyStartInfo);
+	file.load(dummyActiveMods);
+	file.load(*this);
 }
 
 const scripting::Pool & CGameState::getScriptContextPool() const
 {
 	return *scriptingPool;
-}
-
-void CGameState::saveCompatibilityRegisterMissingArtifacts()
-{
-	for( const auto & newArtifact : saveCompatibilityUnregisteredArtifacts)
-		map->saveCompatibilityAddMissingArtifact(newArtifact);
-	saveCompatibilityUnregisteredArtifacts.clear();
 }

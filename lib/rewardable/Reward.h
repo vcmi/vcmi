@@ -148,32 +148,18 @@ struct DLL_LINKAGE Reward final
 
 		h & primary;
 		h & secondary;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & heroBonuses;
-			h & playerBonuses;
-			h & commanderBonuses;
-		}
-		else
-		{
-			std::vector<Bonus> bonuses;
-			h & bonuses;
-			for (const auto & bonus : bonuses)
-				heroBonuses.push_back(std::make_shared<Bonus>(bonus));
-		}
+		h & heroBonuses;
+		h & playerBonuses;
+		h & commanderBonuses;
 
 		h & grantedArtifacts;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & takenArtifacts;
-			h & takenArtifactSlots;
-			h & grantedScrolls;
-			h & takenScrolls;
-		}
+		h & takenArtifacts;
+		h & takenArtifactSlots;
+		h & grantedScrolls;
+		h & takenScrolls;
 		h & spells;
 		h & creatures;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-			h & takenCreatures;
+		h & takenCreatures;
 		h & creaturesChange;
 		h & revealTiles;
 		h & spellCast;

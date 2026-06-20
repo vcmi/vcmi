@@ -1071,18 +1071,6 @@ const CGObjectInstance * CMap::getObject(ObjectInstanceID obj) const
 	return nullptr;
 }
 
-void CMap::saveCompatibilityStoreAllocatedArtifactID()
-{
-	if (!artInstances.empty())
-		cb->gameState().saveCompatibilityLastAllocatedArtifactID = artInstances.back()->getId();
-}
-
-void CMap::saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact)
-{
-	assert(artifact->getId().getNum() == artInstances.size());
-	artInstances.push_back(artifact);
-}
-
 ObjectInstanceID CMap::allocateUniqueInstanceID()
 {
 	objects.push_back(nullptr);

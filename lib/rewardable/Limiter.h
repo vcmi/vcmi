@@ -138,33 +138,39 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 			h & movePercentage;
 		}
 		h & canLearnSkills;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & commanderAlive;
-			h & hasExtraCreatures;
-		}
+		h & commanderAlive;
+		h & hasExtraCreatures;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & availableSlots;
-			h & scrolls;
-		}
+		h & availableSlots;
+		h & scrolls;
 		h & spells;
 		h & canLearnSpells;
 		h & creatures;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & canReceiveCreatures;
-		}
+		h & canReceiveCreatures;
 		h & heroes;
 		h & heroClasses;
 		h & players;
 		h & allOf;
 		h & anyOf;
 		h & noneOf;
+		if (h.version >= Handler::Version::QUEST_REWORK)
+		{
+			// requiredKeys are keymaster-colour subIDs; MapObjectSubID needs a primary-ID
+			// context to (de)serialize, so round-trip them as plain numbers.
+			std::vector<int32_t> keys;
+			if(h.saving)
+				for(const auto & key : requiredKeys)
+					keys.push_back(key.getNum());
+			h & keys;
+			if(!h.saving)
+				for(int32_t key : keys)
+					requiredKeys.emplace_back(key);
+
+			h & allowedDifficulties;
+		}
 	}
 	
 	void serializeJson(JsonSerializeFormat & handler);

@@ -205,8 +205,7 @@ struct DLL_LINKAGE Configuration
 		h & variables;
 		h & visitLimiter;
 		h & canRefuse;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-			h & forceCombat;
+		h & forceCombat;
 		h & showScoutedPreview;
 		h & infoWindowType;
 		h & coastVisitable;
