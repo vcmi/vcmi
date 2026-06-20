@@ -25,6 +25,7 @@
 #include "DwellingInstanceConstructor.h"
 #include "FlaggableInstanceConstructor.h"
 #include "HillFortInstanceConstructor.h"
+#include "KeyGuardInstanceConstructor.h"
 #include "MarketInstanceConstructor.h"
 #include "ShipyardInstanceConstructor.h"
 
@@ -79,8 +80,8 @@ CObjectClassesHandler::CObjectClassesHandler()
 
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("artifact", CGArtifact);
-	SET_HANDLER("borderGate", CGBorderGate);
-	SET_HANDLER("borderGuard", CGBorderGuard);
+	SET_HANDLER_CLASS("borderGate", KeyGuardInstanceConstructor<CGQuestGate>);
+	SET_HANDLER_CLASS("borderGuard", KeyGuardInstanceConstructor<CGQuestGuard>);
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);

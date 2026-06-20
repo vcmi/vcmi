@@ -277,6 +277,7 @@ void CQuest::defineQuestName()
 {
 	//standard quests
 	missionKind = EQuestMission::NONE;
+	if(!mission.requiredKeys.empty()) missionKind = EQuestMission::KEYMASTER;
 	if(mission.heroLevel > 0) missionKind = EQuestMission::LEVEL;
 	for(auto & s : mission.primary) if(s) missionKind = EQuestMission::PRIMARY_SKILL;
 	if(!mission.destroyedObjects.empty() && !heroName.empty()) missionKind = EQuestMission::KILL_HERO;
@@ -449,6 +450,11 @@ void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 	if(getQuest().missionKind == EQuestMission::NONE)
 	{
 		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
+	}
+	else if(getQuest().missionKind == EQuestMission::KEYMASTER)
+	{
+		if(getQuest().firstVisitText.empty())
+			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
 	}
 	else
 	{
@@ -702,6 +708,11 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 void CGQuestGuard::init(vstd::RNG & rand)
 {
 	blockVisit = true;
+
+	// border guard: synthetic "owns the matching key" quest, handled manually in onHeroVisit
+	if(!getQuest().mission.requiredKeys.empty())
+		return;
+
 	getQuest().textOption = rand.nextInt(3, 5);
 	getQuest().completedOption = rand.nextInt(4, 5);
 	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
@@ -714,10 +725,45 @@ void CGQuestGuard::init(vstd::RNG & rand)
 
 void CGQuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	// border guard: offer demolition once the key is held, otherwise log the requirement
+	if(!getQuest().mission.requiredKeys.empty())
+	{
+		if(checkQuest(h))
+		{
+			BlockingDialog bd(true, false);
+			bd.player = h->getOwner();
+			bd.text.appendTextID(TextIdentifier("core", "advevent", 17).get());
+			gameEvents.showBlockingDialog(this, &bd);
+		}
+		else
+		{
+			h->showInfoDialog(gameEvents, 18);
+
+			AddQuest aq;
+			aq.quest = QuestInfo(id);
+			aq.player = h->tempOwner;
+			gameEvents.sendAndApply(aq);
+		}
+		return;
+	}
+
 	if(!getQuest().isCompleted)
 		CGSeerHut::onHeroVisit(gameEvents, h);
 	else
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
+}
+
+void CGQuestGuard::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
+{
+	// border guard demolition prompt: positive answer tears it down
+	if(!getQuest().mission.requiredKeys.empty())
+	{
+		if(answer)
+			gameEvents.removeObject(this, hero->getOwner());
+		return;
+	}
+
+	CGSeerHut::blockingDialogAnswered(gameEvents, hero, answer);
 }
 
 bool CGQuestGuard::passableFor(PlayerColor color) const
@@ -773,72 +819,31 @@ void CGKeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroI
 	h->showInfoDialog(gameEvents, txt_id);
 }
 
-void CGBorderGuard::initObj(IGameRandomizer & gameRandomizer)
+void CGQuestGate::initObj(IGameRandomizer & gameRandomizer)
 {
-	blockVisit = true;
+	CRewardableObject::initObj(gameRandomizer);
+	getQuest().defineQuestName();
+	if(getQuest().firstVisitText.empty())
+		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
 }
 
-void CGBorderGuard::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
+void CGQuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	text.appendTextID(TextIdentifier("core", "advevent", 18).get());
+	if(passableFor(h->getOwner()))
+		return;
+
+	h->showInfoDialog(gameEvents, 18);
+
+	AddQuest aq;
+	aq.quest = QuestInfo(id);
+	aq.player = h->tempOwner;
+	gameEvents.sendAndApply(aq);
 }
 
-void CGBorderGuard::getRolloverText(MetaString &text, bool onHover) const
+bool CGQuestGate::passableFor(PlayerColor color) const
 {
-	if (!onHover)
-	{
-		text.appendTextID(TextIdentifier("core", "tentcolr", subID.getNum()).get());
-		text.appendRawString(" ");
-		text.appendRawString(LIBRARY->objtypeh->getObjectName(Obj::KEYMASTER, subID));
-	}
-}
-
-bool CGBorderGuard::checkQuest(const CGHeroInstance * h) const
-{
-	return wasMyColorVisited (h->tempOwner);
-}
-
-void CGBorderGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
-{
-	if (wasMyColorVisited (h->getOwner()) )
-	{
-		BlockingDialog bd (true, false);
-		bd.player = h->getOwner();
-		bd.text.appendTextID(TextIdentifier("core", "advevent", 17).get());
-		gameEvents.showBlockingDialog (this, &bd);
-	}
-	else
-	{
-		h->showInfoDialog(gameEvents, 18);
-
-		AddQuest aq;
-		aq.quest = QuestInfo(id);
-		aq.player = h->tempOwner;
-		gameEvents.sendAndApply(aq);
-		//TODO: add this quest only once OR check for multiple instances later
-	}
-}
-
-void CGBorderGuard::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
-{
-	if (answer)
-		gameEvents.removeObject(this, hero->getOwner());
-}
-
-void CGBorderGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const //TODO: passability
-{
-	if (!wasMyColorVisited (h->getOwner()) )
-	{
-		h->showInfoDialog(gameEvents, 18);
-
-		AddQuest aq;
-		aq.quest = QuestInfo(id);
-		aq.player = h->tempOwner;
-		gameEvents.sendAndApply(aq);
-	}
-}
-
-bool CGBorderGate::passableFor(PlayerColor color) const
-{
-	return wasMyColorVisited(color);
+	for(const auto & key : getQuest().mission.requiredKeys)
+		if(!cb->getPlayerState(color)->visitedObjectsGlobal.count({Obj::KEYMASTER, key}))
+			return false;
+	return true;
 }

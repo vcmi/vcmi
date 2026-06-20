@@ -100,7 +100,6 @@ public:
 //TODO:
 // class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 // class DLL_LINKAGE CGKeymasterTent : public CGKeys
-// class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 
 // POSSIBLE
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles

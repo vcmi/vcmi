@@ -573,6 +573,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/HillFortInstanceConstructor.h
 	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
+	mapObjectConstructors/KeyGuardInstanceConstructor.h
 	mapObjectConstructors/MarketInstanceConstructor.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h

@@ -212,6 +212,7 @@ public:
 	void init(vstd::RNG & rand) override;
 	
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const override;
 	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -220,6 +221,23 @@ public:
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+};
+
+/// Key/toll gate: stays in place, passable for a player once its limiter is met
+/// (border gates require the matching keymaster key).
+class DLL_LINKAGE CGQuestGate : public CGQuestSource
+{
+public:
+	using CGQuestSource::CGQuestSource;
+
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	bool passableFor(PlayerColor color) const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CGQuestSource&>(*this);
+	}
 };
 
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
@@ -251,34 +269,4 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
-};
-
-class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
-{
-public:
-	using CGKeys::CGKeys;
-
-	void initObj(IGameRandomizer & gameRandomizer) override;
-	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
-
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
-	void getRolloverText (MetaString &text, bool onHover) const;
-	bool checkQuest (const CGHeroInstance * h) const override;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & static_cast<IQuestObject&>(*this);
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_LINKAGE CGBorderGate : public CGBorderGuard
-{
-public:
-	using CGBorderGuard::CGBorderGuard;
-
-	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-
-	bool passableFor(PlayerColor color) const override;
 };

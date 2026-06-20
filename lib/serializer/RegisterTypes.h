@@ -61,8 +61,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSignBottle>(7);
 	s.template registerType<CGKeys>(8);
 	s.template registerType<CGKeymasterTent>(9);
-	s.template registerType<CGBorderGuard>(10);
-	s.template registerType<CGBorderGate>(12);
+	s.template registerType<CGQuestGate>(12);
 	s.template registerType<CGBoat>(13);
 	s.template registerType<CGMagi>(14);
 	s.template registerType<CGSirens>(15);

@@ -182,4 +182,5 @@ TEST(QuestKind, classifiedByLimiterShape)
 	EXPECT_EQ(classify([](CQuest & q){ q.mission.daysPassed = 10; }),                                          EQuestMission::HOTA_REACH_DATE);
 	EXPECT_EQ(classify([](CQuest & q){ q.mission.heroClasses.push_back(HeroClassID(0)); }),                    EQuestMission::HOTA_HERO_CLASS);
 	EXPECT_EQ(classify([](CQuest & q){ q.mission.allowedDifficulties = MapDifficultySet(1); }),               EQuestMission::HOTA_GAME_DIFFICULTY);
+	EXPECT_EQ(classify([](CQuest & q){ q.mission.requiredKeys.push_back(MapObjectSubID(0)); }),               EQuestMission::KEYMASTER);
 }
