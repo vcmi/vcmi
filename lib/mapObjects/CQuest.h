@@ -47,31 +47,29 @@ public:
 	static const std::string & missionName(EQuestMission index);
 	static const std::string & missionState(int index);
 	
-	EQuestMission missionKind;
+	EQuestMission missionKind = EQuestMission::NONE;
 
 	QuestInstanceID qid;
 
-	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
+	si32 lastDay = -1; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 	Rewardable::Limiter mission;
-	bool repeatedQuest;
-	bool isCompleted;
+	bool repeatedQuest = false;
+	bool isCompleted = false;
 	std::set<PlayerColor> activeForPlayers;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
 	// needed for messages / hover text
-	ui8 textOption;
-	ui8 completedOption;
+	ui8 textOption = 0;
+	ui8 completedOption = 0;
 	CreatureID stackToKill;
-	ui8 stackDirection;
+	ui8 stackDirection = 0;
 	std::string heroName; //backup of hero name
 	HeroTypeID heroPortrait;
 
 	MetaString firstVisitText;
 	MetaString nextVisitText;
 	MetaString completedText;
-
-	CQuest(); //TODO: Remove constructor
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not

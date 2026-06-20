@@ -40,17 +40,6 @@
 
 
 //TODO: Remove constructor
-CQuest::CQuest():
-	qid(-1),
-	isCompleted(false),
-	lastDay(-1),
-	textOption(0),
-	completedOption(0),
-	stackDirection(0),
-	repeatedQuest(false),
-	missionKind(EQuestMission::NONE)
-{
-}
 
 static std::string visitedTxt(const bool visited)
 {
