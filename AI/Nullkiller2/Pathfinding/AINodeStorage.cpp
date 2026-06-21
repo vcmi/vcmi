@@ -1755,6 +1755,7 @@ bool AINodeStorage::tryReconstructChainInfo(const AIPathNode * node, AIPath & pa
 			pathNode.parentIndex = candidateParentIndex;
 			pathNode.actionIsBlocked = false;
 			pathNode.layer = node->layer;
+			pathNode.action = node->action;
 
 			if(pathNode.specialAction)
 			{

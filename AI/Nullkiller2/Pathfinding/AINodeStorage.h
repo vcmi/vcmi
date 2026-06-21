@@ -75,17 +75,17 @@ struct AIPathNode : public CGPathNode
 
 struct AIPathNodeInfo
 {
-	float cost;
-	uint8_t turns;
+	float cost = 0;
+	uint8_t turns = 0;
 	int3 coord;
-	EPathfindingLayer layer;
-	EPathNodeAction action;
-	uint64_t danger;
-	const CGHeroInstance * targetHero;
-	int parentIndex;
-	uint64_t chainMask;
+	EPathfindingLayer layer = EPathfindingLayer::LAND;
+	EPathNodeAction action = EPathNodeAction::UNKNOWN;
+	uint64_t danger = 0;
+	const CGHeroInstance * targetHero = nullptr;
+	int parentIndex = -1;
+	uint64_t chainMask = 0;
 	std::shared_ptr<const SpecialAction> specialAction;
-	bool actionIsBlocked;
+	bool actionIsBlocked = false;
 };
 
 struct AIPath
