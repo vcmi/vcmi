@@ -38,6 +38,12 @@ namespace Goals
 
 		bool operator==(const BuyArmy & other) const override;
 
+		static bool needsFreeSlotToRecruit(const CCreatureSet * army, CreatureID creatureID)
+		{
+			return army->stacksCount() == GameConstants::ARMY_SIZE
+				&& !army->getSlotFor(creatureID).validSlot();
+		}
+
 		std::string toString() const override;
 
 		void accept(AIGateway * aiGw) override;
