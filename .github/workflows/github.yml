@@ -68,7 +68,7 @@ jobs:
             preset: windows-msvc-ninja-release
             conan_profile: msvc-x64
             conan_prebuilts: dependencies-windows-x64
-            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
+            conan_options: -s "&:build_type=RelWithDebInfo" -o "&:target_pre_windows10=True"
             artifact_platform: x64
 
           - platform: msvc-x86
@@ -82,7 +82,7 @@ jobs:
             preset: windows-msvc-ninja-release-x86
             conan_profile: msvc-x86
             conan_prebuilts: dependencies-windows-x86
-            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
+            conan_options: -s "&:build_type=RelWithDebInfo" -o "&:target_pre_windows10=True"
             artifact_platform: x86
 
           - platform: msvc-arm64
@@ -95,7 +95,7 @@ jobs:
             preset: windows-msvc-ninja-release-arm64
             conan_profile: msvc-arm64
             conan_prebuilts: dependencies-windows-arm64
-            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
+            conan_options: -s "&:build_type=RelWithDebInfo" -o "&:lua_lib=lua"
             artifact_platform: arm64
 
           - platform: android-32
@@ -302,7 +302,13 @@ jobs:
           --conf="tools.cmake.cmaketoolchain:generator=Ninja" \
           ${{ matrix.conan_options }} \
           ${{ startsWith(matrix.platform, 'msvc') && '--conf="tools.microsoft.msbuild:vs_version=${MSBUILD_VS_VERSION}"' || '' }}
-        ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
+
+    # MSVC CI builds use Ninja. Qt tools such as moc, uic, and rcc run in the later
+    # build step, which does not inherit PATH changes made inside CMake's configure process.
+    # Persist the Conan DLL directories for all subsequent GitHub Actions steps.
+    - name: Add Conan runtime dependencies to PATH (MSVC)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: sed 's#/[^/]*$##' conan-generated/_runtime_libs.txt | sort -u >> "$GITHUB_PATH"
 
     # Can't be set in Gradle project
     - name: Configure enableUncompressedNativeLibs
@@ -358,19 +364,13 @@ jobs:
           androidOptions+=("-DCMAKE_C_COMPILER_LAUNCHER=ccache" "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache")
         fi
         cmake -DENABLE_CCACHE:BOOL=ON "${androidOptions[@]}" --preset ${{ matrix.preset }}
+
     - name: Configure (MSVC)
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: |
-        & $env:CONANRUN_PWSH_SCRIPT
-
-        cmake --preset ${{ matrix.preset }}
-      shell: pwsh
+      run: cmake --preset ${{ matrix.preset }}
 
     - name: Build
-      run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' || '' }}
-        cmake --build --preset ${{matrix.preset}}
-      shell: pwsh
+      run: cmake --build --preset ${{matrix.preset}}
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -396,10 +396,8 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
         cpack -C ${{matrix.pack_type}}
-      shell: pwsh
 
     - name: Notarize macOS dmg
       if: ${{ startsWith(matrix.platform, 'mac-') }}

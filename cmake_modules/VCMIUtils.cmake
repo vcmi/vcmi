@@ -159,17 +159,36 @@ function(vcmi_deploy_qt deployQtToolName deployQtOptions)
 	endif()
 endfunction()
 
-# generate .bat for .exe with proper PATH
-function(vcmi_create_exe_shim tgt)
-	if(NOT CONAN_RUNENV_SCRIPT)
+function(vcmi_deploy_qt_runtime targetBinary)
+	if(NOT WIN32)
 		return()
 	endif()
 
-	set(exe "%~dp0$<TARGET_FILE_NAME:${tgt}>")
-	if(EXISTS "${CONAN_RUNENV_SCRIPT}.bat")
-		set(batContent "call \"${CONAN_RUNENV_SCRIPT}.bat\" & start \"\" \"${exe}\"")
+	find_program(TOOL_WINDEPLOYQT NAMES windeployqt PATHS "${qtBinDir}")
+	if(TOOL_WINDEPLOYQT)
+		add_custom_command(TARGET ${targetBinary} POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
+				"-DLOCK_FILE=${CMAKE_BINARY_DIR}/windeployqt.lock"
+				"-DWINDEPLOYQT=${TOOL_WINDEPLOYQT}"
+				"-DTARGET_FILE=$<TARGET_FILE:${targetBinary}>"
+				-P "${CMAKE_SOURCE_DIR}/cmake_modules/RunWinDeployQtLocked.cmake"
+			VERBATIM
+		)
 	else()
-		set(batContent "powershell -ExecutionPolicy Bypass -Command \"& '${CONAN_RUNENV_SCRIPT}.ps1' ; & '${exe}'\"")
+		message(WARNING "windeployqt not found, target ${targetBinary} may miss Qt runtime files")
 	endif()
-	file(GENERATE OUTPUT "$<TARGET_FILE_DIR:${tgt}>/$<TARGET_FILE_BASE_NAME:${tgt}>.bat" CONTENT "${batContent}")
+endfunction()
+
+# Copy runtime dependencies from CONAN_RUNTIME_LIBS_FILE to target output directory
+function(vcmi_copy_conan_runtime_deps tgt)
+	if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
+		file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
+		if(runtimeLibs)
+			add_custom_command(TARGET ${tgt} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${runtimeLibs} "$<TARGET_FILE_DIR:${tgt}>"
+				COMMAND_EXPAND_LISTS
+				VERBATIM
+			)
+		endif()
+	endif()
 endfunction()
