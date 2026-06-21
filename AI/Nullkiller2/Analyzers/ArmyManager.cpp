@@ -531,7 +531,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 		if(possibleUpgrades.empty())
 			continue;
 
-		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
+		CreatureID strongestUpgrade = *vstd::maxElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
 			return cre.toCreature()->getAIValue();
 		});
@@ -570,7 +570,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 		if(possibleUpgrades.empty())
 			continue;
 
-		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
+		CreatureID strongestUpgrade = *vstd::maxElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
 			return cre.toCreature()->getAIValue();
 		});
