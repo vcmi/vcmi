@@ -96,6 +96,10 @@ Engine documentation: (NOTE: may be outdated)
 - [Lua Scripting System](developers/Lua_Scripting_System.md)
 - [Serialization](developers/Serialization.md)
 
+Developer tools:
+
+- [Map converter](../mapconverter/README.md)
+
 ## Documentation and guidelines for maintainers
 
 - [Project Infrastructure](maintainers/Project_Infrastructure.md)

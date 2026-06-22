@@ -722,6 +722,10 @@ if(ENABLE_EDITOR)
 	add_subdirectory(mapeditor)
 endif()
 
+if(ENABLE_CLIENT AND NOT ENABLE_MINIMAL_LIB AND NOT IOS AND NOT ANDROID)
+	add_subdirectory(mapconverter)
+endif()
+
 if(ENABLE_LOBBY)
 	add_subdirectory(lobby)
 endif()
