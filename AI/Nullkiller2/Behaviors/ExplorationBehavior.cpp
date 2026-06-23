@@ -77,14 +77,29 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 	const auto heroes = aiNk->cc->getHeroesInfo();
 	for(const CGHeroInstance * hero : heroes)
 	{
-		ExplorationHelper scanResult(hero, aiNk);
-		if(scanResult.scanSector(1))
+			ExplorationHelper scanResult(hero, aiNk);
+			const bool canUseDimensionDoor = scanResult.canUseDimensionDoor();
+			auto improveWithDimensionDoor = [canUseDimensionDoor, &scanResult]()
+			{
+				return canUseDimensionDoor && scanResult.considerDimensionDoorExplorationTargets();
+			};
+
+		const bool foundNearbyTarget = scanResult.scanSector(1);
+
+		if(foundNearbyTarget)
 		{
+			// Let DD compete with local walking exploration; otherwise any nearby fog
+			// tile would hide a much stronger spell landing from the task selector.
+			improveWithDimensionDoor();
+
 			tasks.push_back(scanResult.makeComposition());
 			continue;
 		}
 
-		if(scanResult.scanSector(30))
+		const bool foundSectorTarget = scanResult.scanSector(30);
+		const bool foundDimensionDoorTarget = improveWithDimensionDoor();
+
+		if(foundSectorTarget || foundDimensionDoorTarget)
 		{
 			tasks.push_back(scanResult.makeComposition());
 			continue;
@@ -95,6 +110,14 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			if(scanResult.scanMap())
 			{
 				tasks.push_back(scanResult.makeComposition());
+			}
+			// Last-resort scout movement: if no full-map exploration target survived,
+			// spend remaining MP on safe adjacent fog instead of ending the turn idle.
+			else if(const auto neighbourTarget = ExploreNeighbourTile::findTarget(hero, aiNk))
+			{
+				tasks.push_back(sptr(Composition()
+					.addNext(ExplorationPoint(neighbourTarget->tile, neighbourTarget->tilesDiscovered))
+					.addNext(ExploreNeighbourTile(hero, 5))));
 			}
 		}
 	}

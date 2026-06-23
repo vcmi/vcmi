@@ -50,7 +50,14 @@ void Composition::accept(AIGateway * aiGw)
 	{
 		if(task->isElementar())
 		{
-			taskptr(*task)->accept(aiGw);
+			try
+			{
+				taskptr(*task)->accept(aiGw);
+			}
+			catch(const goalFulfilledException &)
+			{
+				logAi->trace("Skipping fulfilled composition subgoal %s", task->toString());
+			}
 		}
 		else
 		{

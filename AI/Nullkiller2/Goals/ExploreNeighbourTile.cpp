@@ -11,6 +11,7 @@
 #include "ExploreNeighbourTile.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
+#include "../Engine/Nullkiller.h"
 #include "../Helpers/ExplorationHelper.h"
 
 
@@ -19,54 +20,94 @@ namespace NK2AI
 
 using namespace Goals;
 
+namespace
+{
+std::optional<NeighbourExplorationTarget> getNeighbourExplorationTarget(
+	const CGHeroInstance * hero,
+	const Nullkiller * aiNk,
+	ExplorationHelper & helper,
+	const int3 & tile)
+{
+	const auto pathInfo = aiNk->getPathsInfo(hero)->getPathInfo(tile);
+	const uint64_t danger = aiNk->dangerEvaluator->evaluateDanger(tile, hero, true);
+
+	NeighbourExplorationCandidate candidate;
+	candidate.sameDay = pathInfo->turns == 0;
+	candidate.accessible = pathInfo->accessible == EPathAccessibility::ACCESSIBLE;
+	candidate.safe = danger == 0;
+	candidate.tilesDiscovered = helper.howManyTilesWillBeDiscovered(tile);
+	candidate.movementCost = pathInfo->getCost();
+
+	const auto evaluation = evaluateNeighbourExplorationCandidate(candidate);
+	if(!evaluation.accepted)
+		return std::nullopt;
+
+	return NeighbourExplorationTarget{
+		tile,
+		candidate.tilesDiscovered,
+		candidate.movementCost,
+		evaluation.value
+	};
+}
+}
+
+NeighbourExplorationEvaluation evaluateNeighbourExplorationCandidate(
+	const NeighbourExplorationCandidate & candidate)
+{
+	NeighbourExplorationEvaluation result;
+
+	if(!candidate.sameDay
+		|| !candidate.accessible
+		|| !candidate.safe
+		|| candidate.tilesDiscovered <= 0)
+	{
+		return result;
+	}
+
+	result.accepted = true;
+	result.value = candidate.tilesDiscovered * candidate.tilesDiscovered
+		/ std::max(0.1f, candidate.movementCost);
+	return result;
+}
+
 bool ExploreNeighbourTile::operator==(const ExploreNeighbourTile & other) const
 {
 	return false;
 }
 
+std::optional<NeighbourExplorationTarget> ExploreNeighbourTile::findTarget(
+	const CGHeroInstance * hero,
+	const Nullkiller * aiNk)
+{
+	ExplorationHelper helper(hero, aiNk, true);
+	const int3 pos = hero->visitablePos();
+	std::optional<NeighbourExplorationTarget> result;
+
+	foreach_neighbour(
+		*aiNk->cc,
+		pos,
+		[&result, hero, aiNk, &helper](int3 tile)
+		{
+			const auto target = getNeighbourExplorationTarget(hero, aiNk, helper, tile);
+			if(!target)
+				return;
+
+			if(!result || target->value > result->value)
+				result = target;
+		}
+	);
+
+	return result;
+}
+
 void ExploreNeighbourTile::accept(AIGateway * aiGw)
 {
-	ExplorationHelper h(hero, aiGw->nullkiller.get(), true);
-
 	for(int i = 0; i < tilesToExplore && aiGw->cc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
 	{
-		int3 pos = hero->visitablePos();
-		float value = 0;
-		int3 target = int3(-1);
-		foreach_neighbour(
-			*aiGw->cc,
-			pos,
-			[&](int3 tile)
-			{
-				const auto pathInfo = aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
-				if(pathInfo->turns > 0)
-					return;
+		const auto target = findTarget(hero, aiGw->nullkiller.get());
 
-				if(pathInfo->accessible == EPathAccessibility::ACCESSIBLE)
-				{
-					const float newValue = evaluateTileScore(
-						h.howManyTilesWillBeDiscovered(tile),
-						pathInfo->getCost());
-
-					if(newValue > value)
-					{
-						value = newValue;
-						target = tile;
-					}
-				}
-			}
-		);
-
-		if(!target.isValid())
-		{
+		if(!target || !aiGw->moveHeroToTile(target->tile, HeroPtr(hero, aiGw->cc.get())))
 			return;
-		}
-
-		auto danger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
-		if(danger > 0 || !aiGw->moveHeroToTile(target, HeroPtr(hero, aiGw->cc.get())))
-		{
-			return;
-		}
 	}
 }
 

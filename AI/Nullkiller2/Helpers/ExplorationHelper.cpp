@@ -12,12 +12,19 @@
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/Invalid.h"
+#include "../Goals/AdventureSpellCast.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Markers/ExplorationPoint.h"
 #include "../../../lib/CPlayerState.h"
+#include "../../../lib/IGameSettings.h"
+#include "../../../lib/ScopeGuard.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Goals/ExploreNeighbourTile.h"
+#include "../../../lib/spells/CSpell.h"
+#include "../../../lib/spells/CSpellHandler.h"
+#include "../../../lib/spells/Problem.h"
+#include "../../../lib/spells/adventure/DimensionDoorEffect.h"
 
 namespace NK2AI
 {
@@ -40,8 +47,47 @@ TSubgoal ExplorationHelper::makeComposition() const
 {
 	Composition c;
 	c.addNext(ExplorationPoint(bestTile, bestTilesDiscovered));
-	c.addNextSequence({bestGoal, sptr(ExploreNeighbourTile(hero, 5))});
+	if(shouldExploreNeighbourAfterExplorationGoal(bestGoal->goalType))
+		c.addNextSequence({bestGoal, sptr(ExploreNeighbourTile(hero, 5))});
+	else
+		c.addNext(bestGoal);
 	return sptr(c);
+}
+
+bool shouldExploreNeighbourAfterExplorationGoal(Goals::EGoals goalType)
+{
+	return goalType != Goals::ADVENTURE_SPELL_CAST;
+}
+
+DimensionDoorExplorationEvaluation evaluateDimensionDoorExplorationCandidate(
+	const DimensionDoorExplorationCandidate & candidate)
+{
+	DimensionDoorExplorationEvaluation evaluation;
+
+	if(!candidate.tilesDiscovered && candidate.strategicScore <= 0.0f)
+		return evaluation;
+
+	if(candidate.dimensionDoorTriggersGuards)
+	{
+		if(!candidate.visible)
+			return evaluation;
+
+		if(candidate.guardedLandingDanger && !candidate.guardedLandingSafe)
+			return evaluation;
+	}
+
+	const float movementLimit = std::max(1, candidate.movementPointsLimit);
+	const float movementSpent = std::min(candidate.movementPointsRemaining, candidate.movementPointsTaken);
+	const float movementCost = std::max(0.1f, movementSpent / movementLimit);
+	const float value = (candidate.tilesDiscovered * candidate.tilesDiscovered + candidate.strategicScore * 25.0f) / movementCost;
+
+	if(value <= candidate.currentBestValue)
+		return evaluation;
+
+	evaluation.accepted = true;
+	evaluation.value = value;
+	evaluation.tilesDiscovered = std::max(1, candidate.tilesDiscovered);
+	return evaluation;
 }
 
 
@@ -137,6 +183,74 @@ bool ExplorationHelper::scanMap()
 	return !bestGoal->invalid();
 }
 
+bool ExplorationHelper::canUseDimensionDoor() const
+{
+	if(!hero || hero->movementPointsRemaining() <= 0)
+		return false;
+
+	for(const auto & spell : LIBRARY->spellh->objects)
+	{
+		if(!spell || !spell->isAdventure())
+			continue;
+
+		const auto & mechanics = spell->getAdventureMechanics();
+		if(!mechanics.getEffectAs<DimensionDoorEffect>(hero))
+			continue;
+
+		spells::detail::ProblemImpl problem;
+		if(mechanics.canBeCast(problem, cc, hero))
+			return true;
+	}
+
+	return false;
+}
+
+bool ExplorationHelper::considerDimensionDoorExplorationTargets()
+{
+	if(!hero || hero->movementPointsRemaining() <= 0)
+		return false;
+
+	const bool allowDeadEndCancellationBefore = allowDeadEndCancellation;
+	allowDeadEndCancellation = false;
+	auto restoreAllowDeadEndCancellation = vstd::makeScopeGuard([&]()
+	{
+		allowDeadEndCancellation = allowDeadEndCancellationBefore;
+	});
+
+	for(const auto & spell : LIBRARY->spellh->objects)
+	{
+		if(!spell || !spell->isAdventure())
+			continue;
+
+		const auto & mechanics = spell->getAdventureMechanics();
+		const auto * effect = mechanics.getEffectAs<DimensionDoorEffect>(hero);
+
+		if(!effect)
+			continue;
+
+		spells::detail::ProblemImpl problem;
+		if(!mechanics.canBeCast(problem, cc, hero))
+			continue;
+
+		const int3 mapSize = cc->getMapSize();
+		const int3 source = hero->getSightCenter();
+		const int minX = std::max(0, source.x - effect->getRangeX());
+		const int maxX = std::min(mapSize.x - 1, source.x + effect->getRangeX());
+		const int minY = std::max(0, source.y - effect->getRangeY());
+		const int maxY = std::min(mapSize.y - 1, source.y + effect->getRangeY());
+
+		for(int x = minX; x <= maxX; ++x)
+		{
+			for(int y = minY; y <= maxY; ++y)
+			{
+				scanDimensionDoorTile(spell.get(), effect, int3(x, y, source.z));
+			}
+		}
+	}
+
+	return !bestGoal->invalid();
+}
+
 void ExplorationHelper::scanTile(const int3 & tile)
 {
 	if(tile == ourPos
@@ -144,11 +258,14 @@ void ExplorationHelper::scanTile(const int3 & tile)
 		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
 		return;
 
+	auto paths = aiNk->pathfinder->getPathInfo(tile);
+	if(paths.empty())
+		return;
+
 	int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
 	if(!tilesDiscovered)
 		return;
 	
-	auto paths = aiNk->pathfinder->getPathInfo(tile);
 	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, aiNk->cc->getTopObj(tile));
 
 	for(int i = 0; i != paths.size(); i++)
@@ -181,6 +298,90 @@ void ExplorationHelper::scanTile(const int3 & tile)
 			}
 		}
 	}
+}
+
+void ExplorationHelper::scanDimensionDoorTile(const CSpell * spell, const DimensionDoorEffect * effect, const int3 & tile)
+{
+	if(tile == ourPos)
+		return;
+
+	spells::detail::ProblemImpl problem;
+	if(!spell->getAdventureMechanics().canBeCastAt(problem, cc, hero, tile))
+		return;
+
+	const bool visible = ts->fogOfWarMap[tile];
+	const int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
+	const float strategicScore = getDimensionDoorStrategicScore(tile);
+
+	DimensionDoorExplorationCandidate candidate;
+	candidate.visible = visible;
+	candidate.tilesDiscovered = tilesDiscovered;
+	candidate.strategicScore = strategicScore;
+	candidate.dimensionDoorTriggersGuards = cc->getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS);
+	candidate.movementPointsRemaining = hero->movementPointsRemaining();
+	candidate.movementPointsLimit = hero->movementPointsLimit();
+	candidate.movementPointsTaken = effect->getMovementPointsTaken();
+	candidate.currentBestValue = bestValue;
+
+	if(candidate.dimensionDoorTriggersGuards && visible)
+	{
+		candidate.guardedLandingDanger = aiNk->dangerEvaluator->evaluateDanger(tile, hero, true);
+		candidate.guardedLandingSafe = !candidate.guardedLandingDanger
+			|| isSafeToVisit(hero, candidate.guardedLandingDanger, aiNk->settings->getSafeAttackRatio());
+	}
+
+	auto evaluation = evaluateDimensionDoorExplorationCandidate(candidate);
+
+	if(evaluation.accepted)
+	{
+		auto castGoal = AdventureSpellCast(hero, spell->id);
+		castGoal.tile = tile;
+
+		bestGoal = sptr(castGoal);
+		bestValue = evaluation.value;
+		bestTile = tile;
+		bestTilesDiscovered = evaluation.tilesDiscovered;
+	}
+}
+
+float ExplorationHelper::getDimensionDoorStrategicScore(const int3 & tile) const
+{
+	float score = 0.0f;
+
+	auto addTargetScore = [&](const CGObjectInstance * obj, float weight)
+	{
+		if(!obj || obj->visitablePos().z != tile.z)
+			return;
+
+		const int progress = ourPos.dist2d(obj->visitablePos()) - tile.dist2d(obj->visitablePos());
+		if(progress > 0)
+			score += progress * weight;
+	};
+
+	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
+	{
+		const CGObjectInstance * obj = cc->getObj(objId, false);
+		if(!obj)
+			continue;
+
+		const auto relations = cc->getPlayerRelations(obj->tempOwner, hero->tempOwner);
+		if(obj->ID == Obj::TOWN && relations == PlayerRelations::ENEMIES)
+			addTargetScore(obj, 6.0f);
+		else if(obj->ID == Obj::HERO && relations == PlayerRelations::ENEMIES)
+			addTargetScore(obj, 4.0f);
+		else if(shouldVisit(aiNk, hero, obj))
+			addTargetScore(obj, 1.0f);
+		else
+			addTargetScore(obj, 0.25f);
+	}
+
+	for(const CGTownInstance * town : cc->getTownsInfo())
+	{
+		if(cc->getPlayerRelations(town->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+			addTargetScore(town, 6.0f);
+	}
+
+	return score;
 }
 
 int ExplorationHelper::howManyTilesWillBeDiscovered(const int3 & pos) const
