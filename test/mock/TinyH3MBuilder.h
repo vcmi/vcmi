@@ -44,6 +44,11 @@ struct Quest
 	PlayerColor                                  player = PlayerColor::NEUTRAL; // PLAYER
 	uint32_t                                     killTargetIdentifier = 0; // KILL_CREATURE / KILL_HERO (wire identifier of target)
 
+	// HOTA-only missions (emitted via the HOTA_MULTI placeholder; require format == HOTA).
+	std::vector<HeroClassID>                     heroClasses;              // HOTA_HERO_CLASS
+	uint32_t                                     reachDateDay = 0;         // HOTA_REACH_DATE: resulting mission.daysPassed
+	uint8_t                                      difficultyMask = 0;       // HOTA_GAME_DIFFICULTY: allowed-difficulty bitmask (1..31)
+
 	/// Day-of-game past which the quest can no longer be completed. -1 (default) = no timeout.
 	int32_t                                      lastDay = -1;
 
@@ -100,6 +105,10 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
+
+	/// HotA sub-format version. Ignored unless the format is EMapFormat::HOTA.
+	/// Only versions 0..3 are emittable; higher values throw at build() time.
+	TinyH3MBuilder & hotaVersion(uint32_t version);
 
 	/// Mark a player as both human- and computer-playable. Required for any
 	/// object that ownership-validates against canAnyonePlay (towns, heroes).
@@ -177,10 +186,22 @@ public:
 	/// satisfy the mission before passing.
 	TinyH3MBuilder & questGuard(const int3 & pos, Quest mission = {});
 
+	/// Quest Gate (HotA). Pathfinder-passable once its mission is satisfied; never
+	/// removed. Emitted as the HotA BORDER_GATE subID-1000 hack, so it requires the
+	/// HOTA format. The loader reads it through the same path as a Quest Guard.
+	TinyH3MBuilder & questGate(const int3 & pos, Quest mission = {});
+
 	/// Seer Hut. With default-constructed Quest{} no mission is required and the
 	/// reward is ignored. With a real mission, the reward kind controls what the
 	/// hero receives on completion.
 	TinyH3MBuilder & seerHut(const int3 & pos, Quest mission = {}, SeerReward reward = {});
+
+	/// Multi-quest Seer Hut (HotA v3+): a list of one-shot quests followed by a
+	/// list of repeatable quests, each with its own reward. Requires the HOTA
+	/// format with hotaVersion >= 3.
+	TinyH3MBuilder & seerHutMulti(const int3 & pos,
+		std::vector<std::pair<Quest, SeerReward>> oneShots,
+		std::vector<std::pair<Quest, SeerReward>> repeatables = {});
 
 	// ---- mission factories (for .questGuard / .seerHut) -----------------
 
@@ -193,6 +214,11 @@ public:
 	static Quest missionPlayer(PlayerColor player);
 	static Quest missionKillCreature(ObjectHandle target);
 	static Quest missionKillHero(ObjectHandle target);
+
+	// HOTA-only mission factories (require the HOTA format):
+	static Quest missionHeroClass(std::vector<HeroClassID> classes);
+	static Quest missionReachDate(uint32_t daysPassed);
+	static Quest missionDifficulty(uint8_t difficultyMask);
 
 	// ---- seer-hut reward factories --------------------------------------
 
@@ -235,8 +261,13 @@ private:
 		uint32_t       resourceAmount    = 0;
 		HeroTypeID     heroType;            // HERO / RANDOM_HERO
 		SpellID        scrollSpell;         // SPELL_SCROLL
-		Quest          quest;               // QUEST_GUARD / SEER_HUT
-		SeerReward     reward;              // SEER_HUT (only consumed when quest is non-NONE)
+		Quest          quest;               // QUEST_GUARD / QUEST_GATE
+		SeerReward     reward;              // unused for the multi-quest seer-hut path
+
+		// SEER_HUT: one-shot then repeatable quests, each with its own reward.
+		// The single-quest seerHut() populates one one-shot entry.
+		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
+		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
 
 		// Hero customisation. Only consumed for HERO / RANDOM_HERO objects.
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;
@@ -292,8 +323,12 @@ private:
 	/// Emits 1 byte rewardKind + payload. Caller must only invoke when the
 	/// preceding mission was non-NONE — NONE missions skip the reward block.
 	void writeRewardBody(TinyH3MWriter & w, const SeerReward & reward) const;
+	/// One seer-hut quest: mission body followed by its reward (or a single zero
+	/// placeholder byte when the mission is NONE), mirroring readSeerHutQuest.
+	void writeSeerHutQuest(TinyH3MWriter & w, const Quest & quest, const SeerReward & reward) const;
 
 	EMapFormat     format;
+	uint32_t       hotaFormatVersion = 3; // HotA sub-format; only used when format == HOTA
 	int            sideLength = 36;
 	bool           twoLevel = false;
 	std::string    mapName = "TinyH3M test map";

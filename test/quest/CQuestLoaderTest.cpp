@@ -184,3 +184,30 @@ TEST(QuestKind, classifiedByLimiterShape)
 	EXPECT_EQ(classify([](CQuest & q){ q.mission.allowedDifficulties = MapDifficultySet(1); }),               EQuestMission::HOTA_GAME_DIFFICULTY);
 	EXPECT_EQ(classify([](CQuest & q){ q.mission.requiredKeys.push_back(MapObjectSubID(0)); }),               EQuestMission::KEYMASTER);
 }
+
+// HotA builder self-check (Pass 0.3a): a difficulty quest emitted through the
+// HOTA wire format parses without error and round-trips into the limiter.
+
+class QuestHotaLoaderTest : public QuestTest {};
+
+TEST_F(QuestHotaLoaderTest, SeerDifficultyQuestRoundTrips)
+{
+	using B = TinyH3M::TinyH3MBuilder;
+	const int3 seerPos(10, 10, 0);
+
+	B builder(EMapFormat::HOTA);
+	builder.hotaVersion(3)
+		.playerActive(PlayerColor(0))
+		.randomTown(int3(5, 5, 0), PlayerColor(0))
+		.seerHut(seerPos,
+			B::missionDifficulty(static_cast<uint8_t>(1 << static_cast<int>(EMapDifficulty::HARD))),
+			B::rewardExperience(100));
+
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(builder)));
+
+	const auto * seer = expectAt<CGSeerHut>(seerPos);
+	EXPECT_EQ(seer->getQuest().missionKind, EQuestMission::HOTA_GAME_DIFFICULTY);
+	EXPECT_FALSE(seer->getQuest().mission.allowedDifficulties.allowsAll());
+	EXPECT_TRUE(seer->getQuest().mission.allowedDifficulties.contains(EMapDifficulty::HARD));
+	EXPECT_FALSE(seer->getQuest().mission.allowedDifficulties.contains(EMapDifficulty::EASY));
+}
