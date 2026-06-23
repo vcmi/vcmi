@@ -27,7 +27,7 @@ class CGHeroPlaceholder;
 class CCommanderInstance;
 class CGameState;
 class CGCreature;
-class CQuest;
+class Quest;
 class CGTownInstance;
 class IModableArt;
 class CInputStream;

@@ -30,7 +30,7 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
 
-QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *parent) :
+QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *parent) :
 	QDialog(parent),
 	controller(_controller),
 	quest(_sh),
@@ -396,7 +396,7 @@ void QuestWidget::on_lCreatureRemove_clicked()
 		ui->lCreatures->removeRow(i);
 }
 
-QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), BaseInspectorItemDelegate()
+QuestDelegate::QuestDelegate(MapController & c, Quest & t): controller(c), quest(t), BaseInspectorItemDelegate()
 {
 }
 

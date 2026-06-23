@@ -98,7 +98,7 @@ public:
 };
 
 //TODO:
-// class DLL_LINKAGE CGKeymasterTent : public CGObjectInstance
+// class DLL_LINKAGE KeymasterTent : public CGObjectInstance
 
 // POSSIBLE
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles

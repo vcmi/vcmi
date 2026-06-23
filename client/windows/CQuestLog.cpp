@@ -27,7 +27,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 struct QuestInfo;
@@ -157,7 +157,7 @@ void CQuestLog::recreateLabelList()
 		questPtr->getRolloverText(GAME->interface()->cb.get(), text, false);
 		if (quests[i].obj.hasValue())
 		{
-			if (auto seersHut = dynamic_cast<const CGSeerHut *>(questObject))
+			if (auto seersHut = dynamic_cast<const SeerHut *>(questObject))
 			{
 				MetaString toSeer;
 				toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
@@ -251,7 +251,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 			descriptionHeight -= 130;
 		/*switch (currentQuest->quest->missionType)
 		{
-			case CQuest::MISSION_ARMY:
+			case Quest::MISSION_ARMY:
 			{
 				if (componentsSize > 4)
 					descriptionHeight -= 195;
@@ -260,7 +260,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 				break;
 			}
-			case CQuest::MISSION_ART:
+			case Quest::MISSION_ART:
 			{
 				if (componentsSize > 4)
 					descriptionHeight -= 190;
@@ -269,8 +269,8 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 				break;
 			}
-			case CQuest::MISSION_PRIMARY_STAT:
-			case CQuest::MISSION_RESOURCES:
+			case Quest::MISSION_PRIMARY_STAT:
+			case Quest::MISSION_RESOURCES:
 			{
 				if (componentsSize > 4)
 				{

@@ -29,7 +29,7 @@
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
@@ -59,8 +59,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGSubterraneanGate>(5);
 	s.template registerType<CGWhirlpool>(6);
 	s.template registerType<CGSignBottle>(7);
-	s.template registerType<CGKeymasterTent>(9);
-	s.template registerType<CGQuestGate>(12);
+	s.template registerType<KeymasterTent>(9);
+	s.template registerType<QuestGate>(12);
 	s.template registerType<CGBoat>(13);
 	s.template registerType<CGMagi>(14);
 	s.template registerType<CGSirens>(15);
@@ -85,8 +85,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGArtifact>(36);
 	s.template registerType<CGResource>(37);
 	s.template registerType<CGMine>(38);
-	s.template registerType<CGSeerHut>(40);
-	s.template registerType<CGQuestGuard>(41);
+	s.template registerType<SeerHut>(40);
+	s.template registerType<QuestGuard>(41);
 	s.template registerType<IUpdater>(42);
 	s.template registerType<GrowsWithLevelUpdater>(43);
 	s.template registerType<TimesHeroLevelUpdater>(44);

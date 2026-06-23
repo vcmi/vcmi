@@ -15,7 +15,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 
 // The H3 key-and-gate puzzle as seen by the player: keymaster tents grant
 // access, border gates block until the right colour is held, border guards
@@ -89,7 +89,7 @@ TEST_F(QuestBorderTest, Keymaster_FirstVisit_marksColorVisited)
 	ASSERT_NE(hero,      nullptr);
 	ASSERT_NE(keymaster, nullptr);
 
-	const auto * tent = dynamic_cast<const CGKeymasterTent *>(keymaster);
+	const auto * tent = dynamic_cast<const KeymasterTent *>(keymaster);
 	ASSERT_NE(tent, nullptr);
 
 	EXPECT_FALSE(tent->wasMyColorVisited(PlayerColor(0)));

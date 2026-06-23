@@ -29,7 +29,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../spells/CSpellHandler.h"

@@ -35,7 +35,7 @@
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/ConditionalWait.h"
 
@@ -479,7 +479,7 @@ KeymasterPopup::KeymasterPopup(const Point & position, const CGObjectInstance * 
 
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>(pos.w / 2, 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, keyObject->getObjectName());
-	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGQuestSource::keymasterVisitedText(keyObject, GAME->interface()->playerID));
+	labelDescription = std::make_shared<CLabel>(pos.w / 2, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, QuestSource::keymasterVisitedText(keyObject, GAME->interface()->playerID));
 	minimap = std::make_shared<MinimapWithIcons>(Point(0,20));
 
 	const auto allObjects = GAME->interface()->cb->getAllVisitableObjs();

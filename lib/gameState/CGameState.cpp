@@ -50,7 +50,7 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
@@ -982,7 +982,7 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 		obj->initObj(gameRandomizer);
 
 	logGlobal->debug("\tObject initialization done");
-	for(auto & q : map->getObjects<CGSeerHut>())
+	for(auto & q : map->getObjects<SeerHut>())
 	{
 		if (q->ID ==Obj::QUEST_GUARD || q->ID ==Obj::SEER_HUT)
 			q->setObjToKill();

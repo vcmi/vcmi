@@ -27,7 +27,7 @@
 #include "../../rewardable/Info.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/CGPandoraBox.h"
-#include "../../mapObjects/CQuest.h"
+#include "../../mapObjects/Quest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
 #include "../../mapping/CMap.h"
@@ -537,7 +537,7 @@ void TreasurePlacer::addSeerHuts()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
-		auto setRandomArtifact = [qap](CGSeerHut * obj, ui32 rewardValue)
+		auto setRandomArtifact = [qap](SeerHut * obj, ui32 rewardValue)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
 			obj->getQuest().mission.artifacts.push_back(artid);
@@ -545,7 +545,7 @@ void TreasurePlacer::addSeerHuts()
 		};
 		auto destroyObject = [qap](CGObjectInstance & obj)
 		{
-			auto & seer = dynamic_cast<CGSeerHut &>(obj);
+			auto & seer = dynamic_cast<SeerHut &>(obj);
 			// Artifact can be used again
 			ArtifactID artid = seer.getQuest().mission.artifacts.front();
 			qap->addRandomArtifact(artid);
@@ -573,7 +573,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
@@ -608,7 +608,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
@@ -626,7 +626,7 @@ void TreasurePlacer::addSeerHuts()
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];

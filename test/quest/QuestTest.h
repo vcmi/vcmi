@@ -29,8 +29,8 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
-class CGSeerHut;
-class CGQuestGuard;
+class SeerHut;
+class QuestGuard;
 
 /// Test fixture for scenarios involving quest objects. Loads a TinyH3MBuilder
 /// scenario into a live CGameState and exposes helpers for the everyday

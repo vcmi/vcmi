@@ -12,7 +12,7 @@
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/int3.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/mapping/MapDifficulty.h"
 

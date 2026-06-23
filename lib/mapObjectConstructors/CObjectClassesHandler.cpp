@@ -34,7 +34,7 @@
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -80,19 +80,19 @@ CObjectClassesHandler::CObjectClassesHandler()
 
 	SET_HANDLER("generic", CGObjectInstance);
 	SET_HANDLER("artifact", CGArtifact);
-	SET_HANDLER_CLASS("borderGate", KeyGuardInstanceConstructor<CGQuestGate>);
-	SET_HANDLER_CLASS("borderGuard", KeyGuardInstanceConstructor<CGQuestGuard>);
+	SET_HANDLER_CLASS("borderGate", KeyGuardInstanceConstructor<QuestGate>);
+	SET_HANDLER_CLASS("borderGuard", KeyGuardInstanceConstructor<QuestGuard>);
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
-	SET_HANDLER("keymaster", CGKeymasterTent);
+	SET_HANDLER("keymaster", KeymasterTent);
 	SET_HANDLER("magi", CGMagi);
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
-	SET_HANDLER("questGuard", CGQuestGuard);
-	SET_HANDLER("seerHut", CGSeerHut);
+	SET_HANDLER("questGuard", QuestGuard);
+	SET_HANDLER("seerHut", SeerHut);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);
 	SET_HANDLER("monolith", CGMonolith);

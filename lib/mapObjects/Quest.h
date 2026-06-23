@@ -1,5 +1,5 @@
 /*
- * CQuest.h, part of VCMI engine
+ * Quest.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -29,7 +29,7 @@ enum class EQuestMission {
 	PLAYER = 9,
 	/// Parse-time only: appears solely in CMapLoaderH3M::readQuest, which rewrites it
 	/// to HOTA_HERO_CLASS / HOTA_REACH_DATE / HOTA_GAME_DIFFICULTY / HOTA_SCRIPTED
-	/// before returning. No in-memory CQuest ever holds this value.
+	/// before returning. No in-memory Quest ever holds this value.
 	HOTA_MULTI_PLACEHOLDER = 10,
 	// end of H3 missions
 
@@ -40,7 +40,7 @@ enum class EQuestMission {
 	HOTA_SCRIPTED = 15,
 };
 
-class DLL_LINKAGE CQuest final : public Serializeable
+class DLL_LINKAGE Quest final : public Serializeable
 {
 public:
 
@@ -69,7 +69,7 @@ public:
 	MetaString nextVisitText;
 	MetaString completedText;
 
-	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
+	static bool checkMissionArmy(const Quest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
@@ -83,7 +83,7 @@ public:
 	{
 		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
 		{
-			si32 legacyQuestInstanceID = 0; // removed CQuest::qid
+			si32 legacyQuestInstanceID = 0; // removed Quest::qid
 			h & legacyQuestInstanceID;
 		}
 		h & isCompleted;
@@ -129,25 +129,25 @@ public:
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
-/// Abstract base for rewardable objects that gate a reward behind a CQuest.
-class DLL_LINKAGE CGQuestSource : public CRewardableObject
+/// Abstract base for rewardable objects that gate a reward behind a Quest.
+class DLL_LINKAGE QuestSource : public CRewardableObject
 {
-	std::shared_ptr<CQuest> quest = std::make_shared<CQuest>(); // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
+	std::shared_ptr<Quest> quest = std::make_shared<Quest>(); // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
 public:
 	using CRewardableObject::CRewardableObject;
 
-	const CQuest & getQuest() const { return *quest; }
-	CQuest & getQuest() { return *quest; }
+	const Quest & getQuest() const { return *quest; }
+	Quest & getQuest() { return *quest; }
 	virtual bool checkQuest(const CGHeroInstance * h) const;
 
 	// Per-colour keymaster key state, shared by keymaster tents and border guards/gates.
-	// TODO: review whether CGQuestSource is the right home/form for these.
+	// TODO: review whether QuestSource is the right home/form for these.
 	static bool hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player);
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
 	/// The quest currently relevant for visiting / quest-log display.
-	virtual const CQuest & activeQuest() const { return getQuest(); }
-	const CQuest * activeQuestForLog() const override { return &activeQuest(); }
+	virtual const Quest & activeQuest() const { return getQuest(); }
+	const Quest * activeQuestForLog() const override { return &activeQuest(); }
 
 	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 
@@ -158,10 +158,10 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGSeerHut : public CGQuestSource
+class DLL_LINKAGE SeerHut : public QuestSource
 {
 public:
-	using CGQuestSource::CGQuestSource;
+	using QuestSource::QuestSource;
 
 	std::string seerName;
 
@@ -184,7 +184,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & static_cast<CGQuestSource&>(*this);
+		h & static_cast<QuestSource&>(*this);
 		h & seerName;
 	}
 protected:
@@ -194,10 +194,10 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGQuestGuard : public CGSeerHut
+class DLL_LINKAGE QuestGuard : public SeerHut
 {
 public:
-	using CGSeerHut::CGSeerHut;
+	using SeerHut::SeerHut;
 
 	void init(vstd::RNG & rand) override;
 	
@@ -207,19 +207,19 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & static_cast<CGSeerHut&>(*this);
+		h & static_cast<SeerHut&>(*this);
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 /// Reads the pre-QUEST_REWORK CGBorderGuard/CGBorderGate byte layout
-/// (a CQuest pointer followed by the CGObjectInstance base) into a quest source,
+/// (a Quest pointer followed by the CGObjectInstance base) into a quest source,
 /// synthesising the requiredKeys limiter from the object's colour subID.
 template<typename Handler>
-void loadLegacyBorderGuard(Handler & h, CGQuestSource & object)
+void loadLegacyBorderGuard(Handler & h, QuestSource & object)
 {
-	std::shared_ptr<CQuest> quest;
+	std::shared_ptr<Quest> quest;
 	h & quest;
 	h & static_cast<CGObjectInstance&>(object);
 	object.getQuest() = *quest;
@@ -228,10 +228,10 @@ void loadLegacyBorderGuard(Handler & h, CGQuestSource & object)
 
 /// Key/toll gate: stays in place, passable for a player once its limiter is met
 /// (border gates require the matching keymaster key).
-class DLL_LINKAGE CGQuestGate : public CGQuestSource
+class DLL_LINKAGE QuestGate : public QuestSource
 {
 public:
-	using CGQuestSource::CGQuestSource;
+	using QuestSource::QuestSource;
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
@@ -241,13 +241,13 @@ public:
 	{
 		// type id 12 served the legacy CGBorderGate; pre-QUEST_REWORK saves carry its layout
 		if(h.hasFeature(Handler::Version::QUEST_REWORK))
-			h & static_cast<CGQuestSource&>(*this);
+			h & static_cast<QuestSource&>(*this);
 		else
 			loadLegacyBorderGuard(h, *this);
 	}
 };
 
-class DLL_LINKAGE CGKeymasterTent : public CGObjectInstance
+class DLL_LINKAGE KeymasterTent : public CGObjectInstance
 {
 public:
 	using CGObjectInstance::CGObjectInstance;

@@ -24,7 +24,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"

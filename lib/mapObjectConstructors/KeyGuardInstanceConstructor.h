@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CDefaultObjectTypeHandler.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

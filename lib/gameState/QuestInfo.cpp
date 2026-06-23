@@ -11,11 +11,11 @@
 #include "QuestInfo.h"
 
 #include "../callback/IGameInfoCallback.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 
-const CQuest * QuestInfo::getQuest(IGameInfoCallback *cb) const
+const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
-	const CQuest * quest = getObject(cb)->activeQuestForLog();
+	const Quest * quest = getObject(cb)->activeQuestForLog();
 	assert(quest);
 
 	return quest;

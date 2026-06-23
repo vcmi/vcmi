@@ -160,7 +160,7 @@ set(lib_MAIN_SRCS
 	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
-	mapObjects/CQuest.cpp
+	mapObjects/Quest.cpp
 	mapObjects/CRewardableObject.cpp
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
@@ -588,7 +588,7 @@ set(lib_MAIN_HEADERS
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
-	mapObjects/CQuest.h
+	mapObjects/Quest.h
 	mapObjects/CRewardableObject.h
 	mapObjects/FlaggableMapObject.h
 	mapObjects/IMarket.h

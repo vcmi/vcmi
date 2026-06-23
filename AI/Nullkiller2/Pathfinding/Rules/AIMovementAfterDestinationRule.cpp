@@ -14,7 +14,7 @@
 #include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
-#include "../../../../lib/mapObjects/CQuest.h"
+#include "../../../../lib/mapObjects/Quest.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
 

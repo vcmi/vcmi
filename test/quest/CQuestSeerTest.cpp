@@ -16,7 +16,7 @@
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 
 // Seer hut behaviour as a player would experience it: visiting, accepting,
@@ -36,8 +36,8 @@ TEST_F(QuestSeerTest, Level_passesAtThreshold)
 	ASSERT_NE(hero, nullptr);
 	EXPECT_GE(hero->level, 3u) << "scenario assumes hero is at least level 3 from its starting XP";
 
-	const auto * easy = expectAt<CGSeerHut>(s.questPos);
-	const auto * hard = expectAt<CGSeerHut>(s.questPos2);
+	const auto * easy = expectAt<SeerHut>(s.questPos);
+	const auto * hard = expectAt<SeerHut>(s.questPos2);
 
 	EXPECT_TRUE (easy->getQuest().checkQuest(hero));
 	EXPECT_FALSE(hard->getQuest().checkQuest(hero));
@@ -53,8 +53,8 @@ TEST_F(QuestSeerTest, PrimarySkill_passesAtThreshold)
 	const auto * hero = findHeroAt(s.heroPos);
 	ASSERT_NE(hero, nullptr);
 
-	const auto * easy = expectAt<CGSeerHut>(s.questPos);
-	const auto * hard = expectAt<CGSeerHut>(s.questPos2);
+	const auto * easy = expectAt<SeerHut>(s.questPos);
+	const auto * hard = expectAt<SeerHut>(s.questPos2);
 
 	EXPECT_TRUE (easy->getQuest().checkQuest(hero));
 	EXPECT_FALSE(hard->getQuest().checkQuest(hero));
@@ -72,7 +72,7 @@ TEST_F(QuestSeerTest, BringHero_passesWhenHeroPresent)
 	ASSERT_NE(christian, nullptr);
 	ASSERT_NE(tyris,     nullptr);
 
-	const auto * seer = expectAt<CGSeerHut>(s.questPos);
+	const auto * seer = expectAt<SeerHut>(s.questPos);
 
 	EXPECT_FALSE(seer->getQuest().checkQuest(christian)) << "Christian is not the target hero";
 	EXPECT_TRUE (seer->getQuest().checkQuest(tyris))     << "Tyris is the target hero";
@@ -90,7 +90,7 @@ TEST_F(QuestSeerTest, BringPlayer_passesForCorrectColor)
 	ASSERT_NE(red,  nullptr);
 	ASSERT_NE(blue, nullptr);
 
-	const auto * seer = expectAt<CGSeerHut>(s.questPos);
+	const auto * seer = expectAt<SeerHut>(s.questPos);
 
 	EXPECT_FALSE(seer->getQuest().checkQuest(red))  << "red is not the target colour";
 	EXPECT_TRUE (seer->getQuest().checkQuest(blue)) << "blue is the target colour";
@@ -105,7 +105,7 @@ TEST_F(QuestSeerTest, KillCreature_satisfiedAfterCreatureRemoved)
 
 	const auto * hero    = findHeroAt(s.heroPos);
 	const auto * monster = dynamic_cast<const CGCreature *>(findObjectAt(s.secondHeroPos));
-	const auto * seer    = expectAt<CGSeerHut>(s.questPos);
+	const auto * seer    = expectAt<SeerHut>(s.questPos);
 	ASSERT_NE(hero,    nullptr);
 	ASSERT_NE(monster, nullptr);
 
@@ -125,7 +125,7 @@ TEST_F(QuestSeerTest, KillHero_satisfiedAfterHeroDefeated)
 
 	const auto * visitor = findHeroAt(s.heroPos);
 	const auto * target  = findHeroAt(s.secondHeroPos);
-	const auto * seer    = expectAt<CGSeerHut>(s.questPos);
+	const auto * seer    = expectAt<SeerHut>(s.questPos);
 	ASSERT_NE(visitor, nullptr);
 	ASSERT_NE(target,  nullptr);
 
@@ -396,7 +396,7 @@ TEST_F(QuestSeerTest, Timeout_expiresOnLastDay)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 	grantResources(PlayerColor(0), GameResID(GameResID::WOOD), 5);
 
-	auto * seer = expectAt<CGSeerHut>(s.questPos);
+	auto * seer = expectAt<SeerHut>(s.questPos);
 	EXPECT_EQ(seer->getQuest().lastDay, 7);
 	EXPECT_FALSE(seer->getQuest().isCompleted);
 

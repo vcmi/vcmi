@@ -16,7 +16,7 @@
 #include "../../lib/entities/artifact/CArtifactInstance.h"
 #include "../../lib/filesystem/CMemoryBuffer.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -291,7 +291,7 @@ TEST(TinyH3MBuilderTest, KillCreatureQuest)
 	auto loaded = loadMap(b.buildAndDump("KillCreatureQuest"));
 	ASSERT_NE(loaded.map, nullptr);
 
-	const auto * guard = findFirst<CGQuestGuard>(*loaded.map);
+	const auto * guard = findFirst<QuestGuard>(*loaded.map);
 	ASSERT_NE(guard, nullptr);
 	EXPECT_EQ(guard->getQuest().lastDay, 10);
 	// Loader resolves the uint32 wire id to an ObjectInstanceID in afterRead;

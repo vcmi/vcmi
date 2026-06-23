@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "../../../lib/GameLibrary.h"
-#include "../../../lib/mapObjects/CQuest.h"
+#include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
@@ -159,7 +159,7 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 		paths,
 		[&](const AIPath & path) -> bool
 		{
-			return !CQuest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
+			return !Quest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
 		}
 	);
 

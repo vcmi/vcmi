@@ -21,7 +21,7 @@ class JsonSerializeFormat;
 class ObjectTemplate;
 class CMap;
 class CGameState;
-class CQuest;
+class Quest;
 class AObjectTypeHandler;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
@@ -112,7 +112,7 @@ public:
 	/// Returns true if player can pass through visitable tiles of this object
 	virtual bool passableFor(PlayerColor color) const;
 	/// The quest gating this object for quest-log purposes, or nullptr if it has none
-	virtual const CQuest * activeQuestForLog() const { return nullptr; }
+	virtual const Quest * activeQuestForLog() const { return nullptr; }
 	/// Range of revealed map around this object, counting from getSightCenter()
 	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object

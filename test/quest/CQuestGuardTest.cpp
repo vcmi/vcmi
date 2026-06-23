@@ -15,7 +15,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 
 // Quest guard behaviour as seen from the adventure map: blocking pathfinding,
 // accepting payment, and getting torn down.

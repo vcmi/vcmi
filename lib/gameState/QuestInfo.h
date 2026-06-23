@@ -13,7 +13,7 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
 
-class CQuest;
+class Quest;
 class CGObjectInstance;
 class IGameInfoCallback;
 
@@ -26,7 +26,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		: obj(Obj)
 	{}
 
-	const CQuest * getQuest(IGameInfoCallback *cb) const;
+	const Quest * getQuest(IGameInfoCallback *cb) const;
 	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
 	int3 getPosition(IGameInfoCallback *cb) const;
 

@@ -36,7 +36,7 @@
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGResource.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/ModScope.h"
@@ -2313,7 +2313,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPos
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 {
-	auto guard = std::make_shared<CGQuestGuard>(map->cb);
+	auto guard = std::make_shared<QuestGuard>(map->cb);
 	readQuest(guard.get(), mapPosition);
 	return guard;
 }
@@ -3181,7 +3181,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
-	auto hut = std::make_shared<CGSeerHut>(map->cb);
+	auto hut = std::make_shared<SeerHut>(map->cb);
 
 	uint32_t questsCount = 1;
 
@@ -3227,7 +3227,7 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
@@ -3347,7 +3347,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(CGQuestSource * guard, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(QuestSource * guard, const int3 & position)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
