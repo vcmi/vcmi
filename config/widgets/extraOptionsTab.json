@@ -55,6 +55,13 @@
 					"callback" : "setUnlimitedReplay",
 					"help" : "vcmi.optionsTab.unlimitedReplay",
 					"selected" : true
+				},
+				{
+					"name": "buttonNoCumulativeGrowth",
+					"image": "lobby/checkbox",
+					"callback" : "setNoCumulativeGrowth",
+					"help" : "vcmi.optionsTab.noCumulativeGrowth",
+					"selected" : false
 				}
 			]
 		},
@@ -78,6 +85,13 @@
 					"alignment": "left",
 					"color": "yellow",
 					"text": "vcmi.optionsTab.unlimitedReplay.hover"
+				},
+				{
+					"name": "labelNoCumulativeGrowth",
+					"font": "small",
+					"alignment": "left",
+					"color": "yellow",
+					"text": "vcmi.optionsTab.noCumulativeGrowth.hover"
 				}
 			]
 		}
