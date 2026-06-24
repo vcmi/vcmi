@@ -27,6 +27,8 @@
 #include "Actions/TownPortalAction.h"
 #include "Actions/WhirlpoolAction.h"
 
+#include <limits>
+
 namespace NK2AI
 {
 
@@ -637,12 +639,27 @@ bool AINodeStorage::selectNextActor()
 	return false;
 }
 
+uint64_t evaluateArmyLossValue(uint64_t armyValue, uint64_t danger, double fightingStrength)
+{
+	if(danger == 0)
+		return 0;
+
+	if(armyValue == 0)
+		return std::numeric_limits<uint64_t>::max();
+
+	const double normalizedFightingStrength = normalizeHeroStrength(fightingStrength);
+	const double ratio = static_cast<double>(danger) / (static_cast<double>(armyValue) * normalizedFightingStrength);
+	const double loss = static_cast<double>(armyValue) * ratio * ratio;
+
+	if(!std::isfinite(loss) || loss >= static_cast<double>(std::numeric_limits<uint64_t>::max()))
+		return std::numeric_limits<uint64_t>::max();
+
+	return static_cast<uint64_t>(loss);
+}
+
 uint64_t AINodeStorage::evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
 {
-	float fightingStrength = aiNk->heroManager->getFightingStrengthCached(hero);
-	double ratio = (double)danger / (armyValue * fightingStrength);
-
-	return (uint64_t)(armyValue * ratio * ratio);
+	return evaluateArmyLossValue(armyValue, danger, aiNk->heroManager->getFightingStrengthCached(hero));
 }
 
 void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
@@ -1871,7 +1888,8 @@ uint8_t AIPath::turn() const
 
 uint64_t AIPath::getHeroStrength() const
 {
-	return targetHero->getHeroStrength() * getHeroArmyStrengthWithCommander(targetHero, heroArmy);
+	return normalizeHeroStrength(targetHero->getHeroStrength())
+		* getHeroArmyStrengthWithCommander(targetHero, heroArmy);
 }
 
 uint64_t AIPath::getTotalDanger() const

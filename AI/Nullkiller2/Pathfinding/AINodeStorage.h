@@ -32,6 +32,8 @@ namespace AIPathfinding
 	const int CHAIN_MAX_DEPTH = 4;
 }
 
+uint64_t evaluateArmyLossValue(uint64_t armyValue, uint64_t danger, double fightingStrength);
+
 enum DayFlags : ui8
 {
 	NONE = 0,

@@ -134,7 +134,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
-	const ui64 heroStrength = h->getHeroStrength() * heroArmy->getArmyStrength();
+	const ui64 heroStrength = getNormalizedHeroStrength(h) * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{
@@ -170,6 +170,20 @@ bool isObjectRemovable(const CGObjectInstance * obj)
 	default:
 		return false;
 	}
+}
+
+double normalizeHeroStrength(double heroStrength)
+{
+	if(!std::isfinite(heroStrength) || heroStrength <= 0)
+		return 1.0;
+
+	return heroStrength;
+}
+
+double getNormalizedHeroStrength(const CGHeroInstance * hero)
+{
+	assert(hero);
+	return normalizeHeroStrength(hero->getHeroStrength());
 }
 
 bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
