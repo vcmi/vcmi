@@ -150,14 +150,14 @@ void DestinationActionRule::process(
 			}
 			else if(destination.nodeObject->ID == Obj::TOWN)
 			{
-				if(destination.nodeObject->passableFor(hero->tempOwner))
+				if(destination.nodeObject->passableFor(hero))
 					action = EPathNodeAction::VISIT;
 				else if(objRel == PlayerRelations::ENEMIES)
 					action = EPathNodeAction::BATTLE;
 			}
 			else if(destination.nodeObject->ID == Obj::GARRISON || destination.nodeObject->ID == Obj::GARRISON2)
 			{
-				if(destination.nodeObject->passableFor(hero->tempOwner))
+				if(destination.nodeObject->passableFor(hero))
 				{
 					if(destination.guarded)
 						action = EPathNodeAction::BATTLE;
@@ -167,7 +167,7 @@ void DestinationActionRule::process(
 			}
 			else if(destination.nodeObject->ID == Obj::BORDER_GATE)
 			{
-				if(destination.nodeObject->passableFor(hero->tempOwner))
+				if(destination.nodeObject->passableFor(hero))
 				{
 					if(destination.guarded)
 						action = EPathNodeAction::BATTLE;

@@ -74,10 +74,19 @@ public:
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
 	void getRolloverText (const IGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
-	void completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
+	/// Removes the consumable goods the limiter demands (artifacts / creatures /
+	/// resources) from the hero — the "cost" of the quest. Does NOT mark the quest
+	/// completed; callers handle completion/removal separately.
+	void takeRequirements(IGameEventCallback & gameEvents, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
 	void addTextReplacements(const IGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
+
+	/// A quest is a "toll" when satisfying it surrenders consumable goods
+	/// (resources / artifacts / creatures) — exactly what takeRequirements removes.
+	/// Checked against the limiter because map quests store the cost there; if a
+	/// separate "taken reward" is ever modelled, the check should move to it.
+	bool isToll() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -236,6 +245,7 @@ public:
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
+	bool passableFor(const CGHeroInstance * hero) const override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{

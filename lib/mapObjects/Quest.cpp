@@ -98,7 +98,7 @@ bool Quest::checkQuest(const CGHeroInstance * h) const
 	return mission.heroAllowed(h);
 }
 
-void Quest::completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance *h, bool allowFullArmyRemoval) const
+void Quest::takeRequirements(IGameEventCallback & gameEvents, const CGHeroInstance *h, bool allowFullArmyRemoval) const
 {
 	// FIXME: this should be part of 'reward', and not hacking into limiter state that should only limit access to such reward
 
@@ -279,6 +279,11 @@ void Quest::defineQuestName()
 	if(mission.daysPassed > 0) missionKind = EQuestMission::HOTA_REACH_DATE;
 	if(!mission.heroClasses.empty()) missionKind = EQuestMission::HOTA_HERO_CLASS;
 	if(!mission.allowedDifficulties.allowsAll()) missionKind = EQuestMission::HOTA_GAME_DIFFICULTY;
+}
+
+bool Quest::isToll() const
+{
+	return mission.resources.nonZero() || !mission.artifacts.empty() || !mission.creatures.empty();
 }
 
 void Quest::addKillTargetReplacements(MetaString &out) const
@@ -606,7 +611,7 @@ void SeerHut::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHe
 {
 	if(answer)
 	{
-		getQuest().completeQuest(gameEvents, hero, allowsFullArmyRemoval());
+		getQuest().takeRequirements(gameEvents, hero, allowsFullArmyRemoval());
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
 	CRewardableObject::blockingDialogAnswered(gameEvents, hero, answer);
@@ -822,8 +827,14 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(passableFor(h->getOwner()))
+	if(checkQuest(h))
+	{
+		// satisfied: a toll gate charges the limiter cost on every passage and
+		// is never persistently "completed"; a non-toll gate just lets the hero pass.
+		if(getQuest().isToll())
+			getQuest().takeRequirements(gameEvents, h, false);
 		return;
+	}
 
 	h->showInfoDialog(gameEvents, 18);
 
@@ -835,8 +846,17 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 bool QuestGate::passableFor(PlayerColor color) const
 {
+	// player-level fallback (no hero context): only the keymaster-key limiter can
+	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
 	for(const auto & key : getQuest().mission.requiredKeys)
 		if(!cb->getPlayerState(color)->visitedObjectsGlobal.count({Obj::KEYMASTER, key}))
 			return false;
 	return true;
+}
+
+bool QuestGate::passableFor(const CGHeroInstance * hero) const
+{
+	// Passable once the limiter is satisfied. For a toll gate this means the hero
+	// currently holds the goods (i.e. can pay); checkQuest re-checks every pass.
+	return checkQuest(hero);
 }

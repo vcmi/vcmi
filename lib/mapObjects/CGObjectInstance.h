@@ -109,8 +109,14 @@ public:
 
 	/** VIRTUAL METHODS **/
 
-	/// Returns true if player can pass through visitable tiles of this object
+	/// Coarse, player-level passability. Required (cannot be dropped for the hero
+	/// overload): the AI pathfinder builds one accessibility graph per player for a
+	/// whole hero-chain (AINodeStorage / PathfinderUtil::evaluateAccessibility),
+	/// so no single hero is available there.
 	virtual bool passableFor(PlayerColor color) const;
+	/// Hero-aware passability, used where a concrete hero exists (e.g. a toll Quest
+	/// Gate that needs the hero's inventory). Default forwards to the colour overload.
+	virtual bool passableFor(const CGHeroInstance * hero) const;
 	/// The quest gating this object for quest-log purposes, or nullptr if it has none
 	virtual const Quest * activeQuestForLog() const { return nullptr; }
 	/// Range of revealed map around this object, counting from getSightCenter()

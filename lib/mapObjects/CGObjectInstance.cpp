@@ -377,6 +377,11 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 	return false;
 }
 
+bool CGObjectInstance::passableFor(const CGHeroInstance * hero) const
+{
+	return passableFor(hero->getOwner());
+}
+
 void CGObjectInstance::updateFrom(const JsonNode & data)
 {
 
