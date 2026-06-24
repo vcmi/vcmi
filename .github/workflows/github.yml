@@ -167,7 +167,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -212,7 +212,7 @@ jobs:
     # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
@@ -597,7 +597,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -609,7 +609,7 @@ jobs:
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
