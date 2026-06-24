@@ -53,7 +53,11 @@ std::shared_ptr<CPlayerBattleCallback> CBattleCallback::getBattle(const BattleID
 	if (activeBattles.count(battleID))
 		return activeBattles.at(battleID);
 
-	throw std::runtime_error("Failed to find battle " + std::to_string(battleID.getNum()) + " of player " + player->toString() + ". Number of ongoing battles: " + std::to_string(activeBattles.size()));
+	const std::string playerName = player ? player->toString() : "none";
+	throw std::runtime_error(
+		"Failed to find battle " + std::to_string(battleID.getNum()) +
+		" of player " + playerName +
+		". Number of ongoing battles: " + std::to_string(activeBattles.size()));
 }
 
 std::optional<PlayerColor> CBattleCallback::getPlayerID() const
@@ -63,19 +67,27 @@ std::optional<PlayerColor> CBattleCallback::getPlayerID() const
 
 void CBattleCallback::onBattleStarted(const IBattleInfo * info)
 {
-	if (activeBattles.count(info->getBattleID()) > 0)
-		throw std::runtime_error("Player " + player->toString() + " is already engaged in battle " + std::to_string(info->getBattleID().getNum()));
+	const std::string playerName = player ? player->toString() : "none";
 
-	logGlobal->debug("Battle %d started for player %s", info->getBattleID(), player->toString());
+	if (activeBattles.count(info->getBattleID()) > 0)
+		throw std::runtime_error(
+			"Player " + playerName +
+			" is already engaged in battle " + std::to_string(info->getBattleID().getNum()));
+
+	logGlobal->debug("Battle %d started for player %s", info->getBattleID(), playerName);
 	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, *getPlayerID());
 }
 
 void CBattleCallback::onBattleEnded(const BattleID & battleID)
 {
-	if (activeBattles.count(battleID) == 0)
-		throw std::runtime_error("Player " + player->toString() + " is not engaged in battle " + std::to_string(battleID.getNum()));
+	const std::string playerName = player ? player->toString() : "none";
 
-	logGlobal->debug("Battle %d ended for player %s", battleID, player->toString());
+	if (activeBattles.count(battleID) == 0)
+		throw std::runtime_error(
+			"Player " + playerName +
+			" is not engaged in battle " + std::to_string(battleID.getNum()));
+
+	logGlobal->debug("Battle %d ended for player %s", battleID, playerName);
 	activeBattles.erase(battleID);
 }
 

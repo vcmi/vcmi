@@ -174,6 +174,8 @@ public:
 	void removeGUI() const;
 
 private:
+	std::optional<PlayerColor> findPlayerColorForSpectatorInterface() const;
+
 	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
 	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 };

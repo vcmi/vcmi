@@ -1448,7 +1448,11 @@ void CPlayerInterface::initializeHeroTownList()
 			localState->addOwnedTown(town);
 	}
 
-	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
+	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
+	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
+	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	if(playerState)
+		localState->deserialize(*playerState->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);

@@ -468,6 +468,9 @@ std::string PlayerColor::encode(const si32 index)
 	if (index == -1)
 		return "neutral";
 
+	if (index == PlayerColor::SPECTATOR.num)
+		return "spectator";
+
 	if (index < 0 || index >= std::size(GameConstants::PLAYER_COLOR_NAMES))
 	{
 		assert(0);
