@@ -1163,6 +1163,11 @@ void EditorMainWindow::loadObjectsTree()
 	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L5);
 	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L6);
 	addGroupIntoCatalog(groups[MONSTERS], true, false, Obj::RANDOM_MONSTER_L7);
+	for(auto ID : LIBRARY->objtypeh->knownObjects())
+	{
+		if(LIBRARY->objtypeh->getObjectHandlerName(ID) == "compositeArmy")
+			addGroupIntoCatalog(groups[MONSTERS], true, false, ID);
+	}
 	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::SEER_HUT);
 	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::BORDER_GATE);
 	addGroupIntoCatalog(groups[QUESTS], true, false, Obj::QUEST_GUARD);

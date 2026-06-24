@@ -30,6 +30,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../spells/CSpellHandler.h"
@@ -415,7 +416,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 		for (const auto & objID : posTile.visitableObjects)
 		{
 			const auto * object = getObject(objID);
-			if (object->ID == Obj::MONSTER)
+			if(isAdventureMapGuard(object))
 				return pos;
 		}
 	}
@@ -436,7 +437,7 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 					for (const auto & objID : tile.visitableObjects)
 					{
 						const auto * object = getObject(objID);
-						if (object->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
+						if(isAdventureMapGuard(object) && checkForVisitableDir(pos, &posTile, originalPos))
 							return pos;
 					}
 				}

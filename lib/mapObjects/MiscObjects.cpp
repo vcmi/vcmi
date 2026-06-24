@@ -31,6 +31,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "CGHeroInstance.h"
+#include "ObjectTemplate.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
@@ -949,6 +950,143 @@ bool CGGarrison::passableFor(PlayerColor player) const
 	if (cb->getPlayerRelations(tempOwner, player) != PlayerRelations::ENEMIES)
 		return true;
 	return false;
+}
+
+const CStackInstance * CGCompositeArmy::getRepresentativeStack() const
+{
+	const CStackInstance * result = nullptr;
+	constexpr double epsilon = 1e-9;
+	double bestPriority = -1.0;
+	TQuantity bestCount = 0;
+	SlotID bestSlot;
+
+	for(const auto & [slot, stackPtr] : Slots())
+	{
+		const auto * stack = stackPtr.get();
+		const auto * creature = stack ? stack->getCreature() : nullptr;
+		if(!creature || stack->getCount() <= 0)
+			continue;
+
+		const double priority = static_cast<double>(stack->getCount()) / std::max(1, creature->getGrowth());
+		const bool betterPriority = priority > bestPriority + epsilon;
+		const bool samePriority = std::abs(priority - bestPriority) <= epsilon;
+		const bool betterCount = samePriority && stack->getCount() > bestCount;
+		const bool betterSlot = samePriority && stack->getCount() == bestCount && (!result || slot < bestSlot);
+
+		if(betterPriority || betterCount || betterSlot)
+		{
+			result = stack;
+			bestPriority = priority;
+			bestCount = stack->getCount();
+			bestSlot = slot;
+		}
+	}
+
+	return result;
+}
+
+bool CGCompositeArmy::hasAnyCreatures() const
+{
+	return getRepresentativeStack() != nullptr;
+}
+
+bool isAdventureMapGuard(const CGObjectInstance * object)
+{
+	if(!object)
+		return false;
+
+	if(object->ID == Obj::MONSTER)
+		return true;
+
+	const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(object);
+	return compositeArmy && compositeArmy->hasAnyCreatures();
+}
+
+void CGCompositeArmy::initObj(IGameRandomizer & gameRandomizer)
+{
+	blockVisit = true;
+	tempOwner = PlayerColor::NEUTRAL;
+
+	if(!hasAnyCreatures())
+		addToSlot(SlotID(0), CreatureID(CreatureID::decode("pikeman")), 1);
+
+	const auto * representative = getRepresentativeStack();
+	const auto * creature = representative ? representative->getCreature() : nullptr;
+	if(!creature)
+		return;
+
+	const auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creature->getId().num);
+	if(!handler)
+		return;
+
+	auto templates = handler->getTemplates(cb->getTile(visitablePos())->getTerrainID());
+	if(templates.empty())
+		templates = handler->getTemplates();
+	if(templates.empty())
+		return;
+
+	const auto oldOffset = appearance->getCornerOffset();
+	appearance = templates.front();
+	pos = pos - oldOffset + appearance->getCornerOffset();
+}
+
+bool CGCompositeArmy::passableFor(PlayerColor player) const
+{
+	return !hasAnyCreatures();
+}
+
+static std::string getCompositeArmyThreatText(const CGCompositeArmy * army, const CGHeroInstance * hero)
+{
+	if(!hero || !settings["general"]["enableUiEnhancements"].Bool())
+		return {};
+
+	const uint64_t heroStrength = hero->getTotalStrength();
+	if(heroStrength == 0)
+		return {};
+
+	const double ratio = static_cast<double>(army->getArmyStrength()) / heroStrength;
+	int choice = 0;
+	if(ratio < 0.1) choice = 0;
+	else if(ratio < 0.25) choice = 1;
+	else if(ratio < 0.6) choice = 2;
+	else if(ratio < 0.9) choice = 3;
+	else if(ratio < 1.1) choice = 4;
+	else if(ratio < 1.3) choice = 5;
+	else if(ratio < 1.8) choice = 6;
+	else if(ratio < 2.5) choice = 7;
+	else if(ratio < 4) choice = 8;
+	else if(ratio < 8) choice = 9;
+	else if(ratio < 20) choice = 10;
+	else choice = 11;
+
+	return LIBRARY->generaltexth->translate("vcmi.adventureMap.monsterThreat.title")
+		+ LIBRARY->generaltexth->translate("vcmi.adventureMap.monsterThreat.levels." + std::to_string(choice));
+}
+
+std::string CGCompositeArmy::getPopupText(PlayerColor player) const
+{
+	return {};
+}
+
+std::string CGCompositeArmy::getPopupText(const CGHeroInstance * hero) const
+{
+	return getCompositeArmyThreatText(this, hero);
+}
+
+void CGCompositeArmy::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
+{
+	if(hasAnyCreatures())
+		gameEvents.startBattle(h, this);
+	else
+		gameEvents.removeObject(this, h->getOwner());
+}
+
+void CGCompositeArmy::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const
+{
+	if(result.winner == BattleSide::ATTACKER)
+		gameEvents.removeObject(this, hero->getOwner());
+	else if(result.winner == BattleSide::NONE)
+		gameEvents.removeObject(this, result.attacker);
 }
 
 void CGGarrison::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const

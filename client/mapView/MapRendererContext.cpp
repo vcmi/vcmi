@@ -91,7 +91,7 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 
 int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const
 {
-	if(wanderingMonster->ID != Obj::MONSTER)
+	if(wanderingMonster->ID != Obj::MONSTER && dynamic_cast<const CGCompositeArmy *>(wanderingMonster) == nullptr)
 		return -1;
 		
 	for(const auto & battle : GAME->interface()->cb->getActiveBattles())

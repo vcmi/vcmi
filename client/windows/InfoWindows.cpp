@@ -20,6 +20,8 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
@@ -30,6 +32,7 @@
 #include "CMessage.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -37,6 +40,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ConditionalWait.h"
 
 CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
@@ -257,6 +261,167 @@ CRClickPopupInt::~CRClickPopupInt()
 {
 	ENGINE->cursor().show();
 }
+
+static std::string getCompositeArmyStackQuantityText(const CStackInstance * stack)
+{
+	const auto quantityId = stack->getQuantityID();
+	if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+		return CCreature::getQuantityRangeStringForId(quantityId);
+
+	return LIBRARY->generaltexth->arraytxt[172 + 3 * static_cast<int>(quantityId)];
+}
+
+class CompositeArmyStackComponent : public CIntObject
+{
+public:
+	CompositeArmyStackComponent(const CStackInstance * stack)
+	{
+		OBJECT_CONSTRUCTION;
+
+		const auto * creature = stack->getCreature();
+		image = std::make_shared<CAnimImage>(
+			AnimationPath::builtin("TWCRPORT"),
+			creature->getIconIndex());
+
+		const auto quantityText = getCompositeArmyStackQuantityText(stack);
+		const auto creatureName = creature->getNamePluralTranslated();
+		const auto font = ENGINE->renderHandler().loadFont(FONT_SMALL);
+		const int lineHeight = static_cast<int>(font->getLineHeight());
+		const int contentWidth = std::max({
+			image->pos.w,
+			static_cast<int>(font->getStringWidth(quantityText)),
+			static_cast<int>(font->getStringWidth(creatureName))
+		});
+
+		pos.w = contentWidth + 8;
+		pos.h = image->pos.h + 4 + 2 * lineHeight;
+		image->moveBy(Point((pos.w - image->pos.w) / 2, 0));
+
+		quantity = std::make_shared<CLabel>(
+			pos.w / 2,
+			image->pos.h + lineHeight / 2 + 2,
+			FONT_SMALL,
+			ETextAlignment::CENTER,
+			Colors::WHITE,
+			quantityText);
+		name = std::make_shared<CLabel>(
+			pos.w / 2,
+			image->pos.h + lineHeight + lineHeight / 2 + 2,
+			FONT_SMALL,
+			ETextAlignment::CENTER,
+			Colors::WHITE,
+			creatureName);
+
+		addChild(image.get());
+		addChild(quantity.get());
+		addChild(name.get());
+	}
+
+private:
+	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CLabel> quantity;
+	std::shared_ptr<CLabel> name;
+};
+
+class CompositeArmyPopup : public CWindowObject
+{
+public:
+	CompositeArmyPopup(Point position, const CGCompositeArmy * army)
+		: CWindowObject(BORDERED | RCLICK_POPUP, {}, position)
+	{
+		OBJECT_CONSTRUCTION;
+
+		const auto * hero = GAME->interface()->localState->getCurrentHero();
+		for(const auto & [slot, stackPtr] : army->Slots())
+		{
+			const auto * stack = stackPtr.get();
+			if(stack && stack->getCreature() && stack->getCount() > 0)
+				stackComponents.push_back(std::make_shared<CompositeArmyStackComponent>(stack));
+		}
+
+		constexpr int margin = 18;
+		constexpr int portraitSpacing = 64;
+		constexpr int rowGap = 16;
+		constexpr int componentsPerRow = 4;
+		constexpr int minWidth = 210;
+		int componentWidth = 0;
+		for(const auto & component : stackComponents)
+			componentWidth = std::max(componentWidth, component->pos.w);
+		const int componentStep = std::max(portraitSpacing, componentWidth);
+
+		int widestRow = 0;
+		for(size_t rowStart = 0; rowStart < stackComponents.size(); rowStart += componentsPerRow)
+		{
+			const size_t rowEnd = std::min(rowStart + componentsPerRow, stackComponents.size());
+			const int componentCount = static_cast<int>(rowEnd - rowStart);
+			const int rowWidth = componentWidth
+				+ (componentCount - 1) * componentStep;
+			widestRow = std::max(widestRow, rowWidth);
+		}
+		const int contentWidth = std::max(minWidth, widestRow + 2 * margin);
+
+		int currentY = margin;
+		for(size_t rowStart = 0; rowStart < stackComponents.size(); rowStart += componentsPerRow)
+		{
+			const size_t rowEnd = std::min(rowStart + componentsPerRow, stackComponents.size());
+			const int componentCount = static_cast<int>(rowEnd - rowStart);
+			const int rowWidth = componentWidth
+				+ (componentCount - 1) * componentStep;
+			int rowHeight = 0;
+			for(size_t index = rowStart; index < rowEnd; ++index)
+				rowHeight = std::max(rowHeight, stackComponents[index]->pos.h);
+
+			int currentX = (contentWidth - rowWidth) / 2;
+			for(size_t index = rowStart; index < rowEnd; ++index)
+			{
+				const int componentOffset = (componentWidth - stackComponents[index]->pos.w) / 2;
+				stackComponents[index]->moveBy(Point(currentX + componentOffset, currentY));
+				addChild(stackComponents[index].get());
+				currentX += componentStep;
+			}
+			currentY += rowHeight + rowGap;
+		}
+
+		const std::string popupText = hero
+			? army->getPopupText(hero)
+			: army->getPopupText(GAME->interface()->playerID);
+		if(!popupText.empty())
+		{
+			text = std::make_shared<CTextBox>(
+				popupText,
+				Rect(margin, currentY, contentWidth - 2 * margin, 160),
+				0,
+				FONT_SMALL,
+				ETextAlignment::CENTER,
+				Colors::WHITE);
+			if(!text->slider)
+				text->resize(Point(contentWidth - 2 * margin, text->label->textSize.y));
+			addChild(text.get());
+			currentY += text->pos.h;
+		}
+
+		currentY += margin;
+		pos.w = contentWidth;
+		pos.h = currentY;
+		backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+		backgroundTexture->recActions &= ~CIntObject::SHOWALL;
+		center(position);
+		fitToScreen(10);
+	}
+
+	void showAll(Canvas & to) override
+	{
+		backgroundTexture->pos = pos;
+		backgroundTexture->showAll(to);
+		CIntObject::showAll(to);
+		CMessage::drawBorder(GAME->interface() ? GAME->interface()->playerID : PlayerColor(1), to, pos.w + 28, pos.h + 29, pos.x - 14, pos.y - 15);
+	}
+
+private:
+	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::vector<std::shared_ptr<CompositeArmyStackComponent>> stackComponents;
+	std::shared_ptr<CTextBox> text;
+};
 
 void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
@@ -577,6 +742,9 @@ CRClickPopup::createCustomInfoWindow(Point position, const CGObjectInstance * sp
 		logGlobal->error("createCustomInfoWindow: no object to describe");
 		return nullptr;
 	}
+
+	if(const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(specific))
+		return std::make_shared<CompositeArmyPopup>(position, compositeArmy);
 
 	switch(specific->ID)
 	{

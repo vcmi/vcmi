@@ -14,6 +14,9 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
     // Can be used to avoid using long path to images 
     "basepath" : "path/to/images/directory/",
 
+    // Interpret the first eight Heroes III palette colors as transparency, shadows and overlays. Optional.
+    "h3SpecialColors" : true,
+
     // List of sequiences / groups in animation
     // This will replace original group with specified list of files
     // even if original animation is longer

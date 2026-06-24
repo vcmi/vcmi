@@ -1,0 +1,26 @@
+{
+	"randomCompositeMonster" : {
+		"name" : "Random Composite Monster",
+		"handler" : "compositeArmy",
+		"base" : {
+			"aiValue" : 0,
+			"sounds" : {
+				"visit" : [ "MILITARY" ],
+				"removal" : [ "KILLFADE" ]
+			}
+		},
+		"types" : {
+			"normal" : {
+				"name" : "Random Composite Monster",
+				"templates" : {
+					"normal" : {
+						"animation" : "randomCompositeMonster",
+						"editorAnimation" : "randomCompositeMonster",
+						"visitableFrom" : [ "+++", "+-+", "+++" ],
+						"mask" : [ "VV", "VA" ]
+					}
+				}
+			}
+		}
+	}
+}

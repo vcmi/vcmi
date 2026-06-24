@@ -1,0 +1,11 @@
+{
+	"name" : "Composite Army Display",
+	"description" : "Adds neutral but hostile composite armies containing up to seven creature stacks.",
+	"version" : "0.1",
+	"author" : "simonmasut1983-dev",
+	"modType" : "Objects",
+
+	"objects" : [
+		"config/objects/compositeArmy"
+	]
+}

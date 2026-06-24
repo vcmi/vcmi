@@ -180,6 +180,29 @@ static bool colorsSimilar(const QRgb & lhs, const QRgb & rhs)
 	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
 };
 
+static void convertH3SpecialColors(QImage & image)
+{
+	if(image.isNull())
+		return;
+
+	image = image.convertToFormat(QImage::Format_ARGB32);
+	for(int y = 0; y < image.height(); ++y)
+	{
+		auto * line = reinterpret_cast<QRgb *>(image.scanLine(y));
+		for(int x = 0; x < image.width(); ++x)
+		{
+			for(size_t i = 0; i < SOURCE_PALETTE.size(); ++i)
+			{
+				if(colorsSimilar(SOURCE_PALETTE[i], line[x]))
+				{
+					line[x] = TARGET_PALETTE[i];
+					break;
+				}
+			}
+		}
+	}
+}
+
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
@@ -543,6 +566,8 @@ bool Animation::loadFrame(size_t frame, size_t group)
 		if(!img)
 		{
 			auto bitmap = BitmapHandler::loadBitmap(source[group][frame]["file"].String());
+			if(useH3SpecialColors)
+				convertH3SpecialColors(bitmap);
 			img.reset(new QImage(bitmap));
 		}
 
@@ -599,6 +624,7 @@ void Animation::initFromJson(const JsonNode & config)
 {
 	std::string basepath;
 	basepath = config["basepath"].String();
+	useH3SpecialColors = useH3SpecialColors || config["h3SpecialColors"].Bool();
 
 	JsonNode base;
 	base["margins"] = config["margins"];

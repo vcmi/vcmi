@@ -35,6 +35,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -441,6 +443,50 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(const ImagePath & filename)
 	return ret;
 }
 
+std::shared_ptr<IImage> MapRendererObjects::getCompositeArmyAttackImage(const IMapRendererContext & context, const CGCompositeArmy * army) const
+{
+	const auto * stack = army->getRepresentativeStack();
+	const auto * creature = stack ? stack->getCreature() : nullptr;
+	const auto attackerDirection = context.attackedMonsterDirection(army);
+	if(!creature || attackerDirection == -1)
+		return nullptr;
+
+	const std::array<int, 4> rightAttackDirections = { 1, 2, 7, 8 };
+	const auto & imagePath = std::find(rightAttackDirections.begin(), rightAttackDirections.end(), attackerDirection) != rightAttackDirections.end()
+		? creature->mapAttackFromRight
+		: creature->mapAttackFromLeft;
+	return imagePath.empty() ? nullptr : getImage(imagePath);
+}
+
+std::shared_ptr<CAnimation> MapRendererObjects::getCompositeArmyAnimation(const CGCompositeArmy * army)
+{
+	const auto * stack = army->getRepresentativeStack();
+	const auto * creature = stack ? stack->getCreature() : nullptr;
+	if(!creature)
+		return nullptr;
+
+	const auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creature->getId().num);
+	if(!handler)
+		return nullptr;
+
+	const auto templates = handler->getTemplates();
+	return templates.empty() ? nullptr : getAnimation(templates.front()->animationFile, false, false);
+}
+
+static bool isCompositeArmyRepresentativeUpgraded(const CGCompositeArmy * army)
+{
+	const auto * stack = army->getRepresentativeStack();
+	const auto * creature = stack ? stack->getCreature() : nullptr;
+	if(!creature)
+		return false;
+
+	const auto creatureID = creature->getId();
+	for(const auto & candidate : LIBRARY->creh->objects)
+		if(candidate && candidate->upgrades.contains(creatureID))
+			return true;
+	return false;
+}
+
 std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectInstance* obj)
 {
 	//TODO: relocate to config file?
@@ -454,6 +500,9 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 		assert(obj->tempOwner.isValidPlayer());
 		return getAnimation(AnimationPath::builtin(heroFlags[obj->tempOwner.getNum()]), true, false);
 	}
+
+	if(const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(obj))
+		return getAnimation(AnimationPath::builtin(isCompositeArmyRepresentativeUpgraded(compositeArmy) ? "starUpgrade" : "starNoUpgrade"), false, false);
 
 	if(obj->ID == Obj::BOAT)
 	{
@@ -534,7 +583,17 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
-	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
+	if(const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(instance))
+	{
+		auto baseImage = getCompositeArmyAttackImage(context, compositeArmy);
+		if(!baseImage)
+			baseImage = getImageToRender(context, instance, getCompositeArmyAnimation(compositeArmy));
+		renderImage(context, target, coordinates, instance, baseImage);
+	}
+	else
+	{
+		renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
+	}
 	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
 	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
 }
@@ -573,6 +632,8 @@ uint8_t MapRendererObjects::checksum(IMapRendererContext & context, const int3 &
 		Point offsetPixels = context.objectImageOffset(objectInstance->id, coordinates);
 
 		auto base = getBaseAnimation(objectInstance);
+		if(const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(objectInstance))
+			base = getCompositeArmyAnimation(compositeArmy);
 		auto flag = getFlagAnimation(objectInstance);
 
 		if (base && base->size(groupIndex) > 1)

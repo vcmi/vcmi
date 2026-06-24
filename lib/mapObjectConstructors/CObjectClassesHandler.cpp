@@ -86,6 +86,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("denOfThieves", CGDenOfthieves);
 	SET_HANDLER("event", CGEvent);
 	SET_HANDLER("garrison", CGGarrison);
+	SET_HANDLER("compositeArmy", CGCompositeArmy);
 	SET_HANDLER("heroPlaceholder", CGHeroPlaceholder);
 	SET_HANDLER("keymaster", CGKeymasterTent);
 	SET_HANDLER("magi", CGMagi);

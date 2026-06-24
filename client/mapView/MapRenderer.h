@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class ObjectInstanceID;
 class CGObjectInstance;
+class CGCompositeArmy;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -81,6 +82,8 @@ class MapRendererObjects
 
 	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay);
 	std::shared_ptr<IImage> getImage(const ImagePath & filename) const;
+	std::shared_ptr<IImage> getCompositeArmyAttackImage(const IMapRendererContext & context, const CGCompositeArmy * army) const;
+	std::shared_ptr<CAnimation> getCompositeArmyAnimation(const CGCompositeArmy * army);
 
 	std::shared_ptr<IImage> getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
