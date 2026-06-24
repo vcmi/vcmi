@@ -20,6 +20,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
+#include "../Behaviors/EscapeBehavior.h"
 #include "../Behaviors/ExplorationBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
@@ -418,6 +419,7 @@ void Nullkiller::makeTurn()
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(EscapeBehavior()), 1);
 		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
 		// decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 

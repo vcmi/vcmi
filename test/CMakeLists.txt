@@ -147,6 +147,7 @@ endif()
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
 		nullkiller2/Analyzers/ObjectClusterizerTest.cpp
+		nullkiller2/Behaviors/EscapeBehaviorTest.cpp
 		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp

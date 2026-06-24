@@ -58,6 +58,7 @@ set(Nullkiller2_SRCS
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
 		Behaviors/DefenceBehavior.cpp
+		Behaviors/EscapeBehavior.cpp
 		Behaviors/StartupBehavior.cpp
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
@@ -137,6 +138,7 @@ set(Nullkiller2_HEADERS
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
 		Behaviors/DefenceBehavior.h
+		Behaviors/EscapeBehavior.h
 		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
