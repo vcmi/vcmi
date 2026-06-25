@@ -164,6 +164,17 @@ void TaskPlan::mergeAndFilter(const TSubgoal & task)
 	tasks.emplace_back(task);
 }
 
+TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks)
+{
+	if(hasAnySuccess)
+		return TaskFailureAction::REPLAN;
+
+	if(hasRemainingTasks)
+		return TaskFailureAction::TRY_NEXT_TASK;
+
+	return TaskFailureAction::STOP_TURN;
+}
+
 Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 {
 	if(tasks.empty())
@@ -447,8 +458,10 @@ void Nullkiller::makeTurn()
 		}
 
 		bool hasAnySuccess = false;
-		for(const auto& selectedTask : selectedTasks)
+		for(size_t selectedTaskIndex = 0; selectedTaskIndex < selectedTasks.size(); ++selectedTaskIndex)
 		{
+			const auto & selectedTask = selectedTasks[selectedTaskIndex];
+
 			if(cc->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 				return;
 
@@ -514,8 +527,21 @@ void Nullkiller::makeTurn()
 			{
 				if(!executeTask(selectedTask))
 				{
-					if(hasAnySuccess)
+					const bool hasRemainingTasks = selectedTaskIndex + 1 < selectedTasks.size();
+					const auto failureAction = chooseTaskFailureAction(hasAnySuccess, hasRemainingTasks);
+
+					if(failureAction == TaskFailureAction::TRY_NEXT_TASK)
+					{
+						logAi->warn("Task failed to execute. Trying the next available task.");
+						continue;
+					}
+
+					if(failureAction == TaskFailureAction::REPLAN)
+					{
+						logAi->warn("Task failed to execute after previous progress. Replanning.");
 						break;
+					}
+
 					return;
 				}
 				hasAnySuccess = true;
@@ -567,8 +593,8 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 			}
 			else if(!executeTask(bestPrioPassTask))
 			{
-				logAi->warn("Task failed to execute");
-				return false;
+				logAi->warn("Task failed to execute during priority pass. Continuing with regular turn planning.");
+				break;
 			}
 
 			updateState();
@@ -610,7 +636,7 @@ HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 	return heroRole;
 }
 
-bool Nullkiller::executeTask(const Goals::TTask & task) const
+bool Nullkiller::executeTask(const Goals::TTask & task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
@@ -629,7 +655,8 @@ bool Nullkiller::executeTask(const Goals::TTask & task) const
 	}
 	catch(cannotFulfillGoalException & e)
 	{
-		logAi->error("Failed to realize subgoal of type %s, I will stop.", taskDescr);
+		invalidatePathfinderData();
+		logAi->error("Failed to realize subgoal of type %s.", taskDescr);
 		logAi->error("The error message was: %s", e.what());
 		return false;
 	}
