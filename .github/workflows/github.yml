@@ -244,7 +244,7 @@ jobs:
 
     - name: Setup MSVC Developer Command Prompt
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: ilammy/msvc-dev-cmd@v1
+      uses: step-security/msvc-dev-cmd@main
       with:
         arch: ${{ matrix.arch }}
         toolset: ${{ matrix.toolset }}
@@ -253,7 +253,7 @@ jobs:
     # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
 
     - name: Setup compiler cache for PRs
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: step-security/ccache-action@v1
       if: ${{ github.event.number != '' }}
       with:
         variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
@@ -268,7 +268,7 @@ jobs:
         job-summary: ""           # <-- disable built-in summary to avoid duplicate block
 
     - name: Setup compiler cache for branch builds
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: step-security/ccache-action@v1
       if: ${{ github.event.number == '' }}
       with:
         variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
@@ -615,7 +615,7 @@ jobs:
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
 
     - name: Setup compiler cache for PRs
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: step-security/ccache-action@v1
       if: ${{ github.event.number != '' }}
       with:
         key: ${{ matrix.platform }}-PR-${{ github.event.number }}
@@ -625,9 +625,10 @@ jobs:
           ${{ matrix.platform }}-
         max-size: '5G'
         verbose: 2
+        job-summary: ""
 
     - name: Setup compiler cache for branch builds
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: step-security/ccache-action@v1
       if: ${{ github.event.number == '' }}
       with:
         key: ${{ matrix.platform }}-branch-${{ github.ref_name }}
@@ -636,6 +637,7 @@ jobs:
           ${{ matrix.platform }}-
         max-size: '5G'
         verbose: 2
+        job-summary: ""
 
     - name: Prepare Heroes 3 data
       run: |
@@ -667,6 +669,20 @@ jobs:
             echo "Validation failed!"
             exit 1
         fi
+
+    - name: Prepare partial JSON with test cache information
+      if: always()
+      env:
+        PLATFORM: ${{ matrix.platform }}
+      run: |
+        python3 CI/emit_test_partial.py
+
+    - name: Upload partial JSON with test cache information
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: partial-json-test-${{ matrix.platform }}
+        path: .summary/test-${{ matrix.platform }}.json
 
   lobby:
     name: Build VCMI Lobby
