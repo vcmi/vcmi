@@ -34,6 +34,11 @@ namespace Goals
 
 		bool operator==(const ExploreNeighbourTile & other) const override;
 
+		static float evaluateTileScore(int tilesDiscovered, float movementCost)
+		{
+			return static_cast<float>(tilesDiscovered) / std::max(0.1f, movementCost);
+		}
+
 		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 
