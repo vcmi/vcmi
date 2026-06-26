@@ -86,7 +86,15 @@ void CGarrisonSlot::hover (bool on)
 					&& (!owner->lowerArmy() || owner->lowerArmy()->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
 					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->isGarrisoned();
 
-				if(isHeroOnMap)
+				if(owner->showMoveUnitsOnHover && owner->isStackTransferLocked(this))
+				{
+					temp = LIBRARY->generaltexth->translate("vcmi.garrison.cannotMoveUnit");
+				}
+				else if(owner->showMoveUnitsOnHover)
+				{
+					temp = LIBRARY->generaltexth->tcommands[6]; //Move %s
+				}
+				else if(isHeroOnMap)
 				{
 					temp = LIBRARY->generaltexth->allTexts[481]; //Select %s
 				}
@@ -289,13 +297,9 @@ bool CGarrisonSlot::mustForceReselection() const
 	if (selection->creature != creature && withAlly)
 		return true;
 
-	if (!owner->removableUnits)
-	{
-		if (selection->upg == EGarrisonType::UPPER)
-			return true;
-		else
-			return creature || upg == EGarrisonType::UPPER;
-	}
+	// Adding or merging units into a locked garrison is allowed, but swapping would remove its stack.
+	if (!owner->removableUnits && selection->upg == EGarrisonType::LOWER && upg == EGarrisonType::UPPER)
+		return selection->creature != creature;
 	return false;
 }
 
@@ -321,6 +325,10 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 		{
 			if(!handleSplittingShortcuts())
 				refr = viewInfo(); // Affects selection
+		}
+		else if(owner->showStackTransferError(selection))
+		{
+			refr = true;
 		}
 		// Re-highlight if troops aren't removable or not ours.
 		else if (mustForceReselection())
@@ -618,18 +626,39 @@ void CGarrisonInt::splitClick()
 {
 	if(!getSelection())
 		return;
+
+	if(!getSplittingMode() && showStackTransferError(getSelection()))
+		return;
+
 	setSplittingMode(!getSplittingMode());
 	redraw();
 }
 
 void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance * armyDest, SlotID slotDest, int amount )
 {
+	if(showStackTransferError(from))
+		return;
+
 	GAME->interface()->cb->splitStack(armedObjs[from->upg], armyDest, from->ID, slotDest, amount);
 }
 
 bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) const
 {
 	return selected && selected->myStack && selected->myStack->getCount() > min && selected->creature;
+}
+
+bool CGarrisonInt::isStackTransferLocked(const CGarrisonSlot * selected) const
+{
+	return selected && !removableUnits && selected->upg == EGarrisonType::UPPER;
+}
+
+bool CGarrisonInt::showStackTransferError(const CGarrisonSlot * selected) const
+{
+	if(!isStackTransferLocked(selected))
+		return false;
+
+	GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.garrison.cannotMoveUnit"));
+	return true;
 }
 
 void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
@@ -641,6 +670,9 @@ void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
 	const auto destArmyType = srcArmyType == EGarrisonType::UPPER
 		? EGarrisonType::LOWER
 		: EGarrisonType::UPPER;
+
+	if(showStackTransferError(selected))
+		return;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];
@@ -685,6 +717,9 @@ void CGarrisonInt::bulkMoveArmy(const CGarrisonSlot * selected)
 	const auto destArmyType = (srcArmyType == EGarrisonType::UPPER)
 		? EGarrisonType::LOWER
 		: EGarrisonType::UPPER;
+
+	if(showStackTransferError(selected))
+		return;
 
 	auto srcArmy = armedObjs[srcArmyType];
 	auto destArmy = armedObjs[destArmyType];

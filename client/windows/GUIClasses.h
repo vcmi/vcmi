@@ -431,7 +431,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
+class CGarrisonWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;
