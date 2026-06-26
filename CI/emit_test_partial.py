@@ -5,8 +5,7 @@ import os
 import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from emit_partial import parse_ccache, run  # noqa: E402
+from emit_partial import parse_ccache, run
 
 
 def main() -> int:

@@ -674,6 +674,7 @@ jobs:
       if: always()
       env:
         PLATFORM: ${{ matrix.platform }}
+        PYTHONPATH: ${{ github.workspace }}/CI
       run: |
         python3 CI/emit_test_partial.py
 
