@@ -137,7 +137,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 	// Make sure scenario selection is centered
 	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
-		if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+		if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 		{
 			const Point contentOffset(19, 0);
 			for(CIntObject * child : children)
@@ -415,7 +415,7 @@ void CLobbyScreen::updateAfterStateChange()
 		// Make sure scenario selection is centered
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
-			if(screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame)
+			if((screenType == ESelectionScreen::newGame || screenType == ESelectionScreen::loadGame) && !ENGINE->isDemoData())
 				tabBattleOnlyMode->moveBy(Point(19, 0));
 		}
 
