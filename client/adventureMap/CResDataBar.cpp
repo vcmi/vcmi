@@ -83,6 +83,13 @@ void CResDataBar::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
+	if(!GAME->interface()->cb->getPlayerState(GAME->interface()->playerID, false))
+	{
+		if (datePosition)
+			to.drawText(pos.topLeft() + *datePosition, FONT_SMALL, Colors::WHITE, ETextAlignment::TOPLEFT, buildDateString());
+		return;
+	}
+
 	//TODO: all this should be labels, but they require proper text update on change
 	for (auto & entry : resourcePositions)
 	{
@@ -105,9 +112,12 @@ void CResDataBar::showPopupWindow(const Point & cursorPosition)
 	if((cursorPosition.x - pos.x) > 600)
 		return;
 
+	auto playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID, false);
+	if(!playerState)
+		return;
+
 	// only daily income
 	ResourceSet income;
-	auto playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID);
 	auto playerSettings = GAME->interface()->cb->getPlayerSettings(GAME->interface()->playerID);
 	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{

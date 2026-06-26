@@ -22,6 +22,42 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
+namespace
+{
+CPlayerInterface * getInterface()
+{
+	return GAME ? GAME->interface() : nullptr;
+}
+
+std::shared_ptr<CCallback> getCallback()
+{
+	auto * interface = getInterface();
+	if(!interface)
+		return {};
+
+	return interface->cb;
+}
+
+int3 getMapSizeSafe()
+{
+	auto callback = getCallback();
+	if(callback)
+		return callback->getMapSize();
+
+	const auto * map = GAME->map().getMap();
+	return int3(map->width, map->height, map->levels());
+}
+
+bool isInMapSafe(const int3 & tile)
+{
+	auto callback = getCallback();
+	if(callback)
+		return callback->isInTheMap(tile);
+
+	return GAME->map().getMap()->isInTheMap(tile);
+}
+}
+
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
@@ -29,7 +65,7 @@ static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right
 }
 
 MapRendererContextState::MapRendererContextState()
-	: objects(GAME->interface()->cb->getMapSize())
+	: objects(getMapSizeSafe())
 {
 	logGlobal->debug("Loading map objects");
 	for(const auto & obj : GAME->map().getMap()->getObjects())
@@ -48,7 +84,7 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 		{
 			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
+			if(isInMapSafe(currTile) && obj->coveringAt(currTile))
 			{
 				auto & container = objects[currTile];
 				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
@@ -73,7 +109,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 		{
 			int3 currTile(x, y, object->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile))
+			if(isInMapSafe(currTile))
 			{
 				auto & container = objects[currTile];
 				auto position = std::upper_bound(container.begin(), container.end(), object->id, compareObjectBlitOrder);

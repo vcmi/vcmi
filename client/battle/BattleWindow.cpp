@@ -59,6 +59,7 @@
 
 BattleWindow::BattleWindow(BattleInterface & Owner)
 	: owner(Owner)
+	, ownerIdentity(&Owner)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 800;
@@ -133,6 +134,18 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 		tacticPhaseEnded();
 
 	addUsedEvents(LCLICK | KEYBOARD);
+}
+
+bool BattleWindow::hasActiveOwner() const
+{
+	if (!GAME)
+		return false;
+
+	auto * interface = GAME->interface();
+	if (!interface)
+		return false;
+
+	return interface->battleInt && interface->battleInt.get() == ownerIdentity;
 }
 
 void BattleWindow::createQueue()
@@ -464,6 +477,9 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
 {
+	if (!hasActiveOwner())
+		return;
+
 	if(hero == owner.attackingHeroInstance || hero == owner.defendingHeroInstance)
 	{
 		InfoAboutHero heroInfo = InfoAboutHero();
@@ -493,11 +509,17 @@ void BattleWindow::deactivate()
 
 bool BattleWindow::captureThisKey(EShortcut key)
 {
+	if (!hasActiveOwner())
+		return false;
+
 	return owner.openingPlaying();
 }
 
 void BattleWindow::keyPressed(EShortcut key)
 {
+	if (!hasActiveOwner())
+		return;
+
 	if (owner.openingPlaying())
 	{
 		owner.openingEnd();
@@ -508,6 +530,9 @@ void BattleWindow::keyPressed(EShortcut key)
 
 void BattleWindow::clickPressed(const Point & cursorPosition)
 {
+	if (!hasActiveOwner())
+		return;
+
 	if (owner.openingPlaying())
 	{
 		owner.openingEnd();
@@ -896,7 +921,10 @@ void BattleWindow::endWithAutocombat()
 
 void BattleWindow::showAll(Canvas & to)
 {
-	if(owner.curInt->cb->getMapHeader()->battleOnly)
+	if (!hasActiveOwner())
+		return;
+
+	if(owner.curInt && owner.curInt->cb && owner.curInt->cb->getMapHeader()->battleOnly)
 		to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CIntObject::showAll(to);
 
@@ -906,8 +934,14 @@ void BattleWindow::showAll(Canvas & to)
 
 void BattleWindow::show(Canvas & to)
 {
+	if (!hasActiveOwner())
+		return;
+
 	CIntObject::show(to);
-	GAME->interface()->cingconsole->show(to);
+
+	auto * interface = GAME->interface();
+	if(interface && interface->cingconsole)
+		interface->cingconsole->show(to);
 }
 
 void BattleWindow::onScreenResize()

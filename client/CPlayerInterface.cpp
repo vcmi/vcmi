@@ -1433,6 +1433,14 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 void CPlayerInterface::initializeHeroTownList()
 {
+	const auto * playerState = cb->getPlayerState(playerID, false);
+	if(!playerState)
+	{
+		if(adventureInt)
+			adventureInt->onHeroChanged(nullptr);
+		return;
+	}
+
 	if(localState->getWanderingHeroes().empty())
 	{
 		for(auto & hero : cb->getHeroesInfo())
@@ -1448,7 +1456,7 @@ void CPlayerInterface::initializeHeroTownList()
 			localState->addOwnedTown(town);
 	}
 
-	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
+	localState->deserialize(*playerState->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);

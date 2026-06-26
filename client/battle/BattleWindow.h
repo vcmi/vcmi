@@ -35,6 +35,7 @@ class UnitActionPanel;
 class BattleWindow : public InterfaceObjectConfigurable
 {
 	BattleInterface & owner;
+	BattleInterface * ownerIdentity;
 
 	std::shared_ptr<StackQueue> queue;
 	std::shared_ptr<BattleConsole> console;
@@ -86,6 +87,7 @@ class BattleWindow : public InterfaceObjectConfigurable
 	std::shared_ptr<BattleConsole> buildBattleConsole(const JsonNode &) const;
 
 	bool onlyOnePlayerHuman;
+	bool hasActiveOwner() const;
 
 	bool hasSpaceForQuickActions() const;
 	bool quickActionsPanelActive() const;
@@ -151,4 +153,3 @@ public:
 	/// ends battle with autocombat
 	void endWithAutocombat();
 };
-

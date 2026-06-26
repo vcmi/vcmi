@@ -212,8 +212,15 @@ std::optional<uint32_t> StackQueue::StackBox::getBoundUnitID() const
 
 bool StackQueue::StackBox::isBoundUnitHighlighted() const
 {
+	if(!owner || !owner->owner.stacksController)
+		return false;
+
+	const auto boundUnit = getBoundUnitID();
+	if(!boundUnit.has_value())
+		return false;
+
 	auto unitIdsToHighlight = owner->owner.stacksController->getHoveredStacksUnitIds();
-	return vstd::contains(unitIdsToHighlight, getBoundUnitID());
+	return vstd::contains(unitIdsToHighlight, *boundUnit);
 }
 
 void StackQueue::StackBox::showAll(Canvas & to)

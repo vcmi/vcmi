@@ -610,7 +610,10 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
+	const auto * interface = GAME->interface();
+	const auto callback = interface ? interface->cb : nullptr;
+
+	if(callback && callback->getStartInfo()->extraOptionsInfo.cheatsAllowed && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
 	{
 		bool blocking = false;
 		bool visitable = false;
