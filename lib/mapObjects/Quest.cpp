@@ -31,6 +31,7 @@
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
+#include "../StartInfo.h"
 #include "CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
@@ -372,6 +373,64 @@ bool QuestSource::checkQuest(const CGHeroInstance* h) const
 	return getQuest().checkQuest(h);
 }
 
+Quest & QuestSource::addQuest()
+{
+	quests.push_back(std::make_shared<Quest>());
+	return *quests.back();
+}
+
+bool QuestSource::isQuestAvailable(const Quest & q) const
+{
+	if(q.lastDay >= 0 && q.lastDay <= cb->getCalendar().getCurrentDay() - 1)
+		return false; // deadline passed
+	if(!q.mission.allowedDifficulties.contains(cb->getStartInfo()->getDifficulty()))
+		return false; // not offered on this difficulty
+	if(!q.repeatedQuest && q.isCompleted)
+		return false; // one-shot already done
+	return true;
+}
+
+bool QuestSource::isSpent() const
+{
+	return std::none_of(quests.begin(), quests.end(), [this](const auto & q){ return isQuestAvailable(*q); });
+}
+
+void QuestSource::selectInitialQuest()
+{
+	for(int i = 0; i < static_cast<int>(quests.size()); ++i)
+		if(isQuestAvailable(*quests[i]))
+		{
+			currentQuestIndex = i;
+			return;
+		}
+	currentQuestIndex = 0;
+}
+
+void QuestSource::advanceToNextQuest()
+{
+	int n = static_cast<int>(quests.size());
+	for(int step = 1; step <= n; ++step)
+	{
+		int idx = (currentQuestIndex + step) % n;
+		if(isQuestAvailable(*quests[idx]))
+		{
+			currentQuestIndex = idx;
+			return;
+		}
+	}
+	// nothing offerable: seer is permanently spent, active index stays put
+}
+
+void QuestSource::syncActiveReward()
+{
+	configuration.info.clear();
+	if(isSpent() || !getQuest().reward)
+		return;
+
+	configuration.info.push_back(*getQuest().reward);
+	getQuest().getCompletionText(cb, configuration.info.back().message);
+}
+
 void QuestSource::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
 	activeQuest().getVisitText(cb, text, components, FirstVisit, h);
@@ -392,19 +451,24 @@ static int compassDirection(const int3 & pos, const int3 & mapSize)
 
 void SeerHut::setObjToKill()
 {
-	if(getQuest().mission.destroyedObjects.empty())
-		return;
+	for(const auto & qp : allQuests())
+	{
+		Quest & q = *qp;
+		if(q.mission.destroyedObjects.empty())
+			continue;
 
-	if(getCreatureToKill(true))
-	{
-		getQuest().stackToKill = getCreatureToKill(false)->getCreatureID();
-		assert(getQuest().stackToKill != CreatureID::NONE);
-		getQuest().stackDirection = compassDirection(getCreatureToKill(false)->visitablePos(), cb->getMapSize());
-	}
-	else if(getHeroToKill(true))
-	{
-		getQuest().heroName = getHeroToKill(false)->getNameTranslated();
-		getQuest().heroPortrait = getHeroToKill(false)->getPortraitSource();
+		const CGObjectInstance * target = cb->getObj(q.mission.destroyedObjects.front());
+		if(const auto * creature = dynamic_cast<const CGCreature *>(target))
+		{
+			q.stackToKill = creature->getCreatureID();
+			assert(q.stackToKill != CreatureID::NONE);
+			q.stackDirection = compassDirection(creature->visitablePos(), cb->getMapSize());
+		}
+		else if(const auto * hero = dynamic_cast<const CGHeroInstance *>(target))
+		{
+			q.heroName = hero->getNameTranslated();
+			q.heroPortrait = hero->getPortraitSource();
+		}
 	}
 }
 
@@ -414,9 +478,15 @@ void SeerHut::init(vstd::RNG & rand)
 
 	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
 	seerName = LIBRARY->generaltexth->translate(seerNameID);
-	getQuest().textOption = rand.nextInt(2);
-	getQuest().completedOption = rand.nextInt(1, 3);
-	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
+
+	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
+	for(const auto & q : allQuests())
+	{
+		q->textOption = rand.nextInt(2);
+		q->completedOption = rand.nextInt(1, 3);
+		bool givesUnits = q->reward && !q->reward->reward.creatures.empty();
+		q->mission.hasExtraCreatures = !(givesUnits || h3BugTakesArmy);
+	}
 
 	configuration.canRefuse = true;
 	configuration.visitMode = Rewardable::EVisitMode::VISIT_ONCE;
@@ -426,38 +496,43 @@ void SeerHut::init(vstd::RNG & rand)
 void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 {
 	init(gameRandomizer.getDefault());
-	
+
 	CRewardableObject::initObj(gameRandomizer);
-	
+
 	setObjToKill();
-	getQuest().defineQuestName();
-	
-	if(getQuest().mission == Rewardable::Limiter{})
-		getQuest().isCompleted = true;
-	
-	if(getQuest().missionKind == EQuestMission::NONE)
+
+	for(const auto & qp : allQuests())
 	{
-		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
+		Quest & q = *qp;
+		q.defineQuestName();
+
+		if(q.mission == Rewardable::Limiter{})
+			q.isCompleted = true;
+
+		if(q.missionKind == EQuestMission::NONE)
+		{
+			q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", q.completedOption).get());
+		}
+		else if(q.missionKind == EQuestMission::KEYMASTER)
+		{
+			if(q.firstVisitText.empty())
+				q.firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
+		}
+		else
+		{
+			const std::string & questName = Quest::missionName(q.missionKind);
+			if(q.firstVisitText.empty())
+				q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
+			if(q.nextVisitText.empty())
+				q.nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(1), q.textOption).get());
+			if(q.completedText.empty())
+				q.completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(2), q.textOption).get());
+		}
 	}
-	else if(getQuest().missionKind == EQuestMission::KEYMASTER)
-	{
-		if(getQuest().firstVisitText.empty())
-			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
-	}
-	else
-	{
-		const std::string & questName = Quest::missionName(getQuest().missionKind);
-		if(getQuest().firstVisitText.empty())
-			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(0), getQuest().textOption).get());
-		if(getQuest().nextVisitText.empty())
-			getQuest().nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(1), getQuest().textOption).get());
-		if(getQuest().completedText.empty())
-			getQuest().completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, getQuest().missionState(2), getQuest().textOption).get());
-	}
-	
+
+	selectInitialQuest();
 	getQuest().getCompletionText(cb, configuration.onSelect);
-	for(auto & i : configuration.info)
-		getQuest().getCompletionText(cb, i.message);
+	syncActiveReward();
 }
 
 void SeerHut::getRolloverText(MetaString &text, bool onHover) const
@@ -528,8 +603,18 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 		}
 		case ObjProperty::SEERHUT_COMPLETE:
 		{
-			getQuest().isCompleted = identifier.getNum();
+			if(identifier.getNum())
+				getQuest().isCompleted = true; // one-shot consumed; repeatables stay
 			getQuest().activeForPlayers.clear();
+			advancePending = true; // advance on the next visit, once the grant is done
+			break;
+		}
+		case ObjProperty::SEERHUT_ADVANCE:
+		{
+			advanceToNextQuest();
+			advancePending = false;
+			onceVisitableObjectCleared = false; // let the next quest's reward be offered
+			syncActiveReward();
 			break;
 		}
 	}
@@ -538,17 +623,19 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 void SeerHut::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	CRewardableObject::newTurn(gameEvents, gameRandomizer);
-	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getCalendar().getCurrentDay() - 1) //time is up
-	{
-		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
-	}
+	if(!isSpent() && (advancePending || !isQuestAvailable(getQuest()))) //finished / expired - skip to the next
+		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
 }
 
 void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	// advance past a finished / expired active quest so the next one is offered
+	if(!isSpent() && (advancePending || !isQuestAvailable(getQuest())))
+		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
+
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if(!getQuest().isCompleted)
+	if(!isSpent())
 	{
 		bool firstVisit = !getQuest().activeForPlayers.count(h->getOwner());
 		bool failRequirements = !checkQuest(h);
@@ -584,25 +671,9 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 	}
 }
 
-const CGHeroInstance * SeerHut::getHeroToKill(bool allowNull) const
-{
-	const CGObjectInstance *o = getQuest().mission.destroyedObjects.empty() ? nullptr : cb->getObj(getQuest().mission.destroyedObjects.front());
-	if(allowNull && !o)
-		return nullptr;
-	return dynamic_cast<const CGHeroInstance *>(o);
-}
-
-const CGCreature * SeerHut::getCreatureToKill(bool allowNull) const
-{
-	const CGObjectInstance *o = getQuest().mission.destroyedObjects.empty() ? nullptr : cb->getObj(getQuest().mission.destroyedObjects.front());
-	if(allowNull && !o)
-		return nullptr;
-	return dynamic_cast<const CGCreature *>(o);
-}
-
 bool SeerHut::allowsFullArmyRemoval() const
 {
-	bool seerGivesUnits = !configuration.info.empty() && !configuration.info.back().reward.creatures.empty();
+	bool seerGivesUnits = activeQuest().reward && !activeQuest().reward->reward.creatures.empty();
 	bool h3BugSettingEnabled = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	return seerGivesUnits || h3BugSettingEnabled;
 }
@@ -704,10 +775,11 @@ void QuestGuard::init(vstd::RNG & rand)
 	getQuest().textOption = rand.nextInt(3, 5);
 	getQuest().completedOption = rand.nextInt(4, 5);
 	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
-	
-	configuration.info.push_back({});
-	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	configuration.info.back().reward.removeObject = subID.getNum() == 0 ? true : false;
+
+	Rewardable::VisitInfo vinfo;
+	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	vinfo.reward.removeObject = subID.getNum() == 0;
+	getQuest().reward = vinfo;
 	configuration.canRefuse = true;
 }
 
@@ -735,10 +807,8 @@ void QuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		return;
 	}
 
-	if(!getQuest().isCompleted)
-		SeerHut::onHeroVisit(gameEvents, h);
-	else
-		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
+	// real quest guard: behaves like a seer hut without the seer flavour
+	SeerHut::onHeroVisit(gameEvents, h);
 }
 
 void QuestGuard::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const

@@ -404,6 +404,14 @@ TEST_F(QuestSeerTest, Timeout_expiresOnLastDay)
 	GameRandomizer randomizer(*gameState);
 	seer->newTurn(*gameEventCallback, randomizer);
 
-	EXPECT_TRUE(seer->getQuest().isCompleted)
-		<< "after lastDay expires, the quest should be marked complete (i.e. inaccessible)";
+	// After the deadline the seer is inaccessible: a visit yields only the
+	// empty-seer info dialog, with no quest log entry and no reward prompt.
+	auto * hero = findHeroAt(s.heroPos);
+	ASSERT_NE(hero, nullptr);
+	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
+	visit(hero, seer);
+	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore)
+		<< "expired seer must not register a quest log entry";
+	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
+		<< "expired seer must not offer its reward";
 }

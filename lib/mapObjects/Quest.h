@@ -69,6 +69,10 @@ public:
 	MetaString nextVisitText;
 	MetaString completedText;
 
+	/// Reward granted on completing this quest; the active quest's reward is
+	/// mirrored into the owning object's configuration.info at runtime.
+	std::optional<Rewardable::VisitInfo> reward;
+
 	static bool checkMissionArmy(const Quest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
@@ -131,6 +135,8 @@ public:
 			if(killTarget.hasValue())
 				mission.destroyedObjects.push_back(killTarget);
 		}
+		if(h.hasFeature(Handler::Version::QUEST_REWORK))
+			h & reward;
 		if(!h.saving)
 			defineQuestName();
 	}
@@ -141,12 +147,21 @@ public:
 /// Abstract base for rewardable objects that gate a reward behind a Quest.
 class DLL_LINKAGE QuestSource : public CRewardableObject
 {
-	std::shared_ptr<Quest> quest = std::make_shared<Quest>(); // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
+	// Seer Huts may carry several quests; only one is active at a time and it is
+	// the same for every player. Other quest sources hold exactly one.
+	std::vector<std::shared_ptr<Quest>> quests = { std::make_shared<Quest>() };
+	si32 currentQuestIndex = 0;
 public:
 	using CRewardableObject::CRewardableObject;
 
-	const Quest & getQuest() const { return *quest; }
-	Quest & getQuest() { return *quest; }
+	const Quest & getQuest() const { return *quests.at(currentQuestIndex); }
+	Quest & getQuest() { return *quests.at(currentQuestIndex); }
+
+	/// All quests this source owns (loader / setup use).
+	const std::vector<std::shared_ptr<Quest>> & allQuests() const { return quests; }
+	/// Appends a fresh quest and returns it (loader use).
+	Quest & addQuest();
+
 	virtual bool checkQuest(const CGHeroInstance * h) const;
 
 	// Per-colour keymaster key state, shared by keymaster tents and border guards/gates.
@@ -163,8 +178,35 @@ public:
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
-		h & quest;
+		if(h.hasFeature(Handler::Version::QUEST_REWORK))
+		{
+			h & quests;
+			h & currentQuestIndex;
+			h & advancePending;
+		}
+		else
+		{
+			// legacy single-quest layout: wrap into a one-element vector
+			quests.resize(1);
+			h & quests[0];
+			currentQuestIndex = 0;
+		}
 	}
+protected:
+	// the active quest finished; advance to the next one on the following visit / turn
+	// (deferred so configuration.info is never rebuilt while a reward grant is pending)
+	bool advancePending = false;
+
+	/// True when no quest can currently be offered (all one-shots done / expired).
+	bool isSpent() const;
+	/// Offerable now: not expired by deadline or difficulty, not a consumed one-shot.
+	bool isQuestAvailable(const Quest & q) const;
+	/// Move the active quest to the next offerable one (loops within repeatables).
+	void advanceToNextQuest();
+	/// Pick the first offerable quest as active.
+	void selectInitialQuest();
+	/// Mirror the active quest's reward into configuration.info.
+	void syncActiveReward();
 };
 
 class DLL_LINKAGE SeerHut : public QuestSource
@@ -187,8 +229,6 @@ public:
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	const CGHeroInstance *getHeroToKill(bool allowNull) const;
-	const CGCreature *getCreatureToKill(bool allowNull) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 
 	template <typename Handler> void serialize(Handler &h)
