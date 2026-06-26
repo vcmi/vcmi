@@ -179,7 +179,7 @@ TEST_F(QuestSeerMultiTest, SkipsExpiredByDifficultyMismatch)
 	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
 }
 
-TEST_F(QuestSeerMultiTest, PermanentlySpentWhenAllOneShotAndAllRepeatableExpired)
+TEST_F(QuestSeerMultiTest, PermanentlyEmptyWhenAllOneShotAndAllRepeatableExpired)
 {
 	auto repeatable = trivial().withLastDay(3);
 	auto s = multiSeer({{trivial(), B::rewardExperience(500)}},
@@ -195,12 +195,12 @@ TEST_F(QuestSeerMultiTest, PermanentlySpentWhenAllOneShotAndAllRepeatableExpired
 
 	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
 	gameEventCallback->blockingDialogs.clear();
-	visit(hero, seer);       // seer is spent: empty dialog only
+	visit(hero, seer);       // no offerable quest: empty dialog only
 
 	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore)
-		<< "spent seer must not register a quest log entry";
+		<< "emptied seer must not register a quest log entry";
 	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
-		<< "spent seer must not offer a reward";
+		<< "emptied seer must not offer a reward";
 }
 
 // ---- global active quest ----------------------------------------------------
@@ -257,4 +257,26 @@ TEST_F(QuestSeerMultiTest, Repeatable_canBeCompletedRepeatedly)
 		<< "a repeatable quest must grant its reward again on the next completion";
 
 	EXPECT_FALSE(seer->getQuest().isCompleted) << "repeatable quests never set the completed flag";
+}
+
+// ---- quest-less source ------------------------------------------------------
+
+TEST_F(QuestSeerMultiTest, QuestlessSeer_isVisitableAndGetQuestThrows)
+{
+	// A seer hut carrying zero quests is a valid empty source: it owns no quests,
+	// getQuest() has no active quest to return, and a visit must not crash.
+	auto s = multiSeer({}, {});
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * seer = expectAt<SeerHut>(kSeerPos);
+	ASSERT_NE(hero, nullptr);
+
+	EXPECT_TRUE(seer->allQuests().empty());
+	EXPECT_ANY_THROW((void)seer->getQuest()) << "no active quest - getQuest() must throw";
+
+	const size_t addQuestsBefore = gameEventCallback->addedQuests.size();
+	ASSERT_NO_FATAL_FAILURE(visit(hero, seer)); // shows only the empty-seer dialog
+	EXPECT_EQ(gameEventCallback->addedQuests.size(), addQuestsBefore);
+	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty());
 }

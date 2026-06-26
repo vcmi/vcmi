@@ -22,7 +22,7 @@ class KeyGuardInstanceConstructor final : public CDefaultObjectTypeHandler<Objec
 protected:
 	void initializeObject(ObjectType * object) const override
 	{
-		object->getQuest().mission.requiredKeys.push_back(MapObjectSubID(this->getSubIndex()));
+		object->addQuest().mission.requiredKeys.push_back(MapObjectSubID(this->getSubIndex()));
 	}
 };
 

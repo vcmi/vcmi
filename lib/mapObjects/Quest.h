@@ -148,12 +148,15 @@ public:
 class DLL_LINKAGE QuestSource : public CRewardableObject
 {
 	// Seer Huts may carry several quests; only one is active at a time and it is
-	// the same for every player. Other quest sources hold exactly one.
-	std::vector<std::shared_ptr<Quest>> quests = { std::make_shared<Quest>() };
+	// the same for every player. A source with no offerable quest has no active
+	// quest, and this vector may legitimately be empty.
+	std::vector<std::shared_ptr<Quest>> quests;
 	si32 currentQuestIndex = 0;
 public:
 	using CRewardableObject::CRewardableObject;
 
+	/// The active quest. Only valid when !isEmpty(); throws otherwise (a source
+	/// with no offerable quest has no active quest — check isEmpty() first).
 	const Quest & getQuest() const { return *quests.at(currentQuestIndex); }
 	Quest & getQuest() { return *quests.at(currentQuestIndex); }
 
@@ -197,8 +200,9 @@ protected:
 	// (deferred so configuration.info is never rebuilt while a reward grant is pending)
 	bool advancePending = false;
 
-	/// True when no quest can currently be offered (all one-shots done / expired).
-	bool isSpent() const;
+	/// True when no quest can currently be offered (all one-shots done / expired);
+	/// such a source has no active quest, so getQuest() must not be called.
+	bool isEmpty() const;
 	/// Offerable now: not expired by deadline or difficulty, not a consumed one-shot.
 	bool isQuestAvailable(const Quest & q) const;
 	/// Move the active quest to the next offerable one (loops within repeatables).
@@ -271,8 +275,9 @@ void loadLegacyBorderGuard(Handler & h, QuestSource & object)
 	std::shared_ptr<Quest> quest;
 	h & quest;
 	h & static_cast<CGObjectInstance&>(object);
-	object.getQuest() = *quest;
-	object.getQuest().mission.requiredKeys.push_back(object.subID);
+	Quest & dst = object.addQuest();
+	dst = *quest;
+	dst.mission.requiredKeys.push_back(object.subID);
 }
 
 /// Key/toll gate: stays in place, passable for a player once its limiter is met

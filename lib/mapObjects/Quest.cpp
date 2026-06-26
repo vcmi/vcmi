@@ -390,7 +390,7 @@ bool QuestSource::isQuestAvailable(const Quest & q) const
 	return true;
 }
 
-bool QuestSource::isSpent() const
+bool QuestSource::isEmpty() const
 {
 	return std::none_of(quests.begin(), quests.end(), [this](const auto & q){ return isQuestAvailable(*q); });
 }
@@ -418,13 +418,13 @@ void QuestSource::advanceToNextQuest()
 			return;
 		}
 	}
-	// nothing offerable: seer is permanently spent, active index stays put
+	// nothing offerable: seer has no active quest, active index stays put
 }
 
 void QuestSource::syncActiveReward()
 {
 	configuration.info.clear();
-	if(isSpent() || !getQuest().reward)
+	if(isEmpty() || !getQuest().reward)
 		return;
 
 	configuration.info.push_back(*getQuest().reward);
@@ -531,7 +531,8 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	}
 
 	selectInitialQuest();
-	getQuest().getCompletionText(cb, configuration.onSelect);
+	if(!isEmpty())
+		getQuest().getCompletionText(cb, configuration.onSelect);
 	syncActiveReward();
 }
 
@@ -545,6 +546,9 @@ void SeerHut::getRolloverText(MetaString &text, bool onHover) const
 std::string SeerHut::getHoverText(PlayerColor player) const
 {
 	std::string hoverName = getObjectName();
+	if(isEmpty())
+		return hoverName; // no active quest - just the object name
+
 	if(ID == Obj::SEER_HUT && getQuest().activeForPlayers.count(player))
 	{
 		hoverName = LIBRARY->generaltexth->translate("core.genrltxt", 347);
@@ -579,7 +583,7 @@ std::string SeerHut::getPopupText(const CGHeroInstance * hero) const
 std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
 {
 	std::vector<Component> result;
-	if (getQuest().activeForPlayers.count(player))
+	if (!isEmpty() && getQuest().activeForPlayers.count(player))
 		getQuest().mission.loadComponents(result, nullptr);
 	return result;
 }
@@ -587,7 +591,7 @@ std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
 std::vector<Component> SeerHut::getPopupComponents(const CGHeroInstance * hero) const
 {
 	std::vector<Component> result;
-	if (getQuest().activeForPlayers.count(hero->getOwner()))
+	if (!isEmpty() && getQuest().activeForPlayers.count(hero->getOwner()))
 		getQuest().mission.loadComponents(result, hero);
 	return result;
 }
@@ -623,19 +627,19 @@ void SeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 void SeerHut::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	CRewardableObject::newTurn(gameEvents, gameRandomizer);
-	if(!isSpent() && (advancePending || !isQuestAvailable(getQuest()))) //finished / expired - skip to the next
+	if(!isEmpty() && (advancePending || !isQuestAvailable(getQuest()))) //finished / expired - skip to the next
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
 }
 
 void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	// advance past a finished / expired active quest so the next one is offered
-	if(!isSpent() && (advancePending || !isQuestAvailable(getQuest())))
+	if(!isEmpty() && (advancePending || !isQuestAvailable(getQuest())))
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if(!isSpent())
+	if(!isEmpty())
 	{
 		bool firstVisit = !getQuest().activeForPlayers.count(h->getOwner());
 		bool failRequirements = !checkQuest(h);
@@ -664,7 +668,9 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 	}
 	else
 	{
-		iw.text.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
+		// no active quest: pick a valid "empty seer" flavour without one
+		ui8 emptyOption = allQuests().empty() ? 0 : allQuests().front()->completedOption;
+		iw.text.appendTextID(TextIdentifier("core", "seerhut", "empty", emptyOption).get());
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
 		gameEvents.showInfoDialog(&iw);
@@ -692,8 +698,10 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
+	if(!handler.saving && allQuests().empty())
+		addQuest(); // JSON seer huts carry a single quest; create it to read into
 	getQuest().serializeJson(handler, "quest");
-	
+
 	if(!handler.saving)
 	{
 		//backward compatibility for VCMI maps that use old SeerHut format
@@ -832,6 +840,8 @@ bool QuestGuard::passableFor(PlayerColor color) const
 void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//quest only, do not call base class
+	if(!handler.saving && allQuests().empty())
+		addQuest(); // quest guards carry a single quest; create it to read into
 	getQuest().serializeJson(handler, "quest");
 }
 

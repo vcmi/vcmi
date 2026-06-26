@@ -2314,14 +2314,14 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPos
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 {
 	auto guard = std::make_shared<QuestGuard>(map->cb);
-	readQuest(guard->getQuest(), mapPosition);
+	readQuest(guard->addQuest(), mapPosition);
 	return guard;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition)
 {
 	auto gate = std::make_shared<QuestGate>(map->cb);
-	readQuest(gate->getQuest(), mapPosition);
+	readQuest(gate->addQuest(), mapPosition);
 	return gate;
 }
 
@@ -3195,19 +3195,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
-	// the source owns one quest by default; reuse it for the first, append the rest
-	bool firstQuest = true;
-	auto nextQuest = [&]() -> Quest & {
-		if(firstQuest)
-		{
-			firstQuest = false;
-			return hut->getQuest();
-		}
-		return hut->addQuest();
-	};
-
 	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut.get(), nextQuest(), position, idToBeGiven);
+		readSeerHutQuest(hut.get(), hut->addQuest(), position, idToBeGiven);
 
 	if(features.levelHOTA3)
 	{
@@ -3215,7 +3204,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
 		{
-			Quest & quest = nextQuest();
+			Quest & quest = hut->addQuest();
 			readSeerHutQuest(hut.get(), quest, position, idToBeGiven);
 			quest.repeatedQuest = true;
 		}
