@@ -792,9 +792,17 @@ void CSimpleJoinScreen::onChange(const std::string & newText)
 void CSimpleJoinScreen::startConnection(const std::string & addr, ui16 port)
 {
 	if(addr.empty())
+	{
 		GAME->server().startLocalServerAndConnect(false);
+	}
 	else
-		GAME->server().connectToServer(addr, port);
+	{
+		// Show lobby preview before fully connecting as a player
+		GAME->server().startLobbyPreview(addr, port, [addr, port]()
+		{
+			GAME->server().connectToServer(addr, port);
+		});
+	}
 }
 
 CLoadingScreen::CLoadingScreen()

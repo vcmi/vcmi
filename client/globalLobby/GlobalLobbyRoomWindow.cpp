@@ -71,8 +71,8 @@ static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescripti
 {
 	bool publicRoom = roomDescription.statusID == "public";
 	bool privateRoom = roomDescription.statusID == "private";
-	bool gameStarted = !publicRoom && !privateRoom;
-	bool hasInvite = GAME->server().getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+	bool openRoom = roomDescription.statusID == "open";
+	bool gameStarted = !publicRoom && !privateRoom && !openRoom;
 	bool alreadyInRoom = GAME->server().inGame();
 
 	if (alreadyInRoom)
@@ -91,8 +91,12 @@ static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescripti
 	if (roomDescription.playerLimit == roomDescription.participants.size())
 		return "vcmi.lobby.preview.error.full";
 
-	if (privateRoom && !hasInvite)
-		return "vcmi.lobby.preview.error.invite";
+	if (privateRoom)
+	{
+		bool hasInvite = GAME->server().getGlobalLobby().isInvitedToRoom(roomDescription.gameRoomID);
+		if(!hasInvite)
+			return "vcmi.lobby.preview.error.invite";
+	}
 
 	for(const auto & mod : modVerificationList)
 	{
@@ -113,17 +117,16 @@ static std::string getJoinRoomErrorMessage(const GlobalLobbyRoom & roomDescripti
 	return "";
 }
 
-GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const std::string & roomUUID)
+GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(const GlobalLobbyRoom & roomDescription, std::function<void()> onJoin, std::function<void()> onCancel)
 	: CWindowObject(BORDERED)
-	, window(window)
-	, roomUUID(roomUUID)
+	, onJoinCallback(onJoin)
+	, onCancelCallback(onCancel)
 {
 	OBJECT_CONSTRUCTION;
 
 	pos.w = 400;
 	pos.h = 400;
 
-	GlobalLobbyRoom roomDescription = GAME->server().getGlobalLobby().getActiveRoomByName(roomUUID);
 	for(const auto & modEntry : ModVerificationInfo::verifyListAgainstLocalMods(roomDescription.modList))
 	{
 		GlobalLobbyRoomModInfo modInfo;
@@ -148,20 +151,24 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 		return a.status < b.status; 
 	});
 
-	MetaString subtitleText;
-	subtitleText.appendTextID("vcmi.lobby.preview.subtitle");
-	subtitleText.replaceRawString(roomDescription.description);
-	subtitleText.replaceRawString(roomDescription.hostAccountDisplayName);
-
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	labelTitle = std::make_shared<CLabel>( pos.w / 2, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.title").toString());
-	labelSubtitle = std::make_shared<CLabel>( pos.w / 2, 40, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, subtitleText.toString(), 400);
+
+	if(!roomDescription.description.empty())
+	{
+		MetaString subtitleText;
+		subtitleText.appendTextID("vcmi.lobby.preview.subtitle");
+		subtitleText.replaceRawString(roomDescription.description);
+		subtitleText.replaceRawString(roomDescription.hostAccountDisplayName);
+
+		labelSubtitle = std::make_shared<CLabel>( pos.w / 2, 40, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, subtitleText.toString(), 400);
+	}
 
 	labelVersionTitle = std::make_shared<CLabel>( 10, 60, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::YELLOW, MetaString::createFromTextID("vcmi.lobby.preview.version").toString());
 	labelVersionValue = std::make_shared<CLabel>( 10, 80, FONT_MEDIUM, ETextAlignment::CENTERLEFT, Colors::WHITE, roomDescription.gameVersion);
 
-	buttonJoin = std::make_shared<CButton>(Point(10, 360), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ onJoin(); }, EShortcut::GLOBAL_ACCEPT);
-	buttonClose = std::make_shared<CButton>(Point(100, 360), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ onClose(); }, EShortcut::GLOBAL_CANCEL);
+	buttonJoin = std::make_shared<CButton>(Point(10, 360), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ this->onJoin(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonClose = std::make_shared<CButton>(Point(100, 360), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ this->onClose(); }, EShortcut::GLOBAL_CANCEL);
 
 	MetaString joinStatusText;
 	std::string errorMessage = getJoinRoomErrorMessage(roomDescription, modVerificationList);
@@ -205,12 +212,23 @@ GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const s
 	center();
 }
 
+GlobalLobbyRoomWindow::GlobalLobbyRoomWindow(GlobalLobbyWindow * window, const std::string & roomUUID)
+	: GlobalLobbyRoomWindow(
+		GAME->server().getGlobalLobby().getActiveRoomByName(roomUUID),
+		[window, roomUUID]() { window->doJoinRoom(roomUUID); })
+{
+}
+
 void GlobalLobbyRoomWindow::onJoin()
 {
-	window->doJoinRoom(roomUUID);
+	if(onJoinCallback)
+		onJoinCallback();
 }
 
 void GlobalLobbyRoomWindow::onClose()
 {
-	close();
+	if(onCancelCallback)
+		onCancelCallback();
+	else
+		close();
 }

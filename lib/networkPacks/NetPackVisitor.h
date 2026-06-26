@@ -170,6 +170,8 @@ public:
 	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
+	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}
+	virtual void visitLobbyModsCheck(LobbyModsCheck & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}

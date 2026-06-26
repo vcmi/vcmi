@@ -773,6 +773,16 @@ void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyChangeHost(*this);
 }
 
+void LobbyQueryState::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyQueryState(*this);
+}
+
+void LobbyModsCheck::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyModsCheck(*this);
+}
+
 void LobbyUpdateState::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyUpdateState(*this);

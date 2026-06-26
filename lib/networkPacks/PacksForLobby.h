@@ -11,6 +11,7 @@
 
 #include "StartInfo.h"
 #include "NetPacksBase.h"
+#include "../modding/ModVerificationInfo.h"
 #include "../serializer/ESerializationVersion.h"
 #include "../texts/MetaString.h"
 
@@ -172,6 +173,35 @@ struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & newHostConnectionId;
+	}
+};
+
+/// Sent by client to query current lobby state without joining as a player
+struct DLL_LINKAGE LobbyQueryState : public CLobbyPackToServer
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+	}
+};
+
+/// Server response to LobbyQueryState with compatibility info for preview
+struct DLL_LINKAGE LobbyModsCheck : public CPackForLobby
+{
+	std::string vcmiVersion;
+	ModCompatibilityInfo mods;
+	std::string hostAccountDisplayName;
+	std::vector<std::string> participantNames;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & vcmiVersion;
+		h & mods;
+		h & hostAccountDisplayName;
+		h & participantNames;
 	}
 };
 

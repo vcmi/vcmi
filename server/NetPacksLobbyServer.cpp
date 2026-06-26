@@ -15,6 +15,8 @@
 
 #include "../lib/StartInfo.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
@@ -39,6 +41,36 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	{
 		srv.updateAndPropagateLobbyState();
 	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Anyone can query lobby state without being a registered player
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	LobbyModsCheck lms;
+	lms.vcmiVersion = VCMI_VERSION_STRING;
+
+	for(const auto & modId : LIBRARY->modh->getActiveMods())
+		lms.mods[modId] = LIBRARY->modh->getModInfo(modId).getVerificationInfo();
+
+	for(const auto & [playerId, player] : srv.playerNames)
+	{
+		lms.participantNames.push_back(player.name);
+		if(player.connection == srv.hostClientId)
+			lms.hostAccountDisplayName = player.name;
+	}
+
+	connection->sendPack(lms);
+	result = false;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQueryState & pack)
+{
+	// Do nothing - query response is sent directly, no broadcast needed
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)

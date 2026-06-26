@@ -305,6 +305,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<ChangeTactics>(262);
 	s.template registerType<CompositeUpdater>(263);
 	s.template registerType<BonusParameters>(264);
+	s.template registerType<LobbyQueryState>(265);
+	s.template registerType<LobbyModsCheck>(266);
 }
 
 VCMI_LIB_NAMESPACE_END
