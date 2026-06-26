@@ -1437,6 +1437,8 @@
 
 Windowed - the game will run inside a window that covers part of your screen.
 
+Windowed Maximized - the game will start in a maximized window.
+
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen's resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</string>
@@ -1447,6 +1449,11 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          <item>
           <property name="text">
            <string>Windowed</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Windowed maximized</string>
           </property>
          </item>
          <item>

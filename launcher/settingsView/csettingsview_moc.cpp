@@ -196,9 +196,13 @@ void CSettingsView::loadSettings()
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
 	if (settings["video"]["realFullscreen"].Bool())
+		ui->comboBoxFullScreen->setCurrentIndex(3);
+	else if (settings["video"]["fullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
+	else if (settings["video"]["windowMaximized"].Bool())
+		ui->comboBoxFullScreen->setCurrentIndex(1);
 	else
-		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
+		ui->comboBoxFullScreen->setCurrentIndex(0);
 #endif
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
@@ -511,8 +515,10 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
 	Settings nodeFullscreen     = settings.write["video"]["fullscreen"];
 	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
-	nodeFullscreen->Bool() = (index != 0);
-	nodeRealFullscreen->Bool() = (index == 2);
+	Settings nodeWindowMaximized = settings.write["video"]["windowMaximized"];
+	nodeFullscreen->Bool() = (index >= 2);
+	nodeRealFullscreen->Bool() = (index == 3);
+	nodeWindowMaximized->Bool() = (index == 1);
 
 	fillValidResolutions();
 	fillValidScalingRange();
