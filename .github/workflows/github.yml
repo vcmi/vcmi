@@ -204,7 +204,7 @@ jobs:
 
         # fetch SHA-1 of the p12 cert. Sample output for awk processing:
         # SHA1 Fingerprint=00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33
-        signingIdentitySHA=$(openssl pkcs12 -in "$certPath" -nodes -passin "pass:$SIGNING_CERTIFICATE_PASSWORD" 2>/dev/null \
+        signingIdentitySHA=$(openssl pkcs12 -in "$certPath" -nodes -passin "pass:$SIGNING_CERTIFICATE_PASSWORD" -legacy 2>/dev/null \
           | openssl x509 -noout -fingerprint -sha1 \
           | awk -F = '{ gsub(/:/, "", $2); print $2 }')
         echo MACOS_CODE_SIGN_IDENTITY=$signingIdentitySHA >> $GITHUB_ENV
