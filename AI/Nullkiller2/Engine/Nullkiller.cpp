@@ -165,13 +165,16 @@ void TaskPlan::mergeAndFilter(const TSubgoal & task)
 	tasks.emplace_back(task);
 }
 
-TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks)
+TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan)
 {
 	if(hasAnySuccess)
 		return TaskFailureAction::REPLAN;
 
 	if(hasRemainingTasks)
 		return TaskFailureAction::TRY_NEXT_TASK;
+
+	if(canReplan)
+		return TaskFailureAction::REPLAN;
 
 	return TaskFailureAction::STOP_TURN;
 }
@@ -529,8 +532,9 @@ void Nullkiller::makeTurn()
 			{
 				if(!executeTask(selectedTask))
 				{
+					lockTaskHeroes(selectedTask, HeroLockedReason::HERO_CHAIN);
 					const bool hasRemainingTasks = selectedTaskIndex + 1 < selectedTasks.size();
-					const auto failureAction = chooseTaskFailureAction(hasAnySuccess, hasRemainingTasks);
+					const auto failureAction = chooseTaskFailureAction(hasAnySuccess, hasRemainingTasks, hasUnlockedHeroWithMovement());
 
 					if(failureAction == TaskFailureAction::TRY_NEXT_TASK)
 					{
@@ -540,7 +544,8 @@ void Nullkiller::makeTurn()
 
 					if(failureAction == TaskFailureAction::REPLAN)
 					{
-						logAi->warn("Task failed to execute after previous progress. Replanning.");
+						logAi->warn("Task failed to execute. Replanning.");
+						hasAnySuccess = true;
 						break;
 					}
 
@@ -636,6 +641,45 @@ HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 		heroRole = heroManager->getHeroRoleOrDefault(heroPtr);
 
 	return heroRole;
+}
+
+std::vector<const CGHeroInstance *> Nullkiller::getTaskHeroes(const Goals::TTask & task) const
+{
+	std::vector<const CGHeroInstance *> heroes;
+
+	if(const auto * hero = task->getHero())
+		heroes.push_back(hero);
+
+	for(const auto objectId : task->getAffectedObjects())
+	{
+		if(const auto * hero = cc->getHero(objectId))
+			heroes.push_back(hero);
+	}
+
+	vstd::removeDuplicates(heroes);
+
+	return heroes;
+}
+
+void Nullkiller::lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason)
+{
+	for(const auto * hero : getTaskHeroes(task))
+	{
+		if(hero->getOwner() == playerID)
+			lockHero(hero, lockReason);
+	}
+}
+
+bool Nullkiller::hasUnlockedHeroWithMovement() const
+{
+	return vstd::contains_if(
+		cc->getHeroesInfo(),
+		[this](const CGHeroInstance * hero) -> bool
+		{
+			return !hero->isGarrisoned()
+				&& !isHeroLocked(hero)
+				&& hero->movementPointsRemaining() > 100;
+		});
 }
 
 bool Nullkiller::executeTask(const Goals::TTask & task)

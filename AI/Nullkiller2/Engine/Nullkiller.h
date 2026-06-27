@@ -80,7 +80,7 @@ enum class TaskFailureAction
 	STOP_TURN
 };
 
-TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks);
+TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
 
 class Nullkiller
 {
@@ -159,6 +159,9 @@ private:
 	bool executeTask(const Goals::TTask & task);
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
+	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
+	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
+	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };
 
