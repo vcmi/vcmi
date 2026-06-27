@@ -579,6 +579,12 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 	// Defer heavy work to next event-loop tick to ensure overlay is painted
 	QTimer::singleShot(0, this, [this, filePathBin, filePathExe]()
 	{
+		// Lambda yields to the event loop several times (processEvents, ev.exec,
+		// Innoextract progress callback). If user quits the launcher mid-flight,
+		// MainWindow's destruction cascades to ~FirstLaunchView and our captured
+		// 'this' becomes dangling. Use a QPointer to detect that and abort.
+		QPointer<FirstLaunchView> alive(this);
+
 		QScopedPointer<ProgressOverlay> overlay(createOverlay(this, tr("Preparing installer..."), true));
 		overlay->setFileName(QFileInfo(filePathExe).fileName());
 		overlay->raise();
@@ -588,6 +594,9 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		QEventLoop ev;
 		QTimer::singleShot(0, &ev, &QEventLoop::quit);
 		ev.exec();
+
+		if(!alive)
+			return;
 
 		// 1) Prepare temp dir
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
@@ -648,12 +657,22 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 
 		QString errorText;
 
-		errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [overlayPtr = overlay.data()](float progress) {
-			overlayPtr->setValue(static_cast<int>(progress * 100));
+		errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [overlayGuard = QPointer<ProgressOverlay>(overlay.data())](float progress) {
+			// Overlay is parented to FirstLaunchView; if 'this' was destroyed
+			// mid-extract, the overlay is gone too. Skip the UI update silently.
+			if(!overlayGuard)
+				return;
+			overlayGuard->setValue(static_cast<int>(progress * 100));
 			qApp->processEvents();
 		});
 
 		logGlobal->info("Extraction done!");
+
+		if(!alive)
+		{
+			tempDir.removeRecursively();
+			return;
+		}
 
 		// 4) Post-extract verification and error reporting
 		QString hashError;
@@ -686,6 +705,9 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		overlay->setFileName({});
 		overlay->setRange(100); // performCopyFlow will reset to plan size internally
 		overlay->setValue(0);
+
+		if(!alive)
+			return;
 
 		if(performCopyFlow(tempDir.path(), overlay.data(), true))
 			if(heroesDataUpdate())
