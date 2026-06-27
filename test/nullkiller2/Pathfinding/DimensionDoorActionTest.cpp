@@ -61,3 +61,29 @@ TEST(Nullkiller2_Pathfinding_DimensionDoorAction, appliesCostAndResourceAccounti
 	EXPECT_FLOAT_EQ(destination.cost, destinationNode.getCost());
 	EXPECT_EQ(destination.movementLeft, destinationNode.moveRemains);
 }
+
+TEST(Nullkiller2_Pathfinding_DimensionDoorAction, keepsRunwayAfterCastForSameDayContinuation)
+{
+	auto parameters = makeActionParameters();
+	parameters.plannedSourceMoveRemains = 1000;
+	parameters.plannedSourceMoveLimit = 1000;
+	parameters.movementPointsTaken = 300;
+	parameters.guardedLandingDanger = 0;
+	parameters.guardedLandingArmyLoss = 0;
+
+	AIPathNode sourceNode;
+	sourceNode.setCost(2.0f);
+
+	AIPathNode destinationNode;
+	PathNodeInfo source;
+	source.node = &sourceNode;
+	CDestinationNodeInfo destination;
+
+	DimensionDoorAction action(parameters);
+	action.applyOnDestination(nullptr, destination, source, &destinationNode, &sourceNode);
+
+	EXPECT_EQ(destinationNode.moveRemains, 700);
+	EXPECT_FLOAT_EQ(destinationNode.getCost(), 2.3f);
+	EXPECT_FLOAT_EQ(destination.cost, destinationNode.getCost());
+	EXPECT_EQ(destination.movementLeft, 700);
+}

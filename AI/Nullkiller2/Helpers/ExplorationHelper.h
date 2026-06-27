@@ -27,7 +27,10 @@ struct DimensionDoorExplorationCandidate
 {
 	bool visible = false;
 	int tilesDiscovered = 0;
+	int continuationTilesDiscovered = 0;
+	int chainTilesDiscovered = 0;
 	float strategicScore = 0.0f;
+	bool reachableWithoutDimensionDoor = false;
 	bool dimensionDoorTriggersGuards = false;
 	uint64_t guardedLandingDanger = 0;
 	bool guardedLandingSafe = true;
@@ -78,6 +81,24 @@ private:
 	void scanTile(const int3 & tile);
 	void scanDimensionDoorTile(const CSpell * spell, const DimensionDoorEffect * effect, const int3 & tile);
 	float getDimensionDoorStrategicScore(const int3 & tile) const;
+	bool hasNormalSameDayPath(const int3 & tile) const;
+	int getRemainingDimensionDoorCasts(const CSpell * spell) const;
+	bool isDimensionDoorLandingSafe(const int3 & tile) const;
+	int estimateDimensionDoorChainValue(
+		const DimensionDoorEffect * effect,
+		const int3 & source,
+		int remainingCasts,
+		int movementPointsRemaining,
+		const std::set<int3> & revealedTiles,
+		const std::set<int3> & visitedLandings) const;
+	int estimateDimensionDoorContinuationValue(const int3 & tile, const DimensionDoorEffect * effect, int movementPointsRemaining) const;
+	int estimateDimensionDoorContinuationValue(
+		const int3 & tile,
+		const DimensionDoorEffect * effect,
+		int movementPointsRemaining,
+		const std::set<int3> & revealedTiles) const;
+	int countHiddenTilesAround(const int3 & pos, const std::set<int3> & excludedTiles) const;
+	int markHiddenTilesAround(const int3 & pos, std::set<int3> & revealedTiles) const;
 	bool hasReachableNeighbor(const int3 & pos) const;
 };
 

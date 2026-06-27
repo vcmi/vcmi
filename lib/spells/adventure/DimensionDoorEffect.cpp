@@ -56,10 +56,11 @@ std::string DimensionDoorEffect::getCursorForTarget(const IGameInfoCallback * cb
 	if(!cb->getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS))
 		return cursor;
 
-	if (!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
+	// A hidden landing may be invalid or safe; only visible guarded landings need an attack cursor.
+	if(!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
 		return cursor;
 
-	if (!cb->isTileGuardedUnchecked(pos))
+	if(!cb->isTileGuardedUnchecked(pos))
 		return cursor;
 
 	return cursorGuarded;
@@ -81,7 +82,7 @@ bool DimensionDoorEffect::canBeCastImpl(spells::Problem & problem, const IGameIn
 
 bool DimensionDoorEffect::isValidTargetFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & destination) const
 {
-	if(!isTargetInRangeFrom(cb, caster, source, destination))
+	if(!AdventureSpellRangedEffect::isValidTargetFrom(cb, caster, source, destination))
 		return false;
 
 	const TerrainTile * dest = cb->getTileUnchecked(destination);

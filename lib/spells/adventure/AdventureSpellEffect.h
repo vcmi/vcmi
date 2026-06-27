@@ -48,6 +48,7 @@ class DLL_LINKAGE AdventureSpellRangedEffect : public IAdventureSpellEffect
 	int rangeX;
 	int rangeY;
 	bool ignoreFow;
+	bool isTargetValidForRangeCheck(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
 
 public:
 	AdventureSpellRangedEffect(const JsonNode & config);
@@ -57,6 +58,7 @@ public:
 	bool ignoresFogOfWar() const;
 	bool isTargetInRange(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
 	bool isTargetInRangeFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & pos) const;
+	virtual bool isValidTargetFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & pos) const;
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 };
