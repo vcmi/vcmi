@@ -617,7 +617,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 			const QString err = checkFileMagic(tmpFileExe, tr("GOG installer") + " (*.exe)", QByteArray{"MZP"}, "EXE", needPostCopyCheckExe);
 			if(!err.isEmpty())
 			{
-				QMessageBox::critical(this, tr("Invalid file selected"), err);
+				MessageBoxCustom::critical(this, tr("Invalid file selected"), err);
 				tempDir.removeRecursively();
 				return;
 			}
@@ -630,7 +630,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 			const QString err = checkFileMagic(tmpFileBin, tr("GOG data") + " (*.bin)", QByteArray{"idska32"}, "BIN", needPostCopyCheckBin);
 			if(!err.isEmpty())
 			{
-				QMessageBox::critical(this, tr("Invalid data file"), err);
+				MessageBoxCustom::critical(this, tr("Invalid data file"), err);
 				tempDir.removeRecursively();
 				return;
 			}
@@ -666,15 +666,15 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 			if(!errorText.isEmpty())
 			{
 				logGlobal->error("GOG installer extraction failure! Reason: %s", errorText.toStdString());
-				QMessageBox::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
+				MessageBoxCustom::critical(this, tr("Extracting error!"), errorText, QMessageBox::Ok, QMessageBox::Ok);
 				if(!hashError.isEmpty())
 				{
 					logGlobal->error("Hash error: %s", hashError.toStdString());
-					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
+					MessageBoxCustom::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
 				}
 			}
 			else
-				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+				MessageBoxCustom::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 			tempDir.removeRecursively();
 			return;
 		}
