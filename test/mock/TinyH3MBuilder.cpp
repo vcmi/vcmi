@@ -247,6 +247,22 @@ TinyH3MBuilder & TinyH3MBuilder::heroPrimary(uint8_t attack, uint8_t defense, ui
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::heroSecondarySkills(std::vector<std::pair<SecondarySkill, uint8_t>> skills)
+{
+	auto & spec = lastObject();
+	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
+	spec.heroSecondarySkills = std::move(skills);
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::heroSpells(std::vector<SpellID> spells)
+{
+	auto & spec = lastObject();
+	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
+	spec.heroSpells = std::move(spells);
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::heroEquipped(std::vector<std::pair<ArtifactPosition, ArtifactID>> equipped)
 {
 	auto & spec = lastObject();
@@ -892,7 +908,19 @@ void TinyH3MBuilder::writeHeroBody(TinyH3MWriter & w, const ObjectSpec & obj) co
 	}
 
 	w.writeBool(false);                    // hasPortrait
-	w.writeBool(false);                    // hasSecSkills
+	const bool hasSecSkills = !obj.heroSecondarySkills.empty();
+	w.writeBool(hasSecSkills);
+	if(hasSecSkills)
+	{
+		w.writeUInt32(static_cast<uint32_t>(obj.heroSecondarySkills.size()));
+		for(const auto & [skill, level] : obj.heroSecondarySkills)
+		{
+			assert(skill.hasValue());
+			assert(level >= 1 && level <= 3);
+			w.writeUInt8(static_cast<uint8_t>(skill.getNum()));
+			w.writeUInt8(level);
+		}
+	}
 
 	const bool hasGarison = !obj.heroGarrisonStacks.empty();
 	w.writeBool(hasGarison);
@@ -916,7 +944,10 @@ void TinyH3MBuilder::writeHeroBody(TinyH3MWriter & w, const ObjectSpec & obj) co
 
 	if(features.levelSOD)
 	{
-		w.writeBool(false);                // hasCustomSpells
+		const bool hasCustomSpells = obj.heroSpells.has_value();
+		w.writeBool(hasCustomSpells);
+		if(hasCustomSpells)
+			writeSpellBitmask(w, *obj.heroSpells);
 
 		const bool hasPrim = obj.heroPrimarySkills.has_value();
 		w.writeBool(hasPrim);
@@ -935,6 +966,23 @@ void TinyH3MBuilder::writeScrollBody(TinyH3MWriter & w, const ObjectSpec & obj) 
 	// is a single zero byte) + 4-byte spell id.
 	w.writeBool(false);                    // hasMessage
 	w.writeSpell32(obj.scrollSpell);
+}
+
+void TinyH3MBuilder::writeSpellBitmask(TinyH3MWriter & w, const std::vector<SpellID> & spells) const
+{
+	const auto features = MapFormatFeaturesH3M::find(format, /*hotaVersion*/ 0);
+	std::vector<std::byte> mask(static_cast<size_t>(features.spellsBytes));
+
+	for(const auto & spell : spells)
+	{
+		assert(spell.hasValue());
+		assert(spell.getNum() < features.spellsCount);
+		const auto index = static_cast<size_t>(spell.getNum());
+		mask.at(index / 8) |= static_cast<std::byte>(1 << (index % 8));
+	}
+
+	for(const auto byte : mask)
+		w.writeUInt8(std::to_integer<uint8_t>(byte));
 }
 
 void TinyH3MBuilder::writeCreatureSet(TinyH3MWriter & w, const std::vector<std::pair<CreatureID, uint16_t>> & stacks) const
