@@ -1173,7 +1173,31 @@ void CModListView::installMods(QStringList archives)
 
 	if(!modsToEnable.empty())
 	{
-		manager->enableMods(modsToEnable);
+		try
+		{
+			manager->enableMods(modsToEnable);
+		}
+		catch (const std::exception & e)
+		{
+			// Mods are installed but the dep tree can't be satisfied (a required
+			// dependency wasn't included in the install set). Mod files stay on
+			// disk and disabled; canEnableMod blocks further enable attempts.
+			// Surface still-missing deps via getModsToInstall — works even if the
+			// dep isn't in the repository cache (it just doesn't recurse further).
+			QStringList lines;
+			for(const auto & modID : modsToEnable)
+			{
+				QStringList missing;
+				for(const auto & dep : getModsToInstall(modID))
+					if(dep != modID)
+						missing.push_back(dep);
+				if(!missing.isEmpty())
+					lines.push_back(tr("%1 requires: %2").arg(modID, missing.join(", ")));
+			}
+			QString details = lines.isEmpty() ? QString::fromUtf8(e.what()) : lines.join("\n");
+			QMessageBox::warning(this, tr("Failed to enable mod"),
+				tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
+		}
 	}
 
 	for(const auto & mod : modNames)
