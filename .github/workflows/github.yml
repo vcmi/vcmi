@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - platform: mac-intel
-            os: macos-15
+            os: macos-26
             pack: 1
             upload: 1
             pack_type: Release
@@ -33,7 +33,7 @@ jobs:
             artifact_platform: intel
 
           - platform: mac-arm
-            os: macos-15
+            os: macos-26
             pack: 1
             upload: 1
             pack_type: Release
@@ -46,7 +46,7 @@ jobs:
             artifact_platform: arm
 
           - platform: ios
-            os: macos-15
+            os: macos-26
             pack: 1
             upload: 1
             pack_type: RelWithDebInfo
@@ -87,7 +87,7 @@ jobs:
 
           - platform: msvc-arm64
             arch: arm64
-            os: windows-11-arm
+            os: windows-11-vs2026-arm
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
