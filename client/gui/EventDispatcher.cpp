@@ -458,6 +458,37 @@ void EventDispatcher::dispatchMouseMoved(const Point & distance, const Point & p
 	}
 }
 
+void EventDispatcher::dispatchTouchPress(const Point & position, bool down, int tolerance)
+{
+	if (down)
+	{
+		touchPressedElements.clear();
+		AEventsReceiver * nearestElement = findElementInToleranceRange(lclickable, position, AEventsReceiver::LCLICK, tolerance);
+		auto hlp = lclickable;
+		for(auto & elem : hlp)
+		{
+			if(!vstd::contains(lclickable, elem))
+				continue;
+
+			if(elem->receiveEvent(position, AEventsReceiver::LCLICK) || elem == nearestElement)
+			{
+				elem->onTouchPress(true);
+				touchPressedElements.push_back(elem);
+			}
+		}
+	}
+	else
+	{
+		for(auto & elem : touchPressedElements)
+		{
+			if(!vstd::contains(lclickable, elem))
+				continue;
+			elem->onTouchPress(false); // reset all because we don't neccessary get the same element (finger can moved after touching, before releasing)
+		}
+		touchPressedElements.clear();
+	}
+}
+
 void EventDispatcher::dispatchMouseDragged(const Point & currentPosition, const Point & lastUpdateDistance)
 {
 	EventReceiversList diCopy = draginterested;

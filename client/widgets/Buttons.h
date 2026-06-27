@@ -119,6 +119,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void clickCancel(const Point & cursorPosition) override;
 	void hover (bool on) override;
+	void onTouchPress(bool on) override;
 	void showAll(Canvas & to) override;
 
 	/// generates tooltip that can be passed into constructor

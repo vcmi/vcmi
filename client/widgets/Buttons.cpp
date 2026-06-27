@@ -275,6 +275,11 @@ void CButton::clickPressed(const Point & cursorPosition)
 		if (actOnDown)
 			onButtonClicked();
 	}
+	else if(!soundDisabled && ENGINE->input().getCurrentInputMode() == InputMode::TOUCH)
+	{
+		ENGINE->sound().playSound(soundBase::button);
+		ENGINE->input().hapticFeedback();
+	}
 }
 
 void CButton::clickReleased(const Point & cursorPosition)
@@ -310,9 +315,20 @@ void CButton::showPopupWindow(const Point & cursorPosition)
 		CRClickPopup::createAndPush(helpBox);
 }
 
+void CButton::onTouchPress(bool on)
+{
+	if(isBlocked())
+		return;
+
+	if(on)
+		setState(EButtonState::PRESSED);
+	else if(getState() == EButtonState::PRESSED)
+		setState(EButtonState::NORMAL);
+}
+
 void CButton::hover (bool on)
 {
-	if(hoverable && !isBlocked())
+	if(hoverable && !isBlocked() && ENGINE->input().getCurrentInputMode() != InputMode::TOUCH)
 	{
 		if(on)
 			setState(EButtonState::HIGHLIGHTED);
