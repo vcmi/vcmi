@@ -175,6 +175,7 @@ public:
 	/// The quest currently relevant for visiting / quest-log display.
 	virtual const Quest & activeQuest() const { return getQuest(); }
 	const Quest * activeQuestForLog() const override { return &activeQuest(); }
+	std::vector<MapObjectSubID> questLogSharedColor() const override;
 
 	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 
@@ -211,6 +212,9 @@ protected:
 	void selectInitialQuest();
 	/// Mirror the active quest's reward into configuration.info.
 	void syncActiveReward();
+	/// True once `player` already has a quest-log entry for a sibling sharing this
+	/// object's keymaster colour (border guards/gates share one entry per colour).
+	bool questLogEntryShared(PlayerColor player) const;
 };
 
 class DLL_LINKAGE SeerHut : public QuestSource

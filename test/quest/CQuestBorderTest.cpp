@@ -215,3 +215,69 @@ TEST_F(QuestBorderTest, BorderGuard_AnsweredYes_removesObject)
 	EXPECT_EQ(findObjectAt(s.questPos2), nullptr)
 		<< "border guard should be removed from the map after a positive answer";
 }
+
+TEST_F(QuestBorderTest, BorderGuard_TwoSiblingsSameColor_emitOnlyOneAddQuest)
+{
+	// Two border guards of the same colour share a single quest-log entry, so
+	// visiting both registers only one AddQuest.
+	auto s = borderGuardTwoSiblings();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	auto * hero   = findHeroAt(s.heroPos);
+	auto * guardA = findObjectAt(s.questPos);
+	auto * guardB = findObjectAt(s.questPos2);
+	ASSERT_NE(hero,   nullptr);
+	ASSERT_NE(guardA, nullptr);
+	ASSERT_NE(guardB, nullptr);
+
+	visit(hero, guardA);
+	visit(hero, guardB);
+
+	EXPECT_EQ(gameEventCallback->addedQuests.size(), 1u)
+		<< "same-colour border guards must share one quest-log entry";
+}
+
+TEST_F(QuestBorderTest, BorderGuard_LogEntrySurvivesWhileAnySiblingRemains)
+{
+	// Destroying the guard the entry points at re-targets it to a surviving
+	// same-colour sibling rather than dropping the entry.
+	auto s = borderGuardTwoSiblings();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	auto * hero   = findHeroAt(s.heroPos);
+	auto * guardA = findObjectAt(s.questPos);
+	auto * guardB = findObjectAt(s.questPos2);
+	ASSERT_NE(hero,   nullptr);
+	ASSERT_NE(guardA, nullptr);
+	ASSERT_NE(guardB, nullptr);
+
+	visit(hero, guardA); // registers the shared entry, targeting guard A
+	const auto guardBId = guardB->id;
+
+	gameEventCallback->removeObject(guardA, PlayerColor(0));
+
+	const auto & quests = gameState->players.at(PlayerColor(0)).quests;
+	ASSERT_EQ(quests.size(), 1u) << "entry must survive while a same-colour sibling remains";
+	EXPECT_EQ(quests.front().obj, guardBId) << "entry should re-target to the surviving sibling";
+}
+
+TEST_F(QuestBorderTest, BorderGuard_LogEntryRemovedWhenLastSiblingDestroyed)
+{
+	// Once the last same-colour border guard is gone, its shared entry is removed.
+	auto s = borderGuardTwoSiblings();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	auto * hero   = findHeroAt(s.heroPos);
+	auto * guardA = findObjectAt(s.questPos);
+	auto * guardB = findObjectAt(s.questPos2);
+	ASSERT_NE(hero,   nullptr);
+	ASSERT_NE(guardA, nullptr);
+	ASSERT_NE(guardB, nullptr);
+
+	visit(hero, guardA);
+	gameEventCallback->removeObject(guardA, PlayerColor(0)); // re-targets to guard B
+	gameEventCallback->removeObject(guardB, PlayerColor(0)); // last sibling destroyed
+
+	EXPECT_TRUE(gameState->players.at(PlayerColor(0)).quests.empty())
+		<< "entry must be removed once the last same-colour sibling is destroyed";
+}

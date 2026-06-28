@@ -77,5 +77,6 @@ Scenario questGuard();                  ///< heroPos: visitor. questPos: quest g
 Scenario questKeymasterTent();          ///< heroPos: visitor. questPos: keymaster tent of colour 0.
 Scenario questBorderGuard();            ///< heroPos: visitor. questPos: keymaster. questPos2: border guard (matching colour).
 Scenario questBorderGate();             ///< heroPos: visitor. questPos: keymaster. questPos2: border gate (matching colour).
+Scenario borderGuardTwoSiblings();      ///< heroPos: visitor (no key). questPos / questPos2: two border guards of the same colour.
 
 } // namespace QuestScenarios

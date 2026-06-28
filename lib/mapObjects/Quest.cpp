@@ -436,6 +436,30 @@ void QuestSource::getVisitText(MetaString &text, std::vector<Component> &compone
 	activeQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
+std::vector<MapObjectSubID> QuestSource::questLogSharedColor() const
+{
+	// Border guards/gates carry the keymaster colour in requiredKeys; real quest
+	// sources have none and so keep a per-instance log entry.
+	if(isEmpty())
+		return {};
+	return getQuest().mission.requiredKeys;
+}
+
+bool QuestSource::questLogEntryShared(PlayerColor player) const
+{
+	const auto color = questLogSharedColor();
+	if(color.empty())
+		return false;
+
+	for(const auto & qi : cb->getPlayerState(player)->quests)
+	{
+		const auto * other = cb->getObjInstance(qi.obj);
+		if(other && other->questLogSharedColor() == color)
+			return true;
+	}
+	return false;
+}
+
 // Map a position into the seer-hut compass text slot (1-9), matching the
 // core.arraytxt direction strings ("in the north", "in the north-east", …).
 static int compassDirection(const int3 & pos, const int3 & mapSize)
@@ -807,10 +831,13 @@ void QuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		{
 			h->showInfoDialog(gameEvents, 18);
 
-			AddQuest aq;
-			aq.quest = QuestInfo(id);
-			aq.player = h->tempOwner;
-			gameEvents.sendAndApply(aq);
+			if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
+			{
+				AddQuest aq;
+				aq.quest = QuestInfo(id);
+				aq.player = h->tempOwner;
+				gameEvents.sendAndApply(aq);
+			}
 		}
 		return;
 	}
@@ -918,10 +945,13 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 	h->showInfoDialog(gameEvents, 18);
 
-	AddQuest aq;
-	aq.quest = QuestInfo(id);
-	aq.player = h->tempOwner;
-	gameEvents.sendAndApply(aq);
+	if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
+	{
+		AddQuest aq;
+		aq.quest = QuestInfo(id);
+		aq.player = h->tempOwner;
+		gameEvents.sendAndApply(aq);
+	}
 }
 
 bool QuestGate::passableFor(PlayerColor color) const

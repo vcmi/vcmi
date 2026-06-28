@@ -434,11 +434,34 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 	if (obj->activeQuestForLog())
 	{
+		// Border guards/gates of one colour share a single log entry. If a same-colour
+		// sibling survives, re-target the entry to it instead of removing it.
+		const auto color = obj->questLogSharedColor();
+		const CGObjectInstance * sibling = nullptr;
+		if (!color.empty())
+		{
+			for (const auto * other : gs.getMap().getObjects())
+				if (other->id != obj->id && other->questLogSharedColor() == color)
+				{
+					sibling = other;
+					break;
+				}
+		}
+
 		for (auto &player : gs.players)
 		{
-			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
-				return q.obj == obj->id;
-			});
+			if (sibling)
+			{
+				for (auto & q : player.second.quests)
+					if (q.obj == obj->id)
+						q.obj = sibling->id;
+			}
+			else
+			{
+				vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
+					return q.obj == obj->id;
+				});
+			}
 		}
 	}
 

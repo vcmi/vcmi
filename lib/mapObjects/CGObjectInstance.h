@@ -119,6 +119,9 @@ public:
 	virtual bool passableFor(const CGHeroInstance * hero) const;
 	/// The quest gating this object for quest-log purposes, or nullptr if it has none
 	virtual const Quest * activeQuestForLog() const { return nullptr; }
+	/// Border guards/gates of one keymaster colour share a single quest-log entry per
+	/// player; this returns that colour key(s). Empty (default) = a per-instance entry.
+	virtual std::vector<MapObjectSubID> questLogSharedColor() const { return {}; }
 	/// Range of revealed map around this object, counting from getSightCenter()
 	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object

@@ -274,4 +274,16 @@ Scenario questBorderGate()
 	return s;
 }
 
+Scenario borderGuardTwoSiblings()
+{
+	Scenario s;
+	s.questPos2 = {15, 15, 0};      // second border guard, same colour as questPos
+	s.builder = fresh("BorderGuardTwoSiblings");
+	s.builder
+		.hero(s.heroPos, kHeroChristian, PlayerColor(0))
+		.borderGuard(s.questPos,  /*color*/ 0)
+		.borderGuard(s.questPos2, /*color*/ 0);
+	return s;
+}
+
 } // namespace QuestScenarios
