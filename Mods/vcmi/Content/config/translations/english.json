@@ -977,8 +977,6 @@
 	"vcmi.otherOptions.creatureGrowthAsDwellingLabel.hover": "Show Weekly Growth of Creatures",
 	"vcmi.overlay.battery": "Battery",
 	"vcmi.overlay.charging": "Charging",
-	"vcmi.questLog.hideComplete.help": "Hide all completed quests.",
-	"vcmi.questLog.hideComplete.hover": "Hide complete quests",
 	"vcmi.quickExchange.moveAllArtifacts": "Move All Artifacts",
 	"vcmi.quickExchange.moveAllUnits": "Move All Units",
 	"vcmi.quickExchange.moveUnit": "Move Unit",
