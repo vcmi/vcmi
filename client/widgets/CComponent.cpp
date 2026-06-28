@@ -24,7 +24,6 @@
 #include "../windows/InfoWindows.h"
 #include "TextControls.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -74,12 +73,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 
 	assert(size < sizeInvalid);
 
-	const auto imagePaths = getFileName();
-	const auto imageIndex = static_cast<int>(getIndex());
-	if(shouldUseRewardArtifactBackground(Type, imageSize))
-		setRewardArtifactBackground(imagePaths[size], imageIndex);
-	else
-		setSurface(imagePaths[size], imageIndex);
+	setSurface(getFileName()[size], (int)getIndex());
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
@@ -325,13 +319,9 @@ std::string CComponent::getSubtitle() const
 			else
 				return LIBRARY->spells()->getById(data.subType.as<SpellID>())->getNameTranslated();
 		case ComponentType::MORALE:
-			if(settings["general"]["enableUiEnhancements"].Bool())
-				return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[384] % data.value.value_or(0));
-			return "";
+			return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[384] % data.value.value_or(0));
 		case ComponentType::LUCK:
-			if(settings["general"]["enableUiEnhancements"].Bool())
-				return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[385] % data.value.value_or(0));
-			return "";
+			return boost::str(boost::format("%s %+d") % LIBRARY->generaltexth->allTexts[385] % data.value.value_or(0));
 		case ComponentType::NONE:
 		case ComponentType::HERO_PORTRAIT:
 			return "";
@@ -358,21 +348,6 @@ void CComponent::setSurface(const AnimationPath & defName, int imgPos)
 {
 	OBJECT_CONSTRUCTION;
 	image = std::make_shared<CAnimImage>(defName, imgPos);
-}
-
-bool CComponent::shouldUseRewardArtifactBackground(ComponentType Type, ESize imageSize) const
-{
-	return settings["general"]["enableUiEnhancements"].Bool() && Type == ComponentType::ARTIFACT && imageSize == large;
-}
-
-void CComponent::setRewardArtifactBackground(const AnimationPath & artifactDefName, int artifactImgPos)
-{
-	OBJECT_CONSTRUCTION;
-
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSK82"), 0);
-	artifactOverlay = std::make_shared<CAnimImage>(artifactDefName, artifactImgPos);
-
-	artifactOverlay->moveTo(Point((image->pos.w - artifactOverlay->pos.w) / 2, (image->pos.h - artifactOverlay->pos.h) / 2));
 }
 
 void CComponent::showPopupWindow(const Point & cursorPosition)
