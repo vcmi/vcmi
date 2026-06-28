@@ -610,6 +610,7 @@ std::vector<uint8_t> TinyH3MBuilder::build()
 
 std::vector<uint8_t> TinyH3MBuilder::buildAndDump(const std::string & testName)
 {
+	mapName = testName; // so the map identifies its originating test when opened in the editor
 	auto bytes = build();
 
 	const auto dir = VCMIDirs::get().userCachePath() / "testMaps";

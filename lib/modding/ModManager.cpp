@@ -153,10 +153,9 @@ std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) con
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ModsPresetState::ModsPresetState()
+ModsPresetState::ModsPresetState(bool useTestPreset)
+	: settingsPath(JsonPath::builtin(useTestPreset ? "config/testModSettings.json" : "config/modSettings.json"))
 {
-	static const JsonPath settingsPath = JsonPath::builtin("config/modSettings.json");
-
 	if(CResourceHandler::get("local")->existsResource(ResourcePath(settingsPath)))
 	{
 		modConfig = JsonNode(settingsPath);
@@ -344,7 +343,7 @@ void ModsPresetState::setValidatedChecksum(const TModID & modName, std::optional
 
 void ModsPresetState::saveConfigurationState() const
 {
-	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath("config/modSettings.json"))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath(settingsPath))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << modConfig.toCompactString();
 }
 
@@ -501,9 +500,9 @@ ModManager::ModManager()
 {
 }
 
-ModManager::ModManager(const JsonNode & repositoryList)
+ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset)
 	: modsState(std::make_unique<ModsState>())
-	, modsPreset(std::make_unique<ModsPresetState>())
+	, modsPreset(std::make_unique<ModsPresetState>(useTestPreset))
 {
 	modsStorage = std::make_unique<ModsStorage>(modsState->getInstalledMods(), repositoryList);
 

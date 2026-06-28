@@ -62,6 +62,6 @@ public:
 	void load();
 	void afterLoad();
 
-	CModHandler();
+	explicit CModHandler(bool useTestPreset = false);
 	~CModHandler();
 };

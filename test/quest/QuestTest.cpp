@@ -22,7 +22,10 @@ void QuestTest::startWithMap(TinyH3M::TinyH3MBuilder builder)
 
 void QuestTest::startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficulty difficulty)
 {
-	auto bytes = builder.build();
+	const auto * info = ::testing::UnitTest::GetInstance()->current_test_info();
+	std::string fixtureName = std::string(info->test_suite_name()) + "_" + info->name();
+	std::replace(fixtureName.begin(), fixtureName.end(), '/', '_'); // parameterized cases embed '/'
+	auto bytes = builder.buildAndDump(fixtureName);
 	mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
 
 	StartInfo si;

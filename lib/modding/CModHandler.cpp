@@ -25,9 +25,9 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-CModHandler::CModHandler()
+CModHandler::CModHandler(bool useTestPreset)
 	: content(std::make_shared<CContentHandler>())
-	, modManager(std::make_unique<ModManager>())
+	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
 {
 }
 
