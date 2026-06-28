@@ -857,7 +857,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 			OBJECT_CONSTRUCTION;
 
 			schoolBorder.reset();
-			if (!isLegacySpellSchool(owner->selectedTab) || owner->selectedTab == SpellSchool::ANY)
+			if (owner->selectedTab == SpellSchool::ANY)
 			{
 				if (whichSchool.hasValue())
 					schoolBorder = std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(whichSchool)->getSpellBordersPath(), schoolLevel);
