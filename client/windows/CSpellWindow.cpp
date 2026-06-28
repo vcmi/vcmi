@@ -286,10 +286,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	}
 
 	SpellSchool school = battleSpellsOnly ? myInt->localState->getSpellbookSettings().spellbookLastTabBattle : myInt->localState->getSpellbookSettings().spellbookLastTabAdvmap;
-	bool schoolFound = false;
-	for(const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects()) // check if spellschool exists -> if not, then keep any
-		if(schoolId == school)
-			schoolFound = true;
+	bool schoolFound = isLegacySpellSchool(school) || std::find(customSpellSchools.begin(), customSpellSchools.end(), school) != customSpellSchools.end();
 	if(schoolFound)
 		selectedTab = school;
 	setSchoolImages(selectedTab);
