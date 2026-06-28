@@ -363,6 +363,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		ENGINE->sound().playSound( AudioPath::builtin("WALLHIT") );
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
+		owner.fieldController->startShakeAnimation();
 	}
 	owner.waitForAnimations();
 

@@ -55,7 +55,7 @@ public:
 	static void addUnitBonus(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit, const BonusDescriptor & data, bool cumulative);
 	static void addBattleBonus(ServerCallback & object, const IBattleInfoCallback & battle, const BonusDescriptor & data);
 	static void addObstacle(ServerCallback & object, const IBattleInfoCallback & battle, const SpellObstacleDescriptor & descriptor);
-	static void catapultAttack(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & attacker, EWallPart attackedPart, int32_t damageDealt);
+	static void catapultAttack(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit * attacker, EWallPart attackedPart, int32_t damageDealt);
 	static int rngInt(lua_State * L); // args: low, high; returns: int in [low, high]
 	static int healUnit(lua_State * L);
 	static int changeUnit(lua_State * L); // args: battle, unitState, [healthDelta=0]
