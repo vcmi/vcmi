@@ -160,7 +160,16 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	int maxCustomSchools = (isBigSpellbook ? MAX_CUSTOM_SPELL_SCHOOLS_BIG : MAX_CUSTOM_SPELL_SCHOOLS) * 2;
 	int customSchoolsAvailable = 0;
-	for(const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects())
+	std::vector<SpellSchool> sortedSchools = LIBRARY->spellSchoolHandler->getAllObjects();
+	std::sort(sortedSchools.begin(), sortedSchools.end(), [&](SpellSchool a, SpellSchool b) {
+		auto cnt = [&](SpellSchool s) {
+			return std::count_if(LIBRARY->spellh->objects.begin(), LIBRARY->spellh->objects.end(), [&](auto const & sp) {
+				return !sp->isSpecial() && !sp->isCreatureAbility() && myHero->canCastThisSpell(sp.get()) && sp->schools.count(s);
+			});
+		};
+		return cnt(a) > cnt(b);
+	});
+	for(const auto schoolId : sortedSchools)
 		if(
 			!isLegacySpellSchool(schoolId) &&
 			!LIBRARY->spellSchoolHandler->getById(schoolId)->getSchoolBookmarkPath().empty() &&
