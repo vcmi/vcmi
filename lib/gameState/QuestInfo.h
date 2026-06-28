@@ -16,6 +16,7 @@
 class Quest;
 class CGObjectInstance;
 class IGameInfoCallback;
+class CGameInfoCallback;
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
@@ -29,6 +30,11 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	const Quest * getQuest(IGameInfoCallback *cb) const;
 	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
 	int3 getPosition(IGameInfoCallback *cb) const;
+
+	/// Tiles to mark on the quest-log minimap: the source object plus, where the
+	/// limiter implies a target, kill targets, matching keymaster tents / artifact
+	/// pickups, and heroes that already satisfy the limiter. Fog-gated by `cb`.
+	std::vector<int3> getMarkerTiles(CGameInfoCallback *cb) const;
 
 	bool operator== (const QuestInfo & qi) const
 	{

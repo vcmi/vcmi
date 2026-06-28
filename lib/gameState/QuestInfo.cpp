@@ -11,6 +11,9 @@
 #include "QuestInfo.h"
 
 #include "../callback/IGameInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/Quest.h"
 
 const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
@@ -29,4 +32,57 @@ const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const
 int3 QuestInfo::getPosition(IGameInfoCallback *cb) const
 {
 	return getObject(cb)->visitablePos();
+}
+
+std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
+{
+	std::vector<int3> result;
+
+	const Rewardable::Limiter & limiter = getQuest(cb)->mission;
+
+	// the quest source itself (kept visible to the holder via the fog-of-war override)
+	result.push_back(getPosition(cb));
+
+	// objects the player must destroy (kill creature / kill hero)
+	for(const auto & targetID : limiter.destroyedObjects)
+		if(const auto * target = cb->getObj(targetID, false))
+			result.push_back(target->visitablePos());
+
+	// Heroes are matched by the limiter itself (heroAllowed), which unifies the
+	// level / primary / hero-type / hero-class / creatures / artifact cases into one
+	// predicate. We only sweep for heroes when the limiter actually constrains them.
+	const bool markArtifacts = !limiter.artifacts.empty();
+	const bool markHeroes = markArtifacts
+		|| limiter.heroLevel > 0
+		|| limiter.heroExperience > 0
+		|| std::any_of(limiter.primary.begin(), limiter.primary.end(), [](si32 v){ return v > 0; })
+		|| !limiter.heroes.empty()
+		|| !limiter.heroClasses.empty()
+		|| !limiter.creatures.empty();
+	const bool markKeys = !limiter.requiredKeys.empty();
+
+	if(markArtifacts || markHeroes || markKeys)
+	{
+		for(const auto * obj : cb->getAllVisitableObjs())
+		{
+			if(markHeroes && obj->ID == Obj::HERO)
+			{
+				if(limiter.heroAllowed(dynamic_cast<const CGHeroInstance *>(obj)))
+					result.push_back(obj->visitablePos());
+			}
+			else if(markArtifacts && obj->ID == Obj::ARTIFACT)
+			{
+				if(const auto * art = dynamic_cast<const CGArtifact *>(obj))
+					if(vstd::contains(limiter.artifacts, art->getArtifactType()))
+						result.push_back(obj->visitablePos());
+			}
+			else if(markKeys && obj->ID == Obj::KEYMASTER)
+			{
+				if(vstd::contains(limiter.requiredKeys, obj->subID))
+					result.push_back(obj->visitablePos());
+			}
+		}
+	}
+
+	return result;
 }

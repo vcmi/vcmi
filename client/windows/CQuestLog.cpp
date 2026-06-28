@@ -67,30 +67,43 @@ CQuestMinimap::CQuestMinimap(const Rect & position)
 {
 }
 
-void CQuestMinimap::addQuestMarks (const QuestInfo * q)
+void CQuestMinimap::setQuest(const QuestInfo * q)
+{
+	currentQuest = q;
+	markerTiles = q ? q->getMarkerTiles(GAME->interface()->cb.get()) : std::vector<int3>{};
+	update();
+}
+
+void CQuestMinimap::placeMarks()
 {
 	OBJECT_CONSTRUCTION;
 	icons.clear();
 
-	int3 tile = q->getPosition(GAME->interface()->cb.get());
+	if(markerTiles.empty())
+		return;
 
-	Point offset = tileToPixels(tile);
+	// The minimap shows a single level; follow the source object's level and draw
+	// only the markers on it.
+	const int level = markerTiles.front().z;
+	onMapViewMoved(Rect(), level);
 
-	onMapViewMoved(Rect(), tile.z);
+	for(const int3 & tile : markerTiles)
+	{
+		if(tile.z != level)
+			continue;
 
-	auto pic = std::make_shared<CQuestIcon>(AnimationPath::builtin("VwSymbol.def"), 3, offset.x, offset.y);
-
-	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
-	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
-
-	icons.push_back(pic);
+		Point offset = tileToPixels(tile);
+		auto pic = std::make_shared<CQuestIcon>(AnimationPath::builtin("VwSymbol.def"), 3, offset.x, offset.y);
+		pic->moveBy(Point(-pic->pos.w/2, -pic->pos.h/2));
+		pic->callback = std::bind(&CQuestMinimap::iconClicked, this);
+		icons.push_back(pic);
+	}
 }
 
 void CQuestMinimap::update()
 {
 	CMinimap::update();
-	if(currentQuest)
-		addQuestMarks(currentQuest);
+	placeMarks();
 }
 
 void CQuestMinimap::iconClicked()
@@ -210,7 +223,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 {
 	questIndex = labelId;
 	currentQuest = &quests[which];
-	minimap->currentQuest = currentQuest;
+	minimap->setQuest(currentQuest);
 
 	MetaString text;
 	std::vector<Component> components;
