@@ -111,7 +111,6 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog")),
 	questIndex(0),
 	currentQuest(nullptr),
-	hideComplete(false),
 	quests(Quests)
 {
 	OBJECT_CONSTRUCTION;
@@ -120,9 +119,6 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
-	// Both button and label are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
-	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), AnimationPath::builtin("sysopchk.def"), CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
-	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(32);
 
@@ -135,7 +131,6 @@ void CQuestLog::recreateLabelList()
 	OBJECT_CONSTRUCTION;
 	labels.clear();
 
-	bool completeMissing = true;
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
@@ -145,13 +140,6 @@ void CQuestLog::recreateLabelList()
 		// Quests without mision don't have text for them and can't be displayed
 		if (quests[i].getQuest(GAME->interface()->cb.get())->mission == Rewardable::Limiter{})
 			continue;
-
-		if (questPtr->isCompleted)
-		{
-			completeMissing = false;
-			if (hideComplete)
-				continue;
-		}
 
 		MetaString text;
 		questPtr->getRolloverText(GAME->interface()->cb.get(), text, false);
@@ -173,15 +161,11 @@ void CQuestLog::recreateLabelList()
 		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);
 		labels.push_back(label);
 
-		// Select latest active quest
-		if(!questPtr->isCompleted)
-			selectQuest(i, currentLabel);
+		// Select latest quest
+		selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());
 	}
-
-	if (completeMissing) // We can't use block(completeMissing) because if false button state reset to NORMAL
-		hideCompleteButton->block(true);
 
 	slider->setAmount(currentLabel);
 	if (currentLabel > QUEST_COUNT)
@@ -307,13 +291,5 @@ void CQuestLog::selectQuest(int which, int labelId)
 void CQuestLog::sliderMoved(int newpos)
 {
 	recreateQuestList(newpos); //move components
-	redraw();
-}
-
-void CQuestLog::toggleComplete(bool on)
-{
-	hideComplete = on;
-	recreateLabelList();
-	recreateQuestList(0);
 	redraw();
 }

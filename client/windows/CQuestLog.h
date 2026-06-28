@@ -83,9 +83,6 @@ class CQuestLog : public CWindowObject
 	int questIndex;
 	const QuestInfo * currentQuest;
 	std::shared_ptr<CComponentBox> componentsBox;
-	bool hideComplete;
-	std::shared_ptr<CToggleButton> hideCompleteButton;
-	std::shared_ptr<CLabel> hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
 	std::vector<std::shared_ptr<CQuestLabel>> labels;
@@ -105,6 +102,5 @@ public:
 	void sliderMoved (int newpos);
 	void recreateLabelList();
 	void recreateQuestList (int pos);
-	void toggleComplete(bool on);
 	void showAll (Canvas & to) override;
 };
