@@ -985,6 +985,9 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 {
 	RETURN_IF_NOT_BATTLE(false);
 
+	if(!dest.isAvailable())
+		return false;
+
 	const battle::Unit * defender = battleGetUnitByPos(dest);
 	if(!attacker)
 		return false;
