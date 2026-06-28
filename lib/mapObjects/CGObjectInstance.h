@@ -79,6 +79,9 @@ public:
 	bool blockingAt (const int3 & pos) const; //returns true if object is blocking location
 	bool coveringAt (const int3 & pos) const; //returns true if object covers with picture location
 
+	/// Visibility of this object to `player`, used as the fog-of-war gate.
+	virtual bool isVisibleFor(PlayerColor player) const;
+
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	const std::set<int3> & getBlockedOffsets() const; //returns set of relative positions blocked by this object
 

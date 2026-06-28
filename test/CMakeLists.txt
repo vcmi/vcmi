@@ -52,6 +52,7 @@ set(test_SRCS
 		quest/CQuestLoaderTest.cpp
 		quest/CQuestSeerTest.cpp
 		quest/CQuestSeerMultiTest.cpp
+		quest/CQuestVisibilityTest.cpp
 		quest/CQuestGuardTest.cpp
 		quest/CQuestBorderTest.cpp
 		quest/CQuestGateTest.cpp

@@ -176,6 +176,9 @@ public:
 	virtual const Quest & activeQuest() const { return getQuest(); }
 	const Quest * activeQuestForLog() const override { return &activeQuest(); }
 	std::vector<MapObjectSubID> questLogSharedColor() const override;
+	/// Stays visible to any player holding this source in their active quest log,
+	/// so a quest-log entry under fog of war can still resolve its source object.
+	bool isVisibleFor(PlayerColor player) const override;
 
 	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 

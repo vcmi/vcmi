@@ -445,6 +445,16 @@ std::vector<MapObjectSubID> QuestSource::questLogSharedColor() const
 	return getQuest().mission.requiredKeys;
 }
 
+bool QuestSource::isVisibleFor(PlayerColor player) const
+{
+	if(const auto * ps = cb->getPlayerState(player, false))
+		for(const auto & qi : ps->quests)
+			if(qi.obj == id)
+				return true;
+
+	return CGObjectInstance::isVisibleFor(player);
+}
+
 bool QuestSource::questLogEntryShared(PlayerColor player) const
 {
 	const auto color = questLogSharedColor();
