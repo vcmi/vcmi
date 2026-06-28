@@ -637,13 +637,15 @@ void CSpellWindow::keyPressed(EShortcut key)
 		case EShortcut::MOVE_DOWN:
 		{
 			bool down = key == EShortcut::MOVE_DOWN;
-			static const std::array schoolsOrder = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
-			int index = -1;
-			while(schoolsOrder[++index] != selectedTab);
-			index += (down ? 1 : -1);
-			vstd::abetween<int>(index, 0, std::size(schoolsOrder) - 1);
-			if(selectedTab != schoolsOrder[index])
-				selectSchool(schoolsOrder[index]);
+			static const std::array legacyOrder = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
+
+			auto order = customSpellSchools;
+			order.insert(order.begin(), legacyOrder.begin(), legacyOrder.end());
+
+			int idx = std::distance(order.begin(), std::find(order.begin(), order.end(), selectedTab));
+			idx = (idx + (down ? 1 : -1) + static_cast<int>(order.size())) % static_cast<int>(order.size());
+			if(selectedTab != order[idx])
+				selectSchool(order[idx]);
 			break;
 		}
 		case EShortcut::SPELLBOOK_TAB_COMBAT:
