@@ -133,7 +133,7 @@ else()
 			OR
 			(NOT COMPILER_SUPPORTS_CXX23)
 		)
-	        set(DISCORD_RPC_NO_GLAZE ON)
+			set(DISCORD_RPC_NO_GLAZE ON)
 		endif()
 	endif()
 endif()
