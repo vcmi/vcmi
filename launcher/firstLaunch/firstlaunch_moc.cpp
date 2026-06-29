@@ -812,7 +812,7 @@ void FirstLaunchView::createModPresetWidgets()
 	int row = 2;
 	for(auto & preset : modPresets)
 	{
-		auto * button = new QToolButton(ui->scrollAreaPresetModsContents);
+		auto button = std::make_unique<QToolButton>(ui->scrollAreaPresetModsContents);
 		button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 		button->setMinimumHeight(32);
 		QFont buttonFont = button->font();
@@ -827,15 +827,15 @@ void FirstLaunchView::createModPresetWidgets()
 		button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 		button->setAutoRaise(false);
 
-		auto * description = new QLabel(ui->scrollAreaPresetModsContents);
+		auto description = std::make_unique<QLabel>(ui->scrollAreaPresetModsContents);
 		description->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 		description->setWordWrap(true);
 
-		ui->gridLayoutModsPreset->addWidget(button, row, 0);
-		ui->gridLayoutModsPreset->addWidget(description, row, 1);
+		ui->gridLayoutModsPreset->addWidget(button.get(), row, 0);
+		ui->gridLayoutModsPreset->addWidget(description.get(), row, 1);
 
-		preset.button = button;
-		preset.description = description;
+		preset.button = button.release();
+		preset.description = description.release();
 
 		++row;
 	}
