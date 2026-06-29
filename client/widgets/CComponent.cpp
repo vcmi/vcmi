@@ -73,7 +73,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 
 	assert(size < sizeInvalid);
 
-	setSurface(getFileName()[size], (int)getIndex());
+	setSurface(getFileName()[size], static_cast<int>(getIndex()));
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;

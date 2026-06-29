@@ -63,23 +63,23 @@ std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 
 	if(markArtifacts || markHeroes || markKeys)
 	{
-		for(const auto * obj : cb->getAllVisitableObjs())
+		for(const auto * visitable : cb->getAllVisitableObjs())
 		{
-			if(markHeroes && obj->ID == Obj::HERO)
+			if(markHeroes && visitable->ID == Obj::HERO)
 			{
-				if(limiter.heroAllowed(dynamic_cast<const CGHeroInstance *>(obj)))
-					result.push_back(obj->visitablePos());
+				if(limiter.heroAllowed(dynamic_cast<const CGHeroInstance *>(visitable)))
+					result.push_back(visitable->visitablePos());
 			}
-			else if(markArtifacts && obj->ID == Obj::ARTIFACT)
+			else if(markArtifacts && visitable->ID == Obj::ARTIFACT)
 			{
-				if(const auto * art = dynamic_cast<const CGArtifact *>(obj))
+				if(const auto * art = dynamic_cast<const CGArtifact *>(visitable))
 					if(vstd::contains(limiter.artifacts, art->getArtifactType()))
-						result.push_back(obj->visitablePos());
+						result.push_back(visitable->visitablePos());
 			}
-			else if(markKeys && obj->ID == Obj::KEYMASTER)
+			else if(markKeys && visitable->ID == Obj::KEYMASTER)
 			{
-				if(vstd::contains(limiter.requiredKeys, obj->subID))
-					result.push_back(obj->visitablePos());
+				if(vstd::contains(limiter.requiredKeys, visitable->subID))
+					result.push_back(visitable->visitablePos());
 			}
 		}
 	}

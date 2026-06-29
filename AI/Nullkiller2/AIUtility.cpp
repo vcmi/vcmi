@@ -198,11 +198,8 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 		&& objectRelations != PlayerRelations::ENEMIES)
 		return true;
 
-	if(obj->ID == Obj::BORDER_GATE)
-	{
-		if(QuestSource::hasVisitedKeymaster(obj, playerColor))
-			return true;
-	}
+	if(obj->ID == Obj::BORDER_GATE && QuestSource::hasVisitedKeymaster(obj, playerColor))
+		return true;
 
 	return false;
 }

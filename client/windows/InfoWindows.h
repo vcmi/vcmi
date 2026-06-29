@@ -19,7 +19,6 @@ class CGHeroInstance;
 class CGGarrison;
 class CGCreature;
 class CGTeleport;
-class CGObjectInstance;
 class CGObelisk;
 
 class CComponent;

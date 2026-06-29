@@ -396,7 +396,7 @@ void QuestWidget::on_lCreatureRemove_clicked()
 		ui->lCreatures->removeRow(i);
 }
 
-QuestDelegate::QuestDelegate(MapController & c, Quest & t): controller(c), quest(t), BaseInspectorItemDelegate()
+QuestDelegate::QuestDelegate(MapController & c, Quest & t): BaseInspectorItemDelegate(), controller(c), quest(t)
 {
 }
 

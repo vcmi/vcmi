@@ -19,7 +19,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<class ObjectType>
 class KeyGuardInstanceConstructor final : public CDefaultObjectTypeHandler<ObjectType>
 {
-protected:
 	void initializeObject(ObjectType * object) const override
 	{
 		object->addQuest().mission.requiredKeys.push_back(MapObjectSubID(this->getSubIndex()));

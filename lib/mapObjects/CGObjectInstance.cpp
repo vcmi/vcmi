@@ -107,8 +107,8 @@ bool CGObjectInstance::isVisibleFor(PlayerColor player) const
 	{
 		for(int fx = 0; fx < getWidth(); ++fx)
 		{
-			int3 pos = anchorPos() + int3(-fx, -fy, 0);
-			if(coveringAt(pos) && cb->isVisibleFor(pos, player))
+			int3 tile = anchorPos() + int3(-fx, -fy, 0);
+			if(coveringAt(tile) && cb->isVisibleFor(tile, player))
 				return true;
 		}
 	}
