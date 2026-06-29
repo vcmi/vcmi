@@ -592,14 +592,14 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & turns,
 		phases[unitPhase].push_back(unit);
 	}
 
-	boost::sort(phases[BattlePhases::SIEGE], CMP_stack(BattlePhases::SIEGE, actualTurn, sideThatLastMoved));
+	std::ranges::sort(phases[BattlePhases::SIEGE], CMP_stack(BattlePhases::SIEGE, actualTurn, sideThatLastMoved));
 	std::copy(phases[BattlePhases::SIEGE].begin(), phases[BattlePhases::SIEGE].end(), std::back_inserter(turns.back()));
 
 	if(turnsIsFull())
 		return;
 
 	for(uint8_t phase = BattlePhases::NORMAL; phase < BattlePhases::NUMBER_OF_PHASES; phase++)
-		boost::sort(phases[phase], CMP_stack(phase, actualTurn, sideThatLastMoved));
+		std::ranges::sort(phases[phase], CMP_stack(phase, actualTurn, sideThatLastMoved));
 
 	uint8_t phase = BattlePhases::NORMAL;
 	while(!turnsIsFull() && phase < BattlePhases::NUMBER_OF_PHASES)
@@ -1527,7 +1527,7 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	if (unit.hasBonusOfType(BonusType::FLYING))
 	{
 		BattleHexArray reachableHexes = battleGetAvailableHexes(cache, &unit, false);
-		return boost::min_element(reachableHexes, [&targetHex](const BattleHex & lhs, const BattleHex & rhs)
+		return std::ranges::min_element(reachableHexes, [&targetHex](const BattleHex & lhs, const BattleHex & rhs)
 		{
 			return BattleHex::getDistance(lhs, targetHex) < BattleHex::getDistance(rhs, targetHex);
 		})[0];
@@ -1567,7 +1567,7 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 
 	if (battleCanShoot(berserker))
 	{
-		const auto target = boost::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
+		const auto target = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
 		{
 			return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
 		})[0];
@@ -1592,7 +1592,7 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 		for (const battle::Unit * uTarget : targets)
 		{
 			BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
-			auto closestAttackableHex = boost::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
+			auto closestAttackableHex = std::ranges::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
 			{
 				return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
 			})[0];
@@ -1601,7 +1601,7 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 			targetData.push_back(temp);
 		}
 
-		auto closestUnit = boost::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
+		auto closestUnit = std::ranges::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
 		{
 			return lhs.distance < rhs.distance;
 		})[0];
@@ -2027,7 +2027,7 @@ ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const battl
 
 	auto reachability = getReachability(unit);
 
-	boost::copy(reachability.distances, ret.begin());
+	std::ranges::copy(reachability.distances, ret.begin());
 
 	return ret;
 }

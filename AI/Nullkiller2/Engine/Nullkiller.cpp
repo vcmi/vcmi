@@ -27,7 +27,6 @@
 #include "../Goals/Invalid.h"
 #include "Goals/RecruitHero.h"
 #include "ResourceTrader.h"
-#include <boost/range/algorithm/sort.hpp>
 
 namespace NK2AI
 {
@@ -203,7 +202,7 @@ Goals::TTaskVec Nullkiller::buildPlanAndFilter(TGoalVec & tasks, int priorityTie
 		}
 	);
 
-	boost::range::sort(
+	std::ranges::sort(
 		tasks,
 		[](const TSubgoal & g1, const TSubgoal & g2) -> bool
 		{
@@ -436,7 +435,7 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		boost::range::sort(selectedTasks, [](const TTask& a, const TTask& b)
+		std::ranges::sort(selectedTasks, [](const TTask& a, const TTask& b)
 		{
 			return a->priority > b->priority;
 		});

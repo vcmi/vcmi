@@ -549,7 +549,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 		if(allowNormalVictory)
 		{
-			size_t playersOnMap = boost::range::count_if(
+			size_t playersOnMap = std::ranges::count_if(
 				mapHeader->players,
 				[](const PlayerInfo & info)
 				{

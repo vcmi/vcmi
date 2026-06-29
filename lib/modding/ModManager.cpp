@@ -114,7 +114,7 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 
 std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) const
 {
-	size_t depth = boost::range::count(modDir, '/');
+	size_t depth = std::ranges::count(modDir, '/');
 
 	const auto & modScanFilter = [&](const ResourcePath & id) -> bool
 	{
@@ -122,7 +122,7 @@ std::vector<TModID> ModsState::scanModsDirectory(const std::string & modDir) con
 			return false;
 		if(!boost::algorithm::starts_with(id.getName(), modDir))
 			return false;
-		if(boost::range::count(id.getName(), '/') != depth)
+		if(std::ranges::count(id.getName(), '/') != depth)
 			return false;
 		return true;
 	};
@@ -804,7 +804,7 @@ const TModList & ModDependenciesResolver::getBrokenMods() const
 void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStorage & storage)
 {
 	// Topological sort algorithm.
-	boost::range::sort(modsToResolve); // Sort mods per name
+	std::ranges::sort(modsToResolve); // Sort mods per name
 	std::vector<TModID> sortedValidMods(activeMods.begin(), activeMods.end()); // Vector keeps order of elements (LIFO)
 	std::set<TModID> resolvedModIDs(activeMods.begin(), activeMods.end()); // Use a set for validation for performance reason, but set does not keep order of elements
 	std::set<TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason

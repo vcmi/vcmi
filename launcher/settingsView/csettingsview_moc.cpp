@@ -402,12 +402,12 @@ static QVector<QSize> findAvailableResolutions(int displayIndex)
 		result.push_back(resolution);
 	}
 
-	boost::range::sort(result, [](const auto & left, const auto & right)
+	std::ranges::sort(result, [](const auto & left, const auto & right)
 	{
 		return left.height() * left.width() < right.height() * right.width();
 	});
 
-	result.erase(boost::unique(result).end(), result.end());
+	result.erase(std::ranges::unique(result).end(), result.end());
 
 	SDL_Quit();
 

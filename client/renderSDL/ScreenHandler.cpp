@@ -708,13 +708,13 @@ std::vector<Point> ScreenHandler::getSupportedResolutions( int displayIndex) con
 		}
 	}
 
-	boost::range::sort(result, [](const auto & left, const auto & right)
+	std::ranges::sort(result, [](const auto & left, const auto & right)
 	{
 		return left.x * left.y < right.x * right.y;
 	});
 
 	// erase potential duplicates, e.g. resolutions with different framerate / bits per pixel
-	result.erase(boost::unique(result).end(), result.end());
+	result.erase(std::ranges::unique(result).end(), result.end());
 
 	return result;
 }

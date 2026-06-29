@@ -632,7 +632,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 
 void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 {
-	const auto * resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
+	const auto * resIter = std::ranges::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
 		town->primaryRes = GameResID(EGameResID::WOOD_AND_ORE); //Wood + Ore
 	else

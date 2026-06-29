@@ -435,7 +435,7 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 			throw std::runtime_error("Failed to find hero to take artifacts from! Scenario: " + gameState->map->name.toString());
 
 		// process in reverse - 2nd artifact from a backpack must be processed before 1st one to avoid invalidation of artifact positions
-		for (auto const & artLocation : boost::adaptors::reverse(campaignHeroReplacement.transferrableArtifacts))
+		for (auto const & artLocation : std::views::reverse(campaignHeroReplacement.transferrableArtifacts))
 		{
 			auto * artifact = donorHero->getArt(artLocation);
 
@@ -502,7 +502,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 	if (lastScenario)
 	{
 		// sort hero placeholders descending power
-		boost::range::sort(placeholdersByPower, [](const CGHeroPlaceholder * a, const CGHeroPlaceholder * b)
+		std::ranges::sort(placeholdersByPower, [](const CGHeroPlaceholder * a, const CGHeroPlaceholder * b)
 		{
 			return *a->powerRank > *b->powerRank;
 		});

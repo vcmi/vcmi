@@ -336,7 +336,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 		int amount = dwelling->creatures[i].first;
 
 		//create new cards
-		for(auto & creature : boost::adaptors::reverse(dwelling->creatures[i].second))
+		for(auto & creature : std::views::reverse(dwelling->creatures[i].second))
 			cards.push_back(std::make_shared<CCreatureCard>(this, creature.toCreature(), amount));
 	}
 

@@ -8,7 +8,7 @@
 *
 */
 #include "../StdInc.h"
-#include <boost/range/algorithm/sort.hpp>
+#include "BuildAnalyzer.h"
 
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
@@ -91,7 +91,7 @@ void BuildAnalyzer::update()
 #endif
 	}
 
-	boost::range::sort(developmentInfos, [](const TownDevelopmentInfo & tdi1, const TownDevelopmentInfo & tdi2) -> bool
+	std::ranges::sort(developmentInfos, [](const TownDevelopmentInfo & tdi1, const TownDevelopmentInfo & tdi2) -> bool
 	{
 		auto val1 = goldApproximate(tdi1.armyCost) - goldApproximate(tdi1.townDevelopmentCost);
 		auto val2 = goldApproximate(tdi2.armyCost) - goldApproximate(tdi2.townDevelopmentCost);
@@ -250,7 +250,7 @@ void BuildAnalyzer::updateDwellings(TownDevelopmentInfo & developmentInfo, std::
 				dwellingsInTown.push_back(buildID);
 
 		// find best, already built dwelling
-		for (const auto & buildID : boost::adaptors::reverse(dwellingsInTown))
+		for (const auto & buildID : std::views::reverse(dwellingsInTown))
 		{
 			if (!developmentInfo.town->hasBuilt(buildID))
 				continue;

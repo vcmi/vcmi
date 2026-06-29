@@ -512,7 +512,7 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	if (bobjs.empty())
 		return nullptr;
 
-	return *boost::range::max_element(bobjs, &CMap::compareObjectBlitOrder);
+	return *std::ranges::max_element(bobjs, &CMap::compareObjectBlitOrder);
 }
 
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)

@@ -652,7 +652,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 
 int CMapGenOptions::countHumanPlayers() const
 {
-	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(std::ranges::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == EPlayerType::HUMAN;
 	}));
@@ -660,7 +660,7 @@ int CMapGenOptions::countHumanPlayers() const
 
 int CMapGenOptions::countCompOnlyPlayers() const
 {
-	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(std::ranges::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == EPlayerType::COMP_ONLY;
 	}));

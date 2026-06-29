@@ -78,7 +78,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 	currentTavern.push_back(newSlot);
 
-	boost::range::sort(currentTavern, [](const TavernSlot & left, const TavernSlot & right)
+	std::ranges::sort(currentTavern, [](const TavernSlot & left, const TavernSlot & right)
 	{
 		if (left.slot == right.slot)
 			return left.player < right.player;

@@ -608,7 +608,7 @@ auto SelectionTab::checkSubfolder(std::string path)
 	}
 
 	if(boost::algorithm::starts_with(pathWithoutPrefix, curFolder))
-		if(boost::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
+		if(std::ranges::count(pathWithoutPrefix.substr(curFolder.size()), '/') == 0)
 			ret.fileInFolder = true;
 
 	return ret;
@@ -658,7 +658,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 				auto folder = std::make_shared<ElementInfo>();
 				folder->isFolder = true;
 				folder->folderName = "..     (" + curFolder + ")";
-				auto itemIt = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
+				auto itemIt = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return boost::starts_with(e->folderName, ".."); });
 				if (itemIt == curItems.end()) {
 					curItems.push_back(folder);
 				}			
@@ -668,7 +668,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 			folder->isFolder = true;
 			folder->folderName = folderName;
 			folder->isAutoSaveFolder = boost::starts_with(baseFolder, "Autosave/") && folderName != "Autosave";
-			auto itemIt = boost::range::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
+			auto itemIt = std::ranges::find_if(curItems, [folder](std::shared_ptr<ElementInfo> e) { return e->folderName == folder->folderName; });
 			if (itemIt == curItems.end() && folderName != "") {
 				curItems.push_back(folder);
 			}
@@ -686,7 +686,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+			int firstPos = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 			if(firstPos < curItems.size())
 			{
 				slider->scrollTo(firstPos);
@@ -727,7 +727,7 @@ void SelectionTab::sort()
 		std::stable_sort(curItems.begin(), curItems.end(), mapSorter(generalSortingBy));
 	std::stable_sort(curItems.begin(), curItems.end(), mapSorter(sortingBy));
 
-	int firstMapIndex = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	int firstMapIndex = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	if(!sortModeAscending)
 	{
 		if(firstMapIndex)
@@ -776,7 +776,7 @@ void SelectionTab::select(int position)
 		filter(-1);
 		slider->scrollTo(0);
 
-		int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+		int firstPos = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 		if(firstPos < curItems.size())
 		{
 			selectAbs(firstPos);
@@ -802,7 +802,7 @@ void SelectionTab::select(int position)
 void SelectionTab::selectAbs(int position)
 {
 	if(position == -1)
-		position = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+		position = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	select(position - slider->getValue());
 }
 
@@ -892,7 +892,7 @@ void SelectionTab::selectFileName(std::string fname)
 		}
 	}
 
-	int firstPos = boost::range::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+	int firstPos = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
 	if(firstPos < curItems.size())
 	{
 		slider->scrollTo(firstPos);

@@ -51,7 +51,7 @@ void MapRendererContextState::addObject(const CGObjectInstance * obj)
 			if(GAME->interface()->cb->isInTheMap(currTile) && obj->coveringAt(currTile))
 			{
 				auto & container = objects[currTile];
-				auto position = std::upper_bound(container.begin(), container.end(), obj->id, compareObjectBlitOrder);
+				auto position = std::ranges::upper_bound(container, obj->id, compareObjectBlitOrder);
 				container.insert(position, obj->id);
 
 				usedTiles[obj->id].push_back(currTile);
@@ -76,7 +76,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 			if(GAME->interface()->cb->isInTheMap(currTile))
 			{
 				auto & container = objects[currTile];
-				auto position = std::upper_bound(container.begin(), container.end(), object->id, compareObjectBlitOrder);
+				auto position = std::ranges::upper_bound(container, object->id, compareObjectBlitOrder);
 				container.insert(position, object->id);
 
 				usedTiles[object->id].push_back(currTile);

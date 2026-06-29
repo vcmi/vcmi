@@ -61,7 +61,7 @@ void CreatureCostBox::createItems(TResources res)
 			curx -= ((16 * resourcesCount) + (8 * (resourcesCount - 1)));
 		}
 		//reverse to display gold as first resource
-		for(auto & currentRes : boost::adaptors::reverse(resources))
+		for(auto & currentRes : std::views::reverse(resources))
 		{
 			currentRes.second.first->moveBy(Point(curx + 2, 22));
 			currentRes.second.second->moveBy(Point(curx, 22));
