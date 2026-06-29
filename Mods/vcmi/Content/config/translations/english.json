@@ -1224,5 +1224,17 @@
 	"vcmi.wiki.modName.core.ab": "Heroes of Might and Magic III: Armageddon's Blade",
 	"vcmi.wiki.modName.core.sod": "Heroes of Might and Magic III: The Shadow of Death",
 	"vcmi.wiki.glossary.vcmi.name": "VCMI",
-	"vcmi.wiki.glossary.vcmi.description": "VCMI is a complete open-source remake of Heroes of Might and Magic III, built from the ground up using modern C++. It uses the original game's graphics, sounds, and text assets, achieving near-perfect compatibility with classic Heroes 3 gameplay while offering the technical advantages of a modern engine.\n\nEverything in VCMI has been rewritten from scratch: game file loading, graphics rendering, pathfinding, AI, battle mechanics, and the modding framework. The project aims to overcome the limitations of the original Heroes 3 engine, support popular community mods such as HotA, WoG, and HD Mod, and open up entirely new modding possibilities.\n\nVCMI is cross-platform and runs on Windows, Linux, macOS, iOS, and Android.\n\n{VCMI} is an acronym of the Quenya phrase {Vinyar Callor Meletyo ar Ingoleo}, meaning {New Heroes of Might and Magic}."
+	"vcmi.wiki.glossary.vcmi.description": "VCMI is a complete open-source remake of Heroes of Might and Magic III, built from the ground up using modern C++. It uses the original game's graphics, sounds, and text assets, achieving near-perfect compatibility with classic Heroes 3 gameplay while offering the technical advantages of a modern engine.\n\nEverything in VCMI has been rewritten from scratch: game file loading, graphics rendering, pathfinding, AI, battle mechanics, and the modding framework. The project aims to overcome the limitations of the original Heroes 3 engine, support popular community mods such as HotA, WoG, and HD Mod, and open up entirely new modding possibilities.\n\nVCMI is cross-platform and runs on Windows, Linux, macOS, iOS, and Android.\n\n{VCMI} is an acronym of the Quenya phrase {Vinyar Callor Meletyo ar Ingoleo}, meaning {New Heroes of Might and Magic}.",
+	"vcmi.mod.preset.extras.name": "VCMI Extras",
+	"vcmi.mod.preset.extras.description": "Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle",
+	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
+	"vcmi.mod.preset.hota.description": "A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
+	"vcmi.mod.preset.wog.description": "A feature-rich expansion that deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects",
+	"vcmi.mod.preset.tow.name": "Tides of War",
+	"vcmi.mod.preset.tow.description": "A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells",
+	"vcmi.mod.preset.fod.name": "Fallen of the Depth",
+	"vcmi.mod.preset.fod.description": "Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI",
+	"vcmi.mod.preset.toa.name": "Tears of Ashan",
+	"vcmi.mod.preset.toa.description": "A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III"
 }

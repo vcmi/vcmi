@@ -201,5 +201,7 @@
 	"vcmi.systemOptions.townsGroup": "Écran de la Ville",
 	"vcmi.systemOptions.videoGroup": "Paramètres Vidéo",
 	"vcmi.townHall.missingBase": "Le bâtiment de base %s doit être construit avant",
-	"vcmi.townHall.noCreaturesToRecruit": "Il n'y a aucune créature à recruter !"
+	"vcmi.townHall.noCreaturesToRecruit": "Il n'y a aucune créature à recruter !",
+	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods"
 }

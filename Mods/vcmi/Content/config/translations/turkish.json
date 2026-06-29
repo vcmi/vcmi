@@ -1124,5 +1124,12 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Haritanın yakınlaştırma düzeyini değiştirmek için iki parmağınızla sıkıştırın..",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Kaydırma hareketi, yaratık/kahraman yönetimi ve şehir siparişi gibi çeşitli eylemler için radyal tekerleği açar.",
 	"vcmi.tutorialWindow.decription.RightClick": "Sağ tıklamak istediğiniz öğeye dokunun ve basılı tutun. Kapatmak için boş alana dokunun.",
-	"vcmi.tutorialWindow.title": "Dokunmatik Ekran Tanıtımı"
+	"vcmi.tutorialWindow.title": "Dokunmatik Ekran Tanıtımı",
+	"vcmi.mod.preset.extras.name": "VCMI Ekstraları",
+	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
+	"vcmi.mod.preset.tow.name": "Savaşın Dalgaları",
+	"vcmi.mod.preset.tow.description": "9 standart şehrin her biri için bir alternatif birim, ayrıca yeni tarafsız yaratıklar, yaratık bankaları, beceriler ve büyüler ile oyun deneyimini genişleten zengin özelliklere sahip bir genişletme paketi",
+	"vcmi.mod.preset.fod.name": "Derinliklerin Düşüşü",
+	"vcmi.mod.preset.fod.description": "Yeraltı dünyasına inin ve Casemate'i keşfedin — VCMI için yaratılmış, karanlıkta mantarların, taşların ve rün büyüsünün hüküm sürdüğü yeni bir fraksiyon"
 }

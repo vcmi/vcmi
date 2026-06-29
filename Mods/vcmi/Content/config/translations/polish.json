@@ -1207,5 +1207,11 @@
 	"vcmi.wiki.town.cost": "Koszt",
 	"vcmi.wiki.town.creatureName": "Stworzenie",
 	"vcmi.wiki.town.creatures": "Stworzenia",
-	"vcmi.wiki.town.heroes": "Bohaterowie"
+	"vcmi.wiki.town.heroes": "Bohaterowie",
+	"vcmi.mod.preset.extras.name": "VCMI Extras",
+	"vcmi.mod.preset.hota.name": "Róg Otchłani",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
+	"vcmi.mod.preset.tow.description": "Rozbudowane rozszerzenie, które wzbogaca rozgrywkę o jedną alternatywną jednostkę dla każdego z 9 standardowych miast, a także dodaje nowe neutralne stworzenia, banki stworzeń, umiejętności i zaklęcia",
+	"vcmi.mod.preset.fod.name": "Fallen of the Depth",
+	"vcmi.mod.preset.fod.description": "Zejdź do podziemnego królestwa i odkryj Kazamaty — nową frakcję stworzoną dla VCMI, w której grzyby, magia run i kamieni czyhają w ciemności"
 }

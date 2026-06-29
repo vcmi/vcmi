@@ -12,6 +12,8 @@
 
 #include "../demo.h"
 
+#include "../../lib/texts/TextLocalizationContainer.h"
+
 namespace Ui
 {
 class FirstLaunchView;
@@ -59,16 +61,30 @@ class FirstLaunchView : public QWidget, public IDemoInstallerCallback
 	void copyHeroesData(const QString & path = {}, bool removeSource = false);
 
 	// Tab Mod Preset
+	struct ModPreset
+	{
+		QString modID;
+		QString nameTextID;
+		QString descriptionTextID;
+		int order = 0;
+		bool checkedByDefault = false;
+		QToolButton * button = nullptr;
+		QLabel * description = nullptr;
+	};
+
+	QVector<ModPreset> modPresets;
+	TextLocalizationContainer modPresetTexts;
+
 	void modPresetUpdate();
+	void loadModPresets();
+	void createModPresetWidgets();
+	void loadModPresetTranslations();
+	void updateModPresetTexts();
+	QString translateModPresetText(const QString & textID) const;
 
 	QString findTranslationModName();
 
 	bool checkCanInstallTranslation();
-	bool checkCanInstallExtras();
-	bool checkCanInstallHota();
-	bool checkCanInstallWog();
-	bool checkCanInstallTow();
-	bool checkCanInstallFod();
 	bool checkCanInstallMod(const QString & modID);
 
 public:

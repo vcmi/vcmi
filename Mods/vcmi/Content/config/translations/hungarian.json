@@ -628,5 +628,7 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Csípje össze két ujjal a térkép nagyításának megváltoztatásához.",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Húzás különféle műveletekhez, például lény/hős kezeléshez és város rendeléshez nyit meg egy radiális kereket.",
 	"vcmi.tutorialWindow.decription.RightClick": "Érintse meg és tartsa lenyomva azt az elemet, amelyre jobb gombbal szeretne kattintani. Érintse meg a szabad területet a bezáráshoz.",
-	"vcmi.tutorialWindow.title": "Érintőképernyő bemutató"
+	"vcmi.tutorialWindow.title": "Érintőképernyő bemutató",
+	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods"
 }

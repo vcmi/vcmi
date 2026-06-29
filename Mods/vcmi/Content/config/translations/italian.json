@@ -630,5 +630,7 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Pizzica con due dita per modificare lo zoom della mappa.",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Scorrendo si apre la ruota radiale per varie azioni, come la gestione delle creature/eroi e l'ordinamento delle città.",
 	"vcmi.tutorialWindow.decription.RightClick": "Tocca e tieni premuto l'elemento su cui desideri fare clic destro. Tocca un'area libera per chiudere.",
-	"vcmi.tutorialWindow.title": "Introduzione touchscreen"
+	"vcmi.tutorialWindow.title": "Introduzione touchscreen",
+	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
+	"vcmi.mod.preset.wog.name": "In The Wake of Gods"
 }
