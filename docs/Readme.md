@@ -2,8 +2,8 @@
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.1)
-[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.2/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.2)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.3/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.3)
+[![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.4/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.4)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/total)](https://github.com/vcmi/vcmi/releases)
 
 VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving it new and extended possibilities.
@@ -22,6 +22,10 @@ VCMI is an open-source recreation of Heroes of Might & Magic III engine, giving 
 * Bugtracker: <https://github.com/vcmi/vcmi/issues>
 * Discord:    <https://discord.gg/chBT42V>
 * GPT Store:  <https://chat.openai.com/g/g-1kNhX0mlO-vcmi-assistant>
+
+VCMI translations are powered by Weblate
+
+[![Translation status](https://hosted.weblate.org/widget/vcmi/287x66-grey.png)](https://hosted.weblate.org/engage/vcmi/)
 
 ## Latest release
 
@@ -57,6 +61,10 @@ See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md
 ## Documentation and guidelines for translators
 
 - [Translations](translators/Translations.md)
+
+### Current translation status
+
+[![Translation status](https://hosted.weblate.org/widget/vcmi/multi-auto.svg)](https://hosted.weblate.org/engage/vcmi/)
 
 ## Documentation and guidelines for game modders
 

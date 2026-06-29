@@ -22,6 +22,7 @@ class CGarrisonInt;
 class CButton;
 class CAnimImage;
 class CLabel;
+class CPicture;
 
 enum class EGarrisonType
 {
@@ -39,6 +40,8 @@ class CGarrisonSlot : public CIntObject
 	EGarrisonType upg;
 
 	std::shared_ptr<CAnimImage> creatureImage;
+	std::shared_ptr<CPicture> artifactBackgroundImage;
+	std::shared_ptr<CAnimImage> artifactImage;
 	std::shared_ptr<CAnimImage> selectionImage; // image for selection, not always visible
 	std::shared_ptr<CLabel> stackCount;
 

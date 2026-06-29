@@ -288,12 +288,14 @@ QString FirstLaunchView::getHeroesInstallDir()
 {
 #ifdef VCMI_WINDOWS
 	QVector<QPair<QString, QString>> regKeys = {
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",											 "path"	   }, // Gog on x86 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",							     "path"	   }, // Gog on x64 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",			     "AppPath" }, // H3 Complete on x86 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic® III\\1.0", "AppPath" }, // H3 Complete on x64 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic III\\1.0",			     "AppPath" }, // some localized H3 on x86 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic III\\1.0",  "AppPath" }, // some localized H3 on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",											 "path"	      }, // Gog on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",							     "path"	      }, // Gog on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",			     "AppPath"    }, // H3 Complete on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic® III\\1.0", "AppPath"    }, // H3 Complete on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic III\\1.0",			     "AppPath"    }, // some localized H3 on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic III\\1.0",  "AppPath"    }, // some localized H3 on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\Ubisoft\\Launcher\\Installs\\353",                                      "InstallDir" }, // Ubisoft H3 on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Ubisoft\\Launcher\\Installs\\353",                         "InstallDir" }, // Ubisoft H3 on x64 system
 	};
 
 	for(auto & regKey : regKeys)
@@ -310,7 +312,6 @@ static QString defaultStartDirForOpen()
 {
 #if defined(VCMI_MOBILE)
 	const QStandardPaths::StandardLocation mobilePrefs[] = {
-		QStandardPaths::DocumentsLocation,
 		QStandardPaths::HomeLocation
 	};
 	for(auto location : mobilePrefs)

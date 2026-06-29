@@ -13,10 +13,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class TerminationRequestedException : public std::exception
+class DLL_LINKAGE TerminationRequestedException : public std::exception
 {
 public:
 	using exception::exception;
+	~TerminationRequestedException() override;
 
 	const char* what() const noexcept override
 	{
@@ -24,10 +25,11 @@ public:
 	}
 };
 
-class InterruptionRequestedException : public std::exception
+class DLL_LINKAGE InterruptionRequestedException : public std::exception
 {
 public:
 	using exception::exception;
+	~InterruptionRequestedException() override;
 
 	const char* what() const noexcept override
 	{

@@ -14,6 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+DecompressionException::~DecompressionException() = default;
+
 static const int inflateBlockSize = 10000;
 
 CBufferedStream::CBufferedStream():

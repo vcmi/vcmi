@@ -451,6 +451,7 @@ static void drawLineYDashed(SDL_Surface * sur, int x1, int y1, int x2, int y2, c
 
 static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
+	const SDL_Rect & clip = sur->clip_rect;
 	double length(x2 - x1);
 	for(int x = x1; x <= x2; x++)
 	{
@@ -462,7 +463,7 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		if (x >= 0 && y >= 0 && x < sur->w && y < sur->h)
+		if (x >= clip.x && x < clip.x + clip.w && y >= clip.y && y < clip.y + clip.h)
 		{
 			uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
 			ColorPutter<4>::PutColor(p, r,g,b,a);
@@ -472,6 +473,7 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 
 static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
+	const SDL_Rect & clip = sur->clip_rect;
 	double length(y2 - y1);
 	for(int y = y1; y <= y2; y++)
 	{
@@ -483,7 +485,7 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 		uint8_t b = vstd::lerp(color1.b, color2.b, f);
 		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
-		if (x >= 0 && y >= 0 && x < sur->w && y < sur->h)
+		if (x >= clip.x && x < clip.x + clip.w && y >= clip.y && y < clip.y + clip.h)
 		{
 			uint8_t *p = CSDL_Ext::getPxPtr(sur, x, y);
 			ColorPutter<4>::PutColor(p, r,g,b,a);

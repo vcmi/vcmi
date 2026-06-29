@@ -178,8 +178,13 @@ struct DLL_LINKAGE CGPath
 	/// Last node in path, this is what hero wants to reach in the end
 	const CGPathNode & lastNode() const;
 
-	int3 startPos() const; // start point
-	int3 endPos() const; //destination point
+	/// if nextNode() can be accessed
+	bool hasNextNode() const;
+
+	/// starting point
+	int3 startPos() const;
+	/// destination point
+	int3 endPos() const;
 };
 
 struct DLL_LINKAGE CPathsInfo

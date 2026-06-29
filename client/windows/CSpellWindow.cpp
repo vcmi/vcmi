@@ -179,6 +179,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 		spellsPerPage = 12;
 	}
 
+	background->setPlayerColor(GAME->interface()->playerID);
+
 	pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
 	Rect r(90, isBigSpellbook ? 480 : 420, isBigSpellbook ? 160 : 110, 16);

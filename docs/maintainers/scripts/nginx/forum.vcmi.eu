@@ -1,0 +1,20 @@
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	server_name forum.vcmi.eu;
+
+	ssl_certificate /etc/nginx/certs/forum.vcmi.eu.pem;
+	ssl_certificate_key /etc/nginx/certs/forum.vcmi.eu.key;
+	ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+	ssl_verify_client on;
+
+	location / {
+		proxy_pass http://unix:/var/discourse/shared/standalone/nginx.http.sock:;
+		proxy_set_header Host $http_host;
+		proxy_http_version 1.1;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+}

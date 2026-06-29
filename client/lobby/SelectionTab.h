@@ -22,6 +22,7 @@ class CPicture;
 class IImage;
 class CAnimation;
 class CToggleButton;
+class ScenarioTabConfigurable;
 
 enum ESortBy
 {
@@ -89,6 +90,9 @@ public:
 	bool sortModeAscending;
 	int currentMapSizeFilter = 0;
 	bool showRandom;
+	size_t requiredHumanPlayers = 1;
+	size_t hiddenIncompatibleMapsCount = 0;
+	size_t getHiddenIncompatibleMapsCount() const;
 
 	std::shared_ptr<CTextInput> inputName;
 
@@ -102,6 +106,7 @@ public:
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 	void filter(int size, bool selectFirst = false); //0 - all
+	void filter(int size, size_t requiredHumanPlayers, bool selectFirst = false);
 	void sortBy(int criteria);
 	void sort();
 	void select(int position); //position: <0 - positions>  position on the screen
@@ -113,6 +118,7 @@ public:
 	void selectFileName(std::string fname);
 	void selectNewestFile();
 	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
+	void setRequiredHumanPlayers(size_t players);
 	void rememberCurrentSelection();
 	void restoreLastSelection();
 
@@ -121,17 +127,19 @@ private:
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;
 	std::shared_ptr<CLabel> labelTabTitle;
-	std::shared_ptr<CLabel> labelMapSizes;
 	ESelectionScreen tabType;
 	Rect inputNameRect;
 
 	std::shared_ptr<CButton> buttonDeleteMode;
+	std::shared_ptr<ScenarioTabConfigurable> scenarioTabConfigurable;
 	bool deleteMode;
 
 	bool enableUiEnhancements;
 	std::shared_ptr<CButton> buttonCampaignSet;
 
 	auto checkSubfolder(std::string path);
+	size_t getRequiredHumanPlayers() const;
+	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
 
 	bool isMapSupported(const CMapInfo & info);
 	void parseMaps(const std::unordered_set<ResourcePath> & files);

@@ -356,6 +356,10 @@ void Hex::setActionMask(const std::shared_ptr<ActiveStackInfo> & astackinfo, con
 		if(n_cstack->unitSide() == a_cstack->unitSide())
 			continue;
 
+		// XXX: There is an edge case related to STOPPING hexes (moat/quicksand)
+		// where AMOVE should not be allowed.
+		// It cannot be handled here; see note FixMoatMasks() in battlefield.cpp
+
 		if(hexaction <= HexAction::AMOVE_TL)
 		{
 			ASSERT(CStack::isMeleeAttackPossible(a_cstack, n_cstack, bhex), "vcmi says melee attack is IMPOSSIBLE [1]");

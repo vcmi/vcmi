@@ -23,10 +23,7 @@ public:
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
 	std::vector<std::shared_ptr<CButton>> buttons;
-	std::shared_ptr<CFilledTexture> stretchedBackground;
 	const int windowMargin = 5;
-
-	void showAll(Canvas & to) override;
 };
 
 class CHeroQuickBackpackWindow : public CWindowWithArtifacts

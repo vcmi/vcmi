@@ -161,7 +161,19 @@ void ServerDiscoveryListener::start()
 
 	boost::asio::ip::udp::endpoint listenEndpoint(boost::asio::ip::udp::v4(), port);
 
-	socket = std::make_shared<boost::asio::ip::udp::socket>(context, listenEndpoint);
+	try
+	{
+		socket = std::make_shared<boost::asio::ip::udp::socket>(context, listenEndpoint);
+	}
+	catch(const boost::system::system_error & e)
+	{
+		if(e.code() == boost::asio::error::address_in_use)
+		{
+			logGlobal->warn("ServerDiscoveryListener: port %d already in use, skipping", port);
+			return;
+		}
+		throw;
+	}
 	asyncReceive();
 }
 

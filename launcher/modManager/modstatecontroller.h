@@ -54,4 +54,5 @@ public:
 	
 signals:
 	void extractionProgress(qint64 currentAmount, qint64 maxAmount);
+	void contentExtractionProgress(QString modName, qint64 currentAmount, qint64 maxAmount);
 };

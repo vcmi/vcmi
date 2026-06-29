@@ -134,6 +134,10 @@ public:
 		return false;
 	}
 
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override
+	{
+	}
+
 	void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) override
 	{
 		//todo:
@@ -214,6 +218,18 @@ public:
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
+	CGHeroInstance * getHeroByOwner(PlayerColor owner) const
+	{
+		for(auto heroID : map->getHeroesOnMap())
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(map->getObject(heroID));
+			if(hero && hero->tempOwner == owner)
+				return hero;
+		}
+
+		return nullptr;
+	}
+
 	std::shared_ptr<CGameState> gameState;
 
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
@@ -230,12 +246,11 @@ TEST_F(CGameStateTest, issue2765)
 {
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	{
@@ -315,12 +330,11 @@ TEST_F(CGameStateTest, battleResurrection)
 {
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
@@ -455,12 +469,11 @@ TEST_F(CGameStateTest, battleInterference)
 
 	startTestGame();
 
-	auto attackerID = map->getHeroesOnMap()[0];
-	auto defenderID = map->getHeroesOnMap()[1];
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
 
-	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
-	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
-
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);

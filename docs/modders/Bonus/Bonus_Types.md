@@ -59,7 +59,7 @@ Example:
 ```json
 {
     "type" : "ON_COMBAT_EVENT",
-	"subtype" : "defend",
+	"subtype" : "combatEventDefend",
 	"addInfo" : {
 	    "effect" : [
 		    {
@@ -662,6 +662,13 @@ Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead wit
 Similar to `TWO_HEX_ATTACK_BREATH`, but affecting two additional hexes in a triangular formation from the target hex.
 Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
 
+### LONG_WEAPON
+
+The affected unit will always perform a melee attack from two hexes away as long as there is exactly one empty hex between attacker and target (`attacker -> empty hex -> victim`).
+
+- If attacker is adjacent to the defender, this bonus does **not** extend range and attack is resolved as normal melee.
+- Attacks performed at two-hex range do **not** allow retaliation.
+
 ### MULTIHEX_UNIT_ATTACK
 
 The affected unit attacks all units, friendly or not, located on specified hexes in addition to the primary target. Only the unit that has been directly targeted will attempt to retaliate.
@@ -1246,7 +1253,7 @@ When a unit affected by this bonus dies, no corpse is left behind
 
 ### INVINCIBLE
 
-The unit affected by this bonus cannot be target of attacks or spells
+The unit affected by this bonus cannot be targeted by attacks or affected by negative spells.
 
 ### UNIT_DEFENDING
 

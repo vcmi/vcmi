@@ -531,7 +531,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterruption.reset();
 
-	asyncTasks->run([this]() noexcept
+	asyncTasks->run([this]()
 	{
 		ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
 		status.waitTillFree();
@@ -693,7 +693,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	});
 }
 
-void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID)
+void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	std::string s1 = up->nodeName();
@@ -764,7 +764,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 	return upgraded;
 }
 
-void AIGateway::makeTurn() noexcept
+void AIGateway::makeTurn()
 {
 	try
 	{
@@ -795,11 +795,14 @@ void AIGateway::makeTurn() noexcept
 	catch (const InterruptionRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
-		return;
 	}
 	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been terminated. We'll end without calling endTurn");
+	}
+	catch (...)
+	{
+		logAi->error("Unknown exception in makeTurn. Ending turn without calling endTurn.");
 	}
 }
 

@@ -295,14 +295,14 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 	{
 		replaceTextPlaceholders(target, variables);
 
-		CreatureID strongest = info.reward.guards.at(0).getId();
+		std::pair<CreatureID, TQuantity> strongest = {info.reward.guards.at(0).getId(), info.reward.guards.at(0).getCount()};
 
 		for (const auto & guard : info.reward.guards )
 		{
-			if (strongest.toEntity(LIBRARY)->getFightValue() < guard.getId().toEntity(LIBRARY)->getFightValue())
-				strongest = guard.getId();
+			if (strongest.first.toEntity(LIBRARY)->getFightValue() < guard.getId().toEntity(LIBRARY)->getFightValue())
+				strongest = {guard.getId(), guard.getCount()};
 		}
-		target.replaceNamePlural(strongest); // FIXME: use singular if only 1 such unit is in guards
+		target.replaceName(strongest.first, strongest.second);
 
 		MetaString loot;
 
@@ -340,6 +340,12 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			loot.replaceName(secondary.first);
 		}
 
+		for (const auto & creature : info.reward.creatures )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(creature.getId(), creature.getCount());
+		}
+
 		target.replaceRawString(loot.buildList());
 	}
 	else
@@ -355,6 +361,9 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 		for (const auto & secondary : info.reward.secondary )
 			target.replaceName(secondary.first);
+
+		for (const auto & creature : info.reward.creatures )
+			target.replaceName(creature.getId(), creature.getCount());
 
 		replaceTextPlaceholders(target, variables);
 	}

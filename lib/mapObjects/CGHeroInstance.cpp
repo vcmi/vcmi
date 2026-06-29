@@ -1790,4 +1790,22 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);
 }
 
+ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
+{
+	ArtifactID replacedArtifact;
+	auto art = artifactID.toArtifact();
+
+	for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
+	{
+		const auto * currentArtifact = getArt(slot);
+
+		if(currentArtifact == nullptr)
+			return ArtifactID();
+		else
+			replacedArtifact = currentArtifact->getTypeId();
+	}
+	return replacedArtifact;
+}
+
+
 VCMI_LIB_NAMESPACE_END

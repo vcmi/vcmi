@@ -20,6 +20,9 @@ struct GlobalLobbyAccount
 
 struct GlobalLobbyRoom
 {
+	explicit GlobalLobbyRoom(const JsonNode & source);
+	GlobalLobbyRoom() = default;
+
 	std::string gameRoomID;
 	std::string hostAccountID;
 	std::string hostAccountDisplayName;
@@ -30,7 +33,7 @@ struct GlobalLobbyRoom
 	ModCompatibilityInfo modList;
 	std::vector<GlobalLobbyAccount> participants;
 	std::vector<GlobalLobbyAccount> invited;
-	int playerLimit;
+	int playerLimit = 0;
 };
 
 struct GlobalLobbyChannelMessage

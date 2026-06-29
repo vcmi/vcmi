@@ -27,6 +27,7 @@
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 
 static std::string timeToString(int time)
 {
@@ -317,27 +318,30 @@ void OptionsTabBase::recreate(bool campaign)
 {
 	auto const & generateSimturnsDurationText = [](int days) -> std::string
 	{
+		int daysPerWeek = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+		int daysPerMonth = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH) * daysPerWeek;
+
 		if (days == 0)
 			return LIBRARY->generaltexth->translate("core.genrltxt.523");
 
 		if (days >= 1000000) // Not "unlimited" but close enough
 			return LIBRARY->generaltexth->translate("core.turndur.10");
 
-		bool canUseMonth = days % 28 == 0 && days >= 28*2;
-		bool canUseWeek = days % 7 == 0 && days >= 7*2;
+		bool canUseMonth = days % daysPerMonth == 0 && days >= daysPerMonth*2;
+		bool canUseWeek = days % daysPerWeek == 0 && days >= daysPerWeek*2;
 
 		int value = days;
 		std::string text = "vcmi.optionsTab.simturns.days";
 
 		if (canUseWeek && !canUseMonth)
 		{
-			value = days / 7;
+			value = days / daysPerWeek;
 			text = "vcmi.optionsTab.simturns.weeks";
 		}
 
 		if (canUseMonth)
 		{
-			value = days / 28;
+			value = days / daysPerMonth;
 			text = "vcmi.optionsTab.simturns.months";
 		}
 
@@ -439,6 +443,18 @@ void OptionsTabBase::recreate(bool campaign)
 	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
 	{
 		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
+	}
+
+	if(SEL->screenType == ESelectionScreen::scenarioInfo)
+	{
+		if(auto timerPresetSelector = widget<CIntObject>("timerPresetSelector"))
+			timerPresetSelector->setEnabled(false);
+
+		if(auto simturnsPresetSelector = widget<CIntObject>("simturnsPresetSelector"))
+			simturnsPresetSelector->setEnabled(false);
+
+		if(auto buttonTurnOptions = widget<CIntObject>("buttonTurnOptions"))
+			buttonTurnOptions->setEnabled(false);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))

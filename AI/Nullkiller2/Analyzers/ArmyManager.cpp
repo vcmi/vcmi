@@ -344,7 +344,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
-	bool countGrowth = (cpsic->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+	bool countGrowth = (cpsic->getDate(Date::DAY_OF_WEEK) + turn) > LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
 
 	const CGTownInstance * town = dwelling->ID == Obj::TOWN
 		? dynamic_cast<const CGTownInstance *>(dwelling)

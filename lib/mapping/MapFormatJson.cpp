@@ -764,40 +764,8 @@ void CMapFormatJson::serializeTimedEvents(JsonSerializeFormat & handler)
 
 void CMapFormatJson::serializePredefinedHeroes(JsonSerializeFormat & handler)
 {
-	if(handler.saving)
-	{
-		auto heroPool = map->getHeroesInPool();
-		if(!heroPool.empty())
-		{
-			auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
-
-			for(auto & heroID : heroPool)
-			{
-				auto heroPtr = map->tryGetFromHeroPool(heroID);
-				auto predefinedHero = handler.enterStruct(heroPtr->getHeroTypeName());
-
-				heroPtr->serializeJsonDefinition(handler);
-			}
-		}
-	}
-	else
-	{
-		auto predefinedHeroes = handler.enterStruct("predefinedHeroes");
-
-		const JsonNode & data = handler.getCurrent();
-
-		for(const auto & p : data.Struct())
-		{
-			auto predefinedHero = handler.enterStruct(p.first);
-
-			auto hero = std::make_shared<CGHeroInstance>(map->cb);
-			hero->ID = Obj::HERO;
-			hero->setHeroTypeName(p.first);
-			hero->serializeJsonDefinition(handler);
-
-			map->addToHeroPool(hero);
-		}
-	}
+    // An option to create custom map heroes like in SoD - currently not ready in the editor.
+    // There was an implementation that caused bugs, look at file history if you need it.
 }
 
 void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
@@ -819,7 +787,6 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 void CMapFormatJson::readOptions(JsonDeserializer & handler)
 {
-	readDisposedHeroes(handler);
 	serializeOptions(handler);
 }
 
@@ -1016,6 +983,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//TODO: check mods
 
 	mapHeader->battleOnly = header["battleOnly"].Bool();
+
+	readDisposedHeroes(handler);
 
 	if(complete)
 		readOptions(handler);

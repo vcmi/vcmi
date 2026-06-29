@@ -15,10 +15,11 @@ struct z_stream_s;
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DecompressionException : public std::runtime_error
+class DLL_LINKAGE DecompressionException : public std::runtime_error
 {
 public:
 	using runtime_error::runtime_error;
+	~DecompressionException() override;
 };
 
 /// Abstract class that provides buffer for one-directional input streams (e.g. compressed data)

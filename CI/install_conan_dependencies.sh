@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-RELEASE_TAG="2025-12-10"
-FILENAME="$1.tgz"
+RELEASE_TAG="2026-03-11"
+FILENAME="$1.txz"
 DOWNLOAD_URL="https://github.com/vcmi/vcmi-dependencies/releases/download/$RELEASE_TAG/$FILENAME"
 
 downloadedFile="$RUNNER_TEMP/$FILENAME"

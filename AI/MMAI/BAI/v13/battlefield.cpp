@@ -12,6 +12,7 @@
 #include "battle/BattleHex.h"
 #include "battle/IBattleInfoCallback.h"
 #include "battle/ReachabilityInfo.h"
+#include "entities/building/TownFortifications.h"
 
 #include "BAI/v13/battlefield.h"
 #include "BAI/v13/hex.h"
@@ -55,6 +56,122 @@ namespace
 
 		return res;
 	}
+
+	/*
+	 * Attacks from a moat hex are only allowed when the attacker already
+	 * stands in the moat.
+	 * E.g. in this scenario:
+	 *
+	 *  . . . . ~ . .            Legend:
+	 * . . . . ~ . .              o o   active stack (wide)
+	 *  . . x ~ . . .             x     enemy stack
+	 * . . . ~ . . .              ~     moat
+	 *  . . . . o o .             .     empty hex
+	 * . . . ~ . . .
+	 *  . . . ~ . . .
+	 * . . . . ~ . .
+	 *
+	 * The active stack can attack from the below positions only:
+	 *
+	 *  . . . . ~ .  |  . . . . ~ .  |  . . . . ~ .  |  . . . . ~ .  |
+	 * . . o o ~ . . | . o o . ~ . . | . . . . ~ . . | . . . . ~ . . |
+	 *  . . x ~ . .  |  . . x ~ . .  |  o o x ~ . .  |  . . x ~ . .  |
+	 * . . . ~ . . . | . . . ~ . . . | . . . ~ . . . | . o o ~ . . . |
+	 *  . . . . . .  |  . . . . . .  |  . . . . . .  |  . . . . . .  |
+	 * . . . ~ . . . | . . . ~ . . . | . . . ~ . . . | . . . ~ . . . |
+	 *  . . . ~ . .  |  . . . ~ . .  |  . . . ~ . .  |  . . . ~ . .  |
+	 *
+	 * However, in this scenario:
+	 *
+	 *  . . . . ~ . .
+	 * . . . o õ . .
+	 *  . . x ~ . . .
+	 * . . . ~ . . .
+	 *
+	 * An attack from the same position is also possible.
+	 *
+	 * NOTE: the above example uses moat, but in practice any STOPPING hex
+	 * 		 (i.e. quicksand) uses the same logic.
+	 *
+	 *
+	 * NOTE:
+	 * Currently, in VCMI this logic applies to both flyers and non-flyers.
+	 * However, in vanilla H3 flyers CAN move-and-attack onto a moat hex:
+	 * https://discord.com/channels/298106089885401090/298106089885401090/1485333577049833532
+	 * If VCMI gets updated to match H3 logic, fix this function accordingly.
+	 *
+	 *
+	 * Unfortunately, this can't be handled in the Hex() constructor, as it
+	 * requires knowledge of other hexes => set it here, after all hexes
+	 * are constructed.
+	 *
+	 */
+	void FixMoatMasks(const CPlayerBattleCallback * battle, const Hexes * hexes, const Stack * astack)
+	{
+		// e.g. at battle start there is no active stack
+		if(!astack)
+			return;
+
+		// Mask out AMOVE actions (i.e. all actions except MOVE / SHOOT)
+		static_assert(EI(HexAction::MOVE) == 12);
+		static_assert(EI(HexAction::SHOOT) == 13);
+		static_assert(EI(HexAction::_count) == 14);
+		auto noAmove = HexActionMask(0b11000000000000); // leftmost bit = SHOOT
+		assert(noAmove.test(EI(HexAction::MOVE)));
+		assert(noAmove.test(EI(HexAction::SHOOT)));
+
+		for(int row = 0; row < 11; ++row)
+		{
+			for(int col = 0; col < 15; ++col)
+			{
+				const auto & hex = hexes->at(row).at(col);
+
+				// Stacks already standing on a STOPPING hex can attack from it
+				if(astack->cstack->getPosition() == hex->bhex)
+					continue;
+
+				// Flyers are not affected by STOPPING hexes
+				// XXX: in VCMI, flyers are also affected. If this changes in
+				// a future version, an if+continue check for flyers here is needed.
+
+				// Convenience for disallowing AMOVE actions
+				auto applyMask = [&noAmove, &hex]
+				{
+					hex->actmask &= noAmove;
+					hex->finalize();
+				};
+
+				// Moving onto a stopping hex aborts the attack => disallow
+				if(hex->statemask.test(EI(HexState::STOPPING)))
+				{
+					applyMask();
+					continue;
+				}
+
+				// Cases below are for wide creatures only
+				if(!astack->cstack->doubleWide())
+					continue;
+
+				bool isAttacker = astack->cstack->unitSide() == BattleSide::ATTACKER;
+
+				// When moving wide stacks, we must check if their tail
+				// will land on a STOPPING hex, as it will also abort the attack
+				// => disallow
+				if(isAttacker && col > 0)
+				{
+					const auto & nbh = hexes->at(row).at(col - 1);
+					if(nbh->statemask.test(EI(HexState::STOPPING)))
+						applyMask();
+				}
+				else if(!isAttacker && col < 14)
+				{
+					const auto & nbh = hexes->at(row).at(col + 1);
+					if(nbh->statemask.test(EI(HexState::STOPPING)))
+						applyMask();
+				}
+			}
+		}
+	}
 }
 
 Battlefield::Battlefield(const std::shared_ptr<Hexes> & hexes_, const Stacks & stacks_, const AllLinks & allLinks_, const Stack * astack_)
@@ -72,6 +189,9 @@ std::shared_ptr<const Battlefield> Battlefield::Create(
 {
 	auto [stacks, queue] = InitStacks(battle, acstack, oldgstats, gstats, stacksStats, isMorale);
 	auto [hexes, astack] = InitHexes(battle, acstack, stacks);
+
+	FixMoatMasks(battle, hexes.get(), astack);
+
 	auto links = InitAllLinks(battle, stacks, queue, hexes);
 
 	return std::make_shared<const Battlefield>(hexes, stacks, links, astack);

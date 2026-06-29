@@ -17,6 +17,7 @@
 #include "../lib/gameState/GameStatistics.h"
 #include "../lib/networkPacks/PacksForServer.h"
 #include "../lib/serializer/GameConnectionID.h"
+#include "../lib/serializer/PlayerConnectionID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -128,7 +129,7 @@ public:
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, const ResourceSet & resources) override;
@@ -205,7 +206,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
-	void handleClientDisconnection(GameConnectionID connectionI);
+	void handleClientDisconnection(GameConnectionID connectionID, const std::vector<PlayerConnectionID> & disconnectedPlayerIds = {});
 	void handleReceivedPack(GameConnectionID connectionId, CPackForServer & pack);
 	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionId) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;

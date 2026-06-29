@@ -4,7 +4,7 @@
 
 - The latest release (recommended):
   - manually: <https://github.com/vcmi/vcmi/releases/latest>
-  - via Homebrew: `brew install --cask --no-quarantine vcmi/vcmi/vcmi`
+  - via Homebrew: `brew install --cask vcmi` (official) or `brew install --cask vcmi/vcmi/vcmi` (from our tap)
 - Daily builds (might be unstable)
   - [Intel (x86_64) builds](https://builds.vcmi.download/branch/develop/macos-intel/)
   - [Apple Silicon (arm64) builds](https://builds.vcmi.download/branch/develop/macos-arm/)

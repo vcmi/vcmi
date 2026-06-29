@@ -68,6 +68,7 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(mechanicsMock, isNegativeSpell()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, alwaysHitFirstTarget()).WillRepeatedly(Return(false));
 
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtLeast(1)).WillRepeatedly(Return(true));

@@ -104,8 +104,8 @@ public:
 	void announcePack(CPackForLobby & pack);
 	bool passHost(GameConnectionID toConnectionId);
 
-	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
-	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announceTxt(const MetaString & txt, const std::string & playerName = "System");
+	void announceTxt(const std::string & txt, const std::string & playerName = "System");
 
 	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});

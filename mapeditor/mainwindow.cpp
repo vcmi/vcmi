@@ -137,6 +137,8 @@ void MainWindow::loadTranslation()
 
 	logGlobal->info("Loading translation %s", translationFile);
 
+	qApp->removeTranslator(&translator);
+
 	if(!QFile::exists(translationFileResourcePath))
 	{
 		logGlobal->debug("Translation file %s does not exist", translationFileResourcePath.toStdString());

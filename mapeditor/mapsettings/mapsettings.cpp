@@ -56,14 +56,6 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedArtifact.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listArts->addItem(item);
 	}
-	for(auto const & objectPtr : LIBRARY->heroh->objects)
-	{
-		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
-		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
-		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(controller.map()->allowedHeroes.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
-		ui->listHeroes->addItem(item);
-	}
 
 	ui->general->initialize(controller);
 	ui->mods->initialize(controller);
@@ -71,6 +63,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->lose->initialize(controller);
 	ui->events->initialize(controller);
 	ui->rumors->initialize(controller);
+	ui->heroes->initialize(controller);
 }
 
 MapSettings::~MapSettings()
@@ -100,7 +93,6 @@ void MapSettings::on_pushButton_clicked()
 	updateMapArray(ui->listAbilities, controller.map()->allowedAbilities);
 	updateMapArray(ui->listSpells, controller.map()->allowedSpells);
 	updateMapArray(ui->listArts, controller.map()->allowedArtifact);
-	updateMapArray(ui->listHeroes, controller.map()->allowedHeroes);
 
 	controller.map()->triggeredEvents.clear();
 
@@ -110,6 +102,7 @@ void MapSettings::on_pushButton_clicked()
 	ui->lose->update();
 	ui->events->update();
 	ui->rumors->update();
+	ui->heroes->update();
 
 	controller.commitChangeWithoutRedraw();
 

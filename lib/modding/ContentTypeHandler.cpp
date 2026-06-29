@@ -61,7 +61,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string
 bool ContentTypeHandler::preloadModData(const std::string & modName, const JsonNode & fileList, bool validate)
 {
 	bool result = true;
-	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
+	JsonNode data = JsonUtils::assembleFromFiles(fileList, {}, result);
 	data.setModScope(modName);
 
 	ModInfo & modInfo = modData[modName];

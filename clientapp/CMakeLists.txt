@@ -28,6 +28,10 @@ if(ANDROID)
 	set_target_properties(vcmiclient PROPERTIES
 		OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
 	)
+	# ffmpeg requires -Bsymbolic on 64-bit Android for assembler functions to compile
+	if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "x86_64")
+		target_link_options(vcmiclient PRIVATE -Wl,-Bsymbolic)
+	endif()
 else()
 	add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
 	vcmi_create_exe_shim(vcmiclient)

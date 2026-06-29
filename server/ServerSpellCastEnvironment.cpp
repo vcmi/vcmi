@@ -99,6 +99,11 @@ void ServerSpellCastEnvironment::createBoat(const int3 & visitablePosition, Boat
 	return gh->createBoat(visitablePosition, type, initiator);
 }
 
+void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle)
+{
+	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
+}
+
 void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
 	auto query = std::make_shared<CGenericQuery>(gh, color, callback);

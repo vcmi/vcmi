@@ -173,7 +173,7 @@ public class FileUtil
  * Output lines: "<uri>\t<Target>\t<Name>", where Target is {Data, Maps, Mp3}
  * decided by file extension:
  *  - Data:  .lod .snd .vid .pak
- *  - Maps:  .h3m
+ *  - Maps:  .h3m .tut
  *  - Mp3:   .mp3
  *
  * Heuristic: if user picked the "Data" folder and no Maps/Mp3 were found inside it,
@@ -225,7 +225,7 @@ public static String[] findFilesForCopy(String treeUriStr, Context ctx)
 		{
 			target = TARGET_DATA;
 		}
-		else if (lower.endsWith(".h3m"))
+		else if (lower.endsWith(".h3m") || lower.endsWith(".tut"))
 		{
 			target = TARGET_MAPS;
 			foundMaps++;
@@ -252,7 +252,10 @@ public static String[] findFilesForCopy(String treeUriStr, Context ctx)
 			{
 				final DocumentFile maps = findChildDirIgnoreCase(parentRoot, TARGET_MAPS);
 				if (maps != null)
+				{
 					foundMaps += collectFilesByExt(maps, ".h3m", TARGET_MAPS, out);
+					foundMaps += collectFilesByExt(maps, ".tut", TARGET_MAPS, out);
+				}
 			}
 			if (foundMp3 == 0)
 			{

@@ -148,7 +148,7 @@ class CInteractableTownTooltip : public CIntObject
 	std::shared_ptr<CAnimImage> res2;
 	std::shared_ptr<CGarrisonInt> garrison;
 	
-	std::shared_ptr<LRClickableArea> fastTavern;
+	std::shared_ptr<LRClickableArea> fastWiki;
 	std::shared_ptr<LRClickableArea> fastMarket;
 	std::shared_ptr<LRClickableArea> fastTownHall;
 	std::shared_ptr<LRClickableArea> fastArmyPurchase;

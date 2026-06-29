@@ -202,7 +202,8 @@
 						"val" : 75,
 						"type" : "GENERAL_ATTACK_REDUCTION",
 						"duration" : [
-							"UNTIL_BEING_ATTACKED",
+							"UNTIL_AFTER_ATTACK_SEQUENCE",
+							"UNTIL_TAKING_INDIRECT_DAMAGE",
 							"N_TURNS"
 						]
 					}
@@ -276,7 +277,9 @@
 			}
 		},
 		"flags" : {
-			"indifferent": true
+			"damage": true,
+			"negative": true,
+			"nonMagical": true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -440,5 +443,32 @@
 		},
 		"targetCondition" : {
 		}
-	}
+	},
+	"fireballAbility" : {
+		"type": "ability",
+		"targetType": "LOCATION",
+
+		"animation":{
+			"hit":["C13SPF"] //C13SPF0 ???
+		},
+		"sounds": {
+			"cast": "SPONTCOMB"
+		},
+		"level": 0,
+		"levels" : {
+			"none": {
+				"range" : "0-1",
+				"battleEffects":{
+					"damage":{
+						"type":"core:damage"
+					}
+				}
+			}
+		},
+		"flags" : {
+			"damage": true,
+			"negative": true,
+			"nonMagical": true
+		}
+	},
 }

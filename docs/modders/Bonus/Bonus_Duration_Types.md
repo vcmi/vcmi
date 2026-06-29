@@ -11,7 +11,9 @@ Bonus may have any of these durations. They acts in disjunction.
 - N_TURNS: used during battles, after battle bonus is always removed
 - N_DAYS
 - UNTIL_BEING_ATTACKED: removed after any damage-inflicting attack
-- UNTIL_ATTACK: removed after attack and counterattacks are performed
+- UNTIL_ATTACK:  removed after each attack or counterattack in an exchange between creatures (towers and war machines included)
 - STACK_GETS_TURN: removed when stack gets its turn - used for defensive stance
 - COMMANDER_KILLED
 - UNTIL_OWN_ATTACK: removed after attack (not counterattack) is performed
+- UNTIL_TAKING_INDIRECT_DAMAGE: removed after unit takes indirect damage (anything except direct meele and range attacks of creatures, towers or war machines)
+- UNTIL_AFTER_ATTACK_SEQUENCE: removed on both the attacker and defendant after a full attacks and counterattack exchange is performed (including creature attacks, towers and war machines)

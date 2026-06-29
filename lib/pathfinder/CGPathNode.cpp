@@ -42,14 +42,19 @@ const CGPathNode & CGPath::lastNode() const
 	return nodes[0];
 }
 
+bool CGPath::hasNextNode() const
+{
+	return nodes.size() >= 2;
+}
+
 int3 CGPath::startPos() const
 {
-	return nodes[nodes.size()-1].coord;
+	return currNode().coord;
 }
 
 int3 CGPath::endPos() const
 {
-	return nodes[0].coord;
+	return lastNode().coord;
 }
 
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)

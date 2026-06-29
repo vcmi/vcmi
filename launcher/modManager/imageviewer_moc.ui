@@ -97,7 +97,7 @@ QPushButton:pressed {
 }</string>
      </property>
      <property name="text">
-      <string>&lt;</string>
+      <string notr="true">&lt;</string>
      </property>
     </widget>
    </item>
@@ -135,7 +135,7 @@ QPushButton:pressed {
 }</string>
      </property>
      <property name="text">
-      <string>&gt;</string>
+      <string notr="true">&gt;</string>
      </property>
     </widget>
    </item>
@@ -173,7 +173,7 @@ QPushButton:pressed {
 }</string>
      </property>
      <property name="text">
-      <string>X</string>
+      <string notr="true">X</string>
      </property>
     </widget>
    </item>

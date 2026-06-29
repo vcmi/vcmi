@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE ModIncompatibility: public std::exception
 {
 public:
+	~ModIncompatibility() override;
 	using ModList = std::vector<std::string>;
 
 	ModIncompatibility(const ModList & _missingMods)

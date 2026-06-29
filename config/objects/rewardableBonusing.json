@@ -298,13 +298,13 @@
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
-				"onVisitedMessage" : 95,
+				"onVisitedMessage" : 94,
 				"description" : "@core.xtrainfo.26",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
-						"message" : 94,
+						"message" : 95,
 						"movePoints" : 800,
 						"bonuses" : [ { "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 95 } ]
 					}
@@ -428,13 +428,13 @@
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
-				"onVisitedMessage" : 111,
+				"onVisitedMessage" : 110,
 				"description" : "@core.xtrainfo.17",
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"rewards" : [
 					{
-						"message" : 110,
+						"message" : 111,
 						"movePoints" : 400,
 						"bonuses" : [ 
 							{ "type" : "MORALE", "val" : 1, "duration" : "ONE_BATTLE", "description" : 102 },

@@ -86,9 +86,8 @@ void PlayerLocalState::erasePath(const CGHeroInstance * h)
 
 void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 {
-	if(!hasPath(h))
-		return;
-	setPath(h, getPath(h).endPos());
+	if (hasPath(h))
+		setPath(h, getPath(h).endPos());
 }
 
 SpellID PlayerLocalState::getCurrentSpell() const

@@ -486,9 +486,9 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 	}
 	else
 	{
-		for(int g = 7; g < LIBRARY->arth->objects.size(); ++g) //including artifacts from mods
+		for(int g = 3; g < LIBRARY->arth->objects.size(); ++g)
 		{
-			if(LIBRARY->arth->objects[g]->canBePutAt(hero))
+			if(LIBRARY->arth->objects[g]->canBePutAt(hero) && !LIBRARY->arth->objects[g]->getWarMachine().hasValue())
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}

@@ -147,6 +147,7 @@ public:
 	TModList getAllMods() const;
 
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
+	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
 	uint32_t computeChecksum(const TModID & modName) const;
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;

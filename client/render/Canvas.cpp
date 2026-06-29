@@ -248,7 +248,8 @@ ColorRGBA Canvas::getPixel(const Point & position) const
 CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
 {
 	CSDL_Ext::getClipRect(surf, oldRect);
-	CSDL_Ext::setClipRect(surf, rect * ENGINE->screenHandler().getScalingFactor());
+	const Rect scaled = rect * ENGINE->screenHandler().getScalingFactor();
+	CSDL_Ext::setClipRect(surf, oldRect.intersect(scaled));
 }
 
 CanvasClipRectGuard::~CanvasClipRectGuard()

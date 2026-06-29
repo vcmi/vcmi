@@ -19,6 +19,7 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -265,6 +266,8 @@ bool UnitEffect::isValidTarget(const Mechanics * m, const battle::Unit * unit) c
 
 bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 {
+	if (m->isNegativeSpell() && unit->isInvincible())
+		return false;
 	if(ignoreImmunity)
 	{
 		//ignore all immunities, except specific absolute immunity(VCMI addition)

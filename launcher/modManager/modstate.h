@@ -23,6 +23,7 @@ public:
 	explicit ModState(const ModDescription & impl);
 
 	QString getName() const;
+	QString getNameEnglish() const;
 	QString getType() const;
 	QString getDescription() const;
 

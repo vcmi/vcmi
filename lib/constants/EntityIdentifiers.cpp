@@ -735,4 +735,9 @@ si32 BuildingID::decode(const std::string & identifier)
 	return std::stoi(identifier);
 }
 
+bool MapObjectID::isRandomArtifact(MapObjectBaseID id)
+{
+	return id == RANDOM_ART || id == RANDOM_TREASURE_ART || id == RANDOM_MINOR_ART || id == RANDOM_MAJOR_ART || id == RANDOM_RELIC_ART;
+}
+
 VCMI_LIB_NAMESPACE_END

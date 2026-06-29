@@ -41,6 +41,29 @@ static BattleHex lineToWallHex(int line) //returns hex with wall in given line (
 	return lineToHex[line];
 }
 
+static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+{
+	try
+	{
+		BattleHex middleHex = defenderHex.cloneInDirection(direction, false);
+		BattleHex attackerHex = middleHex.cloneInDirection(direction, false);
+		return std::make_pair(middleHex, attackerHex);
+	}
+	catch(const std::out_of_range &)
+	{
+		return std::nullopt;
+	}
+}
+
+static bool isLongWeaponMiddleHexClear(const CBattleInfoCallback & callback, const BattleHex & middleHex)
+{
+	if(!middleHex.isValid())
+		return false;
+
+	const auto accessibility = callback.getAccessibility();
+	return accessibility[middleHex.toInt()] == EAccessibility::ACCESSIBLE;
+}
+
 static bool sameSideOfWall(const BattleHex & pos1, const BattleHex & pos2)
 {
 	const bool stackLeft = pos1 < lineToWallHex(pos1.getY());
@@ -277,10 +300,12 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			if(stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		}
-		if(stack->canShoot())
+		if(battleCanShoot(stack))
 			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
 		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
+		if(stack->hasBonusOfType(BonusType::LONG_WEAPON))
+			allowedActionList.push_back(PossiblePlayerBattleAction::LONG_WEAPON_ATTACK);
 
 		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
 		{
@@ -331,7 +356,15 @@ BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * 
 	BattleHexArray attackedHexes;
 	RETURN_IF_NOT_BATTLE(attackedHexes);
 
-	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+	AttackableTiles at;
+	try
+	{
+		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+	}
+	catch(const std::runtime_error &)
+	{
+		return attackedHexes;
+	}
 
 	for (const BattleHex & tile : at.hostileCreaturePositions)
 	{
@@ -646,7 +679,7 @@ BattleHexArray CBattleInfoCallback::battleGetOccupiableHexes(const BattleHexArra
 	return availableHexes;
 }
 
-BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const
+BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon) const
 {
 	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
 	if (!attacker)
@@ -655,42 +688,104 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	if (!target.isValid() || direction == BattleHex::NONE)
 		return BattleHex::INVALID;
 
+	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+	{
+		const auto longLine = getLongWeaponLineHexes(target, direction);
+		if(longLine)
+		{
+			const auto [middleHex, longAttackFrom] = *longLine;
+			if(attacker->coversPos(longAttackFrom) && isLongWeaponMiddleHexClear(*this, middleHex))
+				return attacker->getPosition();
+		}
+	}
+
 	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
 	if (attacker->doubleWide())
 	{
+		if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+		{
+			const auto longLine = getLongWeaponLineHexes(target, direction);
+			if(longLine)
+			{
+				const auto [middleHex, longAttackFrom] = *longLine;
+				if(isLongWeaponMiddleHexClear(*this, middleHex))
+				{
+					const auto availableHexes = battleGetAvailableHexes(attacker, false);
+					if(availableHexes.contains(longAttackFrom))
+						return longAttackFrom;
+				}
+			}
+		}
+
 		// We need to find position of right hex of double-hex creature (or left for defending side)
 		// | TOP_LEFT | TOP_RIGHT |  RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT   |  TOP   | BOTTOM
 		// |  o o -   |    - o o  |  - -    |   - -      |    - -    |    - -  |  o o   |   - -
 		// |   - x -  |   - x -   | - x o o |  - x -     |   - x -   | o o x - | - x -  |  - x -
 		// |    - -   |    - -    |  - -    |   - o o    |  o o -    |    - -  |  - -   |   o o
 
-		switch (direction)
+		try
 		{
-			case BattleHex::TOP_LEFT:
-			case BattleHex::LEFT:
-			case BattleHex::BOTTOM_LEFT:
-				return target.cloneInDirection(direction, false)
-					.cloneInDirection(isAttacker ? BattleHex::NONE : BattleHex::LEFT, false);
+			switch (direction)
+			{
+				case BattleHex::TOP_LEFT:
+				case BattleHex::LEFT:
+				case BattleHex::BOTTOM_LEFT:
+					return target.cloneInDirection(direction, false)
+						.cloneInDirection(isAttacker ? BattleHex::NONE : BattleHex::LEFT, false);
 
-			case BattleHex::TOP_RIGHT:
-			case BattleHex::RIGHT:
-			case BattleHex::BOTTOM_RIGHT:
-				return target.cloneInDirection(direction, false)
-					.cloneInDirection(isAttacker ? BattleHex::RIGHT : BattleHex::NONE, false);
+				case BattleHex::TOP_RIGHT:
+				case BattleHex::RIGHT:
+				case BattleHex::BOTTOM_RIGHT:
+					return target.cloneInDirection(direction, false)
+						.cloneInDirection(isAttacker ? BattleHex::RIGHT : BattleHex::NONE, false);
 
-			case BattleHex::TOP:
-				return target.cloneInDirection(isAttacker ? BattleHex::TOP_RIGHT : BattleHex::TOP_LEFT, false);
+				case BattleHex::TOP:
+					return target.cloneInDirection(isAttacker ? BattleHex::TOP_RIGHT : BattleHex::TOP_LEFT, false);
 
-			case BattleHex::BOTTOM:
-				return target.cloneInDirection(isAttacker ? BattleHex::BOTTOM_RIGHT : BattleHex::BOTTOM_LEFT, false);
+				case BattleHex::BOTTOM:
+					return target.cloneInDirection(isAttacker ? BattleHex::BOTTOM_RIGHT : BattleHex::BOTTOM_LEFT, false);
 
-			default:
-				return BattleHex::INVALID;
+				default:
+					return BattleHex::INVALID;
+			}
+		}
+		catch(const std::out_of_range &)
+		{
+			return BattleHex::INVALID;
 		}
 	}
 	if (direction == BattleHex::TOP || direction == BattleHex::BOTTOM)
 		return BattleHex::INVALID;
-	return target.cloneInDirection(direction, false);
+
+	BattleHex adjacentAttackFrom = BattleHex::INVALID;
+	try
+	{
+		adjacentAttackFrom = target.cloneInDirection(direction, false);
+	}
+	catch(const std::out_of_range &)
+	{
+		return BattleHex::INVALID;
+	}
+
+	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+	{
+		const auto longLine = getLongWeaponLineHexes(target, direction);
+		if(!longLine)
+			return adjacentAttackFrom;
+
+		const auto [middleHex, longAttackFrom] = *longLine;
+
+		if(isLongWeaponMiddleHexClear(*this, middleHex))
+		{
+			const auto availableHexes = battleGetAvailableHexes(attacker, false);
+			const bool longReachable = availableHexes.contains(longAttackFrom);
+
+			if(longReachable)
+				return longAttackFrom;
+		}
+	}
+
+	return adjacentAttackFrom;
 }
 
 BattleHex CBattleInfoCallback::toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const
@@ -748,28 +843,47 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 	if (!position.isValid() || direction == BattleHex::NONE)
 		return false;
 
-	BattleHex fromHex = fromWhichHexAttack(attacker, position, direction);
-
-	//check if the attack is performed from an available hex
-	if (!fromHex.isValid() || !availableHexes.contains(fromHex))
-		return false;
-
-	//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
-	if (attacker->getPosition() != fromHex)
+	const auto canAttackFrom = [&](BattleHex fromHex)
 	{
-		for (const auto & obstacle : battleGetAllObstacles())
+		//check if the attack is performed from an available hex
+		if (!fromHex.isValid() || !availableHexes.contains(fromHex))
+			return false;
+
+		//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
+		if (attacker->getPosition() != fromHex)
 		{
-			if (obstacle->getStoppingTile().contains(fromHex))
-				return false;
-			if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
+			for (const auto & obstacle : battleGetAllObstacles())
+			{
+				if (obstacle->getStoppingTile().contains(fromHex))
+					return false;
+				if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
+					return false;
+			}
+			const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
+			if (defender && defender->isDead() && defender->coversPos(fromHex))
 				return false;
 		}
-		const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
-		if (defender && defender->isDead() && defender->coversPos(fromHex))
+
+		return true;
+	};
+
+	BattleHex fromHex = fromWhichHexAttack(attacker, position, direction);
+	if (canAttackFrom(fromHex))
+		return true;
+
+	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
+	{
+		const auto longLine = getLongWeaponLineHexes(position, direction);
+		if(!longLine)
 			return false;
+
+		const auto [middleHex, longAttackFrom] = *longLine;
+
+		if (isLongWeaponMiddleHexClear(*this, middleHex) && canAttackFrom(longAttackFrom))
+			return true;
 	}
 
-	return true;
+	return false;
 }
 
 bool CBattleInfoCallback::battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const
@@ -829,6 +943,38 @@ bool CBattleInfoCallback::battleCanTargetEmptyHex(const battle::Unit * attacker)
 		if(spell->battleMechanics(&cast)->rangeInHexes(dummySpellTarget).size() > 1)
 		{
 			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if(!attacker)
+		throw std::runtime_error("Undefined attacker in isLongWeaponAttack!");
+	if(!defender)
+		throw std::runtime_error("Undefined defender in isLongWeaponAttack!");
+
+	if(!attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+		return false;
+
+	if(CStack::isMeleeAttackPossible(attacker, defender))
+		return false;
+
+	for(const BattleHex & defenderHex : defender->getHexes())
+	{
+		for(int direction = 0; direction < 6; ++direction)
+		{
+			const auto longLine = getLongWeaponLineHexes(defenderHex, static_cast<BattleHex::EDir>(direction));
+			if(!longLine)
+				continue;
+
+			const auto [middleHex, attackerHex] = *longLine;
+			if(attacker->coversPos(attackerHex) && isLongWeaponMiddleHexClear(*this, middleHex))
+				return true;
 		}
 	}
 
@@ -1012,10 +1158,10 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if(bai.shooting) //FIXME: handle RANGED_RETALIATION
 		return ret;
 
-	if (!bai.defender->ableToRetaliate())
+	if (!bai.defender->ableToRetaliate())	//FIXME: handle situation when NO_RETALIATION bonus is removed during attack
 		return ret;
 
-	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible())
+	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender))
 		return ret;
 
 	//TODO: rewrite using boost::numeric::interval
@@ -1623,7 +1769,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	if(defender->doubleWide() && BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos)) != BattleHex::NONE)
 		attackDirection = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
 
-	if (attackDirection == BattleHex::NONE)
+	if(attackDirection == BattleHex::NONE)
 		throw std::runtime_error("!!!");
 
 	const auto & processTargets = [&](const std::vector<int> & additionalTargets) -> BattleHexArray
@@ -1753,7 +1899,16 @@ std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatur
 	if(rangedAttack)
 		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
 	else
-		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+	{
+		try
+		{
+			at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+		}
+		catch(const std::runtime_error &)
+		{
+			return attackedCres;
+		}
+	}
 
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{

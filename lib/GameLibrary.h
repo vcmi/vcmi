@@ -117,9 +117,10 @@ public:
 	/// Loads all game entities
 	void initializeLibrary();
 
-private:
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
+
+	// loads filesystems of all mods
 	void loadModFilesystem();
 
 #if SCRIPTING_ENABLED

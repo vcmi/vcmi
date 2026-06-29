@@ -142,6 +142,17 @@ if(ENABLE_ERM)
 	)
 endif()
 
+if(ENABLE_BATTLE_AI)
+	file(GLOB_RECURSE BATTLE_AI_TEST_SRCS "../AI/BattleAI/*.cpp")
+	list(FILTER BATTLE_AI_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
+
+	list(APPEND test_SRCS
+		${BATTLE_AI_TEST_SRCS}
+		battleAI/SpellTargetsEvaluatorTest.cpp
+	)
+
+endif()
+
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
 set(mock_HEADERS

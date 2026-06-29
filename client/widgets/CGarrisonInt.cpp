@@ -11,6 +11,7 @@
 #include "CGarrisonInt.h"
 
 #include "Buttons.h"
+#include "Images.h"
 #include "TextControls.h"
 #include "RadialMenu.h"
 
@@ -30,6 +31,8 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/gameState/CGameState.h"
@@ -416,12 +419,28 @@ void CGarrisonSlot::update()
 		creatureImage->enable();
 		creatureImage->setFrame(creature->getIconIndex());
 
+		const bool stackArtifactIndicationEnabled = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT_INDICATION);
+		const auto * equippedArtifact = myStack->getArt(ArtifactPosition::CREATURE_SLOT);
+		if(stackArtifactIndicationEnabled && equippedArtifact)
+		{
+			artifactBackgroundImage->enable();
+			artifactImage->enable();
+			artifactImage->setFrame(equippedArtifact->getTypeId().toArtifact()->getIconIndex());
+		}
+		else
+		{
+			artifactBackgroundImage->disable();
+			artifactImage->disable();
+		}
+
 		stackCount->enable();
 		stackCount->setText(TextOperations::formatMetric(myStack->getCount(), 4));
 	}
 	else
 	{
 		creatureImage->disable();
+		artifactBackgroundImage->disable();
+		artifactImage->disable();
 		stackCount->disable();
 	}
 }
@@ -442,6 +461,14 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
 	creatureImage->disable();
+
+	const Point artifactIconSize = Owner->smallIcons ? Point(14, 14) : Point(22, 22);
+	artifactBackgroundImage = std::make_shared<CPicture>(ImagePath::builtin(Owner->smallIcons ? "stackArtifactIndicatorSmall.png" : "stackArtifactIndicatorLarge.png"));
+	artifactBackgroundImage->disable();
+
+	artifactImage = std::make_shared<CAnimImage>(AnimationPath::builtin("artifact"), 0, 0, 0, 0);
+	artifactImage->setScale(artifactIconSize);
+	artifactImage->disable();
 
 	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
 	selectionImage->disable();

@@ -34,6 +34,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../windows/wiki/WikiWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 #include "../render/CAnimation.h"
@@ -87,6 +88,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
 	OBJECT_CONSTRUCTION;
+	addUsedEvents(KEYBOARD);
 	pos.w = 762;
 	pos.h = 584;
 	if(screenType == ESelectionScreen::campaignList)
@@ -118,6 +120,12 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	
 	card = std::make_shared<InfoCard>();
 	buttonBack = std::make_shared<CButton>(Point(581, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
+}
+
+void CSelectionBase::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::ADVENTURE_OPEN_WIKI)
+		ENGINE->windows().createAndPushWindow<WikiWindow>(WikiWindow::Style::BLUE);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -183,7 +191,8 @@ InfoCard::InfoCard()
 		parent->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
-		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 313, 25); //let it be custom size (frame 4) by default
+		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 0, 0, 313, 25);
+		iconsMapSizes->setFrame(iconsMapSizes->size() - 1); // use last available frame as "custom" icon
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
@@ -255,8 +264,15 @@ void InfoCard::changeSelection()
 
 	const CMapHeader * header = mapInfo->mapHeader.get();
 
-	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height) + "x" + std::to_string(header->levels()));
-	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
+	std::string mapSizeText = std::to_string(header->width) + "x" + std::to_string(header->height);
+	if(header->levels() > 1)
+		mapSizeText += "x" + std::to_string(header->levels());
+	labelMapSize->setText(mapSizeText);
+	size_t mapSizeIconFrame = mapInfo->getMapSizeIconId();
+	if(const auto * selectionScreen = dynamic_cast<const CSelectionBase *>(SEL);
+	   mapInfo->isRandomMap && selectionScreen && selectionScreen->tabRand && selectionScreen->tabRand->isCustomMapSizeMode())
+		mapSizeIconFrame = selectionScreen->tabRand->getCustomMapSizeIconFrame();
+	iconsMapSizes->setFrame(std::min<size_t>(mapSizeIconFrame, iconsMapSizes->size() - 1));
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
 	labelVictoryConditionText->setText(header->victoryMessage.toString());
@@ -264,7 +280,6 @@ void InfoCard::changeSelection()
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
 	labelDifficulty->setText(LIBRARY->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
-	iconDifficulty->activate();
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)

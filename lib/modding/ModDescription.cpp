@@ -37,14 +37,7 @@ void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::strin
 			if (firstLine.find(language.identifier) == std::string::npos)
 			   continue;
 
-			bool baseLanguageDescription = language.identifier == "english";
-			if (modConfig.Struct().count("language"))
-				baseLanguageDescription = language.identifier == modConfig["language"].String();
-
-			if (baseLanguageDescription)
-				modConfig["description"].String() = section.substr(endOfFirstLine+1);
-			else
-				modConfig[language.identifier]["description"].String() = section.substr(endOfFirstLine+1);
+			modConfig[language.identifier]["description"].String() = section.substr(endOfFirstLine + 1);
 
 			break;
 		}
@@ -155,6 +148,22 @@ const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) 
 		return localizedValue;
 }
 
+const JsonNode & ModDescription::getLocalizedDescription() const
+{
+	const std::string language = CGeneralTextHandler::getPreferredLanguage();
+	const JsonNode & localizedValue = getValue(language)["description"];
+	const JsonNode & englishValue = getValue("english")["description"];
+	const JsonNode & baseValue = getValue("description");
+
+	if (!localizedValue.isNull())
+		return localizedValue;
+
+	if (!englishValue.isNull())
+		return englishValue;
+
+	return baseValue;
+}
+
 const JsonNode & ModDescription::getValue(const std::string & keyName) const
 {
 	if (!isInstalled() || isUpdateAvailable())
@@ -191,7 +200,7 @@ ModVerificationInfo ModDescription::getVerificationInfo() const
 
 bool ModDescription::isCompatible() const
 {
-	const JsonNode & compatibility = getValue("compatibility");
+	const JsonNode & compatibility = getLocalValue("compatibility");
 
 	if (compatibility.isNull())
 		return true;

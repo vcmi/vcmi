@@ -29,6 +29,20 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/CStack.h"
 
+static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+{
+	try
+	{
+		BattleHex middleHex = defenderHex.cloneInDirection(direction, false);
+		BattleHex attackerHex = middleHex.cloneInDirection(direction, false);
+		return std::make_pair(middleHex, attackerHex);
+	}
+	catch(const std::out_of_range &)
+	{
+		return std::nullopt;
+	}
+}
+
 BattleAnimation::BattleAnimation(BattleInterface & owner)
 	: owner(owner),
 	  ID(owner.stacksController->animIDhelper++),
@@ -296,7 +310,24 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, defendingStack->occupiedHex());
 	}
 
-	assert(mutPos >= 0 && mutPos <=5);
+	if(mutPos == -1 && attackingStack->hasBonusOfType(BonusType::LONG_WEAPON) && !attackingStack->doubleWide())
+	{
+		for(int direction = 0; direction < 6; ++direction)
+		{
+			const auto longLine = getLongWeaponLineHexes(BattleHex(attackingStackPosBeforeReturn), static_cast<BattleHex::EDir>(direction));
+			if(!longLine)
+				continue;
+
+			if(longLine->second == dest || defendingStack->coversPos(longLine->second))
+			{
+				mutPos = direction;
+				break;
+			}
+		}
+	}
+
+	if(mutPos < 0 || mutPos > 5)
+		return getForwardGroup(multiAttack);
 
 	return mutPosToGroup[mutPos];
 }

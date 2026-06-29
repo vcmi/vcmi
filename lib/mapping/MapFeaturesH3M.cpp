@@ -124,6 +124,9 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesWOG()
 	MapFormatFeaturesH3M result = getFeaturesSOD();
 	result.levelWOG = true;
 
+	result.artifactsCount = 171;
+	result.creaturesCount = 197;
+
 	return result;
 }
 

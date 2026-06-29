@@ -141,6 +141,7 @@ set(vcmiclientcommon_SRCS
 	widgets/GraphicalPrimitiveCanvas.cpp
 	widgets/Images.cpp
 	widgets/MiscWidgets.cpp
+	widgets/CViewport.cpp
 	widgets/ObjectLists.cpp
 	widgets/TextControls.cpp
 	widgets/Scrollable.cpp
@@ -165,6 +166,7 @@ set(vcmiclientcommon_SRCS
 
 	windows/CCastleInterface.cpp
 	windows/CCreatureWindow.cpp
+	windows/CStackExperienceDetailsWindow.cpp
 	windows/CExchangeWindow.cpp
 	windows/CHeroOverview.cpp
 	windows/CHeroWindow.cpp
@@ -176,6 +178,17 @@ set(vcmiclientcommon_SRCS
 	windows/CQuestLog.cpp
 	windows/CSpellWindow.cpp
 	windows/CTutorialWindow.cpp
+	windows/wiki/WikiCommon.cpp
+	windows/wiki/WikiWindow.cpp
+	windows/wiki/WikiMarkdown.cpp
+	windows/wiki/markdown/MDParser.cpp
+	windows/wiki/markdown/MDRenderer.cpp
+	windows/wiki/markdown/MDWidgets.cpp
+	windows/wiki/WikiCreatureContent.cpp
+	windows/wiki/WikiHeroContent.cpp
+	windows/wiki/WikiArtifactContent.cpp
+	windows/wiki/WikiModContent.cpp
+	windows/wiki/WikiTownContent.cpp
 	windows/CWindowObject.cpp
 	windows/CreaturePurchaseCard.cpp
 	windows/GUIClasses.cpp
@@ -374,6 +387,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/GraphicalPrimitiveCanvas.h
 	widgets/Images.h
 	widgets/MiscWidgets.h
+	widgets/CViewport.h
 	widgets/ObjectLists.h
 	widgets/TextControls.h
 	widgets/Scrollable.h
@@ -399,6 +413,7 @@ set(vcmiclientcommon_HEADERS
 
 	windows/CCastleInterface.h
 	windows/CCreatureWindow.h
+	windows/CStackExperienceDetailsWindow.h
 	windows/CExchangeWindow.h
 	windows/CHeroOverview.h
 	windows/CHeroWindow.h
@@ -410,6 +425,17 @@ set(vcmiclientcommon_HEADERS
 	windows/CQuestLog.h
 	windows/CSpellWindow.h
 	windows/CTutorialWindow.h
+	windows/wiki/WikiCommon.h
+	windows/wiki/WikiWindow.h
+	windows/wiki/WikiMarkdown.h
+	windows/wiki/markdown/MDParser.h
+	windows/wiki/markdown/MDRenderer.h
+	windows/wiki/markdown/MDWidgets.h
+	windows/wiki/WikiCreatureContent.h
+	windows/wiki/WikiHeroContent.h
+	windows/wiki/WikiArtifactContent.h
+	windows/wiki/WikiModContent.h
+	windows/wiki/WikiTownContent.h
 	windows/CWindowObject.h
 	windows/CreaturePurchaseCard.h
 	windows/GUIClasses.h
@@ -552,17 +578,9 @@ if (ENABLE_DISCORD)
 	find_package(fmt ${findOptions})
 	find_package(glaze ${findOptions})
 
-	if(MSVC AND ENABLE_STRICT_COMPILATION)
-		# fmt built via CPM has compile warning which becomes an error
-		set(OLD_CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
-	endif()
 	add_subdirectory(lib/discord-presence)
 	target_link_libraries(vcmiclientcommon PRIVATE discord-rpc)
 	target_compile_definitions(vcmiclientcommon PRIVATE ENABLE_DISCORD)
-	if(OLD_CMAKE_CXX_FLAGS)
-		set(CMAKE_CXX_FLAGS ${OLD_CMAKE_CXX_FLAGS})
-	endif()
 endif()
 
 vcmi_set_output_dir(vcmiclientcommon "")

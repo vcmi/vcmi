@@ -25,7 +25,7 @@ In order to make functional artifact you also need:
 	// MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5
 	// MISC, RING 
 	"slot":	"HEAD", 
-	"slot":	[ "LEFT_HAND", "RIGHT_HAND ],
+	"slot":	[ "LEFT_HAND", "RIGHT_HAND" ],
 
 	// Cost of this artifact, in gold
 	"value": 12000, 
@@ -43,13 +43,13 @@ In order to make functional artifact you also need:
 	},
 	"graphics":
 	{
-		// Base image for this artifact, used for example in hero screen
+		// Base 44x44 image for this artifact, used for example in hero screen
 		"image": "BigSword.png",
 
 		// Large 58x64 image, used for campaign scenario bonus selection
 		"scenarioBonus": "BigSword_large.png",
 
-		//def file for adventure map
+		// def file for adventure map (preferred size: 64x32)
 		"map": "BigSword.def"
 	},
 

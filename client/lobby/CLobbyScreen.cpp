@@ -20,6 +20,7 @@
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
+#include "../GameChatHandler.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
@@ -45,7 +46,12 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 
 	auto initLobby = [&]()
 	{
-		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, nullptr);
+		tabSel->callOnSelect = [this](std::shared_ptr<CMapInfo> mapInfo)
+		{
+			GAME->server().setMapInfo(mapInfo, nullptr);
+			if(curTab != tabBattleOnlyMode)
+				updateStartButtonState();
+		};
 
 		buttonSelect = std::make_shared<CButton>(Point(411, 80), AnimationPath::builtin("GSPBUTT.DEF"), LIBRARY->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
 		buttonSelect->addCallback([this]()
@@ -59,7 +65,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
 			if(screenType == ESelectionScreen::newGame)
-				buttonBattleMode = std::make_shared<CButton>(Point(619, 105), AnimationPath::builtin("GSPButton2Arrow"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode.help")), [this](){
+				buttonBattleMode = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPButton2Arrow"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode.help")), [this](){
 					updateAfterStateChange(); // creates tabBattleOnlyMode -> cannot created by init of object because GAME->server().isGuest() isn't valid at that point
 					toggleTab(tabBattleOnlyMode);
 				}, EShortcut::LOBBY_BATTLE_MODE);
@@ -67,10 +73,10 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		}
 	};
 
-	if(screenType != ESelectionScreen::campaignList)
+	if(screenType != ESelectionScreen::campaignList && isMultiplayerNetworkLobby())
 	{
-		buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
-		buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+		buttonChat = std::make_shared<CButton>(Point(619, 105), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
+		buttonChat->setTextOverlay(card->showChat ? LIBRARY->generaltexth->allTexts[531] : LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
 	}
 
 	switch(screenType)
@@ -128,6 +134,8 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		blackScreen = std::make_shared<GraphicalPrimitiveCanvas>(Rect(Point(0, 0), pos.dimensions()));
 		blackScreen->addBox(Point(0, 0), pos.dimensions(), Colors::BLACK);
 	}
+
+	onRemoteClientLobbyStateChanged();
 }
 
 CLobbyScreen::~CLobbyScreen()
@@ -135,6 +143,95 @@ CLobbyScreen::~CLobbyScreen()
 	// TODO: For now we always destroy whole lobby when leaving bonus selection screen
 	if(GAME->server().getState() == EClientState::LOBBY_CAMPAIGN)
 		GAME->server().sendClientDisconnecting();
+}
+
+bool CLobbyScreen::isMultiplayerNetworkLobby() const
+{
+	return GAME->server().loadMode == ELoadMode::MULTI && !GAME->server().hotseatMode;
+}
+
+bool CLobbyScreen::isMultiplayerHost() const
+{
+	return isMultiplayerNetworkLobby() && GAME->server().isHost();
+}
+
+bool CLobbyScreen::canStartLobbyGame() const
+{
+	if(GAME->server().isGuest() || GAME->server().mi == nullptr)
+		return false;
+
+	if(isMultiplayerHost() && !GAME->server().hasRemoteClientInLobby())
+		return false;
+
+	return true;
+}
+
+bool CLobbyScreen::isLanOrOnlineMultiplayerHost() const
+{
+	return buttonChat && isMultiplayerHost() && (GAME->server().serverMode == EServerMode::LOCAL || GAME->server().serverMode == EServerMode::LOBBY_HOST);
+}
+
+void CLobbyScreen::updateCompatibilityNotice(size_t requiredHumanPlayers)
+{
+	const size_t hiddenIncompatibleMaps = tabSel->getHiddenIncompatibleMapsCount();
+	if(hiddenIncompatibleMaps && screenType == ESelectionScreen::newGame && GAME->server().loadMode == ELoadMode::MULTI)
+	{
+		MetaString warningText;
+		warningText.appendTextID("vcmi.lobby.system.hidingIncompatibleMaps");
+		warningText.replaceNumber(requiredHumanPlayers);
+		const std::string warningTextFormatted = warningText.toString();
+
+		if(lastCompatibilityNotice != warningTextFormatted)
+		{
+			logGlobal->info("%s", warningTextFormatted);
+			if(!GAME->server().hotseatMode)
+				GAME->server().getGameChat().onNewLobbyMessageReceived("System", warningTextFormatted);
+			lastCompatibilityNotice = warningTextFormatted;
+		}
+	}
+	else
+	{
+		lastCompatibilityNotice.clear();
+	}
+}
+
+void CLobbyScreen::updateHostLobbyChatState()
+{
+	if(!isLanOrOnlineMultiplayerHost())
+		return;
+
+	buttonChat->setTextOverlay(card->showChat ? LIBRARY->generaltexth->allTexts[531] : LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+
+}
+
+void CLobbyScreen::updateStartButtonState()
+{
+	buttonStart->block(!canStartLobbyGame());
+}
+
+void CLobbyScreen::onRemoteClientLobbyStateChanged()
+{
+	if(!isLanOrOnlineMultiplayerHost())
+	{
+		updateHostLobbyChatState();
+		return;
+	}
+
+	const bool hasRemoteClient = GAME->server().hasRemoteClientInLobby();
+
+	if(hasRemoteClient)
+	{
+		waitingForPlayersMessageShown = false;
+	}
+	else if(!waitingForPlayersMessageShown)
+	{
+		// Show this message exactly once per "everyone disconnected" event,
+		// regardless of how many state refreshes the lobby screen performs.
+		GAME->server().getGameChat().onNewLobbyMessageReceived("System", LIBRARY->generaltexth->translate("vcmi.lobby.system.waitingForPlayers"));
+		waitingForPlayersMessageShown = true;
+	}
+
+	updateHostLobbyChatState();
 }
 
 void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -161,7 +258,7 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 	}
 	else
 	{
-		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		updateStartButtonState();
 		card->changeSelection();
 	}
 
@@ -221,9 +318,11 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 void CLobbyScreen::toggleMode(bool host)
 {
 	tabSel->toggleMode();
-	buttonStart->block(!host);
 	if(screenType == ESelectionScreen::campaignList)
+	{
+		buttonStart->block(!host);
 		return;
+	}
 
 	auto buttonColor = host ? Colors::WHITE : Colors::ORANGE;
 	buttonSelect->setTextOverlay("  " + LIBRARY->generaltexth->allTexts[500], FONT_SMALL, buttonColor);
@@ -255,6 +354,8 @@ void CLobbyScreen::toggleMode(bool host)
 		tabTurnOptions->recreate();
 		tabExtraOptions->recreate();
 	}
+
+	updateStartButtonState();
 }
 
 void CLobbyScreen::toggleChat()
@@ -269,6 +370,19 @@ void CLobbyScreen::toggleChat()
 void CLobbyScreen::updateAfterStateChange()
 {
 	OBJECT_CONSTRUCTION;
+	onRemoteClientLobbyStateChanged();
+	const bool shouldFilterByPlayerCount = screenType == ESelectionScreen::newGame && GAME->server().loadMode == ELoadMode::MULTI;
+	const size_t requiredHumanPlayers = shouldFilterByPlayerCount ? std::max<size_t>(2, GAME->server().playerNames.size()) : 0;
+	if(!compatibilityFilterInitialized || (shouldFilterByPlayerCount && requiredHumanPlayers != lastRequiredHumanPlayers))
+	{
+		tabSel->rememberCurrentSelection();
+		tabSel->filter(-1, requiredHumanPlayers);
+		tabSel->restoreLastSelection();
+		updateCompatibilityNotice(requiredHumanPlayers);
+		compatibilityFilterInitialized = true;
+		lastRequiredHumanPlayers = requiredHumanPlayers;
+	}
+
 	if(!tabBattleOnlyMode)
 	{
 		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
@@ -298,9 +412,9 @@ void CLobbyScreen::updateAfterStateChange()
 			tabExtraOptions->recreate();
 	}
 
-	if(curTab && curTab != tabBattleOnlyMode)
+	if(curTab != tabBattleOnlyMode)
 	{
-		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		updateStartButtonState();
 		card->changeSelection();
 	}
 

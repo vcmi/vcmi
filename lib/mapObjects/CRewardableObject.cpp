@@ -208,8 +208,17 @@ std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHe
 {
 	std::string result = getObjectName();
 
-	if (includeDescription && !getDescriptionMessage(player, hero).empty())
-		result += "\n" + getDescriptionMessage(player, hero);
+	if (includeDescription)
+	{
+		if (!getDescriptionMessage(player, hero).empty())
+			result += "\n" + getDescriptionMessage(player, hero);
+	}
+	else
+	{
+		// scouted version is included unconditionally into hover text (e.g. Shrines - "learn X spell")
+		if (!getScoutedDescriptionMessage(hero).empty())
+			result += "\n" + getDescriptionMessage(player, hero);
+	}
 
 	if (hero)
 	{
@@ -254,11 +263,8 @@ std::string CRewardableObject::getPopupText(const CGHeroInstance * hero) const
 	return getDisplayTextImpl(hero->getOwner(), hero, true);
 }
 
-std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const
+std::string CRewardableObject::getScoutedDescriptionMessage(const CGHeroInstance * hero) const
 {
-	if (!wasScouted(player) || configuration.info.empty())
-		return configuration.description.toString();
-
 	auto rewardIndices = getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	if (rewardIndices.empty() || !configuration.info[0].description.empty())
 		return configuration.info[0].description.toString();
@@ -266,7 +272,24 @@ std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const C
 	if (!configuration.info[rewardIndices.front()].description.empty())
 		return configuration.info[rewardIndices.front()].description.toString();
 
+	return {};
+}
+
+std::string CRewardableObject::getGenericDescriptionMessage() const
+{
 	return configuration.description.toString();
+}
+
+std::string CRewardableObject::getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const
+{
+	if (!wasScouted(player) || configuration.info.empty())
+		return getGenericDescriptionMessage();
+
+	auto scoutedMessage = getScoutedDescriptionMessage(hero);
+	if (!scoutedMessage.empty())
+		return scoutedMessage;
+
+	return getGenericDescriptionMessage();
 }
 
 std::vector<Component> CRewardableObject::getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const

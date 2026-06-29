@@ -862,12 +862,15 @@ CArtifactInstance * CMap::createScroll(const SpellID & spellId)
 
 CArtifactInstance * CMap::createArtifactComponent(const ArtifactID & artId)
 {
-	auto newArtifact = artId.hasValue() ?
-		std::make_shared<CArtifactInstance>(cb, artId.toArtifact()):
-		std::make_shared<CArtifactInstance>(cb);
+	auto art = artId.toArtifact();
+	auto newArtifact = std::make_shared<CArtifactInstance>(cb, art);
 
 	newArtifact->setId(ArtifactInstanceID(artInstances.size()));
 	artInstances.push_back(newArtifact);
+
+	for (const auto & bonus : art->instanceBonuses)
+		newArtifact->addNewBonus(std::make_shared<Bonus>(*bonus, newArtifact->getId()));
+
 	return newArtifact.get();
 }
 
@@ -905,9 +908,6 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 		artInst->addNewBonus(bonus);
 		artInst->addCharges(art->getDefaultStartCharges());
 	}
-
-	for (const auto & bonus : art->instanceBonuses)
-		artInst->addNewBonus(std::make_shared<Bonus>(*bonus, artInst->getId()));
 
 	return artInst;
 }

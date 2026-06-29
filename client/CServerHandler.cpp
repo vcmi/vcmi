@@ -109,6 +109,7 @@ CServerHandler::CServerHandler()
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
+	, hotseatMode(false)
 	, battleMode(false)
 	, client(nullptr)
 {
@@ -139,7 +140,10 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	hostClientId = GameConnectionID::INVALID;
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
+	loadMode = ELoadMode::NONE;
 	mapToStart = nullptr;
+	hotseatMode = false;
+	battleMode = false;
 	th = std::make_unique<CStopWatch>();
 	logicConnection.reset();
 	si = std::make_shared<StartInfo>();
@@ -336,6 +340,18 @@ bool CServerHandler::isHost() const
 bool CServerHandler::isGuest() const
 {
 	return !logicConnection || hostClientId != logicConnection->connectionID;
+}
+
+bool CServerHandler::hasRemoteClientInLobby() const
+{
+	for(const auto & playerEntry : playerNames)
+	{
+		const auto connectionId = playerEntry.second.connection;
+		if(connectionId != GameConnectionID::INVALID && connectionId != hostClientId)
+			return true;
+	}
+
+	return false;
 }
 
 const std::string & CServerHandler::getLocalHostname() const
@@ -586,7 +602,12 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());
-		showServerError(std::string("Unable to start map!\nReason: ") + e.what());
+		MetaString message;
+		message.appendTextID("vcmi.lobby.system.unableStartMap");
+		message.appendRawString("\n");
+		message.appendTextID("vcmi.lobby.system.reason");
+		message.replaceRawString(e.what());
+		showServerError(message.toString());
 		return false;
 	}
 

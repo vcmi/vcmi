@@ -34,6 +34,14 @@
 				"inTheWakeOfGods" :      { "type" : "object" }
 			}
 		},
+		"general": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"daysPerWeek" :  { "type" : "number" },
+				"weeksPerMonth" : { "type" : "number" }
+			}
+		},
 		"heroes" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -162,6 +170,7 @@
 			"properties" : {
 				"stackExperience" : { "type" : "boolean" },
 				"stackArtifact" : { "type" : "boolean" },
+				"stackArtifactIndication" : { "type" : "boolean" },
 				"commanders" : { "type" : "boolean" }
 			}
 		},

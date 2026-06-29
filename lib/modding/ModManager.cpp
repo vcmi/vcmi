@@ -529,6 +529,11 @@ bool ModManager::isModSettingActive(const TModID & rootModID, const TModID & mod
 	return modsPreset->getModSettings(rootModID).at(modSettingID);
 }
 
+std::map<TModID, bool> ModManager::getModSettings(const TModID & rootModID) const
+{
+	return modsPreset->getModSettings(rootModID);
+}
+
 bool ModManager::isModActive(const TModID & modID) const
 {
 	return vstd::contains(getActiveMods(), modID);

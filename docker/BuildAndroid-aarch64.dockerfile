@@ -11,7 +11,7 @@ RUN pipx install 'sdkmanager'
 
 RUN conan profile detect
 
-ENV DEPS="dependencies-android-arm64-v8a.tgz"
+ENV DEPS="dependencies-android-arm64-v8a.txz"
 COPY CI/install_conan_dependencies.sh CI/install_conan_dependencies.sh
 RUN DEPS_VERSION=$(grep '^RELEASE_TAG=' CI/install_conan_dependencies.sh | cut -d'"' -f2) && \
     echo "Using DEPS_VERSION=$DEPS_VERSION" && \
@@ -19,7 +19,6 @@ RUN DEPS_VERSION=$(grep '^RELEASE_TAG=' CI/install_conan_dependencies.sh | cut -
 
 RUN conan cache restore $DEPS
 RUN rm $DEPS
-RUN PROFILE_PATH=$(conan profile path default) && printf "\n[replace_requires]\nboost/*: boost/1.88.0\n" >> "$PROFILE_PATH"
 
 ENV JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 ENV ANDROID_HOME="/usr/lib/android-sdk"

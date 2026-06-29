@@ -16,6 +16,8 @@
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 
+#include <optional>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMapGenOptions;
@@ -42,12 +44,16 @@ public:
 	void saveOptions(const CMapGenOptions & options);
 	void loadOptions();
 	CMapGenOptions & obtainMapGenOptions() {return *mapGenOptions;}
+	bool isCustomMapSizeMode() const { return customMapSizeMode; }
+	size_t getCustomMapSizeIconFrame() const;
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
 private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
-	std::vector<int> getStandardMapSizes();
+	std::vector<int> getStandardMapSizes() const;
+	std::optional<int> getMapSizeForButtonId(int btnId) const;
+	bool isCustomSizeButtonId(int btnId) const;
 	void onToggleMapSize(int btnId);
 
 	std::shared_ptr<CMapInfo> mapInfo;
@@ -58,6 +64,7 @@ private:
 	std::set<int> playerTeamsAllowed;
 	std::set<int> compCountAllowed;
 	std::set<int> compTeamsAllowed;
+	bool customMapSizeMode = false;
 
 	int templateIndex;
 };

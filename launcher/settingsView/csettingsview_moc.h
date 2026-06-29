@@ -52,6 +52,7 @@ private slots:
 	void on_buttonShowIntro_toggled(bool value);
 	void on_buttonAllowPortrait_toggled(bool value);
 	void on_buttonAutoCheck_toggled(bool value);
+	void on_buttonFullModExtraction_toggled(bool value);
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
 	void on_buttonAutoSave_toggled(bool value);
 	void on_comboBoxLanguage_currentIndexChanged(int index);

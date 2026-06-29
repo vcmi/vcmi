@@ -377,11 +377,16 @@
 					"waterLandFailureTakesPoints" : true,
 					"cursor" : "mapDimensionDoor", // defined in config/cursors.json
 					"cursorGuarded" : "mapTurn1Attack", // defined in config/cursors.json
-					"castsPerDay" : 2,
+					"castsPerDay" : 1,
 					"rangeX" : 9,
 					"rangeY" : 8,
 					"ignoreFow" : true,
 					"exposeFow" : true
+				}
+			},
+			"basic":{
+				"adventureEffect" : {
+					"castsPerDay" : 2
 				}
 			},
 			"advanced":{

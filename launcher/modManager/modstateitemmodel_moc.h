@@ -43,7 +43,8 @@ namespace ModRoles
 enum EModRoles
 {
 	ValueRole = Qt::UserRole,
-	ModNameRole
+	ModNameRole,
+	ModNameRoleEnglish
 };
 }
 

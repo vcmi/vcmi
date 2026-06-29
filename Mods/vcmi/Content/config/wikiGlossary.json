@@ -1,0 +1,18 @@
+{
+	// Wiki Glossary – moddable list of concept/lore entries shown in the Glossary
+	// category of the in-game Wiki window.
+	//
+	// Each entry is a JSON object keyed by a unique identifier (used for wiki links).
+	// Because "entries" is a struct, entries from different mods are merged correctly
+	// by assembleFromFiles.
+	//
+	//   "name"        – translation key (or literal string if no key exists)
+	//   "description" – translation key (or literal description text)
+
+	"entries" : {
+		"vcmi.wiki.glossary.vcmi" : {
+			"name"        : "vcmi.wiki.glossary.vcmi.name",
+			"description" : "vcmi.wiki.glossary.vcmi.description"
+		}
+	}
+}

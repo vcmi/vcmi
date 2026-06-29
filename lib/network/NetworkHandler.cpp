@@ -30,6 +30,11 @@ std::unique_ptr<INetworkServer> NetworkHandler::createServerTCP(INetworkServerLi
 	return std::make_unique<NetworkServer>(listener, *context);
 }
 
+NetworkContext & NetworkHandler::getContext()
+{
+	return *context;
+}
+
 std::shared_ptr<INetworkConnection> NetworkHandler::createAsyncConnection(INetworkConnectionListener & listener)
 {
 	auto loopbackConnection = std::make_shared<InternalConnection>(listener, *context);

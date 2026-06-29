@@ -72,8 +72,9 @@ std::optional<CampaignScenarioID> CGameStateCampaign::getHeroesSourceScenario() 
 	return campaignState->lastScenario();
 }
 
-void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignTravel & travelOptions)
+void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignState & campaignState)
 {
+	const CampaignTravel travelOptions = campaignState.scenario(*campaignState.currentScenario()).travelOptions;
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
 	if(!travelOptions.whatHeroKeeps.experience)
 	{
@@ -180,10 +181,11 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerat
 	//trimming creatures
 	for(auto & hero : campaignHeroReplacements)
 	{
-		auto shouldSlotBeErased = [&](CStackInstance & j) -> bool
+		// a special case: only the second mission should allow transfering stacks, but the player can choose two alternative missions after the first
+		bool isThirdDragonSlayerMission = boost::starts_with(campaignState.getFilename(), "DATA/SLAYER") && campaignState.conqueredScenarios().size() == 2;
+		auto shouldSlotBeErased = [&](CStackInstance & j) -> bool		//here slots are erased
 		{
-			CreatureID crid = j.getCreatureID();
-			return !travelOptions.monstersKeptByHero.count(crid);
+			return isThirdDragonSlayerMission || !travelOptions.monstersKeptByHero.count(j.getCreatureID());
 		};
 
 		//generate list of slots without removing anything first to avoid iterator invalidation
@@ -243,7 +245,8 @@ void CGameStateCampaign::placeCampaignHeroes(vstd::RNG & randomGenerator)
 	generateCampaignHeroesToReplace();
 
 	logGlobal->debug("\tPrepare crossover heroes");
-	trimCrossoverHeroesParameters(randomGenerator, campaignState->scenario(*campaignState->currentScenario()).travelOptions);
+	trimCrossoverHeroesParameters(randomGenerator, *campaignState);
+
 
 	// remove same heroes on the map which will be added through crossover heroes
 	// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes

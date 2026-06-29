@@ -163,6 +163,8 @@ QVariant ModStateItemModel::data(const QModelIndex & index, int role) const
 			return getValue(mod, index.column());
 		case ModRoles::ModNameRole:
 			return mod.getID();
+		case ModRoles::ModNameRoleEnglish:
+			return mod.getNameEnglish();
 		}
 	}
 	return QVariant();
@@ -301,7 +303,19 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 
 bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
-	return filterMatchesCategory(source) && QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
+	if(!filterMatchesCategory(source))
+		return false;
+
+	const QRegularExpression filter = filterRegularExpression();
+	if(filter.pattern().isEmpty())
+		return true;
+
+	if(QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent()))
+		return true;
+
+	const QString localizedName = source.data(Qt::DisplayRole).toString();
+	const QString englishName = source.data(ModRoles::ModNameRoleEnglish).toString();
+	return localizedName.contains(filter) || englishName.contains(filter);
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const

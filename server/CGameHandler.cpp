@@ -47,7 +47,6 @@
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 
-#include "../lib/filesystem/FileInfo.h"
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
@@ -434,7 +433,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 }
 
-void CGameHandler::handleClientDisconnection(GameConnectionID connectionID)
+void CGameHandler::handleClientDisconnection(GameConnectionID connectionID, const std::vector<PlayerConnectionID> & disconnectedPlayerIds)
 {
 	if(gameServer().getState() == EServerState::SHUTDOWN || !gameState().getStartInfo())
 	{
@@ -455,6 +454,28 @@ void CGameHandler::handleClientDisconnection(GameConnectionID connectionID)
 			disconnectedPlayers.push_back(player.first);
 		else
 			remainingPlayers.push_back(player.first);
+	}
+
+	if(disconnectedPlayers.empty() && !disconnectedPlayerIds.empty())
+	{
+		for(const auto & player : gameState().players)
+		{
+			if (gameInfo().getPlayerState(player.first)->status != EPlayerStatus::INGAME)
+				continue;
+
+			const auto playerSettings = gameInfo().getPlayerSettings(player.first);
+			if(!playerSettings)
+				continue;
+
+			for(const auto disconnectedPlayerId : disconnectedPlayerIds)
+			{
+				if(vstd::contains(playerSettings->connectedPlayerIDs, disconnectedPlayerId))
+				{
+					disconnectedPlayers.push_back(player.first);
+					break;
+				}
+			}
+		}
 	}
 
 	for (const auto & inGamePlayer : remainingPlayers)
@@ -672,8 +693,11 @@ void CGameHandler::onNewTurn()
 {
 	logGlobal->trace("Turn %d", gameState().day+1);
 
+	int daysPerWeek = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+	int daysPerMonth = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH) * daysPerWeek;
+
 	bool firstTurn = !gameInfo().getDate(Date::DAY);
-	bool newMonth = gameInfo().getDate(Date::DAY_OF_MONTH) == 28;
+	bool newMonth = gameInfo().getDate(Date::DAY_OF_MONTH) == daysPerMonth;
 
 	if (firstTurn)
 	{
@@ -1627,9 +1651,8 @@ bool CGameHandler::responseStatistic(PlayerColor player)
 void CGameHandler::save(const std::string & filename, PlayerColor playerToNotifyOnSuccess)
 {
 	logGlobal->info("Saving to %s", filename);
-	const auto stem	= FileInfo::GetPathStem(filename);
-	const auto savefname = stem.to_string() + ".vsgm1";
-	ResourcePath savePath(stem.to_string(), EResType::SAVEGAME);
+	ResourcePath savePath(filename, EResType::SAVEGAME);
+	const auto savefname = savePath.getOriginalName() + ".vsgm1";
 	CResourceHandler::get("local")->createResource(savefname);
 
 	std::string filenameWithoutPath;
@@ -1672,12 +1695,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 void CGameHandler::load(const StartInfo &info)
 {
 	logGlobal->info("Loading from %s", info.mapname);
-	// No need to use the stem because info.mapname doesn't come with the file extension included
-	// const auto stem	= FileInfo::GetPathStem(info.mapname);
 
 	reinitScripting();
 
-	// CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), gs.get());
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(info.mapname, EResType::SAVEGAME)), gs.get());
 	gs = std::make_shared<CGameState>();
 	randomizer = std::make_unique<GameRandomizer>(*gs);
@@ -2235,8 +2255,14 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Take cost
 	if(!force)
 	{
-		giveResources(t->tempOwner, -requestedBuilding->resources);
-		statistics->getPlayerAccumulator(t->tempOwner).spentResourcesForBuildings += requestedBuilding->resources;
+		const PlayerColor ownerBeforePay = t->tempOwner;
+		giveResources(ownerBeforePay, -requestedBuilding->resources);
+
+		// Only record statistics if the player is still a valid, in-game player.
+		// If they were eliminated during the resource deduction (rare but possible via custom
+		// map triggers), we skip the statistics update because the PlayerState no longer exists.
+		if(ownerBeforePay.isValidPlayer() && t->tempOwner == ownerBeforePay)
+			statistics->getPlayerAccumulator(ownerBeforePay).spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
@@ -3412,7 +3438,7 @@ bool CGameHandler::complain(const std::string &problem)
 	return true;
 }
 
-void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits)
+void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle)
 {
 	const auto * upperArmy = dynamic_cast<const CArmedInstance*>(gameInfo().getObj(upobj));
 	const auto * lowerArmy = dynamic_cast<const CArmedInstance*>(gameInfo().getObj(hid));
@@ -3427,6 +3453,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	gd.hid = hid;
 	gd.objid = upobj;
 	gd.removableUnits = removableUnits;
+	gd.customTitle = customTitle;
 	gd.queryID = garrisonQuery->queryID;
 	sendAndApply(gd);
 }
@@ -3451,6 +3478,18 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 {
 	if (id1 == id2)
 		return true;
+
+	for(const auto & query : queries->allQueries())
+	{
+		const auto * garrisonQuery = dynamic_cast<const CGarrisonDialogQuery *>(query.get());
+		if(garrisonQuery == nullptr)
+			continue;
+
+		const bool matchesForward = garrisonQuery->exchangingArmies[0]->id == id1 && garrisonQuery->exchangingArmies[1]->id == id2;
+		const bool matchesBackward = garrisonQuery->exchangingArmies[0]->id == id2 && garrisonQuery->exchangingArmies[1]->id == id1;
+		if(matchesForward || matchesBackward)
+			return true;
+	}
 
 	const CGObjectInstance *o1 = gameInfo().getObj(id1);
 	const CGObjectInstance *o2 = gameInfo().getObj(id2);
@@ -4004,7 +4043,7 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 				}
 			}
 		}
-		showGarrisonDialog(src->id, dst->id, true); //show garrison window and optionally remove ourselves from map when player ends
+		showGarrisonDialog(src->id, dst->id, true, MetaString()); //show garrison window and optionally remove ourselves from map when player ends
 	}
 	else //merge
 	{

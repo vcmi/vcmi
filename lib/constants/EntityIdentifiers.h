@@ -629,6 +629,8 @@ public:
 	{
 		return num;
 	}
+
+	static bool isRandomArtifact(MapObjectBaseID id);
 };
 
 class DLL_LINKAGE MapObjectSubID : public Identifier<MapObjectSubID>
@@ -749,7 +751,7 @@ public:
 		TRANSITION_POS = -3,
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
-		
+
 		// Hero
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, //5
 		RIGHT_RING, LEFT_RING, FEET, //8
@@ -757,10 +759,10 @@ public:
 		MACH1, MACH2, MACH3, MACH4, //16
 		SPELLBOOK, MISC5, //18
 		BACKPACK_START = 19,
-		
+
 		// Creatures
 		CREATURE_SLOT = 0,
-		
+
 		// Commander
 		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER7, COMMANDER8, COMMANDER9,
 

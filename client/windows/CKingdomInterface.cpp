@@ -885,14 +885,6 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	fastArmyPurchase = std::make_shared<CButton>(Point(111, 31), AnimationPath::builtin("castleInterfaceQuickAccess"), CButton::tooltip(), [this]() { std::make_shared<CCastleBuildings>(town)->enterToTheQuickRecruitmentWindow(); });
 	fastArmyPurchase->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("itmcl"), imageIndex));
 
-	fastTavern = std::make_shared<LRClickableArea>(Rect(5, 6, 58, 64), [&]()
-	{
-		if(town->hasBuilt(BuildingID::TAVERN))
-			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
-	}, [&]{
-		if(!town->getTown()->faction->getDescriptionTranslated().empty())
-			CRClickPopup::createAndPush(town->getFaction()->getDescriptionTranslated());
-	});
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{
 		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);

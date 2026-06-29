@@ -1136,6 +1136,13 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
+
+		if (!handler.saving)
+		{
+			// Workaround for invalid spells in	loaded map
+			vstd::erase(possibleSpells, SpellID());
+			vstd::erase(obligatorySpells, SpellID());
+		}
 	}
 
 	{

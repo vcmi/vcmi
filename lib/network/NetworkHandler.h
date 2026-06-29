@@ -30,6 +30,8 @@ public:
 
 	void run() override;
 	void stop() override;
+
+	NetworkContext & getContext() override;
 };
 
 VCMI_LIB_NAMESPACE_END

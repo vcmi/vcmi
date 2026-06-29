@@ -96,9 +96,9 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, c
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(const HeroTypeID & hid : getUnusedAllowedHeroes())
 	{
-		if(hid.toHeroType()->heroClass->faction == ps.castle)
+		if(hid.toHeroType()->heroClass->faction == ps.castle && isHeroAllowedForPlayer(hid, owner))
 			factionHeroes.push_back(hid);
-		else
+		else if (isHeroAllowedForPlayer(hid, owner))
 			otherHeroes.push_back(hid);
 	}
 
@@ -123,29 +123,39 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, c
 	throw std::runtime_error("Can not allocate hero. All heroes are already used.");
 }
 
+bool CGameState::isHeroAllowedForPlayer(const HeroTypeID & hid, const PlayerColor & owner)
+{
+	for(const auto & disposedHero : map->disposedHeroes)
+	{
+		if(disposedHero.heroId == hid)
+            return disposedHero.players.count(owner);
+	}
+	return true;
+}
+
 int CGameState::getDate(int d, Date mode)
 {
+	int daysPerWeek = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+	int daysPerMonth = LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH) * daysPerWeek;
+
 	int temp;
 	switch (mode)
 	{
 	case Date::DAY:
 		return d;
 	case Date::DAY_OF_WEEK: //day of week
-		temp = (d)%7; // 1 - Monday, 7 - Sunday
-		return temp ? temp : 7;
+		temp = (d)%daysPerWeek; // 1 - Monday, 7 - Sunday
+		return temp ? temp : daysPerWeek;
 	case Date::WEEK:  //current week
-		temp = ((d-1)/7)+1;
-		if (!(temp%4))
-			return 4;
-		else
-			return (temp%4);
+		temp = ((d - 1) % daysPerMonth) + 1;
+		return ((temp - 1) / daysPerWeek) + 1;
 	case Date::MONTH: //current month
-		return ((d-1)/28)+1;
+		return ((d-1)/daysPerMonth)+1;
 	case Date::DAY_OF_MONTH: //day of month
-		temp = (d)%28;
+		temp = (d)%daysPerMonth;
 		if (temp)
 			return temp;
-		else return 28;
+		else return daysPerMonth;
 	}
 	return 0;
 }

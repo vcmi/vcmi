@@ -58,10 +58,14 @@ RandomMapTab::RandomMapTab():
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
-		mapGenOptions->setLevels(on ? 2 : 1);
+		if(mapGenOptions->getLevels() > 2)
+			mapGenOptions->setLevels(2); // standard setup supports at most 2 levels
+		else
+			mapGenOptions->setLevels(on ? 2 : 1);
 		if(mapGenOptions->getMapTemplate())
 			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
+		customMapSizeMode = mapGenOptions->getWidth() != mapGenOptions->getHeight();
 		updateMapInfoByHost();
 	});
 	
@@ -208,8 +212,6 @@ void RandomMapTab::onToggleMapSize(int btnId)
 	if(btnId == -1)
 		return;
 
-	auto mapSizeVal = getStandardMapSizes();
-
 	auto setTemplateForSize = [this](){
 		if(mapGenOptions->getMapTemplate())
 			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
@@ -217,7 +219,7 @@ void RandomMapTab::onToggleMapSize(int btnId)
 		updateMapInfoByHost();
 	};
 
-	if(btnId == mapSizeVal.size() - 1)
+	if(isCustomSizeButtonId(btnId))
 	{
 		ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), mapGenOptions->getMapTemplate(), [this, setTemplateForSize](int3 ret){
 			if(ret.z > 2)
@@ -228,13 +230,25 @@ void RandomMapTab::onToggleMapSize(int btnId)
 			mapGenOptions->setWidth(ret.x);
 			mapGenOptions->setHeight(ret.y);
 			mapGenOptions->setLevels(ret.z);
+			customMapSizeMode = true;
+			if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
+				twoLevelsButton->setSelectedSilent(ret.z == 2);
 			setTemplateForSize();
 		});
 		return;
 	}
 
-	mapGenOptions->setWidth(mapSizeVal[btnId]);
-	mapGenOptions->setHeight(mapSizeVal[btnId]);
+	const auto mapSize = getMapSizeForButtonId(btnId);
+	if(!mapSize.has_value())
+		return;
+
+	mapGenOptions->setWidth(*mapSize);
+	mapGenOptions->setHeight(*mapSize);
+	customMapSizeMode = false;
+	const int targetLevelCount = mapGenOptions->getLevels() > 1 ? 2 : 1;
+	mapGenOptions->setLevels(targetLevelCount);
+	if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
+		twoLevelsButton->setSelectedSilent(targetLevelCount == 2);
 	setTemplateForSize();
 }
 
@@ -397,19 +411,44 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
 	{
-		const auto & mapSizes = getStandardMapSizes();
+		const int customButtonId = static_cast<int>(getStandardMapSizes().size());
+		const bool hasCustomButton = w->buttons.count(customButtonId) > 0;
+
 		for(auto toggle : w->buttons)
 		{
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 			{
-				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], mapGenOptions->getLevels());
+				const auto mapSize = getMapSizeForButtonId(toggle.first);
+				if(!mapSize.has_value())
+				{
+					button->block(false); // custom/unknown button should stay usable
+					continue;
+				}
+
+				int3 size(*mapSize, *mapSize, mapGenOptions->getLevels());
 
 				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-				button->block(!sizeAllowed && !(toggle.first == mapSizes.size() - 1));
+				button->block(!sizeAllowed);
 			}
 		}
-		auto position = vstd::find_pos(getStandardMapSizes(), opts->getWidth());
-		w->setSelected(position == mapSizes.size() - 1 || opts->getWidth() != opts->getHeight() ? -1 : position);
+
+		if(customMapSizeMode && hasCustomButton && isCustomSizeButtonId(w->getSelected()))
+		{
+			// Keep current custom button selection. Do not switch to preset button based on dimensions.
+		}
+		else if(opts->getWidth() != opts->getHeight())
+		{
+			customMapSizeMode = true;
+			w->setSelected(hasCustomButton ? customButtonId : -1);
+		}
+		else
+		{
+			auto position = vstd::find_pos(getStandardMapSizes(), opts->getWidth());
+			if(customMapSizeMode && hasCustomButton && position >= 0 && position < static_cast<int>(getStandardMapSizes().size()))
+				w->setSelected(customButtonId);
+			else
+				w->setSelected(position);
+		}
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
@@ -478,6 +517,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 {
 	mapGenOptions->setMapTemplate(tmpl);
+	customMapSizeMode = false;
 	setMapGenOptions(mapGenOptions);
 	if(auto w = widget<CButton>("templateButton"))
 	{
@@ -519,9 +559,28 @@ void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<in
 	}
 }
 
-std::vector<int> RandomMapTab::getStandardMapSizes()
+std::vector<int> RandomMapTab::getStandardMapSizes() const
 {
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
+}
+
+std::optional<int> RandomMapTab::getMapSizeForButtonId(int btnId) const
+{
+	const auto defaultMapSizes = getStandardMapSizes();
+	if(btnId >= 0 && btnId < static_cast<int>(defaultMapSizes.size()))
+		return defaultMapSizes[btnId];
+
+	return std::nullopt;
+}
+
+bool RandomMapTab::isCustomSizeButtonId(int btnId) const
+{
+	return btnId == static_cast<int>(getStandardMapSizes().size());
+}
+
+size_t RandomMapTab::getCustomMapSizeIconFrame() const
+{
+	return getStandardMapSizes().size();
 }
 
 void TeamAlignmentsWidget::checkTeamCount()
@@ -781,7 +840,7 @@ SetSizeWindow::SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, st
 			label->setColor(labelColors);
 	};
 
-	titles.push_back(std::make_shared<CLabel>(150, 15, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.title")));
+	titles.push_back(std::make_shared<CLabel>(150, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.title")));
 
 	for(int i = 0; i < 3; i++)
 	{

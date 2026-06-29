@@ -56,7 +56,7 @@
 			"properties" : {
 				"type" : {
 					"type" : "string",
-					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "viewWorld" ]
+					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "reinforcements", "viewWorld" ]
 				},
 				"castsPerDay" : { "type" : "number" },
 				"castsPerDayXL" : { "type" : "number" },
@@ -127,6 +127,23 @@
 							"movementPointsTaken" : { "type" : "number" },
 							"allowTownSelection" : { "type" : "boolean" },
 							"skipOccupiedTowns" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "reinforcements" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"allowTownSelection" : { "type" : "boolean" },
+							"casterInTown" : { "type" : "string" },
+							"selectTownTitle" : { "type" : "string" },
+							"selectTownDescription" : { "type" : "string" },
+							"garrisonTitle" : { "type" : "string" }
 						},
 						"additionalProperties" : false
 					}

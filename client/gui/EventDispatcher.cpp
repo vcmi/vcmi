@@ -331,7 +331,7 @@ void EventDispatcher::dispatchMouseScrolled(const Point & distance, const Point 
 		if(!vstd::contains(wheelInterested,i))
 			continue;
 
-		if (i->receiveEvent(position, AEventsReceiver::WHEEL))
+		if (i->receiveEvent(position, AEventsReceiver::WHEEL) && distance.y != 0)
 			i->wheelScrolled(distance.y);
 	}
 }

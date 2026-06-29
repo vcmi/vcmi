@@ -135,16 +135,15 @@ static std::string formatRetaliation(const DamageEstimation & estimation, bool m
 }
 
 static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects::SpellEffectValue & value,
-										  std::string_view spellName, std::string_view targetName)
+										  const std::string & spellName, const std::string & targetName)
 {
-	auto const & templateText = LIBRARY->generaltexth->allTexts[gnrlTextID];
-	std::string baseText;
-	if(!targetName.empty() && !spellName.empty())
-		baseText = boost::str(boost::format(templateText) % spellName % targetName);
-	else if(targetName.empty())
-		baseText = boost::str(boost::format(templateText) % spellName);
-	else
-		baseText = boost::str(boost::format(templateText) % targetName);
+	auto templateText = MetaString::createFromTextID( "core.genrltxt." + std::to_string(gnrlTextID));
+	if (!spellName.empty())
+		templateText.replaceRawString(spellName);
+	if (!targetName.empty())
+		templateText.replaceRawString(targetName);
+
+	std::string baseText = templateText.toString();
 
 	if(value.unitsDelta > 0)
 	{
@@ -178,6 +177,27 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 	}
 
 	return baseText +" ("+ outputString +")";
+}
+
+static BattleHex findAttackFromHex(const BattleInterface & owner, const CStack * attacker, const BattleHex & targetHex, bool allowLongWeapon)
+{
+	if(!attacker || !targetHex.isValid())
+		return BattleHex::INVALID;
+
+	const auto preferredDirection = owner.fieldController->selectAttackDirection(targetHex);
+	BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, preferredDirection, allowLongWeapon);
+
+	if(attackFromHex.isValid())
+		return attackFromHex;
+
+	for(int direction = 0; direction < 8; ++direction)
+	{
+		attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, static_cast<BattleHex::EDir>(direction), allowLongWeapon);
+		if(attackFromHex.isValid())
+			return attackFromHex;
+	}
+
+	return BattleHex::INVALID;
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -342,32 +362,35 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 				return 5;
 				break;
-			case PossiblePlayerBattleAction::ATTACK:
+			case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
 				return 6;
 				break;
-			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+			case PossiblePlayerBattleAction::ATTACK:
 				return 7;
 				break;
-			case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
+			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 				return 8;
 				break;
-			case PossiblePlayerBattleAction::MOVE_STACK:
+			case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 				return 9;
 				break;
-			case PossiblePlayerBattleAction::CATAPULT:
+			case PossiblePlayerBattleAction::MOVE_STACK:
 				return 10;
 				break;
-			case PossiblePlayerBattleAction::HEAL:
+			case PossiblePlayerBattleAction::CATAPULT:
 				return 11;
 				break;
-			case PossiblePlayerBattleAction::CREATURE_INFO:
+			case PossiblePlayerBattleAction::HEAL:
 				return 12;
 				break;
-			case PossiblePlayerBattleAction::HERO_INFO:
+			case PossiblePlayerBattleAction::CREATURE_INFO:
 				return 13;
 				break;
-			case PossiblePlayerBattleAction::TELEPORT:
+			case PossiblePlayerBattleAction::HERO_INFO:
 				return 14;
+				break;
+			case PossiblePlayerBattleAction::TELEPORT:
+				return 15;
 				break;
 			default:
 				assert(0);
@@ -483,6 +506,7 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 			return;
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 		{
@@ -586,12 +610,16 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 				return (boost::format(LIBRARY->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				const auto * attacker = owner.stacksController->getActiveStack();
-				BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+				bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
+				BattleHex attackFromHex = findAttackFromHex(owner, attacker, targetHex, allowLongWeapon);
 				assert(attackFromHex.isValid());
+				if(!attackFromHex.isValid())
+					return "";
 				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
 				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
@@ -762,13 +790,16 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 			return false;
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			{
 				const CStack * currentStack = owner.stacksController->getActiveStack();
+				bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
 				return currentStack &&
 					owner.getBattle()->battleCanAttackUnit(currentStack, targetStack) &&
-					owner.getBattle()->battleCanAttackHex(currentStack, targetHex);
+					owner.getBattle()->battleCanAttackHex(currentStack, targetHex) &&
+					findAttackFromHex(owner, currentStack, targetHex, allowLongWeapon).isValid();
 			}
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			{
@@ -787,7 +818,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 				if(!owner.getBattle()->battleCanShoot(currentStack, targetHex))
 					return false;
 
-				if(targetStack == nullptr && owner.getBattle()->battleCanTargetEmptyHex(currentStack))
+				if((targetStack == nullptr || targetStack->isInvincible()) && owner.getBattle()->battleCanTargetEmptyHex(currentStack))
 				{
 					auto spellLikeAttackBonus = currentStack->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 					const CSpell * spellDataToCheck = spellLikeAttackBonus->subtype.as<SpellID>().toSpell();
@@ -865,13 +896,17 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		}
 
 		case PossiblePlayerBattleAction::ATTACK:
+		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 		{
 			bool returnAfterAttack = action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
+			bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
 			auto attacker = owner.stacksController->getActiveStack();
-			BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+			BattleHex attackFromHex = findAttackFromHex(owner, attacker, targetHex, allowLongWeapon);
 			assert(attackFromHex.isValid());
+			if(!attackFromHex.isValid())
+				return;
 			BattleAction command = BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
 			owner.sendCommand(command, attacker);
 			return;
@@ -1232,6 +1267,17 @@ bool BattleActionsController::currentActionWalkAndCast(const BattleHex & hovered
 		return false;
 
 	return selectAction(hoveredHex).get() == PossiblePlayerBattleAction::WALK_AND_SPELLCAST;
+}
+
+bool BattleActionsController::currentActionUsesLongWeapon(const BattleHex & hoveredHex)
+{
+	if (heroSpellToCast)
+		return false;
+
+	if (!owner.stacksController->getActiveStack())
+		return true;
+
+	return selectAction(hoveredHex).get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
 }
 
 const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPossibleActions() const

@@ -34,9 +34,16 @@ public:
 
 	void addImageFile(const ImagePath & path, ImageGenerationFunctor & img);
 	void addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim);
+	void addBackpackBackground(const std::string & fileName, const Point & size);
+	void addDialogBackground(const std::string & fileName, const Point & size);
+	void addSpellResearchBackground(const std::string & fileName, const Point & size);
+	void addRecruitmentBackground(const std::string & fileName, const Point & size);
+	void addUniversityBackground(const std::string & fileName, const Point & size, int skillColumns);
+	void addUniversityConfirmBackground(const std::string & fileName, const Point & size, int costElements);
 
 	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay, bool small);
 	AnimationLayoutMap createSliderBar(bool brown, bool horizontal, int length);
+	AnimationLayoutMap createAdventureOptionsButton(const ImagePath & overlay);
 
 private:
 	struct PaletteAnimation
@@ -61,6 +68,12 @@ private:
 	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
 	CanvasPtr createAdventureMapButtonClear(const PlayerColor & player, bool small) const;
 	CanvasPtr createCreatureInfoPanel(int boxesAmount) const;
+	CanvasPtr createBackpackDialogBackground(const Point & size) const;
+	CanvasPtr createDialogBackground(const Point & size, bool withStatusBar = false) const;
+	CanvasPtr createStackExperienceDialogBackground(const Point & size, int rowCount) const;
+	CanvasPtr createRecruitmentDialogBackground(const Point & size) const;
+	CanvasPtr createUniversityDialogBackground(const Point & size, int skillColumns) const;
+	CanvasPtr createUniversityConfirmDialogBackground(const Point & size, int costElements) const;
 	enum CreateResourceWindowType{ ARTIFACTS_BUYING, ARTIFACTS_SELLING, MARKET_RESOURCES, FREELANCERS_GUILD, TRANSFER_RESOURCES };
 	CanvasPtr createResourceWindow(CreateResourceWindowType type, int count, PlayerColor color) const;
 	enum CreatureInfoPanelElement{ BONUS_EFFECTS, SPELL_EFFECTS, BUTTON_PANEL, COMMANDER_BACKGROUND, COMMANDER_ABILITIES };
@@ -70,6 +83,11 @@ private:
 	AnimationLayoutMap createGSPButton2Arrow();
 	CanvasPtr createGateListColored(PlayerColor color, PlayerColor backColor) const;
 	CanvasPtr createHeroSlotsColored(PlayerColor backColor) const;
+	CanvasPtr createStackArtifactIndicator(const Point & size) const;
+	CanvasPtr createMuPopUpCustom() const;
+	CanvasPtr createStackExperienceIcon(const std::string & iconId) const;
+	CanvasPtr createStackExperienceInactiveOverlay() const;
+	CanvasPtr createAdventureOptionsBackground(PlayerColor color) const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);

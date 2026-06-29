@@ -179,7 +179,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	goldPressure = (ai->getLockedResources()[EGameResID::GOLD] + (float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * 7.0f);
+	goldPressure = (ai->getLockedResources()[EGameResID::GOLD] + (float)armyCost[EGameResID::GOLD] + economyDevelopmentCost) / (1 + 2 * ai->getFreeGold() + (float)dailyIncome[EGameResID::GOLD] * static_cast<float>(LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK)));
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gold pressure: %f", goldPressure);

@@ -88,7 +88,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
-		gameEvents.showGarrisonDialog(id,h->id,true);
+		gameEvents.showGarrisonDialog(id, h->id, true, MetaString());
 		return;
 	}
 	else if (relations == PlayerRelations::ALLIES)//ally
@@ -628,6 +628,7 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 
 const CArtifactInstance * CGArtifact::getArtifactInstance() const
 {
+	assert(storedArtifact.hasValue());
 	return cb->getArtInstance(storedArtifact);
 }
 
@@ -911,7 +912,7 @@ void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	if (relations == PlayerRelations::ENEMIES)
 		gameEvents.setOwner(this, h->tempOwner);
 
-	gameEvents.showGarrisonDialog(id, h->id, removableUnits);
+	gameEvents.showGarrisonDialog(id, h->id, removableUnits, MetaString());
 }
 
 bool CGGarrison::passableFor(PlayerColor player) const

@@ -1,0 +1,42 @@
+server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+
+        root /home/downloader/www;
+        access_log /var/log/nginx/builds.access.log;
+        error_log /var/log/nginx/builds.error.log;
+        index index.html index.htm;
+
+        server_name download.vcmi.eu;
+
+        ssl on;
+        ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
+        ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;
+        ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+        ssl_verify_client on;
+
+        location / {
+                fancyindex on;
+                fancyindex_ignore HEADER.html FOOTER.html;
+                fancyindex_header /HEADER.html;
+                fancyindex_footer /FOOTER.html;
+                fancyindex_exact_size on;
+                fancyindex_default_sort name;
+                error_page 404 =  @toindex;
+        }
+
+# e.g. /branch/<branch name>/<platform>/ - sort by date
+        location ~ ^/[^/]+/[^/]+/[^/]+/ {
+                fancyindex on;
+                fancyindex_ignore HEADER.html FOOTER.html;
+                fancyindex_header /HEADER.html;
+                fancyindex_footer /FOOTER.html;
+                fancyindex_exact_size on;
+                fancyindex_default_sort date_desc;
+                error_page 404 =  @toindex;
+        }
+
+        location @toindex {
+            rewrite  .*  / redirect;
+        }
+}

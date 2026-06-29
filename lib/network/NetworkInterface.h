@@ -184,6 +184,8 @@ public:
 	/// Starts network processing on this thread. Does not returns until networking processing has been terminated
 	virtual void run() = 0;
 	virtual void stop() = 0;
+
+	virtual NetworkContext & getContext() = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

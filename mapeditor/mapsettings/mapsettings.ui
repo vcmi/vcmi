@@ -3,7 +3,7 @@
  <class>MapSettings</class>
  <widget class="QDialog" name="MapSettings">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -35,7 +35,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -191,16 +191,16 @@
        <item>
         <widget class="QListWidget" name="listAbilities">
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerItem</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
          </property>
          <property name="isWrapping" stdset="0">
           <bool>true</bool>
          </property>
          <property name="resizeMode">
-          <enum>QListView::Adjust</enum>
+          <enum>QListView::ResizeMode::Adjust</enum>
          </property>
          <property name="layoutMode">
-          <enum>QListView::Batched</enum>
+          <enum>QListView::LayoutMode::Batched</enum>
          </property>
          <property name="batchSize">
           <number>30</number>
@@ -226,16 +226,16 @@
        <item>
         <widget class="QListWidget" name="listSpells">
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerItem</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
          </property>
          <property name="isWrapping" stdset="0">
           <bool>true</bool>
          </property>
          <property name="layoutMode">
-          <enum>QListView::Batched</enum>
+          <enum>QListView::LayoutMode::Batched</enum>
          </property>
          <property name="batchSize">
           <number>30</number>
@@ -261,16 +261,16 @@
        <item>
         <widget class="QListWidget" name="listArts">
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
          </property>
          <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerItem</enum>
+          <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
          </property>
          <property name="isWrapping" stdset="0">
           <bool>true</bool>
          </property>
          <property name="layoutMode">
-          <enum>QListView::Batched</enum>
+          <enum>QListView::LayoutMode::Batched</enum>
          </property>
          <property name="batchSize">
           <number>30</number>
@@ -294,23 +294,7 @@
         <number>12</number>
        </property>
        <item>
-        <widget class="QListWidget" name="listHeroes">
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerItem</enum>
-         </property>
-         <property name="isWrapping" stdset="0">
-          <bool>true</bool>
-         </property>
-         <property name="layoutMode">
-          <enum>QListView::Batched</enum>
-         </property>
-         <property name="batchSize">
-          <number>30</number>
-         </property>
-        </widget>
+        <widget class="HeroesSettings" name="heroes" native="true"/>
        </item>
       </layout>
      </widget>
@@ -330,6 +314,12 @@
    <class>GeneralSettings</class>
    <extends>QWidget</extends>
    <header>mapsettings/generalsettings.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HeroesSettings</class>
+   <extends>QWidget</extends>
+   <header>mapsettings/heroessettings.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

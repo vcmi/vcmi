@@ -36,7 +36,7 @@ CAltarArtifacts::CAltarArtifacts(const IMarket * market, const CGHeroInstance * 
 	altarArtifactsStorage = market->getArtifactsStorage();
 
 	deal = std::make_shared<CButton>(Point(269, 520), AnimationPath::builtin("ALTSACR.DEF"),
-		LIBRARY->generaltexth->zelp[585], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
+		LIBRARY->generaltexth->zelp[584], [this]() {CAltarArtifacts::makeDeal(); }, EShortcut::MARKET_DEAL);
 	labels.emplace_back(std::make_shared<CLabel>(450, 32, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[477]));
 	labels.emplace_back(std::make_shared<CLabel>(302, 424, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[478]));
 

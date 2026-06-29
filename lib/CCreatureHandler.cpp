@@ -977,7 +977,9 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 	for (const JsonNode &exp : input.Vector())
 	{
 		const JsonVector &values = exp["values"].Vector();
-		int lowerLimit = 1;//, upperLimit = 255;
+		// RankRangeLimiter uses strict bounds (rank > minRank), so level 1 bonus
+		// must start from 0 to map values[0] -> rank 1 and values[9] -> rank 10.
+		int lowerLimit = 0;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
 			for (const JsonNode &val : values)

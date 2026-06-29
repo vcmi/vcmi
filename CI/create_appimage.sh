@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+# Parse arguments
+USE_CONAN=0
+for arg in "$@"; do
+    case "$arg" in
+        --use-conan) USE_CONAN=1 ;;
+        *) echo "Unknown argument: $arg"; exit 1 ;;
+    esac
+done
+
 # Define paths
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(dirname "$SCRIPT_DIR")
@@ -82,12 +91,51 @@ fi
 export VERSION
 export UPD_INFO="gh-releases-zsync|vcmi|vcmi|continuous|VCMI-*$ARCH.AppImage.zsync"
 
-if [ -z "$QMAKE" ]; then
-    if command -v qmake6 &> /dev/null; then
-        export QMAKE=qmake6
+# Detect qmake
+if [[ -z "$QMAKE" ]]; then
+    if [[ "$USE_CONAN" -eq 1 ]]; then
+        # --use-conan: require qmake from Conan2 cache, no system fallback
+		qtPackage='qt'
+		hexRegex='[[:xdigit:]]+'
+		
+		qtPackageRevision=$(conan list --format=compact "$qtPackage/*:*" \
+		  | egrep --only-matching "$qtPackage/[[:alnum:]._-]+#$hexRegex:$hexRegex" \
+		  | head -n1)
+		
+		qmakeDir="$(conan cache path "$qtPackageRevision")/bin"
+		CONAN_QMAKE="$qmakeDir/qmake"
+
+        if [[ -z "$qtPackageRevision" || ! -x "$CONAN_QMAKE" ]]; then
+            echo "Error: --use-conan set but no qmake found in Conan cache" >&2
+            exit 1
+        fi
+
+        export QMAKE="$CONAN_QMAKE"
+        echo "Using Conan Qt qmake: $QMAKE"
     else
-        export QMAKE=qmake
+        # No Conan: use system Qt
+        if command -v qmake &>/dev/null; then
+            export QMAKE=$(command -v qmake)
+            echo "Using system Qt qmake: $QMAKE"
+        elif command -v qmake6 &>/dev/null; then
+            export QMAKE=$(command -v qmake6)
+            echo "Using system Qt6 qmake: $QMAKE"
+        else
+            echo "Error: No qmake found" >&2
+            exit 1
+        fi
     fi
+fi
+
+# Some Conan-built shared libs (e.g. SDL2_mixer) have no RPATH/RUNPATH, so
+# linuxdeploy's dependency resolver cannot locate their transitive deps
+# (e.g. libopus.so.0).  Adding all Conan lib directories to LD_LIBRARY_PATH
+# makes them visible to linuxdeploy.
+if [[ "$USE_CONAN" -eq 1 ]] && [[ -d "${HOME}/.conan2/p" ]]; then
+    CONAN_LIB_DIRS=$(find "${HOME}/.conan2/p" \( -name "*.so" -o -name "*.so.*" \) 2>/dev/null \
+                     | xargs -r dirname 2>/dev/null | sort -u | paste -sd:)
+    export LD_LIBRARY_PATH="${CONAN_LIB_DIRS}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    echo "Added Conan lib dirs to LD_LIBRARY_PATH"
 fi
 
 # Run linuxdeploy

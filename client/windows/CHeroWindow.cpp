@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CHeroWindow.h"
+#include "wiki/WikiWindow.h"
 
 #include "CCreatureWindow.h"
 #include "CHeroBackpackWindow.h"
@@ -81,7 +82,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	statusbar = CGStatusBar::create(7, 559, ImagePath::builtin("ADROLLVR.bmp"), 660);
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 559, 660, 19), 7, 559));
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), AnimationPath::builtin("hsbtns.def"), CButton::tooltip(heroscrn[17]), [this](){ close(); }, EShortcut::GLOBAL_RETURN);
 
@@ -117,6 +118,13 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	//areas
 	portraitArea = std::make_shared<LRClickableAreaWText>(Rect(18, 18, 58, 64));
 	portraitImage = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), 0, 0, 19, 19);
+
+	portraitWikiArea = std::make_shared<LRClickableArea>(Rect(18, 18, 58, 64), [this]()
+	{
+		ENGINE->windows().createAndPushWindow<WikiWindow>(
+			WikiWindow::Style::BROWN,
+			WikiEntryKey{WikiCategory::HERO, curHero->getHeroType()->getJsonKey()});
+	});
 
 	for(int v = 0; v < GameConstants::PRIMARY_SKILLS; ++v)
 	{
@@ -182,7 +190,16 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[6]));
 	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[7]));
 
+	addUsedEvents(KEYBOARD);
 	CHeroWindow::updateArtifacts();
+}
+
+void CHeroWindow::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::ADVENTURE_OPEN_WIKI)
+		ENGINE->windows().createAndPushWindow<WikiWindow>(
+			WikiWindow::Style::BROWN,
+			WikiEntryKey{WikiCategory::HERO, curHero->getHeroType()->getJsonKey()});
 }
 
 void CHeroWindow::updateArtifacts()

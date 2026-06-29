@@ -89,25 +89,44 @@
             }
         },
         {
-            "name": "linux-gcc-release-appimage",
-            "displayName": "GCC x86_64-pc-linux-gnu for appimage",
+			"name": "linux-gcc-release-lobby",
+            "displayName": "GCC x86_64-pc-linux-gnu (lobby only)",
             "description": "VCMI Linux GCC",
             "inherits": "linux-release",
             "cacheVariables": {
+				"ENABLE_CLIENT" : "OFF",
+				"ENABLE_SERVER" : "OFF",
+				"ENABLE_EDITOR" : "OFF",
+				"ENABLE_LAUNCHER" : "OFF",
+				"ENABLE_MINIMAL_LIB" : "ON",
+				"ENABLE_STATIC_LIBS" : "ON",
+				"ENABLE_LOBBY" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-gcc-release-appimage",
+            "displayName": "GCC x86_64-pc-linux-gnu for appimage",
+            "description": "VCMI Linux GCC",
+            "inherits": ["linux-release", "build-with-conan"],
+            "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
-                "ENABLE_STATIC_LIBS": "ON"
+                "ENABLE_STATIC_LIBS": "ON",
+                "FORCE_BUNDLED_FL": "ON"
             }
         },
         {
             "name": "linux-gcc-release-arm64-appimage",
             "displayName": "GCC aarch64-linux-gnu for appimage",
             "description": "VCMI Linux GCC ARM64",
-            "inherits": "linux-release",
+            "inherits": ["linux-release", "build-with-conan"],
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
-                "ENABLE_STATIC_LIBS": "ON"
+                "ENABLE_STATIC_LIBS": "ON",
+                "FORCE_BUNDLED_FL": "ON"
             }
         },
         {
@@ -422,6 +441,11 @@
             "name": "linux-gcc-release",
             "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release-lobby",
+            "configurePreset": "linux-gcc-release-lobby",
+            "inherits": "linux-gcc-release"
         },
         {
             "name": "linux-gcc-release-appimage",

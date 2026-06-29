@@ -142,6 +142,7 @@ public:
 	ESelectionScreen screenType; // To create lobby UI only after server is setup
 	EServerMode serverMode;
 	ELoadMode loadMode; // For saves filtering in SelectionTab
+	bool hotseatMode;
 	bool battleMode;
 	////////////////////
 
@@ -171,6 +172,7 @@ public:
 
 	bool isHost() const;
 	bool isGuest() const;
+	bool hasRemoteClientInLobby() const;
 	bool inLobbyRoom() const;
 	bool inGame() const;
 

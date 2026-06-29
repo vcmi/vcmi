@@ -80,7 +80,7 @@ git clone --recursive https://github.com/vcmi/vcmi.git %VCMI_DIR%/source
     - for Powershell: `source\conan-msvc\conanrun.ps1`. If it gives an error, also run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted`
 4. Create VS solution: `cmake -S source -B build --toolchain source\conan-msvc\conan_toolchain.cmake`
 
-\* This script sets up `PATH` required for Qt tools (`moc`, `uic` etc.) that run during CMake configure and build steps. Those tools depend on `zlib.dll` that was built with Conan, therefore its directory must be in `PATH`.
+\* This script sets up `PATH` required for Qt tools (`moc`, `uic` etc.) that run during CMake configure and build steps. Those tools depend on `zlib.dll` that was built with Conan, therefore its directory must be in `PATH`. As an alternative to modifying `PATH` you may try [this workaround](https://github.com/kambala-decapitator/ExeWrapper).
 
 #### Build solution
 

@@ -13,9 +13,9 @@ cd vcmi
 conan profile detect
 
 # 3) Restore prebuilt iOS dependencies cache
-# Download dependencies-ios.tgz from https://github.com/vcmi/vcmi-dependencies/releases
+# Download dependencies-ios.txz from https://github.com/vcmi/vcmi-dependencies/releases
 # If you do not have the tarball, skip this step and use --build=missing in the install command.
-conan cache restore dependencies-ios.tgz
+conan cache restore dependencies-ios.txz
 
 # 4) Install dependencies (prebuilt binaries)
 # Pick Debug or Release and keep it consistent with the build configuration you use later.
@@ -72,10 +72,10 @@ The primary and officially supported way is [Conan package manager](./Conan.md).
 
 There are also [legacy manually built libraries](https://github.com/vcmi/vcmi-ios-deps) which can be used if you have Xcode 11/12 or to build for simulator / armv7 device, but this way is no longer supported. Using Conan will also let you build with any Xcode version and for any architecture / SDK.
 
-If you are using the prebuilt dependency cache, download `dependencies-ios.tgz` from <https://github.com/vcmi/vcmi-dependencies/releases> and restore it:
+If you are using the prebuilt dependency cache, download `dependencies-ios.txz` from <https://github.com/vcmi/vcmi-dependencies/releases> and restore it:
 
 ```sh
-conan cache restore dependencies-ios.tgz
+conan cache restore dependencies-ios.txz
 ```
 
 ## Configuring project

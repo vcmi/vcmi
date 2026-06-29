@@ -30,18 +30,33 @@ void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdat
 		return;
 
 	if(onControl && !slider->isPressed())
+	{
 		slider->clickPressed(cursorPosition);
+		// Cursor landed on the thumb for the first time – initialise offset so the
+		// thumb doesn't jump to centre the thumb under the cursor.
+		if(slider->pos.isInside(cursorPosition))
+		{
+			if(getOrientation() == Orientation::HORIZONTAL)
+				dragOffset = cursorPosition.x - (slider->pos.x + barLength / 2);
+			else
+				dragOffset = cursorPosition.y - (slider->pos.y + barLength / 2);
+		}
+		else
+		{
+			dragOffset = 0;
+		}
+	}
 
 	double newPosition = 0;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
-		newPosition = cursorPosition.x - pos.x - 16 - (barLength / 2);
+		newPosition = (cursorPosition.x - dragOffset) - pos.x - 16 - (barLength / 2);
 		newPosition *= positions;
 		newPosition /= (pos.w - 32 - barLength);
 	}
 	else
 	{
-		newPosition = cursorPosition.y - pos.y - 16 - (barLength / 2);
+		newPosition = (cursorPosition.y - dragOffset) - pos.y - 16 - (barLength / 2);
 		newPosition *= positions;
 		newPosition /= (pos.h - 32 - barLength);
 	}
@@ -176,8 +191,25 @@ void CSlider::clickPressed(const Point & cursorPosition)
 	if (!vstd::iswithin(rw, 0, 1))
 		return;
 
+	// If the cursor lands directly on the thumb, remember the offset so that
+	// subsequent mouseDragged calls don't jump the thumb to centre under cursor.
+	if(slider->pos.isInside(cursorPosition))
+	{
+		if(getOrientation() == Orientation::HORIZONTAL)
+			dragOffset = cursorPosition.x - (slider->pos.x + barLength / 2);
+		else
+			dragOffset = cursorPosition.y - (slider->pos.y + barLength / 2);
+	}
+	else
+	{
+		// Click on track: jump to clicked position, no offset.
+		dragOffset = 0;
+		slider->clickPressed(cursorPosition);
+		scrollTo((int)(rw * positions + 0.5));
+		return;
+	}
+
 	slider->clickPressed(cursorPosition);
-	scrollTo((int)(rw * positions + 0.5));
 }
 
 void CSlider::clickReleased(const Point & cursorPosition)
@@ -185,6 +217,7 @@ void CSlider::clickReleased(const Point & cursorPosition)
 	if(slider->isBlocked())
 		return;
 
+	dragOffset = 0;
 	slider->clickReleased(cursorPosition);
 }
 
@@ -211,7 +244,8 @@ CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, 
 	value(Value),
 	moved(Moved),
 	length(totalw),
-	style(Style)
+	style(Style),
+	dragOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 	setAmount(amount);

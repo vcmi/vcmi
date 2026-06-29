@@ -49,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>729</width>
-        <height>1647</height>
+        <height>1720</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="20,5,5,5,5,10">
@@ -431,7 +431,36 @@
          </property>
         </widget>
        </item>
+       <item row="66" column="0">
+        <widget class="QLabel" name="labelFullModExtraction">
+         <property name="text">
+          <string>Full mod extraction</string>
+         </property>
+        </widget>
+       </item>
        <item row="66" column="1" colspan="5">
+        <widget class="QToolButton" name="buttonFullModExtraction">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="67" column="1" colspan="5">
         <widget class="QPushButton" name="buttonConfigEditor">
          <property name="text">
           <string>Open editor</string>
@@ -1343,7 +1372,7 @@
          </property>
         </widget>
        </item>
-       <item row="66" column="0">
+       <item row="67" column="0">
         <widget class="QLabel" name="labelConfigEditor">
          <property name="text">
           <string>Config editor</string>

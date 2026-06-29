@@ -286,13 +286,19 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	std::swap(descendant, inheritedNode);
 }
 
-JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, settings, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings, bool & isValid)
 {
 	if (files.isVector())
 	{
 		assert(!files.getModScope().empty());
 		auto configList = files.convertTo<std::vector<std::string> >();
-		JsonNode result = JsonUtils::assembleFromFiles(configList, files.getModScope(), isValid);
+		JsonNode result = JsonUtils::assembleFromFiles(configList, files.getModScope(), {}, isValid);
 
 		return result;
 	}
@@ -306,16 +312,16 @@ JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, bool & isValid)
 JsonNode JsonUtils::assembleFromFiles(const JsonNode & files)
 {
 	bool isValid = false;
-	return assembleFromFiles(files, isValid);
+	return assembleFromFiles(files, {}, isValid);
 }
 
 JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
 {
 	bool isValid = false;
-	return assembleFromFiles(files, "", isValid);
+	return assembleFromFiles(files, "", {}, isValid);
 }
 
-JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, std::string modName, bool & isValid)
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, std::string modName, const JsonParsingSettings & settings, bool & isValid)
 {
 	isValid = true;
 	JsonNode result;
@@ -327,7 +333,7 @@ JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, st
 		if (CResourceHandler::get(modName)->existsResource(path))
 		{
 			bool isValidFile = false;
-			JsonNode section(JsonPath::builtinTODO(file), modName, isValidFile);
+			JsonNode section(JsonPath::builtinTODO(file), settings, modName, isValidFile);
 			merge(result, section);
 			isValid |= isValidFile;
 		}

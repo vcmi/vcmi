@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - platform: mac-intel
-            os: macos-14
+            os: macos-15
             pack: 1
             upload: 1
             pack_type: Release
@@ -33,7 +33,7 @@ jobs:
             artifact_platform: intel
 
           - platform: mac-arm
-            os: macos-14
+            os: macos-15
             pack: 1
             upload: 1
             pack_type: Release
@@ -46,7 +46,7 @@ jobs:
             artifact_platform: arm
 
           - platform: ios
-            os: macos-14
+            os: macos-15
             pack: 1
             upload: 1
             pack_type: RelWithDebInfo
@@ -132,16 +132,20 @@ jobs:
             os: ubuntu-24.04
             upload: 1
             preset: linux-gcc-release-appimage
+            conan_profile: linux-x64
+            conan_prebuilts: dependencies-linux-x64
+            before_install: linux_appimage.sh
             extension: AppImage
-            before_install: linux_qt6.sh
             artifact_platform: x86_64
 
           - platform: linux-appimage-arm64
             os: ubuntu-24.04-arm
             upload: 1
             preset: linux-gcc-release-arm64-appimage
+            conan_profile: linux-arm64
+            conan_prebuilts: dependencies-linux-arm64
+            before_install: linux_appimage.sh
             extension: AppImage
-            before_install: linux_qt6.sh
             artifact_platform: arm64
 
     runs-on: ${{ matrix.os }}
@@ -276,6 +280,7 @@ jobs:
           --output-folder="$outFolder" \
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
+          --conf="tools.cmake.cmaketoolchain:generator=Ninja" \
           ${{ matrix.conan_options }}
         ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
@@ -343,7 +348,7 @@ jobs:
 
     - name: Build
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' || '' }}
         cmake --build --preset ${{matrix.preset}}
       shell: pwsh
       env:
@@ -357,7 +362,7 @@ jobs:
         ARCH: ${{ matrix.artifact_platform }}
       run: |
         chmod +x CI/create_appimage.sh
-        CI/create_appimage.sh
+        CI/create_appimage.sh --use-conan
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
@@ -452,14 +457,14 @@ jobs:
             ${{ env.IOS_APPSTORE_SYMBOLS_DIR }}
 
     - name: Upload build to download.vcmi.eu
-      if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
+      if: ${{ matrix.upload == 1 && github.event.number == '' && env.BUILDS_UPLOADER_PRIVATE_KEY != '' }}
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
-        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        BUILDS_UPLOADER_PRIVATE_KEY: ${{ secrets.BUILDS_UPLOADER_PRIVATE_KEY }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
 
     - name: Prepare partial JSON with build informations
@@ -648,6 +653,49 @@ jobs:
             exit 1
         fi
 
+  lobby:
+    name: Build VCMI Lobby
+    # Warning: Lobby .deb must be build on the same Ubuntu version and arch as our server. Do not change to ubuntu-latest
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Prepare CI
+      run: sudo apt update && sudo apt install cmake devscripts debhelper build-essential zlib1g-dev libboost-dev libboost-program-options-dev libboost-filesystem-dev libboost-system-dev libboost-locale-dev libboost-thread-dev libboost-iostreams-dev libminizip-dev
+
+    - name: Build Number
+      run: |
+        source '${{github.workspace}}/CI/get_package_name.sh'
+        VCMI_PACKAGE_FILE_NAME+="-x64"
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_BUILD="$VCMI_PACKAGE_BUILD" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: Prepare debian directory
+      run: mv debian/controlLobby debian/control && mv debian/rulesLobby debian/rules
+
+    - name: Build .deb
+      run: debuild -us -uc -b
+
+    - name: Move .deb package
+      run: mv ../vcmi-lobby_*_amd64.deb "${{ env.VCMI_PACKAGE_FILE_NAME }}.deb"
+
+    - name: Upload Artifact
+      id: upload_artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.platform }}lobby
+        compression-level: 0
+        path: ${{github.workspace}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.deb
+
   windows-installer:
     needs: build
     if: ${{ needs.build.result == 'success' }}
@@ -746,12 +794,12 @@ jobs:
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
     - name: Upload Installer
-      if: ${{ github.event.number == '' && env.DEPLOY_RSA != '' }}
+      if: ${{ github.event.number == '' && env.BUILDS_UPLOADER_PRIVATE_KEY != '' }}
       run: |
         cd '${{github.workspace}}/CI/wininstaller/Output'
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
-        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        BUILDS_UPLOADER_PRIVATE_KEY: ${{ secrets.BUILDS_UPLOADER_PRIVATE_KEY }}
         PACKAGE_EXTENSION: exe
 
     - name: Prepare partial JSON with installer informations

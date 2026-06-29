@@ -97,7 +97,7 @@ public:
 		auto * result = std::get_if<CustomType>(&data_);
 		if (result)
 			return *result;
-		throw std::runtime_error("Invalid addInfo type access!");
+		throw std::runtime_error("Invalid addInfo type access! Stored type: " + std::to_string(data_.index()));
 	}
 
 	template<typename CustomType>
@@ -106,7 +106,7 @@ public:
 		auto * result = std::get_if<CustomType>(&data_);
 		if (result)
 			return *result;
-		throw std::runtime_error("Invalid addInfo type access!");
+		throw std::runtime_error("Invalid addInfo type access! Stored type: " + std::to_string(data_.index()));
 	}
 
 	template <class H>

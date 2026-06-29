@@ -150,6 +150,9 @@ public:
 	const CGBoat * getBoat() const;
 	void setBoat(CGBoat * getBoat);
 
+	/// Returns ID of existing war machine that will be replaced if hero were to purchase new war machine
+	/// If there is no replaced war machine (for example slot is empty), method will return empty ArtifactID
+	ArtifactID getReplacedWarMachine(ArtifactID newWarMachine) const;
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
 	void addSpellToSpellbook(const SpellID & spell);
