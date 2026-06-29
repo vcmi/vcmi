@@ -1,13 +1,52 @@
 {
-	// TODO: Mircea: Add proper description per field
+	// maxRoamingHeroes: static number of heroes.
+	// maxRoamingHeroesPerTown: adds over the static number for each owned town
+	// - the formula doesn't go over perPlayerOnMapCap in gameConfig.json. Bump that to 16 or more for higher difficulty
+	// - example: 3 + 2 * towns (owned towns = 3) = 8 (would have been 9, but 8 is the default perPlayerOnMapCap, so 8)
+	// maxPass: number of cycles (find, prioritize and execute) for map activities within a turn
+	// maxPriorityPass: number of cycles within each pass of maxPass for town management mostly, including buying heroes
+	// - this becomes strategically important later in the game, so the AI can do its "house chores" before more important actions on the map
+	// - if maxPass or maxPriorityPass is reached, AI's turn is stopped even if it could have done many more things
+	// - acts as an artificial limit to how much it can work within a turn
+	// mainHeroTurnDistanceLimit: number of turns as limit for the MAIN (fighting) heroes
+	// threatTurnDistanceLimit: used for DangerHitMapAnalyzer, you'll probably never need to touch that
+	// maxGoldPressure: used for determining if the AI player has a problem with gold or not, determining what it can do with it
+	// updateHitmapOnTileReveal: used for DangerHitMapAnalyzer, you'll probably never need to touch that
+	// useTroopsFromGarrisons: allows AI to use troops from garrisons together with cc->getStartInfo()->restrictedGarrisonsForAI()
+	// useOneWayMonoliths: allows AI to use one way Monoliths (2026.01.03 currently buggy, so false)
+	// openMap: allows AI to see the entire map from the beginning, like a cheat. Requires a LOOOOOT more CPU
+	// allowObjectGraph: it's an internal mechanism for openMap
+	// pathfinderBucketsCount: buckets don't exist anymore, but this value is multiplied with pathfinderBucketSize to give the total alloed nodes per position
+	// pathfinderBucketSize: multiplied with pathfinderBucketsCount to give the total alloed nodes per position
+	// - example: 3 and 8 or 1 and 32 both translate into a single bucket with spaces for 32 nodes
+	// - a higher storage capacity becomes necessary later in the game
+	// - things that go into those buckets with their respective logs that you can search in the code for (step order is approximate):
+	// - P:Step0 AINodeStorage::getInitialNodes Failed to allocate node at %s[%d]
+	// - P:Step1 AINodeStorage::calculateNeighbours Failed to allocate node at %s[%d]
+	// - P:Step2A AILayerTransitionRule::tryUseSpecialAction Failed to allocate node at %s[%d].
+	// - P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d].
+	// - P:Step2C AIMovementAfterDestinationRule::bypassBattle Failed to allocate node at %s[%d].
+	// - P:Step3 AINodeStorage::calculateTeleportations Failed to allocate node at %s[%d]
+	// - P:Step4 HeroChainCalculationTask::addHeroChain Failed to allocate node at %s[%d]
+	// - P:Step5 TownPortalFinder createTownPortalNode Failed to allocate node at %s[%d]
+	// retreatThresholdRelative: how close to death (% of army) to be before AI considers retreating
+	// retreatThresholdAbsolute: how close to death (strength of army) to be before AI considers retreating
+	// safeAttackRatio: extra ratio added on top of hero's strength to determine if it's stronger than the enemy (danger)
+	// - general formula: heroStrength > dangerStrength * safeAttackRatio
+	// maxArmyLossTarget: how much (% of army) the AI is willing to lose before it considers getting into a battle
+	// - this is an approximation and doesn't guarantee winning the battle due to many army particularities and battle styles
+	// - this becomes 100% if AI player loses all towns, it's willing to risk it all
+	// - example: the higher the value, the higher the chance it will die in a battle
+	// - example: beginners are more likely to loose their heroes, thus pawn level also has a higher percentage here
+	// useFuzzy: a different engine for calculating and prioritizing what to do (2026.01.03 currently unfinished in unknown state, so false)
 
 	"pawn" : {
 		"maxRoamingHeroes" : 3, //H3 value: 3,
 		"maxRoamingHeroesPerTown" : 0,
 		"maxPass" : 5,
 		"maxPriorityPass" : 2,
-		"mainHeroTurnDistanceLimit" : 10,
-		"scoutHeroTurnDistanceLimit" : 5,
+		"mainHeroTurnDistanceLimit" : 20,
+		"scoutHeroTurnDistanceLimit" : 15,
 		"threatTurnDistanceLimit" : 1,
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
@@ -16,7 +55,7 @@
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
-		"pathfinderBucketSize" : 7,
+		"pathfinderBucketSize" : 8,
 		"retreatThresholdRelative" : 0.1,
 		"retreatThresholdAbsolute" : 2000,
 		"safeAttackRatio" : 1.1,
@@ -29,9 +68,9 @@
 		"maxRoamingHeroesPerTown" : 1,
 		"maxPass" : 10,
 		"maxPriorityPass" : 5,
-		"mainHeroTurnDistanceLimit" : 10,
-		"scoutHeroTurnDistanceLimit" : 5,
-		"threatTurnDistanceLimit" : 4,
+		"mainHeroTurnDistanceLimit" : 20,
+		"scoutHeroTurnDistanceLimit" : 15,
+		"threatTurnDistanceLimit" : 3,
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
@@ -39,7 +78,7 @@
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
-		"pathfinderBucketSize" : 7,
+		"pathfinderBucketSize" : 16,
 		"retreatThresholdRelative" : 0.1,
 		"retreatThresholdAbsolute" : 5000,
 		"safeAttackRatio" : 1.1,
@@ -52,8 +91,8 @@
 		"maxRoamingHeroesPerTown" : 2,
 		"maxPass" : 40,
 		"maxPriorityPass" : 40,
-		"mainHeroTurnDistanceLimit" : 10,
-		"scoutHeroTurnDistanceLimit" : 5,
+		"mainHeroTurnDistanceLimit" : 20,
+		"scoutHeroTurnDistanceLimit" : 15,
 		"threatTurnDistanceLimit" : 5,
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
@@ -62,7 +101,7 @@
 		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
-		"pathfinderBucketSize" : 14,
+		"pathfinderBucketSize" : 32,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,
@@ -75,17 +114,17 @@
 		"maxRoamingHeroesPerTown" : 2,
 		"maxPass" : 40,
 		"maxPriorityPass" : 40,
-		"mainHeroTurnDistanceLimit" : 10,
-		"scoutHeroTurnDistanceLimit" : 5,
+		"mainHeroTurnDistanceLimit" : 20,
+		"scoutHeroTurnDistanceLimit" : 15,
 		"threatTurnDistanceLimit" : 5,
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
 		"useOneWayMonoliths" : false,
-		"openMap": true,
+		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
-		"pathfinderBucketSize" : 14,
+		"pathfinderBucketSize" : 32,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,
@@ -98,17 +137,17 @@
 		"maxRoamingHeroesPerTown" : 2,
 		"maxPass" : 40,
 		"maxPriorityPass" : 40,
-		"mainHeroTurnDistanceLimit" : 10,
-		"scoutHeroTurnDistanceLimit" : 5,
+		"mainHeroTurnDistanceLimit" : 20,
+		"scoutHeroTurnDistanceLimit" : 15,
 		"threatTurnDistanceLimit" : 5,
 		"maxGoldPressure" : 0.3,
 		"updateHitmapOnTileReveal" : true,
 		"useTroopsFromGarrisons" : true,
 		"useOneWayMonoliths" : false,
-		"openMap": true,
+		"openMap": false,
 		"allowObjectGraph": false,
 		"pathfinderBucketsCount" : 1,
-		"pathfinderBucketSize" : 14,
+		"pathfinderBucketSize" : 32,
 		"retreatThresholdRelative" : 0.3,
 		"retreatThresholdAbsolute" : 10000,
 		"safeAttackRatio" : 1.1,

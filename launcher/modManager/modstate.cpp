@@ -25,6 +25,11 @@ QString ModState::getName() const
 	return QString::fromStdString(impl.getName());
 }
 
+QString ModState::getNameEnglish() const
+{
+	return QString::fromStdString(impl.getValue("name").String());
+}
+
 QString ModState::getType() const
 {
 	return QString::fromStdString(impl.getValue("modType").String());
@@ -32,7 +37,16 @@ QString ModState::getType() const
 
 QString ModState::getDescription() const
 {
-	return QString::fromStdString(impl.getLocalizedValue("description").String());
+	QString description = QString::fromStdString(impl.getLocalizedDescription().String());
+
+	if (Qt::mightBeRichText(description))
+	{
+		QTextDocument document;
+		document.setHtml(description);
+		description = document.toMarkdown();
+	}
+
+	return description;
 }
 
 QString ModState::getID() const
@@ -172,7 +186,7 @@ QString ModState::getDownloadUrl() const
 
 QPair<QString, QString> ModState::getCompatibleVersionRange() const
 {
-	const JsonNode & compatibility = impl.getValue("compatibility");
+	const JsonNode & compatibility = impl.getLocalValue("compatibility");
 
 	if (compatibility.isNull())
 		return {};

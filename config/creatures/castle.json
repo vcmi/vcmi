@@ -58,7 +58,7 @@
 	{
 		"index": 2,
 		"level": 2,
-		"extraNames": [ "lightCrossbowman" ],
+		"compatibilityIdentifiers": [ "lightCrossbowman" ],
 		"faction": "castle",
 		"upgrades": ["marksman"],
 		"shots" : 12,

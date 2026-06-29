@@ -44,7 +44,7 @@ size_t TextOperations::getUnicodeCharacterSize(char firstByte)
 		return 4;
 
 	assert(0);// invalid unicode sequence
-	return 4;
+	return 1;
 }
 
 bool TextOperations::isValidUnicodeCharacter(const char * character, size_t maxSize)
@@ -257,6 +257,7 @@ static const std::locale & getLocale()
 {
 	auto getLocale = []() -> std::locale
 	{
+#ifndef ENABLE_MINIMAL_LIB
 		const std::string & baseLocaleName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 		const std::string fallbackLocale = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).localeName;
 
@@ -274,6 +275,7 @@ static const std::locale & getLocale()
 				logGlobal->warn("Failed to set locale '%s'", localeName);
 			}
 		}
+#endif
 		return std::locale();
 	};
 

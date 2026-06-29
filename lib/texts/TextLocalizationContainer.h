@@ -15,6 +15,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
+struct ExportedStrings
+{
+	/// Strings (string ID -> translation) that were added by this mod
+	std::map<std::string, std::string> strings;
+
+	/// mods that had one or more of their strings overriden by this mod
+	std::vector<std::string> overridenMods;
+};
+
 class DLL_LINKAGE TextLocalizationContainer
 {
 protected:
@@ -79,7 +88,7 @@ public:
 
 	/// Debug method, returns all currently stored texts
 	/// Format: [mod ID][string ID] -> human-readable text
-	void exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage, bool onlyMissing) const;
+	void exportAllTexts(std::map<std::string, ExportedStrings> & storage, bool onlyMissing) const;
 
 	/// Add or override subcontainer which can store identifiers
 	void addSubContainer(const TextLocalizationContainer & container);

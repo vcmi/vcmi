@@ -136,7 +136,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 	static const std::array<std::string, 4>  resourceArr =   {"SMALRES",        "RESOURCE",       "RESOURCE",       "RESOUR82"};
 	static const std::array<std::string, 4>  creatureArr =   {"CPRSMALL",       "CPRSMALL",       "TWCRPORT",       "TWCRPORT"};
 	static const std::array<std::string, 4>  artifactArr =   {"Artifact",       "Artifact",       "Artifact",       "Artifact"};
-	static const std::array<std::string, 4>  spellsArr =     {"SpellInt",       "SpellInt",       "SpellInt",       "SPELLSCR"};
+	static const std::array<std::string, 4>  spellsArr =     {"SpellInt",       "SpellInt",       "SPELLSCR",       "SPELLSCR"};
 	static const std::array<std::string, 4>  moraleArr =     {"IMRL22",         "IMRL30",         "IMRL42",         "imrl82"};
 	static const std::array<std::string, 4>  luckArr =       {"ILCK22",         "ILCK30",         "ILCK42",         "ilck82"};
 	static const std::array<std::string, 4>  heroArr =       {"PortraitsSmall", "PortraitsSmall", "PortraitsSmall", "PortraitsLarge"};
@@ -207,7 +207,7 @@ size_t CComponent::getIndex() const
 			return LIBRARY->artifacts()->getById(data.subType.as<ArtifactID>())->getIconIndex();
 		case ComponentType::SPELL_SCROLL:
 		case ComponentType::SPELL:
-			return (size < large) ? data.subType.getNum() + 1 : data.subType.getNum();
+			return (size < medium) ? data.subType.getNum() + 1 : data.subType.getNum();
 		case ComponentType::MORALE:
 			return std::clamp(data.value.value_or(0) + 3, 0, 6);
 		case ComponentType::LUCK:

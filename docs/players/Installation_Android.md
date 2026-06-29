@@ -1,45 +1,68 @@
-# Installation Android
+# Installation on Android
+
+## Prerequisites
+
+- Android 5 or newer is required.
+- VCMI requires original *Heroes of Might and Magic III: Shadow of Death* or *Complete* data files.
 
 ## Step 1: Download and install VCMI
 
-**This app requires original heroes 3 sod / complete files to operate, they are not supplied with this installer. it is recommended to purchase version from gog.com. Heroes 3 "hd edition" (steam version) files are not supported !!!**  
-Installation is a two step process, at first you need to install game, then you need to upload Heroes3 original data files into your android device.
+Install VCMI using one of the following options:
 
-- Latest release on Google Play (recommended): <https://play.google.com/store/apps/details?id=is.xyz.vcmi>
-- Latest release as .apk file: <https://github.com/vcmi/vcmi/releases/latest>
-- Daily builds (unstable): <https://builds.vcmi.download/branch/develop/Android/>
+- **Google Play version (recommended):** [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi)
+- **APK from GitHub releases:** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
+- **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/develop/Android/)
 
-## Step 2: Installing Heroes III data files
+Install the app and start **VCMI**.
 
-- Install Heroes III on your PC or extract Heroes III data files from gog installer
-- Connect your device to PC and enable file transfer.
-- Copy "Data", "Maps" and "Mp3" from Heroes III to any folder on  mobile device, then open VCMI, select Heroes III data import option, then select the folder where you copied Heroes III data.
+## Step 2: Obtain Heroes III data files
 
-gog.com download page:
+VCMI requires original *Heroes of Might and Magic III* data files.
+
+### Option A (recommended): GOG offline installer
+
+1. Download the **offline backup installer** from GOG.com.
+2. The installer comes as two files:
+   - `.exe`
+   - `.bin`
+3. Make sure both files are downloaded.
+
 ![GoG-Installer](images/gog_offline_installer.png)
 
-## Troubleshooting / known issues
+### Option B: Use existing Heroes III installation on PC
 
-### The game crashes on start
+If you already have Heroes III installed on a PC, you can reuse those files.
 
-**Please double check that you copied original SoD/Complete game files into your Android Device**  
+## Step 3: Import Heroes III data into VCMI
 
-### I imported game data files, but music in game is missing
+Open **VCMI** on your device.
 
-**Solution:** Try to run data import again or place Mp3 folder from Heroes III manually to Android/data/is.xyz.vcmi/files/vcmi-data/Mp3
+### A) Import from GOG installer
 
-### I installed google play version, but have a problem while installing daily builds
+1. Select the option to import GOG files.
+2. First select the `.exe` file.
+3. Then select the matching `.bin` file when prompted.
 
-**Solution:** Uninstall google play version first, before installing daily build version.
+VCMI will extract the required files.
 
-### I installed play version, but the screen is flashing / blank on its edges
+### B) Import from PC installation
 
-**Solution:** Update app to latest version
+If you already have Heroes III installed on a PC:
 
-### The game always starts in 800x600 resolution, cannot effectively change it, also there is a lot of blank space on my widescreen device
+1. Connect your device to the PC using a USB cable.
+2. Enable file transfer mode on the device.
+3. Copy these folders from the Heroes III installation:
+   - `Data`
+   - `Maps`
+   - `Mp3`
 
-**Solution:** Update app to latest version
+   to any accessible folder on your device, for example: Downloads/Heroes3
 
-## Other problems
+4. Start VCMI Launcher.
+5. Choose data import and select the folder where the files were copied.
 
-Please report about gameplay problem: [Github](https://github.com/vcmi/vcmi/issues), [Help & Bugs](https://forum.vcmi.eu/c/international-board/help-bugs) or [Discord](https://discord.gg/chBT42V). Make sure to specify your device and used version of Android.
+## Step 4: Finish setup in Launcher
+
+Follow the instructions in the Launcher to finish installation and optionally download recommended mods.
+
+VCMI is now ready to play.

@@ -180,7 +180,6 @@ public:
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
-
 	if(source->stacksCount() == 0)
 		return sortedSlots;
 
@@ -194,7 +193,6 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	std::set<FactionID> allowedFactions;
 	std::vector<SlotInfo> resultingArmy;
 	uint64_t armyValue = 0;
-
 	TemporaryArmy newArmyInstance;
 
 	while(allowedFactions.size() < alignmentMap.size())
@@ -263,11 +261,10 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		&& source->needsLastStack())
 	{
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
-
-		if(weakest->count == 1) 
+		if(weakest->count == 1)
 		{
 			if (resultingArmy.size() == 1)
-				logAi->warn("Unexpected resulting army size!");
+				logAi->warn("ArmyManager::getBestArmy Unexpected resulting army size!");
 
 			resultingArmy.erase(weakest);
 		}
@@ -347,7 +344,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
-	bool countGrowth = (cpsic->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+	bool countGrowth = (cpsic->getDate(Date::DAY_OF_WEEK) + turn) > LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
 
 	const CGTownInstance * town = dwelling->ID == Obj::TOWN
 		? dynamic_cast<const CGTownInstance *>(dwelling)

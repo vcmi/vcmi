@@ -145,7 +145,7 @@ bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) con
 	return stringsLocalizations.count(UID.get());
 }
 
-void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<std::string, std::string>> & storage, bool onlyMissing) const
+void TextLocalizationContainer::exportAllTexts(std::map<std::string, ExportedStrings> & storage, bool onlyMissing) const
 {
 	std::lock_guard globalLock(globalTextMutex);
 
@@ -157,18 +157,26 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, std::map<st
 		if (onlyMissing && entry.second.overriden)
 			continue;
 
-		std::string textToWrite;
+		std::string textToWrite = entry.second.translatedText;
 		std::string modName = entry.second.baseStringModContext;
+		std::string originalMod = entry.second.identifierModContext;
 
-		if (entry.second.baseStringModContext == entry.second.identifierModContext && modName.find('.') != std::string::npos)
-			modName = modName.substr(0, modName.find('.'));
-
-		boost::range::replace(modName, '.', '_');
-
-		textToWrite = entry.second.translatedText;
+		if (modName != originalMod)
+		{
+			// this is string patching - one mod modified string from another mod
+			if (!vstd::contains(storage[modName].overridenMods, originalMod))
+				storage[modName].overridenMods.push_back(originalMod);
+		}
+		else
+		{
+			// move string to translation of base mod, for more convenient translation of scattered strings
+			// except for maps / compaigns - those are usually kept in separate submod, so keep translations separate to group maps and game translations separate
+			if (modName.find('.') != std::string::npos && !entry.first.starts_with("map.") && !entry.first.starts_with("campaign."))
+				modName = modName.substr(0, modName.find('.'));
+		}
 
 		if (!textToWrite.empty())
-			storage[modName][entry.first] = textToWrite;
+			storage[modName].strings[entry.first] = textToWrite;
 	}
 }
 

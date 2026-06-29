@@ -51,6 +51,7 @@ public:
 	const JsonNode & getLocalConfig() const;
 	const JsonNode & getValue(const std::string & keyName) const;
 	const JsonNode & getLocalizedValue(const std::string & keyName) const;
+	const JsonNode & getLocalizedDescription() const;
 	const JsonNode & getLocalValue(const std::string & keyName) const;
 	const JsonNode & getRepositoryValue(const std::string & keyName) const;
 
@@ -65,6 +66,8 @@ public:
 	bool isTranslation() const;
 	bool keepDisabled() const;
 	bool isInstalled() const;
+
+	static void mergeModDescriptions(JsonNode & config, const std::string & fullDescription);
 };
 
 VCMI_LIB_NAMESPACE_END

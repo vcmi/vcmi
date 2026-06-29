@@ -13,10 +13,23 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class TerminationRequestedException : public std::exception
+class DLL_LINKAGE TerminationRequestedException : public std::exception
 {
 public:
 	using exception::exception;
+	~TerminationRequestedException() override;
+
+	const char* what() const noexcept override
+	{
+		return "Thread termination requested";
+	}
+};
+
+class DLL_LINKAGE InterruptionRequestedException : public std::exception
+{
+public:
+	using exception::exception;
+	~InterruptionRequestedException() override;
 
 	const char* what() const noexcept override
 	{
@@ -34,7 +47,7 @@ public:
 		bool result = interruptionRequested.exchange(false);
 
 		if (result)
-			throw TerminationRequestedException();
+			throw InterruptionRequestedException();
 	}
 
 	void interruptThread()

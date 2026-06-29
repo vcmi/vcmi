@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "GameEngine.h"
 #include "GameLibrary.h"
+#include "Discord.h"
 
 #include "gui/CIntObject.h"
 #include "gui/CursorHandler.h"
@@ -71,6 +72,8 @@ GameEngine::GameEngine()
 	shortcutsHandlerInstance = std::make_unique<ShortcutHandler>();
 	inputHandlerInstance = std::make_unique<InputHandler>(); // Must be after windowHandlerInstance and shortcutsHandlerInstance
 	framerateManagerInstance = std::make_unique<FramerateManager>(settings["video"]["targetfps"].Integer());
+
+	discordInstance = std::make_unique<Discord>();
 
 #ifndef ENABLE_VIDEO
 	videoPlayerInstance = std::make_unique<CEmptyVideoPlayer>();

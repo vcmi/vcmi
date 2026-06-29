@@ -84,6 +84,7 @@ public:
 
 	CSelectionBase(ESelectionScreen type);
 	virtual void toggleTab(std::shared_ptr<CIntObject> tab);
+	void keyPressed(EShortcut key) override;
 };
 
 class InfoCard : public CIntObject

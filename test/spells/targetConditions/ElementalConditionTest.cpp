@@ -26,8 +26,8 @@ public:
 		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 
-		EXPECT_CALL(mechanicsMock, getSpell()).Times(AtLeast(1)).WillRepeatedly(Return(&spellMock));
-		EXPECT_CALL(spellMock, forEachSchool(NotNull())).Times(AtLeast(1)).WillRepeatedly([](const spells::Spell::SchoolCallback & cb)
+		EXPECT_CALL(mechanicsMock, getSpell()).Times(AtLeast(0)).WillRepeatedly(Return(&spellMock));
+		EXPECT_CALL(spellMock, forEachSchool(NotNull())).Times(AtLeast(0)).WillRepeatedly([](const spells::Spell::SchoolCallback & cb)
 		{
 			bool stop = false;
 			cb(SpellSchool::AIR, stop);
@@ -69,10 +69,18 @@ TEST_P(ElementalConditionTest, NotImmuneIfBonusMismatches)
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-TEST_P(ElementalConditionTest, DependsOnPositivness)
+TEST_P(ElementalConditionTest, DependsOnPositivnessSpecificSchool)
 {
 	setDefaultExpectations();
 	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, BonusSourceID(), BonusSubtypeID(SpellSchool::AIR)));
+
+	EXPECT_EQ(isPositive, subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
+TEST_P(ElementalConditionTest, DependsOnPositivnessAnySchool)
+{
+	setDefaultExpectations();
+	unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::NEGATIVE_EFFECTS_IMMUNITY, BonusSource::SPELL_EFFECT, 0, BonusSourceID(), BonusSubtypeID(SpellSchool::ANY)));
 
 	EXPECT_EQ(isPositive, subject->isReceptive(&mechanicsMock, &unitMock));
 }

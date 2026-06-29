@@ -96,6 +96,11 @@ bool StartInfo::restrictedGarrisonsForAI() const
 	return campState && campState->restrictedGarrisonsForAI();
 }
 
+EMapDifficulty StartInfo::getDifficulty() const
+{
+	return static_cast<EMapDifficulty>(difficulty);
+}
+
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi || !mi->mapHeader)
@@ -291,6 +296,8 @@ void BattleOnlyModeStartInfo::serializeJson(JsonSerializeFormat & handler)
 				JsonArraySerializer inner = secSkillLevelArray.enterArray(j);
 				inner->serializeId("skill", secSkillLevel[i][j].first);
 				inner->serializeEnum("masteryLevel", secSkillLevel[i][j].second, MasteryLevel::NONE, {"none", "basic", "advanced", "expert"});
+				if(!handler.saving && secSkillLevel[i][j].first == SecondarySkill::NONE)
+					secSkillLevel[i][j].second = MasteryLevel::NONE;
 			}
 		}
 		if(handler.saving)

@@ -114,7 +114,7 @@ const TerrainTile & MapRendererBaseContext::getMapTile(const int3 & coordinates)
 const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObjects(const int3 & coordinates) const
 {
 	assert(isInMap(coordinates));
-	return viewState.objects[coordinates.z][coordinates.x][coordinates.y];
+	return viewState.objects[coordinates];
 }
 
 const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const

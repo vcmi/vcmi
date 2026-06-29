@@ -1,4 +1,4 @@
-name: Weekly Qt translation refresh
+name: Weekly translation refresh
 
 on:
   schedule:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   refresh:
-    name: Qt translations refresh
+    name: Refresh Translations
     runs-on: ubuntu-latest
     if: github.repository == 'vcmi/vcmi'
 
@@ -23,9 +23,17 @@ jobs:
           fetch-depth: 0
           submodules: false
 
-      - name: Install Qt tools (lupdate)
+      - name: Install localization tools (lupdate & gettext)
         run: |
-          sudo apt install -y --no-install-recommends qttools5-dev-tools
+          sudo apt-get update && sudo apt install -y --no-install-recommends qttools5-dev-tools gettext
+
+      - name: Update gettext files
+        working-directory: launcher
+        run: |
+          xgettext eu.vcmi.VCMI.metainfo.xml vcmilauncher.desktop -o po/VCMI.pot --copyright-holder="VCMI Team" --package-name="VCMI"
+          for file in po/*.po; do
+            msgmerge --update "$file" po/VCMI.pot
+          done
 
       - name: Update TS files (Launcher)
         working-directory: launcher

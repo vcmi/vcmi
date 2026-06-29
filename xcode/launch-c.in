@@ -1,3 +1,0 @@
-#!/bin/sh
-export CCACHE_CPP2=true
-ccache clang "$@"

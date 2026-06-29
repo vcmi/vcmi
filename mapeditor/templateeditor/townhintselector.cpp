@@ -96,7 +96,7 @@ TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & t
 		addRow(mode, zones, row);
 	}
 
-	auto addButton = new QPushButton("Add");
+	auto addButton = new QPushButton(tr("Add"));
 	ui->tableWidgetTownHints->setCellWidget(ui->tableWidgetTownHints->rowCount() - 1, 2, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetTownHints->insertRow(ui->tableWidgetTownHints->rowCount() - 1);

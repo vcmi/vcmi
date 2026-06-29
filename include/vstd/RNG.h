@@ -70,16 +70,17 @@ namespace RandomGeneratorUtil
 	}
 
 	template<typename Container>
-	size_t nextItemWeighted(Container & container, vstd::RNG & rand)
+	int64_t nextItemWeighted(Container & container, vstd::RNG & rand)
 	{
 		assert(!container.empty());
 
 		int64_t totalWeight = std::accumulate(container.begin(), container.end(), 0);
-		assert(totalWeight > 0);
+		if(totalWeight == 0)
+			return -1;
 
 		int64_t roll = rand.nextInt64(0, totalWeight - 1);
 
-		for (size_t i = 0; i < container.size(); ++i)
+		for (int64_t i = 0; i < container.size(); ++i)
 		{
 			int chance = container[i];
 			if(roll < chance)

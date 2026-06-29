@@ -132,6 +132,8 @@ public:
 	BonusSubtypeID subtype;
 	BonusSource source = BonusSource::OTHER;
 	BonusSourceID sid;
+	int32_t minValue = std::numeric_limits<int32_t>::min();
+	int32_t maxValue = std::numeric_limits<int32_t>::max();
 	bool isSubtypeRelevant; //check for subtype only if this is true
 	bool isSourceRelevant; //check for bonus source only if this is true
 	bool isSourceIDRelevant; //check for bonus source only if this is true
@@ -155,6 +157,11 @@ public:
 		h & isSourceRelevant;
 		h & sid;
 		h & isSourceIDRelevant;
+		if (h.hasFeature(Handler::Version::BONUS_TRIGGER))
+		{
+			h & minValue;
+			h & maxValue;
+		}
 	}
 };
 
@@ -279,6 +286,22 @@ public:
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & applicableHexes;
+	}
+};
+
+class DLL_LINKAGE UnitAdjacentLimiter : public ILimiter // applis if unit is adjacent to another unit
+{
+public:
+	CreatureID targetUnit;
+
+	UnitAdjacentLimiter() = default;
+	EDecision limit(const BonusLimitationContext &context) const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & targetUnit;
 	}
 };
 

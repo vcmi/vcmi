@@ -14,8 +14,8 @@ if(MACOS)
 
 	# perform ad-hoc codesigning
 	# Intel Macs don't need it
-	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-		return()
+	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+		set(NEEDS_ADHOC_SIGNING 1)
 	endif()
 
 	set(executablesToSign vcmiserver)
@@ -28,16 +28,35 @@ if(MACOS)
 		list(APPEND executablesToSign vcmilauncher)
 	endif()
 
-	set(codesignCommand "codesign --verbose=4 --force --options=runtime --timestamp=none --sign -")
-	set(codesignCommandWithEntitlements "${codesignCommand} --entitlements \"${CMAKE_SOURCE_DIR}/osx/entitlements.plist\"")
+	set(codesignCommand "codesign --verbose=4 --force --options runtime --sign")
 	install(CODE "
+set(CODE_SIGN_IDENTITY \$ENV{MACOS_CODE_SIGN_IDENTITY})
+if(NOT CODE_SIGN_IDENTITY AND \"${NEEDS_ADHOC_SIGNING}\")
+	set(CODE_SIGN_IDENTITY \"-\")
+	set(codesignParams --timestamp=none)
+	set(codesignParamsForExecutables --entitlements \"${CMAKE_CURRENT_SOURCE_DIR}/entitlements_adhoc.plist\")
+	message(\"performing adhoc signing\")
+else()
+	set(codesignParams --timestamp --strict)
+endif()
+if(CODE_SIGN_IDENTITY)
+	execute_process(COMMAND
+		bash -c \"
+			for f in '${executablesDir}/vcmibuilder' $(find '${bundleContentsDir}' -type f -iname '*.dylib'); do
+				${codesignCommand} '\${CODE_SIGN_IDENTITY}' $@ \\\"$f\\\"
+			done
+		\" \"\" \${codesignParams}
+	)
+	foreach(executable ${executablesToSign})
 		execute_process(COMMAND
-			${codesignCommand} \"${executablesDir}/vcmibuilder\"
+			${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} --identifier eu.vcmi.\${executable} \${codesignParamsForExecutables} \"${executablesDir}/\${executable}\"
 		)
-		foreach(executable ${executablesToSign})
-			execute_process(COMMAND
-				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${executablesDir}/\${executable}\"
-			)
-		endforeach()
+	endforeach()
+	if(NOT CODE_SIGN_IDENTITY STREQUAL \"-\")
+		execute_process(COMMAND
+			${codesignCommand} \${CODE_SIGN_IDENTITY} \${codesignParams} \"${bundleDir}\"
+		)
+	endif()
+endif()
 	")
 endif()

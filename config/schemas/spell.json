@@ -56,7 +56,7 @@
 			"properties" : {
 				"type" : {
 					"type" : "string",
-					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "viewWorld" ]
+					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "reinforcements", "viewWorld" ]
 				},
 				"castsPerDay" : { "type" : "number" },
 				"castsPerDayXL" : { "type" : "number" },
@@ -127,6 +127,23 @@
 							"movementPointsTaken" : { "type" : "number" },
 							"allowTownSelection" : { "type" : "boolean" },
 							"skipOccupiedTowns" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "reinforcements" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"allowTownSelection" : { "type" : "boolean" },
+							"casterInTown" : { "type" : "string" },
+							"selectTownTitle" : { "type" : "string" },
+							"selectTownDescription" : { "type" : "string" },
+							"garrisonTitle" : { "type" : "string" }
 						},
 						"additionalProperties" : false
 					}
@@ -513,6 +530,13 @@
 	],
 	
 	"properties" : {
+		"compatibilityIdentifiers" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
+		},
 		"index" : {
 			"type" : "number",
 			"description" : "numeric id of spell required only for original spells, prohibited for new spells"
@@ -592,6 +616,10 @@
 				"positive" : {
 						"type" : "boolean",
 						"description" : "Spell is positive for target"
+				},
+				"persistent" : {
+						"type" : "boolean",
+						"description" : "Spell can not be removed from target"
 				},
 				"damage" : {
 						"type" : "boolean",

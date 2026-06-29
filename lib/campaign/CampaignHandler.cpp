@@ -334,6 +334,11 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 
 	if (ret.version == CampaignVersion::HotA)
 	{
+		// Format versions:
+		// 0 - unused?
+		// 1 - 1.7.0
+		// 2 - 1.7.3
+		// 3 - 1.8.0
 		int32_t formatVersion = reader.readInt32();
 
 		if (formatVersion == 2)

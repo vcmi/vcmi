@@ -243,6 +243,7 @@ private:
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	HeroTypeID pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, const PlayerColor & owner); // picks a unused hero type randomly
+	bool isHeroAllowedForPlayer(const HeroTypeID & hid, const PlayerColor & owner);
 
 	// ---- data -----
 	Services * services;

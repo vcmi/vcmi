@@ -11,246 +11,189 @@
 	"spells" : [ "config/spells" ],
 
 	"belarusian" : {
-		"name" : "Асноўныя файлы VCMI",
-		"description" : "Асноўныя файлы, неабходныя для карэктнай працы VCMI",
-		"author" : "Каманда VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/belarusian.json"
+			"config/translations/belarusian.json"
 		]
 	},
 
 	"bulgarian" : {
-		"name" : "Основни файлове на VCMI",
-		"description" : "Основни файлове, необходими за правилното функциониране на VCMI",
-		"author" : "Екип на VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/bulgarian.json"
+			"config/translations/bulgarian.json"
 		]
 	},
 
 	"czech" : {
-		"name" : "Nezbytné soubory VCMI",
-		"description" : "Nezbytné soubory pro správný běh VCMI",
-		"author" : "Tým VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/czech.json"
+			"config/translations/czech.json"
 		]
 	},
 
 	"chinese" : {
-		"name" : "VCMI 基本檔案",
-		"description" : "VCMI 正確執行所需的基本檔案",
-		"author" : "VCMI 團隊",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/chinese.json"
+			"config/translations/chinese.json"
+		]
+	},
+
+	"dutch" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/dutch.json"
+		]
+	},
+
+	"filipino" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/filipino.json"
 		]
 	},
 
 	"finnish" : {
-		"name" : "VCMI - tarvittavat tiedostot",
-		"description" : "VCMI:n asianmukaiseen käyttöön tarvittavat tiedostot",
-		"author" : "VCMI-tiimi",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/finnish.json"
+			"config/translations/finnish.json"
 		]
 	},
 
 	"french" : {
-		"name" : "VCMI - fichiers nécessaires",
-		"description" : "Fichiers nécessaires pour exécuter correctement VCMI",
-		"author" : "L'équipe VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/french.json"
+			"config/translations/french.json"
 		]
 	},
 
 	"german" : {
-		"name" : "VCMI - grundlegende Dateien",
-		"description" : "Grundlegende Dateien, die für die korrekte Ausführung von VCMI erforderlich sind",
-		"author" : "VCMI-Team",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/german.json"
+			"config/translations/german.json"
 		]
 	},
 
 	"greek" : {
-		"name" : "VCMI - βασικά αρχεία",
-		"description" : "Βασικά αρχεία που απαιτούνται για τη σωστή εκτέλεση του VCMI",
-		"author" : "Ομάδα VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/greek.json"
+			"config/translations/greek.json"
 		]
 	},
 
 	"hungarian" : {
-		"name" : "VCMI - alapvető fájlok",
-		"description" : "Alapvető fájlok a VCMI helyes működéséhez",
-		"author" : "VCMI csapat",
 		"skipValidation" : true,
 		"translations" : [
-			"config/hungarian.json"
+			"config/translations/hungarian.json"
 		]
 	},
 
 	"italian" : {
-		"name" : "VCMI - File di base",
-		"description" : "File di base necessari per il corretto funzionamento di VCMI",
-		"author" : "Team VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/italian.json"
+			"config/translations/italian.json"
 		]
 	},
 
 	"japanese" : {
-		"name" : "VCMI - 基本ファイル",
-		"description" : "VCMIが正常に機能するために必要な基本ファイル",
-		"author" : "チームVCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/japanese.json"
+			"config/translations/japanese.json"
 		]
 	},
 
 	"korean" : {
-		"name" : "VCMI - 기본 파일",
-		"description" : "FVCMI가 제대로 작동하는 데 필요한 기본 파일",
-		"author" : "VCMI 팀",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/korean.json"
+			"config/translations/korean.json"
+		]
+	},
+
+	"latvian" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/latvian.json"
 		]
 	},
 
 	"norwegian" : {
-		"name" : "VCMI - Grunnleggende filer",
-		"description" : "Grunnleggende filer som kreves for at VCMI skal fungere korrekt",
-		"author" : "VCMI-teamet",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/norwegian.json"
+			"config/translations/norwegian.json"
 		]
 	},
 
 	"polish" : {
-		"name" : "Podstawowe pliki VCMI",
-		"description" : "Dodatkowe pliki wymagane do prawidłowego działania VCMI",
-		"author" : "Zespół VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/polish.json"
+			"config/translations/polish.json"
 		]
 	},
 
 	"portuguese" : {
-		"name" : "VCMI - arquivos essenciais",
-		"description" : "Arquivos essenciais para executar o VCMI corretamente",
-		"author" : "Altieres Lima",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/portuguese.json"
+			"config/translations/portuguese.json"
 		]
 	},
 
 	"romanian" : {
-		"name" : "Fișiere esențiale VCMI",
-		"description" : "Fișiere esențiale necesare pentru ca VCMI să funcționeze corect",
-		"author" : "Echipa VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/romanian.json"
+			"config/translations/romanian.json"
 		]
 	},
 
 	"russian" : {
-		"name" : "Ключевые файлы VCMI",
-		"description" : "Файлы, необходимые для полноценной работы VCMI",
-		"author" : "Команда VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/russian.json"
+			"config/translations/russian.json"
+		]
+	},
+
+	"serbian" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/serbian.json"
 		]
 	},
 
 	"spanish" : {
-		"name" : "VCMI - ficheros necesarios",
-		"description" : "Ficheros necesarios para ejecutar VCMI correctamente",
-		"author" : "Abel Rivas",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/spanish.json"
+			"config/translations/spanish.json"
 		]
 	},
 
 	"swedish" : {
-		"name" : "Nödvändiga VCMI-filer",
-		"description" : "Filer som behövs för att köra VCMI korrekt",
-		"author" : "Maurycy (XCOM-HUB on GitHub)",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/swedish.json"
+			"config/translations/swedish.json"
 		]
 	},
 
 	"ukrainian" : {
-		"name" : "VCMI - ключові файли",
-		"description" : "Ключові файли необхідні для повноцінної роботи VCMI",
-		"author" : "Команда VCMI",
-
 		"skipValidation" : true,
 		"translations" : [
-			"config/ukrainian.json"
+			"config/translations/ukrainian.json"
 		]
 	},
 
 	"vietnamese": {
-		"name": "VCMI - Tập tin chính",
-		"description": "Các tập tin cần thiết để chạy VCMI",
-		"author": "Hunter8x - Bé Còi",
 		"skipValidation": true,
 		"translations": [
-			"config/vietnamese.json"
+			"config/translations/vietnamese.json"
 		]
 	},
 
 	"turkish": {
-		"name": "VCMI - Temel dosyalar",
-		"description": "VCMI'nin doğru çalışması için gereken temel dosyalar",
-		"author": "Erthon",
 		"skipValidation": true,
 		"translations": [
-			"config/turkish.json"
+			"config/translations/turkish.json"
 		]
 	},
 
 	"translations" : [
-		"config/english.json"
+		"config/translations/english.json"
 	],
 
 	"templates" : [

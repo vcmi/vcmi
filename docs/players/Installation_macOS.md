@@ -4,7 +4,7 @@
 
 - The latest release (recommended):
   - manually: <https://github.com/vcmi/vcmi/releases/latest>
-  - via Homebrew: `brew install --cask --no-quarantine vcmi/vcmi/vcmi`
+  - via Homebrew: `brew install --cask vcmi` (official) or `brew install --cask vcmi/vcmi/vcmi` (from our tap)
 - Daily builds (might be unstable)
   - [Intel (x86_64) builds](https://builds.vcmi.download/branch/develop/macos-intel/)
   - [Apple Silicon (arm64) builds](https://builds.vcmi.download/branch/develop/macos-arm/)
@@ -21,7 +21,11 @@ To fix it, go to System Settings - Privacy & Security tab - scroll down and pres
 
 ### Step 2.a: Installing data files with GOG offline installer
 
-If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher. Select the .bin file first, then the .exe file. This may take a few seconds. Please be patient.
+If you bought HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the files directly from the browser and install them in the launcher.
+
+Select the `.exe` file first. The matching `.bin` file will be located automatically if the correct installer is selected.
+
+This may take a few seconds. Please be patient.
 
 gog.com download page:
 ![GoG-Installer](images/gog_offline_installer.png)

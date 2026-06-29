@@ -24,6 +24,7 @@ VCMI_LIB_NAMESPACE_END
 class CButton;
 class CHeroWindow;
 class LClickableAreaHero;
+class LRClickableArea;
 class LRClickableAreaWText;
 class LRClickableAreaWTextComp;
 class CArtifactsOfHeroMain;
@@ -58,6 +59,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::shared_ptr<CPicture> listSelection;
 
 	std::shared_ptr<LRClickableAreaWText> portraitArea;
+	std::shared_ptr<LRClickableArea>     portraitWikiArea;
 	std::shared_ptr<CAnimImage> portraitImage;
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
@@ -102,6 +104,7 @@ public:
 	CHeroWindow(const CGHeroInstance * hero);
 
 	void updateArtifacts() override;
+	void keyPressed(EShortcut key) override;
 
 	void dismissCurrent(); //dismissed currently displayed hero (curHero)
 	void commanderWindow();

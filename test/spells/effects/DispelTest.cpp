@@ -24,9 +24,11 @@ public:
 	const SpellID positiveID = SpellID(4242);
 	const SpellID negativeID = SpellID(4243);
 	const SpellID neutralID = SpellID(4244);
+	const SpellID persistentID = SpellID(4245);
 
 	StrictMock<SpellMock> positiveSpell;
 	StrictMock<SpellMock> negativeSpell;
+	StrictMock<SpellMock> persistentSpell;
 	StrictMock<SpellMock> neutralSpell;
 
 	DispelFixture()
@@ -43,18 +45,29 @@ public:
 		EXPECT_CALL(positiveSpell, getIndex()).WillRepeatedly(Return(positiveID.toEnum()));
 		EXPECT_CALL(positiveSpell, getPositiveness()).WillRepeatedly(Return(true));
 		EXPECT_CALL(positiveSpell, isAdventure()).WillRepeatedly(Return(false));
+		EXPECT_CALL(positiveSpell, isPersistent()).WillRepeatedly(Return(false));
 
 		EXPECT_CALL(spellServiceMock, getById(Eq(negativeID))).WillRepeatedly(Return(&negativeSpell));
 		EXPECT_CALL(spellServiceMock, getByIndex(Eq(negativeID.getNum()))).WillRepeatedly(Return(&negativeSpell));
 		EXPECT_CALL(negativeSpell, getIndex()).WillRepeatedly(Return(negativeID.toEnum()));
 		EXPECT_CALL(negativeSpell, getPositiveness()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isAdventure()).WillRepeatedly(Return(false));
+		EXPECT_CALL(negativeSpell, isPersistent()).WillRepeatedly(Return(false));
 
 		EXPECT_CALL(spellServiceMock, getById(Eq(neutralID))).WillRepeatedly(Return(&neutralSpell));
 		EXPECT_CALL(spellServiceMock, getByIndex(Eq(neutralID.getNum()))).WillRepeatedly(Return(&neutralSpell));
 		EXPECT_CALL(neutralSpell, getIndex()).WillRepeatedly(Return(neutralID.toEnum()));
 		EXPECT_CALL(neutralSpell, getPositiveness()).WillRepeatedly(Return(boost::logic::indeterminate));
 		EXPECT_CALL(neutralSpell, isAdventure()).WillRepeatedly(Return(false));
+		EXPECT_CALL(neutralSpell, isPersistent()).WillRepeatedly(Return(false));
+
+		EXPECT_CALL(spellServiceMock, getById(Eq(persistentID))).WillRepeatedly(Return(&persistentSpell));
+		EXPECT_CALL(spellServiceMock, getByIndex(Eq(persistentID.getNum()))).WillRepeatedly(Return(&persistentSpell));
+		EXPECT_CALL(persistentSpell, getIndex()).WillRepeatedly(Return(persistentID.toEnum()));
+		EXPECT_CALL(persistentSpell, getPositiveness()).WillRepeatedly(Return(false));
+		EXPECT_CALL(persistentSpell, isAdventure()).WillRepeatedly(Return(false));
+		EXPECT_CALL(persistentSpell, isPersistent()).WillRepeatedly(Return(true));
+
 	}
 
 protected:
@@ -112,6 +125,33 @@ TEST_F(DispelTest, IgnoresOwnEffects)
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, getSpellIndex()).Times(AtLeast(1)).WillRepeatedly(Return(neutralID.toEnum()));
+
+	setDefaultExpectations();
+	unitsFake.setDefaultBonusExpectations();
+
+	EffectTarget target;
+	target.emplace_back(&unit, BattleHex());
+
+	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+}
+
+TEST_F(DispelTest, IgnoresPersistentEffects)
+{
+	{
+		JsonNode config;
+		config["dispelPositive"].Bool() = true;
+		config["dispelNegative"].Bool() = true;
+		config["dispelNeutral"].Bool() = true;
+		EffectFixture::setupEffect(config);
+	}
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::SPELL_EFFECT, 1, BonusSourceID(SpellID(persistentID))));
+
+	EXPECT_CALL(unit, isValidTarget(Eq(false))).Times(AtMost(1)).WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtMost(1)).WillRepeatedly(Return(true));
 
 	setDefaultExpectations();
 	unitsFake.setDefaultBonusExpectations();

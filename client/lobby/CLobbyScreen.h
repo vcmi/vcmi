@@ -17,9 +17,6 @@ class GraphicalPrimitiveCanvas;
 class CLobbyScreen final : public CSelectionBase
 {
 public:
-	std::shared_ptr<CButton> buttonChat;
-	std::shared_ptr<GraphicalPrimitiveCanvas> blackScreen;
-
 	CLobbyScreen(ESelectionScreen type, bool hideScreen = false);
 	~CLobbyScreen();
 	void toggleTab(std::shared_ptr<CIntObject> tab) final;
@@ -30,9 +27,27 @@ public:
 	void toggleChat();
 
 	void updateAfterStateChange();
+	void onRemoteClientLobbyStateChanged();
 
 	const CMapInfo * getMapInfo() final;
 	const StartInfo * getStartInfo() final;
 
 	std::shared_ptr<CBonusSelection> bonusSel;
+
+private:
+	std::shared_ptr<CButton> buttonChat;
+	std::shared_ptr<GraphicalPrimitiveCanvas> blackScreen;
+
+	bool waitingForPlayersMessageShown = false;
+	bool compatibilityFilterInitialized = false;
+	size_t lastRequiredHumanPlayers = 0;
+	std::string lastCompatibilityNotice;
+
+	bool isMultiplayerNetworkLobby() const;
+	bool isMultiplayerHost() const;
+	bool canStartLobbyGame() const;
+	bool isLanOrOnlineMultiplayerHost() const;
+	void updateCompatibilityNotice(size_t requiredHumanPlayers);
+	void updateHostLobbyChatState();
+	void updateStartButtonState();
 };

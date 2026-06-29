@@ -51,10 +51,11 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGa
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	result = false;
+	const bool isLocalClient = pack.uuid == handler.logicConnection->uuid;
+	result = !isLocalClient;
 
 	// Check if it's LobbyClientConnected for our client
-	if(pack.uuid == handler.logicConnection->uuid)
+	if(isLocalClient)
 	{
 		handler.logicConnection->setSerializationVersion(pack.version);
 		handler.logicConnection->connectionID = pack.clientId;
@@ -94,22 +95,32 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	}
 }
 
-void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected &)
 {
-	if(pack.clientId != handler.logicConnection->connectionID)
-	{
-		result = false;
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
+{
+	if(!lobby || pack.clientId == handler.logicConnection->connectionID)
 		return;
-	}
+
+	lobby->onRemoteClientLobbyStateChanged();
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
-		ENGINE->windows().popWindow(w);
-	
-	if(ENGINE->windows().count() > 0)
-		ENGINE->windows().popWindows(1);
+	if(pack.clientId == handler.logicConnection->connectionID)
+	{
+		if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
+			ENGINE->windows().popWindow(w);
+		
+		if(ENGINE->windows().count() > 0)
+			ENGINE->windows().popWindows(1);
+		return;
+	}
+
+	if(lobby)
+		lobby->onRemoteClientLobbyStateChanged();
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -250,6 +261,6 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
 {
-	if(lobby->tabBattleOnlyMode)
+	if(lobby && lobby->tabBattleOnlyMode)
 		lobby->tabBattleOnlyMode->applyStartInfo(pack.startInfo);
 }

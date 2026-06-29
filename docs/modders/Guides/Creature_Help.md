@@ -64,6 +64,8 @@ Make animations seamless from one to another. To do this, you can draw the first
 
 Most of the time, you need to increase the resolution or the quality of your template image, so use *SUPIR*: <https://huggingface.co/spaces/Fabrice-TIERCELIN/SUPIR>
 
+If you need consistence between two sprites, I advise you to paste them in a single image and upscale at once.
+
 ## Battle sound effect
 
 To create the audio effects, I recommend to use *Tango 2*: <https://huggingface.co/spaces/declare-lab/tango2>

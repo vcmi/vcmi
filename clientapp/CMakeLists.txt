@@ -28,6 +28,10 @@ if(ANDROID)
 	set_target_properties(vcmiclient PROPERTIES
 		OUTPUT_NAME "vcmiclient_${ANDROID_ABI}" # required by Qt
 	)
+	# ffmpeg requires -Bsymbolic on 64-bit Android for assembler functions to compile
+	if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "x86_64")
+		target_link_options(vcmiclient PRIVATE -Wl,-Bsymbolic)
+	endif()
 else()
 	add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
 	vcmi_create_exe_shim(vcmiclient)
@@ -44,7 +48,12 @@ target_include_directories(vcmiclient
 )
 
 if(WIN32)
-	target_sources(vcmiclient PRIVATE "VCMI_client.rc")
+	set(VCMI_FILE_DESCRIPTION "VCMI Client")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_client.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/icons/vcmi.ico\"")
+	set(client_VERSIONINFO_RC "${CMAKE_CURRENT_BINARY_DIR}/VCMI_client_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${client_VERSIONINFO_RC}" @ONLY)
+	target_sources(vcmiclient PRIVATE "${client_VERSIONINFO_RC}")
 	set_target_properties(vcmiclient
 		PROPERTIES
 			OUTPUT_NAME "VCMI_client"

@@ -44,6 +44,7 @@ public:
 	CMap * map();
 	MapHandler * mapHandler();
 	MapScene * scene(int level);
+	std::set<MapScene *> getScenes();
 	MinimapScene * miniScene(int level);
 	
 	void resetMapHandler();

@@ -183,10 +183,18 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 		{
 			videoInstance.reset();
 			stopAudio();
+			if(playBackFinishedCallback)
+				playBackFinishedCallback();
+
 			onPlaybackFinished();
 			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 		}
 	}
+}
+
+void VideoWidgetBase::setPlaybackFinishedCallback(std::function<void()> cb)
+{
+	playBackFinishedCallback = cb;
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)

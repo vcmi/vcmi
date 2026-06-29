@@ -62,7 +62,7 @@ TreasureSelector::TreasureSelector(std::vector<CTreasureInfo> & treasures) :
 	for (int row = 0; row < treasures.size(); ++row)
 		addRow(treasures[row].min, treasures[row].max, treasures[row].density, row);
 
-	auto addButton = new QPushButton("Add");
+	auto addButton = new QPushButton(tr("Add"));
 	ui->tableWidgetTreasures->setCellWidget(ui->tableWidgetTreasures->rowCount() - 1, 3, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow, treasures]() {
 		ui->tableWidgetTreasures->insertRow(ui->tableWidgetTreasures->rowCount() - 1);

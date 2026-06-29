@@ -163,6 +163,8 @@ QVariant ModStateItemModel::data(const QModelIndex & index, int role) const
 			return getValue(mod, index.column());
 		case ModRoles::ModNameRole:
 			return mod.getID();
+		case ModRoles::ModNameRoleEnglish:
+			return mod.getNameEnglish();
 		}
 	}
 	return QVariant();
@@ -193,11 +195,19 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
-		QT_TRANSLATE_NOOP("ModFields", "⭐"),
+		QT_TRANSLATE_NOOP("ModFields", ""), // star icon
 	};
 
-	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		return QCoreApplication::translate("ModFields", header[section]);
+	if(orientation == Qt::Horizontal)
+	{
+		if(role == Qt::DecorationRole)
+		{
+			if(section == ModFields::STARS)
+				return QIcon(":/icons/star.png");
+		}
+		else if(role == Qt::DisplayRole)
+			return QCoreApplication::translate("ModFields", header[section]);
+	}
 	return QVariant();
 }
 
@@ -293,7 +303,19 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 
 bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
-	return filterMatchesCategory(source) && QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
+	if(!filterMatchesCategory(source))
+		return false;
+
+	const QRegularExpression filter = filterRegularExpression();
+	if(filter.pattern().isEmpty())
+		return true;
+
+	if(QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent()))
+		return true;
+
+	const QString localizedName = source.data(Qt::DisplayRole).toString();
+	const QString englishName = source.data(ModRoles::ModNameRoleEnglish).toString();
+	return localizedName.contains(filter) || englishName.contains(filter);
 }
 
 bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const

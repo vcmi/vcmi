@@ -267,6 +267,12 @@ void BattleInterface::newRound()
 
 void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, SpellID spell)
 {
+	std::vector<BattleHex> tiles = {tile};
+	giveCommand(action, tiles, spell);
+}
+
+void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHex> & tiles,  SpellID spell)
+{
 	const CStack * actor = nullptr;
 	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
 	{
@@ -283,7 +289,9 @@ void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, Sp
 	BattleAction ba;
 	ba.side = side;
 	ba.actionType = action;
-	ba.aimToHex(tile);
+
+	for(auto & tile : tiles)
+		ba.aimToHex(tile);
 	ba.spell = spell;
 
 	sendCommand(ba, actor);
@@ -406,6 +414,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
+			if (stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
+			{
+				addToAnimationStage(EAnimationEvents::MOVEMENT, [this, casterStack]()
+				{
+					stacksController->addNewAnim(new ReverseAnimation(*this, casterStack, casterStack->getPosition()));
+				});
+			}
+
 			addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, casterStack, targetedTile, spell]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, getBattle()->battleGetStackByPos(targetedTile), spell));

@@ -60,7 +60,7 @@ void CEmptyAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID
 	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
+void CEmptyAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
 	cb->selectionMade(0, queryID);
 }

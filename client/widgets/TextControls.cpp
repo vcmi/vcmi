@@ -309,7 +309,7 @@ void CMultiLineLabel::showAll(Canvas & to)
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * fontPtr->getLineHeight());
 	Point lineSize = Point(getTextLocation().w, fontPtr->getLineHeight());
 
-	CanvasClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
+	CanvasClipRectGuard guard(to, getTextLocation());
 
 	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
@@ -358,6 +358,8 @@ Rect CMultiLineLabel::getTextLocation()
 	case ETextAlignment::CENTERRIGHT:  return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
 	case ETextAlignment::BOTTOMRIGHT:  return Rect(pos.topLeft() + textOffset, textSizeComputed);
 	case ETextAlignment::BOTTOMCENTER: return Rect(pos.topLeft() + Point(textOffset.x / 2, textOffset.y), textSizeComputed);
+	case ETextAlignment::TOPRIGHT:     return Rect(pos.topLeft() + Point(textOffset.x, 0), textSizeComputed);
+	case ETextAlignment::BOTTOMLEFT:   return Rect(pos.topLeft() + Point(0, textOffset.y), textSizeComputed);
 	}
 	assert(0);
 	return Rect();
@@ -454,7 +456,12 @@ void CTextBox::setText(const std::string & text)
 			label->pos.h, label->textSize.y, 0, Orientation::VERTICAL, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep(fontPtr->getLineHeight());
 		slider->setPanningStep(1);
+		slider->setInertiaEnabled(true);
 		slider->setScrollBounds(pos - slider->pos.topLeft());
+		// The redraw triggered by label->setText() above fired before the slider
+		// was created, so the slider would not appear until the next interaction.
+		// Force a redraw now that the slider exists.
+		redraw();
 	}
 }
 

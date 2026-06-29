@@ -14,6 +14,8 @@
 #include "campaignproperties.h"
 #include "scenarioproperties.h"
 
+#include "callback/EditorCallback.h"
+
 #include "../BitmapHandler.h"
 #include "../helper.h"
 
@@ -28,11 +30,14 @@
 #include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CampaignEditor::CampaignEditor():
+CampaignEditor::CampaignEditor(EditorCallback * cb):
 	ui(new Ui::CampaignEditor),
-	selectedScenario(CampaignScenarioID::NONE)
+	selectedScenario(CampaignScenarioID::NONE),
+	cb(cb)
 {
 	ui->setupUi(this);
+	
+	setAcceptDrops(true);
 	
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
@@ -47,6 +52,20 @@ CampaignEditor::CampaignEditor():
 
 	campaignScene.reset(new CampaignScene());
 	ui->campaignView->setScene(campaignScene.get());
+	// Connect the fileDropped signal from campaignView to handle file drops
+	connect(ui->campaignView, &CampaignView::fileDropped, this, [this](const QString & filename) {
+		if(!getAnswerAboutUnsavedChanges())
+			return;
+		
+		try
+		{
+			loadCampaignFile(filename);
+		}
+		catch(const std::exception & e)
+		{
+			QMessageBox::critical(this, tr("Failed to open campaign"), tr(e.what()));
+		}
+	});
 
 	redraw();
 
@@ -96,7 +115,7 @@ void CampaignEditor::redraw()
 				redraw();
 		}, [this, scenario]()
 		{
-			if(ScenarioProperties::showScenarioProperties(campaignState, scenario))
+			if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
 				changed();
 			redraw();
 		}, [this, scenario](QGraphicsSceneContextMenuEvent * event)
@@ -105,7 +124,7 @@ void CampaignEditor::redraw()
 			QAction *actionScenarioProperties = contextMenu.addAction(tr("Scenario editor"));
 			actionScenarioProperties->setIcon(ui->actionScenarioProperties->icon());
 			connect(actionScenarioProperties, &QAction::triggered, this, [this, scenario]() {
-				if(ScenarioProperties::showScenarioProperties(campaignState, scenario))
+				if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
 					changed();
 				redraw();
 			});
@@ -147,43 +166,16 @@ void CampaignEditor::changed()
 	setTitle();
 }
 
-bool hasNullGap(const std::map<CampaignScenarioID, CampaignScenario>& scenarios)
-{
-	bool seenNonNull = false;
-	bool foundNullAfterNonNull = false;
-
-	for(const auto & r : scenarios)
-	{
-		if(r.second.mapName.empty())
-		{
-			if (seenNonNull)
-				foundNullAfterNonNull = true; // gap detected
-		}
-		else
-		{
-			if(foundNullAfterNonNull)
-				return true; // non-empty after a gap
-			seenNonNull = true;
-		}
-	}
-
-	// Leading empty elements
-	if (!scenarios.empty() && scenarios.begin()->second.mapName.empty())
-		return true;
-
-	return false;
-}
-
 bool CampaignEditor::validate()
 {
-	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
-		logGlobal->trace("Not all regions have a map");
-	
-	if(hasNullGap(campaignState->scenarios))
+	if(campaignState->mapPieces.empty())
 	{
-		QMessageBox::critical(this, tr("Fewer Scenarios than regions"), tr("You have fewer scenarios than regions. This is only allowed if the missing scenarios occur in the last regions, not in the middle or beginning."), QMessageBox::Ok);
+		QMessageBox::critical(this, tr("Validation failed"), tr("Campaign has no maps defined."));
 		return false;
 	}
+
+	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
+		logGlobal->trace("Not all regions have a map");
 
 	return true;
 }
@@ -197,13 +189,58 @@ void CampaignEditor::saveCampaign()
 	unsaved = false;
 }
 
-void CampaignEditor::showCampaignEditor(QWidget *parent)
+void CampaignEditor::showCampaignEditor(QWidget *parent, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor();
+	auto * dialog = new CampaignEditor(cb);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb)
+{
+	auto * dialog = new CampaignEditor(cb);
+
+	dialog->move(parent->geometry().center() - dialog->rect().center());
+
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+	try
+	{
+		dialog->loadCampaignFile(campaignFile);
+		if(!dialog->campaignState)
+		{
+			dialog->close();
+			return;
+		}
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(dialog, QObject::tr("Failed to open campaign"), QObject::tr(e.what()));
+		dialog->close();
+	}
+}
+
+void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
+{
+	campaignState = Helper::openCampaignInternal(filenameSelect);
+	selectedScenario = *campaignState->allScenarios().begin();
+
+	for(auto const & scenario : campaignState->allScenarios())
+	{
+		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
+		{
+			campaignState.reset();
+			selectedScenario = CampaignScenarioID::NONE;
+			return;
+		}
+	}
+
+	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
+		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show as regions without scenario defined yet
+
+	redraw();
 }
 
 void CampaignEditor::on_actionOpen_triggered()
@@ -217,23 +254,7 @@ void CampaignEditor::on_actionOpen_triggered()
 	if(filenameSelect.isEmpty())
 		return;
 	
-	campaignState = Helper::openCampaignInternal(filenameSelect);
-	selectedScenario = *campaignState->allScenarios().begin();
-
-	for(auto const & scenario : campaignState->allScenarios())
-	{
-		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario))
-		{
-			campaignState.reset();
-			selectedScenario = CampaignScenarioID::NONE;
-			return;
-		}
-	}
-
-	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
-		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show als regions without scenario defined yet
-
-	redraw();
+	loadCampaignFile(filenameSelect);
 }
 
 void CampaignEditor::on_actionOpenSet_triggered()
@@ -346,7 +367,7 @@ void CampaignEditor::on_actionScenarioProperties_triggered()
 	if(!campaignState || selectedScenario == CampaignScenarioID::NONE)
 		return;
 
-	if(ScenarioProperties::showScenarioProperties(campaignState, selectedScenario))
+	if(ScenarioProperties::showScenarioProperties(campaignState, selectedScenario, cb))
 		changed();
 	redraw();
 }
@@ -359,11 +380,40 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 		event->ignore();
 }
 
-std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario)
+void CampaignEditor::dragEnterEvent(QDragEnterEvent *event)
+{
+	if(event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void CampaignEditor::dropEvent(QDropEvent *event)
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	for(const QUrl& url : event->mimeData()->urls())
+	{
+		QString path = url.toLocalFile();
+		if(path.endsWith(".h3c", Qt::CaseInsensitive) || path.endsWith(".vcmp", Qt::CaseInsensitive))
+		{
+			try
+			{
+				loadCampaignFile(path);
+			}
+			catch(const std::exception & e)
+			{
+				QMessageBox::critical(this, tr("Failed to open campaign"), tr(e.what()));
+			}
+			break;
+		}
+	}
+}
+
+std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario, EditorCallback * cb)
 {
 	try
 	{
-		auto map = state->getMap(scenario, nullptr);
+		auto map = state->getMap(scenario, cb);
 		return map;
 	}
 	catch(const ModIncompatibility & e)

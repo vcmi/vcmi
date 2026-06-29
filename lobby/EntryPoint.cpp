@@ -10,6 +10,8 @@
 #include "StdInc.h"
 
 #include "LobbyServer.h"
+#include "HttpServer.h"
+#include "LobbyHttpApi.h"
 
 #include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -18,6 +20,8 @@
 #include "../lib/VCMIDirs.h"
 
 static const int LISTENING_PORT = 3031;
+static const int HTTP_API_PORT = 3032;
+static const bool HTTP_API_LOCALHOST_ONLY = true;
 
 int main(int argc, const char * argv[])
 {
@@ -45,7 +49,23 @@ int main(int argc, const char * argv[])
 		logGlobal->error("Failed to start server! Another server already uses the same port? Reason: '%s'", e.what());
 		return 1;
 	}
+
+	// Start HTTP API Server
+	LobbyHttpApi lobbyApi(*server.getDatabase());
+	HttpServer httpServer(server.getNetworkContext(), lobbyApi, HTTP_API_PORT, HTTP_API_LOCALHOST_ONLY);
+	try
+	{
+		httpServer.start();
+	}
+	catch (const std::exception & e)
+	{
+		logGlobal->error("Failed to start HTTP API server! Reason: '%s'", e.what());
+		return 1;
+	}
+
 	server.run();
+
+	httpServer.stop();
 
 	return 0;
 }

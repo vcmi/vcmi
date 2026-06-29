@@ -10,13 +10,6 @@
 
 #pragma once
 
-/*
- * THIS FILE LIVES IN:
- *
- * vcmi/AI/MMAI/export/export.h
- *
- */
-
 #include "schema/base.h"
 
 #include "schema/v13/schema.h"

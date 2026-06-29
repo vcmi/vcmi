@@ -40,7 +40,7 @@ public:
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override {}
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override {}
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override {}
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {}

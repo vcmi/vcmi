@@ -284,8 +284,8 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);
 	std::set<SecondarySkill> schoolList = getObligatorySkills(CSkill::Obligatory::MINOR);
 
-	bool wantsWisdom = heroRng.wisdomCounter + 1 >= hero->maxlevelsToWisdom();
-	bool wantsSchool = heroRng.magicSchoolCounter + 1 >= hero->maxlevelsToMagicSchool();
+	bool wantsWisdom = heroRng.wisdomCounter >= hero->maxlevelsToWisdom();
+	bool wantsSchool = heroRng.magicSchoolCounter >= hero->maxlevelsToMagicSchool();
 	bool selectWisdom = wantsWisdom && !intersect(options, wisdomList).empty();
 	bool selectSchool = wantsSchool && !intersect(options, schoolList).empty();
 
@@ -318,16 +318,57 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 	int selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, heroRng.seed);
 	SecondarySkill selectedSkill = skills.at(selectedIndex);
 
-	//deterministic secondary skills
-	++heroRng.magicSchoolCounter;
-	++heroRng.wisdomCounter;
-
 	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MAJOR))
 		heroRng.wisdomCounter = 0;
 	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MINOR))
 		heroRng.magicSchoolCounter = 0;
 
 	return selectedSkill;
+}
+
+std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInstance * hero)
+{
+	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
+
+	//deterministic secondary skills
+	++heroRng.magicSchoolCounter;
+	++heroRng.wisdomCounter;
+
+	std::set<SecondarySkill> basicAndAdv;
+	std::set<SecondarySkill> none;
+	std::vector<SecondarySkill>	skills;
+
+	if (hero->canLearnSkill())
+	{
+		for(int i = 0; i < LIBRARY->skillh->size(); i++)
+			if (hero->canLearnSkill(SecondarySkill(i)))
+				none.insert(SecondarySkill(i));
+	}
+
+	for(const auto & elem : hero->secSkills)
+	{
+		if(elem.second < MasteryLevel::EXPERT)
+			basicAndAdv.insert(elem.first);
+		none.erase(elem.first);
+	}
+
+	int maxUpgradedSkills = hero->cb->getSettings().getInteger(EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT);
+	int maxTotalSkills = hero->cb->getSettings().getInteger(EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT);
+	int newSkillsAvailable = none.size();
+	int upgradedSkillsToSelect = std::max(maxUpgradedSkills, maxTotalSkills - newSkillsAvailable);
+
+	while (skills.size() < upgradedSkillsToSelect && !basicAndAdv.empty())
+	{
+		skills.push_back(rollSecondarySkillForLevelup(hero, basicAndAdv));
+		basicAndAdv.erase(skills.back());
+	}
+
+	while (skills.size() < maxTotalSkills && !none.empty())
+	{
+		skills.push_back(rollSecondarySkillForLevelup(hero, none));
+		none.erase(skills.back());
+	}
+	return skills;
 }
 
 VCMI_LIB_NAMESPACE_END

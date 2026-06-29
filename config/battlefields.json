@@ -129,7 +129,7 @@
 		"isSpecial" : true,
 		"bonuses": [
 			{
-				"type" : "NO_MORALE",
+				"type" : "MORALE",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
 				"description" : "@core.arraytxt.112"
@@ -148,7 +148,7 @@
 		]
 	},
 	"rough": { "graphics" : "CMBKRGH.BMP" },
-	"ship_to_ship": 
+	"ship_to_ship":
 	{
 		"graphics" : "CMBKBOAT.BMP",
 		"impassableHexes" : [

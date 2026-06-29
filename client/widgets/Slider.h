@@ -50,6 +50,10 @@ private:
 
 	CFunctionList<void(int)> moved;
 
+	/// Pixel offset from cursor to thumb centre recorded at drag start.
+	/// Keeps the thumb from jumping when the user clicks off-centre.
+	int dragOffset;
+
 	void updateSliderPos();
 	void updateSlider();
 

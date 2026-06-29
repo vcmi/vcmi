@@ -27,6 +27,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/callback/EditorCallback.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
@@ -61,7 +62,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->interface()->cb->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename, false);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -170,7 +171,7 @@ void ClientCommandManager::handleSetBattleAICommand(std::istringstream& singleWo
 	{
 		if(auto ai = CDynLibHandler::getNewBattleAI(aiName)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 		{
-			Settings neutralAI = settings.write["server"]["neutralAI"];
+			Settings neutralAI = settings.write["ai"]["combatNeutralAI"];
 			neutralAI->String() = aiName;
 			printCommandMessage("Setting changed, from now the battle ai will be " + aiName + "!\n");
 		}
@@ -189,7 +190,7 @@ void ClientCommandManager::handleRedrawCommand()
 
 void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 {
-	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, onlyMissing);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / ( onlyMissing ? "translationMissing" : "translation");
@@ -199,7 +200,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 	{
 		JsonNode output;
 
-		for(const auto & stringEntry : modEntry.second)
+		for(const auto & stringEntry : modEntry.second.strings)
 		{
 			if(boost::algorithm::starts_with(stringEntry.first, "map."))
 				continue;
@@ -211,13 +212,16 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 
 		if (!output.isNull())
 		{
-			const boost::filesystem::path filePath = outPath / (modEntry.first + ".json");
+			std::string filename = modEntry.first;
+			boost::range::replace(filename, '.', '_');
+			const boost::filesystem::path filePath = outPath / (filename + ".json");
 			std::ofstream file(filePath.c_str());
 			file << output.toString();
 		}
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
 void ClientCommandManager::handleTranslateMapsCommand()
@@ -238,8 +242,9 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		try
 		{
+			EditorCallback cb(nullptr);
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, GAME->interface()->cb.get()));
+			loadedMaps.push_back(mapService.loadMap(mapName, &cb));
 		}
 		catch(std::exception & e)
 		{
@@ -260,7 +265,10 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, GAME->interface()->cb.get());
+			{
+				EditorCallback cb(nullptr);
+				loadedCampaigns.back()->getMap(part, &cb);
+			}
 		}
 		catch(std::exception & e)
 		{
@@ -268,7 +276,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		}
 	}
 
-	std::map<std::string, std::map<std::string, std::string>> textsByMod;
+	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
@@ -278,7 +286,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	{
 		JsonNode output;
 
-		for(const auto & stringEntry : modEntry.second)
+		for(const auto & stringEntry : modEntry.second.strings)
 		{
 			if(boost::algorithm::starts_with(stringEntry.first, "map."))
 				output[stringEntry.first].String() = stringEntry.second;
@@ -296,6 +304,8 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	}
 
 	printCommandMessage("Translation export complete");
+	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+
 }
 
 void ClientCommandManager::handleGetConfigCommand()

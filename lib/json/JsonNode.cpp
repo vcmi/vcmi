@@ -136,11 +136,11 @@ JsonNode::JsonNode(const JsonPath & fileURI, const std::string & modName)
 	*this = parser.parse(fileURI.getName());
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI, const std::string & modName, bool & isValidSyntax)
+JsonNode::JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings, const std::string & modName, bool & isValidSyntax)
 {
 	auto file = CResourceHandler::get(modName)->load(fileURI)->readAll();
 
-	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, JsonParsingSettings());
+	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, parserSettings);
 	*this = parser.parse(fileURI.getName());
 	isValidSyntax = parser.isValid();
 }

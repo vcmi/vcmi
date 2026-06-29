@@ -25,6 +25,7 @@
 #include "../render/IScreenHandler.h"
 #include "../render/hdEdition/HdImageLoader.h"
 
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/ExceptionsCommon.h"
@@ -57,13 +58,16 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
-	auto it = animationFiles.find(actualPath);
-
-	if (it != animationFiles.end())
 	{
-		auto locked = it->second.lock();
-		if (locked)
-			return locked;
+		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		auto it = animationFiles.find(actualPath);
+
+		if (it != animationFiles.end())
+		{
+			auto locked = it->second.lock();
+			if (locked)
+				return locked;
+		}
 	}
 
 	if (!CResourceHandler::get()->existsResource(actualPath))
@@ -72,11 +76,16 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	auto result = std::make_shared<CDefFile>(actualPath);
 
 	auto entries = result->getEntries();
-	for(const auto& entry : entries)
-		for(size_t i = 0; i < entry.second; ++i)
-			animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};
+	
+	{
+		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		for(const auto& entry : entries)
+			for(size_t i = 0; i < entry.second; ++i)
+				animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};
 
-	animationFiles[actualPath] = result;
+		animationFiles[actualPath] = result;
+	}
+	
 	return result;
 }
 
@@ -262,14 +271,14 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 			return generated;
 		}
 
-		logGlobal->error("Failed to load image %s", locator.image->getOriginalName());
+		logGlobal->error("Failed to load image '%s'", locator.image->getOriginalName().c_str());
 		return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));
 	}
 
 	if(locator.defFile)
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
-		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
+		if(defFile && defFile->hasFrame(locator.defFrame, locator.defGroup))
 		{
 			auto img = std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
 
@@ -324,6 +333,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 		if (!remappedLocator.image)
 		{
 			if(!settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1)
+				return nullptr;
+
+			if(!CResourceHandler::get("core")->existsResource(*locator.defFile)) // HD mod supports only core
 				return nullptr;
 
 			auto info = getAnimationSpriteDef(*locator.defFile, locator.defFrame, locator.defGroup);
@@ -625,6 +637,6 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 
 void RenderHandler::updateGeneratedAssets()
 {
-	for (const auto& [key, value] : assetGenerator->generateAllAnimations())
-        animationLayouts[key] = value;
+	for(const auto & [key, value] : assetGenerator->generateAllAnimations())
+		animationLayouts[key] = value;
 }

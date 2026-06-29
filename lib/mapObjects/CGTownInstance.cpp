@@ -276,6 +276,7 @@ CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	alignmentToPlayer(PlayerColor::NEUTRAL),
 	spellResearchCounterDay(0),
 	spellResearchAcceptedCounter(0),
+	spellResearchPendingRerollsCounters(GameConstants::SPELL_LEVELS, 0),
 	spellResearchAllowed(true)
 {
 	attachTo(townAndVis);
@@ -657,10 +658,7 @@ int CGTownInstance::getMarketEfficiency() const
 	const PlayerState *p = cb->getPlayerState(tempOwner);
 	assert(p);
 
-	int marketCount = 0;
-	for(const CGTownInstance *t : p->getTowns())
-		if(t->hasBuiltResourceMarketplace())
-			marketCount++;
+	int marketCount = p->valOfBonuses(BonusType::MARKETPLACE_ACCESS);
 
 	return marketCount;
 }
@@ -1138,6 +1136,13 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		handler.serializeIdArray( "possibleSpells", possibleSpells);
 		handler.serializeIdArray( "obligatorySpells", obligatorySpells);
+
+		if (!handler.saving)
+		{
+			// Workaround for invalid spells in	loaded map
+			vstd::erase(possibleSpells, SpellID());
+			vstd::erase(obligatorySpells, SpellID());
+		}
 	}
 
 	{
@@ -1168,7 +1173,12 @@ FactionID CGTownInstance::getFactionID() const
 
 TerrainId CGTownInstance::getNativeTerrain() const
 {
-	return getTown()->faction->getNativeTerrain();
+	auto const & terrain = getTown()->faction->getNativeTerrain();
+
+	if (!terrain.toEntity(LIBRARY)->isSurface() && !terrain.toEntity(LIBRARY)->isUnderground())
+		logMod->warn("Faction %s has terrain %s as native, but terrain is not suitable for either surface or subterranean layers!", getTown()->faction->getJsonKey(), terrain.toEntity(LIBRARY)->getJsonKey());
+
+	return terrain;
 }
 
 ArtifactID CGTownInstance::getWarMachineInBuilding(BuildingID building) const

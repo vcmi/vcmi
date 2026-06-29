@@ -27,6 +27,8 @@ class InputSourceMouse
 
 	float motionAccumulatedX;
 	float motionAccumulatedY;
+	float wheelAccumulatedX;
+	float wheelAccumulatedY;
 public:
 	InputSourceMouse();
 

@@ -186,6 +186,7 @@ public:
 
 	std::string getDescriptionTextID(int32_t level) const override;
 	std::string getDescriptionTranslated(int32_t level) const override;
+	std::string getAdventureEffectTextID(const std::string & effectType, const std::string & field) const;
 
 	int32_t getLevel() const override;
 
@@ -195,6 +196,7 @@ public:
 	bool isNegative() const override;
 	bool isNeutral() const override;
 	bool isMagical() const override;
+	bool isPersistent() const override;
 
 	bool isDamage() const override;
 	bool isOffensive() const override;
@@ -260,6 +262,7 @@ private:
 	bool offensive;
 	bool special;
 	bool nonMagical; //For creature abilities like bind
+	bool persistent;
 
 	std::string attributes; //reference only attributes //todo: remove or include in configuration format, currently unused
 

@@ -22,6 +22,7 @@ class CCallback;
 class CCommanderInstance;
 
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
+class MetaString;
 
 /// Central class for managing human player / AI interface logic
 class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
@@ -41,7 +42,7 @@ public:
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) = 0;
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) = 0;
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID, const MetaString & customTitle) = 0;
 	virtual void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) = 0;
 	virtual void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
 	virtual void finish(){}; //if for some reason we want to end

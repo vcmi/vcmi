@@ -112,6 +112,9 @@ void GlobalLobbyClient::onPacketReceived(const std::shared_ptr<INetworkConnectio
 	if(json["type"].String() == "activeGameRooms")
 		return receiveActiveGameRooms(json);
 
+	if(json["type"].String() == "updateGameRoom")
+		return receiveUpdateGameRoom(json);
+
 	if(json["type"].String() == "joinRoomSuccess")
 		return receiveJoinRoomSuccess(json);
 
@@ -154,6 +157,7 @@ void GlobalLobbyClient::receiveOperationFailed(const JsonNode & json)
 void GlobalLobbyClient::receiveClientLoginSuccess(const JsonNode & json)
 {
 	accountLoggedIn = true;
+	setAccountID(getAccountID());
 	setAccountDisplayName(json["displayName"].String());
 	setAccountCookie(json["accountCookie"].String());
 
@@ -245,42 +249,70 @@ void GlobalLobbyClient::receiveActiveAccounts(const JsonNode & json)
 		window->onActiveAccounts(activeAccounts);
 }
 
+GlobalLobbyRoom::GlobalLobbyRoom(const JsonNode & jsonEntry)
+{
+	gameRoomID = jsonEntry["gameRoomID"].String();
+	hostAccountID = jsonEntry["hostAccountID"].String();
+	hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
+	description = jsonEntry["description"].String();
+	statusID = jsonEntry["status"].String();
+	gameVersion = jsonEntry["version"].String();
+	modList = ModVerificationInfo::jsonDeserializeList(jsonEntry["mods"]);
+	std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
+	startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
+
+	for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
+	{
+		GlobalLobbyAccount account;
+		account.accountID =  jsonParticipant["accountID"].String();
+		account.displayName =  jsonParticipant["displayName"].String();
+		participants.push_back(account);
+	}
+
+	for(const auto & jsonParticipant : jsonEntry["invited"].Vector())
+	{
+		GlobalLobbyAccount account;
+		account.accountID =  jsonParticipant["accountID"].String();
+		account.displayName =  jsonParticipant["displayName"].String();
+		invited.push_back(account);
+	}
+
+	playerLimit = jsonEntry["playerLimit"].Integer();
+}
+
+void GlobalLobbyClient::receiveUpdateGameRoom(const JsonNode & json)
+{
+	GlobalLobbyRoom updatedRoom(json["room"]);
+	bool roomExists = false;
+
+	for(auto & room : activeRooms)
+	{
+		if (room.gameRoomID == updatedRoom.gameRoomID)
+		{
+			room = std::move(updatedRoom);
+			roomExists = true;
+			break;
+		}
+	}
+
+	if (!roomExists)
+		activeRooms.push_back(updatedRoom);
+
+	auto lobbyWindowPtr = lobbyWindow.lock();
+	if(lobbyWindowPtr)
+		lobbyWindowPtr->onActiveGameRooms(activeRooms);
+
+	for (auto const & window : ENGINE->windows().findWindows<GlobalLobbyObserver>())
+		window->onActiveGameRooms(activeRooms);
+}
+
 void GlobalLobbyClient::receiveActiveGameRooms(const JsonNode & json)
 {
 	activeRooms.clear();
 
 	for(const auto & jsonEntry : json["gameRooms"].Vector())
 	{
-		GlobalLobbyRoom room;
-
-		room.gameRoomID = jsonEntry["gameRoomID"].String();
-		room.hostAccountID = jsonEntry["hostAccountID"].String();
-		room.hostAccountDisplayName = jsonEntry["hostAccountDisplayName"].String();
-		room.description = jsonEntry["description"].String();
-		room.statusID = jsonEntry["status"].String();
-		room.gameVersion = jsonEntry["version"].String();
-		room.modList = ModVerificationInfo::jsonDeserializeList(jsonEntry["mods"]);
-		std::chrono::seconds ageSeconds (jsonEntry["ageSeconds"].Integer());
-		room.startDateFormatted = TextOperations::getCurrentFormattedDateTimeLocal(-ageSeconds);
-
-		for(const auto & jsonParticipant : jsonEntry["participants"].Vector())
-		{
-			GlobalLobbyAccount account;
-			account.accountID =  jsonParticipant["accountID"].String();
-			account.displayName =  jsonParticipant["displayName"].String();
-			room.participants.push_back(account);
-		}
-
-		for(const auto & jsonParticipant : jsonEntry["invited"].Vector())
-		{
-			GlobalLobbyAccount account;
-			account.accountID =  jsonParticipant["accountID"].String();
-			account.displayName =  jsonParticipant["displayName"].String();
-			room.invited.push_back(account);
-		}
-
-		room.playerLimit = jsonEntry["playerLimit"].Integer();
-
+		GlobalLobbyRoom room(jsonEntry);
 		activeRooms.push_back(room);
 	}
 
@@ -427,7 +459,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 		ENGINE->windows().popWindows(1);
 	}
 
-	CInfoWindow::showInfoDialog("Connection to game lobby was lost!", {});
+	CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.login.connectionLost"), {});
 }
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
@@ -585,19 +617,36 @@ void GlobalLobbyClient::setAccountDisplayName(const std::string & accountDisplay
 	configName->String() = accountDisplayName;
 }
 
+const JsonNode & GlobalLobbyClient::getCurrentAccountDetails() const
+{
+	const std::string & currentHost = getServerHost();
+	const JsonNode & knownHosts = persistentStorage["lobby"];
+
+	// migration helper: use beholder.vcmi.eu account details for lobby.vcmi.eu
+	if (knownHosts[currentHost].isNull() && boost::ends_with(currentHost, "vcmi.eu"))
+	{
+		for (const auto & host : knownHosts.Struct())
+		{
+			if (boost::ends_with(host.first, "vcmi.eu"))
+				return host.second;
+		}
+	}
+	return knownHosts[currentHost];
+}
+
 const std::string & GlobalLobbyClient::getAccountID() const
 {
-	return persistentStorage["lobby"][getServerHost()]["accountID"].String();
+	return getCurrentAccountDetails()["accountID"].String();
 }
 
 const std::string & GlobalLobbyClient::getAccountCookie() const
 {
-	return persistentStorage["lobby"][getServerHost()]["accountCookie"].String();
+	return getCurrentAccountDetails()["accountCookie"].String();
 }
 
 const std::string & GlobalLobbyClient::getAccountDisplayName() const
 {
-	return persistentStorage["lobby"][getServerHost()]["displayName"].String();
+	return getCurrentAccountDetails()["displayName"].String();
 }
 
 const std::string & GlobalLobbyClient::getServerHost() const

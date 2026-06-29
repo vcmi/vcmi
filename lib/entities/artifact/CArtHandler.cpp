@@ -112,7 +112,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 	objects.emplace_back(object);
 
-	registerObject(scope, "artifact", name, object->id.getNum());
+	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -124,7 +124,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
-	registerObject(scope, "artifact", name, object->id.getNum());
+	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
 const std::vector<std::string> & CArtHandler::getTypeNames() const

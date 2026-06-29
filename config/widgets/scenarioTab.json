@@ -1,0 +1,64 @@
+{
+	"items":
+	[
+		{
+			"name": "labelMapSizes",
+			"type": "label",
+			"font": "small",
+			"alignment": "center",
+			"color": "yellow",
+			"text": "core.genrltxt.510",
+			"position": {"x": 87, "y": 62}
+		},
+		{
+			"name": "groupMapSizeFilters",
+			"type": "toggleGroup",
+			"position": {"x": 0, "y": 0},
+			"selected": 0,
+			"callback": "filterMapSize",
+			"items":
+			[
+				{
+					"type": "toggleButton",
+					"index": 36,
+					"image": "SCSMBUT.DEF",
+					"help": "core.help.54",
+					"hotkey": "mapsSizeS",
+					"position": {"x": 158, "y": 46}
+				},
+				{
+					"type": "toggleButton",
+					"index": 72,
+					"image": "SCMDBUT.DEF",
+					"help": "core.help.55",
+					"hotkey": "mapsSizeM",
+					"position": {"x": 205, "y": 46}
+				},
+				{
+					"type": "toggleButton",
+					"index": 108,
+					"image": "SCLGBUT.DEF",
+					"help": "core.help.56",
+					"hotkey": "mapsSizeL",
+					"position": {"x": 252, "y": 46}
+				},
+				{
+					"type": "toggleButton",
+					"index": 144,
+					"image": "SCXLBUT.DEF",
+					"help": "core.help.57",
+					"hotkey": "mapsSizeXl",
+					"position": {"x": 299, "y": 46}
+				},
+				{
+					"type": "toggleButton",
+					"index": 0,
+					"image": "SCALBUT.DEF",
+					"help": "core.help.58",
+					"hotkey": "mapsSizeAll",
+					"position": {"x": 346, "y": 46}
+				}
+			]
+		}
+	]
+}

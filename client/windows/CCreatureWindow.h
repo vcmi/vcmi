@@ -28,11 +28,14 @@ class CTabbedInt;
 class CButton;
 class CMultiLineLabel;
 class CListBox;
+class CCreaturePic;
 class CArtPlace;
 class CCommanderArtPlace;
 class LRClickableArea;
 class GraphicalPrimitiveCanvas;
 class CFilledTexture;
+class CSlider;
+class CGStatusBar;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
@@ -139,6 +142,7 @@ class CStackWindow : public CWindowObject
 		std::shared_ptr<CCreaturePic> animation;
 		std::shared_ptr<LRClickableArea> animationArea;
 		std::shared_ptr<CLabel> name;
+		std::array<std::shared_ptr<CPicture>, 8> statIcons;
 		std::shared_ptr<CPicture> icons;
 		std::shared_ptr<MoraleLuckBox> morale;
 		std::shared_ptr<MoraleLuckBox> luck;
@@ -146,7 +150,7 @@ class CStackWindow : public CWindowObject
 		std::vector<std::shared_ptr<CLabel>> stats;
 
 		std::shared_ptr<CAnimImage> expRankIcon;
-		std::shared_ptr<LRClickableAreaWText> expArea;
+		std::shared_ptr<CIntObject> expArea;
 		std::shared_ptr<CLabel> expLabel;
 
 		void addStatLabel(EStat index, int64_t value1, int64_t value2);
@@ -159,6 +163,9 @@ class CStackWindow : public CWindowObject
 	public:
 		MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt);
 	};
+
+	class StackExperienceDetailsWindow;
+
 
 	std::shared_ptr<CFilledTexture> background;
 
@@ -193,8 +200,9 @@ class CStackWindow : public CWindowObject
 	void initBonusesList();
 
 	void init();
+	void close() override;
+	void showStackExperienceDetailsWindow();
 
-	std::string generateStackExpDescription();
 	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);
 
 public:
@@ -212,5 +220,6 @@ public:
 	CStackWindow(const CCommanderInstance * commander, bool popup);
 	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
 
+	void keyPressed(EShortcut key) override;
 	~CStackWindow();
 };

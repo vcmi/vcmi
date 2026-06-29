@@ -151,7 +151,7 @@
 					"items" : [
 						{
 							"type": "adventureMapButton",
-							"name": "worldViewOther",
+							"name": "buttonLayerOther",
 							"image" : "adventureLayersButton",
 							"help" : "core.help.294",
 							"hotkey": "adventureToggleMapLevel",

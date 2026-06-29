@@ -163,6 +163,12 @@ std::string CSpell::getDescriptionTranslated(int32_t level) const
 	return LIBRARY->generaltexth->translate(getDescriptionTextID(level));
 }
 
+std::string CSpell::getAdventureEffectTextID(const std::string & effectType, const std::string & field) const
+{
+	TextIdentifier textID("spell", modScope, identifier, "adventureEffect", effectType, field);
+	return textID.get();
+}
+
 std::string CSpell::getJsonKey() const
 {
 	return modScope + ':' + identifier;
@@ -221,6 +227,11 @@ bool CSpell::isNegative() const
 bool CSpell::isNeutral() const
 {
 	return positiveness == NEUTRAL;
+}
+
+bool CSpell::isPersistent() const
+{
+	return persistent;
 }
 
 boost::logic::tribool CSpell::getPositiveness() const
@@ -797,8 +808,9 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	//by default all flags are set to false in constructor
 
 	spell->damage = flags["damage"].Bool(); //do this before "offensive"
-
 	spell->nonMagical = flags["nonMagical"].Bool();
+	spell->persistent = flags["persistent"].Bool();
+
 
 	if(flags["offensive"].Bool())
 	{
@@ -992,6 +1004,21 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		}
 
 		levelObject.adventureEffect = levelNode["adventureEffect"];
+
+		if(levelObject.adventureEffect["type"].String() == "reinforcements")
+		{
+			auto registerField = [&](const std::string & field)
+			{
+				const std::string & value = levelObject.adventureEffect[field].String();
+				if(!value.empty() && value.front() != '@')
+					LIBRARY->generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
+			};
+
+			registerField("casterInTown");
+			registerField("selectTownTitle");
+			registerField("selectTownDescription");
+			registerField("garrisonTitle");
+		}
 
 		if(!levelNode["battleEffects"].Struct().empty())
 		{

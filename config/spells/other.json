@@ -724,7 +724,8 @@
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive": true,
+			"persistent" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {

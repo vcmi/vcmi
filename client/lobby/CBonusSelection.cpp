@@ -30,6 +30,8 @@
 #include "../widgets/VideoWidget.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
+#include "../windows/CHeroOverview.h"
+#include "../windows/CCreatureWindow.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
@@ -59,6 +61,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
@@ -91,7 +94,8 @@ CBonusSelection::CBonusSelection()
 
 	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().si->getCampaignName(), 250);
 
-	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 735, 26);
+	iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 0, 0, 735, 26);
+	iconsMapSizes->setFrame(iconsMapSizes->size() - 1); // use last available frame as "custom" icon
 
 	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->getDescriptionTranslated(), Rect(480, 86, 286, 117), 1);
@@ -100,7 +104,7 @@ CBonusSelection::CBonusSelection()
 	int availableSpace = videoButtonActive ? 225 : 285;
 	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, GAME->server().mi->getNameTranslated(), availableSpace );
 	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
-	mapDescription = std::make_shared<CTextBox>("", Rect(480, 278, 286, 108), 1);
+	mapDescription = std::make_shared<CTextBox>("", Rect(480, 276, 286, 112), 1);
 
 	labelChooseBonus = std::make_shared<CLabel>(475, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, &GAME->server(), _1));
@@ -149,14 +153,40 @@ CBonusSelection::CBonusSelection()
 		buttonExtraOptions = std::make_shared<CButton>(Point(643, 431), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[46], [this]{ tabExtraOptions->setEnabled(!tabExtraOptions->isActive()); ENGINE->windows().totalRedraw(); }, EShortcut::LOBBY_EXTRA_OPTIONS);
 		buttonExtraOptions->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.optionsTab.extraOptions.hover"), FONT_SMALL, Colors::WHITE);
 	}
+
+	// Ensure campaign map info is synchronized even if player doesn't click any region manually.
+	GAME->server().setCampaignMap(GAME->server().campaignMap);
 }
 
 void CBonusSelection::createBonusesIcons()
 {
 	OBJECT_CONSTRUCTION;
+	groupBonusesLabels.clear();
 	const CampaignScenario & scenario = getCampaign()->scenario(GAME->server().campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, &GAME->server(), _1));
+	groupBonuses->setRedrawParent(true);
+
+	auto getBuildingID = [this](const CampaignBonusBuilding & bonusValue) -> std::pair<FactionID, BuildingID> {
+		FactionID faction;
+		for(auto & elem : GAME->server().si->playerInfos)
+		{
+			if(elem.second.isControlledByHuman())
+			{
+				faction = elem.second.castle;
+				break;
+			}
+		}
+		
+		BuildingID buildID = bonusValue.buildingDecoded;
+		if (bonusValue.buildingH3M.hasValue() && faction.hasValue())
+		{
+			auto mapping = LIBRARY->mapFormat->getMapping(getCampaign()->getFormat());
+			buildID = mapping.remapBuilding(faction, bonusValue.buildingH3M);
+		}
+		
+		return {faction, buildID};
+	};
 
 	constexpr std::array bonusPics =
 	{
@@ -208,23 +238,8 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::BUILDING:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusBuilding>();
-				FactionID faction;
-				for(auto & elem : GAME->server().si->playerInfos)
-				{
-					if(elem.second.isControlledByHuman())
-					{
-						faction = elem.second.castle;
-						break;
-					}
-				}
+				auto [faction, buildID] = getBuildingID(bonusValue);
 				assert(faction.hasValue());
-
-				BuildingID buildID = bonusValue.buildingDecoded;
-				if (bonusValue.buildingH3M.hasValue())
-				{
-					auto mapping = LIBRARY->mapFormat->getMapping(getCampaign()->getFormat());
-					buildID = mapping.remapBuilding(faction, bonusValue.buildingH3M);
-				}
 
 				for (const auto & townStructure : faction.toFaction()->town->clientInfo.structures)
 					if (townStructure->building && townStructure->building->bid == buildID)
@@ -367,19 +382,153 @@ void CBonusSelection::createBonusesIcons()
 			}
 		}
 
-		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), CButton::tooltip(desc.toString(), desc.toString()), nullptr, EShortcut::NONE, false, [this](){
+		// Check if this bonus type should show component popup instead of tooltip
+		bool useComponentPopup = settings["general"]["enableUiEnhancements"].Bool() && 
+			(bonusType == CampaignBonusType::ARTIFACT || 
+			 bonusType == CampaignBonusType::SPELL ||
+			 bonusType == CampaignBonusType::SPELL_SCROLL ||
+			 bonusType == CampaignBonusType::BUILDING ||
+			 bonusType == CampaignBonusType::SECONDARY_SKILL ||
+			 bonusType == CampaignBonusType::MONSTER ||
+			 (bonusType == CampaignBonusType::HERO && bonus.getValue<CampaignBonusStartingHero>().hero != HeroTypeID::CAMP_RANDOM.getNum()));
+		
+		auto tooltip = useComponentPopup ? CButton::tooltip() : CButton::tooltip(desc.toString(), desc.toString());
+
+		auto bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), AnimationPath::builtin("campaignBonusSelection"), tooltip, nullptr, EShortcut::NONE, false, [this](){
 			if(buttonStart->isActive() && !buttonStart->isBlocked())	
 				CBonusSelection::startMap();
 		});
+		bonusButton->setRedrawParent(true);
 
 		if(picNumber != -1)
 			bonusButton->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin(picName), picNumber));
 		else
 			bonusButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin(picName)));
 
+		// Add right-click popup with component for supported bonus types when UI enhancements are enabled
+		if(useComponentPopup)
+		{
+			switch(bonusType)
+			{
+				case CampaignBonusType::ARTIFACT:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusArtifact>();
+					bonusButton->addPopupCallback([bonusValue](){
+						CRClickPopup::createAndPush(bonusValue.artifact.toArtifact()->getDescriptionTranslated(), 
+							std::make_shared<CComponent>(ComponentType::ARTIFACT, bonusValue.artifact));
+					});
+					break;
+				}
+				case CampaignBonusType::MONSTER:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
+					bonusButton->addPopupCallback([bonusValue](){
+						auto fakeStack = std::make_shared<CStackInstance>(nullptr, bonusValue.creature, bonusValue.amount, true);
+						auto window = std::make_shared<CStackWindow>(fakeStack.get(), true);
+						window->center(ENGINE->getCursorPosition());
+						window->fitToScreen(10);
+						ENGINE->windows().pushWindow(window);
+					});
+					break;
+				}
+				case CampaignBonusType::SPELL:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusSpell>();
+					bonusButton->addPopupCallback([bonusValue](){
+						CRClickPopup::createAndPush(bonusValue.spell.toSpell()->getDescriptionTranslated(0), 
+							std::make_shared<CComponent>(ComponentType::SPELL, bonusValue.spell));
+					});
+					break;
+				}
+				case CampaignBonusType::SPELL_SCROLL:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusSpellScroll>();
+					bonusButton->addPopupCallback([bonusValue](){
+						CRClickPopup::createAndPush(bonusValue.spell.toSpell()->getDescriptionTranslated(0), 
+							std::make_shared<CComponent>(ComponentType::SPELL_SCROLL, bonusValue.spell));
+					});
+					break;
+				}
+				case CampaignBonusType::BUILDING:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusBuilding>();
+					bonusButton->addPopupCallback([bonusValue, getBuildingID](){
+						auto [faction, buildID] = getBuildingID(bonusValue);
+						if(!faction.hasValue())
+							return;
+						
+						auto building = faction.toFaction()->town->buildings.find(buildID);
+						if(building != faction.toFaction()->town->buildings.end())
+						{
+							CRClickPopup::createAndPush(building->second->getDescriptionTranslated(), 
+								std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(faction, buildID)));
+						}
+					});
+					break;
+				}
+				case CampaignBonusType::SECONDARY_SKILL:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
+					bonusButton->addPopupCallback([bonusValue](){
+						CRClickPopup::createAndPush(bonusValue.skill.toSkill()->getDescriptionTranslated(bonusValue.mastery), 
+							std::make_shared<CComponent>(ComponentType::SEC_SKILL, bonusValue.skill, bonusValue.mastery));
+					});
+					break;
+				}
+				case CampaignBonusType::HERO:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusStartingHero>();
+					if(bonusValue.hero != HeroTypeID::CAMP_RANDOM.getNum())
+					{
+						bonusButton->addPopupCallback([bonusValue](){
+							auto window = std::make_shared<CHeroOverview>(bonusValue.hero);
+							window->center(ENGINE->getCursorPosition());
+							window->fitToScreen(10);
+							ENGINE->windows().pushWindow(window);
+						});
+					}
+					break;
+				}
+				default:
+					break;
+			}
+		}
+
+		Point iconSize(58, 64);
+		auto bonusButtonLabel = std::make_shared<CLabel>(473 + iconSize.x + i * 68, 455 + iconSize.y, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+		if(settings["general"]["enableUiEnhancements"].Bool())
+		{
+			switch(bonusType)
+			{
+				case CampaignBonusType::MONSTER:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
+					bonusButtonLabel->setText(TextOperations::formatMetric(bonusValue.amount, 4));
+					break;
+				}
+				case CampaignBonusType::RESOURCE:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusStartingResources>();
+					bonusButtonLabel->setText(TextOperations::formatMetric(bonusValue.amount, 4));
+					break;
+				}
+				case CampaignBonusType::PRIMARY_SKILL:
+				{
+					const auto & bonusValue = bonus.getValue<CampaignBonusPrimarySkill>();
+					if(std::count_if(std::begin(bonusValue.amounts), std::end(bonusValue.amounts), [](int x){ return x != 0; }) == 1) // only show if unambiguously
+						for(auto & val : bonusValue.amounts)
+							if(val != 0)
+								bonusButtonLabel->setText(std::to_string(val));
+				}
+				default:
+					break;
+			}
+		}
+
 		if(GAME->server().campaignBonus == i)
 			bonusButton->setBorderColor(Colors::BRIGHT_YELLOW);
 		groupBonuses->addToggle(i, bonusButton);
+		groupBonusesLabels.push_back(bonusButtonLabel);
 	}
 
 	if(getCampaign()->getBonusID(GAME->server().campaignMap))
@@ -420,7 +569,7 @@ void CBonusSelection::updateAfterStateChange()
 
 	if(!GAME->server().mi)
 		return;
-	iconsMapSizes->setFrame(GAME->server().mi->getMapSizeIconId());
+	iconsMapSizes->setFrame(std::min<size_t>(GAME->server().mi->getMapSizeIconId(), iconsMapSizes->size() - 1));
 	mapName->setText(GAME->server().mi->getNameTranslated());
 	mapDescription->setText(GAME->server().mi->getDescriptionTranslated());
 	for(size_t i = 0; i < difficultyIcons.size(); i++)

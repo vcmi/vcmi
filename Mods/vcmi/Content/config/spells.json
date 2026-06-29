@@ -2,7 +2,7 @@
 	"core:summonDemons" : {
 		"name": "Summon Demons",
 		"graphics" : {
-			"iconEffect" : "battle/actionGenie.png" // generic icon since H3 does not have one
+			"iconEffect" : "battle/actionGenie.png" 
 		},
 	},
 	"core:firstAid" : {

@@ -33,6 +33,8 @@ class CPrologEpilogVideo : public CWindowObject
 	void exit();
 
 	bool voiceStopped = false;
+	bool videoFinished = false;
+	int videoFinishedCounter = 0;
 
 public:
 	CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback);

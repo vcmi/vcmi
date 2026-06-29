@@ -75,6 +75,8 @@ public:
 
 	virtual int3 getLocation() const = 0;
 	virtual BattleLayout getLayout() const = 0;
+
+	virtual int32_t getRound() const = 0;
 };
 
 class DLL_LINKAGE IBattleState : public IBattleInfo

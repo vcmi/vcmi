@@ -29,6 +29,20 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/CStack.h"
 
+static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
+{
+	try
+	{
+		BattleHex middleHex = defenderHex.cloneInDirection(direction, false);
+		BattleHex attackerHex = middleHex.cloneInDirection(direction, false);
+		return std::make_pair(middleHex, attackerHex);
+	}
+	catch(const std::out_of_range &)
+	{
+		return std::nullopt;
+	}
+}
+
 BattleAnimation::BattleAnimation(BattleInterface & owner)
 	: owner(owner),
 	  ID(owner.stacksController->animIDhelper++),
@@ -296,7 +310,24 @@ ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, defendingStack->occupiedHex());
 	}
 
-	assert(mutPos >= 0 && mutPos <=5);
+	if(mutPos == -1 && attackingStack->hasBonusOfType(BonusType::LONG_WEAPON) && !attackingStack->doubleWide())
+	{
+		for(int direction = 0; direction < 6; ++direction)
+		{
+			const auto longLine = getLongWeaponLineHexes(BattleHex(attackingStackPosBeforeReturn), static_cast<BattleHex::EDir>(direction));
+			if(!longLine)
+				continue;
+
+			if(longLine->second == dest || defendingStack->coversPos(longLine->second))
+			{
+				mutPos = direction;
+				break;
+			}
+		}
+	}
+
+	if(mutPos < 0 || mutPos > 5)
+		return getForwardGroup(multiAttack);
 
 	return mutPosToGroup[mutPos];
 }
@@ -456,14 +487,18 @@ bool MovementEndAnimation::init()
 
 	ENGINE->sound().playSound(stack->unitType()->sounds.endMoving);
 
-	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
+	auto groupID = ECreatureAnimType::MOVE_END;
+	if (stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementTeleporting)) && myAnim->framesInGroup(ECreatureAnimType::TELEPORT_END))
+		groupID = ECreatureAnimType::TELEPORT_END;
+
+	if(!myAnim->framesInGroup(groupID))
 	{
 		delete this;
 		return false;
 	}
 
 
-	myAnim->setType(ECreatureAnimType::MOVE_END);
+	myAnim->setType(groupID);
 	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
@@ -497,13 +532,17 @@ bool MovementStartAnimation::init()
 	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
 	ENGINE->sound().playSound(stack->unitType()->sounds.startMoving);
 
-	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
+	auto groupID = ECreatureAnimType::MOVE_START;
+	if (stack->hasBonus(Selector::typeSubtype(BonusType::FLYING, BonusCustomSubtype::movementTeleporting)) && myAnim->framesInGroup(ECreatureAnimType::TELEPORT_START))
+		groupID = ECreatureAnimType::TELEPORT_START;
+
+	if(!myAnim->framesInGroup(groupID))
 	{
 		delete this;
 		return false;
 	}
 
-	myAnim->setType(ECreatureAnimType::MOVE_START);
+	myAnim->setType(groupID);
 	myAnim->onAnimationReset += [&](){ delete this; };
 	return true;
 }

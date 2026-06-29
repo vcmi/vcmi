@@ -89,13 +89,14 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"mapDice" : { "type" : "number" },
 				"appearChance" : {
 					"type" : "object", 
 					"additionalProperties" : false,
 					"properties" : {
 						"dice" : { "type" : "number" },
-						"min" : { "type" : "number", "minimum" : 0, "exclusiveMaximum" : 100 },
-						"max" : { "type" : "number", "exclusiveMinimum" : 0, "maximum" : 100 }
+						"min" : { "type" : "number", "minimum" : 0, "maximum" : 100 },
+						"max" : { "type" : "number", "minimum" : 0, "maximum" : 100 }
 					}
 				},
 
@@ -109,6 +110,7 @@
 				"heroLevel" : { "$ref" : "#/definitions/value" },
 				"movePercentage" : { "$ref" : "#/definitions/value" },
 				"movePoints" : { "$ref" : "#/definitions/value" },
+				"moveOverflowFactor" : { "$ref" : "#/definitions/value" },
 				"manaPercentage" : { "$ref" : "#/definitions/value" },
 				"manaPoints" : { "$ref" : "#/definitions/value" },
 				"manaOverflowFactor" : { "$ref" : "#/definitions/value" },
@@ -179,6 +181,8 @@
 				"heroLevel" : { "$ref" : "#/definitions/value" },
 				"manaPercentage" : { "$ref" : "#/definitions/value" },
 				"manaPoints" : { "$ref" : "#/definitions/value" },
+				"movePercentage" : { "$ref" : "#/definitions/value" },
+				"movePoints" : { "$ref" : "#/definitions/value" },
 
 				"canLearnSkills" : { "type" : "boolean" },
 				"commanderAlive" : { "type" : "boolean" },
@@ -267,10 +271,16 @@
 				"artifact" : {
 					"$ref" : "#/definitions/variableList"
 				},
+				"creature" : {
+					"$ref" : "#/definitions/variableList"
+				},
 				"spell" : {
 					"$ref" : "#/definitions/variableList"
 				},
 				"primarySkill" : {
+					"$ref" : "#/definitions/variableList"
+				},
+				"resource" : {
 					"$ref" : "#/definitions/variableList"
 				},
 				"secondarySkill" : {

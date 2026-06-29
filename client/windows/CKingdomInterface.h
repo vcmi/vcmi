@@ -288,7 +288,6 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 	std::shared_ptr<CButton> fastTownHall;
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
-	std::shared_ptr<LRClickableArea> fastTavern;
 	std::shared_ptr<LRClickableArea> fastTown;
 
 public:

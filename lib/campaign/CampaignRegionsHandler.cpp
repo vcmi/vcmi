@@ -22,7 +22,7 @@ std::vector<JsonNode> CampaignRegionsHandler::loadLegacyData()
 void CampaignRegionsHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = std::make_shared<CampaignRegions>(data);
-	registerObject(scope, "campaignRegion", name, objects.size());
+	registerObject(scope, "campaignRegion", name, data, objects.size());
 	objects.push_back(object);
 }
 

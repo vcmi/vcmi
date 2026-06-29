@@ -21,24 +21,33 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
-    <enum>QLayout::SetNoConstraint</enum>
+    <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
    </property>
    <property name="leftMargin">
-    <number>0</number>
+    <number>12</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>12</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>12</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>12</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <item row="0" column="1" rowspan="3">
+    <widget class="QLabel" name="imageLabel">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -47,7 +56,124 @@
       <string/>
      </property>
      <property name="scaledContents">
-      <bool>true</bool>
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" alignment="Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter">
+    <widget class="QPushButton" name="buttonPrevious">
+     <property name="minimumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	background-color: rgba(0, 0, 0, 170);
+	color: white;
+	border: 2px solid white;
+	border-radius: 24px;
+	font-size: 24px;
+	font-weight: bold;
+}
+QPushButton:hover {
+	background-color: rgba(0, 0, 0, 215);
+}
+QPushButton:pressed {
+	background-color: rgba(0, 0, 0, 255);
+}</string>
+     </property>
+     <property name="text">
+      <string notr="true">&lt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignVCenter">
+    <widget class="QPushButton" name="buttonNext">
+     <property name="minimumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	background-color: rgba(0, 0, 0, 170);
+	color: white;
+	border: 2px solid white;
+	border-radius: 24px;
+	font-size: 24px;
+	font-weight: bold;
+}
+QPushButton:hover {
+	background-color: rgba(0, 0, 0, 215);
+}
+QPushButton:pressed {
+	background-color: rgba(0, 0, 0, 255);
+}</string>
+     </property>
+     <property name="text">
+      <string notr="true">&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop">
+    <widget class="QPushButton" name="buttonClose">
+     <property name="minimumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	background-color: rgba(0, 0, 0, 170);
+	color: white;
+	border: 2px solid white;
+	border-radius: 24px;
+	font-size: 28px;
+	font-weight: bold;
+}
+QPushButton:hover {
+	background-color: rgba(0, 0, 0, 215);
+}
+QPushButton:pressed {
+	background-color: rgba(0, 0, 0, 255);
+}</string>
+     </property>
+     <property name="text">
+      <string notr="true">X</string>
      </property>
     </widget>
    </item>

@@ -26,6 +26,7 @@ public:
 	MOCK_CONST_METHOD1(getAffectedStacks, std::vector<const CStack *>(const Target &));
 
 	MOCK_CONST_METHOD1(canBeCast, bool(Problem &));
+	MOCK_CONST_METHOD1(canBeCastAt, bool(const Target &));
 	MOCK_CONST_METHOD2(canBeCastAt, bool(const Target &, Problem &));
 
 	MOCK_CONST_METHOD4(applyEffects, void(ServerCallback *, const Target &, bool, bool));
@@ -59,6 +60,7 @@ public:
 	MOCK_CONST_METHOD0(requiresClearTiles, bool());
 	MOCK_CONST_METHOD0(isNegativeSpell, bool());
 	MOCK_CONST_METHOD0(isPositiveSpell, bool());
+	MOCK_CONST_METHOD0(isNeutralSpell, bool());
 	MOCK_CONST_METHOD0(isMagicalEffect, bool());
 
 	MOCK_CONST_METHOD1(adjustEffectValue,int64_t(const battle::Unit *));

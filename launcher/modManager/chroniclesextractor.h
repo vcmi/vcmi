@@ -15,7 +15,6 @@ class ChroniclesExtractor : public QObject
 {
 	Q_OBJECT
 
-	QWidget *parent;
 	std::function<void(float percent)> cb;
 
 	QDir tempDir;
@@ -42,7 +41,13 @@ class ChroniclesExtractor : public QObject
 		"The Sword of Frost",
 	};
 public:
-	void installChronicles(QStringList exe);
+	enum ChroniclesInstallResultMask
+	{
+		Success = 0,
+		ExtractError = 0b0001,
+		InvalidFile = 0b0010,
+	};
+	int installChronicles(QStringList exe);
 
 	ChroniclesExtractor(QWidget *p, std::function<void(float percent)> cb = nullptr);
 };

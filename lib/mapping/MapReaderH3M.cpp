@@ -120,6 +120,14 @@ HeroTypeID MapReaderH3M::readHero()
 	return remapIdentifier(result);
 }
 
+HeroTypeID MapReaderH3M::readHero32()
+{
+	HeroTypeID result(reader->readInt32());
+
+	assert(result.getNum() < features.heroesCount);
+	return remapIdentifier(result);
+}
+
 HeroTypeID MapReaderH3M::readHeroPortrait()
 {
 	HeroTypeID result(reader->readUInt8());
@@ -183,6 +191,13 @@ CreatureID MapReaderH3M::readCreature()
 	return CreatureID::NONE;
 }
 
+FactionID MapReaderH3M::readFaction32()
+{
+	FactionID result(readInt32());
+	assert(result.getNum() < features.factionsCount);
+	return remapIdentifier(result);
+}
+
 TerrainId MapReaderH3M::readTerrain()
 {
 	TerrainId result(readUInt8());
@@ -213,9 +228,23 @@ PrimarySkill MapReaderH3M::readPrimary()
 	return result;
 }
 
+PrimarySkill MapReaderH3M::readPrimary32()
+{
+	PrimarySkill result(readInt32());
+	assert(result <= PrimarySkill::KNOWLEDGE );
+	return result;
+}
+
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
+	assert(result.getNum() < features.skillsCount);
+	return remapIdentifier(result);
+}
+
+SecondarySkill MapReaderH3M::readSkill32()
+{
+	SecondarySkill result(readInt32());
 	assert(result.getNum() < features.skillsCount);
 	return remapIdentifier(result);
 }
@@ -257,6 +286,13 @@ GameResID MapReaderH3M::readGameResID()
 	return result;
 }
 
+GameResID MapReaderH3M::readGameResID32()
+{
+	GameResID result(readInt32());
+	assert(result.getNum() < features.resourcesCount);
+	return result;
+}
+
 PlayerColor MapReaderH3M::readPlayer()
 {
 	uint8_t value = readUInt8();
@@ -287,6 +323,12 @@ PlayerColor MapReaderH3M::readPlayer32()
 	}
 
 	return PlayerColor(value);
+}
+
+BuildingID MapReaderH3M::readBuilding32(std::optional<FactionID> faction)
+{
+	uint32_t value = readUInt32();
+	return remapper.remapBuilding(faction, value);
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)

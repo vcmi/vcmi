@@ -608,7 +608,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	nullkiller->makingTurnInterrupption.reset();
 
-	asyncTasks->run([this]()
+	asyncTasks->run([this]() noexcept
 	{
 		ScopedThreadName guard("NKAI::AIGateway::makingTurn");
 		makeTurn();
@@ -776,7 +776,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	});
 }
 
-void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID)
+void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
@@ -850,7 +850,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 	return upgraded;
 }
 
-void AIGateway::makeTurn()
+void AIGateway::makeTurn() noexcept
 {
 	MAKING_TURN;
 
@@ -877,10 +877,8 @@ void AIGateway::makeTurn()
 		}
 	}
 
-#if NKAI_TRACE_LEVEL == 0
 	try
 	{
-#endif
 		nullkiller->makeTurn();
 
 		//for debug purpose
@@ -889,27 +887,16 @@ void AIGateway::makeTurn()
 			if (h->movementPointsRemaining())
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
-#if NKAI_TRACE_LEVEL == 0
-	}
-	catch (const TerminationRequestedException &)
-	{
-		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
-		return;
-	}
-	catch (const std::exception & e)
-	{
-		logAi->debug("Making turn thread has caught an exception: %s", e.what());
-	}
-#endif
-
-	try
-	{
 		endTurn();
 	}
-	catch (const TerminationRequestedException &)
+	catch (const InterruptionRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
+	}
+	catch (const TerminationRequestedException &)
+	{
+		logAi->debug("Making turn thread has been terminated. We'll end without calling endTurn");
 	}
 }
 
@@ -1632,12 +1619,19 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	asyncTasks->run([this, description, whatToDo]()
+	asyncTasks->run([this, description, whatToDo]() noexcept
 	{
 		ScopedThreadName guard("NKAI::AIGateway::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
-		whatToDo();
+		try
+		{
+			whatToDo();
+		}
+		catch (const TerminationRequestedException &)
+		{
+			logAi->debug("%s thread has been terminated. We'll end it immediately", description);
+		}
 	});
 }
 
@@ -1672,8 +1666,8 @@ void AIGateway::requestSent(const CPackForServer * pack, int requestID)
 
 std::string AIGateway::getBattleAIName() const
 {
-	if(settings["server"]["enemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
-		return settings["server"]["enemyAI"].String();
+	if(settings["ai"]["combatEnemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
+		return settings["ai"]["combatEnemyAI"].String();
 	else
 		return "BattleAI";
 }

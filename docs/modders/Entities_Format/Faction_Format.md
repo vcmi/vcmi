@@ -294,6 +294,8 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 	// Prefix for all siege images. Final name will be composed as <prefix><suffix>
 	"imagePrefix" : "SGCS",
+	// Alternative usage for different prefixes based on layers (list all layers; if one is missing it will fallback to first)
+	"imagePrefix" : { "underground": "SGCS_U", "surface": "SGCS_S" },
 
 	// Descriptions for towers. Each tower consist from 3 parts:
 	// tower itself - two images with untouched and destroyed towers

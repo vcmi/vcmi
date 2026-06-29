@@ -76,6 +76,10 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_vcmiservercommon"
 			PROJECT_LABEL "VCMI_vcmiservercommon"
 	)
+	if (MINGW)
+		# Link Windows system libs: WinSock2 (ws2_32)
+		target_link_libraries(vcmiservercommon PRIVATE ws2_32)
+	endif()
 endif()
 
 vcmi_set_output_dir(vcmiservercommon "")

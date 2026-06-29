@@ -16,6 +16,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../gameState/CGameState.h"
@@ -298,6 +299,12 @@ void registerTypes(Serializer &s)
 	s.template registerType<RequestStatistic>(256);
 	s.template registerType<ResponseStatistic>(257);
 	s.template registerType<LobbyQuickLoadGame>(258);
+	s.template registerType<UnitAdjacentLimiter>(259);
+	s.template registerType<AdvInterfaceReady>(260);
+	s.template registerType<SetTactics>(261);
+	s.template registerType<ChangeTactics>(262);
+	s.template registerType<CompositeUpdater>(263);
+	s.template registerType<BonusParameters>(264);
 }
 
 VCMI_LIB_NAMESPACE_END

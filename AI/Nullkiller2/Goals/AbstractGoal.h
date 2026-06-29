@@ -110,7 +110,7 @@ namespace Goals
 		int aid; SETTER(int, aid)
 		int3 tile; SETTER(int3, tile)
 		const CGHeroInstance * hero; SETTER(CGHeroInstance *, hero)
-		const CGTownInstance *town; SETTER(CGTownInstance *, town)
+		const CGTownInstance * town; SETTER(CGTownInstance *, town)
 		int bid; SETTER(int, bid)
 		EGoals goalType;
 

@@ -26,7 +26,7 @@ void BonusList::stackBonuses()
 		COMPARE_ATT(subtype);
 		COMPARE_ATT(valType);
 #undef COMPARE_ATT
-		return b1->val > b2->val;
+		return std::abs(b1->val) > std::abs(b2->val);
 	});
 	// remove non-stacking
 	size_t next = 1;

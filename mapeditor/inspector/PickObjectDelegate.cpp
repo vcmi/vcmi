@@ -28,9 +28,9 @@ PickObjectDelegate::PickObjectDelegate(MapController & c, std::function<bool(con
 
 void PickObjectDelegate::onObjectPicked(const CGObjectInstance * o)
 {
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.clear();
 		l.update();
 		QObject::disconnect(&l, &ObjectPickerLayer::selectionMade, this, &PickObjectDelegate::onObjectPicked);
@@ -46,9 +46,9 @@ void PickObjectDelegate::onObjectPicked(const CGObjectInstance * o)
 
 QWidget * PickObjectDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	for(int lvl : {0, 1})
+	for(MapScene * level : controller.getScenes())
 	{
-		auto & l = controller.scene(lvl)->objectPickerView;
+		auto & l = level->objectPickerView;
 		l.highlight(filter);
 		l.update();
 		QObject::connect(&l, &ObjectPickerLayer::selectionMade, this, &PickObjectDelegate::onObjectPicked);

@@ -82,7 +82,7 @@ void CMapInfo::campaignInit()
 	originalFileURI = resource.getOriginalName();
 	fullFileURI = CResourceHandler::get()->getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
-	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
+	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 }
 

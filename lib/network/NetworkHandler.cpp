@@ -12,6 +12,7 @@
 
 #include "NetworkServer.h"
 #include "NetworkConnection.h"
+#include "NetworkDiscovery.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -27,6 +28,11 @@ NetworkHandler::NetworkHandler()
 std::unique_ptr<INetworkServer> NetworkHandler::createServerTCP(INetworkServerListener & listener)
 {
 	return std::make_unique<NetworkServer>(listener, *context);
+}
+
+NetworkContext & NetworkHandler::getContext()
+{
+	return *context;
 }
 
 std::shared_ptr<INetworkConnection> NetworkHandler::createAsyncConnection(INetworkConnectionListener & listener)
@@ -78,6 +84,16 @@ void NetworkHandler::createTimer(INetworkTimerListener & listener, std::chrono::
 		if (!error)
 			listener.onTimer();
 	});
+}
+
+std::shared_ptr<IServerDiscovery> NetworkHandler::createServerDiscovery(IServerDiscoveryObserver & listener)
+{
+	return std::make_shared<ServerDiscovery>(*context, listener);
+}
+
+std::shared_ptr<IServerDiscoveryListener> NetworkHandler::createServerDiscoveryListener(IServerDiscoveryAnnouncer & announcer, uint16_t port)
+{
+	return std::make_shared<ServerDiscoveryListener>(*context, announcer, port);
 }
 
 void NetworkHandler::createInternalConnection(INetworkClientListener & listener, INetworkServer & server)

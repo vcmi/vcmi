@@ -33,6 +33,8 @@ class RenderHandler final : public IRenderHandler
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 	std::shared_ptr<AssetGenerator> assetGenerator;
 	std::shared_ptr<HdImageLoader> hdImageLoader;
+	
+	std::mutex animationCacheMutex;
 
 	std::pair<std::string, CDefFile::SSpriteDef> getAnimationSpriteDef(const AnimationPath & path, int frame, int group);
 	ImagePath getAnimationFrameName(const AnimationPath & path, int frame, int group);

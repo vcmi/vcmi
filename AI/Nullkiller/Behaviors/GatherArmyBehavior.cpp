@@ -33,13 +33,9 @@ std::string GatherArmyBehavior::toString() const
 Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
-
-	auto heroes = ai->cb->getHeroesInfo();
-
+	const auto heroes = ai->cb->getHeroesInfo();
 	if(heroes.empty())
-	{
 		return tasks;
-	}
 
 	for(const CGHeroInstance * hero : heroes)
 	{
@@ -50,7 +46,6 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
 	}
 
 	auto towns = ai->cb->getTownsInfo();
-
 	for(const CGTownInstance * town : towns)
 	{
 		vstd::concatenate(tasks, upgradeArmy(ai, town));
@@ -66,19 +61,19 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 	auto targetHeroScore = ai->heroManager->evaluateHero(hero);
 
 #if NKAI_TRACE_LEVEL >= 1
-	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
+	logAi->trace("GatherArmyBehavior::deliverArmyToHero Checking ways to gather army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 
 	auto paths = ai->pathfinder->getPathInfo(pos, ai->isObjectGraphAllowed());
 
 #if NKAI_TRACE_LEVEL >= 1
-	logAi->trace("Gather army found %d paths", paths.size());
+	logAi->trace("GatherArmyBehavior::deliverArmyToHero Gather army found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
+		logAi->trace("GatherArmyBehavior::deliverArmyToHero Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
 		if (path.targetHero->getOwner() != ai->playerID)
@@ -87,7 +82,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		if(path.containsHero(hero))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Selfcontaining path. Ignore");
+			logAi->trace("GatherArmyBehavior::deliverArmyToHero Ignore because self-containing path");
 #endif
 			continue;
 		}
@@ -95,42 +90,36 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		if(ai->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Ignore path because of locked hero");
+			logAi->trace("GatherArmyBehavior::deliverArmyToHero Ignore because of locked hero");
 #endif
 			continue;
 		}
 
 		HeroExchange heroExchange(hero, path);
-
 		uint64_t armyValue = heroExchange.getReinforcementArmyStrength(ai);
-		float armyRatio = (float)armyValue / hero->getArmyStrength();
+		float armyRatio = static_cast<float>(armyValue) / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
 		if((armyRatio < 0.1f && armyValue < 20000) || armyValue < 500)
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Army value is too small.");
+			logAi->trace("GatherArmyBehavior::deliverArmyToHero Ignore because army value is too small.");
 #endif
 			continue;
 		}
 
 		// avoid trying to move bigger army to the weaker one.
 		bool hasOtherMainInPath = false;
-
 		for(auto node : path.nodes)
 		{
 			if(!node.targetHero) continue;
 
-			auto heroRole = ai->heroManager->getHeroRole(node.targetHero);
-
-			if(heroRole == HeroRole::MAIN)
+			if(ai->heroManager->getHeroRole(node.targetHero) == MAIN)
 			{
-				auto score = ai->heroManager->evaluateHero(node.targetHero);
-
-				if(score >= targetHeroScore)
+				// TODO: Mircea: Shouldn't >= be replaced with >?
+				if(ai->heroManager->evaluateHero(node.targetHero) >= targetHeroScore)
 				{
 					hasOtherMainInPath = true;
-
 					break;
 				}
 			}
@@ -139,7 +128,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		if(hasOtherMainInPath)
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Army value is too large.");
+			logAi->trace("GatherArmyBehavior::deliverArmyToHero Ignore because hasOtherMainInPath");
 #endif
 			continue;
 		}
@@ -194,14 +183,14 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 			if(blockedAction)
 			{
 	#if NKAI_TRACE_LEVEL >= 2
-				logAi->trace("Action is blocked. Considering decomposition.");
+				logAi->trace("GatherArmyBehavior::deliverArmyToHero Action is blocked. Considering decomposition.");
 	#endif
 				auto subGoal = blockedAction->decompose(ai, path.targetHero);
 
 				if(subGoal->invalid())
 				{
 #if NKAI_TRACE_LEVEL >= 1
-					logAi->trace("Path is invalid. Skipping");
+					logAi->trace("GatherArmyBehavior::deliverArmyToHero Ignore because path is invalid");
 #endif
 					continue;
 				}

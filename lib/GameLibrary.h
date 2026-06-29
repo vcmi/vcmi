@@ -43,6 +43,7 @@ class CIdentifierStorage;
 class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
+class MapLayerTypeHandler;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -101,6 +102,7 @@ public:
 	std::unique_ptr<ObstacleSetHandler> biomeHandler;
 	std::unique_ptr<MapFormatSettings> mapFormat;
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
+	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
 
 #if SCRIPTING_ENABLED
 	std::unique_ptr<scripting::ScriptHandler> scriptHandler;
@@ -115,9 +117,10 @@ public:
 	/// Loads all game entities
 	void initializeLibrary();
 
-private:
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
+
+	// loads filesystems of all mods
 	void loadModFilesystem();
 
 #if SCRIPTING_ENABLED

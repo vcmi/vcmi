@@ -123,7 +123,6 @@ namespace Selector
 {
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusType> & type();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusSubtypeID> & subtype();
-	extern DLL_LINKAGE const CSelectFieldEqual<CAddInfo> & info();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & sourceType();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusSource> & targetSourceType();
 	extern DLL_LINKAGE const CSelectFieldEqual<BonusLimitEffect> & effectRange();
@@ -131,7 +130,6 @@ namespace Selector
 	CWillLastDays DLL_LINKAGE days(int days);
 
 	CSelector DLL_LINKAGE typeSubtype(BonusType Type, BonusSubtypeID Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(BonusType type, BonusSubtypeID subtype, const CAddInfo & info);
 	CSelector DLL_LINKAGE source(BonusSource source, BonusSourceID sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(BonusSource source);
 	CSelector DLL_LINKAGE valueType(BonusValueType valType);

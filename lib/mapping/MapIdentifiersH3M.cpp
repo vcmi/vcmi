@@ -14,6 +14,7 @@
 #include "../GameLibrary.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/faction/CTown.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -63,7 +64,8 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		AnimationPath h3mName = AnimationPath::builtinTODO(entryTemplate.second.String());
 		AnimationPath vcmiName = AnimationPath::builtinTODO(entryTemplate.first);
 
-		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")))
+		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")) &&
+		   !CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/").toType<EResType::JSON>()))
 			logMod->warn("Template animation file %s was not found!", vcmiName.getOriginalName());
 
 		mappingObjectTemplate[h3mName] = vcmiName;
@@ -144,7 +146,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 
 	if (LIBRARY->objtypeh->knownObjects().count(objectTemplate.id) == 0)
 	{
-		logGlobal->warn("Unknown object found: %d | %d", objectTemplate.id, objectTemplate.subid);
+		logGlobal->warn("Unknown object found: %d | %d (%s)", objectTemplate.id, objectTemplate.subid, objectTemplate.animationFile.getName());
 
 		objectTemplate.id = Obj::NOTHING;
 		objectTemplate.subid = {};
@@ -167,6 +169,22 @@ BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, Buil
 
 		if (submap.count(input))
 			return submap.at(input);
+
+		constexpr std::array hordes = { BuildingID::HORDE_PLACEHOLDER1, BuildingID::HORDE_PLACEHOLDER2, BuildingID::HORDE_PLACEHOLDER3, BuildingID::HORDE_PLACEHOLDER4, BuildingID::HORDE_PLACEHOLDER5, BuildingID::HORDE_PLACEHOLDER6, BuildingID::HORDE_PLACEHOLDER7, BuildingID::HORDE_PLACEHOLDER8 };
+
+		if (mappingBuilding.count(input))
+		{
+			int hordeLevel = vstd::find_pos(hordes, mappingBuilding.at(input));
+
+			if (hordeLevel != -1)
+			{
+				const auto & town = owner->toFaction()->town;
+				if (town->hordeLvl.at(0) == hordeLevel)
+					return BuildingID::HORDE_1;
+				if (town->hordeLvl.at(1) == hordeLevel)
+					return BuildingID::HORDE_2;
+			}
+		}
 	}
 
 	if (mappingBuilding.count(input))

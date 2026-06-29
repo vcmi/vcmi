@@ -85,7 +85,7 @@ public:
 	explicit JsonNode(const JsonPath & fileURI);
 	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
 	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
-	explicit JsonNode(const JsonPath & fileURI, const std::string & modName, bool & isValidSyntax);
+	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings, const std::string & modName, bool & isValidSyntax);
 
 	bool operator==(const JsonNode & other) const;
 	bool operator!=(const JsonNode & other) const;

@@ -34,7 +34,7 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
-class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IServerDiscoveryAnnouncer, public IGameServer
 {
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
@@ -55,9 +55,16 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	uint16_t port;
 	bool runByClient;
 
+	std::shared_ptr<IServerDiscoveryListener> discoveryListener;
 
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
+	uint16_t getPort() const override
+	{
+		return port;
+	}
+
+	bool isInLobby() const override;
 
 	// IGameServer impl
 	void setState(EServerState value) override;
@@ -97,8 +104,8 @@ public:
 	void announcePack(CPackForLobby & pack);
 	bool passHost(GameConnectionID toConnectionId);
 
-	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
-	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announceTxt(const MetaString & txt, const std::string & playerName = "System");
+	void announceTxt(const std::string & txt, const std::string & playerName = "System");
 
 	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
@@ -137,4 +144,6 @@ public:
 	PlayerConnectionID getIdOfFirstUnallocatedPlayer() const;
 
 	void multiplayerWelcomeMessage();
+	void startDiscoveryListener();
+	void stopDiscoveryListener();
 };

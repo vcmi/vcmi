@@ -213,6 +213,11 @@ void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeFormation(*this);
 }
 
+void ChangeTactics::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeTactics(*this);
+}
+
 void ChangeTownName::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeTownName(*this);
@@ -653,6 +658,11 @@ void SetFormation::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetFormation(*this);
 }
 
+void SetTactics::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetTactics(*this);
+}
+
 void SetTownName::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetTownName(*this);
@@ -876,6 +886,11 @@ void TurnTimeUpdate::visitTyped(ICPackVisitor & visitor)
 void ResponseStatistic::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitResponseStatistic(*this);
+}
+
+void AdvInterfaceReady::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitAdvInterfaceReady(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

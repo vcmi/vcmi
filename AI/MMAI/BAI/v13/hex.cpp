@@ -354,14 +354,27 @@ void Hex::setActionMask(const std::shared_ptr<ActiveStackInfo> & astackinfo, con
 		auto hexaction = static_cast<HexAction>(i);
 
 		if(n_cstack->unitSide() == a_cstack->unitSide())
-			return;
+			continue;
+
+		// XXX: There is an edge case related to STOPPING hexes (moat/quicksand)
+		// where AMOVE should not be allowed.
+		// It cannot be handled here; see note FixMoatMasks() in battlefield.cpp
 
 		if(hexaction <= HexAction::AMOVE_TL)
 		{
 			ASSERT(CStack::isMeleeAttackPossible(a_cstack, n_cstack, bhex), "vcmi says melee attack is IMPOSSIBLE [1]");
 			actmask.set(i);
 		}
-		else if(hexaction > HexAction::AMOVE_2BR)
+		else if(hexaction <= HexAction::AMOVE_2BR)
+		{
+			// only wide R stacks can perform 2TR/2R/2BR attacks
+			if(a_cstack->unitSide() == BattleSide::DEFENDER && a_cstack->doubleWide())
+			{
+				ASSERT(CStack::isMeleeAttackPossible(a_cstack, n_cstack, bhex), "vcmi says melee attack is IMPOSSIBLE [2]");
+				actmask.set(i);
+			}
+		}
+		else
 		{
 			// only wide L stacks can perform 2TL/2L/2BL attacks
 			if(a_cstack->unitSide() == BattleSide::ATTACKER && a_cstack->doubleWide())
@@ -369,12 +382,6 @@ void Hex::setActionMask(const std::shared_ptr<ActiveStackInfo> & astackinfo, con
 				ASSERT(CStack::isMeleeAttackPossible(a_cstack, n_cstack, bhex), "vcmi says melee attack is IMPOSSIBLE");
 				actmask.set(i);
 			}
-		}
-		// only wide R stacks can perform 2TR/2R/2BR attacks
-		else if(a_cstack->unitSide() == BattleSide::DEFENDER && a_cstack->doubleWide())
-		{
-			ASSERT(CStack::isMeleeAttackPossible(a_cstack, n_cstack, bhex), "vcmi says melee attack is IMPOSSIBLE [2]");
-			actmask.set(i);
 		}
 	}
 }

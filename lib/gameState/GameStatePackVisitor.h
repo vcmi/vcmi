@@ -87,6 +87,7 @@ public:
 	void visitSetCommanderProperty(SetCommanderProperty & pack) override;
 	void visitAddQuest(AddQuest & pack) override;
 	void visitChangeFormation(ChangeFormation & pack) override;
+	void visitChangeTactics(ChangeTactics & pack) override;
 	void visitChangeTownName(ChangeTownName & pack) override;
 	void visitChangeSpells(ChangeSpells & pack) override;
 	void visitSetAvailableHero(SetAvailableHero & pack) override;

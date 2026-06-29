@@ -1344,8 +1344,12 @@
 			"noDispel" : {
 				"subtype" : "dispel",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
+			},
+			"noDispelHelpful" : {
+				"subtype" : "dispelHelpful",
+				"type" : "SPELL_IMMUNITY",
+				"addInfo" : 1
 			}
 		},
 		"index" : 92,
@@ -1934,7 +1938,8 @@
 			"lionsShieldOfCourage",
 			"swordOfJudgement",
 			"helmOfHeavenlyEnlightenment"
-		]
+		],
+		"value" : 84000
 	},
 	"cloakOfTheUndeadKing":
 	{
@@ -1967,7 +1972,8 @@
 			"amuletOfTheUndertaker",
 			"vampiresCowl",
 			"deadMansBoots"
-		]
+		],
+		"value" : 12000
 	},
 	"elixirOfLife":
 	{
@@ -1977,23 +1983,9 @@
 				"val" : 25,
 				"valueType" : "PERCENT_TO_BASE",
 				"limiters" : [
-					"noneOf",
-					"IS_UNDEAD",
-					{
+					{ 
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "NON_LIVING"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "MECHANICAL"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "GARGOYLE"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "SIEGE_WEAPON"
+						"bonusType" : "LIVING"
 					}
 				]
 			},
@@ -2002,19 +1994,9 @@
 				"val" : 50,
 				"valueType" : "BASE_NUMBER",
 				"limiters" : [
-					"noneOf",
-					"IS_UNDEAD",
-					{
+					{ 
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "NON_LIVING"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "MECHANICAL"
-					},
-					{
-						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"bonusType" : "GARGOYLE"
+						"bonusType" : "LIVING"
 					}
 				]
 			}
@@ -2026,7 +2008,8 @@
 			"ringOfVitality",
 			"ringOfLife",
 			"vialOfLifeblood"
-		]
+		],
+		"value" : 20000
 	},
 	"armorOfTheDamned":
 	{
@@ -2064,7 +2047,8 @@
 			"shieldOfTheYawningDead",
 			"skullHelmet",
 			"ribCage"
-		]
+		],
+		"value" : 12000
 	},
 	"statueOfLegion":
 	{
@@ -2084,7 +2068,8 @@
 				"val" : 50,
 				"propagator": "PLAYER"
 			}
-		}
+		},
+		"value" : 25000
 	},
 	"powerOfTheDragonFather":
 	{
@@ -2132,7 +2117,8 @@
 			"necklaceOfDragonteeth",
 			"crownOfDragontooth",
 			"stillEyeOfTheDragon"
-		]
+		],
+		"value" : 42000
 	},
 	"titansThunder":
 	{
@@ -2152,7 +2138,8 @@
 			"sentinelsShield",
 			"thunderHelmet",
 			"titansCuirass"
-		]
+		],
+		"value" : 40000
 	},
 	"admiralsHat":
 	{
@@ -2170,7 +2157,8 @@
 		[
 			"necklaceOfOceanGuidance",
 			"seaCaptainsHat"
-		]
+		],
+		"value" : 25000
 	},
 	"bowOfTheSharpshooter":
 	{
@@ -2201,7 +2189,8 @@
 			"bowOfElvenCherrywood",
 			"bowstringOfTheUnicornsMane",
 			"angelFeatherArrows"
-		]
+		],
+		"value" : 12000
 	},
 	"wizardsWell":
 	{
@@ -2219,7 +2208,8 @@
 			"charmOfMana",
 			"talismanOfMana",
 			"mysticOrbOfMana"
-		]
+		],
+		"value" : 3000
 	},
 	"ringOfTheMagi":
 	{
@@ -2237,7 +2227,8 @@
 			"collarOfConjuring",
 			"ringOfConjuring",
 			"capeOfConjuring"
-		]
+		],
+		"value" : 3000
 	},
 	"cornucopia":
 	{
@@ -2275,7 +2266,8 @@
 			"ringOfInfiniteGems",
 			"everpouringVialOfMercury",
 			"eversmokingRingOfSulfur"
-		]
+		],
+		"value" : 20000
 	},
 	// Misiokles: not having these 3 artifacts could lead to crashes. RMG will try to place them in some randoms maps (and crash the game)
 	"unusedArtifact1":

@@ -172,7 +172,7 @@
 	
 	// Mines will have same configuration as in linked zone
 	"minesLikeZone" : 1,
-	
+
 	// Treasures will have same configuration as in linked zone
 	"treasureLikeZone" : 1,
 	
@@ -276,7 +276,20 @@
 					"zoneLimit" : 2
 				}
 			}
-		]
+		],
+
+		// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
+		"requiredObjects" : {
+			"refugeeCamp" : 5,
+			// If there are several versions (e.g. standard and cannonYard) a random selection is chosen
+			"warMachineFactory" : 5,
+			// Versions can be specified with optional guard information
+			"creatureGeneratorCommon" : { "unicornGlade" : { "count" : 3, "guard" : 10000 } },
+			// Artifacts can be specified
+			"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },
+			// Mod objects can be specified
+			"hota.mapobjects:townGate" : { "count" : 1, "guard" : 100000 }
+		},
 	}
 }
 ```

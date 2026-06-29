@@ -1,5 +1,366 @@
 # VCMI Project Changelog
 
+## 1.7.3 -> 1.7.4
+
+* Added in-game Wiki that can be opened via F1 or from adventure map options menu
+* Weblate integrated for translations. Czech, German, Polish, Spanish, Swedish, Turkish and Ukrainian are now fully translated
+* Tutorial map is now correctly imported from gog.com installer
+* Discord integration is now available on all desktop systems
+
+### Stability
+
+* Fixed crash when high-level hero is defeated by neutrals in combat
+* Fixed crash on attempt to load save game with dot in its file name
+* Fixed crash on attempt to start a campaign with game set to Japanese language
+* Fixed crash on loading campaign in VCMI format located in .zip archive
+* Fixed crash on accessing battle-only mode after disabling mod that provides skill used by preconfigured hero
+* Fixed crash on winning scenario by building specified structure when there is enemy player with owned town on a map
+* Fixed crash on macOS when scenario finishes during AI turn
+* Fixed crash on iOS on connecting external display
+* Fixed inability to load .vmap with corrupted spell list in towns
+* Fixed inabilily to load WoG maps with WoG artifacts or creatures placed on map
+* Fixed crash if there are two creatures with same string identifiers from two mods and one of them is used for high scores
+
+### Mechanics
+
+* Basic Dimension Door now correctly allows two spell casts
+* Invincible units like Couatls can no longer be targeted by area attacks by Magogs and Power Liches
+* Fixed Cornucopia not providing its bonuses if artifact was assembled mid-game
+* Removed transfer of troops from 2nd to 3rd mission of Dragon Slayer campaign
+
+### Interface - Adventure Map
+
+* Fixed move reminder dialog not displaying when player presses end turn while having heroes with set path
+* Split unit stack dialog now automatically selects 1 unit to split off when opened
+* Spellbook is now correctly recolored to color of current player
+* Clearing creature bank will now correctly show name of creatures received as a reward in reward message
+* Rally Flag and Oasis now use correct description messages on right-click
+* Added indication of artifact held by a unit on creature icon in army view
+* Fixed swapped messages in Altar of Sacrifice
+* Description and popup window of Spell Shrines now matches H3
+* Added buttons to access wiki, map search, and statistics from adventure options window
+
+### Interface - Main Menu
+
+* Swapped Chat and Battle Mode button positions
+* Removed Chat button in single player and hotseat games
+* Hotseat mode now requires at least 2 players to proceed to map selection
+* Multiplayer game now requires at least 2 players to start the game
+* Multiplayer host / join player name dialog now displays correct title and description
+* Chat window is now active by default in multiplayer over network
+* Maps with too small number of human players are now hidden in map selection in multiplayer games
+
+### Interface - Other
+
+* Turn options button no longer shows up on Scenario Information screen during gameplay
+* Hero invite window now uses list view instead of table view
+* Fixed buttons on statistics screen incorrectly using selected state
+* Shooting is no longer shown as valid action for blocked units
+* Creature window now correctly uses singular form for single-unit stacks
+* Buying War Machine in Blacksmith or War Machine Factory will now show warning if player has a different machine in a slot
+* Added dedicated spell research dialog
+* Added dedicated stack experience dialog
+
+### AI
+
+* Fixed MMAI walking into moat without attacking during sieges
+* Reworked Battle AI spellcasting logic to improve performance
+* Improved Batle AI targeting selection for spells like Inferno
+* Battle AI is now less likely to cast spells like Firewall and Force Field
+
+### Launcher
+
+* Fixed bug where it was not possible to enable installed mod if mod version available in repository is not compatible with local version of VCMI
+* Fixed display of mod descriptions containing HTML tags
+* Launcher will now correctly preserve state of submods when updating a mod
+* Heroes 3 installed using Ubisoft Launcher will now be correctly detected on first launch
+* Mod search filter now also looks up untranslated mod name
+* Added option to extract Content.zip from downloaded mods on install
+* Fixed local server port always resetting to 3030 on starting Launcher
+
+### Map Editor
+
+* Fixed crash on clicking on random artifacts
+* Added UI for configuring disposed heroes
+
+### Lobby
+
+* Added basic public API functionality available at <https://api.vcmi.eu>
+
+### Modding
+
+* `combatCastEvent` now correctly activates for units with move-and-cast ability
+* `canCastOnlyOnSelf` spell flag no longer also allows targeting corpses
+* It is now possible to configure number of days in a week and number of weeks in a month
+* Added new adventure spell type, `reinforcements` that implements spell with same name from newer HoMM games
+* Bonuses with `UNTIL_BEING_ATTACKED` duration are now removed after counter-attack
+* Game will now generate background for recruitment dialog for 4-6 creatures
+* Added `--translate-mod` switch to VCMI server that correctly exports all texts for all submods, taking into account any string overrides
+* Added `LONG_WEAPON`bonus that allows unit to perform a melee attack from two hexes away if there is exactly one empty hex between attacker and target
+* Added autogenerated UI for university-like buildings with up to 7 skills for select
+
+## 1.7.2 -> 1.7.3
+
+### Stability
+
+* Fixed crash on Master Genie spellcasting attempts
+* Fixed random crash on startup due to preloading of .def assets
+* Fixed crash when attempting to start HotA 1.8 map while having older version of HotA mod active
+* Fixed crash on switching to or from fullscreen mode while rebinding spell for quick spell panel in combat
+* Fixed crash on invalid string in creature recruitment title
+* Fixed crash on Heroes Chronicles import failure on iOS
+* Fixed crash on starting Deus Ex Machina scenario of Forged of Fire campaign from HotA
+* Fixed crash on removing boat of a hero that starts map on water in HotA maps
+* Fixed crash on Linux on attempt to use middle mouse in the backpack
+* Fixed rare crash on opening custom campaigns map list while player has multiple mods active
+* Fixed rare crash on mod conflict detection testing
+* Fixed rare crash on closing of video playback
+* Fixed rare crash on updating minimap view
+* Fixed possible crash caused by gamestate corruption after losing battle against neutral
+* Fixed freeze on AI turn on systems with small number of CPU cores
+* Fixed rare freeze on finishing scenario in a campaign during AI turn
+* Fixed inability to proceed in "Long Live the King" campaign if Unearthed Graves are selected as starting bonus in second scenario
+* Fixed inability to load 1.6 saves that were made when player has active quests
+* Fix possible crash on shutdown if game is closed with sounds still playing
+* Fix crash on closing game window while there is commander levelup dialog open
+* Fix crash on entering into combat with MMAI library selected but without MMAI mod
+
+### Mechanics
+
+* Advanced Town Portal now costs 300 movement points, in line with H3
+* Cursed Ground now only cancels positive morale and does not affectes negative morale
+* Fixed regression of SPELLCASTER bonus, such as Archangel Resurrection ability not working properly
+* Reduced chance of Wyvern Monarch Poison from 50% to 30%, in line with H3
+
+### Interface
+
+* Fixed right-click popup descriptions for Fountain of Youth, Oasis, and Watering Hole
+* Fixed right-click popup and tooltip for "Search Map Object" button
+* Touch scrolling now works correctly in artifacts backpack
+* Added Ctrl+Alt+mouse click as recruitment shortcut for creature dwelling icons in town screen
+* Starting creatures, starting resources and primary skill bonuses in campaigns now show granted amount on icon in bonus selection menu
+* Luna Fire Wall tooltip now correctly accounts for her specialty
+* Commander abilities on levelup now correctly show their descriptions
+
+### Launcher
+
+* Added new mod screenshot viewer
+* Fixed regression that caused importing of offline backup installer to fail on some Android systems
+* Mod description and changelog will no longer automatically scroll to the very end on loading
+* Added mod uninstall confirmation to prevent unintentional mod uninstalling
+* On Android Launcher now uses immersive fullscreen mode to use all available screen space
+
+### Modding
+
+* Game will no longer report adventure map animation as missing if only .json for that animation exists
+* Game will no longer report files that are present in parent mod as missing when validation submod of a submod
+* It is now possibly to define mines for mod resources in RMG zone configuration without dependency on mod that provides the resource
+* Spell mastery is now correctly loaded from config for `ON_COMBAT_EVENT` bonus
+
+## 1.7.1 -> 1.7.2
+
+### Key Changes
+
+* Added improved first launch UI in Launcher
+* Significantly improved performance of Nullkiller2 AI
+* Significant improvements to decision-making of Nullkiller2 AI
+* Added support for HotA 1.8 maps
+* Improved support for HotA 1.7 maps
+* Added support for most of new creature abilities from HotA 1.8
+* It is now possible to load a save made with different configuration of submods
+* Added optional Discord integration on Windows, Linux and arm-based MacOS systems
+* Added support for Dutch, Filipino, Serbian and Latvian translations
+* Fixed freezes on hero movement when playing on large maps
+* Disabled save before visits by default to avoid freezes on large maps
+* Implemented discovery of running VCMI server in local network
+
+### Stability
+
+* Fixed crash on enemy hero going into fog of war while simultaneous turns are active in multiplayer
+* Fixed poor performance when FPS/battery overlay is active
+* Fixed possible crash if unit has movement speed below zero
+* Fixed crash on starting map with prebuilt Battle Scholar Academy when commanders are enabled
+* Fixed strange bugs on using quick load option, such as crash on opening puzzle map or empty tavern
+
+### Mechanics
+
+* Fixed Grail in Castle not providing any effects
+* Reworked spell research logic to be more in line with expectations from this feature
+* Fixed heroes receiving guaranteed skills (Wisdom or magic schools) twice more often than in H3
+* Added option to block retreat after casting spell on 1st combat round, disabled by default
+* Implemented `vcmigrail` cheat that gives Grail, added support for cheat to build everything other than Grail in town
+* Fixed behavior of subterranean gates on maps with more than 2 layers
+* Battle-only mode now always runs without commanders, even if corresponding mod is active
+* Added possibilty to define new map layers types
+* It is now possible to limit battlefield to specific map layers
+* Fixed bug allowing to gain more than 8 skills when receiving skills from Pandora Box
+* Sphere of Permanence now correctly blocks mass Dispell as well as Dragonfly Dispell Helpful
+* It is now possible to disable Tactics using button in hero window
+* Combined artifacts now have proper cost for selling them in artifacts merchant instead of 1 gold
+* Revisiting Crypt, Derelict Ship or Shipwreck will no longer apply morale debuff twice
+* Derelict Ship is now visited by hero moving on top of it, in line with H3
+
+### Interface
+
+* New or changed shortcuts bindings are now applied immediately and not after restart
+* Fixed wrong audio selected for some scenarios of campaigns from original H3
+* Timer UI now shows remaining movement points percentage of all players and they in-game status
+* Fixed battle turn queue advancing to next unit after high morale or casting spell without skipping turn
+* Right-click on object name in search object dialog will now show minimap with all locations of targeted object
+* Units in combat will now turn towards target when casting a spell
+* If player has only 1 town and a town is currently selected, then next town hotkey should center adventure map on current town
+* Map preview will now display all layers on maps with more than 2 layers
+* Creature window title now shows whether commander is alive
+* Campaign prolog or epilog video will now play entirely before progressing if no key is pressed
+* Pressing Esc will now close open backpack window
+* Fixed Mana Whirlpool animation to correctly account for Mage Guild presence
+* Added more informative tooltips for right-click popups of campaign starting bonuses
+* Implemented notifications for receiving resources from another player
+* Added "save was successful" message on saving the game
+
+### Map Format
+
+* Added support for HotA 1.8.0 maps
+* Pandoras or map events can now grant movement points
+* Pandoras or map events can now specify map difficulties on which these objects are present
+* Timed events and town events can now specify map difficulties on which these objects are present
+* Creature banks now support selection of difficulty preset (number of guards/reward) instead of random-selection
+* Wandering monsters: exact aggression setting, join percentage and joins only for money properties are now supported
+* Wandering monsters presence of upgraded stack can now be configured in map
+* Pyramid can now grant specific spell configured in map
+* Campfire, Wagon and Lean-to, Treasure Chest, Corpse, Sea Chest, Flotsam, Tree of Knowledge can now grant specific reward instead of randomly selected one
+* Treasure Chest, Corpse, Warrior's Tomb, Shipwreck Survivor and Sea Chest can now grant specific artifact configured in map
+* HotA objects (Grave, Ancient Lamp, Sea Barrel, Trapper Lodge) can now grant specific reward instead of randomly selected one
+* Custom guards are now supported for Abandoned Mines
+
+### Random Map Generator
+
+* Added support for required objects for zone in RMG map template zone configuration
+* Fixed RMG generating duplicated portals resulting in more than 2 exits
+* Fixed RMG picking template that is allowed for all land terrains as most-specific for terrain instead of actual terrain-specific template
+
+### Adventure Map AI
+
+* Significantly improved performance of Nullkiller2 AI
+* Fixed possible crash of the entire AI player's turn, especially later in the game
+* Fix multiple multi-thread issues in chain calculation, which was more prone to happen if had more vCPUs.
+* Fix safe attack ratio calculation to be consistent as in all other places
+* Encourage higher battle strength by allowing only 1 / owned town in the first 3 weeks (21 days).
+* Global number of main heroes improved to: 1/town + biggerMapFactor (after 3w), total not allowed over 2/town.
+* Deactivate StayAtTownBehavior because it was keeping some heroes on the spot pointless.
+* Deactivate reduction to ScanDepth:SMALL because AI suffers from lack of capability, no point to make it dumber and make it miss actions on purpose.
+* Improved consistency in how movement and route efficiency are calculated for all cases
+* Added significant priority bonus for proximity and significant penalty for being further away
+* Introduced ESCAPE strategy when overwhelmed and surrounded or ended up in a corner and enemy came nearby
+* Improved hero army exchange and gather army logic
+* Encourage fights, artifacts, skills and exploration with fights for MAINs
+* Encourage groundwork for SCOUTs
+* Merged exploration with gathering in order to combine them better and make a more human-like behavior
+* An overall rebalance of priorities for most of the actions the AI can do within a turn.
+* An overall rebalance of nk2ai-settings.json to make it stronger based on the latest improvements.
+
+### Combat AI
+
+* Fixed bug that caused MMAI to move to enemy without attacking it in some cases
+* MMAI will no longer attempt to unnecessarily retreat
+* MMAI will now view Clones as more valuable targets and focus on eliminating them
+
+### Launcher
+
+* Added Heroes 3 data import overlay with progress bar
+* Added Tides of Wars to recommended mods
+* Added Fallen of the Depth to recommended mods (will be activated after mod release)
+* Side button panel is now hidden during first launch
+* Copy existing files option should now work in all scenarios such as spaces or scpecial character in folder name
+* Importing GOG files option is now the first one
+* Added Fail-Fast for EXE / BIN selection. EXE is now choosed first to perform required checks
+* Moved updated button to left from uninstall button to prevent misclicks
+
+### Map Editor
+
+* Fixed inability to pick objects for events on layers lower than 2nd
+* Fixed export of entire map not actually exporting full map
+* Added drag-and-drop support to map editor
+* Fixed numerous bugs with random map template editor
+
+### Modding
+
+* Added support for `compatibilityIdentifers` field for all game entities to ease migration of saves and map to new mod versions
+* Fixed handling of multiple json array modifications via `append` or `appendItems`
+* It is now possible to provide `description.md` file with detailed description of mod in Markdown format
+* Implemented ON_COMBAT_EVENT bonus that allows to add bonus or cast spell on various unit actions
+* Implemented ADJACENT_SPELLCASTER bonus that causes unit to move towards target before casting the spell
+* Implemented UNIT_ADJACENT limiter to support aura-like effects or unit synergies
+* Implemented UNIT_DEFENDING bonus and limiter to allow abilities that grant bonuses while defending
+* Implemented CPU_CONTROLLED bonus for units that are by default controlled by AI, such as war machines
+* Implemented MARKETPLACE_ACCESS bonus that defines cost of resource trade in town marketplaces
+* Implemented DEITYOFFIRE bonus that provides configurable version of Inferno Grail
+* Bonus NEGATIVE_EFFECTS_IMMUNITY now supports `spellShool.any`
+* Short form of secondary skill specialties now works with skills that have bonuses with propagators
+* It is now possible to use multiple propagators on the same bonus using json array
+* Added `persistent` flag to spells that can't be dispelled with dispel effect
+* Level updater now correctly works with negative value
+* `stacking` field in bonuses now selects bonus with largest absolute value, ignoring sign
+* Fixed loading of heroes and hero classes in rewardable objects config
+* Fixed HAS_ANOTHER_BONUS_LIMITER not behaving as expected when used to check for flying, non-teleporting units
+* HAS_ANOTHER_BONUS_LIMITER now supports testing for bonus range using `bonusMinValue` and `bonusMaxValue` keys
+* Added support for external translations for .vmap's
+* It is now possible to use spells with Teleport or Sacrifice effects for creature spells
+* Bonuses with STACK_GETS_TURN duration will no longer expire on casting spell without spending turn
+* Added support for movement points limiters and rewards in configurable map objects
+* Fixed potential double-apply of TIMES_STACK_SIZE updater
+* `/translate` command now shows path with extracted files
+
+## 1.7.0 -> 1.7.1
+
+### Stability
+
+* Fixed game state corruption on loading save made in 1.6 in 1.7 version
+* Fixed possible crash on mod install on some systems
+* Fixed rare crash when mod with not loaded dependency is incorrectly added to load list
+* Fixed crash on loading saves made with same set but different load order of mods
+* Fixed picked up artifacts turning into Spell Books on maps in .vmap format
+* Fixed possible crash on invalid OPENING_BATTLE_SPELL bonus
+* Fixed possible crash on invalid SUMMON_GUARDIANS bonus
+* Fixed crash on adding large number of spells to hero in battle-only mode
+* Fixed crash on rearranging troops in some cases in multiplayer
+* Fixed possible crash on AI shutdown
+* Avoid crash and display error message on failure to install mod after opening screenshot tab during mod download on some systems
+* Fixed desynchronization between client and server caused by temporary artifacts generated during AI turn
+* Fixed rare crash on having growing artifacts in inventory in the same time as having expired charging artifact
+
+### Mechanics
+
+* Fixed randomization of damage range when unit can kill whole unit stack at max damage
+
+### Interface
+
+* Added support for generating screenshots in-game. By default this action is bound to F3 hotkey
+* It is now possible to abort selection of a campaign set after pressing button to open list of campaign sets
+* Fixed HD assets incorrectly used for .def files of mods if file names inside .def clash with H3 filenames
+* Disabled black bars that were present on iOS on both sides of the screen to avoid areas with camera notch and rounded corners
+
+### AI
+
+* Removed map hack from Nullkiller2 AI
+* Adjusted Nullkiller2 AI settings to improve performance
+* Fixes an issue where fallback from MMAI to BattleAI was not correctly triggered.
+* Fixed handling of battles with over 20 units present by MMAI
+* Improved performance of MMAI by up to 50%
+
+### Launcher
+
+* Fixed reset of AI settings on opening Launcher. AI settings will be reset to default for all players
+* Added option to disable before visit saves
+* Fixed not visible star in mod list title on some systems
+
+### Map Editor
+
+* Fixed saving of customized map object parameters for RMG in template editor
+* Fixed bug that made it impossible to select gold as reward for Seer Hut
+* Fixed passability overlay not visible on 3rd and later layers
+* Fixed several cases of broken layout in map editor
+
 ## 1.6.8 -> 1.7.0
 
 ### Key Changes

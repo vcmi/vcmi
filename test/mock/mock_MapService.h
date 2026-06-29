@@ -30,7 +30,7 @@ public:
 	MapServiceMock(const std::string & path, MapListener * mapListener_);
 
 	std::unique_ptr<CMap> loadMap(const ResourcePath & name, IGameInfoCallback * cb) const override;
-	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourcePath & name, bool isEditor = false) const override;
 	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 
@@ -40,7 +40,7 @@ public:
 private:
 	mutable CMemoryBuffer initialBuffer;
 
-	std::unique_ptr<CMap> loadMap() const;
+	std::unique_ptr<CMap> loadMap(IGameInfoCallback * cb) const;
 
 	void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename);
 };

@@ -18,6 +18,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -149,6 +150,11 @@ void BattleFlowProcessor::trySummonGuardians(const CBattleInfoCallback & battle,
 	std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(BonusType::SUMMON_GUARDIANS));
 	auto accessibility = battle.getAccessibility();
 	CreatureID creatureData = summonInfo->subtype.as<CreatureID>();
+	if (!creatureData.hasValue())
+	{
+		logGlobal->error("Unable to summon guardians - bonus SUMMON_GUARDIANS has invalid creature ID!");
+		return;
+	}
 	BattleHexArray targetHexes;
 	const bool targetIsBig = stack->unitType()->isDoubleWide(); //target = creature to guard
 	const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
@@ -203,10 +209,16 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 		{
 			spells::BonusCaster caster(h, b);
 
-			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
+			SpellID spellID = b->subtype.as<SpellID>();
+			if (!spellID.hasValue())
+			{
+				logGlobal->error("unable to cast spell - OPENING_BATTLE_SPELL has invalid spell set!");
+				continue;
+			}
+			const CSpell * spell = spellID.toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			int32_t spellLevel = b->additionalInfo != CAddInfo::NONE ? b->additionalInfo[0] : 3;
+			int32_t spellLevel = b->parameters ? b->parameters->toNumber() : 3;
 			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
 			parameters.massive = true;
@@ -349,7 +361,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	if(tryActivateBerserkPenalty(battle, next))
 		return true;
 
-	if(tryAutomaticActionOfWarMachines(battle, next))
+	if(handleForcedCpuControlledUnit(battle, next))
 		return true;
 
 	stackTurnTrigger(battle, next); //various effects
@@ -425,9 +437,12 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 	return false;
 }
 
-bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * next)
+bool BattleFlowProcessor::handleForcedCpuControlledUnit(const CBattleInfoCallback & battle, const CStack * next)
 {
-	if (tryMakeAutomaticActionOfBallistaOrTowers(battle, next))
+	if (tryMakeAutomaticActionOfRangedUnit(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfMeleeUnit(battle, next))
 		return true;
 
 	if (tryMakeAutomaticActionOfCatapult(battle, next))
@@ -439,15 +454,14 @@ bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallb
 	return false;
 }
 
-bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * next)
+bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCallback & battle, const CStack * next) //TODO: optimize readability based on tryMakeAutomaticActionOfMeleeUnit
 {
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
-	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
+	if (next->hasBonusOfType(BonusType::CPU_CONTROLLED) && (battle.battleCanShoot(next) || !next->isMeleeAttacker())
 		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
-
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
 		attack.side = next->unitSide();
@@ -464,7 +478,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			bool canAttackNextTurn;
 			bool isParalyzed;
 			bool isMachine;
-			float towerAttackValue;
+			double towerAttackValue;
 			const CStack * stack;
 		};
 
@@ -476,7 +490,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			auto units = battle.battleAliveUnits();
 			auto availableHexes = battle.battleGetAvailableHexes(unit, true);
 
-			for (auto otherUnit : units)
+			for (const auto * otherUnit : units)
 			{
 				if (battle.battleCanAttackUnit(unit, otherUnit))
 					for (auto position : otherUnit->getHexes())
@@ -488,25 +502,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			return false;
 		};
 
-		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)
-		{
-			float unitValue = static_cast<float>(unit->unitType()->getAIValue());
-			float singleHpValue = unitValue / static_cast<float>(unit->getMaxHealth());
-			float fullHp = static_cast<float>(unit->getTotalHealth());
-
-			int distance = BattleHex::getDistance(next->getPosition(), unit->getPosition());
-			BattleAttackInfo attackInfo(next, unit, distance, true);
-			DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
-			float avgDmg = (static_cast<float>(estimation.damage.max) + static_cast<float>(estimation.damage.min)) / 2;
-			float realAvgDmg = avgDmg > fullHp ? fullHp : avgDmg;
-			float avgUnitKilled = (static_cast<float>(estimation.kills.max) + static_cast<float>(estimation.kills.min)) / 2;
-			float dmgValue = realAvgDmg * singleHpValue;
-			float killValue = avgUnitKilled * unitValue;
-
-			return dmgValue + killValue;
-		};
-
-		std::vector<TargetInfo>targetsInfo;
+		std::vector<TargetInfo> targetsInfo;
 
 		for (const CStack * possibleTarget : possibleTargets)
 		{
@@ -518,7 +514,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 				getCanAttackNextTurn(possibleTarget),
 				isParalyzed,
 				isMachine,
-				getTowerAttackValue(possibleTarget),
+				calculateTowerAttackValue(battle, next, possibleTarget),
 				possibleTarget
 			};
 			targetsInfo.push_back(targetInfo);
@@ -561,6 +557,122 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 		return true;
 	}
 	return false;
+}
+
+bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCallback & battle, const CStack * actingStack)
+{
+	struct TargetInfo
+	{
+		bool isMachine = false;
+		bool isParalyzed = false;
+		bool isReachable = false;
+		BattleHex attackableFromHex = BattleHex::INVALID;
+		double attackValue = -1.0;
+		const CStack * stack = nullptr;
+
+		bool isBetterThan(const TargetInfo & other) const
+		{
+			if (isParalyzed != other.isParalyzed) return isParalyzed < other.isParalyzed;
+			if (isMachine != other.isMachine) return isMachine < other.isMachine;
+			if (isReachable != other.isReachable) return isReachable > other.isReachable;
+			return attackValue > other.attackValue;
+		}
+	};
+
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(actingStack);
+	const CreatureID stackCreatureId = actingStack->unitType()->getId();
+
+	if (!actingStack->hasBonusOfType(BonusType::CPU_CONTROLLED) || battle.battleCanShoot(actingStack))
+		return false;
+
+	if (curOwner && gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
+		return false;
+
+	ReachabilityInfo reachabilityCache = battle.getReachability(actingStack);
+
+	const TStacks possibleTargets = battle.battleGetStacksIf([&actingStack, &battle](const CStack * s)
+	{
+		return s->unitOwner() != actingStack->unitOwner() && s->isValidTarget()
+		&& (!battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange())
+		|| (battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange()) && !s->getAttackableHexes(actingStack).empty()));
+	});
+
+	TargetInfo bestTarget;
+
+	for (const CStack * possibleTarget : possibleTargets)
+	{
+		bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+		bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
+
+		BattleHexArray attackableHexes;
+		const auto availableHexes = battle.battleGetAvailableHexes(reachabilityCache, actingStack, true);
+
+		for(const BattleHex & targetHex : possibleTarget->getHexes())
+		{
+			for(int direction = 0; direction < 8; ++direction)
+			{
+				auto directionEnum = static_cast<BattleHex::EDir>(direction);
+				if(!battle.battleCanAttackHex(availableHexes, actingStack, targetHex, directionEnum))
+					continue;
+
+				BattleHex attackFromHex = battle.fromWhichHexAttack(actingStack, targetHex, directionEnum);
+				if(availableHexes.contains(attackFromHex))
+					attackableHexes.insert(attackFromHex);
+			}
+		}
+
+		bool isReachable = !attackableHexes.empty();
+		if(!isReachable)
+			continue;
+
+		BattleHex closestTargetAdjacentHex = boost::min_element(attackableHexes, [&reachabilityCache](const BattleHex & lhs, const BattleHex & rhs)
+		{
+			return reachabilityCache.distances[lhs.toInt()] < reachabilityCache.distances[rhs.toInt()];
+		})[0];
+
+		TargetInfo currentTarget =
+		{
+			isMachine,
+			isParalyzed,
+			isReachable,
+			closestTargetAdjacentHex,
+			calculateTowerAttackValue(battle, actingStack, possibleTarget),
+			possibleTarget
+		};
+
+		if (!bestTarget.stack || currentTarget.isBetterThan(bestTarget))
+			bestTarget = currentTarget;
+	}
+
+	if(!bestTarget.stack)
+	{
+		makeStackDoNothing(battle, actingStack);
+	}
+	else
+	{
+		if(bestTarget.isReachable)
+		{
+			BattleAction meleeAttack = BattleAction::makeMeleeAttack(actingStack, bestTarget.stack, bestTarget.attackableFromHex);
+			makeAutomaticAction(battle, actingStack, meleeAttack);
+		}
+		else if(actingStack->getMovementRange() > 0)
+		{
+			BattleHex intermediaryHex = battle.getClosestHexToTargetInRange(reachabilityCache, *actingStack, bestTarget.attackableFromHex);
+			if(intermediaryHex == BattleHex::INVALID)
+			{
+				makeStackDoNothing(battle, actingStack);
+			}
+
+			BattleAction moveAction = BattleAction::makeMove(actingStack, intermediaryHex);
+			makeAutomaticAction(battle, actingStack, moveAction);
+		}
+		else
+		{
+			makeStackDoNothing(battle, actingStack);
+		}
+	}
+
+	return true;
 }
 
 bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next)
@@ -800,9 +912,9 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 
 			for (const auto & b : bl)
 			{
-				if(b->additionalInfo != CAddInfo::NONE)
+				if(b->parameters)
 				{
-					const CStack * stack = battle.battleGetStackByID(b->additionalInfo[0]); //binding stack must be alive and adjacent
+					const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
 					if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
 						unbind = false;
 				}
@@ -881,7 +993,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->additionalInfo[0] != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -892,7 +1004,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->additionalInfo[0];
+					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;
@@ -918,4 +1030,21 @@ void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, con
 	sas.stack = stack->unitId();
 	sas.reason = reason;
 	gameHandler->sendAndApply(sas);
+}
+
+double BattleFlowProcessor::calculateTowerAttackValue(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * target) const
+{
+	double unitValue = target->unitType()->getAIValue();
+	double singleHpValue = unitValue / static_cast<double>(target->getMaxHealth());
+	double fullHp = static_cast<double>(target->getTotalHealth());
+
+	int distance = BattleHex::getDistance(attacker->getPosition(), target->getPosition());
+	BattleAttackInfo attackInfo(attacker, target, distance, attacker->isShooter());
+	DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
+
+	double avgDmg = (static_cast<double>(estimation.damage.max) + static_cast<double>(estimation.damage.min)) / 2.0;
+	double realAvgDmg = std::min(fullHp, avgDmg);
+	double avgUnitKilled = (static_cast<double>(estimation.kills.max) + static_cast<double>(estimation.kills.min)) / 2.0;
+
+	return (realAvgDmg * singleHpValue) + (avgUnitKilled * unitValue);
 }

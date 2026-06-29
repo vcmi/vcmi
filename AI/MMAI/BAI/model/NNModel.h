@@ -39,13 +39,14 @@ private:
 	Schema::Side side;
 
 	std::mt19937 rng;
-	Vec3D<int32_t> bucketSizes;
 	Vec3D<int32_t> actionTable;
 
 	// AllocatedStringPtrs manage the string lifetime
 	// but names passed to model.Run must be const char*
 	std::vector<Ort::AllocatedStringPtr> inputNamePtrs;
 	std::vector<Ort::AllocatedStringPtr> outputNamePtrs;
+	Vec3D<int32_t> bucketSizes;
+	bool isDynamic;
 	std::vector<const char *> inputNames;
 	std::vector<const char *> outputNames;
 
@@ -53,7 +54,7 @@ private:
 	Ort::AllocatorWithDefaultOptions allocator;
 	Ort::MemoryInfo meminfo;
 
-	std::pair<std::vector<Ort::Value>, int> prepareInputsV13(const MMAI::Schema::IState * state, const MMAI::Schema::V13::ISupplementaryData * sup);
+	std::vector<Ort::Value> prepareInputsV13(const MMAI::Schema::IState * state, const MMAI::Schema::V13::ISupplementaryData * sup);
 
 	template<typename T>
 	Ort::Value toTensor(const std::string & name, std::vector<T> & vec, const std::vector<int64_t> & shape);
@@ -63,7 +64,8 @@ private:
 	Schema::Side readSide(const Ort::ModelMetadata & md) const;
 	Vec3D<int32_t> readBucketSizes(const Ort::ModelMetadata & md) const;
 	Vec3D<int32_t> readActionTable(const Ort::ModelMetadata & md) const;
-	std::vector<const char *> readInputNames();
+	bool readIsDynamic(const Ort::ModelMetadata & md) const;
+	std::vector<const char *> readInputNames(int want);
 	std::vector<const char *> readOutputNames();
 };
 

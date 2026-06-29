@@ -48,9 +48,11 @@ private slots:
 	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
 	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
+	void on_buttonSaveBeforeVisit_toggled(bool value);
 	void on_buttonShowIntro_toggled(bool value);
 	void on_buttonAllowPortrait_toggled(bool value);
 	void on_buttonAutoCheck_toggled(bool value);
+	void on_buttonFullModExtraction_toggled(bool value);
 	void on_comboBoxDisplayIndex_currentIndexChanged(int index);
 	void on_buttonAutoSave_toggled(bool value);
 	void on_comboBoxLanguage_currentIndexChanged(int index);
@@ -99,6 +101,7 @@ private slots:
 	void on_buttonScalingAuto_toggled(bool checked);
 	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
 	void on_buttonIgnoreMuteSwitch_toggled(bool checked);
+	void on_buttonEnableDiscordRichPresence_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

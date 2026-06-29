@@ -39,7 +39,7 @@ public:
 	std::string getMountPoint() const override;
 	bool createResource(const std::string & filename, bool update = false) override;
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
-	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
+	void updateFilteredFiles(std::function<bool(const std::string &)> filter) override;
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	std::string getFullFileURI(const ResourcePath& resourceName) const override;
 	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
@@ -48,6 +48,7 @@ private:
 	/** The base directory which is scanned and indexed. */
 	boost::filesystem::path baseDirectory;
 
+	mutable std::mutex fileListGuard;
 	std::string mountPoint;
 	
 	size_t recursiveDepth;
@@ -56,7 +57,7 @@ private:
 	 * key = ResourcePath for resource loader
 	 * value = name that can be used to access file
 	*/
-	mutable std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
+	std::unordered_map<ResourcePath, boost::filesystem::path> fileList;
 
 	/**
 	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.

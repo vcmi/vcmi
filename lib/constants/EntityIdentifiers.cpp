@@ -48,6 +48,7 @@
 #include "RoadHandler.h"
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
+#include "MapLayerHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -118,6 +119,11 @@ const RoadId RoadId::NO_ROAD(0);
 const RoadId RoadId::DIRT_ROAD(1);
 const RoadId RoadId::GRAVEL_ROAD(2);
 const RoadId RoadId::COBBLESTONE_ROAD(3);
+
+const MapLayerId MapLayerId::NONE(-1);
+const MapLayerId MapLayerId::SURFACE(0);
+const MapLayerId MapLayerId::UNDERGROUND(1);
+const MapLayerId MapLayerId::UNKNOWN(2);
 
 namespace GameConstants
 {
@@ -589,6 +595,31 @@ std::string RiverId::entityType()
 	return "river";
 }
 
+si32 MapLayerId::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return MapLayerId::NONE.getNum();
+
+	return resolveIdentifier(entityType(), identifier);
+}
+
+std::string MapLayerId::encode(const si32 index)
+{
+	if (index == MapLayerId::NONE.getNum())
+		return "";
+	return LIBRARY->mapLayerHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string MapLayerId::entityType()
+{
+	return "mapLayer";
+}
+
+const MapLayerType * MapLayerId::toEntity(const Services * services) const
+{
+	return LIBRARY->mapLayerHandler->getByIndex(num);
+}
+
 const TerrainType * TerrainId::toEntity(const Services * service) const
 {
 	return LIBRARY->terrainTypeHandler->getByIndex(num);
@@ -702,6 +733,11 @@ std::string BuildingID::encode(int32_t index)
 si32 BuildingID::decode(const std::string & identifier)
 {
 	return std::stoi(identifier);
+}
+
+bool MapObjectID::isRandomArtifact(MapObjectBaseID id)
+{
+	return id == RANDOM_ART || id == RANDOM_TREASURE_ART || id == RANDOM_MINOR_ART || id == RANDOM_MAJOR_ART || id == RANDOM_RELIC_ART;
 }
 
 VCMI_LIB_NAMESPACE_END

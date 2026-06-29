@@ -264,6 +264,12 @@ bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
 	return true;
 }
 
+bool BattleSpellMechanics::canBeCastAt(const Target & target) const
+{
+	spells::detail::ProblemImpl ignore;
+	return canBeCastAt(target, ignore);
+}
+
 bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
 	if(!canBeCast(problem))
@@ -295,7 +301,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 	}
 	else if(getSpell()->canCastOnlyOnSelf())
 	{
-		if(mainTarget && mainTarget != caster)
+		if(!mainTarget || mainTarget != caster)
 			return false; // can't cast on others
 	}
 
@@ -672,89 +678,6 @@ std::vector<AimType> BattleSpellMechanics::getTargetTypes() const
 			e->adjustTargetTypes(ret);
 			stop = ret.empty();
 		});
-	}
-
-	return ret;
-}
-
-std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast) const
-{
-	//TODO: BattleSpellMechanics::getPossibleDestinations
-
-	if(index != 0)
-		return std::vector<Destination>();
-
-	std::vector<Destination> ret;
-
-	switch(aimType)
-	{
-	case AimType::CREATURE:
-	{
-		auto stacks = battle()->battleGetAllStacks();
-
-		for(auto stack : stacks)
-		{
-			Target tmp = current;
-			tmp.emplace_back(stack->getPosition());
-
-			detail::ProblemImpl ignored;
-
-			if(canBeCastAt(tmp, ignored))
-				ret.emplace_back(stack->getPosition());
-		}
-
-		break;
-	}
-
-	case AimType::LOCATION:
-		if(fast)
-		{
-			auto stacks = battle()->battleGetAllStacks();
-			BattleHexArray hexesToCheck;
-
-			for(auto stack : stacks)
-			{
-				hexesToCheck.insert(stack->getPosition());
-				hexesToCheck.insert(stack->getPosition().getNeighbouringTiles());
-			}
-
-			for(const auto & hex : hexesToCheck)
-			{
-				if(hex.isAvailable())
-				{
-					Target tmp = current;
-					tmp.emplace_back(hex);
-
-					detail::ProblemImpl ignored;
-
-					if(canBeCastAt(tmp, ignored))
-						ret.emplace_back(hex);
-				}
-			}
-		}
-		else
-		{
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-			{
-				BattleHex dest(i);
-				if(dest.isAvailable())
-				{
-					Target tmp = current;
-					tmp.emplace_back(dest);
-
-					detail::ProblemImpl ignored;
-
-					if(canBeCastAt(tmp, ignored))
-						ret.emplace_back(dest);
-				}
-			}
-		}
-		break;
-	case AimType::NO_TARGET:
-		ret.emplace_back();
-		break;
-	default:
-		break;
 	}
 
 	return ret;

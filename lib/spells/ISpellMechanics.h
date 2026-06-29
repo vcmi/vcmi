@@ -31,6 +31,7 @@ class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
 class IAdventureSpellEffect;
+class MetaString;
 
 namespace spells
 {
@@ -65,6 +66,7 @@ public:
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
 	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
@@ -144,8 +146,6 @@ public:
 	///cast with silent check for permitted cast
 	bool castIfPossible(ServerCallback * server, Target target);
 
-	std::vector<Target> findPotentialTargets(bool fast = false) const;
-
 private:
 	///spell school level
 	OptionalValue magicSkillLevel;
@@ -210,6 +210,7 @@ public:
 	virtual std::vector<const CStack *> getAffectedStacks(const Target & target) const = 0;
 
 	virtual bool canBeCast(Problem & problem) const = 0;
+	virtual bool canBeCastAt(const Target & target) const = 0;
 	virtual bool canBeCastAt(const Target & target, Problem & problem) const = 0;
 
 	virtual void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const = 0;
@@ -222,8 +223,6 @@ public:
 	virtual bool wouldResist(const battle::Unit * target) const = 0;
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
-
-	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current, bool fast = false) const = 0;
 
 	virtual const Spell * getSpell() const = 0;
 
@@ -252,6 +251,7 @@ public:
 
 	virtual bool isNegativeSpell() const = 0;
 	virtual bool isPositiveSpell() const = 0;
+	virtual bool isNeutralSpell() const = 0;
 	virtual bool isMagicalEffect() const = 0;
 
 	virtual int64_t adjustEffectValue(const battle::Unit * target) const = 0;
@@ -311,6 +311,7 @@ public:
 
 	bool isNegativeSpell() const override;
 	bool isPositiveSpell() const override;
+	bool isNeutralSpell() const override;
 	bool isMagicalEffect() const override;
 
 	int64_t adjustEffectValue(const battle::Unit * target) const override;

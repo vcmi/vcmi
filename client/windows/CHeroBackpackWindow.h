@@ -18,14 +18,12 @@ class CHeroBackpackWindow : public CStatusbarWindow, public CWindowWithArtifacts
 public:
 	CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets);
 	void notFocusedClick() override;
+	void keyPressed(EShortcut key) override;
 	
 protected:
 	std::shared_ptr<CArtifactsOfHeroBackpack> arts;
 	std::vector<std::shared_ptr<CButton>> buttons;
-	std::shared_ptr<CFilledTexture> stretchedBackground;
 	const int windowMargin = 5;
-
-	void showAll(Canvas & to) override;
 };
 
 class CHeroQuickBackpackWindow : public CWindowWithArtifacts

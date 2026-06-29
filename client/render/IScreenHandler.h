@@ -58,6 +58,8 @@ public:
 
 	virtual int getScalingFactor() const = 0;
 
+	virtual void screenShot() const = 0;
+
 	/// Window has focus
 	virtual bool hasFocus() = 0;
 

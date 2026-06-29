@@ -18,10 +18,9 @@ namespace Goals
 {
 	class DLL_EXPORT HeroExchange : public CGoal<HeroExchange>
 	{
-	private:
+	public:
 		AIPath exchangePath;
 
-	public:
 		HeroExchange(const CGHeroInstance * targetHero, const AIPath & exchangePath)
 			: CGoal(Goals::HERO_EXCHANGE), exchangePath(exchangePath)
 		{

@@ -171,17 +171,6 @@ bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 
 std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, const BattleID & bid) const
 {
-	// Guard against infinite battles
-	// (print warning once, make only fallback actions from there on)
-	if(getActionTotalCalls == 100)
-		warn("Reached 100 predictions, will fall back to BattleAI until this combat ends");
-
-	if(getActionTotalCalls >= 100)
-	{
-		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
-		return std::make_shared<BattleAction>(evaluator.selectStackAction(astack));
-	}
-
 	if(astack->creatureId() == CreatureID::FIRST_AID_TENT)
 	{
 		const CStack * target = nullptr;
@@ -296,12 +285,42 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 {
 	Base::activeStack(bid, astack);
 
+	try
+	{
+		_activeStack(bid, astack);
+	}
+	catch(const std::exception & e)
+	{
+		error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
+		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
+		return;
+	}
+}
+
+void BAI::_activeStack(const BattleID & bid, const CStack * astack)
+{
 	auto ba = maybeBuildAutoAction(astack, bid);
 
 	if(ba)
 	{
 		info("Making automatic action with %s", astack->getDescription());
 		cb->battleMakeUnitAction(bid, *ba);
+		return;
+	}
+
+	// Guard against infinite battles
+	// (print warning once, make only fallback actions from there on)
+	if(!inFallback && getActionTotalCalls >= 100)
+	{
+		warn("Reached 100 predictions, will fall back to BattleAI until this combat ends");
+		inFallback = true;
+	}
+
+	if(inFallback)
+	{
+		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 		return;
 	}
 
@@ -353,33 +372,27 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 		state->action = std::make_unique<Action>(a, state->battlefield.get(), colorname);
 		debug("(%lld ms) Got action: %d: %s ", dt, a, state->action->name());
 
-		try
-		{
-			ba = buildBattleAction();
+		ba = buildBattleAction();
 
-			if(ba)
+		if(ba && (a != Schema::ACTION_RETREAT || resetting))
+		{
+			debug("Action is VALID: " + state->action->name());
+			errcounter = 0;
+			cb->battleMakeUnitAction(bid, *ba);
+			break;
+		}
+		else
+		{
+			++errcounter;
+			error("Action is INVALID: " + state->action->name());
+			if(errcounter > 10)
 			{
-				debug("Action is VALID: " + state->action->name());
-				errcounter = 0;
-				cb->battleMakeUnitAction(bid, *ba);
+				warn("Got 10 consecutive errors, will fall back to BattleAI until this combat ends");
+				auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+				cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
+				inFallback = true;
 				break;
 			}
-			else
-			{
-				std::cout << Render(state.get(), state->action.get()) << "\n";
-				++errcounter;
-				if(errcounter > 10)
-				{
-					throw std::runtime_error("Received 10 consecutive invalid actions");
-				}
-				error("Action is INVALID: " + state->action->name());
-			}
-		}
-		catch(const std::exception & e)
-		{
-			std::cout << Render(state.get(), state->action.get()) << "\n";
-			std::cout << "FATAL ERROR: " << e.what() << "\n";
-			throw;
 		}
 	}
 }

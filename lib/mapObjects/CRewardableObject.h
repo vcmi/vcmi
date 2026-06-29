@@ -41,6 +41,8 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	
 	std::string getDisplayTextImpl(PlayerColor player, const CGHeroInstance * hero, bool includeDescription) const;
+	std::string getScoutedDescriptionMessage(const CGHeroInstance * hero) const;
+	std::string getGenericDescriptionMessage() const;
 	std::string getDescriptionMessage(PlayerColor player, const CGHeroInstance * hero) const;
 	std::vector<Component> getPopupComponentsImpl(PlayerColor player, const CGHeroInstance * hero) const;
 

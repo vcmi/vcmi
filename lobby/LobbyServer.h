@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/network/NetworkInterface.h"
+#include "../lib/network/NetworkDefines.h"
 #include "LobbyDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_END
 
 class LobbyDatabase;
 
-class LobbyServer final : public INetworkServerListener
+class LobbyServer final : public INetworkServerListener, INetworkTimerListener
 {
 	struct AwaitingProxyState
 	{
@@ -52,6 +52,8 @@ class LobbyServer final : public INetworkServerListener
 	NetworkConnectionPtr findAccount(const std::string & accountID) const;
 	NetworkConnectionPtr findGameRoom(const std::string & gameRoomID) const;
 
+	void onTimer() override;
+
 	void onNewConnection(const NetworkConnectionPtr & connection) override;
 	void onDisconnected(const NetworkConnectionPtr & connection, const std::string & errorMessage) override;
 	void onPacketReceived(const NetworkConnectionPtr & connection, const std::vector<std::byte> & message) override;
@@ -60,6 +62,7 @@ class LobbyServer final : public INetworkServerListener
 
 	void broadcastActiveAccounts();
 	void broadcastActiveGameRooms();
+	void broadcastGameRoomDescription(const std::string & gameRoomID);
 
 	JsonNode prepareActiveGameRooms();
 
@@ -101,4 +104,7 @@ public:
 
 	void start(uint16_t port);
 	void run();
+
+	LobbyDatabase * getDatabase() const;
+	NetworkContext & getNetworkContext();
 };

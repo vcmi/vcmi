@@ -24,12 +24,21 @@ TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 	addPlayer(player);
 }
 
-bool TimerPauseQuery::blocksPack(const CPackForServer *pack) const
+bool TimerPauseQuery::blocksPack(const CPackForServer * pack) const
 {
-	if(dynamic_cast<const SaveGame*>(pack) != nullptr)
+	if(dynamic_cast<const SaveGame *>(pack) != nullptr)
+		return false;
+
+	if(dynamic_cast<const AdvInterfaceReady *>(pack) != nullptr)
 		return false;
 
 	return blockAllButReply(pack);
+}
+
+void TimerPauseQuery::onExposure(QueryPtr topQuery)
+{
+	// do nothing - don't self-pop (base onExposure)
+	// is removed explicitly when the pause ends (timer/handler triggers popQuery)
 }
 
 void TimerPauseQuery::onAdding(PlayerColor color)
@@ -120,6 +129,9 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto formation = dynamic_cast<const SetFormation*>(pack))
 		return !vstd::contains(ourIds, formation->hid);
 
+	if(auto tactics = dynamic_cast<const SetTactics*>(pack))
+		return !vstd::contains(ourIds, tactics->hid);
+
 	return CDialogQuery::blocksPack(pack);
 }
 
@@ -137,9 +149,7 @@ CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectIn
 	addPlayer(bd.player);
 }
 
-OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode):
-	CDialogQuery(owner),
-	mode(mode)
+OpenWindowQuery::OpenWindowQuery(CGameHandler * owner, const CGHeroInstance * hero, EOpenWindowMode mode) : CDialogQuery(owner), mode(mode)
 {
 	addPlayer(hero->getOwner());
 }
@@ -149,7 +159,7 @@ void OpenWindowQuery::onExposure(QueryPtr topQuery)
 	//do nothing - wait for reply
 }
 
-bool OpenWindowQuery::blocksPack(const CPackForServer *pack) const
+bool OpenWindowQuery::blocksPack(const CPackForServer * pack) const
 {
 	if (mode == EOpenWindowMode::RECRUITMENT_FIRST || mode == EOpenWindowMode::RECRUITMENT_ALL)
 	{
@@ -206,8 +216,7 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * vis
 		logGlobal->error("Invalid instance in teleport query");
 }
 
-CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & td):
-	CDialogQuery(owner)
+CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & td) : CDialogQuery(owner)
 {
 	this->td = td;
 	addPlayer(gh->gameInfo().getHero(td.hero)->getOwner());
@@ -227,6 +236,48 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
+void CHeroLevelUpDialogQuery::onAdded(PlayerColor color)
+{
+	if(prompted || answer)
+		return;
+
+	if(owner->topQuery(color).get() != this)
+		return;
+
+	if(!gh->uiReadyForDialogs.contains(color))
+		return;
+
+	prompted = true;
+	hlu.queryID = queryID;
+	gh->sendAndApply(hlu);
+}
+
+void CHeroLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(prompted)
+		return;
+
+	if(answer)
+	{
+		owner->popIfTop(*this);
+		return;
+	}
+
+	for(auto color : players)
+	{
+		if(owner->topQuery(color).get() != this)
+			continue;
+
+		if(!gh->uiReadyForDialogs.contains(color))
+			continue;
+
+		prompted = true;
+		hlu.queryID = queryID;
+		gh->sendAndApply(hlu);
+		break;
+	}
+}
+
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	visitedObject->heroLevelUpDone(*gh, visitingHero);
@@ -244,6 +295,42 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	assert(answer);
 	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
 	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
+}
+
+void CCommanderLevelUpDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(answer)
+	{
+		owner->popIfTop(*this);
+		return;
+	}
+
+	if(prompted)
+		return;
+
+	for(const auto & color : players)
+	{
+		if(owner->topQuery(color).get() == this)
+		{
+			prompted = true;
+			clu.queryID = queryID;
+			gh->sendAndApply(clu);
+			break;
+		}
+	}
+}
+
+void CCommanderLevelUpDialogQuery::onAdded(PlayerColor color)
+{
+	if(prompted || answer)
+		return;
+
+	if(owner->topQuery(color).get() != this)
+		return;
+
+	prompted = true;
+	clu.queryID = queryID;
+	gh->sendAndApply(clu);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const

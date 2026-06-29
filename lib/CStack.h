@@ -23,7 +23,7 @@ struct BattleStackAttacked;
 class BattleInfo;
 
 //Represents STACK_BATTLE nodes
-class DLL_LINKAGE CStack final : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
+class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
 private:
 	ui32 ID = -1; //unique ID of stack
@@ -81,6 +81,7 @@ public:
 	bool doubleWide() const override { return doubleWideCached;};
 
 	std::string getDescription() const override;
+	const BattleInfo * getBattle() const { return battle;}
 
 	bool unitHasAmmoCart(const battle::Unit * unit) const override;
 	PlayerColor unitEffectiveOwner(const battle::Unit * unit) const override;

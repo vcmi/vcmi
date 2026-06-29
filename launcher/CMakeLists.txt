@@ -20,6 +20,7 @@ set(launcher_SRCS
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
+		firstLaunch/progressoverlay.cpp
 		main.cpp
 		helper.cpp
 		innoextract.cpp
@@ -59,6 +60,7 @@ set(launcher_HEADERS
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
+		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
@@ -91,7 +93,8 @@ set(launcher_TS
 	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
-	"${translationsDir}/english.ts"
+	"${translationsDir}/dutch.ts"
+	"${translationsDir}/filipino.ts"
 	"${translationsDir}/finnish.ts"
 	"${translationsDir}/french.ts"
 	"${translationsDir}/german.ts"
@@ -100,11 +103,13 @@ set(launcher_TS
 	"${translationsDir}/italian.ts"
 	"${translationsDir}/japanese.ts"
 	"${translationsDir}/korean.ts"
+	"${translationsDir}/latvian.ts"
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
 	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
+	"${translationsDir}/serbian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"
 	"${translationsDir}/turkish.ts"
@@ -136,7 +141,11 @@ ${rccQmFiles}
 endif()
 
 if(WIN32)
-	set(launcher_ICON VCMI_launcher.rc)
+	set(VCMI_FILE_DESCRIPTION "VCMI Launcher")
+	set(VCMI_ORIGINAL_FILENAME "VCMI_launcher.exe")
+	set(VCMI_ICON_RESOURCE "IDI_ICON1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/VCMI_launcher.ico\"")
+	set(launcher_ICON "${CMAKE_CURRENT_BINARY_DIR}/VCMI_launcher_versioninfo.rc")
+	configure_file("${CMAKE_SOURCE_DIR}/win/WindowsFileInfo.rc.in" "${launcher_ICON}" @ONLY)
 endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
@@ -247,6 +256,10 @@ if(ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
+if(ENABLE_DISCORD)
+	target_compile_definitions(vcmilauncher PRIVATE ENABLE_DISCORD)
+endif()
+
 if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils
@@ -274,8 +287,29 @@ else()
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
 
 	# Install icons and desktop file on Linux
-	if(NOT WIN32 AND NOT APPLE)
-		install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
-		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
+	if(NOT WIN32 AND NOT APPLE AND ENABLE_TRANSLATIONS)
+
+		add_custom_command(
+			TARGET vcmilauncher POST_BUILD
+			COMMAND msgfmt --xml
+			    -d ${CMAKE_CURRENT_SOURCE_DIR}/po/
+				-o ${CMAKE_CURRENT_BINARY_DIR}/eu.vcmi.VCMI.metainfo.xml
+				--template=${CMAKE_CURRENT_SOURCE_DIR}/eu.vcmi.VCMI.metainfo.xml
+				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Translating eu.vcmi.VCMI.metainfo.xml"
+		)
+
+	    add_custom_command(
+			TARGET vcmilauncher POST_BUILD
+			COMMAND msgfmt --desktop
+			    -d ${CMAKE_CURRENT_SOURCE_DIR}/po/
+				-o ${CMAKE_CURRENT_BINARY_DIR}/vcmilauncher.desktop
+				--template=${CMAKE_CURRENT_SOURCE_DIR}/vcmilauncher.desktop
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Translating vcmilauncher.desktop"
+		)
+
+	    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vcmilauncher.desktop" DESTINATION share/applications)
+		install(FILES "${CMAKE_CURRENT_BINARY_DIR}/eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()

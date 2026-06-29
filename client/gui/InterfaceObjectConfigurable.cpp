@@ -413,6 +413,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
 	}
 	loadToggleButtonCallback(button, config["callback"]);
+	loadButtonHotkey(button, config["hotkey"]);
 	return button;
 }
 

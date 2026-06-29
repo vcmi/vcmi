@@ -465,7 +465,16 @@ void CMapGenerator::addHeaderInfo()
 	m.version = EMapFormat::VCMI;
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
-	m.mapLevels = mapGenOptions.getLevels();
+	m.mapLayers.clear();
+	for(int i = 0; i < mapGenOptions.getLevels(); i++)
+	{
+		if(i == 0)
+			m.mapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			m.mapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			m.mapLayers.push_back(MapLayerId::UNKNOWN); //TODO: multilevel support
+	}
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;

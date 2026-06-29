@@ -21,6 +21,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/RecruitHero.h"
 #include "../Markers/DefendTown.h"
+#include "../../lib/IGameSettings.h"
 
 namespace NK2AI
 {
@@ -53,7 +54,7 @@ bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat
 	for(const AIPath & path : paths)
 	{
 		bool threatIsWeak = path.getHeroStrength() / (float)threat.danger > THREAT_IGNORE_RATIO;
-		bool needToSaveGrowth = threat.turn == 0 && dayOfWeek == 7;
+		bool needToSaveGrowth = threat.turn == 0 && dayOfWeek == LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
 
 		if(threatIsWeak && !needToSaveGrowth)
 		{
@@ -295,7 +296,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 
-			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() * aiNk->settings->getSafeAttackRatio() >= threat.danger))
+			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() >= threat.danger * aiNk->settings->getSafeAttackRatio()))
 			{
 				if(aiNk->arePathHeroesLocked(path))
 				{

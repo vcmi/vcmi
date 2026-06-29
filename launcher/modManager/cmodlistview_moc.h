@@ -86,7 +86,7 @@ public:
 	void doInstallMod(const QString & modName);
 
 	/// uninstall mod by name
-	void doUninstallMod(const QString & modName);
+	void doUninstallMod(const QString & modName, bool silent = false);
 
 	/// update mod by name
 	void doUpdateMod(const QString & modName);
@@ -140,6 +140,7 @@ private slots:
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
 	void extractionProgress(qint64 current, qint64 max);
+	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();

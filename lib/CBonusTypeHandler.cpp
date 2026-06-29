@@ -40,8 +40,8 @@ CBonusTypeHandler::CBonusTypeHandler()
 	//register predefined bonus types
 
 	// MOD COMPATIBILITY FOR 1.6
-	registerObject(ModScope::scopeBuiltin(), "bonus", "FEAR", 0);
-	registerObject(ModScope::scopeBuiltin(), "bonus", "FEARLESS", 0);
+	registerObject(ModScope::scopeBuiltin(), "bonus", "FEAR", JsonNode(), 0);
+	registerObject(ModScope::scopeBuiltin(), "bonus", "FEARLESS", JsonNode(), 0);
 
 #define BONUS_NAME(x) { #x },
 	builtinBonusNames = {
@@ -53,15 +53,27 @@ CBonusTypeHandler::CBonusTypeHandler()
 		bonusTypes.push_back(std::make_shared<CBonusType>());
 
 	for (int i = 0; i < builtinBonusNames.size(); ++i)
-		registerObject(ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], i);
+		registerObject(ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], JsonNode(), i);
 }
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
+	if(!bearer)
+		throw std::runtime_error("CBonusTypeHandler::bonusToString: invalid bonus system node!"); 
+
+	return bonusToString(bonus, bearer->valOfBonuses(bonus->type, bonus->subtype));
+}
+
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus) const
+{
+	return bonusToString(bonus, bonus->val);
+}
+
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const
+{
 	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
-	int bonusValue = bearer->valOfBonuses(bonus->type, bonus->subtype);
 	if(bt.hidden)
 		return "";
 
@@ -129,7 +141,7 @@ void CBonusTypeHandler::loadObject(std::string scope, std::string name, const Js
 	else
 	{
 		// new bonus
-		registerObject(scope, "bonus", name, bonusTypes.size());
+		registerObject(scope, "bonus", name, data, bonusTypes.size());
 		bonusTypes.push_back(std::make_shared<CBonusType>());
 		loadItem(data, *bonusTypes.back(), name);
 		logBonus->trace("New bonus type %s", name);

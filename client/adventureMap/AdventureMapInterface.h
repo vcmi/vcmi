@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "AdventureMapShortcuts.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -31,7 +32,6 @@ class IImage;
 class CAnimImage;
 class CGStatusBar;
 class AdventureMapWidget;
-class AdventureMapShortcuts;
 class MapView;
 class CResDataBar;
 class CHeroList;
@@ -111,6 +111,9 @@ protected:
 
 public:
 	AdventureMapInterface();
+
+	/// Provides access to the shortcut/action registry (callbacks + enabled states)
+	AdventureMapShortcuts & getAdventureShortcuts() const { return *shortcuts; }
 
 	void hotkeyAbortCastingMode();
 	void hotkeyExitWorldView();

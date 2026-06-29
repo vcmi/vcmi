@@ -11,9 +11,7 @@
 #include "StdInc.h"
 #include "TownPortalEffect.h"
 
-#include "AdventureSpellMechanics.h"
-
-#include "../CSpellHandler.h"
+#include "TownRelatedAdventureSpellEffect.h"
 
 #include "../../CPlayerState.h"
 #include "../../IGameSettings.h"
@@ -26,12 +24,35 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 TownPortalEffect::TownPortalEffect(const CSpell * s, const JsonNode & config)
-	: owner(s)
+	: TownRelatedAdventureSpellEffect(s, config["allowTownSelection"].Bool(), config["skipOccupiedTowns"].Bool())
 	, movementPointsRequired(config["movementPointsRequired"].Integer())
 	, movementPointsTaken(config["movementPointsTaken"].Integer())
-	, allowTownSelection(config["allowTownSelection"].Bool())
-	, skipOccupiedTowns(config["skipOccupiedTowns"].Bool())
 {
+}
+
+bool TownPortalEffect::shouldOfferTownInDialog(const CGTownInstance * town) const
+{
+	return town->getVisitingHero() == nullptr;
+}
+
+void TownPortalEffect::configureDialogTitleAndDescription(MetaString & title, MetaString & description) const
+{
+	title.appendLocalString(EMetaText::JK_TXT, 40);
+	description.appendLocalString(EMetaText::JK_TXT, 41);
+}
+
+ESpellCastResult TownPortalEffect::beginCastExtraChecks(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector<const CGTownInstance *> &) const
+{
+	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsTaken)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->getCasterOwner();
+		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
+		env->apply(iw);
+		return ESpellCastResult::CANCEL;
+	}
+
+	return ESpellCastResult::OK;
 }
 
 ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
@@ -46,8 +67,8 @@ ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
-		destination = findNearestTown(env, parameters, pool);
+		std::vector<const CGTownInstance *> pool = getPlayerTeamTowns(env, parameters);
+		destination = findNearestTown(parameters, pool);
 
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
@@ -142,8 +163,8 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 
 	if(!allowTownSelection)
 	{
-		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
-		destination = findNearestTown(env, parameters, pool);
+		std::vector<const CGTownInstance *> pool = getPlayerTeamTowns(env, parameters);
+		destination = findNearestTown(parameters, pool);
 	}
 	else
 	{
@@ -164,133 +185,6 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 			smp.val = 0;
 		env->apply(smp);
 	}
-}
-
-ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
-{
-	std::vector<const CGTownInstance *> towns = getPossibleTowns(env, parameters);
-
-	if(!parameters.caster->getHeroCaster())
-	{
-		env->complain("Not a hero caster!");
-		return ESpellCastResult::ERROR;
-	}
-
-	if(towns.empty())
-	{
-		InfoWindow iw;
-		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-		env->apply(iw);
-		return ESpellCastResult::CANCEL;
-	}
-
-	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsTaken)
-	{
-		InfoWindow iw;
-		iw.player = parameters.caster->getCasterOwner();
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 125);
-		env->apply(iw);
-		return ESpellCastResult::CANCEL;
-	}
-
-	if(!parameters.pos.isValid() && allowTownSelection)
-	{
-		auto queryCallback = [&mechanics, env, parameters](std::optional<int32_t> reply) -> void
-		{
-			if(reply.has_value())
-			{
-				ObjectInstanceID townId(*reply);
-
-				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
-				if(o == nullptr)
-				{
-					env->complain("Invalid object instance selected");
-					return;
-				}
-
-				if(!dynamic_cast<const CGTownInstance *>(o))
-				{
-					env->complain("Object instance is not town");
-					return;
-				}
-
-				AdventureSpellCastParameters p;
-				p.caster = parameters.caster;
-				p.pos = o->visitablePos();
-				mechanics.performCast(env, p);
-			}
-		};
-
-		MapObjectSelectDialog request;
-
-		for(const auto * t : towns)
-		{
-			if(t->getVisitingHero() == nullptr) //empty town
-				request.objects.push_back(t->id);
-		}
-
-		if(request.objects.empty())
-		{
-			InfoWindow iw;
-			iw.player = parameters.caster->getCasterOwner();
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 124);
-			env->apply(iw);
-			return ESpellCastResult::CANCEL;
-		}
-
-		request.player = parameters.caster->getCasterOwner();
-		request.title.appendLocalString(EMetaText::JK_TXT, 40);
-		request.description.appendLocalString(EMetaText::JK_TXT, 41);
-		request.icon = Component(ComponentType::SPELL, owner->id);
-
-		env->genericQuery(&request, request.player, queryCallback);
-
-		return ESpellCastResult::PENDING;
-	}
-
-	return ESpellCastResult::OK;
-}
-
-const CGTownInstance * TownPortalEffect::findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance *> & pool) const
-{
-	if(pool.empty())
-		return nullptr;
-
-	if(!parameters.caster->getHeroCaster())
-		return nullptr;
-
-	auto nearest = pool.cbegin(); //nearest town's iterator
-	si32 dist = (*nearest)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-	for(auto i = nearest + 1; i != pool.cend(); ++i)
-	{
-		si32 curDist = (*i)->visitablePos().dist2dSQ(parameters.caster->getHeroCaster()->visitablePos());
-
-		if(curDist < dist)
-		{
-			nearest = i;
-			dist = curDist;
-		}
-	}
-	return *nearest;
-}
-
-std::vector<const CGTownInstance *> TownPortalEffect::getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
-{
-	std::vector<const CGTownInstance *> ret;
-
-	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner());
-
-	for(const auto & color : team->players)
-	{
-		for(auto currTown : env->getCb()->getPlayerState(color)->getTowns())
-		{
-			if (!skipOccupiedTowns || currTown->getVisitingHero() == nullptr)
-				ret.push_back(currTown);
-		}
-	}
-	return ret;
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -18,6 +18,11 @@
 
 ShortcutHandler::ShortcutHandler()
 {
+	reloadShortcuts();
+}
+
+void ShortcutHandler::reloadShortcuts()
+{
 	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
@@ -116,6 +121,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"globalCancel",             EShortcut::GLOBAL_CANCEL             },
 		{"globalReturn",             EShortcut::GLOBAL_RETURN             },
 		{"globalFullscreen",         EShortcut::GLOBAL_FULLSCREEN         },
+		{"globalScreenshot",         EShortcut::GLOBAL_SCREENSHOT         },
 		{"globalOptions",            EShortcut::GLOBAL_OPTIONS            },
 		{"globalBackspace",          EShortcut::GLOBAL_BACKSPACE          },
 		{"globalMoveFocus",          EShortcut::GLOBAL_MOVE_FOCUS         },
@@ -218,6 +224,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureZoomReset",       EShortcut::ADVENTURE_ZOOM_RESET      },
 		{"adventureSearch",          EShortcut::ADVENTURE_SEARCH          },
 		{"adventureSearchContinue",  EShortcut::ADVENTURE_SEARCH_CONTINUE },
+		{"adventureOpenWiki",        EShortcut::ADVENTURE_OPEN_WIKI       },
 		{"battleToggleHeroesStats",  EShortcut::BATTLE_TOGGLE_HEROES_STATS},
 		{"battleToggleQueue",        EShortcut::BATTLE_TOGGLE_QUEUE       },
 		{"battleUseCreatureSpell",   EShortcut::BATTLE_USE_CREATURE_SPELL },
@@ -313,6 +320,9 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"mapsSizeM",                EShortcut::MAPS_SIZE_M               },
 		{"mapsSizeL",                EShortcut::MAPS_SIZE_L               },
 		{"mapsSizeXl",               EShortcut::MAPS_SIZE_XL              },
+		{"mapsSizeH",                EShortcut::MAPS_SIZE_H               },
+		{"mapsSizeXh",               EShortcut::MAPS_SIZE_XH              },
+		{"mapsSizeG",                EShortcut::MAPS_SIZE_G               },
 		{"mapsSizeAll",              EShortcut::MAPS_SIZE_ALL             },
 		{"mapsSortPlayers",          EShortcut::MAPS_SORT_PLAYERS         },
 		{"mapsSortSize",             EShortcut::MAPS_SORT_SIZE            },

@@ -33,6 +33,7 @@ class CTownTooltip;
 class CInteractableTownTooltip;
 class CLabel;
 class CMultiLineLabel;
+class LRClickableArea;
 
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
@@ -71,7 +72,8 @@ private:
 
 	class VisibleHeroInfo : public CVisibleInfo
 	{
-		std::shared_ptr<CIntObject> heroTooltip; //should have CHeroTooltip or CInteractableHeroTooltip;
+		std::shared_ptr<CIntObject>      heroTooltip; //should have CHeroTooltip or CInteractableHeroTooltip;
+		std::shared_ptr<LRClickableArea> wikiPortrait;
 	public:
 		VisibleHeroInfo(const CGHeroInstance * hero);
 	};

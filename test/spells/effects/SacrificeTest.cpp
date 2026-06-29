@@ -68,6 +68,7 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(mechanicsMock, isNegativeSpell()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, alwaysHitFirstTarget()).WillRepeatedly(Return(false));
 
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).Times(AtLeast(1)).WillRepeatedly(Return(true));
@@ -177,7 +178,8 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
 
 	EXPECT_CALL(mechanicsMock, getEffectPower()).Times(AtLeast(1)).WillRepeatedly(Return(effectPower));
-	EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
+	// NOTE: seems to be incorrect assumption? Sacrifice is not affected by Sorcery, which is what applySpellBonus does
+	//EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
 	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(_,_)).WillOnce(Return(effectValue));
 
 	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));

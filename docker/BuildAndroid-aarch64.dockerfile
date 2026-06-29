@@ -11,18 +11,22 @@ RUN pipx install 'sdkmanager'
 
 RUN conan profile detect
 
-ENV DEPS_VERSION="2025-08-24"
-ENV DEPS="dependencies-android-arm64-v8a.tgz"
-RUN wget --https-only --max-redirect=20 https://github.com/vcmi/vcmi-dependencies/releases/download/$DEPS_VERSION/$DEPS
+ENV DEPS="dependencies-android-arm64-v8a.txz"
+COPY CI/install_conan_dependencies.sh CI/install_conan_dependencies.sh
+RUN DEPS_VERSION=$(grep '^RELEASE_TAG=' CI/install_conan_dependencies.sh | cut -d'"' -f2) && \
+    echo "Using DEPS_VERSION=$DEPS_VERSION" && \
+    wget --https-only --max-redirect=20 https://github.com/vcmi/vcmi-dependencies/releases/download/$DEPS_VERSION/$DEPS
+
 RUN conan cache restore $DEPS
 RUN rm $DEPS
 
 ENV JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 ENV ANDROID_HOME="/usr/lib/android-sdk"
 ENV GRADLE_USER_HOME="/vcmi/.cache/gradle"
-ENV NDK_VERSION="25.2.9519653"
+ENV SDK_VERSION="35"
+ENV NDK_VERSION="29.0.14206865"
 
-RUN sdkmanager --install "platform-tools" "platforms;android-35" "ndk;$NDK_VERSION"
+RUN sdkmanager --install "platform-tools" "platforms;android-$SDK_VERSION" "ndk;$NDK_VERSION"
 RUN yes | sdkmanager --licenses
 
 CMD ["sh", "-c", " \

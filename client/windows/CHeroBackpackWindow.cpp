@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CHeroBackpackWindow.h"
 
-#include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 
@@ -28,13 +27,15 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std::vector<CArtifactsOfHeroPtr> & artsSets)
-	: CWindowWithArtifacts(&artsSets)
+	: CWindowObject(PLAYER_COLORED_BORDERED_STATUSBAR, ImagePath::builtin("heroBackpackDialog"))
+	, CWindowWithArtifacts(&artsSets)
 {
 	OBJECT_CONSTRUCTION;
+	addUsedEvents(KEYBOARD);
 
-	stretchedBackground = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, 0, 0));
+	const Point artifactsOffset(17, 18);
 	arts = std::make_shared<CArtifactsOfHeroBackpack>();
-	arts->moveBy(Point(windowMargin, windowMargin));
+	arts->moveBy(Point(windowMargin, windowMargin) + artifactsOffset);
 	arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition)
 	{
 		clickPressedOnArtPlace(arts->getHero(), artPlace.slot, true, false, true, cursorPosition);
@@ -63,18 +64,17 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 		[hero]() { GAME->interface()->cb->sortBackpackArtifactsByClass(hero->id); }));
 	buttons.back()->setTextOverlay(sortByClass, EFonts::FONT_SMALL, Colors::YELLOW);
 
-	pos.w = stretchedBackground->pos.w = arts->pos.w + 2 * windowMargin;
-	pos.h = stretchedBackground->pos.h = arts->pos.h + buttons.back()->pos.h + 3 * windowMargin;
-	
-	auto buttonPos = Point(pos.x + windowMargin, pos.y + arts->pos.h + 2 * windowMargin);
+	const int buttonsY = arts->pos.y + arts->pos.h + windowMargin + 1;
+
+	auto buttonPos = Point(arts->pos.x, buttonsY);
 	for(const auto & button : buttons)
 	{
 		button->moveTo(buttonPos);
 		buttonPos += Point(button->pos.w + 10, 0);
 	}
 
-	statusbar = CGStatusBar::create(0, pos.h, ImagePath::builtin("ADROLLVR.bmp"), pos.w);
-	pos.h += statusbar->pos.h;
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+
 	addUsedEvents(LCLICK);
 	center();
 }
@@ -84,10 +84,10 @@ void CHeroBackpackWindow::notFocusedClick()
 	close();
 }
 
-void CHeroBackpackWindow::showAll(Canvas & to)
+void CHeroBackpackWindow::keyPressed(EShortcut key)
 {
-	CIntObject::showAll(to);
-	CMessage::drawBorder(PlayerColor(GAME->interface()->playerID), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	if(key == EShortcut::GLOBAL_RETURN)
+		close();
 }
 
 CHeroQuickBackpackWindow::CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot)

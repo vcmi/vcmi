@@ -71,7 +71,7 @@ void SQLiteStatement::setBindSingle(size_t index, const double & value)
 
 void SQLiteStatement::setBindSingle(size_t index, const bool & value)
 {
-	int result = sqlite3_bind_int(m_statement, static_cast<int>(value), value);
+	int result = sqlite3_bind_int(m_statement, static_cast<int>(index), value);
 	checkSQLiteError(m_instance.m_connection, result);
 }
 
@@ -191,4 +191,21 @@ SQLiteStatementPtr SQLiteInstance::prepare(const std::string & sql_text)
 
 	sqlite3_finalize(statement);
 	handleSQLiteError(m_connection);
+}
+
+void SQLiteInstance::setBusyTimeout(int milliseconds)
+{
+	sqlite3_busy_timeout(m_connection, milliseconds);
+}
+
+void SQLiteInstance::printMemoryStats() const
+{
+	sqlite3_int64 currentUsage = sqlite3_memory_used();
+	sqlite3_int64 peakSinceLastCall = sqlite3_memory_highwater(1);
+
+	logGlobal->info("SQLite instance memory usage: %d B (%d MB). Peak was %d B (%d MB)",
+					currentUsage, currentUsage / 1024 / 1924,
+					peakSinceLastCall, peakSinceLastCall / 1024 / 1924);
+
+	// more detailed stats can be acquired using sqlite3_status
 }
