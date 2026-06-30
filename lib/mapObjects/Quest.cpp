@@ -45,30 +45,44 @@ static std::string visitedTxt(const bool visited)
 	return LIBRARY->generaltexth->translate("core.genrltxt", id);
 }
 
+namespace
+{
+struct MissionKindEntry
+{
+	EQuestMission kind;
+	std::string name;
+	bool (*matches)(const Quest &); // null = never auto-classified (default / parse-only)
+};
+
+// Mapping limiter shape <-> EQuestMission <-> text key.
+// Ordered by classification priority: when several predicates match, the LAST wins
+// (matching the legacy cascade, keymaster lowest .. gameDifficulty highest).
+const std::array<MissionKindEntry, 16> missionKinds = {{
+	{ EQuestMission::NONE,                   "empty",          nullptr },
+	{ EQuestMission::HOTA_MULTI_PLACEHOLDER, "hotaINVALID",    nullptr }, // only used for h3m parsing
+	{ EQuestMission::HOTA_SCRIPTED,          "scripted",       nullptr },
+	{ EQuestMission::KEYMASTER,              "keymaster",      [](const Quest & q){ return !q.mission.requiredKeys.empty(); } },
+	{ EQuestMission::LEVEL,                  "heroLevel",      [](const Quest & q){ return q.mission.heroLevel > 0; } },
+	{ EQuestMission::PRIMARY_SKILL,          "primarySkill",   [](const Quest & q){ return std::any_of(q.mission.primary.begin(), q.mission.primary.end(), [](si32 s){ return s != 0; }); } },
+	{ EQuestMission::KILL_HERO,              "killHero",       [](const Quest & q){ return !q.mission.destroyedObjects.empty() && !q.heroName.empty(); } },
+	{ EQuestMission::KILL_CREATURE,          "killCreature",   [](const Quest & q){ return !q.mission.destroyedObjects.empty() && q.stackToKill != CreatureID::NONE; } },
+	{ EQuestMission::ARTIFACT,               "bringArt",       [](const Quest & q){ return !q.mission.artifacts.empty(); } },
+	{ EQuestMission::ARMY,                   "bringCreature",  [](const Quest & q){ return !q.mission.creatures.empty(); } },
+	{ EQuestMission::RESOURCES,              "bringResources", [](const Quest & q){ return q.mission.resources.nonZero(); } },
+	{ EQuestMission::HERO,                   "bringHero",      [](const Quest & q){ return !q.mission.heroes.empty(); } },
+	{ EQuestMission::PLAYER,                 "bringPlayer",    [](const Quest & q){ return !q.mission.players.empty(); } },
+	{ EQuestMission::HOTA_REACH_DATE,        "reachDate",      [](const Quest & q){ return q.mission.daysPassed > 0; } },
+	{ EQuestMission::HOTA_HERO_CLASS,        "heroClass",      [](const Quest & q){ return !q.mission.heroClasses.empty(); } },
+	{ EQuestMission::HOTA_GAME_DIFFICULTY,   "gameDifficulty", [](const Quest & q){ return !q.mission.allowedDifficulties.allowsAll(); } },
+}};
+}
+
 const std::string & Quest::missionName(EQuestMission mission)
 {
-	static const std::array<std::string, 16> names = {
-		"empty",
-		"heroLevel",
-		"primarySkill",
-		"killHero",
-		"killCreature",
-		"bringArt",
-		"bringCreature",
-		"bringResources",
-		"bringHero",
-		"bringPlayer",
-		"hotaINVALID", // only used for h3m parsing
-		"keymaster",
-		"heroClass",
-		"reachDate",
-		"gameDifficulty",
-		"scripted"
-	};
-
-	if(static_cast<size_t>(mission) < names.size())
-		return names[static_cast<size_t>(mission)];
-	return names[0];
+	for(const auto & entry : missionKinds)
+		if(entry.kind == mission)
+			return entry.name;
+	return missionKinds[0].name; // "empty"
 }
 
 const std::string & Quest::missionState(int state)
@@ -273,21 +287,10 @@ void Quest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText) 
 
 void Quest::defineQuestName()
 {
-	//standard quests
 	missionKind = EQuestMission::NONE;
-	if(!mission.requiredKeys.empty()) missionKind = EQuestMission::KEYMASTER;
-	if(mission.heroLevel > 0) missionKind = EQuestMission::LEVEL;
-	for(auto & s : mission.primary) if(s) missionKind = EQuestMission::PRIMARY_SKILL;
-	if(!mission.destroyedObjects.empty() && !heroName.empty()) missionKind = EQuestMission::KILL_HERO;
-	if(!mission.destroyedObjects.empty() && stackToKill != CreatureID::NONE) missionKind = EQuestMission::KILL_CREATURE;
-	if(!mission.artifacts.empty()) missionKind = EQuestMission::ARTIFACT;
-	if(!mission.creatures.empty()) missionKind = EQuestMission::ARMY;
-	if(mission.resources.nonZero()) missionKind = EQuestMission::RESOURCES;
-	if(!mission.heroes.empty()) missionKind = EQuestMission::HERO;
-	if(!mission.players.empty()) missionKind = EQuestMission::PLAYER;
-	if(mission.daysPassed > 0) missionKind = EQuestMission::HOTA_REACH_DATE;
-	if(!mission.heroClasses.empty()) missionKind = EQuestMission::HOTA_HERO_CLASS;
-	if(!mission.allowedDifficulties.allowsAll()) missionKind = EQuestMission::HOTA_GAME_DIFFICULTY;
+	for(const auto & entry : missionKinds)
+		if(entry.matches && entry.matches(*this))
+			missionKind = entry.kind;
 }
 
 bool Quest::isToll() const
