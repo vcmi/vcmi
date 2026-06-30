@@ -168,9 +168,8 @@ public:
 
 	bool checkQuest(const CGHeroInstance * h) const;
 
-	// Per-colour keymaster key state, shared by keymaster tents and border guards/gates.
-	// TODO: review whether QuestSource is the right home/form for these.
-	static bool hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player);
+	// "Visited / not visited" popup text for a keymaster tent or border guard/gate;
+	// kept here for the cross-DLL client KeymasterPopup caller.
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
 	const Quest * activeQuestForLog() const override { return &getQuest(); }

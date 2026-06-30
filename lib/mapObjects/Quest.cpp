@@ -39,9 +39,6 @@
 
 #include <vstd/RNG.h>
 
-
-//TODO: Remove constructor
-
 static std::string visitedTxt(const bool visited)
 {
 	int id = visited ? 352 : 353;
@@ -750,10 +747,12 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		int val = 0;
 		handler.serializeInt(fullIdentifier, val);
 		
+		auto rawId = [&]{ return *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false); };
+
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
 		if(metaTypeName == "experience")
-		   reward.heroExperience = val;
+			reward.heroExperience = val;
 		if(metaTypeName == "mana")
 			reward.manaDiff = val;
 		if(metaTypeName == "morale")
@@ -761,35 +760,17 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "luck")
 			reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		if(metaTypeName == "resource")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.resources[rawId] = val;
-		}
+			reward.resources[rawId()] = val;
 		if(metaTypeName == "primarySkill")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.primary.at(rawId) = val;
-		}
+			reward.primary.at(rawId()) = val;
 		if(metaTypeName == "secondarySkill")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.secondary[rawId] = val;
-		}
+			reward.secondary[rawId()] = val;
 		if(metaTypeName == "artifact")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.grantedArtifacts.push_back(rawId);
-		}
+			reward.grantedArtifacts.push_back(rawId());
 		if(metaTypeName == "spell")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.spells.push_back(rawId);
-		}
+			reward.spells.push_back(rawId());
 		if(metaTypeName == "creature")
-		{
-			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.creatures.emplace_back(rawId, val);
-		}
+			reward.creatures.emplace_back(rawId(), val);
 		
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 		configuration.info.push_back(vinfo);
@@ -867,19 +848,14 @@ void QuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 	getQuest().serializeJson(handler, "quest");
 }
 
-bool QuestSource::hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player)
-{
-	return keyObject->cb->getPlayerState(player)->visitedObjectsGlobal.count({Obj::KEYMASTER, keyObject->subID}) != 0;
-}
-
 std::string QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player)
 {
-	return visitedTxt(hasVisitedKeymaster(keyObject, player));
+	return visitedTxt(keyObject->cb->getPlayerState(player)->wasKeymasterVisited(keyObject->subID));
 }
 
 std::string KeymasterTent::getHoverText(PlayerColor player) const
 {
-	return getObjectName() + "\n" + QuestSource::keymasterVisitedText(this, player);
+	return getObjectName() + "\n" + visitedTxt(cb->getPlayerState(player)->wasKeymasterVisited(subID));
 }
 
 std::string KeymasterTent::getObjectName() const
@@ -889,7 +865,7 @@ std::string KeymasterTent::getObjectName() const
 
 bool KeymasterTent::wasVisited (PlayerColor player) const
 {
-	return QuestSource::hasVisitedKeymaster(this, player);
+	return cb->getPlayerState(player)->wasKeymasterVisited(subID);
 }
 
 void KeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -939,7 +915,7 @@ bool QuestGate::passableFor(PlayerColor color) const
 	// player-level fallback (no hero context): only the keymaster-key limiter can
 	// be evaluated here; hero-dependent limiters are resolved in passableFor(hero).
 	for(const auto & key : getQuest().mission.requiredKeys)
-		if(!cb->getPlayerState(color)->visitedObjectsGlobal.count({Obj::KEYMASTER, key}))
+		if(!cb->getPlayerState(color)->wasKeymasterVisited(key))
 			return false;
 	return true;
 }

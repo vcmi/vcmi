@@ -14,6 +14,7 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -198,7 +199,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 		&& objectRelations != PlayerRelations::ENEMIES)
 		return true;
 
-	if(obj->ID == Obj::BORDER_GATE && QuestSource::hasVisitedKeymaster(obj, playerColor))
+	if(obj->ID == Obj::BORDER_GATE && obj->cb->getPlayerState(playerColor)->wasKeymasterVisited(obj->subID))
 		return true;
 
 	return false;
@@ -586,7 +587,7 @@ bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * 
 		return true;
 	case Obj::BORDER_GATE:
 	case Obj::BORDERGUARD:
-		return QuestSource::hasVisitedKeymaster(obj, playerID); //FIXME: they could be revisited sooner than in a week
+		return obj->cb->getPlayerState(playerID)->wasKeymasterVisited(obj->subID); //FIXME: they could be revisited sooner than in a week
 	}
 	return false;
 }
@@ -634,7 +635,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		return true; //we don't have this quest yet
 	}
 	case Obj::BORDERGUARD: //open borderguard if possible
-		return QuestSource::hasVisitedKeymaster(obj, aiNk->playerID);
+		return obj->cb->getPlayerState(aiNk->playerID)->wasKeymasterVisited(obj->subID);
 	case Obj::SEER_HUT:
 	{
 		for(auto q : aiNk->cc->getMyQuests())

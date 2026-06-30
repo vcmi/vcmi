@@ -19,6 +19,10 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/army/CStackBasicDescriptor.h"
 #include "../../lib/mapping/MapDifficulty.h"
+#include "../../lib/rewardable/Limiter.h"
+#include "../../lib/serializer/JsonSerializer.h"
+#include "../../lib/serializer/JsonDeserializer.h"
+#include "../../lib/json/JsonNode.h"
 
 // What survives the .h3m → Quest mapping pipeline. Each test loads a SOD
 // scenario and asserts the resulting Quest::mission matches the limiter the
@@ -210,4 +214,37 @@ TEST_F(QuestHotaLoaderTest, SeerDifficultyQuestRoundTrips)
 	EXPECT_FALSE(seer->getQuest().mission.allowedDifficulties.allowsAll());
 	EXPECT_TRUE(seer->getQuest().mission.allowedDifficulties.contains(EMapDifficulty::HARD));
 	EXPECT_FALSE(seer->getQuest().mission.allowedDifficulties.contains(EMapDifficulty::EASY));
+}
+
+// Limiter::serializeJson chess-name encoding of allowedDifficulties round-trips.
+TEST(QuestLimiterJsonTest, AllowedDifficultiesRoundTrips)
+{
+	Rewardable::Limiter src;
+	src.allowedDifficulties = MapDifficultySet(
+		(1 << static_cast<int>(EMapDifficulty::HARD)) |
+		(1 << static_cast<int>(EMapDifficulty::IMPOSSIBLE)));
+	ASSERT_FALSE(src.allowedDifficulties.allowsAll());
+
+	JsonNode node;
+	JsonSerializer ser(nullptr, node);
+	src.serializeJson(ser);
+
+	Rewardable::Limiter dst;
+	JsonDeserializer deser(nullptr, node);
+	dst.serializeJson(deser);
+
+	EXPECT_EQ(dst.allowedDifficulties, src.allowedDifficulties);
+}
+
+// The unrestricted default writes no field (avoids "[]" on every limiter).
+TEST(QuestLimiterJsonTest, AllowedDifficultiesDefaultOmitted)
+{
+	Rewardable::Limiter src;
+	ASSERT_TRUE(src.allowedDifficulties.allowsAll());
+
+	JsonNode node;
+	JsonSerializer ser(nullptr, node);
+	src.serializeJson(ser);
+
+	EXPECT_TRUE(node["allowedDifficulties"].isNull());
 }

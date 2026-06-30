@@ -232,7 +232,7 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 
 	for(const auto & keySubID : requiredKeys)
 	{
-		if(!hero->cb->getPlayerState(hero->getOwner())->visitedObjectsGlobal.count({Obj::KEYMASTER, keySubID}))
+		if(!hero->cb->getPlayerState(hero->getOwner())->wasKeymasterVisited(keySubID))
 			return false;
 	}
 
@@ -342,6 +342,33 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 		});
 		a.syncSize(fieldValue);
 		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+	// allowedDifficulties: chess names of difficulties on which this limiter is active;
+	// absent (or empty) means no restriction — every difficulty is allowed.
+	if(handler.saving)
+	{
+		if(!allowedDifficulties.allowsAll())
+		{
+			std::vector<std::string> names;
+			for(size_t i = 0; i < std::size(GameConstants::DIFFICULTY_NAMES); ++i)
+				if(allowedDifficulties.contains(static_cast<EMapDifficulty>(i)))
+					names.push_back(GameConstants::DIFFICULTY_NAMES[i]);
+			handler.enterArray("allowedDifficulties").serializeArray(names);
+		}
+	}
+	else
+	{
+		std::vector<std::string> names;
+		handler.enterArray("allowedDifficulties").serializeArray(names);
+		if(!names.empty())
+		{
+			uint8_t mask = 0;
+			for(const auto & name : names)
+				for(size_t i = 0; i < std::size(GameConstants::DIFFICULTY_NAMES); ++i)
+					if(GameConstants::DIFFICULTY_NAMES[i] == name)
+						mask |= (1u << i);
+			allowedDifficulties = MapDifficultySet(mask);
+		}
 	}
 	//sublimiters
 	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)

@@ -105,6 +105,9 @@ public:
 	void markObjectControlled(ObjectInstanceID objectID);
 	bool hasEverControlled(ObjectInstanceID objectID) const;
 
+	/// True once a hero of this player has visited a keymaster tent of the given colour.
+	bool wasKeymasterVisited(MapObjectSubID keymasterColor) const;
+
 	bool checkVanquished() const
 	{
 		return getHeroes().empty() && getTowns().empty();

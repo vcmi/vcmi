@@ -173,3 +173,8 @@ bool PlayerState::hasEverControlled(ObjectInstanceID objectID) const
 {
 	return everControlledObjects.count(objectID) != 0;
 }
+bool PlayerState::wasKeymasterVisited(MapObjectSubID keymasterColor) const
+{
+	return visitedObjectsGlobal.count({Obj::KEYMASTER, keymasterColor}) != 0;
+}
+
