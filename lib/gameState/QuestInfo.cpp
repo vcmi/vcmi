@@ -61,7 +61,7 @@ std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 		|| !limiter.creatures.empty();
 	const bool markKeys = !limiter.requiredKeys.empty();
 
-	if(markArtifacts || markHeroes || markKeys)
+	if(markHeroes || markKeys)
 	{
 		for(const auto * visitable : cb->getAllVisitableObjs())
 		{

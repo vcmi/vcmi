@@ -77,7 +77,8 @@ public:
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
-	void getRolloverText (const IGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
+	void getHoverText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
+	void getQuestlogText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
 	/// Removes the consumable goods the limiter demands (artifacts / creatures /
 	/// resources) from the hero — the "cost" of the quest. Does NOT mark the quest
 	/// completed; callers handle completion/removal separately.
@@ -165,16 +166,14 @@ public:
 	/// Appends a fresh quest and returns it (loader use).
 	Quest & addQuest();
 
-	virtual bool checkQuest(const CGHeroInstance * h) const;
+	bool checkQuest(const CGHeroInstance * h) const;
 
 	// Per-colour keymaster key state, shared by keymaster tents and border guards/gates.
 	// TODO: review whether QuestSource is the right home/form for these.
 	static bool hasVisitedKeymaster(const CGObjectInstance * keyObject, PlayerColor player);
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
-	/// The quest currently relevant for visiting / quest-log display.
-	virtual const Quest & activeQuest() const { return getQuest(); }
-	const Quest * activeQuestForLog() const override { return &activeQuest(); }
+	const Quest * activeQuestForLog() const override { return &getQuest(); }
 	std::vector<MapObjectSubID> questLogSharedColor() const override;
 	/// Stays visible to any player holding this source in their active quest log,
 	/// so a quest-log entry under fog of war can still resolve its source object.
@@ -234,13 +233,13 @@ public:
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	void getRolloverText (MetaString &text, bool onHover) const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -248,6 +247,9 @@ public:
 		h & seerName;
 	}
 protected:
+	/// Object name / seer header followed by the active quest's rollover; onHover
+	/// picks the short hover variant, otherwise the longer description variant.
+	std::string buildText(PlayerColor player, bool onHover) const;
 	bool allowsFullArmyRemoval() const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
@@ -314,7 +316,6 @@ class DLL_LINKAGE KeymasterTent : public CGObjectInstance
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	bool wasMyColorVisited(const PlayerColor & player) const;
 	bool wasVisited(PlayerColor player) const override;
 
 	std::string getObjectName() const override;

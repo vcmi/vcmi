@@ -83,7 +83,7 @@ TEST_F(QuestSeerMultiTest, OffersFirstOneShotFirst)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
 
 	auto * seer = expectAt<SeerHut>(kSeerPos);
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests().front().get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests().front().get());
 }
 
 TEST_F(QuestSeerMultiTest, AdvancesToNextOnCompletion)
@@ -99,7 +99,7 @@ TEST_F(QuestSeerMultiTest, AdvancesToNextOnCompletion)
 	answerDialog(hero, 1); // complete the first quest
 
 	visit(hero, seer); // re-visit triggers advancement to the second quest
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
 TEST_F(QuestSeerMultiTest, PerQuestRewardIsUsedNotConfigurationInfoIndex)
@@ -139,15 +139,15 @@ TEST_F(QuestSeerMultiTest, LoopsWithinRepeatablesAfterOneShotsDone)
 
 	complete();                                              // finish the one-shot
 	visit(hero, seer);                                       // advance to first repeatable
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 
 	answerDialog(hero, 1);                                   // finish repeatable #1
 	visit(hero, seer);                                       // advance to second repeatable
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[2].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[2].get());
 
 	answerDialog(hero, 1);                                   // finish repeatable #2
 	visit(hero, seer);                                       // loop back to the first repeatable
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
 // ---- expiry -----------------------------------------------------------------
@@ -160,10 +160,10 @@ TEST_F(QuestSeerMultiTest, SkipsExpiredByLastDay)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
 
 	auto * seer = expectAt<SeerHut>(kSeerPos);
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests().front().get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests().front().get());
 
 	advanceDays(5); // past the first quest's deadline -> newTurn skips it
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
 TEST_F(QuestSeerMultiTest, SkipsExpiredByDifficultyMismatch)
@@ -176,7 +176,7 @@ TEST_F(QuestSeerMultiTest, SkipsExpiredByDifficultyMismatch)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::EASY));
 
 	auto * seer = expectAt<SeerHut>(kSeerPos);
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
 TEST_F(QuestSeerMultiTest, PermanentlyEmptyWhenAllOneShotAndAllRepeatableExpired)
@@ -231,7 +231,7 @@ TEST_F(QuestSeerMultiTest, ActiveQuestIsGlobalAcrossPlayers)
 	answerDialog(hero1, 1);   // player 0 completes the first quest
 
 	visit(hero2, seer);       // player 1 visits -> sees the advanced (second) quest
-	EXPECT_EQ(&seer->activeQuest(), seer->allQuests()[1].get());
+	EXPECT_EQ(&seer->getQuest(), seer->allQuests()[1].get());
 }
 
 // ---- repeatable -------------------------------------------------------------

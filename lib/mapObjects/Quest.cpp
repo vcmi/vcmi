@@ -84,7 +84,7 @@ const std::string & Quest::missionState(int state)
 		"description",
 	};
 
-	if(state < states.size())
+	if(state >= 0 && static_cast<size_t>(state) < states.size())
 		return states[state];
 	return states[0];
 }
@@ -242,15 +242,26 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 	addTextReplacements(cb, iwText, components);
 }
 
-void Quest::getRolloverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
+void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
+		ms.appendRawString(" ");
+	else
 		ms.appendRawString("\n\n");
 
-	std::string questState = missionState(onHover ? 3 : 4);
+	std::string questState = missionState(3);
 
 	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), questState, textOption).get());
 
+	std::vector<Component> components;
+	addTextReplacements(cb, ms, components);
+}
+
+
+void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
+{
+	std::string questState = missionState(4);
+	ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), questState, textOption).get());
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
 }
@@ -433,7 +444,7 @@ void QuestSource::syncActiveReward()
 
 void QuestSource::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	activeQuest().getVisitText(cb, text, components, FirstVisit, h);
+	getQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
 std::vector<MapObjectSubID> QuestSource::questLogSharedColor() const
@@ -570,62 +581,45 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 	syncActiveReward();
 }
 
-void SeerHut::getRolloverText(MetaString &text, bool onHover) const
+std::string SeerHut::buildText(PlayerColor player, bool onHover) const
 {
-	getQuest().getRolloverText(cb, text, onHover);
-	if(!onHover)
+	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
+
+	MetaString text;
+	if(ID == Obj::SEER_HUT && questActive)
+	{
+		text.appendTextID(TextIdentifier("core", "genrltxt", 347).get());
 		text.replaceRawString(seerName);
-}
-
-std::string SeerHut::getHoverText(PlayerColor player) const
-{
-	std::string hoverName = getObjectName();
-	if(isEmpty())
-		return hoverName; // no active quest - just the object name
-
-	if(ID == Obj::SEER_HUT && getQuest().activeForPlayers.count(player))
-	{
-		hoverName = LIBRARY->generaltexth->translate("core.genrltxt", 347);
-		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
+	else
+		text.appendRawString(getObjectName());
 
-	if(getQuest().activeForPlayers.count(player)
-	   && getQuest().mission != Rewardable::Limiter{}) //rollover when the quest is active
+	if(questActive && getQuest().mission != Rewardable::Limiter{})
 	{
-		MetaString ms;
-		getRolloverText (ms, true);
-		hoverName += ms.toString();
+		getQuest().getHoverText(cb, text, onHover);
 	}
-	return hoverName;
+	return text.toString();
 }
 
-std::string SeerHut::getHoverText(const CGHeroInstance * hero) const
-{
-	return getHoverText(hero->getOwner());
-}
-
-std::string SeerHut::getPopupText(PlayerColor player) const
-{
-	return getHoverText(player);
-}
-
-std::string SeerHut::getPopupText(const CGHeroInstance * hero) const
-{
-	return getHoverText(hero->getOwner());
-}
+std::string SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
+std::string SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
+std::string SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
+std::string SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
 
 std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
 {
-	std::vector<Component> result;
-	if (!isEmpty() && getQuest().activeForPlayers.count(player))
-		getQuest().mission.loadComponents(result, nullptr);
-	return result;
+	return getPopupComponents(player, nullptr);
 }
 
 std::vector<Component> SeerHut::getPopupComponents(const CGHeroInstance * hero) const
 {
+	return getPopupComponents(hero->getOwner(), hero);
+}
+
+std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const
+{
 	std::vector<Component> result;
-	if (!isEmpty() && getQuest().activeForPlayers.count(hero->getOwner()))
+	if (!isEmpty() && getQuest().activeForPlayers.count(player))
 		getQuest().mission.loadComponents(result, hero);
 	return result;
 }
@@ -709,7 +703,7 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 
 bool SeerHut::allowsFullArmyRemoval() const
 {
-	bool seerGivesUnits = activeQuest().reward && !activeQuest().reward->reward.creatures.empty();
+	bool seerGivesUnits = getQuest().reward && !getQuest().reward->reward.creatures.empty();
 	bool h3BugSettingEnabled = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	return seerGivesUnits || h3BugSettingEnabled;
 }
@@ -883,14 +877,9 @@ std::string QuestSource::keymasterVisitedText(const CGObjectInstance * keyObject
 	return visitedTxt(hasVisitedKeymaster(keyObject, player));
 }
 
-bool KeymasterTent::wasMyColorVisited(const PlayerColor & player) const
-{
-	return QuestSource::hasVisitedKeymaster(this, player);
-}
-
 std::string KeymasterTent::getHoverText(PlayerColor player) const
 {
-	return getObjectName() + "\n" + visitedTxt(wasMyColorVisited(player));
+	return getObjectName() + "\n" + QuestSource::keymasterVisitedText(this, player);
 }
 
 std::string KeymasterTent::getObjectName() const
@@ -900,13 +889,13 @@ std::string KeymasterTent::getObjectName() const
 
 bool KeymasterTent::wasVisited (PlayerColor player) const
 {
-	return wasMyColorVisited (player);
+	return QuestSource::hasVisitedKeymaster(this, player);
 }
 
 void KeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	int txt_id;
-	if (!wasMyColorVisited (h->getOwner()) )
+	if (!wasVisited (h->getOwner()) )
 	{
 		ChangeObjectVisitors cow;
 		cow.mode = ChangeObjectVisitors::VISITOR_ADD_PLAYER;

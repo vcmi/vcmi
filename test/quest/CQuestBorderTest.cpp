@@ -92,11 +92,11 @@ TEST_F(QuestBorderTest, Keymaster_FirstVisit_marksColorVisited)
 	const auto * tent = dynamic_cast<const KeymasterTent *>(keymaster);
 	ASSERT_NE(tent, nullptr);
 
-	EXPECT_FALSE(tent->wasMyColorVisited(PlayerColor(0)));
+	EXPECT_FALSE(tent->wasVisited(PlayerColor(0)));
 
 	visit(hero, keymaster);
 
-	EXPECT_TRUE(tent->wasMyColorVisited(PlayerColor(0)));
+	EXPECT_TRUE(tent->wasVisited(PlayerColor(0)));
 }
 
 TEST_F(QuestBorderTest, Keymaster_FirstVisit_doesNotEmitAddQuest)
