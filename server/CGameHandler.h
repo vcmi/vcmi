@@ -109,6 +109,7 @@ public:
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);

@@ -681,11 +681,7 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		if(firstVisit)
 		{
 			gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
-
-			AddQuest aq;
-			aq.quest = QuestInfo(id);
-			aq.player = h->tempOwner;
-			gameEvents.sendAndApply(aq); //TODO: merge with setObjProperty?
+			gameEvents.addQuest(h->tempOwner, QuestInfo(id)); //TODO: merge with setObjProperty?
 		}
 
 		if(firstVisit || failRequirements)
@@ -842,12 +838,7 @@ void QuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			h->showInfoDialog(gameEvents, 18);
 
 			if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
-			{
-				AddQuest aq;
-				aq.quest = QuestInfo(id);
-				aq.player = h->tempOwner;
-				gameEvents.sendAndApply(aq);
-			}
+				gameEvents.addQuest(h->tempOwner, QuestInfo(id));
 		}
 		return;
 	}
@@ -907,11 +898,6 @@ std::string KeymasterTent::getObjectName() const
 	return LIBRARY->generaltexth->translate("core.tentcolr", subID.getNum()) + " " + CGObjectInstance::getObjectName();
 }
 
-std::string KeymasterTent::getObjectDescription(PlayerColor player) const
-{
-	return visitedTxt(wasMyColorVisited(player));
-}
-
 bool KeymasterTent::wasVisited (PlayerColor player) const
 {
 	return wasMyColorVisited (player);
@@ -956,12 +942,7 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	h->showInfoDialog(gameEvents, 18);
 
 	if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
-	{
-		AddQuest aq;
-		aq.quest = QuestInfo(id);
-		aq.player = h->tempOwner;
-		gameEvents.sendAndApply(aq);
-	}
+		gameEvents.addQuest(h->tempOwner, QuestInfo(id));
 }
 
 bool QuestGate::passableFor(PlayerColor color) const

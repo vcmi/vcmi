@@ -318,7 +318,6 @@ public:
 	bool wasVisited(PlayerColor player) const override;
 
 	std::string getObjectName() const override;
-	std::string getObjectDescription(PlayerColor player) const;
 	std::string getHoverText(PlayerColor player) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 

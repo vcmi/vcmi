@@ -17,7 +17,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 
-// Pass 6: a quest source stays accessible to a player who holds it in their quest
+// A quest source stays accessible to a player who holds it in their quest
 // log even when it sits under fog of war, and its log entry is dropped when the
 // source is removed.
 

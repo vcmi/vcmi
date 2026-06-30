@@ -16,7 +16,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 
-// Pass 5.3: multi-quest Seer Hut runtime. A HotA seer hut may carry several
+// Multi-quest Seer Hut runtime. A HotA seer hut may carry several
 // one-shot and repeatable quests; only one is active at a time (the same for
 // every player), advancing as quests complete or expire.
 

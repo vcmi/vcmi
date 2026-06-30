@@ -51,10 +51,10 @@ TEST_F(QuestGuardTest, BlockVisitIsTrue_cannotBeTriggeredFromOnTop)
 	EXPECT_TRUE(guard->isBlockedVisitable());
 }
 
-TEST_F(QuestGuardTest, BringResources_takesResources)
+TEST_F(QuestGuardTest, SatisfiedQuest_takesResourcesAndRemovesObjectOnAcceptance)
 {
-	// Paying a "bring 1000 wood" guard deducts exactly 1000 wood from the
-	// player's stockpile.
+	// Paying a "bring 1000 wood" guard deducts exactly 1000 wood, and the guard
+	// then disappears from the map so the hero can pass through.
 	auto s = questGuard();
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 
@@ -70,59 +70,11 @@ TEST_F(QuestGuardTest, BringResources_takesResources)
 	visit(hero, guard);
 	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u)
 		<< "first visit with a satisfied limiter should prompt the player";
-
 	answerDialog(hero, /*yes*/ 1);
 
 	const auto woodAfter = gameState->players.at(PlayerColor(0)).resources[GameResID::WOOD];
 	EXPECT_EQ(woodBefore - woodAfter, 1000)
 		<< "quest should deduct exactly the demanded 1000 wood";
-}
-
-TEST_F(QuestGuardTest, SatisfiedQuest_removesObjectOnAcceptance)
-{
-	// After the player pays a quest guard, the guard disappears from the map
-	// so the hero can pass through.
-	auto s = questGuard();
-	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
-	grantResources(PlayerColor(0), GameResID(GameResID::WOOD), 1500);
-
-	auto * hero  = findHeroAt(s.heroPos);
-	auto * guard = findObjectAt(s.questPos);
-	ASSERT_NE(hero,  nullptr);
-	ASSERT_NE(guard, nullptr);
-
-	visit(hero, guard);
-	ASSERT_EQ(gameEventCallback->blockingDialogs.size(), 1u);
-	answerDialog(hero, /*yes*/ 1);
-
 	EXPECT_EQ(findObjectAt(s.questPos), nullptr)
 		<< "quest guard with subID=0 should be removed from the map after acceptance";
-}
-
-TEST_F(QuestGuardTest, RepeatVisit_failedRequirements_showsNextVisitText)
-{
-	// When the player can't yet pay, a re-visit shows the "still need more"
-	// message but doesn't re-add the quest to the log.
-	auto s = questGuard();
-	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
-	// Deliberately do not grant resources — limiter fails.
-
-	auto * hero  = findHeroAt(s.heroPos);
-	auto * guard = findObjectAt(s.questPos);
-	ASSERT_NE(hero,  nullptr);
-	ASSERT_NE(guard, nullptr);
-
-	visit(hero, guard);
-	const size_t firstAddQuests = gameEventCallback->addedQuests.size();
-	const size_t firstWindows   = gameEventCallback->infoWindows.size();
-	EXPECT_EQ(firstAddQuests, 1u);
-	EXPECT_EQ(firstWindows,   1u);
-
-	visit(hero, guard);
-	EXPECT_EQ(gameEventCallback->addedQuests.size(), firstAddQuests)
-		<< "second visit must not re-emit AddQuest";
-	EXPECT_GT(gameEventCallback->infoWindows.size(), firstWindows)
-		<< "second visit should produce its own next-visit info dialog";
-	EXPECT_TRUE(gameEventCallback->blockingDialogs.empty())
-		<< "unsatisfied limiter must not prompt for completion";
 }

@@ -50,6 +50,7 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
@@ -827,6 +828,14 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 
 	checkVictoryLossConditionsForAll(); //e.g. if monster escaped (removing objs after battle is done directly by endBattle, not this function)
 	return true;
+}
+
+void CGameHandler::addQuest(const PlayerColor & player, const QuestInfo & quest)
+{
+	AddQuest aq;
+	aq.player = player;
+	aq.quest = quest;
+	sendAndApply(aq);
 }
 
 bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker, const EPathfindingLayer & layer)

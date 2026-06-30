@@ -15,7 +15,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 
-// Pass 5.1 / 5.2: Quest Gate semantics. A Quest Gate stays on the map and is
+// Quest Gate semantics. A Quest Gate stays on the map and is
 // passable once its limiter is satisfied; a "toll" gate (consumable limiter)
 // charges the cost on every passage and is never persistently completed.
 

@@ -19,7 +19,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/Quest.h"
 
-// Pass 7: the quest-log minimap marks the source object plus, by inspecting the
+// The quest-log minimap marks the source object plus, by inspecting the
 // limiter, kill targets / matching keymaster tents / heroes that satisfy it.
 
 using namespace QuestScenarios;

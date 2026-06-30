@@ -158,7 +158,7 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & noneOf;
 		if (h.version >= Handler::Version::QUEST_REWORK)
 		{
-			// requiredKeys are keymaster-colour subIDs; MapObjectSubID needs a primary-ID
+			// FIXME: requiredKeys are keymaster-colour subIDs; MapObjectSubID needs a primary-ID
 			// context to (de)serialize, so round-trip them as plain numbers.
 			std::vector<int32_t> keys;
 			if(h.saving)

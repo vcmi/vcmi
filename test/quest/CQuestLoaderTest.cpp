@@ -185,7 +185,7 @@ TEST(QuestKind, classifiedByLimiterShape)
 	EXPECT_EQ(classify([](Quest & q){ q.mission.requiredKeys.push_back(MapObjectSubID(0)); }),               EQuestMission::KEYMASTER);
 }
 
-// HotA builder self-check (Pass 0.3a): a difficulty quest emitted through the
+// HotA builder self-check: a difficulty quest emitted through the
 // HOTA wire format parses without error and round-trips into the limiter.
 
 class QuestHotaLoaderTest : public QuestTest {};
