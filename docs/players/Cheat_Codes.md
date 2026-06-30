@@ -86,6 +86,10 @@ Gives specific creature in every slot, with optional amount. Examples:
 - `nwcredpill`, `nwctrojanrabbit`, `vcmisilmaril` or `vcmiwin` - player wins
 - `nwcbluepill`, `nwcsirrobin`, `vcmimelkor` or `vcmilose` - player loses
 
+### Finishing a battle
+
+- `vcmideathpunch` - kills all opposing units and wins the current battle
+
 ### Misc
 
 - `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight

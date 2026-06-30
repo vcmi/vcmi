@@ -18,6 +18,7 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
+#include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
@@ -316,6 +317,40 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 	if (gameHandler->gameState().getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
 		flowProcessor->onActionMade(*battle, ba);
 	return result;
+}
+
+void BattleProcessor::cheatBattleVictory(PlayerColor player)
+{
+	auto * battle = gameHandler->gameState().getBattle(player);
+	if(!battle || resultProcessor->battleIsEnding(*battle))
+		return;
+
+	const BattleSide winningSide = battle->playerToSide(player);
+	if(winningSide != BattleSide::ATTACKER && winningSide != BattleSide::DEFENDER)
+		return;
+
+	BattleUnitsChanged killedUnits;
+	killedUnits.battleID = battle->getBattleID();
+
+	for(const CStack * stack : battle->battleGetAllStacks(true))
+	{
+		if(stack->unitSide() == winningSide || !stack->alive())
+			continue;
+
+		auto state = stack->acquireState();
+		int64_t damage = state->getAvailableHealth();
+		state->damage(damage);
+
+		UnitChanges info(stack->unitId(), UnitChanges::EOperation::UPDATE);
+		info.data = state->save();
+		info.healthDelta = -damage;
+		killedUnits.changedStacks.push_back(info);
+	}
+
+	if(!killedUnits.changedStacks.empty())
+		gameHandler->sendAndApply(killedUnits);
+
+	setBattleResult(*battle, EBattleResult::NORMAL, winningSide);
 }
 
 void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide)

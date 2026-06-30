@@ -15,6 +15,7 @@
 #include "../CGameHandler.h"
 #include "../CVCMIServer.h"
 #include "../TurnTimerHandler.h"
+#include "../battles/BattleProcessor.h"
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CSkillHandler.h"
@@ -885,6 +886,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const auto & doCheatExperience = [&]() { cheatExperience(player, hero, words); };
 	const auto & doCheatMovement = [&]() { cheatMovement(player, hero, words); };
 	const auto & doCheatResources = [&]() { cheatResources(player, words); };
+	const auto & doCheatBattleVictory = [&]() { gameHandler->battles->cheatBattleVictory(player); };
 	const auto & doCheatVictory = [&]() { cheatVictory(player); };
 	const auto & doCheatDefeat = [&]() { cheatDefeat(player); };
 	const auto & doCheatMapReveal = [&]() { cheatMapReveal(player, true); };
@@ -938,6 +940,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"experience",         doCheatExperience                                           },
 		{"movement",           doCheatMovement                                             },
 		{"resources",          doCheatResources                                            },
+		{"battleVictory",      doCheatBattleVictory                                        },
 		{"defeat",             doCheatDefeat                                               },
 		{"victory",            doCheatVictory                                              },
 		{"mapReveal",          doCheatMapReveal                                            },

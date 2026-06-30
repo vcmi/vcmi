@@ -2,7 +2,8 @@
 	//	                        VCMI                       VCMI simple        SoD/HotA                   AB                    RoE
 	"localCheats" : {
 		"color" :             [                            "vcmicolor",       "nwcphisherprice"                                                      ],
-		"gray" :              [                            "vcmigray"                                                                                ]
+		"gray" :              [                            "vcmigray"                                                                                ],
+		"battleVictory" :     [                            "vcmideathpunch"                                                                          ]
     },
 	"townTargetedCheats" : {
 		"buildTown" :         [ "vcmiarmenelos",           "vcmibuild",       "nwczion",                 "nwccoruscant",       "nwconlyamodel"       ]
