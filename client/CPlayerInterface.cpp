@@ -1388,7 +1388,10 @@ void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop
 {
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1409,7 +1412,10 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1448,7 +1454,11 @@ void CPlayerInterface::initializeHeroTownList()
 			localState->addOwnedTown(town);
 	}
 
-	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
+	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
+	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
+	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	if(playerState)
+		localState->deserialize(*playerState->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);

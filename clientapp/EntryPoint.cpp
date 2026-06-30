@@ -62,7 +62,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
 static void init()
@@ -396,10 +395,7 @@ int main(int argc, char * argv[])
 			}
 			else
 			{
-				while(!headlessQuit)
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				GAME->server().waitForNetworkThread();
 			}
 		}
 		catch (const GameShutdownException & )
@@ -411,9 +407,17 @@ int main(int argc, char * argv[])
 
 	const auto & cleanupEngine = [&logConfigurator]()
 	{
+		if(settings["session"]["headless"].Bool() && GAME->server().client)
+			GAME->server().endGameplay();
+
+		if(ENGINE)
 		{
 			//aquire interfaceMutex to prevent undefined behavior on vstd::makeUnlockGuard(ENGINE->interfaceMutex)
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+			GAME->server().endNetwork();
+		}
+		else
+		{
 			GAME->server().endNetwork();
 		}
 
@@ -435,10 +439,13 @@ int main(int argc, char * argv[])
 			graphics = nullptr;
 		}
 
-		// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
-		ENGINE->async().wait();
+		if(ENGINE)
+		{
+			// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
+			ENGINE->async().wait();
 
-		ENGINE.reset();
+			ENGINE.reset();
+		}
 
 		delete LIBRARY;
 		LIBRARY = nullptr;

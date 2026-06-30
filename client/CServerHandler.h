@@ -218,6 +218,8 @@ public:
 	std::optional<std::string> canQuickLoadGame(const std::string & path) const; // returns reason why not compatible, or nullopt if can
 	void quickLoadGame(const std::string & path);
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
+	void stopNetwork();
+	void waitForNetworkThread();
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
