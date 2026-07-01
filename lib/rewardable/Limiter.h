@@ -158,16 +158,16 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & noneOf;
 		if (h.version >= Handler::Version::QUEST_REWORK)
 		{
-			// FIXME: requiredKeys are keymaster-colour subIDs; MapObjectSubID needs a primary-ID
-			// context to (de)serialize, so round-trip them as plain numbers.
-			std::vector<int32_t> keys;
+			// requiredKeys are keymaster-colour subIDs; serialize as identifiers (with the
+			// KEYMASTER primary-ID context) so they survive mod identifier renumbering.
+			std::vector<std::string> keyIDs;
 			if(h.saving)
 				for(const auto & key : requiredKeys)
-					keys.push_back(key.getNum());
-			h & keys;
+					keyIDs.push_back(MapObjectSubID::encode(Obj::KEYMASTER, key.getNum()));
+			h & keyIDs;
 			if(!h.saving)
-				for(int32_t key : keys)
-					requiredKeys.emplace_back(key);
+				for(const auto & keyID : keyIDs)
+					requiredKeys.emplace_back(MapObjectSubID::decode(Obj::KEYMASTER, keyID));
 
 			h & allowedDifficulties;
 			h & destroyedObjects;

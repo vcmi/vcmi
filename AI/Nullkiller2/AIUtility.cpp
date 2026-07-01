@@ -587,7 +587,10 @@ bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * 
 		return true;
 	case Obj::BORDER_GATE:
 	case Obj::BORDERGUARD:
-		return obj->cb->getPlayerState(playerID)->wasKeymasterVisited(obj->subID); //FIXME: they could be revisited sooner than in a week
+		// Borders have no weekly cooldown: blocked until the key is owned, then passable
+		// forever. The weekly sweep here only re-enables them coarsely (up to a week late).
+		// Proper fix: mark same-colour borders unvisited the moment the keymaster is visited.
+		return obj->cb->getPlayerState(playerID)->wasKeymasterVisited(obj->subID);
 	}
 	return false;
 }

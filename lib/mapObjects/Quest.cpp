@@ -675,7 +675,7 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		if(firstVisit)
 		{
 			gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
-			gameEvents.addQuest(h->tempOwner, QuestInfo(id)); //TODO: merge with setObjProperty?
+			gameEvents.addQuest(h->tempOwner, QuestInfo(id));
 		}
 
 		if(firstVisit || failRequirements)
