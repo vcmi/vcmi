@@ -73,9 +73,6 @@ public:
 
 	bool isMagicHero() const;
 
-	void updateFrom(const JsonNode & data);
-	void serializeJson(JsonSerializeFormat & handler);
-
 	EAlignment getAlignment() const;
 
 	int tavernProbability(FactionID faction) const;

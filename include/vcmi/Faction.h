@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Entity.h"
+#include "scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -18,7 +19,7 @@ class FactionID;
 enum class EAlignment : int8_t;
 class BoatId;
 
-class DLL_LINKAGE Faction : public EntityT<FactionID>, public INativeTerrainProvider
+class DLL_LINKAGE Faction : public EntityT<FactionID>, public INativeTerrainProvider, public scripting::ApiRawPointer<Faction>
 {
 public:
 	virtual bool hasTown() const = 0;

@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "translations.h"
+#include "../helper.h"
 #include "ui_translations.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -66,7 +67,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	ui->setupUi(this);
 	
-	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	Helper::decorateDialog(this);
 	
 	// Remove "map.<mapname>." prefix from all translation keys for editor display
 	// Internal VMAP translations are saved WITHOUT this prefix

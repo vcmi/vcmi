@@ -12,7 +12,9 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapObjects/army/CArmedInstance.h"
+#include "../../lib/mapObjects/army/CArmedInstance.h"
+
+VCMI_LIB_USING_NAMESPACE
 
 const int TOTAL_SLOTS = 7;
 

@@ -2,7 +2,7 @@
 	"rampart" :
 	{
 		"index" : 1,
-		"nativeTerrain": "grass",
+		"nativeTerrain": [ "grass" ],
 		"alignment" : "good",
 		"creatureBackground" :
 		{

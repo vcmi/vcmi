@@ -48,8 +48,8 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.heroLevel == r.heroLevel
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
-	&& l.movePoints == r.manaPoints
-	&& l.movePercentage == r.manaPercentage
+	&& l.movePoints == r.movePoints
+	&& l.movePercentage == r.movePercentage
 	&& l.canLearnSkills == r.canLearnSkills
 	&& l.commanderAlive == r.commanderAlive
 	&& l.hasExtraCreatures == r.hasExtraCreatures
@@ -79,13 +79,13 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
 	{
-		if (hero->cb->getDate(Date::DAY_OF_WEEK) != dayOfWeek)
+		if (hero->cb->getCalendar().getDayOfWeek() != dayOfWeek)
 			return false;
 	}
 
 	if(daysPassed != 0)
 	{
-		if (hero->cb->getDate(Date::DAY) < daysPassed)
+		if (hero->cb->getCalendar().getCurrentDay() < daysPassed)
 			return false;
 	}
 

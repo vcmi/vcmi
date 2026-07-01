@@ -136,7 +136,7 @@ TEST_F(SpellTargetEvaluatorTest, ReturnsEmptyIfMultiDestinationSpell)
 
 TEST_F(SpellTargetEvaluatorTest, ReturnSingleEmptyDestinationIfTargetIsNone)
 {
-	spellTargetTypes({AimType::NO_TARGET});
+	spellTargetTypes({AimType::NOTHING});
 	std::vector<Target> result = SpellTargetEvaluator::getViableTargets(&mechMock);
 	EXPECT_EQ(result.size(), 1);
 	EXPECT_TRUE(result.front().empty());

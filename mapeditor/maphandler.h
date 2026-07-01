@@ -28,6 +28,8 @@ class PlayerColor;
 
 VCMI_LIB_NAMESPACE_END
 
+VCMI_LIB_USING_NAMESPACE
+
 struct ObjectRect
 {
 	const CGObjectInstance * obj;

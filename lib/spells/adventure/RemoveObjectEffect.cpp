@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "RemoveObjectEffect.h"
 
-#include "../CSpellHandler.h"
+#include "../CSpell.h"
 
 #include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/CGHeroInstance.h"
@@ -67,7 +67,7 @@ ESpellCastResult RemoveObjectEffect::applyAdventureEffects(SpellCastEnvironment 
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text = failMessage;
-		parameters.caster->getCasterName(iw.text);
+		iw.text.replaceTextID(parameters.caster->getCasterNameTextID());
 		env->apply(iw);
 		return ESpellCastResult::OK;
 	}

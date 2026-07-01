@@ -179,7 +179,6 @@ public:
 	std::string nodeName() const override;
 
 	int getRandomAmount(vstd::RNG & ranGen) const;
-	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
 	CCreature();

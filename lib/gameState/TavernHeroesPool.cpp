@@ -66,7 +66,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 	if (replenishPoints)
 	{
-		h->setMovementPoints(h->movementPointsLimit(true));
+		h->setMovementPoints(h->movementPointsLimit());
 		h->mana = h->manaLimit();
 	}
 
@@ -137,7 +137,7 @@ void TavernHeroesPool::onNewDay()
 		if (vstd::contains(unusedHeroes, heroID))
 			continue;
 
-		heroPtr->setMovementPoints(heroPtr->movementPointsLimit(true));
+		heroPtr->setMovementPoints(heroPtr->movementPointsLimit());
 		heroPtr->mana = heroPtr->getManaNewTurn();
 	}
 }

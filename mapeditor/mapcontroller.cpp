@@ -27,9 +27,9 @@
 #include "../lib/modding/ModDescription.h"
 #include "../lib/TerrainHandler.h"
 #include "../lib/CSkillHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "mapsettings/modsettings.h"
 #include "mapview.h"
 #include "scenelayer.h"
@@ -44,7 +44,7 @@ MapController::MapController(QObject * parent)
 {
 }
 
-MapController::MapController(MainWindow * m): main(m)
+MapController::MapController(EditorMainWindow * m): main(m)
 {
 	for(int i = 0; i < MAX_LEVELS; i++)
 	{

@@ -17,9 +17,7 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_battle_IBattleState.h"
 #include "mock/mock_battle_Unit.h"
-#if SCRIPTING_ENABLED
 #include "mock/mock_scripting_Pool.h"
-#endif
 
 using namespace battle;
 using namespace testing;
@@ -162,16 +160,11 @@ public:
 	public:
 
 		const IBattleInfo * battle;
-#if SCRIPTING_ENABLED
 		scripting::Pool * pool;
 
 		TestSubject(scripting::Pool * p)
 			: CBattleInfoCallback(),
 			pool(p)
-#else
-		TestSubject()
-			: CBattleInfoCallback()
-#endif
 		{
 		}
 
@@ -184,18 +177,9 @@ public:
 		{
 			return std::nullopt;
 		}
-
-#if SCRIPTING_ENABLED
-		scripting::Pool * getContextPool() const override
-		{
-			return pool;
-		}
-#endif
 	};
 
-#if SCRIPTING_ENABLED
 	StrictMock<scripting::PoolMock> pool;
-#endif
 
 	TestSubject subject;
 
@@ -203,10 +187,8 @@ public:
 	UnitsFake unitsFake;
 
 	CBattleInfoCallbackTest()
-#if SCRIPTING_ENABLED
 		: pool(),
 		subject(&pool)
-#endif
 	{
 
 	}

@@ -15,6 +15,7 @@
 #include "../../Goals/Invalid.h"
 #include "../../Goals/BuildBoat.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
+#include "../../../../lib/spells/CSpell.h"
 #include "AdventureSpellCastMovementActions.h"
 
 namespace NK2AI

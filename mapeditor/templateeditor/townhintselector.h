@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include <QWidget>
+#include <QDialog>
 
 #include "../../lib/rmg/CRmgTemplate.h"
 

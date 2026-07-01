@@ -43,6 +43,15 @@ endif()
 
 target_link_libraries(vcmiqt vcmi Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
 
+if(IOS AND TARGET_IS_SHARED)
+	target_link_libraries(vcmiqt
+		"-framework CoreFoundation"
+		"-framework Foundation"
+		"-framework UIKit"
+		objc
+	)
+endif()
+
 target_include_directories(vcmiqt PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 )

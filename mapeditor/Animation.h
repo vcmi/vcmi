@@ -19,9 +19,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 VCMI_LIB_NAMESPACE_END
 
+VCMI_LIB_USING_NAMESPACE
+
 /*
  * Base class for images, can be used for non-animation pictures as well
  */
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
 
 class DefFile;
 /// Class for handling animation
@@ -95,3 +101,8 @@ public:
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+using MapEditor::Animation;
+#endif

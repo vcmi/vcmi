@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CWindowObject.h"
-#include "../lib/ResourceSet.h"
+#include "../../lib/ResourceSet.h"
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 
@@ -164,11 +164,17 @@ class CLevelWindow : public CWindowObject
 
 	void selectionChanged(unsigned to);
 	void createSkillBox();
+	void submitSelection();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	void setCloseOnSelection(bool value);
 
 	void close() override;
+
+private:
+	bool closeOnSelection = true;
+	bool selectionSubmitted = false;
 };
 
 /// Town portal, castle gate window
@@ -425,7 +431,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
+class CGarrisonWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;

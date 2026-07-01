@@ -339,9 +339,9 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 		// 1 - 1.7.0
 		// 2 - 1.7.3
 		// 3 - 1.8.0
-		int32_t formatVersion = reader.readInt32();
+		ret.hotaVersion = reader.readInt32();
 
-		if (formatVersion == 2)
+		if (ret.hotaVersion >= 2)
 		{
 			int hotaVersionMajor = reader.readUInt32();
 			int hotaVersionMinor = reader.readUInt32();
@@ -433,7 +433,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	if (header.version == CampaignVersion::HotA)
 		prologEpilogReader(ret.mapName + ".epilog3");
 
-	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version);
+	ret.travelOptions = readScenarioTravelFromMemory(reader, header.version, header.hotaVersion);
 
 	return ret;
 }
@@ -450,7 +450,15 @@ static void readContainer(std::set<Identifier> & container, CBinaryReader & read
 	}
 }
 
-CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version )
+template<typename Identifier>
+static void readContainerSized(std::set<Identifier> & container, CBinaryReader & reader, const MapIdentifiersH3M & remapper)
+{
+	uint32_t itemsCount = reader.readUInt32();
+	uint32_t bytesUsed = (itemsCount + 7) / 8;
+	readContainer<Identifier>(container, reader, remapper, bytesUsed);
+}
+
+CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & reader, CampaignVersion version, int hotaVersion )
 {
 	CampaignTravel ret;
 
@@ -465,8 +473,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	
 	if (version == CampaignVersion::HotA)
 	{
-		readContainer(ret.monstersKeptByHero, reader, mapping, 24);
-		readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
+		if (hotaVersion > 2)
+		{
+			readContainerSized(ret.monstersKeptByHero, reader, mapping);
+			readContainerSized(ret.artifactsKeptByHero, reader, mapping);
+		}
+		else
+		{
+			readContainer(ret.monstersKeptByHero, reader, mapping, 24);
+			readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
+		}
 	}
 	else
 	{

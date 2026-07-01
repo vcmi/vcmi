@@ -13,14 +13,21 @@
 #include "../filesystem/ResourcePath.h"
 #include "../constants/EntityIdentifiers.h"
 
+#ifdef ENABLE_EDITOR
+class CampaignEditor;
+class CampaignProperties;
+class ScenarioProperties;
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE CampaignRegions
 {
-	// Campaign editor
-	friend class CampaignEditor;
-	friend class CampaignProperties;
-	friend class ScenarioProperties;
+#ifdef ENABLE_EDITOR
+	friend class ::CampaignEditor;
+	friend class ::CampaignProperties;
+	friend class ::ScenarioProperties;
+#endif
 
 	/// Shared prefix for all campaign images
 	std::string campPrefix;

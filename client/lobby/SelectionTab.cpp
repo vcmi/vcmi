@@ -72,6 +72,11 @@ public:
 		return widget<CLabel>("labelMapSizes");
 	}
 
+	std::shared_ptr<CToggleGroup> mapSizeFilterGroup() const
+	{
+		return widget<CToggleGroup>("groupMapSizeFilters");
+	}
+
 	void setMapSizeLabelVisible(bool visible) const
 	{
 		if(auto label = mapSizeFilterLabel())
@@ -212,20 +217,32 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(tabType != ESelectionScreen::campaignList)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), 0, 6);
+		background = std::make_shared<CPicture>(ImagePath::builtin("SCSELBCK.bmp"), ENGINE->isRoeData() ? 36 : 0, 6);
 		pos = background->pos;
 		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), ImagePath::builtin("GSSTRIP.bmp"));
 		inputName->setFilterFilename();
 
 		scenarioTabConfigurable = std::make_shared<ScenarioTabConfigurable>(*this);
 		addChild(scenarioTabConfigurable.get(), false);
+		if(ENGINE->isRoeData())
+		{
+			if(auto group = scenarioTabConfigurable->mapSizeFilterGroup())
+				group->moveBy(Point(-36, 0));
+			if(auto label = scenarioTabConfigurable->mapSizeFilterLabel())
+				label->moveBy(Point(-18, 0));
+		}
 		scenarioTabConfigurable->setMapSizeLabelVisible(!CResourceHandler::get()->existsResource(AnimationPath::builtin("SCGTBUT.DEF")));
 
-		constexpr std::array xpos = {23, 55, 88, 121, 306, 339};
+		std::array xpos = {23, 55, 88, 121, 306, 339};
+		if(ENGINE->isRoeData())
+			xpos = {20, 52, 0, 85, 270, 303};
 		constexpr std::array sortIconNames = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		constexpr std::array sortShortcuts = { EShortcut::MAPS_SORT_PLAYERS, EShortcut::MAPS_SORT_SIZE, EShortcut::MAPS_SORT_FORMAT, EShortcut::MAPS_SORT_NAME, EShortcut::MAPS_SORT_VICTORY, EShortcut::MAPS_SORT_DEFEAT };
 		for(int i = 0; i < 6; i++)
 		{
+			if(ENGINE->isRoeData() && i == 2)
+				continue;
+
 			ESortBy criteria = (ESortBy)i;
 			if(criteria == _name)
 				criteria = generalSortingBy;
@@ -269,13 +286,13 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 	if(enableUiEnhancements)
 	{
-		auto sortByDate = std::make_shared<CButton>(Point(371, 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
+		auto sortByDate = std::make_shared<CButton>(Point(371 - (ENGINE->isRoeData() ? 36 : 0), 85), AnimationPath::builtin("selectionTabSortDate"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.sortDate")), std::bind(&SelectionTab::sortBy, this, ESortBy::_changeDate), EShortcut::MAPS_SORT_CHANGEDATE);
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
-			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
+			buttonDeleteMode = std::make_shared<CButton>(Point(367 - (ENGINE->isRoeData() ? 36 : 0), 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
 				deleteMode = !deleteMode;
 				if(deleteMode)
 					labelTabTitle->setText(tabTitleDelete);
@@ -329,8 +346,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	for(int i = 0; i < positionsToShow; i++)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25)));
 
-	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
-	slider = std::make_shared<CSlider>(Point(372, 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	labelTabTitle = std::make_shared<CLabel>(205 - (ENGINE->isRoeData() ? 18 : 0), 28, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, tabTitle);
+	slider = std::make_shared<CSlider>(Point(372 - (ENGINE->isRoeData() ? 36 : 0), 86 + (enableUiEnhancements ? 30 : 0)), (tabType != ESelectionScreen::saveGame ? 480 : 430) - (enableUiEnhancements ? 30 : 0), std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
 	slider->setPanningStep(24);
 	slider->setInertiaEnabled(true);
 
@@ -1152,20 +1169,22 @@ SelectionTab::ListItem::ListItem(Point position)
 	: CIntObject(LCLICK, position)
 {
 	OBJECT_CONSTRUCTION;
-	pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
-	labelName = std::make_shared<CLabel>(LABEL_POS_X, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
+	if(!ENGINE->isDemoData())
+		pictureEmptyLine = std::make_shared<CPicture>(ImagePath::builtin("camcust"), Rect(25, 121, 349, 26), -8, -14);
+	labelName = std::make_shared<CLabel>(LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "", 185);
 	labelName->setAutoRedraw(false);
-	labelAmountOfPlayers = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelAmountOfPlayers = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelAmountOfPlayers->setAutoRedraw(false);
-	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelNumberOfCampaignMaps = std::make_shared<CLabel>(8 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelNumberOfCampaignMaps->setAutoRedraw(false);
-	labelMapSizeLetter = std::make_shared<CLabel>(41, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+	labelMapSizeLetter = std::make_shared<CLabel>(41 - (ENGINE->isRoeData() ? 3 : 0), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	labelMapSizeLetter->setAutoRedraw(false);
 	// FIXME: This -12 should not be needed, but for some reason CAnimImage displaced otherwise
 	iconFolder = std::make_shared<CPicture>(ImagePath::builtin("lobby/iconFolder.png"), -8, -12);
-	iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
-	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277, -12);
-	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310, -12);
+	if(!ENGINE->isRoeData())
+		iconFormat = std::make_shared<CAnimImage>(AnimationPath::builtin("SCSELC.DEF"), 0, 0, 59, -12);
+	iconVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT.DEF"), 0, 0, 277 - (ENGINE->isRoeData() ? 36 : 0), -12);
+	iconLossCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRLOSS.DEF"), 0, 0, 310 - (ENGINE->isRoeData() ? 36 : 0), -12);
 }
 
 void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool selected)
@@ -1175,8 +1194,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1190,8 +1211,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->enable();
-		pictureEmptyLine->enable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->enable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->disable();
@@ -1200,12 +1223,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(info->isAutoSaveFolder) // align autosave folder left (starting timestamps in list should be in one line)
 		{
 			labelName->alignment = ETextAlignment::CENTERLEFT;
-			labelName->moveTo(Point(pos.x + 80, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + 80 - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		else
 		{
 			labelName->alignment = ETextAlignment::CENTER;
-			labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+			labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 22 : 0), labelName->pos.y));
 		}
 		labelName->setText(info->folderName);
 		labelName->setColor(color);
@@ -1218,8 +1241,10 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->disable();
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
@@ -1229,7 +1254,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	else
 	{
@@ -1243,16 +1268,20 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		labelMapSizeLetter->setText(info->getMapSizeName());
 		labelMapSizeLetter->setColor(color);
 		iconFolder->disable();
-		pictureEmptyLine->disable();
-		iconFormat->enable();
-		iconFormat->setFrame(info->getMapSizeFormatIconId());
+		if(pictureEmptyLine)
+			pictureEmptyLine->disable();
+		if(iconFormat)
+		{
+			iconFormat->enable();
+			iconFormat->setFrame(info->getMapSizeFormatIconId());
+		}
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
-		labelName->moveTo(Point(pos.x + LABEL_POS_X, labelName->pos.y));
+		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
 	}
 	labelName->setText(info->name);
 	labelName->setColor(color);

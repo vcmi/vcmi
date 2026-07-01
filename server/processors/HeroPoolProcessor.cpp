@@ -153,11 +153,17 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	const CGTownInstance * town = gameHandler->gameInfo().getTown(objectID);
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
-	if (!mapObject && gameHandler->complain("Invalid map object!"))
+	if (!mapObject)
+	{
+		gameHandler->complain("Invalid map object!");
 		return false;
+	}
 
-	if (!playerState && gameHandler->complain("Invalid player!"))
+	if (!playerState)
+	{
+		gameHandler->complain("Invalid player!");
 		return false;
+	}
 
 	if (playerState->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && gameHandler->complain("Not enough gold for buying hero!"))
 		return false;

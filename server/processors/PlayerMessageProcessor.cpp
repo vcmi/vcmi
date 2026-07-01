@@ -36,7 +36,7 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/json/JsonUtils.h"
-#include "../lib/VCMIDirs.h"
+#include "../../lib/VCMIDirs.h"
 
 PlayerMessageProcessor::PlayerMessageProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -924,11 +924,11 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	auto key = getCheatKey(cheatName);
 
 	std::map<std::string, std::function<void()>> callbacks = {
-		{"giveArchangel",      [&] () {doCheatGiveArmyFixed({ "archangel",        "5" });} },
-		{"giveBlackKnight",    [&] () {doCheatGiveArmyFixed({ "blackKnight",     "10" });} },
-		{"giveCrystalDragon",  [&] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
-		{"giveAzureDragon",    [&] () {doCheatGiveArmyFixed({ "azureDragon",   "5000" });} },
-		{"giveFairieDragon",   [&] () {doCheatGiveArmyFixed({ "fairieDragon",  "5000" });} },
+		{"giveArchangel",      [doCheatGiveArmyFixed] () {doCheatGiveArmyFixed({ "archangel",        "5" });} },
+		{"giveBlackKnight",    [doCheatGiveArmyFixed] () {doCheatGiveArmyFixed({ "blackKnight",     "10" });} },
+		{"giveCrystalDragon",  [doCheatGiveArmyFixed] () {doCheatGiveArmyFixed({ "crystalDragon", "5000" });} },
+		{"giveAzureDragon",    [doCheatGiveArmyFixed] () {doCheatGiveArmyFixed({ "azureDragon",   "5000" });} },
+		{"giveFairieDragon",   [doCheatGiveArmyFixed] () {doCheatGiveArmyFixed({ "fairieDragon",  "5000" });} },
 		{"giveArmy",           doCheatGiveArmyCustom                                       },
 		{"giveSpells",         doCheatGiveSpells                                           },
 		{"buildTown",          doCheatBuildTown                                            },
@@ -947,8 +947,8 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"maxMorale",          doCheatMaxMorale                                            },
 		{"god",                doCheatTheOne                                               },
 		{"giveScrolls",        doCheatGiveScrolls                                          },
-		{"color",              [&] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
-		{"gray",               [&] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
+		{"color",              [doCheatColorSchemeChange] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
+		{"gray",               [doCheatColorSchemeChange] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
 		{"skill",              doCheatSkill                                                },
 		{"teleport",           doCheatTeleport                                             },
 		{"grail",              doCheatGiveGrail                                            },

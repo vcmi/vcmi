@@ -9,6 +9,7 @@
  */
 
 #include "../StdInc.h"
+#include "../helper.h"
 #include "towneventswidget.h"
 #include "ui_towneventswidget.h"
 #include "towneventdialog.h"
@@ -24,6 +25,7 @@ TownEventsWidget::TownEventsWidget(CGTownInstance & town, QWidget * parent) :
 	town(town)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 }
 
 TownEventsWidget::~TownEventsWidget()

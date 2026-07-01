@@ -21,7 +21,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
 
-class MainWindow;
+class EditorMainWindow;
 class MapController;
 
 class MapSceneBase : public QGraphicsScene
@@ -83,6 +83,13 @@ protected:
 
 };
 
+// In single-app builds (Android/iOS), editor symbols like MapView, Animation,
+// Graphics and BitmapHandler clash with identically-named client classes.
+// Wrapping them in a namespace avoids renaming every affected symbol.
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 class MapView : public QGraphicsView
 {
 	Q_OBJECT
@@ -95,6 +102,7 @@ public:
 public:
 	MapView(QWidget * parent);
 	void setController(MapController *);
+	void resetInteractionState();
 
 	SelectionTool selectionTool;
 
@@ -127,6 +135,11 @@ private:
 	
 	std::set<int3> temporaryTiles;
 };
+
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+using MapEditor::MapView;
+#endif
 
 class MinimapView : public QGraphicsView
 {

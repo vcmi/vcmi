@@ -59,7 +59,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
 	{
-		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		std::lock_guard lock(animationCacheMutex);
 		auto it = animationFiles.find(actualPath);
 
 		if (it != animationFiles.end())
@@ -78,7 +78,7 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	auto entries = result->getEntries();
 	
 	{
-		std::lock_guard<std::mutex> lock(animationCacheMutex);
+		std::lock_guard lock(animationCacheMutex);
 		for(const auto& entry : entries)
 			for(size_t i = 0; i < entry.second; ++i)
 				animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};

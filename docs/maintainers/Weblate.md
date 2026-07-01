@@ -1,7 +1,7 @@
-# Discourse
+# Weblate
 
-- RAM requirements: 2 GB + swap, official docs recommend 3 Gb
-- CPU requirements: 1 core, official docs recommend 2 cores.
+- RAM requirements: 4 GB, may run at 2 Gb, but performance is poor
+- CPU requirements: 2 core, may tun at 1 core but performance is poor
 - SSD requirements: over 10 GB. Will grow over time with more translations
 
 Accessible as [weblate.vcmi.eu](https://weblate.vcmi.eu/)

@@ -27,6 +27,7 @@
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/spells/CSpell.h"
 #include "../../lib/CStack.h"
 
 static std::optional<std::pair<BattleHex, BattleHex>> getLongWeaponLineHexes(const BattleHex & defenderHex, BattleHex::EDir direction)
@@ -173,7 +174,7 @@ ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAn
 
 const CCreature * AttackAnimation::getCreature() const
 {
-	if (attackingStack->unitType()->getId() == CreatureID::ARROW_TOWERS)
+	if (attackingStack->isTurret())
 		return owner.siegeController->getTurretCreature(attackingStack->initialPosition);
 	else
 		return attackingStack->unitType();

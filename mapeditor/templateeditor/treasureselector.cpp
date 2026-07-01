@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "../helper.h"
 
 #include "treasureselector.h"
 #include "ui_treasureselector.h"
@@ -22,7 +23,7 @@ TreasureSelector::TreasureSelector(std::vector<CTreasureInfo> & treasures) :
 	treasures(treasures)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Treasure Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

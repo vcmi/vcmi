@@ -11,10 +11,10 @@
 
 #include "gtest/gtest.h"
 
-#include "../AI/VCAI/VCAI.h"
+#include "../../AI/Nullkiller2/Engine/Nullkiller.h"
 
 //dependency hell
-#include "../../lib/NetPacks.h" //for Component, TryMoveHero
+#include "../../lib/networkPacks/PacksForClient.h" //for Component, TryMoveHero
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 

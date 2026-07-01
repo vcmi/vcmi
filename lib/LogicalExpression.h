@@ -297,11 +297,12 @@ namespace LogicalExpressionDetail
 		}
 
 		template <typename Type>
-		typename Base::Variant operator()(Type element) const
+		typename Base::Variant operator()(const Type & element) const
 		{
-			for (auto & entry : element.expressions)
+			Type result = element;
+			for (auto & entry : result.expressions)
 				entry = std::visit(*this, entry);
-			return element;
+			return result;
 		}
 	};
 

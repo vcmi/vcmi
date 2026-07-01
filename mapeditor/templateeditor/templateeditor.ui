@@ -39,6 +39,8 @@
       <addaction name="actionOpen"/>
       <addaction name="actionSave"/>
       <addaction name="actionSave_as"/>
+      <addaction name="separator"/>
+      <addaction name="actionExit"/>
      </widget>
      <widget class="QMenu" name="menuEdit">
       <property name="title">
@@ -1427,6 +1429,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+=</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>

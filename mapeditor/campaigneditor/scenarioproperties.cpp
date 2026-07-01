@@ -8,12 +8,16 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "scenarioproperties.h"
 #include "ui_scenarioproperties.h"
 #include "startingbonus.h"
 #include "campaigneditor.h"
 
 #include "callback/EditorCallback.h"
+#include "../editorfiledialog.h"
+
+#include "../../lib/VCMIDirs.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -31,7 +35,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	cb(cb)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Scenario Properties"));
 	
 	setWindowModality(Qt::ApplicationModal);
@@ -388,7 +392,11 @@ void ScenarioProperties::on_pushButtonCreatureTypeNone_clicked()
 
 void ScenarioProperties::on_pushButtonImport_clicked()
 {
-	auto filename = QFileDialog::getOpenFileName(this, tr("Open map"), "", tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)"));
+	auto title = tr("Open map");
+	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto filter = tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)");
+
+	auto filename = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filename.isEmpty())
 		return;
 
@@ -421,7 +429,13 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 {
 	auto mapName = QString::fromStdString(campaignState->scenarios.at(scenario).mapName);
 	bool isVmap = mapName.toLower().endsWith(".vmap");
-	QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save map"), mapName, isVmap ? tr("VCMI maps (*.vmap);") : tr("HoMM3 maps (*.h3m);"));
+
+	auto title = tr("Save map");
+	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
+	auto filter = isVmap ? tr("VCMI maps (*.vmap);") : tr("HoMM3 maps (*.h3m);");
+
+	QString contentUri;
+	QString fileName = EditorFileDialog::getSaveFileName(this, title, dir, filter, contentUri);
 	if (fileName.isEmpty())
 		return;
 
@@ -436,6 +450,8 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 	QByteArray fileData(reinterpret_cast<const char*>(byteArray.data()), byteArray.size());
 
 	file.write(fileData);
+
+	EditorFileDialog::writeFileToUri(fileName, contentUri);
 }
 
 void ScenarioProperties::on_pushButtonRemove_clicked()

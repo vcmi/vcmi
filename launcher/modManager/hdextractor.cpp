@@ -49,8 +49,8 @@ void HdExtractor::installHd()
 
 	QString language = "";
 	auto folderList = QDir(QDir::cleanPath(dir.absolutePath() + QDir::separator() + "data/LOC")).entryList(QDir::Filter::Dirs);
-	for(auto lng : languages.keys())
-		for(auto folder : folderList)
+	for(const auto & lng : languages.keys())
+		for(const auto & folder : folderList)
 			if(lng == folder)
 				language = lng;
 	
@@ -132,8 +132,8 @@ void HdExtractor::createModJson(std::optional<SubModType> submodType, QDir path,
 		}
 		
 		QFile jsonFile(path.filePath("mod.json"));
-		jsonFile.open(QFile::WriteOnly);
-		jsonFile.write(QJsonDocument(mod).toJson());
+		if (jsonFile.open(QFile::WriteOnly))
+			jsonFile.write(QJsonDocument(mod).toJson());
 	}
 	else
 	{
@@ -148,7 +148,7 @@ void HdExtractor::createModJson(std::optional<SubModType> submodType, QDir path,
 		};
 		
 		QFile jsonFile(path.filePath("mod.json"));
-		jsonFile.open(QFile::WriteOnly);
-		jsonFile.write(QJsonDocument(mod).toJson());
+		if (jsonFile.open(QFile::WriteOnly))
+			jsonFile.write(QJsonDocument(mod).toJson());
 	}
 }

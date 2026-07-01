@@ -27,7 +27,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/CPlayerBattleCallback.h"
 #include "../lib/callback/CCallback.h"
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/callback/CGlobalAI.h"
 #include "../lib/callback/IGameInfoCallback.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -44,9 +44,6 @@
 #include <memory>
 #include <vcmi/events/EventBus.h>
 
-#if SCRIPTING_ENABLED
-#include "../lib/ScriptHandler.h"
-#endif
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -63,16 +60,6 @@ CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::
 const Services * CPlayerEnvironment::services() const
 {
 	return LIBRARY;
-}
-
-vstd::CLoggerBase * CPlayerEnvironment::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CPlayerEnvironment::eventBus() const
-{
-	return cl->eventBus();//always get actual value
 }
 
 const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle(const BattleID & battleID) const
@@ -112,16 +99,6 @@ const CClient::GameCb * CClient::game() const
 	return gamestate.get();
 }
 
-vstd::CLoggerBase * CClient::logger() const
-{
-	return logGlobal;
-}
-
-events::EventBus * CClient::eventBus() const
-{
-	return clientEventBus.get();
-}
-
 void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 {
 	GAME->server().th->update();
@@ -131,7 +108,6 @@ void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 
 	initMapHandler();
-	reinitScripting();
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -147,7 +123,6 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
-	reinitScripting();
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -178,10 +153,6 @@ void CClient::finishGameplay()
 
 void CClient::endGame()
 {
-#if SCRIPTING_ENABLED
-	clientScripts.reset();
-#endif
-
 	logNetwork->info("Ending current game!");
 	removeGUI();
 
@@ -264,7 +235,7 @@ void CClient::initPlayerInterfaces()
 
 				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
 				logNetwork->info("Player %s will be lead by %s", color.toString(), AiToGive);
-				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+				installNewPlayerInterface(AIFactory::createAdventureAI(AiToGive), color);
 			}
 			else
 			{
@@ -287,19 +258,15 @@ void CClient::initPlayerInterfaces()
 	}
 
 	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
-		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
+		installNewBattleInterface(AIFactory::createBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
 {
-	if(ps.name.size())
-	{
-		const boost::filesystem::path aiPath = VCMIDirs::get().fullLibraryPath("AI", ps.name);
-		if(boost::filesystem::exists(aiPath))
-			return ps.name;
-	}
+	if(ps.name.size() && AIFactory::isAvailableAdventureAI(ps.name))
+		return ps.name;
 
 	return aiNameForPlayer(battleAI, alliedToHuman);
 }
@@ -500,14 +467,6 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	{
 		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
 	}
-}
-
-void CClient::reinitScripting()
-{
-	clientEventBus = std::make_unique<events::EventBus>();
-#if SCRIPTING_ENABLED
-	clientScripts.reset(new scripting::PoolImpl(this));
-#endif
 }
 
 void CClient::removeGUI() const

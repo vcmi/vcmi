@@ -22,6 +22,7 @@ public:
 	MOCK_CONST_METHOD1(forEachBase, void(const std::function<void(const Entity *, bool &)> &));
 	MOCK_CONST_METHOD1(getById, const Spell *(const SpellID &));
 	MOCK_CONST_METHOD1(getByIndex, const Spell *(const int32_t));
+	MOCK_CONST_METHOD1(getByName, const Spell *(const std::string & name));
 	MOCK_CONST_METHOD1(forEach, void(const std::function<void(const Spell *, bool &)> &));
 };
 

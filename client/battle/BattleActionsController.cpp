@@ -34,10 +34,10 @@
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/effects/UnitEffect.h"
+#include "../../lib/spells/effects/Effect.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 struct TextReplacement
@@ -147,8 +147,8 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 
 	if(value.unitsDelta > 0)
 	{
-		auto unitTypeName = value.unitsDelta == 1 ? LIBRARY->creatures()->getById(value.unitType)->getNameSingularTranslated()
-												  : LIBRARY->creatures()->getById(value.unitType)->getNamePluralTranslated();
+		auto unitTypeName = value.unitsDelta == 1 ? value.unitType->getNameSingularTranslated()
+												  : value.unitType->getNamePluralTranslated();
 		return baseText +" (+ "+ std::to_string(value.unitsDelta) +" "+ unitTypeName +")";
 	}
 
@@ -547,11 +547,17 @@ void BattleActionsController::actionSetCursor(PossiblePlayerBattleAction action,
 			return;
 
 		case PossiblePlayerBattleAction::TELEPORT:
-			ENGINE->cursor().set(Cursor::Combat::TELEPORT);
+			if(!selectedStack)
+				ENGINE->cursor().set(Cursor::Spellcast::SPELL);
+			else
+				ENGINE->cursor().set(Cursor::Combat::TELEPORT);
 			return;
 
 		case PossiblePlayerBattleAction::SACRIFICE:
-			ENGINE->cursor().set(Cursor::Combat::SACRIFICE);
+			if(!selectedStack)
+				ENGINE->cursor().set(Cursor::Spellcast::SPELL);
+			else
+				ENGINE->cursor().set(Cursor::Combat::SACRIFICE);
 			return;
 
 		case PossiblePlayerBattleAction::HEAL:
@@ -694,7 +700,17 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
 
 		case PossiblePlayerBattleAction::TELEPORT:
+		{
+			if(!selectedStack) // Phase 1: hovering over unit to teleport
+			{
+				const CSpell * spell = action.spell().toSpell();
+				if(!spell || !targetStack)
+					return {};
+				auto spellEffectValue = owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+				return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
+			}
 			return LIBRARY->generaltexth->allTexts[25]; //Teleport Here
+		}
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 			return LIBRARY->generaltexth->allTexts[550];
@@ -707,6 +723,9 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 			auto spellEffectValue =
 					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+
+			if(!selectedStack) // Phase 1: hovering over dead unit to resurrect
+				return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack ? targetStack->getName() : "");
 
 			//sacrifice the %s
 			return prepareSpellEffectText(549, *spellEffectValue, "", targetStack->getName());
@@ -745,9 +764,13 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 			return LIBRARY->generaltexth->allTexts[23];
 			break;
 		case PossiblePlayerBattleAction::TELEPORT:
+			if(!selectedStack)
+				return LIBRARY->generaltexth->allTexts[23];
 			return LIBRARY->generaltexth->allTexts[24]; //Invalid Teleport Destination
 			break;
 		case PossiblePlayerBattleAction::SACRIFICE:
+			if(!selectedStack)
+				return LIBRARY->generaltexth->allTexts[23];
 			return LIBRARY->generaltexth->allTexts[543]; //choose army to sacrifice
 			break;
 		case PossiblePlayerBattleAction::FREE_LOCATION:
@@ -846,10 +869,15 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 			return false;
 
 		case PossiblePlayerBattleAction::TELEPORT:
-			return selectedStack && isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
+			if(!selectedStack)
+				return targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
+			return isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
 
 		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
 		{
+			if(!selectedStack)
+				return targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
+
 			if(!targetStack)
 				return false;
 
@@ -959,40 +987,51 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			return;
 		}
 
+		case PossiblePlayerBattleAction::SACRIFICE:
+		{
+			if(!selectedStack)
+			{
+				// Phase 1: select dead unit to resurrect
+				monsterCaster = owner.stacksController->getActiveStack();
+				owner.windowObject->blockUI(true);
+				owner.stacksController->deactivateStack();
+				if(heroSpellToCast)
+					heroSpellToCast->aimToHex(targetHex);
+				else
+					monsterSpellTargets.push_back(targetHex);
+				selectedStack = targetStack;
+				return;
+			}
+			[[fallthrough]];
+		}
+		case PossiblePlayerBattleAction::TELEPORT:
+		{
+			if(!selectedStack)
+			{
+				// Phase 1: select unit to teleport
+				monsterCaster = owner.stacksController->getActiveStack();
+				owner.windowObject->blockUI(true);
+				owner.stacksController->deactivateStack();
+				if(heroSpellToCast)
+					heroSpellToCast->aimToUnit(targetStack);
+				else
+					monsterSpellTargets.push_back(targetHex);
+				selectedStack = targetStack;
+				return;
+			}
+			[[fallthrough]];
+		}
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-		case PossiblePlayerBattleAction::TELEPORT:
 		case PossiblePlayerBattleAction::OBSTACLE:
-		case PossiblePlayerBattleAction::SACRIFICE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 		{
-			if (action.get() == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE )
+			if(action.get() == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE)
 			{
 				monsterCaster = owner.stacksController->getActiveStack();
 				owner.windowObject->blockUI(true);
 				owner.stacksController->deactivateStack();
-				if (action.spell() == SpellID::SACRIFICE)
-				{
-					if(heroSpellToCast)
-						heroSpellToCast->aimToHex(targetHex);
-					else
-						monsterSpellTargets.push_back(targetHex);
-					possibleActions.push_back({PossiblePlayerBattleAction::SACRIFICE, action.spell()});
-					selectedStack = targetStack;
-					return;
-				}
-				if (action.spell() == SpellID::TELEPORT)
-				{
-					if(heroSpellToCast)
-						heroSpellToCast->aimToUnit(targetStack);
-					else
-						monsterSpellTargets.push_back(targetHex);
-
-					possibleActions.push_back({PossiblePlayerBattleAction::TELEPORT, action.spell()});
-					selectedStack = targetStack;
-					return;
-				}
 			}
 
 			if (!heroSpellcastingModeActive())
@@ -1015,15 +1054,10 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			else
 			{
 				assert(getHeroSpellToCast());
-				switch (getHeroSpellToCast()->id.toEnum())
-				{
-					case SpellID::SACRIFICE:
-						heroSpellToCast->aimToUnit(targetStack);//victim
-						break;
-					default:
-						heroSpellToCast->aimToHex(targetHex);
-						break;
-				}
+				if(action.get() == PossiblePlayerBattleAction::SACRIFICE)
+					heroSpellToCast->aimToUnit(targetStack); //victim
+				else
+					heroSpellToCast->aimToHex(targetHex);
 				owner.curInt->cb->battleMakeSpellAction(owner.getBattleID(), *heroSpellToCast);
 				endCastingSpell();
 			}

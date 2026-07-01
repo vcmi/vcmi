@@ -211,6 +211,11 @@ bool ModState::isTranslation() const
 	return impl.isTranslation();
 }
 
+bool ModState::isDemoSupport() const
+{
+	return impl.isDemoSupport();
+}
+
 bool ModState::isVisible() const
 {
 	return !isHidden();

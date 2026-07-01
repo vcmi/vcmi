@@ -36,9 +36,11 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
+CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode, bool allowResourceTradeWhenNotMakingTurn, CPlayerInterface * resourceTradeInterface)
 	: CWindowObject(PLAYER_COLORED)
 	, windowClosedCallback(onWindowClosed)
+	, allowResourceTradeWhenNotMakingTurn(allowResourceTradeWhenNotMakingTurn)
+	, resourceTradeInterface(resourceTradeInterface ? resourceTradeInterface : GAME->interface())
 {
 	assert(mode == EMarketMode::RESOURCE_RESOURCE || mode == EMarketMode::RESOURCE_PLAYER || mode == EMarketMode::CREATURE_RESOURCE ||
 		mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE || mode == EMarketMode::ARTIFACT_EXP ||
@@ -93,10 +95,14 @@ void CMarketWindow::update()
 
 void CMarketWindow::close()
 {
-	if(windowClosedCallback)
-		windowClosedCallback();
+	// Detach the callback before closing: CWindowObject::close() can destroy this window,
+	// and the callback may reopen dialogs/windows, so it must run at most once after close.
+	auto callback = std::exchange(windowClosedCallback, nullptr);
 
 	CWindowObject::close();
+
+	if(callback)
+		callback();
 }
 
 bool CMarketWindow::holdsGarrison(const CArmedInstance * army)
@@ -247,7 +253,8 @@ void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroIn
 	auto image = getImagePathBasedOnResources("TPMRKRES");
 
 	background = createBg(image, PLAYER_COLORED);
-	marketWidget = std::make_shared<CMarketResources>(market, hero);
+	background->setPlayerColor(resourceTradeInterface->playerID);
+	marketWidget = std::make_shared<CMarketResources>(market, hero, allowResourceTradeWhenNotMakingTurn, resourceTradeInterface);
 	initWidgetInternals(EMarketMode::RESOURCE_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
 

@@ -69,6 +69,7 @@ class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
 
+	const scripting::Pool & getScriptContextPool() const override;
 	std::optional<BattleSide> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true) const override;
@@ -147,10 +148,10 @@ public:
 	bool battleHasWallPenalty(const IBonusBearer * shooter, const BattleHex & shooterPosition, const BattleHex & destHex) const;
 	bool battleHasShootingPenalty(const battle::Unit * shooter, const BattleHex & destHex) const;
 
-	BattleHex wallPartToBattleHex(EWallPart part) const;
-	EWallPart battleHexToWallPart(const BattleHex & hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	BattleHex wallPartToBattleHex(EWallPart part) const override;
+	EWallPart battleHexToWallPart(const BattleHex & hex) const override; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	bool isWallPartPotentiallyAttackable(EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
-	bool isWallPartAttackable(EWallPart wallPart) const; // returns true if the wall part is actually attackable, false if not
+	bool isWallPartAttackable(EWallPart wallPart) const override; // returns true if the wall part is actually attackable, false if not
 	BattleHexArray getAttackableWallParts() const;
 
 	si8 battleMinSpellLevel(BattleSide side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
@@ -201,7 +202,8 @@ public:
 	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 	BattleHex getClosestHexToTargetInRange(const ReachabilityInfo& cache, const battle::Unit& unit, const BattleHex& targetHex) const;
 
-	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
+	/// find free hex suitable to place new unit. If no initial position was provided, hex located on left size (attacker) or right side (defender) will be selected
+	BattleHex getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos = {}) const override;
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;

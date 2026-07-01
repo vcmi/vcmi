@@ -54,14 +54,6 @@ public class NativeMethods
     }
 
     @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-    public static String nativePath()
-    {
-        final Context ctx = SDL.getContext();
-        Log.i("Accessing ndk path: " + ctx.getApplicationInfo().nativeLibraryDir);
-        return ctx.getApplicationInfo().nativeLibraryDir;
-    }
-
-    @SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
     public static void showProgress()
     {
         internalProgressDisplay(true);

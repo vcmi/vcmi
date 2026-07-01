@@ -50,5 +50,5 @@ class VCMIApp(VCMI):
             tc.variables["CMAKE_ANDROID_API"] = str(self.settings.os.api_level)
             tc.variables["SDL_JAVA_SRC_DIR"] = os.path.join(self.dependencies.host["sdl"].package_folder, "share", "java", "SDL2")
         elif self.settings.os == "Windows":
-            tc.variables["CONAN_RUNENV_SCRIPT"] = self._pathForCmake(os.path.join(self.build_folder, "conanrun"))
+            tc.variables["CONAN_ZLIB_DIR"] = self._pathForCmake(self.dependencies.host["zlib"].cpp_info.bindirs[0])
         tc.generate()

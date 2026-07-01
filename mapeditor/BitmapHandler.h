@@ -11,9 +11,16 @@
 
 #include <QImage>
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+namespace MapEditor {
+#endif
+
 namespace BitmapHandler
 {
 	//Load file from /DATA or /SPRITES
 	QImage loadBitmap(const std::string & fname, bool setKey = true);
 }
 
+#ifdef ENABLE_SINGLE_APP_BUILD
+} // namespace MapEditor
+#endif

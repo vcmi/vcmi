@@ -81,7 +81,7 @@ public:
 	// returns how many times build has to be upgraded to become build
 	si32 getDistance(const BuildingID & build) const;
 
-	STRONG_INLINE
+	inline
 		bool IsTradeBuilding() const
 	{
 		return !marketModes.empty();

@@ -12,6 +12,7 @@
 
 #include "Event.h"
 #include "SubscriptionRegistry.h"
+#include "../scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +26,7 @@ namespace battle
 namespace events
 {
 
-class DLL_LINKAGE ApplyDamage : public Event
+class DLL_LINKAGE ApplyDamage : public Event, public scripting::ApiRawPointer<ApplyDamage>
 {
 public:
 	using Sub = SubscriptionRegistry<ApplyDamage>;

@@ -12,6 +12,8 @@
 
 #include <vcmi/EntityService.h>
 #include <vcmi/Entity.h>
+#include <vcmi/scripting/ApiTags.h>
+#include <vcmi/spells/SchoolService.h>
 #include "../constants/EntityIdentifiers.h"
 #include "../IHandlerBase.h"
 #include "../filesystem/ResourcePath.h"
@@ -23,7 +25,7 @@ class SpellSchoolHandler;
 namespace spells
 {
 
-class DLL_LINKAGE SpellSchoolType : public EntityT<SpellSchool>
+class DLL_LINKAGE SpellSchoolType : public EntityT<SpellSchool>, public scripting::ApiRawPointer<SpellSchoolType>
 {
 	friend class VCMI_LIB_WRAP_NAMESPACE(SpellSchoolHandler);
 
@@ -63,25 +65,16 @@ public:
 
 }
 
-class DLL_LINKAGE SpellSchoolHandler : public IHandlerBase
+class DLL_LINKAGE SpellSchoolHandler : public CHandlerBase<SpellSchool, spells::SpellSchoolType, spells::SpellSchoolType, spells::SchoolService>
 {
-	std::shared_ptr<spells::SpellSchoolType> loadObjectImpl(std::string scope, std::string name, const JsonNode & data, size_t index);
 public:
 	std::vector<JsonNode> loadLegacyData() override;
 
-	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	std::vector<SpellSchool> getAllObjects() const override;
 
-	std::vector<SpellSchool> getAllObjects() const;
-
-	const spells::SpellSchoolType * getById(SpellSchool index) const
-	{
-		return objects.at(index).get();
-	}
-
-private:
-	std::vector<std::shared_ptr<spells::SpellSchoolType>> objects;
+protected:
+	std::shared_ptr<spells::SpellSchoolType> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	const std::vector<std::string> & getTypeNames() const override;
 };
 
 VCMI_LIB_NAMESPACE_END

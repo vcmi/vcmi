@@ -8,12 +8,13 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "townbuildingswidget.h"
 #include "ui_townbuildingswidget.h"
 #include "mapeditorroles.h"
-#include "../lib/entities/building/CBuilding.h"
-#include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 std::string defaultBuildingIdConversion(BuildingID bId)
 {
@@ -127,6 +128,7 @@ TownBuildingsWidget::TownBuildingsWidget(CGTownInstance & t, QWidget *parent) :
 	ui(new Ui::TownBuildingsWidget)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 	ui->treeView->setModel(&model);
 	//ui->treeView->setColumnCount(3);
 	model.setHorizontalHeaderLabels(QStringList() << tr("Type") << tr("Enabled") << tr("Built"));

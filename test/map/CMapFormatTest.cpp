@@ -17,7 +17,7 @@
 #include "../../lib/rmg/CMapGenerator.h"
 #include "../../lib/mapping/MapFormatJson.h"
 
-#include "../lib/VCMIDirs.h"
+#include "../../lib/VCMIDirs.h"
 
 #include "MapComparer.h"
 #include "../JsonComparer.h"

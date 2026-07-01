@@ -300,7 +300,26 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="10" column="0" colspan="2">
+        <widget class="QPushButton" name="buttonInstallGame">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Install game</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -313,6 +332,7 @@
          </property>
         </spacer>
        </item>
+
        <item row="6" column="0">
         <widget class="QLabel" name="labelMissingVideo">
          <property name="minimumSize">

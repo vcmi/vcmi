@@ -11,32 +11,22 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../GameLibrary.h"
+#include "BattleSpellMechanics.h"
+#include "TargetCondition.h"
+#include "Problem.h"
+#include "CSpell.h"
 
+#include "adventure/AdventureSpellMechanics.h"
+#include "effects/Effects.h"
+
+#include "../GameLibrary.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
-
 #include "../mapObjects/CGHeroInstance.h"
-
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
-
-#include "TargetCondition.h"
-#include "Problem.h"
-
-#include "adventure/AdventureSpellMechanics.h"
-
-#include "BattleSpellMechanics.h"
-
-#include "effects/Effects.h"
-#include "effects/Registry.h"
-#include "effects/Damage.h"
-#include "effects/Timed.h"
-
-#include "CSpellHandler.h"
-
 #include "../BattleFieldHandler.h"
 
 #include <vstd/RNG.h>
@@ -75,8 +65,7 @@ protected:
 
 	void loadEffects(const JsonNode & config, const int level)
 	{
-		JsonDeserializer deser(nullptr, config);
-		effects->serializeJson(LIBRARY->spellEffects(), deser, level);
+		effects->data.at(level) = effects::Effects::loadJson(config, spell->modScope, spell->identifier);
 	}
 private:
 	std::shared_ptr<IReceptiveCheck> targetCondition;
@@ -97,6 +86,15 @@ public:
 //to be used for spells configured with old format
 class FallbackMechanicsFactory : public CustomMechanicsFactory
 {
+	JsonNode usePowerAsVal(const JsonNode & effectsNode, si32 power) const
+	{
+		JsonNode result = effectsNode;
+		for(auto & [name, bonusNode] : result.Struct())
+			if(bonusNode["val"].isNull())
+				bonusNode["val"].Integer() = power;
+		return result;
+	}
+
 public:
 	FallbackMechanicsFactory(const CSpell * s)
 		: CustomMechanicsFactory(s)
@@ -106,32 +104,23 @@ public:
 			const CSpell::LevelInfo & levelInfo = s->getLevelInfo(level);
 			assert(levelInfo.battleEffects.isNull());
 
-			if(s->isOffensive())
+			if(!levelInfo.effects.Struct().empty())
 			{
-				//default constructed object should be enough
-				effects->add("directDamage", std::make_shared<effects::Damage>(), level);
+				JsonNode config;
+				config["timed"]["type"].String() = "core:timed";
+				config["timed"]["bonus"] = usePowerAsVal(levelInfo.effects, levelInfo.power);
+				config.setModScope(s->modScope);
+				loadEffects(config, level);
 			}
-
-			std::shared_ptr<effects::Effect> effect;
-
-			if(!levelInfo.effects.empty())
+			else if(!levelInfo.cumulativeEffects.Struct().empty())
 			{
-				auto * timed = new effects::Timed();
-				timed->cumulative = false;
-				timed->bonus = levelInfo.effects;
-				effect.reset(timed);
+				JsonNode config;
+				config["timed"]["type"].String() = "core:timed";
+				config["timed"]["cumulative"].Bool() = true;
+				config["timed"]["bonus"] = usePowerAsVal(levelInfo.cumulativeEffects, levelInfo.power);
+				config.setModScope(s->modScope);
+				loadEffects(config, level);
 			}
-
-			if(!levelInfo.cumulativeEffects.empty())
-			{
-				auto * timed = new effects::Timed();
-				timed->cumulative = true;
-				timed->bonus = levelInfo.cumulativeEffects;
-				effect.reset(timed);
-			}
-
-			if(effect)
-				effects->add("timed", effect, level);
 		}
 	}
 };
@@ -333,7 +322,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	// %s recites the incantations but they seem to have no effect.
 	text.appendLocalString(EMetaText::GENERAL_TXT, 541);
 	assert(caster);
-	caster->getCasterName(text);
+	text.replaceTextID(caster->getCasterNameTextID());
 
 	target.add(std::move(text), spells::Problem::NORMAL);
 	return false;
@@ -362,7 +351,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 				//The %s prevents %s from casting 3rd level or higher spells.
 				text.appendLocalString(EMetaText::GENERAL_TXT, 536);
 				text.replaceName(b->sid.as<ArtifactID>());
-				caster->getCasterName(text);
+				text.replaceTextID(caster->getCasterNameTextID());
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
 			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
@@ -412,6 +401,11 @@ SpellID BaseMechanics::getSpellId() const
 std::string BaseMechanics::getSpellName() const
 {
 	return owner->getNameTranslated();
+}
+
+std::string BaseMechanics::getCasterNameTextID() const
+{
+	return caster->getCasterNameTextID();
 }
 
 int32_t BaseMechanics::getSpellLevel() const
@@ -541,22 +535,30 @@ PlayerColor BaseMechanics::getCasterColor() const
 	return caster->getCasterOwner();
 }
 
+const CGHeroInstance * BaseMechanics::getHeroCaster() const
+{
+	return caster->getHeroCaster();
+}
+
+const battle::Unit * BaseMechanics::getUnitCaster() const
+{
+	if (caster->getHeroCaster() != nullptr)
+		return nullptr;
+	return battle()->battleGetUnitByID(static_cast<uint32_t>(caster->getCasterUnitId()));
+}
+
 std::vector<AimType> BaseMechanics::getTargetTypes() const
 {
 	std::vector<AimType> ret;
-	detail::ProblemImpl ignored;
 
-	if(canBeCast(ignored))
-	{
-		auto spellTargetType = owner->getTargetType();
+	auto spellTargetType = owner->getTargetType();
 
-		if(isMassive())
-			spellTargetType = AimType::NO_TARGET;
-		else if(spellTargetType == AimType::OBSTACLE)
-			spellTargetType = AimType::LOCATION;
+	if(isMassive())
+		spellTargetType = AimType::NOTHING;
+	else if(spellTargetType == AimType::OBSTACLE)
+		spellTargetType = AimType::LOCATION;
 
-		ret.push_back(spellTargetType);
-	}
+	ret.push_back(spellTargetType);
 
 	return ret;
 }
@@ -566,12 +568,10 @@ const CreatureService * BaseMechanics::creatures() const
 	return LIBRARY->creatures(); //todo: redirect
 }
 
-#if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
 	return LIBRARY->scripts(); //todo: redirect
 }
-#endif
 
 const Service * BaseMechanics::spells() const
 {
@@ -583,6 +583,10 @@ const CBattleInfoCallback * BaseMechanics::battle() const
 	return cb;
 }
 
+BattleID BaseMechanics::getBattleID() const
+{
+	return cb->getBattle()->getBattleID();
+}
 
 } //namespace spells
 

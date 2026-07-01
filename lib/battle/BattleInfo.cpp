@@ -19,9 +19,9 @@
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
-#include "../spells/CSpellHandler.h"
 #include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../spells/CSpell.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../BattleFieldHandler.h"
 #include "../ObstacleHandler.h"
@@ -47,7 +47,7 @@ void BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, Batt
 	assert(!owner.isValidPlayer() || (base.getArmy() && base.getArmy()->tempOwner == owner));
 
 	auto ret = std::make_unique<CStack>(&base, owner, id, side, slot);
-	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
+	ret->initialPosition = getAvailableHex(base.getCreature(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
 	stacks.push_back(std::move(ret));
 }
 
@@ -499,6 +499,11 @@ const IBattleInfo * BattleInfo::getBattle() const
 	return this;
 }
 
+const scripting::Pool & BattleInfo::getScriptContextPool() const
+{
+	return cb->getScriptContextPool();
+}
+
 std::optional<PlayerColor> BattleInfo::getPlayerID() const
 {
 	return std::nullopt;
@@ -713,7 +718,7 @@ void BattleInfo::moveUnit(uint32_t id, const BattleHex & destination)
 	nodeHasChanged();
 }
 
-void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta)
+void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDelta)
 {
 	CStack * changedStack = getStack(id, false);
 	if(!changedStack)
@@ -824,11 +829,6 @@ void BattleInfo::removeUnit(uint32_t id)
 
 		ids.erase(toRemoveId);
 	}
-}
-
-void BattleInfo::updateUnit(uint32_t id, const JsonNode & data)
-{
-	//TODO
 }
 
 void BattleInfo::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
@@ -975,21 +975,12 @@ void BattleInfo::postDeserialize()
 		unit->postDeserialize(getSideArmy(unit->unitSide()));
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * BattleInfo::getContextPool() const
-{
-	//this is real battle, use global scripting context pool
-	//TODO: make this line not ugly
-	return battleGetFightingHero(BattleSide::ATTACKER)->cb->getGlobalContextPool();
-}
-#endif
-
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b) const
 {
 	switch(phase)
 	{
 	case 0: //catapult moves after turrets
-		return a->creatureIndex() > b->creatureIndex(); //catapult is 145 and turrets are 149
+		return a->isTurret() && !b->isTurret(); //turrets move before catapult
 	case 1:
 	case 2:
 	case 3:

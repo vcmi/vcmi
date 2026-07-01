@@ -18,7 +18,6 @@ class PlayerColor;
 class MetaString;
 class ServerCallback;
 class CGHeroInstance;
-class Spell;
 class SpellSchool;
 
 namespace battle
@@ -67,8 +66,8 @@ public:
 
 	virtual PlayerColor getCasterOwner() const = 0;
 
-	///only name substitution
-	virtual void getCasterName(MetaString & text) const = 0;
+	///returns text ID for caster's name
+	virtual std::string getCasterNameTextID() const = 0;
 
 	///full default text
 	virtual void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const = 0;

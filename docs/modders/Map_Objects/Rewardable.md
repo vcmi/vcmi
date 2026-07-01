@@ -220,13 +220,16 @@ To reference variable in limiter prepend variable name with '@' symbol:
 
 This property describes how object state should be reset. Objects without this field will never reset its state.
 
-- Period describes interval between object resets in day. Periods are counted from game start and not from hero visit, so reset duration of 7 will always reset object on new week & duration of 28 will always reset on new month.
+- The reset interval is the sum of `days`, `weeks` and `months`, with `weeks` and `months` resolved against the active game's calendar settings (days-per-week and weeks-per-month, both configurable via game settings). For the default 7-day week / 4-week month this means `"weeks": 1` is equivalent to `"days": 7` and `"months": 1` is equivalent to `"days": 28` - but unlike a hardcoded number of days, the `weeks`/`months` form continues to land on the start of a week/month if the map uses a non-default calendar.
+- Periods are counted from game start and not from hero visit, so e.g. `"weeks": 1` will always reset the object on every new week.
 - If `visitors` is set to true, game will reset list of visitors (heroes and players) on start of new period, allowing revisits of objects with `visitMode` set to `once`, `hero`, or `player`. Objects with visit mode set to `bonus` are not affected. In order to allow revisit such objects use appropriate bonus duration (e.g. `ONE_DAY` or `ONE_WEEK`) instead.
 - If `rewards` is set to true, object will re-randomize its provided rewards, similar to such H3 objects as "Fountain of Fortune" or "Windmill"
 
 ```json
 "resetParameters" : {
-    "period" : 7,
+    "days" : 0,
+    "weeks" : 1,
+	"months" : 0,
     "visitors" : true,
     "rewards" : true
 }
@@ -450,7 +453,12 @@ Keep in mind, that all randomization is performed on map load and on object rese
         "noneOf" : ["necromancy", "leadership"],
         "amount" : 1
     },
-    {
+	{
+	    // Skill will be selected randomly from all allowed skills that have specified tag set in skill config
+		"tag" : ["spellSchool"],
+		"amount" : 1
+		},
+	{
         // Skill will be selected randomly from all allowed
         "amount" : 3
     }

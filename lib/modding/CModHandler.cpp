@@ -19,7 +19,6 @@
 #include "../CConfigHandler.h"
 #include "../CCreatureHandler.h"
 #include "../GameSettings.h"
-#include "../ScriptHandler.h"
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
@@ -312,14 +311,7 @@ void CModHandler::load()
 			validationPassed.erase(modName);
 	}
 
-#if SCRIPTING_ENABLED
-	LIBRARY->scriptHandler->performRegistration(LIBRARY);//todo: this should be done before any other handlers load
-#endif
-
 	content->loadCustom();
-
-	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
 
 	logMod->info("\tLoading mod data");
 	LIBRARY->creh->loadCrExpMod();
@@ -327,6 +319,9 @@ void CModHandler::load()
 	logMod->info("\tResolving identifiers");
 
 	content->afterLoadFinalization();
+	for(const TModID & modName : activeMods)
+		loadTranslation(modName);
+
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");
 }

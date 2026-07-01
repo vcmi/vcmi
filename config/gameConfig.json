@@ -103,6 +103,10 @@
 	[
 		"config/spellSchools.json"
 	],
+	"spellEffects" :
+	[
+		"config/spellEffects.json"
+	],
 	"skills" :
 	[
 		"config/skills.json"
@@ -139,7 +143,6 @@
 	[
 		"config/mapLayers.json"
 	],
-	
 	
 	"settings":
 	{

@@ -71,8 +71,13 @@ private slots:
 	void on_buttonPresetDelete_clicked();
 	void on_comboBoxModPresets_currentTextChanged(const QString &arg1);
 	void on_buttonPresetRename_clicked();
+	void on_buttonInstallGame_clicked();
 
 	void clipboardDataChanged();
 private:
+	QStringList selectImportFiles();
+	QStringList stageUnreadableFiles(const QStringList & files);
+	void importPreparedFiles(const QStringList & files);
+
 	Ui::StartGameTab * ui;
 };

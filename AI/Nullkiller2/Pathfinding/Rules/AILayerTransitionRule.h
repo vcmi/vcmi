@@ -26,9 +26,9 @@ namespace AIPathfinding
 		Nullkiller * aiNk;
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
-		std::map<const CGHeroInstance *, std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;
-		std::map<const CGHeroInstance *, std::shared_ptr<const WaterWalkingAction>> waterWalkingActions;
-		std::map<const CGHeroInstance *, std::shared_ptr<const AirWalkingAction>> airWalkingActions;
+		HeroMap<std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;
+		HeroMap<std::shared_ptr<const WaterWalkingAction>> waterWalkingActions;
+		HeroMap<std::shared_ptr<const AirWalkingAction>> airWalkingActions;
 
 	public:
 		AILayerTransitionRule(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage);

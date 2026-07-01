@@ -93,18 +93,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  endif
 #endif
 
-/* ---------------------------------------------------------------------------- */
-/* A macro to force inlining some of our functions */
-/* ---------------------------------------------------------------------------- */
-// Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
-#ifdef _MSC_VER
-#  define STRONG_INLINE __forceinline
-#elif __GNUC__
-#  define STRONG_INLINE inline __attribute__((always_inline))
-#else
-#  define STRONG_INLINE inline
-#endif
-
 // Required for building boost::stacktrace on macOS.
 // See https://github.com/boostorg/stacktrace/issues/88
 #if defined(VCMI_APPLE)
@@ -127,6 +115,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <cstdlib>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -215,10 +204,6 @@ typedef int64_t si64; //signed int 64 bits (8 bytes)
 typedef int32_t si32; //signed int 32 bits (4 bytes)
 typedef int16_t si16; //signed int 16 bits (2 bytes)
 typedef int8_t si8; //signed int 8 bits (1 byte)
-
-// Lock typedefs
-using TLockGuard = std::lock_guard<std::mutex>;
-using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 
 /* ---------------------------------------------------------------------------- */
 /* Macros */

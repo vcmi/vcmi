@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_END
 class VisitQuery : public CQuery
 {
 protected:
-	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
+	VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, QueryType type);
 
 public:
 	ObjectInstanceID visitedObject;
@@ -31,7 +31,12 @@ public:
 
 class MapObjectVisitQuery final : public VisitQuery
 {
+	std::vector<ObjectInstanceID> deferredBattleLevelUps;
+	bool processingDeferredBattleLevelUps = false;
+
 public:
+	static constexpr QueryType TYPE = QueryType::MapObjectVisit;
+
 	bool removeObjectAfterVisit;
 
 	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
@@ -52,6 +57,8 @@ class TownBuildingVisitQuery final : public VisitQuery
 	std::vector<BuildingVisit> visitedBuilding;
 
 public:
+	static constexpr QueryType TYPE = QueryType::TownBuildingVisit;
+
 	TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit);
 
 	void onAdded(PlayerColor color) final;

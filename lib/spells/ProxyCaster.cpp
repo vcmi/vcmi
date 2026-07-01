@@ -108,10 +108,11 @@ PlayerColor ProxyCaster::getCasterOwner() const
 	return PlayerColor::CANNOT_DETERMINE;
 }
 
-void ProxyCaster::getCasterName(MetaString & text) const
+std::string ProxyCaster::getCasterNameTextID() const
 {
 	if(actualCaster)
-		actualCaster->getCasterName(text);
+		return actualCaster->getCasterNameTextID();
+	return "UNKNOWN";
 }
 
 void ProxyCaster::getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const

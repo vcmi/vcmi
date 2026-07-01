@@ -50,6 +50,7 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 
 	void setObject(std::shared_ptr<CIntObject> object);
+	void select();
 	void deselect(); //TODO: consider using observer pattern instead?
 	bool getIsMasterAbility();
 
@@ -198,6 +199,7 @@ class CStackWindow : public CWindowObject
 
 	void initSections();
 	void initBonusesList();
+	void submitSelection();
 
 	void init();
 	void close() override;
@@ -219,7 +221,12 @@ public:
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
 	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
+	void setCloseOnSelection(bool value);
 
 	void keyPressed(EShortcut key) override;
 	~CStackWindow();
+
+private:
+	bool closeOnSelection = true;
+	bool selectionSubmitted = false;
 };

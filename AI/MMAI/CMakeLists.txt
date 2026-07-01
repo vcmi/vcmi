@@ -1,24 +1,23 @@
 cmake_minimum_required(VERSION 3.24)
 
+# Re-enable CMP0177 after it is reset by MMAI.
+if(POLICY CMP0177)
+	cmake_policy(SET CMP0177 NEW)
+endif()
+
 set(MMAI_FILES
-  BAI/base.cpp
-  BAI/base.h
+  BAI/logger.h
+  BAI/factory.h
+  BAI/factory.cpp
   BAI/router.cpp
   BAI/router.h
-  BAI/model/ScriptedModel.h
-  BAI/model/ScriptedModel.cpp
-  BAI/model/NNModel.h
-  BAI/model/NNModel.cpp
-  BAI/model/NNModelStochastic.h
-  BAI/model/NNModelStochastic.cpp
-  BAI/model/util/bucketing.cpp
-  BAI/model/util/bucketing.h
-  BAI/model/util/common.h
-  BAI/model/util/sampling.cpp
-  BAI/model/util/sampling.h
+  BAI/fallback/scripted_model.h
+  BAI/fallback/scripted_model.cpp
 
   BAI/v13/BAI.cpp
   BAI/v13/BAI.h
+  BAI/v13/nn_model.h
+  BAI/v13/nn_model.cpp
   BAI/v13/action.cpp
   BAI/v13/action.h
   BAI/v13/attack_log.h
@@ -54,6 +53,7 @@ set(MMAI_FILES
   common.h
 )
 
+
 option(ENABLE_MMAI_TEST "Compile tests" OFF)
 
 set(MMAI_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR})
@@ -61,22 +61,10 @@ set(MMAI_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DUSING_ONNX=1)
 assign_source_group(${MMAI_FILES})
 
-if(ENABLE_STATIC_LIBS)
-  add_library(MMAI STATIC ${MMAI_FILES})
-else()
-  add_library(MMAI SHARED ${MMAI_FILES} main.cpp StdInc.cpp)
-  install(TARGETS MMAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+add_library(MMAI OBJECT ${MMAI_FILES})
+target_compile_definitions(MMAI PRIVATE VCMI_DLL=1)
 
-  # This is needed to allow MMAI to link against BattleAI
-  # For windows, this is handled at runtime instead via LoadLibraryExW(..., LOAD_WITH_ALTERED_SEARCH_PATH)
-  if(APPLE)
-    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "@loader_path")
-  elseif(UNIX)
-    set_target_properties(MMAI PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${CMAKE_INSTALL_RPATH}/AI")
-  endif()
-endif()
-
-target_link_libraries(MMAI PRIVATE vcmi)
+target_link_libraries(MMAI PRIVATE vcmiMain)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # First try CMake config (works on Fedora, Debian, Ubuntu, Arch)
@@ -118,11 +106,10 @@ else()
 endif()
 
 # for fallback & spell casting
-add_dependencies(MMAI BattleAI)
-target_link_libraries(MMAI PRIVATE BattleAI)
+target_link_libraries(MMAI PRIVATE BattleAI StupidAI)
 
 # Used in schema/base.h to determine if it is imported by MMAI or vcmi-gym
-set_target_properties(MMAI PROPERTIES COMPILE_DEFINITIONS "MMAI_DLL=1")
+target_compile_definitions(MMAI PRIVATE MMAI_DLL=1)
 target_include_directories(MMAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(ENABLE_MMAI_TEST)

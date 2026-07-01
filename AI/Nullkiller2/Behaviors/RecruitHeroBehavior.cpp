@@ -139,7 +139,7 @@ void RecruitHeroBehavior::calculateFinalDecision(
 	const int treasureSourcesCount
 )
 {
-	if(!vstd::isAlmostZero(bestChoice.score))
+	if(bestChoice.hero != nullptr && !vstd::isAlmostZero(bestChoice.score))
 	{
 		if(ourHeroes.empty()
 		   || treasureSourcesCount > ourHeroes.size() * 5

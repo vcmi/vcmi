@@ -154,6 +154,9 @@
 	},
 	"navigation" : {
 		"index" : 5,
+		"tags" : {
+			"onlyOnWaterMap" : true
+		},
 		"specialty" : [
 			"main"
 		],
@@ -180,11 +183,13 @@
 			"effects" : {
 				"main" : { "val" : 150 }
 			}
-		},
-		"onlyOnWaterMap" : true
+		}
 	},
 	"leadership" : {
 		"index" : 6,
+		"tags" : {
+			"bannedForWitchHut" : true
+		},
 		"specialty" : [], // generic specialty not applicable
 		"base" : {
 			"effects" : {
@@ -213,7 +218,9 @@
 	"wisdom" : {
 		"index" : 7,
 		"specialty" : [], // generic specialty not applicable
-		"obligatoryMajor" : true,
+		"tags" : {
+			"wisdom" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -366,6 +373,10 @@
 	},
 	"necromancy" : {
 		"index" : 12,
+		"tags" : {
+			"bannedForWitchHut" : true,
+			"bannedForUniversity" : true
+		},
 		"specialty" : [
 			"main"
 		],
@@ -434,7 +445,9 @@
 	"fireMagic" : {
 		"index" : 14,
 		"specialty" : [], // generic specialty not applicable
-		"obligatoryMinor" : true,
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -463,7 +476,9 @@
 	"airMagic" : {
 		"index" : 15,
 		"specialty" : [], // generic specialty not applicable
-		"obligatoryMinor" : true,
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -492,7 +507,9 @@
 	"waterMagic" : {
 		"index" : 16,
 		"specialty" : [], // generic specialty not applicable
-		"obligatoryMinor" : true,
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -521,7 +538,9 @@
 	"earthMagic" : {
 		"index" : 17,
 		"specialty" : [], // generic specialty not applicable
-		"obligatoryMinor" : true,
+		"tags" : {
+			"spellSchool" : true
+		},
 		"base" : {
 			"effects" : {
 				"main" : {

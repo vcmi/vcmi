@@ -704,7 +704,7 @@ void CSDL_Ext::fillRectBlended( SDL_Surface *dst, const Rect & dstrect, const SD
 	SDL_FreeSurface(tmp);
 }
 
-STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
+inline static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
 {
 	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
 }

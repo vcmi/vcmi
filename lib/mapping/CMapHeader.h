@@ -108,7 +108,7 @@ struct DLL_LINKAGE EventCondition
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
 		HAVE_BUILDING,     // position - town, optional, type - building to build
-		CONTROL,           // position - position of object, optional, type - type of object
+		CONTROL,           // specific object: true until first capture, then only while currently controlled; generic type check: same as CONTROL_CURRENT
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
 
@@ -116,8 +116,9 @@ struct DLL_LINKAGE EventCondition
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
-		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
-	};
+		CONST_VALUE,       // condition that always evaluates to "value" (0 = false, 1 = true)
+		CONTROL_CURRENT    // current ownership check, for specific object or all objects of given type
+		};
 
 	using TargetTypeID = VariantIdentifier<ArtifactID, CreatureID, GameResID, BuildingID, MapObjectID>;
 

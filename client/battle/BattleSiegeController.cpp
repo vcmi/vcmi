@@ -353,34 +353,25 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.getBattle()->battleGetStackByID(ca.attacker);
-		for (auto attackInfo : ca.attackedParts)
-		{
-			owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
-		}
+		owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt));
 	}
 	else
 	{
-		std::vector<Point> positions;
-
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
-		for (auto attackInfo : ca.attackedParts)
-			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
+		std::vector<Point> positions;
+		positions.push_back(owner.stacksController->getStackPositionAtHex(ca.destinationTile, nullptr) + Point(99, 120));
 
 		ENGINE->sound().playSound( AudioPath::builtin("WALLHIT") );
 		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
+		owner.fieldController->startShakeAnimation();
 	}
-
 	owner.waitForAnimations();
 
-	for (auto attackInfo : ca.attackedParts)
+	int wallId = static_cast<int>(ca.attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
+	//gate state changing handled separately
+	if (wallId != EWallVisual::GATE)
 	{
-		int wallId = static_cast<int>(attackInfo.attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
-		//gate state changing handled separately
-		if (wallId == EWallVisual::GATE)
-			continue;
-
-		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackInfo.attackedPart));
-
+		auto wallState = EWallState(owner.getBattle()->battleGetWallState(ca.attackedPart));
 		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
 	}
 }

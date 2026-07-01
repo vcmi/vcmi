@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "timedevent.h"
 #include "ui_timedevent.h"
 #include "eventsettings.h"
@@ -24,9 +25,7 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 	target(t)
 {
 	ui->setupUi(this);
-
-
-
+	Helper::decorateDialog(this);
 	const auto params = t->data(Qt::UserRole).toMap();
 	ui->eventNameText->setText(params.value("name").toString());
 	ui->eventMessageText->setPlainText(params.value("message").toString());

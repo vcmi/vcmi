@@ -12,6 +12,7 @@
 #include "constants/NumericConstants.h"
 #include "constants/Enumerations.h"
 #include "constants/EntityIdentifiers.h"
+#include "../Version.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

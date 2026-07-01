@@ -30,6 +30,8 @@ class CGCreature;
 class CGBoat;
 class CFaction;
 class CStackBasicDescriptor;
+class IGameInfoCallback;
+class IGameRandomizer;
 
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
@@ -68,14 +70,22 @@ class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGM
 	GameResID resourceType;
 	ui32 defaultQuantity;
 	AnimationPath kingdomOverviewImage;
+	JsonNode guards;
+	std::string descriptionTextID;
+	std::string onGuardedMessageTextID;
+	std::string ownedGuardedMessageTextID;
+	std::string onCaptureMessageTextID;
 public:
 	void initTypeData(const JsonNode & input) override;
 
 	GameResID getResourceType() const;
 	ui32 getDefaultQuantity() const;
 	std::string getDescriptionTextID() const;
-	std::string getDescriptionTranslated() const;
+	std::string getOnGuardedMessageTextID() const;
+	std::string getOwnedGuardedMessageTextID() const;
+	std::string getOnCaptureMessageTextID() const;
 	AnimationPath getKingdomOverviewImage() const;
+	std::vector<CStackBasicDescriptor> getGuards(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer) const;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
@@ -138,6 +148,7 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
+	EPathfindingLayer getLayer() const;
 };
 
 VCMI_LIB_NAMESPACE_END

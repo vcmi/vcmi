@@ -1,0 +1,18 @@
+#! /usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_DISCORD=OFF \
+		-DENABLE_MMAI=OFF \
+		-DENABLE_GOLDMASTER=ON \
+		-DBIN_DIR=games \
+		-DENABLE_TEST=0
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/vcmi-1.8
+override_dh_installdocs:
+	dh_installdocs --link-doc=vcmi-1.8

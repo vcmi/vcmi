@@ -152,6 +152,26 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QSpinBox" name="resetWeeks">
+            <property name="suffix">
+             <string> weeks</string>
+            </property>
+            <property name="maximum">
+             <number>99</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="resetMonths">
+            <property name="suffix">
+             <string> months</string>
+            </property>
+            <property name="maximum">
+             <number>99</number>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>

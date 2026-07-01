@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "PlayerSettingsDialog.h"
+#include "helper.h"
 #include "ui_PlayerSettingsDialog.h"
 #include "playerparams.h"
 #include "mainwindow.h"
@@ -24,7 +25,7 @@ PlayerSettingsDialog::PlayerSettingsDialog(MapController & ctrl, QWidget *parent
 	ui->setupUi(this);
 	controller.settingsDialog = this;
 	
-	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	Helper::decorateDialog(this);
 	
 	show();
 

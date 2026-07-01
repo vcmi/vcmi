@@ -4,15 +4,6 @@
 
 ```json
 {
-	// Skill be only be available on maps with water
-	"onlyOnWaterMap" : false,
-	// Skill is not available on maps at random
-	"special" : true
-}
-```
-
-```json
-{
 	"skillName":
 	{
 		//Mandatory, localizable skill name
@@ -46,11 +37,22 @@
 			"modName:heroClassName" : 5
 		},
 		
-		// This skill is major obligatory (like H3 Wisdom) and is guaranteed to be offered once per specific number of levels
-		"obligatoryMajor" : false,
-		
-		// This skill is minor obligatory (like H3 Magic school) and is guaranteed to be offered once per specific number of levels
-		"obligatoryMinor" : false,
+        // List of tags that describe this skill
+		// Tags are only active if set to 'true'
+		// All values are optional
+		// It is also possible to define own tag and test for it when rolling for skills
+		"tags" : {
+		    // Skill is banned on random maps without water
+			"onlyOnWaterMap" : false,
+			// Skill is considered to be disabled on maps by default
+			"special" : true,
+			// This skill is guaranteed to be offered once per specific number of levels
+			// according to H3 logic for Wisdom
+			"wisdom" : false,
+			// This skill is guaranteed to be offered once per specific number of levels
+			// according to H3 logic for Spell Schools
+			"spellSchool" : true
+		}
 	}
 }
 ```

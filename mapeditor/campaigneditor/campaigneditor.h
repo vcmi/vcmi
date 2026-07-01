@@ -15,9 +15,13 @@
 #include "../StdInc.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 class CampaignState;
 class CMap;
 class EditorCallback;
+VCMI_LIB_NAMESPACE_END
+
+VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class CampaignEditor;
@@ -45,7 +49,8 @@ private slots:
 	void on_actionSave_triggered();
 	void on_actionCampaignProperties_triggered();
 	void on_actionScenarioProperties_triggered();
-	
+    void on_actionExit_triggered();
+
 private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();
@@ -55,6 +60,7 @@ private:
 	void loadCampaignFile(const QString & filenameSelect);
 
 	void closeEvent(QCloseEvent *event) override;
+	void changeEvent(QEvent *event) override;
 	void dragEnterEvent(QDragEnterEvent *event) override;
 	void dropEvent(QDropEvent *event) override;
 

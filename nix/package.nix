@@ -82,7 +82,6 @@ in {
   '';
   cmakeFlags = with pkgs;
     [
-      (lib.cmakeFeature "CMAKE_INSTALL_RPATH" "$out/lib/vcmi")
       (lib.cmakeFeature "CMAKE_INSTALL_BINDIR" "bin")
       (lib.cmakeFeature "CMAKE_INSTALL_LIBDIR" "lib")
       (lib.cmakeFeature "CMAKE_INSTALL_DATAROOTDIR" "share")

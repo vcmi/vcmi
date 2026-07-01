@@ -16,14 +16,14 @@ struct StartInfo;
 class CMap;
 VCMI_LIB_NAMESPACE_END
 
-class Discord
+class Discord : boost::noncopyable
 {
     time_t startTime = time(nullptr);
     bool enabled;
 public:
     Discord();
     ~Discord();
-    void setStatus(std::string state, std::string details, std::tuple<int, int> partySize);
+    void setStatus(const std::string & state, const std::string & details, const std::tuple<int, int> & partySize);
     void clearStatus();
 
     void setPlayingStatus(std::shared_ptr<StartInfo> si, const CMap * map, int humanInterfacesCount);

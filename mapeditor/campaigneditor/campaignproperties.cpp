@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "campaignproperties.h"
 #include "ui_campaignproperties.h"
 
@@ -24,7 +25,7 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	regions(campaignState->campaignRegions)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Campaign Properties"));
 	
 	setWindowModality(Qt::ApplicationModal);

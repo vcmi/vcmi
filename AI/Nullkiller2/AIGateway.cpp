@@ -169,7 +169,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 		if(victoryLossCheckResult.victory())
 		{
 			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.toString());
-			logAi->debug("Turn nr %d", cc->getDate());
+			logAi->debug("Turn nr %d", cc->getCalendar().getCurrentDay());
 		}
 		else
 		{
@@ -630,9 +630,8 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	{
 		int sel = 0;
 
-		if(selection) //select from multiple components -> take the last one (they'bool executeTask(Goals::TTask task);re indexed [1-size])
+		if(selection) // select the last component; they are indexed in range [1, size]
 			sel = components.size();
-
 		{
 				std::unique_lock mxLock(nullkiller->aiStateMutex);
 
@@ -768,7 +767,7 @@ void AIGateway::makeTurn()
 {
 	try
 	{
-		auto day = cc->getDate(Date::DAY);
+		auto day = cc->getCalendar().getCurrentDay();
 		logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 		std::shared_lock gsLock(CGameState::mutex);
@@ -799,10 +798,6 @@ void AIGateway::makeTurn()
 	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been terminated. We'll end without calling endTurn");
-	}
-	catch (...)
-	{
-		logAi->error("Unknown exception in makeTurn. Ending turn without calling endTurn.");
 	}
 }
 
@@ -1604,7 +1599,7 @@ void AIGateway::invalidatePaths()
 
 void AIGateway::cheatMapReveal(const std::unique_ptr<Nullkiller> & nullkiller)
 {
-	if(nullkiller->cc->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
+	if(nullkiller->cc->getCalendar().getCurrentDay() == 1) // No need to execute every day, only the first time
 	{
 		if(nullkiller->isOpenMap())
 		{
@@ -1647,7 +1642,7 @@ void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
 
 void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory, const PlayerColor & playerID, const std::shared_ptr<CCallback> & cc)
 {
-	if(cc->getDate(Date::DAY_OF_WEEK) == 1)
+	if(cc->getCalendar().getDayOfWeek() == 1)
 	{
 		for(const ObjectInstanceID objId : memory->visitableObjs)
 		{

@@ -66,7 +66,7 @@ public:
 	void onBattleTriggerEffect(const BattleTriggerEffect & bte);
 	void onActionStarted(const BattleAction & ba);
 	void _onActionStarted(const BattleAction & ba);
-	void onActionFinished(const BattleAction & ba);
+	void onActionFinished(const BattleAction & ba) const;
 	void onBattleEnd(const BattleResult * br);
 
 	// Subsequent versions may override this if they only change

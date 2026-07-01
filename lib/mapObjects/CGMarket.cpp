@@ -107,8 +107,9 @@ void CGBlackMarket::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & g
 {
 	int resetPeriod = cb->getSettings().getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
-	bool isFirstDay = cb->getDate(Date::DAY) == 1;
-	bool regularResetTriggered = resetPeriod != 0 && ((cb->getDate(Date::DAY)-1) % resetPeriod) == 0;
+	int currentDay = cb->getCalendar().getCurrentDay();
+	bool isFirstDay = currentDay == 1;
+	bool regularResetTriggered = resetPeriod != 0 && ((currentDay-1) % resetPeriod) == 0;
 
 	if (!isFirstDay && !regularResetTriggered)
 		return;

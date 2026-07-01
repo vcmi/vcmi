@@ -126,7 +126,7 @@
 				"visitMode" : "bonus",
 				"selectMode" : "selectFirst",
 				"resetParameters" : {
-					"period" : 7,
+					"weeks" : 1,
 					"rewards" : true
 				},
 

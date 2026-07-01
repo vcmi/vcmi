@@ -13,6 +13,7 @@
 
 #include <vcmi/spells/Spell.h>
 #include <vcmi/HeroType.h>
+#include <vcmi/Artifact.h>
 
 #include "../battle/Unit.h"
 #include "../bonuses/Bonus.h"
@@ -32,28 +33,22 @@ BonusCaster::BonusCaster(const Caster * actualCaster_, std::shared_ptr<Bonus> bo
 
 BonusCaster::~BonusCaster() = default;
 
-void BonusCaster::getCasterName(MetaString & text) const
+std::string BonusCaster::getCasterNameTextID() const
 {
 	switch(bonus->source)
 	{
 		case BonusSource::ARTIFACT:
-			text.replaceName(bonus->sid.as<ArtifactID>());
-			break;
+			return bonus->sid.as<ArtifactID>().toEntity(LIBRARY)->getNameTextID();
 		case BonusSource::SPELL_EFFECT:
-			text.replaceName(bonus->sid.as<SpellID>());
-			break;
+			return bonus->sid.as<SpellID>().toEntity(LIBRARY)->getNameTextID();
 		case BonusSource::CREATURE_ABILITY:
-			text.replaceNamePlural(bonus->sid.as<CreatureID>());
-			break;
+			return bonus->sid.as<CreatureID>().toEntity(LIBRARY)->getNamePluralTextID();
 		case BonusSource::SECONDARY_SKILL:
-			text.replaceTextID(bonus->sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID());
-			break;
+			return bonus->sid.as<SecondarySkill>().toEntity(LIBRARY)->getNameTextID();
 		case BonusSource::HERO_SPECIAL:
-			text.replaceTextID(bonus->sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
-			break;
+			return bonus->sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID();
 		default:
-			actualCaster->getCasterName(text);
-			break;
+			return actualCaster->getCasterNameTextID();
 	}
 }
 
@@ -63,7 +58,7 @@ void BonusCaster::getCastDescription(const Spell * spell, const battle::Units & 
 	const int textIndex = singleTarget ? 195 : 196;
 
 	text.appendLocalString(EMetaText::GENERAL_TXT, textIndex);
-	getCasterName(text);
+	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
 	if(singleTarget)
 		attacked.at(0)->addNameReplacement(text, true);

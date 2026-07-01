@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "Configuration.h"
+#include "../callback/Calendar.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -19,9 +20,11 @@ Rewardable::EVisitMode Rewardable::Configuration::getVisitMode() const
 	return static_cast<EVisitMode>(visitMode);
 }
 
-ui16 Rewardable::Configuration::getResetDuration() const
+ui32 Rewardable::Configuration::getResetDuration(const Calendar & calendar) const
 {
-	return resetParameters.period;
+	return resetParameters.days
+		+ resetParameters.weeks * calendar.getDaysInWeek()
+		+ resetParameters.months * calendar.getDaysInMonth();
 }
 
 std::optional<int> Rewardable::Configuration::getVariable(const std::string & category, const std::string & name) const
@@ -60,9 +63,15 @@ void Rewardable::Configuration::initVariable(const std::string & category, const
 
 void Rewardable::ResetInfo::serializeJson(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("period", period);
+	handler.serializeInt("days", days);
+	handler.serializeInt("weeks", weeks);
+	handler.serializeInt("months", months);
 	handler.serializeBool("visitors", visitors);
 	handler.serializeBool("rewards", rewards);
+
+	// MODS COMPATIBILITY accept legacy "period" field as alias for "days"
+	if (!handler.saving && days == 0 && weeks == 0 && months == 0)
+		days = static_cast<ui32>(handler.getCurrent()["period"].Float());
 }
 
 void Rewardable::VisitInfo::serializeJson(JsonSerializeFormat & handler)
@@ -106,6 +115,7 @@ void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("forceCombat", forceCombat);
 	handler.serializeBool("coastVisitable", coastVisitable);
 	handler.serializeInt("infoWindowType", infoWindowType);
+	variables.serializeJson(handler);
 }
 
 VCMI_LIB_NAMESPACE_END

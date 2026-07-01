@@ -11,7 +11,9 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapObjects/CRewardableObject.h"
+#include "../../lib/mapObjects/CRewardableObject.h"
+
+VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class RewardsWidget;
@@ -37,6 +39,10 @@ private slots:
 	void on_selectMode_currentIndexChanged(int index);
 
 	void on_resetPeriod_valueChanged(int arg1);
+
+	void on_resetWeeks_valueChanged(int arg1);
+
+	void on_resetMonths_valueChanged(int arg1);
 
 	void on_visitInfoList_itemSelectionChanged();
 

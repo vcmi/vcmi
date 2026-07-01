@@ -10,6 +10,7 @@
 #pragma once
 
 #include "TextLocalizationContainer.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,7 +43,12 @@ class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 {
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
+	JsonNode roeMapping;
+
 public:
+	/// Returns true if the installed Heroes III data is RoE (Restoration of Erathia) or RoE Demo,
+	/// i.e. TENTCOLR.TXT (a SoD-specific file) is absent from the game data.
+	static bool isRoEData();
 	LegacyTextContainer allTexts;
 
 	LegacyTextContainer arraytxt;

@@ -30,8 +30,8 @@
 #include "../mapObjects/TownBuildingInstance.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
+#include "../spells/CSpell.h"
 
-#include "../../lib/spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -250,7 +250,10 @@ void GameStatePackVisitor::visitGiveBonus(GiveBonus & pack)
 	assert(cbsn);
 
 	if(Bonus::OneWeek(&pack.bonus))
-		pack.bonus.turnsRemain = (LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK) + 1) - gs.getDate(Date::DAY_OF_WEEK); // set correct number of days before adding bonus
+	{
+		auto calendar = gs.getCalendar();
+		pack.bonus.turnsRemain = calendar.getDaysInWeek() + 1 - calendar.getDayOfWeek(); // set correct number of days before adding bonus
+	}
 
 	auto b = std::make_shared<Bonus>(pack.bonus);
 	cbsn->addNewBonus(b);
@@ -629,9 +632,10 @@ void GameStatePackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	h->pos = pack.tile;
 	h->updateAppearance();
 
-	// Generate unique instance name before adding to map
-	if (h->instanceName.empty())
-		gs.getMap().generateUniqueInstanceName(h.get());
+	// Heroes taken from the tavern pool may carry a stale instance name from an
+	// earlier lifetime or from an older save that reconstructed uidCounter from
+	// on-map objects only. Always assign a fresh map-unique name on recruitment.
+	gs.getMap().generateUniqueInstanceName(h.get());
 
 	gs.getMap().addNewObject(h);
 	assert(h->id.hasValue());
@@ -667,7 +671,7 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 	h->updateAppearance();
 
 	h->setOwner(pack.player);
-	h->setMovementPoints(h->movementPointsLimit(true));
+	h->setMovementPoints(h->movementPointsLimit());
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 
@@ -1295,7 +1299,7 @@ void GameStatePackVisitor::visitBattleAttack(BattleAttack & pack)
 	pack.attackerChanges.visit(*this);
 
 	for(BattleStackAttacked & stack : pack.bsa)
-		gs.getBattle(pack.battleID)->setUnitState(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
+		gs.getBattle(pack.battleID)->updateUnit(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
 
 	attacker->removeBonusesRecursive(Bonus::UntilAttack);
 
@@ -1327,12 +1331,10 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		switch(pack.ba.actionType)
 		{
 			case EActionType::DEFEND:
-				st->waiting = false;
 				st->defending = true;
-				st->defendingAnim = true;
+				st->waiting = false;
 				break;
 			case EActionType::WAIT:
-				st->defendingAnim = false;
 				st->waiting = true;
 				st->waitedThisTurn = true;
 				break;
@@ -1346,7 +1348,6 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				else
 				{
 					st->waiting = false;
-					st->defendingAnim = false;
 					st->movedThisRound = true;
 				}
 				st->castSpellThisTurn = true;
@@ -1356,7 +1357,6 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 				break;
 			default: //any active stack action - attack, catapult, heal, spell...
 				st->waiting = false;
-				st->defendingAnim = false;
 				st->movedThisRound = true;
 				break;
 		}
@@ -1615,11 +1615,11 @@ void BattleStatePackVisitor::visitCatapultAttack(CatapultAttack & pack)
 	if(town->fortificationsLevel().wallsHealth == 0)
 		throw std::runtime_error("CatapultAttack without walls!");
 
-	for(const auto & part : pack.attackedParts)
-	{
-		auto newWallState = SiegeInfo::applyDamage(battleState.getWallState(part.attackedPart), part.damageDealt);
-		battleState.setWallState(part.attackedPart, newWallState);
-	}
+	auto newWallState = SiegeInfo::applyDamage(battleState.getWallState(pack.attackedPart), pack.damageDealt);
+	battleState.setWallState(pack.attackedPart, newWallState);
+
+	if(pack.killedTowerShooter != -1)
+		battleState.removeUnit(pack.killedTowerShooter);
 }
 
 void BattleStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
@@ -1660,7 +1660,7 @@ void BattleStatePackVisitor::visitStacksInjured(StacksInjured & pack)
 {
 	for(const BattleStackAttacked & stack : pack.stacks)
 	{
-		battleState.setUnitState(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
+		battleState.updateUnit(stack.newState.id, stack.newState.data, stack.newState.healthDelta);
 	}
 }
 
@@ -1670,17 +1670,14 @@ void BattleStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 	{
 		switch(elem.operation)
 		{
-			case BattleChanges::EOperation::RESET_STATE:
-				battleState.setUnitState(elem.id, elem.data, elem.healthDelta);
+			case BattleChanges::EOperation::UPDATE:
+				battleState.updateUnit(elem.id, elem.data, elem.healthDelta);
 				break;
 			case BattleChanges::EOperation::REMOVE:
 				battleState.removeUnit(elem.id);
 				break;
 			case BattleChanges::EOperation::ADD:
 				battleState.addUnit(elem.id, elem.data);
-				break;
-			case BattleChanges::EOperation::UPDATE:
-				battleState.updateUnit(elem.id, elem.data);
 				break;
 			default:
 				throw std::runtime_error("Unknown unit operation");

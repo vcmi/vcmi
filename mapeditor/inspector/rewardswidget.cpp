@@ -8,30 +8,32 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "rewardswidget.h"
 #include "ui_rewardswidget.h"
-#include "../lib/GameLibrary.h"
-#include "../lib/CSkillHandler.h"
-#include "../lib/spells/CSpellHandler.h"
-#include "../lib/CBonusTypeHandler.h"
-#include "../lib/CCreatureHandler.h"
-#include "../lib/constants/StringConstants.h"
-#include "../lib/entities/artifact/CArtifact.h"
-#include "../lib/entities/ResourceTypeHandler.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/modding/IdentifierStorage.h"
-#include "../lib/modding/ModScope.h"
-#include "../lib/rewardable/Configuration.h"
-#include "../lib/rewardable/Limiter.h"
-#include "../lib/rewardable/Reward.h"
-#include "../lib/mapObjects/CGPandoraBox.h"
-#include "../lib/mapObjects/CQuest.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/CBonusTypeHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
+#include "../../lib/rewardable/Configuration.h"
+#include "../../lib/rewardable/Limiter.h"
+#include "../../lib/rewardable/Reward.h"
+#include "../../lib/mapObjects/CGPandoraBox.h"
+#include "../../lib/mapObjects/CQuest.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroClassService.h>
 #include <vcmi/HeroClass.h>
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
 
 RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	QDialog(parent),
@@ -40,7 +42,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	ui(new Ui::RewardsWidget)
 {
 	ui->setupUi(this);
-	
+	Helper::decorateDialog(this);
 	//fill core elements
 	for(const auto & s : Rewardable::VisitModeString)
 		ui->visitMode->addItem(QString::fromUtf8(s.data(), s.size()));
@@ -237,7 +239,9 @@ void RewardsWidget::obtainData()
 	ui->canRefuse->setChecked(object.configuration.canRefuse);
 	
 	//reset parameters
-	ui->resetPeriod->setValue(object.configuration.resetParameters.period);
+	ui->resetPeriod->setValue(object.configuration.resetParameters.days);
+	ui->resetWeeks->setValue(object.configuration.resetParameters.weeks);
+	ui->resetMonths->setValue(object.configuration.resetParameters.months);
 	ui->resetVisitors->setChecked(object.configuration.resetParameters.visitors);
 	ui->resetRewards->setChecked(object.configuration.resetParameters.rewards);
 	
@@ -263,7 +267,9 @@ bool RewardsWidget::commitChanges()
 	object.configuration.canRefuse = ui->canRefuse->isChecked();
 	
 	//reset parameters
-	object.configuration.resetParameters.period = ui->resetPeriod->value();
+	object.configuration.resetParameters.days = ui->resetPeriod->value();
+	object.configuration.resetParameters.weeks = ui->resetWeeks->value();
+	object.configuration.resetParameters.months = ui->resetMonths->value();
 	object.configuration.resetParameters.visitors = ui->resetVisitors->isChecked();
 	object.configuration.resetParameters.rewards = ui->resetRewards->isChecked();
 	
@@ -639,8 +645,23 @@ void RewardsWidget::on_selectMode_currentIndexChanged(int index)
 
 void RewardsWidget::on_resetPeriod_valueChanged(int arg1)
 {
-	ui->resetRewards->setEnabled(arg1);
-	ui->resetVisitors->setEnabled(arg1);
+	bool anyPeriodSet = arg1 > 0 || ui->resetWeeks->value() > 0 || ui->resetMonths->value() > 0;
+	ui->resetRewards->setEnabled(anyPeriodSet);
+	ui->resetVisitors->setEnabled(anyPeriodSet);
+}
+
+void RewardsWidget::on_resetWeeks_valueChanged(int arg1)
+{
+	bool anyPeriodSet = arg1 > 0 || ui->resetPeriod->value() > 0 || ui->resetMonths->value() > 0;
+	ui->resetRewards->setEnabled(anyPeriodSet);
+	ui->resetVisitors->setEnabled(anyPeriodSet);
+}
+
+void RewardsWidget::on_resetMonths_valueChanged(int arg1)
+{
+	bool anyPeriodSet = arg1 > 0 || ui->resetPeriod->value() > 0 || ui->resetWeeks->value() > 0;
+	ui->resetRewards->setEnabled(anyPeriodSet);
+	ui->resetVisitors->setEnabled(anyPeriodSet);
 }
 
 

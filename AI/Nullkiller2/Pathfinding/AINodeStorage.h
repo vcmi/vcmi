@@ -18,6 +18,7 @@ constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualiza
 #include "../../../lib/pathfinder/INodeStorage.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
+#include "../Helpers/HeroMap.h"
 
 namespace NK2AI
 {
@@ -40,12 +41,12 @@ struct AIPathNode : public CGPathNode
 	const AIPathNode * chainOther = nullptr;
 	const ChainActor * actor = nullptr;
 
-	uint64_t danger;
-	uint64_t armyLoss;
-	uint32_t version;
+	uint64_t danger = 0;
+	uint64_t armyLoss = 0;
+	uint32_t version = 0;
 
-	int16_t manaCost;
-	DayFlags dayFlags;
+	int16_t manaCost = 0;
+	DayFlags dayFlags = DayFlags::NONE;
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 
@@ -151,7 +152,7 @@ public:
 	explicit AISharedStorage(int3 sizes, int numChains, const CCallback & cc);
 	~AISharedStorage();
 
-	STRONG_INLINE
+	inline
 	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile) const
 	{
 		return (*nodes)[tile.z][tile.x][tile.y];
@@ -175,7 +176,7 @@ private:
 	uint8_t turnDistanceLimit[2];
 
 public:
-	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.	
+	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
 	AINodeStorage(Nullkiller * aiNk, const int3 & sizes);
 	~AINodeStorage() override;
 
@@ -245,7 +246,7 @@ public:
 
 	template<class NodeRange>
 	bool hasBetterChain(
-		const CGPathNode * source, 
+		const CGPathNode * source,
 		const AIPathNode & destinationNode,
 		const NodeRange & chains) const;
 
@@ -264,7 +265,7 @@ public:
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
-	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
+	void setHeroes(HeroMap<HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
 	void setMainTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::MAIN] = distanceLimit; }
 	void setTownsAndDwellings(
@@ -288,7 +289,17 @@ public:
 	}
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
-	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
+
+	using RealMoveMasksByHero = std::map<const CGHeroInstance *, uint64_t>;
+
+	inline bool isRealMovementNode(const AIPathNode * node) const
+	{
+		return node && node->actor && node->actor->hero && node->coord != node->actor->hero->visitablePos();
+	}
+
+	// Reconstructs an AIPath by walking theNodeBefore / chainOther, appending branch nodes first and linking them via parentIndex
+	// Returns false when reconstruction would assign conflicting real-move chainMasks to the same hero
+	bool tryReconstructChainInfo(const AIPathNode * node, AIPath & path, int & parentIndex, RealMoveMasksByHero & realMoveMasks) const;
 
 	template<typename Fn>
 	void iterateValidNodes(const int3 & pos, EPathfindingLayer layer, Fn fn)
@@ -330,7 +341,7 @@ private:
 	template<class TVector>
 	void calculateTownPortal(
 		const ChainActor * actor,
-		const std::map<const CGHeroInstance *, int> & maskMap,
+		const HeroMap<int> & maskMap,
 		const std::vector<CGPathNode *> & initialNodes,
 		TVector & output);
 };

@@ -1,0 +1,244 @@
+{
+	"catapult" : {
+		"type" : "lua",
+		"script" : "catapult",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"targetsToAttack" : { "type" : "number" },
+				"chanceToHitKeep" : { "type" : "number" },
+				"chanceToHitGate" : { "type" : "number" },
+				"chanceToHitTower" : { "type" : "number" },
+				"chanceToHitWall" : { "type" : "number" },
+				"chanceToNormalHit" : { "type" : "number" },
+				"chanceToCrit" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"clone" : {
+		"type" : "lua",
+		"script" : "clone",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"maxTier" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"damage" : {
+		"type" : "lua",
+		"script" : "damage",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"chainFactor" : { "type" : "number" },
+				"killByPercentage" : { "type" : "boolean" },
+				"killByCount" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"demonSummon" : {
+		"type" : "lua",
+		"script" : "demonSummon",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"dispel" : {
+		"type" : "lua",
+		"script" : "dispel",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"dispelPositive" : { "type" : "boolean" },
+				"dispelNegative" : { "type" : "boolean" },
+				"dispelNeutral" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"heal" : {
+		"type" : "lua",
+		"script" : "heal",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"sacrifice" : {
+		"type" : "lua",
+		"script" : "sacrifice",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"healLevel" : { "type" : "string" },
+				"healPower" : { "type" : "string" },
+				"minFullUnits" : { "type" : "number" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"moat" : {
+		"type" : "lua",
+		"script" : "moat",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"dispellable" : { "type" : "boolean" },
+				"moatDamage" : { "type" : "number" },
+				"moatHexes" : { "type" : "array", "items" : { "type" : "array", "items" : { "type" : "number" } } },
+				"triggerAbility" : { "type" : "string" },
+				"defender" : {  },
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"obstacle" : {
+		"type" : "lua",
+		"script" : "obstacle",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"hidden" : { "type" : "boolean" },
+				"passable" : { "type" : "boolean" },
+				"trap" : { "type" : "boolean" },
+				"removeOnTrigger" : { "type" : "boolean" },
+				"hideNative" : { "type" : "boolean" },
+				"patchCount" : { "type" : "number" },
+				"turnsRemaining" : { "type" : "number" },
+				"triggerAbility" : { "type" : "string" },
+				"attacker" : {  },
+				"defender" : {  }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"removeObstacle" : {
+		"type" : "lua",
+		"script" : "removeObstacle",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"removeAbsolute" : { "type" : "boolean" },
+				"removeUsual" : { "type" : "boolean" },
+				"removeAllSpells" : { "type" : "boolean" },
+				"removeSpells" : {  }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"summon" : {
+		"type" : "lua",
+		"script" : "summon.lua",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"id" : { "type" : "string" },
+				"permanent" : { "type" : "boolean" },
+				"exclusive" : { "type" : "boolean" },
+				"summonByHealth" : { "type" : "boolean" },
+				"summonSameUnit" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"teleport" : {
+		"type" : "lua",
+		"script" : "teleport",
+		"patches" : [ ],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"isWallPassable" : { "type" : "boolean" },
+				"isMoatPassable" : { "type" : "boolean" }
+			},
+			"additionalProperties" : false
+		}
+	},
+	"timed" : {
+		"type" : "lua",
+		"script" : "timed",
+		"stringRegistrations" : ["battleLogSingular", "battleLogPlural"],
+		"patches" : ["patches/timedShield", "patches/timedBind"],
+		"schema" : {
+			"properties" : {
+				"type" : {},
+				"indirect" : {},
+				"optional" : {},
+				"ignoreImmunity" : { "type" : "boolean" },
+				"chainLength" : { "type" : "number" },
+				"cumulative" : { "type" : "boolean" },
+				"battleLogSingular" : { "type" : "string" },
+				"battleLogPlural" : { "type" : "string" },
+				"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+			},
+			"additionalProperties" : false
+		}
+	}
+}

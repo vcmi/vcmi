@@ -136,6 +136,19 @@ bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, 
 	return log.empty();
 }
 
+bool JsonUtils::validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName)
+{
+	JsonValidator validator;
+	std::string log = validator.check(schema, node);
+	if (!log.empty())
+	{
+		logMod->warn("Data in %s is invalid!", dataName);
+		logMod->warn(log);
+		logMod->trace("%s json: %s", dataName, node.toCompactString());
+	}
+	return log.empty();
+}
+
 const JsonNode & getSchemaByName(const std::string & name)
 {
 	// cached schemas to avoid loading json data multiple times

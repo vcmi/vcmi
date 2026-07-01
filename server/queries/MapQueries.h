@@ -23,9 +23,11 @@ VCMI_LIB_NAMESPACE_END
 //Removed when player accepts a turn or continur play
 class TimerPauseQuery : public CQuery
 {
-public:	
+public:
+	static constexpr QueryType TYPE = QueryType::TimerPause;
+
 	TimerPauseQuery(CGameHandler * owner, PlayerColor player);
-	
+
 	bool blocksPack(const CPackForServer *pack) const override;
 	void onExposure(QueryPtr topQuery) override;
 	void onAdding(PlayerColor color) override;
@@ -38,6 +40,8 @@ public:
 class CHeroMovementQuery : public CQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::HeroMovement;
+
 	TryMoveHero tmh;
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
 	const CGHeroInstance *hero;
@@ -52,6 +56,8 @@ public:
 class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
 {
 public:
+	static constexpr QueryType TYPE = QueryType::GarrisonDialog;
+
 	std::array<const CArmedInstance *,2> exchangingArmies;
 
 	CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance *up, const CArmedInstance *down);
@@ -63,6 +69,8 @@ public:
 class CBlockingDialogQuery : public CDialogQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::BlockingDialog;
+
 	const IObjectInterface * caller;
 	BlockingDialog bd; //copy of pack... debug purposes
 
@@ -75,6 +83,8 @@ class OpenWindowQuery : public CDialogQuery
 {
 	EOpenWindowMode mode;
 public:
+	static constexpr QueryType TYPE = QueryType::OpenWindow;
+
 	OpenWindowQuery(CGameHandler * owner, const CGHeroInstance *hero, EOpenWindowMode mode);
 
 	bool blocksPack(const CPackForServer *pack) const override;
@@ -84,9 +94,11 @@ public:
 class CTeleportDialogQuery : public CDialogQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::TeleportDialog;
+
 	TeleportDialog td; //copy of pack... debug purposes
 
-	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog &td);
+	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & dialog);
 
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };
@@ -94,6 +106,8 @@ public:
 class CHeroLevelUpDialogQuery : public CDialogQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::HeroLevelUpDialog;
+
 	CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp &Hlu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;
@@ -109,6 +123,8 @@ public:
 class CCommanderLevelUpDialogQuery : public CDialogQuery
 {
 public:
+	static constexpr QueryType TYPE = QueryType::CommanderLevelUpDialog;
+
 	CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp &Clu, const CGHeroInstance * Hero);
 
 	void onRemoval(PlayerColor color) override;

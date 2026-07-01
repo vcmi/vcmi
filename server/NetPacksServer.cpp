@@ -17,6 +17,7 @@
 #include "processors/TurnOrderProcessor.h"
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
+#include "queries/BattleQueries.h"
 
 #include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -24,8 +25,9 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/battle/IBattleState.h"
 #include "../lib/battle/Unit.h"
-#include "../lib/spells/CSpellHandler.h"
+#include "../lib/bonuses/BonusEnum.h"
 #include "../lib/spells/ISpellMechanics.h"
+#include "../lib/spells/CSpell.h"
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
@@ -63,7 +65,7 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 
 	for (auto const & dest : pack.path)
 	{
-		if (!gh.moveHero(pack.hid, dest, EMovementMode::STANDARD, pack.transit, pack.player))
+		if (!gh.moveHero(pack.hid, dest, EMovementMode::STANDARD, pack.transit, pack.player, pack.layer))
 		{
 			result = false;
 			return;
@@ -251,8 +253,21 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	const CGHeroInstance * hero = gh.gameInfo().getHero(pack.heroId);
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 
+	const bool resourceTradeDuringBattle = pack.mode == EMarketMode::RESOURCE_RESOURCE
+		&& std::dynamic_pointer_cast<CBattleQuery>(gh.queries->topQuery(pack.player));
+
 	gh.throwIfWrongPlayer(connection, &pack);
-	gh.throwIfPlayerNotActive(connection, &pack);
+	if(resourceTradeDuringBattle)
+	{
+		const bool heroHasAccess = hero && hero->getOwner() == pack.player && hero->hasBonusOfType(BonusType::SURRENDER_MARKETPLACE_ACCESS);
+
+		if(!heroHasAccess)
+			gh.throwAndComplain(connection, "Can not trade - no surrender marketplace access!");
+	}
+	else
+	{
+		gh.throwIfPlayerNotActive(connection, &pack);
+	}
 
 	if(!object)
 		gh.throwAndComplain(connection, "Invalid market object");

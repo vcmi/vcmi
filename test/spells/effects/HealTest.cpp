@@ -14,6 +14,7 @@
 #include <vstd/RNG.h>
 
 #include "../../../lib/battle/CUnitState.h"
+#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/json/JsonNode.h"
 
 #include "mock/mock_UnitEnvironment.h"
@@ -51,10 +52,10 @@ TEST_F(HealTest, NotApplicableToHealthyUnit)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableToWoundedUnit)
@@ -68,10 +69,10 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableIfActuallyResurrects)
@@ -95,10 +96,10 @@ TEST_F(HealTest, ApplicableIfActuallyResurrects)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
@@ -121,10 +122,10 @@ TEST_F(HealTest, NotApplicableIfNotEnoughCasualties)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
@@ -147,10 +148,10 @@ TEST_F(HealTest, NotApplicableIfResurrectsLessThanRequired)
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableToDeadUnit)
@@ -178,10 +179,10 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(0));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
@@ -215,10 +216,10 @@ TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
@@ -252,10 +253,10 @@ TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
 
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
@@ -280,10 +281,10 @@ TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 
 	unitsFake.setDefaultBonusExpectations();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 class HealApplyTest : public TestWithParam<::testing::tuple<EHealLevel, EHealPower>>, public EffectFixture
@@ -336,7 +337,7 @@ TEST_P(HealApplyTest, Heals)
 
 	using namespace ::battle;
 
-	const int64_t effectValue = 1000;
+	const int64_t effectValue = 2000;
 	const int32_t unitAmount = 24;
 	const int32_t unitHP = 100;
 	const uint32_t unitId = 42;
@@ -348,6 +349,7 @@ TEST_P(HealApplyTest, Heals)
 	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
 	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
 	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
+	EXPECT_CALL(targetUnit, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
 
 	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
 
@@ -363,6 +365,7 @@ TEST_P(HealApplyTest, Heals)
 	mechanicsMock.caster = &actualCaster;
 	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
 	EXPECT_CALL(mechanicsMock, applySpellBonus(Eq(effectValue), Eq(&targetUnit))).WillRepeatedly(Return(effectValue));
+	EXPECT_CALL(mechanicsMock, getUnitCaster()).WillRepeatedly(Return(&actualCaster));
 	EXPECT_CALL(actualCaster, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
 	EXPECT_CALL(actualCaster, getHeroCaster()).WillRepeatedly(Return(nullptr));
 
@@ -371,7 +374,7 @@ TEST_P(HealApplyTest, Heals)
 
 	EXPECT_CALL(targetUnit, acquire()).WillRepeatedly(Return(targetUnitState));
 
-	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Gt(0))).Times(1);
 
 	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(CreatureID(unitId)));
 
@@ -380,7 +383,7 @@ TEST_P(HealApplyTest, Heals)
 
 	setupDefaultRNG();
 
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&targetUnit, BattleHex());
 
 	subject->apply(&serverMock, &mechanicsMock, target);
@@ -391,10 +394,12 @@ TEST_P(HealApplyTest, Heals)
 		EXPECT_EQ(targetUnitState->getFirstHPleft(), unitHP);
 		break;
 	case EHealLevel::RESURRECT:
-		EXPECT_EQ(targetUnitState->getFirstHPleft(), 1);
+		EXPECT_EQ(targetUnitState->getCount(), unitAmount);
+		EXPECT_EQ(targetUnitState->getFirstHPleft(), unitHP);
 		break;
 	case EHealLevel::OVERHEAL:
-		EXPECT_EQ(targetUnitState->getFirstHPleft(), 1);
+		EXPECT_GT(targetUnitState->getAvailableHealth(), (int64_t)unitAmount * unitHP);
+		EXPECT_GT(targetUnitState->getCount(), unitAmount);
 		break;
 	default:
 		break;
@@ -406,7 +411,26 @@ TEST_P(HealApplyTest, Heals)
 		EXPECT_EQ(targetUnitState->health.getResurrected(), 0);
 		break;
 	case EHealPower::ONE_BATTLE:
-		EXPECT_EQ(targetUnitState->health.getResurrected(), 10);
+		{
+			const int32_t initialCount = unitAmount / 2 + 1;
+			switch(healLevel)
+			{
+			case EHealLevel::HEAL:
+				EXPECT_EQ(targetUnitState->health.getResurrected(), 0);
+				break;
+			case EHealLevel::RESURRECT:
+				EXPECT_EQ(targetUnitState->health.getResurrected(), unitAmount - initialCount);
+				break;
+			case EHealLevel::OVERHEAL:
+				{
+					const int64_t available = static_cast<int64_t>(unitAmount) * unitHP / 2 + 1 + effectValue;
+					EXPECT_EQ(targetUnitState->health.getResurrected(), (int32_t)((available + unitHP - 1) / unitHP) - initialCount);
+				}
+				break;
+			default:
+				break;
+			}
+		}
 		break;
 	default:
 		break;
@@ -435,8 +459,185 @@ INSTANTIATE_TEST_SUITE_P
 	)
 );
 
+class HealApplyOneOffTest : public Test, public EffectFixture
+{
+public:
+	UnitEnvironmentMock unitEnvironmentMock;
 
+	HealApplyOneOffTest()
+		: EffectFixture("core:heal")
+	{
+	}
 
+protected:
+	void SetUp() override
+	{
+		EffectFixture::setUp();
+	}
+};
+
+TEST_F(HealApplyOneOffTest, GetHealthChangeReturnsHealedHP)
+{
+	EffectFixture::setupEffect(JsonNode());
+
+	using namespace ::battle;
+
+	const int64_t effectValue = 1000;
+	const int32_t unitAmount = 24;
+	const int32_t unitHP = 100;
+	const uint32_t unitId = 42;
+	const auto pikeman = CreatureID(unitId).toCreature();
+
+	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
+	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
+	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
+	EXPECT_CALL(targetUnit, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
+
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
+	unitsFake.setDefaultBonusExpectations();
+
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	targetUnitState->localInit(&unitEnvironmentMock);
+	{
+		int64_t initialDmg = unitAmount * unitHP / 2 - 1;
+		targetUnitState->health.damage(initialDmg);
+	}
+
+	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
+	EXPECT_CALL(targetUnit, acquireState()).WillRepeatedly(Return(targetUnitState));
+
+	Target target;
+	target.emplace_back(&targetUnit, BattleHex());
+
+	const auto result = subject->getHealthChange(&mechanicsMock, target);
+
+	EXPECT_EQ(result.hpDelta, unitHP - 1);
+	EXPECT_EQ(result.unitsDelta, 0);
+	EXPECT_EQ(result.unitType, static_cast<const Creature *>(pikeman));
 }
 
+TEST_F(HealApplyOneOffTest, ApplyResurrectsFullyDeadUnit)
+{
+	{
+		JsonNode config;
+		config["healLevel"].String() = "resurrect";
+		EffectFixture::setupEffect(config);
+	}
 
+	using namespace ::battle;
+
+	const int64_t effectValue = 1000;
+	const int32_t unitAmount = 24;
+	const int32_t unitHP = 100;
+	const uint32_t unitId = 42;
+	const auto pikeman = CreatureID(unitId).toCreature();
+
+	auto & targetUnit = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(targetUnit, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
+	EXPECT_CALL(targetUnit, unitId()).WillRepeatedly(Return(unitId));
+	EXPECT_CALL(targetUnit, unitType()).WillRepeatedly(Return(pikeman));
+	EXPECT_CALL(targetUnit, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
+
+	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
+	unitsFake.setDefaultBonusExpectations();
+
+	auto targetUnitState = std::make_shared<CUnitStateDetached>(&targetUnit, &targetUnit);
+	targetUnitState->localInit(&unitEnvironmentMock);
+	{
+		int64_t initialDmg = static_cast<int64_t>(unitAmount) * unitHP;
+		targetUnitState->health.damage(initialDmg);
+	}
+
+	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
+	EXPECT_CALL(targetUnit, acquire()).WillRepeatedly(Return(targetUnitState));
+
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId), _, Gt(0))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));
+
+	setupDefaultRNG();
+
+	GTEST_ASSERT_EQ(targetUnitState->getCount(), 0);
+
+	Target target;
+	target.emplace_back(&targetUnit, BattleHex());
+
+	subject->apply(&serverMock, &mechanicsMock, target);
+
+	EXPECT_EQ(targetUnitState->getCount(), effectValue / unitHP);
+	EXPECT_EQ(targetUnitState->getFirstHPleft(), unitHP);
+	EXPECT_EQ(targetUnitState->health.getResurrected(), 0);
+}
+
+TEST_F(HealApplyOneOffTest, ApplyHealsMultipleTargets)
+{
+	{
+		JsonNode config;
+		config["healLevel"].String() = "resurrect";
+		EffectFixture::setupEffect(config);
+	}
+
+	using namespace ::battle;
+
+	const int64_t effectValue = 1000;
+	const int32_t unitAmount = 24;
+	const int32_t unitHP = 100;
+	const uint32_t unitId1 = 42;
+	const uint32_t unitId2 = 43;
+	const auto pikeman = CreatureID(unitId1).toCreature();
+
+	auto & targetUnit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(targetUnit1, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
+	EXPECT_CALL(targetUnit1, unitId()).WillRepeatedly(Return(unitId1));
+	EXPECT_CALL(targetUnit1, unitType()).WillRepeatedly(Return(pikeman));
+	EXPECT_CALL(targetUnit1, creatureId()).WillRepeatedly(Return(CreatureID(unitId1)));
+	targetUnit1.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
+
+	auto & targetUnit2 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(targetUnit2, unitBaseAmount()).WillRepeatedly(Return(unitAmount));
+	EXPECT_CALL(targetUnit2, unitId()).WillRepeatedly(Return(unitId2));
+	EXPECT_CALL(targetUnit2, unitType()).WillRepeatedly(Return(pikeman));
+	EXPECT_CALL(targetUnit2, creatureId()).WillRepeatedly(Return(CreatureID(unitId2)));
+	targetUnit2.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));
+
+	unitsFake.setDefaultBonusExpectations();
+
+	auto state1 = std::make_shared<CUnitStateDetached>(&targetUnit1, &targetUnit1);
+	state1->localInit(&unitEnvironmentMock);
+	{
+		int64_t initialDmg = unitAmount * unitHP / 2 - 1;
+		state1->health.damage(initialDmg);
+	}
+
+	auto state2 = std::make_shared<CUnitStateDetached>(&targetUnit2, &targetUnit2);
+	state2->localInit(&unitEnvironmentMock);
+	{
+		int64_t initialDmg = unitAmount * unitHP / 2 - 1;
+		state2->health.damage(initialDmg);
+	}
+
+	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
+	EXPECT_CALL(targetUnit1, acquire()).WillRepeatedly(Return(state1));
+	EXPECT_CALL(targetUnit2, acquire()).WillRepeatedly(Return(state2));
+
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId1), _, Gt(0))).Times(1);
+	EXPECT_CALL(*battleFake, updateUnit(Eq(unitId2), _, Gt(0))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(2);
+	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));
+
+	setupDefaultRNG();
+
+	Target target;
+	target.emplace_back(&targetUnit1, BattleHex());
+	target.emplace_back(&targetUnit2, BattleHex());
+
+	subject->apply(&serverMock, &mechanicsMock, target);
+
+	const int64_t available = static_cast<int64_t>(unitAmount) * unitHP / 2 + 1 + effectValue;
+	const int32_t expectedCount = static_cast<int32_t>((available + unitHP - 1) / unitHP);
+	EXPECT_EQ(state1->getCount(), expectedCount);
+	EXPECT_EQ(state2->getCount(), expectedCount);
+}
+
+}

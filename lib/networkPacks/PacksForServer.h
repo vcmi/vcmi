@@ -49,13 +49,15 @@ struct DLL_LINKAGE DismissHero : public CPackForServer
 struct DLL_LINKAGE MoveHero : public CPackForServer
 {
 	MoveHero() = default;
-	MoveHero(const std::vector<int3> & path, const ObjectInstanceID & HID, bool Transit)
+	MoveHero(const std::vector<int3> & path, const EPathfindingLayer layer, const ObjectInstanceID & HID, bool Transit)
 		: path(path)
+		, layer(layer)
 		, hid(HID)
 		, transit(Transit)
 	{
 	}
 	std::vector<int3> path;
+	EPathfindingLayer layer;
 	ObjectInstanceID hid;
 	bool transit = false;
 
@@ -66,6 +68,7 @@ struct DLL_LINKAGE MoveHero : public CPackForServer
 	{
 		h & static_cast<CPackForServer &>(*this);
 		h & path;
+		h & layer;
 		h & hid;
 		h & transit;
 	}
@@ -655,7 +658,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 	HeroTypeID hid; //available hero serial
 	HeroTypeID nhid; //next hero
 	ObjectInstanceID tid; //town (tavern) id
-	PlayerColor player;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -665,7 +667,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 		h & hid;
 		h & nhid;
 		h & tid;
-		h & player;
 	}
 };
 

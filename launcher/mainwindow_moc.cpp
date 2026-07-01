@@ -141,7 +141,7 @@ void MainWindow::detectPreferredLanguage()
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
 		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
+			if (vcmiLang.selectable && (vcmiLang.tagIETF == userLang.toStdString() || vcmiLang.localeName == userLang.toStdString()))
 				selectedLanguage = vcmiLang.identifier;
 
 		if (!selectedLanguage.empty())
@@ -158,6 +158,7 @@ void MainWindow::enterSetup()
 {
 	ui->sidePanel->setVisible(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
+	ui->setupView->enterSetup();
 }
 
 void MainWindow::exitSetup(bool goToMods)
@@ -242,7 +243,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
 	if(event->mimeData()->hasUrls())
 		for(const auto & url : event->mimeData()->urls())
-			for(const auto & ending : QStringList({".zip", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
+			for(const auto & ending : QStringList({".zip", ".vsgm1", ".h3m", ".h3c", ".vmap", ".vcmp", ".json", ".exe"}))
 				if(url.fileName().endsWith(ending, Qt::CaseInsensitive))
 				{
 					event->acceptProposedAction();

@@ -41,10 +41,6 @@ namespace TextOperations
 	/// converts text to UTF-8 from specified encoding or from one specified in settings
 	std::string DLL_LINKAGE toUnicode(const std::string & text, const std::string & encoding);
 
-	/// converts text from unicode to specified encoding or to one specified in settings
-	/// NOTE: usage of these functions should be avoided if possible
-	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
-
 	///delete specified amount of UTF-8 characters from right
 	DLL_LINKAGE void trimRightUnicode(std::string & text, size_t amount = 1);
 

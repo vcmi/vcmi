@@ -124,7 +124,7 @@ SDL_Surface * DdsFormat::load(CInputStream * stream, const std::string & cacheNa
 
 		// Insert decoded DDS into cache
 		{
-			std::lock_guard<std::mutex> lock(cacheMutex);
+			std::lock_guard lock(cacheMutex);
 			CachedDDS cd;
 			cd.w = w;
 			cd.h = h;

@@ -26,13 +26,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CSkill::CSkill(const SecondarySkill & id, std::string identifier, bool obligatoryMajor, bool obligatoryMinor):
+CSkill::CSkill(const SecondarySkill & id, std::string identifier):
 	id(id),
-	identifier(std::move(identifier)),
-	obligatoryMajor(obligatoryMajor),
-	obligatoryMinor(obligatoryMinor),
-	special(false),
-	onlyOnWaterMap(false)
+	identifier(std::move(identifier))
 {
 	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
@@ -142,21 +138,36 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill)
 	return out << "]";
 }
 
+bool CSkill::isWisdom() const
+{
+	return hasTag("wisdom");
+}
+
+bool CSkill::isSpellSchool() const
+{
+	return hasTag("spellSchool");
+}
+
+bool CSkill::isSpecial() const
+{
+	return hasTag("special");
+}
+
+bool CSkill::isOnlyOnWaterMap() const
+{
+	return hasTag("onlyOnWaterMap");
+}
+
+bool CSkill::hasTag(const std::string & tag) const
+{
+	return vstd::contains(tags, tag);
+}
+
 std::string CSkill::toString() const
 {
 	std::ostringstream ss;
 	ss << *this;
 	return ss.str();
-}
-
-void CSkill::updateFrom(const JsonNode & data)
-{
-
-}
-
-void CSkill::serializeJson(JsonSerializeFormat & handler)
-{
-
 }
 
 ///CSkillHandler
@@ -210,16 +221,24 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
-	bool major;
-	bool minor;
-
-	major = json["obligatoryMajor"].Bool();
-	minor = json["obligatoryMinor"].Bool();
-	auto skill = std::make_shared<CSkill>(SecondarySkill(index), identifier, major, minor);
+	auto skill = std::make_shared<CSkill>(SecondarySkill(index), identifier);
 	skill->modScope = scope;
 
-	skill->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
-	skill->special = json["special"].Bool();
+	for (const auto & tag : json["tags"].Struct())
+		if (tag.second.Bool())
+			skill->tags.push_back(tag.first);
+
+	if (json["onlyOnWaterMap"].Bool() && !vstd::contains(skill->tags, "onlyOnWaterMap"))
+		skill->tags.emplace_back("onlyOnWaterMap");
+
+	if (json["special"].Bool() && !vstd::contains(skill->tags, "special"))
+		skill->tags.emplace_back("special");
+
+	if (json["obligatoryMajor"].Bool() && !vstd::contains(skill->tags, "wisdom"))
+		skill->tags.emplace_back("wisdom");
+
+	if (json["obligatoryMinor"].Bool() && !vstd::contains(skill->tags, "spellSchool"))
+		skill->tags.emplace_back("spellSchool");
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 
@@ -328,7 +347,7 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 	std::set<SecondarySkill> result;
 
 	for (auto const & skill : objects)
-		if (!skill->special)
+		if (!skill->isSpecial())
 			result.insert(skill->getId());
 
 	return result;

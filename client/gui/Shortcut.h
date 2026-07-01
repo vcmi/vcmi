@@ -176,7 +176,8 @@ enum class EShortcut
 	ADVENTURE_QUIT_GAME,
 	ADVENTURE_SEARCH,
 	ADVENTURE_SEARCH_CONTINUE,
-	ADVENTURE_OPEN_WIKI,      // Opens the in-game Glossary / Wiki window
+	ADVENTURE_DISEMBARK,
+	ADVENTURE_OPEN_WIKI, // Opens the in-game Glossary / Wiki window
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,
@@ -247,7 +248,11 @@ enum class EShortcut
 	TOWN_OPEN_HERO,
 	TOWN_OPEN_VISITING_HERO,
 	TOWN_OPEN_GARRISONED_HERO,
+	TOWN_OPEN_BLACKSMITH,
+	TOWN_OPEN_SHIPYARD,
 	TOWN_SWAP_ARMIES, // Swap garrisoned and visiting armies
+	TOWN_UPGRADE_GARRISON, // Upgrade all creatures in town garrison
+	TOWN_UPGRADE_VISITING, // Upgrade all creatures of visiting hero
 
 	// Creature & creature recruitment screen
 	RECRUITMENT_MAX, // Set number of creatures to recruit to max

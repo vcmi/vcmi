@@ -61,6 +61,11 @@ void keepScreenOn(bool isEnabled)
 	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;
 }
 
+bool isIPad()
+{
+	return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
+}
+
 void shareFile(const std::string & filePath)
 {
 	NSString *nsPath = [NSString stringWithUTF8String:filePath.c_str()];

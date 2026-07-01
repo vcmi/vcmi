@@ -61,7 +61,7 @@ void prepareAndroid()
 
 	// copy core data to internal directory
 	const auto vcmiDir = QAndroidJniObject::callStaticObjectMethod<jstring>("eu/vcmi/vcmi/NativeMethods", "internalDataRoot").toString();
-	for(auto vcmiFilesResource : {QLatin1String{"config"}, QLatin1String{"Mods"}})
+	for(auto vcmiFilesResource : {QLatin1String{"config"}, QLatin1String{"Mods"}, QLatin1String{"scripts"}})
 	{
 		QDir destDir = QString{"%1/%2"}.arg(vcmiDir, vcmiFilesResource);
 		destDir.removeRecursively();

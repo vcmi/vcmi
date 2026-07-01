@@ -30,9 +30,10 @@
 #include "../../mapObjects/CQuest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
-#include "../../spells/CSpellHandler.h" //for choosing random spells
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
+#include "../../spells/CSpellHandler.h"
+
 
 #include <vstd/RNG.h>
 
@@ -1252,8 +1253,7 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 			return ObjectConfig::EObjectCategory::NONE;
 		}
 
-		auto temp = handler->getTemplates().front();
-		auto info = handler->getObjectInfo(temp);
+		auto info = handler->getObjectInfo();
 
 		if (info->hasGuards())
 		{

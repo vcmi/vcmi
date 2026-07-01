@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "townspellswidget.h"
 #include "ui_townspellswidget.h"
 #include "inspector.h"
@@ -17,12 +18,14 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/spells/CSpellHandler.h"
 
+
 TownSpellsWidget::TownSpellsWidget(CGTownInstance & town, QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::TownSpellsWidget),
 	town(town)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 
 	possibleSpellLists = { ui->possibleSpellList1, ui->possibleSpellList2, ui->possibleSpellList3, ui->possibleSpellList4, ui->possibleSpellList5 };
 	requiredSpellLists = { ui->requiredSpellList1, ui->requiredSpellList2, ui->requiredSpellList3, ui->requiredSpellList4, ui->requiredSpellList5 };

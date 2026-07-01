@@ -327,8 +327,7 @@ ILimiter::EDecision TerrainLimiter::limit(const BonusLimitationContext &context)
 			return ILimiter::EDecision::NOT_SURE;
 
 		const auto * node = dynamic_cast<const INativeTerrainProvider *>(&context.node);
-		auto nativeTerrain = node->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
-		return currentTerrain == nativeTerrain ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+		return node->getFactionID().toEntity(LIBRARY)->isNativeTerrain(currentTerrain) ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	}
 
 	return currentTerrain == terrainType ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;

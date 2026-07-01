@@ -15,7 +15,7 @@
 
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
-#include "../spells/CSpellHandler.h"
+#include "../json/JsonNode.h"
 
 #include <vstd/StringUtils.h>
 

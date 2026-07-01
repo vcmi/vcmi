@@ -34,13 +34,19 @@ if(ANDROID)
 	endif()
 else()
 	add_executable(vcmiclient ${clientapp_SRCS} ${clientapp_HEADERS})
-	vcmi_create_exe_shim(vcmiclient)
+	if(USING_CONAN)
+		vcmi_copy_conan_runtime_deps(vcmiclient)
+	endif()
 endif()
 
 target_link_libraries(vcmiclient PRIVATE vcmiclientcommon)
 
 if(ENABLE_SINGLE_APP_BUILD AND ENABLE_LAUNCHER)
 	target_link_libraries(vcmiclient PRIVATE vcmilauncher)
+endif()
+
+if(ENABLE_SINGLE_APP_BUILD AND ENABLE_EDITOR)
+	target_link_libraries(vcmiclient PRIVATE vcmieditor)
 endif()
 
 target_include_directories(vcmiclient

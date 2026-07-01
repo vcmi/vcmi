@@ -67,7 +67,7 @@
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../lib/callback/CDynLibHandler.h"
+#include "../lib/callback/AIFactory.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -112,7 +112,7 @@
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/ESerializationVersion.h"
 
-#include "../lib/spells/CSpellHandler.h"
+#include "../lib/spells/CSpell.h"
 
 #include "../lib/texts/TextOperations.h"
 
@@ -125,6 +125,12 @@
 #define EVENT_HANDLER_CALLED_BY_CLIENT
 
 #define BATTLE_EVENT_POSSIBLE_RETURN	if (GAME->interface() != this) return; if (isAutoFightOn && !battleInt) return
+
+namespace
+{
+	constexpr int LEVEL_UP_REQUEST_NONE = -1;
+	constexpr int LEVEL_UP_REQUEST_WAITING_FOR_REPLY = -2;
+}
 
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
@@ -220,8 +226,8 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 		closeAllDialogs();
 
 		// remove all pending dialogs that do not expect query answer
-		vstd::erase_if(dialogs, [](const std::shared_ptr<CInfoWindow> & window){
-						   return window->ID == QueryID::NONE;
+		vstd::erase_if(dialogs, [](const PendingDialog & dialog){
+						   return dialog.dropOnTurnEnd;
 					   });
 	}
 }
@@ -250,7 +256,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 void CPlayerInterface::performAutosave()
 {
 	int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
-	if(frequency > 0 && cb->getDate() % frequency == 0)
+	if(frequency > 0 && cb->getCalendar().getCurrentDay() % frequency == 0)
 	{
 		bool usePrefix = settings["general"]["useSavePrefix"].Bool();
 		std::string prefix = std::string();
@@ -288,9 +294,10 @@ void CPlayerInterface::performAutosave()
 		}
 		else
 		{
-			std::string stringifiedDate = std::to_string(cb->getDate(Date::MONTH))
-					+ std::to_string(cb->getDate(Date::WEEK))
-					+ std::to_string(cb->getDate(Date::DAY_OF_WEEK));
+			auto calendar = cb->getCalendar();
+			std::string stringifiedDate = std::to_string(calendar.getMonth())
+					+ std::to_string(calendar.getWeek())
+					+ std::to_string(calendar.getDayOfWeek());
 
 			cb->save("Saves/Autosave/" + prefix + stringifiedDate, false);
 		}
@@ -520,29 +527,75 @@ void CPlayerInterface::receivedResource()
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill>& skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog();
-	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
-	{
-		if(queryID < 0)
-			return;
+	auto availableSkills = skills;
 
-		cb->selectionMade(selection, queryID);
-	});
+	auto showLevelUpDialog = [this, hero, pskill, availableSkills = std::move(availableSkills), queryID]() mutable
+	{
+		closePendingLevelUpDialog();
+
+		const bool closeImmediately = queryID < 0;
+		pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
+
+		ENGINE->sound().playSound(soundBase::heroNewLevel);
+		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, [this, queryID](ui32 selection)
+		{
+			if(queryID < 0)
+				return;
+
+			pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
+		});
+
+		levelWindow->setCloseOnSelection(closeImmediately);
+		if(!closeImmediately)
+			pendingLevelUpDialog = levelWindow;
+
+		ENGINE->windows().pushWindow(levelWindow);
+	};
+
+	if(showingDialog->isBusy() || !dialogs.empty())
+	{
+		dialogs.push_back({false, std::move(showLevelUpDialog)});
+		return;
+	}
+
+	waitWhileDialog();
+	showLevelUpDialog();
 }
 
-void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
+void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	waitWhileDialog();
-	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
+	auto showLevelUpDialog = [this, commander, skills = std::move(skills), queryID]() mutable
 	{
-		if(queryID < 0)
-			return;
+		closePendingLevelUpDialog();
 
-		cb->selectionMade(selection, queryID);
-	});
+		const bool closeImmediately = queryID < 0;
+		pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
+
+		ENGINE->sound().playSound(soundBase::heroNewLevel);
+		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
+		{
+			if(queryID < 0)
+				return;
+
+			pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
+		});
+
+		levelWindow->setCloseOnSelection(closeImmediately);
+		if(!closeImmediately)
+			pendingLevelUpDialog = levelWindow;
+
+		ENGINE->windows().pushWindow(levelWindow);
+	};
+
+	if(showingDialog->isBusy() || !dialogs.empty())
+	{
+		dialogs.push_back({false, std::move(showLevelUpDialog)});
+		return;
+	}
+
+	waitWhileDialog();
+	showLevelUpDialog();
 }
 
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
@@ -693,7 +746,7 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 	{
 		switch(info.operation)
 		{
-		case UnitChanges::EOperation::RESET_STATE:
+		case UnitChanges::EOperation::UPDATE:
 			{
 				const CStack * stack = cb->getBattle(battleID)->battleGetStackByID(info.id );
 
@@ -763,6 +816,8 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
+	if(ca.killedTowerShooter != -1)
+		battleInt->stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
 }
 
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
@@ -1053,7 +1108,13 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 	else
 	{
-		dialogs.push_back(temp);
+		dialogs.push_back({true, [this, temp, soundID]()
+		{
+			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
+			showingDialog->setBusy();
+			movementController->requestMovementAbort(); // interrupt movement to show dialog
+			ENGINE->windows().pushWindow(temp);
+		}});
 	}
 }
 
@@ -1292,7 +1353,24 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		movementController->onMoveHeroApplied();
 
 	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
+	{
+		if(pendingLevelUpRequestID == static_cast<int>(pa->requestID))
+			closePendingLevelUpDialog();
 		movementController->onQueryReplyApplied();
+	}
+}
+
+void CPlayerInterface::closePendingLevelUpDialog()
+{
+	if(!pendingLevelUpDialog)
+	{
+		pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
+		return;
+	}
+
+	pendingLevelUpDialog->close();
+	pendingLevelUpDialog.reset();
+	pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
 }
 
 void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
@@ -1509,8 +1587,7 @@ void CPlayerInterface::update()
 	//if there are any waiting dialogs, show them
 	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
-		showingDialog->setBusy();
-		ENGINE->windows().pushWindow(dialogs.front());
+		dialogs.front().show();
 		dialogs.pop_front();
 	}
 }
@@ -1882,7 +1959,7 @@ bool CPlayerInterface::capturedAllEvents()
 
 void CPlayerInterface::prepareAutoFightingAI(const BattleID &bid, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side)
 {
-	autofightingAI = CDynLibHandler::getNewBattleAI(settings["ai"]["combatAlliedAI"].String());
+	autofightingAI = AIFactory::createBattleAI(settings["ai"]["combatAlliedAI"].String());
 
 	AutocombatPreferences autocombatPreferences = AutocombatPreferences();
 	autocombatPreferences.enableSpellsUsage = settings["battle"]["enableAutocombatSpells"].Bool();

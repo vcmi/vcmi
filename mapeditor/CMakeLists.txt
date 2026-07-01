@@ -2,6 +2,7 @@ set(editor_SRCS
 		StdInc.cpp
 		main.cpp
 		mainwindow.cpp
+		editorbridge.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
 		Animation.cpp
@@ -42,6 +43,9 @@ set(editor_SRCS
 		inspector/herospellwidget.cpp
 		inspector/PickObjectDelegate.cpp
 		inspector/portraitwidget.cpp
+		inspector/playerselectionwidget.cpp
+		inspector/abilitieswidget.cpp
+		inspector/scholarwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 		helper.cpp
 		campaigneditor/campaigneditor.cpp
@@ -49,6 +53,8 @@ set(editor_SRCS
 		campaigneditor/scenarioproperties.cpp
 		campaigneditor/startingbonus.cpp
 		campaigneditor/campaignview.cpp
+		androidfilepicker.cpp
+		editorfiledialog.cpp
 )
 if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_SRCS
@@ -111,6 +117,9 @@ set(editor_HEADERS
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
 		inspector/baseinspectoritemdelegate.h
+		inspector/playerselectionwidget.h
+		inspector/abilitieswidget.h
+		inspector/scholarwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 		helper.h
@@ -119,6 +128,8 @@ set(editor_HEADERS
 		campaigneditor/scenarioproperties.h
 		campaigneditor/startingbonus.h
 		campaigneditor/campaignview.h
+		androidfilepicker.h
+		editorfiledialog.h
 )
 if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_HEADERS
@@ -165,8 +176,10 @@ set(editor_FORMS
 		inspector/heroartifactswidget.ui
 		inspector/artifactwidget.ui
 		inspector/heroskillswidget.ui
-		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
+		inspector/playerselectionwidget.ui
+		inspector/abilitieswidget.ui
+		inspector/scholarwidget.ui
 		campaigneditor/campaigneditor.ui
 		campaigneditor/campaignproperties.ui
 		campaigneditor/scenarioproperties.ui
@@ -186,7 +199,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 endif()
 
 set(editor_RESOURCES
-	resources.qrc
+	editor_resources.qrc
 )
 
 set(translationsDir "translation")
@@ -194,6 +207,7 @@ set(editor_TS
 	"${translationsDir}/belarusian.ts"
 	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
+	"${translationsDir}/tchinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/dutch.ts"
 	"${translationsDir}/filipino.ts"
@@ -224,17 +238,18 @@ if(ENABLE_TRANSLATIONS)
 		set_source_files_properties(${editor_TS} PROPERTIES OUTPUT_LOCATION "${translationsDir}")
 		qt5_add_translation(editor_QM ${editor_TS})
 
-		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/translations.qrc")
+		set(translationsResource "${CMAKE_CURRENT_BINARY_DIR}/editor_translations.qrc")
 		list(APPEND editor_RESOURCES "${translationsResource}")
 
 		set(rccQmFiles "")
 		foreach(qmFile ${editor_QM})
 			string(APPEND rccQmFiles "<file>${qmFile}</file>\n")
 		endforeach()
+		set(editor_qrc_prefix "/editor")
 		file(WRITE "${translationsResource}"
 "<!DOCTYPE RCC>
 <RCC version=\"1.0\">
-<qresource prefix=\"/\">
+<qresource prefix=\"${editor_qrc_prefix}\">
 ${rccQmFiles}
 </qresource>
 </RCC>"
@@ -268,14 +283,18 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmieditor OBJECT ${editor_QM})
 else()
 	add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
-	vcmi_create_exe_shim(vcmieditor)
+	if(USING_CONAN)
+		vcmi_copy_conan_runtime_deps(vcmieditor)
+		vcmi_deploy_qt_runtime(vcmieditor)
+	endif()
 endif()
 
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt6::Core)
+		set(_editor_res_prefix "/editor/${translationsDir}")
 		qt_add_translations(vcmieditor
 			TS_FILES ${editor_TS}
-			RESOURCE_PREFIX "/${translationsDir}"
+			RESOURCE_PREFIX "${_editor_res_prefix}"
 			INCLUDE_DIRECTORIES
 				${CMAKE_CURRENT_BINARY_DIR})
 	endif()
@@ -321,6 +340,9 @@ if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 endif()
 
 target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ANDROID)
+	target_link_libraries(vcmieditor Qt${QT_VERSION_MAJOR}::AndroidExtras)
+endif()
 if(ENABLE_TEMPLATE_EDITOR)
 	target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Xml)
 	if(QT_VERSION_MAJOR EQUAL 6)

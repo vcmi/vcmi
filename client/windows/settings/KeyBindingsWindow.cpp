@@ -22,7 +22,7 @@
 #include "../../widgets/Images.h"
 #include "../../widgets/TextControls.h"
 #include "../../widgets/Slider.h"
-#include "../../windows/InfoWindows.h"
+#include "../InfoWindows.h"
 
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/texts/MetaString.h"
@@ -58,6 +58,7 @@ KeyBindingsWindow::KeyBindingsWindow()
 
 	slider = std::make_shared<CSlider>(Point(backgroundRect->pos.x - pos.x + backgroundRect->pos.w - 18, backgroundRect->pos.y - pos.y + 1), backgroundRect->pos.h - 3, [this](int pos){ fillList(pos); redraw(); }, MAX_LINES, count, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(LINE_HEIGHT);
+	slider->setInertiaEnabled(true);
 	slider->setScrollBounds(Rect(-backgroundRect->pos.w + slider->pos.w, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
 
 	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.keyBindings.reset.help").toString()));

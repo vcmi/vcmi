@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Android 5 or newer is required.
+- Android 5.0 or newer is required.
 - VCMI requires original *Heroes of Might and Magic III: Shadow of Death* or *Complete* data files.
 
 ## Step 1: Download and install VCMI
@@ -10,6 +10,7 @@
 Install VCMI using one of the following options:
 
 - **Google Play version (recommended):** [Google Play](https://play.google.com/store/apps/details?id=is.xyz.vcmi)
+- **F-Droid (only arm64 and x86_64 builds)**: [F-Droid](https://f-droid.org/en/packages/is.xyz.vcmi/)
 - **APK from GitHub releases:** [GitHub Releases](https://github.com/vcmi/vcmi/releases/latest)
 - **Daily builds (unstable, for testing):** [VCMI Builds](https://builds.vcmi.download/branch/develop/Android/)
 

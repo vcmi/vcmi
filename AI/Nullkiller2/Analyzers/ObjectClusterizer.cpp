@@ -221,7 +221,7 @@ void ObjectClusterizer::onObjectRemoved(ObjectInstanceID id)
 	vstd::erase_if_present(invalidated, id);
 
 	NK2AI::ClusterMap::accessor cluster;
-	
+
 	if(blockedObjects.find(cluster, id))
 	{
 		for(auto & unlocked : cluster->second->objects)
@@ -299,13 +299,13 @@ void ObjectClusterizer::clusterize()
 
 	if(isUpToDate && invalidated.empty())
 		return;
-		
+
 	auto start = std::chrono::high_resolution_clock::now();
 
 	logAi->debug("Begin object clusterization");
 
 	std::vector<const CGObjectInstance *> objs;
-	
+
 	if(isUpToDate)
 	{
 		for(auto id : invalidated)
@@ -478,8 +478,6 @@ void ObjectClusterizer::clusterizeObject(
 					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 				}
 
-				if(aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
-					continue;
 				if (priority <= 0)
 					continue;
 
@@ -504,13 +502,11 @@ void ObjectClusterizer::clusterizeObject(
 			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 		}
 
-		if (aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
-			continue;
 		if (priority <= 0)
 			continue;
 
 		// TODO: Mircea: Move to constant
-		bool interestingObject = path.turn() <= 2 || priority > (aiNk->settings->isUseFuzzy() ? 0.5f : 0);
+		bool interestingObject = path.turn() <= 2 || priority > 0;
 
 		if(interestingObject)
 		{

@@ -1,0 +1,127 @@
+{
+	"core:creatureGeneratorCommon" : {
+		"types" : {
+			"basiliskPit": {
+				"special" : true
+			},
+			"behemothCrag": {
+				"special" : true
+			},
+			"forsakenPalace": {
+				"creatures": [["magog"]]
+			},
+			"fireLake": {
+				"creatures": [["gog"]]
+			},
+			"altarOfWishes": {
+				"special" : true
+			},
+			"gorgonLair": {
+				"special" : true
+			},
+			"dragonCliffs": {
+				"creatures": [["blackDragon"]]
+			},
+			"hydraPond": {
+				"special" : true
+			},
+			"mageTower": {
+				"special" : true
+			},
+			"goldenPavilion": {
+				"special" : true
+			},
+			"demonGate": {
+				"special" : true
+			},
+			"ogreFort": {
+				"special" : true
+			},
+			"hellHole": {
+				"creatures": [["imp"]]
+			},
+			"cliffNest": {
+				"special" : true
+			},
+			"cloudTemple": {
+				"special" : true
+			},
+			"dendroidArches": {
+				"special" : true
+			},
+			"wyvernNest": {
+				"special" : true
+			},
+			"unicornGladeBig": {
+				"special" : true
+			},
+			"altarOfThought": {
+				"creatures": [["stormElemental"]],
+				"name" : "Altar of Thought"
+			},
+			"pyre": {
+				"special" : true,
+				"name" : "Pyre"
+			},
+			"frozenCliffs": {
+				"creatures": [["ghostDragon"]],
+				"name" : "Frozen Cliffs"
+			},
+			"crystalCavern": {
+				"creatures": [["redDragon"]],
+				"name" : "Crystal Cavern"
+			},
+			"magicForest": {
+				"creatures": [["redDragon"]],
+				"name" : "Magic Forest"
+			},
+			"sulfurousLair": {
+				"creatures": [["blackDragon"]],
+				"name" : "Sulfurous Lair"
+			},
+			"enchantersHollow": {
+				"creatures": [["woodElf"]],
+				"name" : "Enchanter's Hollow"
+			},
+			"treetopTower": {
+				"creatures": [["woodElf"]],
+				"name" : "Treetop Tower"
+			},
+			"unicornGlade": {
+				"special" : true,
+				"name" : "Unicorn Glade"
+			},
+			"trollBridge": {
+				"special" : true,
+				"name" : "Troll Bridge"
+			},
+			"altarOfAir":   { "name" : "Altar of Air" },
+			"altarOfEarth": { "name" : "Altar of Earth" },
+			"altarOfFire":  { "name" : "Altar of Fire" },
+			"altarOfWater": { "name" : "Altar of Water" },
+			"boarGlen":     { "name" : "Boar Glen" },
+			"hovel":        { "name" : "Hovel" },
+			"magicLantern": { "name" : "Magic Lantern" },
+			"nomadTent":    { "name" : "Nomad Tent" },
+			"rogueCavern":  { "name" : "Rogue Cavern" },
+			"thatchedHut":  { "name" : "Thatched Hut" },
+			"tombOfCurses": { "name" : "Tomb of Curses" }
+		}
+	},
+	"core:creatureGeneratorSpecial" : {
+		"types" : {
+			"golemFactory" : {
+				"creatures" : [ // 4 separate "levels" to give them separate growth
+					[ "ironGolem" ],
+					[ "ironGolem" ],
+					[ "ironGolem" ],
+					[ "ironGolem" ]
+				],
+				"guards" : [
+					{ "amount" : 9, "type" : "ironGolem" },
+					{ "amount" : 6, "type" : "ironGolem" }
+				]
+			}
+		}
+	}
+}

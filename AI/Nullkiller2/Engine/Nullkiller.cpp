@@ -11,9 +11,9 @@
 #include "Nullkiller.h"
 
 #include "../../../lib/CPlayerState.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/pathfinder/PathfinderCache.h"
-#include "../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/StartInfo.h"
+#include "../../../lib/pathfinder/PathfinderCache.h"
+#include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../AIGateway.h"
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
@@ -385,7 +385,7 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
-	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
+	std::lock_guard sharedStorageLock(AISharedStorage::locker);
 	pathfinderTurnStorageMisses.store(0);
 	const int MAX_DEPTH = 10;
 	resetState();
@@ -419,7 +419,7 @@ void Nullkiller::makeTurn()
 		{
 			prioOfTask = prio;
 			selectedTasks = buildPlanAndFilter(tasks, prio);
-			if (!selectedTasks.empty() || settings->isUseFuzzy())
+			if (!selectedTasks.empty())
 			{
 				// Activate for deep debugging, otherwise too noisy even for trace level 2
 // #if NK2AI_TRACE_LEVEL >= 2
@@ -478,7 +478,7 @@ void Nullkiller::makeTurn()
 			// 		selectedTask->priority);
 			// }
 
-			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
+			if(selectedTask->priority <= 0)
 			{
 				auto heroes = cc->getHeroesInfo();
 				const auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
@@ -678,9 +678,9 @@ void Nullkiller::tracePlayerStatus(bool beginning) const
 #endif
 }
 
-std::map<const CGHeroInstance *, HeroRole> Nullkiller::getHeroesForPathfinding() const
+HeroMap<HeroRole> Nullkiller::getHeroesForPathfinding() const
 {
-	std::map<const CGHeroInstance *, HeroRole> activeHeroes;
+	HeroMap<HeroRole> activeHeroes;
 	for(auto hero : cc->getHeroesInfo())
 	{
 		if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)

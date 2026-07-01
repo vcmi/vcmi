@@ -473,13 +473,13 @@ void AdventureMapWidget::updateActiveStateChildren(CIntObject * widget)
 				container->setEnabled(shortcuts->optionHeroSleeping());
 
 			if (container->disableCondition == "heroGround")
-				container->setEnabled(!shortcuts->optionHeroBoat(EPathfindingLayer::SAIL) && !shortcuts->optionHeroBoat(EPathfindingLayer::AIR));
+				container->setEnabled(!shortcuts->optionHeroBoat(EPathfindingLayer::SAIL) && !shortcuts->optionHeroBoat(EPathfindingLayer::AIR) && !shortcuts->optionHeroBoat(EPathfindingLayer::AVIATE));
 
 			if (container->disableCondition == "heroBoat")
 				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::SAIL));
 
 			if (container->disableCondition == "heroAirship")
-				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::AIR));
+				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::AVIATE));
 
 			if (container->disableCondition == "mapLayerSurface")
 				container->setEnabled(shortcuts->optionMapLevel() == 0);

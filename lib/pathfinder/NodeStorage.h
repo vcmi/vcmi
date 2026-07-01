@@ -19,14 +19,14 @@ class DLL_LINKAGE NodeStorage : public INodeStorage
 private:
 	CPathsInfo & out;
 
-	STRONG_INLINE
+	inline
 	void resetTile(const int3 & tile, const EPathfindingLayer & layer, EPathAccessibility accessibility);
 
 public:
 	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
 
-	STRONG_INLINE
-	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer)
+	inline
+	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer & layer)
 	{
 		return out.getNode(coord, layer);
 	}

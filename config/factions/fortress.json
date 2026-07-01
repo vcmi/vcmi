@@ -2,7 +2,7 @@
 	"fortress" :
 	{
 		"index" : 7,
-		"nativeTerrain": "swamp",
+		"nativeTerrain": [ "swamp" ],
 		"alignment" : "neutral",
 		"creatureBackground" :
 		{

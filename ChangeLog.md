@@ -1,5 +1,82 @@
 # VCMI Project Changelog
 
+## 1.7.4 -> 1.8.0 (in development)
+
+### Key Changes
+
+* Added initial support for Lua scripting
+* Added support for Heroes 3 Demo, with most of game features disabled
+* Map editor is now available on Android systems
+
+### Stability
+
+* Fixed possible crash on shutdown
+* Fixed crash if Sacrifice or Teleport spell is used as creature ability
+* Fixed minor memory leak in random map generator
+* Fixed possible freeze on entering name in high scores screen
+
+### Interface
+
+* Fixed possible UI flickering when hero receives multiple level-up dialogs at once
+* Wiki: Game objects added in Heroes 3 expansions are now marked as such
+* Wiki: Special artifacts like Spellbook are now visible in artifact list
+* Fixed inability to click on defending hero to open his or her spellbook
+* Gold is now always displayed last in marketplace window
+* Fixed duplicated Mystic Pond description on left click
+* Fixed bug that caused town gates during siege to open before unit is adjacent to gate
+* Scenario selection screen is now correctly centered if UI enhancements are on
+
+### Mechanics
+
+* Added support for Airships (HotA feature)
+* Fixed handling of daily cast limit for spells that only give bonuses to player (modded spells only)
+* Fixed positioning of some of obstacles in battle to match H3
+* It is now possible for flying units to move into moat and attack as part of the same action
+* Fixed rare unit movement scenario which could cause town gates during siege fail to open
+
+### Random Maps Generator
+
+* Improved initial placement of zones to reduce number of monoliths on 2-level maps
+* Generator will no longer repeat last 10 obstacles to improved visual diversity of biomes
+
+## AI
+
+* Nullkiller AI (version 1) has been removed from the game in favour of NKAI2
+* Removed unused support for fuzzy logic from NKAI2
+* Fixed bug which could cause Nullkiller AI to not perform planned troop exchanges between heroes
+* Fixed some cases which could cause Nullkiller AI to pick different actions after reloading game from save
+* Removed support for old versions of MMAI mod
+* Added support for additional, siege-only models for MMAI
+
+### Launcher
+
+* Installing multiple mods at once will now correctly show name of mod currently being downloaded
+
+### Map Editor
+
+* Added UI for editing skills available in Witch Hut
+* Added UI for defining list of allowed players in placed events
+* Fixed possible crash in template editor on adding a connection before two zones are placed
+* Fixed cases that would lead to "Export As" or "Save As" to fail silently
+
+### Modding
+
+* Added support for defining custom tags for secondary skills. Migrated all existing boolean flags to use tags.
+* Added secondary skill tags to exclude skill from Scholar, University, or Witch Hut
+* Added support for defining additional mines with custom resource amounts for new or existing resource types
+* Added support for defining default guards in mines
+* Added support for multiple native terrains in factions
+* Added configurable battle log message for spells with `core:timed` effect
+* Video codec `AV1` is now supported for in-game video files
+* It is now possible to use `ogg/opus` format for game music and sounds
+* Added `LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE` bonus that defines chance to learn spell before combat
+* Added `LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE` bonus that defines maximul level of spell that can be learned before combat
+* Removed unfinished ERM scripting support
+* Added initial support for Lua scripting
+* It is now possible to extend exising spell effect types, such as `core:damage`
+* It is now possible to define new spell effect types
+* Spell effects `core:demonSummon` and `core:summon` are now defined in Lua
+
 ## 1.7.3 -> 1.7.4
 
 * Added in-game Wiki that can be opened via F1 or from adventure map options menu
@@ -233,7 +310,7 @@
 * HotA objects (Grave, Ancient Lamp, Sea Barrel, Trapper Lodge) can now grant specific reward instead of randomly selected one
 * Custom guards are now supported for Abandoned Mines
 
-### Random Map Generator
+### Random Maps Generator
 
 * Added support for required objects for zone in RMG map template zone configuration
 * Fixed RMG generating duplicated portals resulting in more than 2 exits

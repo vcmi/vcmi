@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "messagewidget.h"
 #include "ui_messagewidget.h"
 
@@ -16,6 +17,7 @@ MessageWidget::MessageWidget(QWidget *parent) :
 	ui(new Ui::MessageWidget)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 }
 
 MessageWidget::~MessageWidget()

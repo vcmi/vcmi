@@ -14,7 +14,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 enum class EMapFormat : uint8_t;
 
-struct MapFormatFeaturesH3M
+struct DLL_LINKAGE MapFormatFeaturesH3M
 {
 private:
 	static MapFormatFeaturesH3M getFeaturesROE();

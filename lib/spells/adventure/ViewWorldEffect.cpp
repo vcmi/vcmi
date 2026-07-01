@@ -12,7 +12,6 @@
 
 #include "ViewWorldEffect.h"
 
-#include "../CSpellHandler.h"
 
 #include "../../CPlayerState.h"
 #include "../../callback/IGameInfoCallback.h"

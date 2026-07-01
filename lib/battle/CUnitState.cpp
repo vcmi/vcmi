@@ -319,7 +319,6 @@ CUnitState::CUnitState():
 	env(nullptr),
 	cloned(false),
 	defending(false),
-	defendingAnim(false),
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
@@ -348,7 +347,6 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 
 	cloned = other.cloned;
 	defending = other.defending;
-	defendingAnim = other.defendingAnim;
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
@@ -464,17 +462,17 @@ PlayerColor CUnitState::getCasterOwner() const
 	return env->unitEffectiveOwner(this);
 }
 
-void CUnitState::getCasterName(MetaString & text) const
+std::string CUnitState::getCasterNameTextID() const
 {
-	//always plural name in case of spell cast.
-	addNameReplacement(text, true);
+	const auto * creature = creatureId().toEntity(LIBRARY);
+	return creature->getNamePluralTextID();
 }
 
 void CUnitState::getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const
 {
 	text.appendLocalString(EMetaText::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
-	getCasterName(text);
+	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
 }
 
@@ -692,7 +690,7 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 		else
 			return BattlePhases::WAIT;
 	}
-	else if(creatureIndex() == CreatureID::CATAPULT || isTurret()) //catapult and turrets are first
+	else if(isCatapult() || isTurret()) //catapult and turrets are first
 	{
 		return BattlePhases::SIEGE;
 	}
@@ -793,7 +791,6 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("cloned", cloned);
 	handler.serializeBool("defending", defending);
-	handler.serializeBool("defendingAnim", defendingAnim);
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
@@ -830,7 +827,6 @@ void CUnitState::reset()
 {
 	cloned = false;
 	defending = false;
-	defendingAnim = false;
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;
@@ -852,12 +848,13 @@ void CUnitState::reset()
 	position = BattleHex::INVALID;
 }
 
-void CUnitState::save(JsonNode & data)
+JsonNode CUnitState::save()
 {
+	JsonNode data;
 	//TODO: use instance resolver
-	data.clear();
 	JsonSerializer ser(nullptr, data);
 	ser.serializeStruct("state", *this);
+	return data;
 }
 
 void CUnitState::load(const JsonNode & data)

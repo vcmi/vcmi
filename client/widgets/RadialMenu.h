@@ -34,10 +34,11 @@ struct RadialMenuConfig
 	static constexpr Point ITEM_ALT_SE = Point(+70, +40);
 
 	Point itemPosition;
-	bool enabled;
+	bool visible;
 	std::string imageName;
 	std::string hoverText;
 	std::function<void()> callback;
+	bool disabled = false;
 };
 
 class RadialMenuItem : public CIntObject
@@ -49,9 +50,11 @@ class RadialMenuItem : public CIntObject
 	std::shared_ptr<CPicture> inactiveImage;
 	std::function<void()> callback;
 	std::string hoverText;
+	bool visible;
+	bool disabled;
 
 public:
-	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout);
+	RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout, bool visible, bool disabled);
 
 	void setSelected(bool selected);
 };
@@ -64,7 +67,7 @@ class RadialMenu : public CIntObject
 
 	Point centerPosition;
 
-	void addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
+	void addItem(const Point & offset, bool visible, bool disabled, const std::string & path, const std::string & hoverText, const std::function<void()> & callback);
 
 	std::shared_ptr<RadialMenuItem> findNearestItem(const Point & cursorPosition) const;
 

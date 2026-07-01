@@ -16,10 +16,12 @@
         "models" : {
             "type" : "object",
             "additionalProperties" : false,
-            "required" : [ "attacker", "defender" ],
+            "required" : [ "attacker", "attacker.siege", "defender", "defender.siege" ],
             "properties" : {
                 "attacker" : { "type" : "string" },
-                "defender" : { "type" : "string" }
+                "defender" : { "type" : "string" },
+                "attacker.siege" : { "type" : "string" },
+                "defender.siege" : { "type" : "string" }
             }
         },
         "fallback" : {

@@ -2,7 +2,7 @@
 	"castle" :
 	{
 		"index" : 0,
-		"nativeTerrain": "grass",
+		"nativeTerrain": [ "grass" ],
 		"alignment" : "good",
 		"creatureBackground" :
 		{

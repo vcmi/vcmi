@@ -56,10 +56,10 @@ TEST_F(CloneTest, ApplicableToValidTarget)
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtLeast(1)).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(CloneTest, CloneIsNotClonable)
@@ -71,10 +71,10 @@ TEST_F(CloneTest, CloneIsNotClonable)
 	EXPECT_CALL(unit, isClone()).Times(AtLeast(1)).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(CloneTest, SecondCloneRejected)
@@ -86,10 +86,64 @@ TEST_F(CloneTest, SecondCloneRejected)
 	EXPECT_CALL(unit, isClone()).WillRepeatedly(Return(false));
 
 	EXPECT_CALL(unit, getPosition()).WillOnce(Return(BattleHex(5, 5)));
-	EffectTarget target;
+	Target target;
 	target.emplace_back(&unit);
 
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
+}
+
+TEST_F(CloneTest, RejectsNullUnitTarget)
+{
+	setupEffect(JsonNode());
+
+	Target target;
+	target.emplace_back(); // default Destination: unitValue=nullptr
+
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
+}
+
+TEST_F(CloneTest, RejectsTierExceedingMaxTier)
+{
+	{
+		JsonNode config;
+		config["maxTier"].Integer() = 3;
+		EffectFixture::setupEffect(config);
+	}
+
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+
+	EXPECT_CALL(unit, isClone()).WillRepeatedly(Return(false));
+	EXPECT_CALL(unit, hasClone()).WillRepeatedly(Return(false));
+	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(true));
+	// CreatureID(6) = Swordsman, level 4 — exceeds maxTier=3
+	EXPECT_CALL(unit, creatureId()).WillRepeatedly(Return(CreatureID(6)));
+
+	EXPECT_CALL(mechanicsMock, adaptProblem(Eq(ESpellCastProblem::NO_APPROPRIATE_TARGET), Ref(problemMock))).WillOnce(Return(false));
+
+	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
+}
+
+TEST_F(CloneTest, AcceptsTierAtMaxTier)
+{
+	{
+		JsonNode config;
+		config["maxTier"].Integer() = 3;
+		EffectFixture::setupEffect(config);
+	}
+
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+
+	EXPECT_CALL(unit, isClone()).WillRepeatedly(Return(false));
+	EXPECT_CALL(unit, hasClone()).WillRepeatedly(Return(false));
+	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(true));
+	// CreatureID(4) = Griffin, level 3 — equals maxTier=3, should pass
+	EXPECT_CALL(unit, creatureId()).WillRepeatedly(Return(CreatureID(4)));
+	EXPECT_CALL(unit, isInvincible()).WillRepeatedly(Return(false));
+
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false)); // skip owner check
+
+	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
 class CloneApplyTest : public Test, public EffectFixture
@@ -105,7 +159,7 @@ public:
 	const int32_t effectDuration = 6;
 	const BattleHex originalPosition = BattleHex(5,5);
 
-	EffectTarget target;
+	Target target;
 
 	CloneApplyTest()
 		: EffectFixture("core:clone")
@@ -148,8 +202,12 @@ public:
 
 		battleFake->setupEmptyBattlefield();
 
-		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(2);
+		// Lua emits 3 BattleUnitsChanged: ADD (createUnit) + UPDATE (clone flags) + UPDATE (original flags)
+		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(3);
 		EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
+
+		EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
+		EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return("core:clone"));
 
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillOnce(Return(effectDuration));
 		EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
@@ -157,8 +215,8 @@ public:
 		EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(cloneId));
 		EXPECT_CALL(*battleFake, addUnit(_, _)).WillOnce(Invoke(this, &CloneApplyTest::onUnitAdded));
 
-		EXPECT_CALL(*battleFake, setUnitState(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
-		EXPECT_CALL(*battleFake, setUnitState(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(originalId), _, Eq(0))).Times(AtLeast(1));
+		EXPECT_CALL(*battleFake, updateUnit(Eq(cloneId), _, Eq(0))).Times(AtLeast(1));
 
 		auto & original = unitsFake.add(BattleSide::ATTACKER);
 		EXPECT_CALL(original, isValidTarget(Eq(false))).Times(AtLeast(1)).WillRepeatedly(Return(true));
@@ -236,6 +294,38 @@ TEST_F(CloneApplyTest, SetsLifetimeMarker)
 	EXPECT_CALL(*battleFake, addUnitBonus(_, _)).WillOnce(Invoke(this, &CloneApplyTest::checkCloneLifetimeMarker));
 
 	subject->apply(&serverMock, &mechanicsMock, target);
+}
+
+TEST_F(CloneApplyTest, SkipsZeroCountUnit)
+{
+	battleFake->setupEmptyBattlefield();
+
+	auto & original = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(original, getCount()).WillRepeatedly(Return(0));
+	EXPECT_CALL(original, getPosition()).WillOnce(Return(originalPosition));
+
+	target.emplace_back(&original);
+
+	subject->apply(&serverMock, &mechanicsMock, target);
+}
+
+TEST_F(CloneApplyTest, SkipsMultipleTargetsOnPartialFailure)
+{
+	setDefaultExpectations();
+
+	EXPECT_CALL(*battleFake, addUnitBonus(_, _)).Times(AtLeast(1));
+
+	auto & secondary = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(secondary, getCount()).WillRepeatedly(Return(0));
+	EXPECT_CALL(secondary, getPosition()).WillOnce(Return(BattleHex(3, 3)));
+
+	target.emplace_back(&secondary);
+
+	subject->apply(&serverMock, &mechanicsMock, target);
+
+	EXPECT_EQ(cloneAddInfo->id, cloneId);
+	EXPECT_EQ(cloneAddInfo->count, expectedAmount);
+	EXPECT_TRUE(cloneAddInfo->summoned);
 }
 
 }

@@ -10,9 +10,8 @@
 #include "StdInc.h"
 
 #include "Effect.h"
-#include "Registry.h"
 
-#include "../../serializer/JsonSerializeFormat.h"
+#include "../../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,38 +20,21 @@ namespace spells
 namespace effects
 {
 
-bool Effect::applicable(Problem & problem, const Mechanics * m) const
+bool Effect::applicableGeneral(Problem & problem, const Mechanics * m) const
 {
 	return true;
 }
 
-bool Effect::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
+bool Effect::applicableTarget(Problem & problem, const Mechanics * m, const Target & target) const
 {
 	return true;
 }
 
-void Effect::serializeJson(JsonSerializeFormat & handler)
+void Effect::init(JsonNode data)
 {
-	handler.serializeBool("indirect", indirect, false);
-	handler.serializeBool("optional", optional, false);
-	serializeJsonEffect(handler);
-}
-
-std::shared_ptr<Effect> Effect::create(const Registry * registry, const std::string & type)
-{
-	const auto *factory = registry->find(type);
-
-	if(factory)
-	{
-		std::shared_ptr<Effect> ret;
-		ret.reset(factory->create());
-		return ret;
-	}
-	else
-	{
-		logGlobal->error("Unknown effect type '%s'", type);
-		return std::shared_ptr<Effect>();
-	}
+	indirect = data["indirect"].Bool();
+	optional = data["optional"].Bool();
+	initImpl(std::move(data));
 }
 
 }

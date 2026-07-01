@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/filesystem/ResourcePath.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class IMusicPlayer
 {

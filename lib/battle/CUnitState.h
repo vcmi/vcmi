@@ -88,7 +88,7 @@ private:
 	BonusValueCache unlimited;
 };
 
-class DLL_LINKAGE CHealth
+class DLL_LINKAGE CHealth final
 {
 public:
 	explicit CHealth(const battle::Unit * Owner);
@@ -130,7 +130,6 @@ class DLL_LINKAGE CUnitState : public Unit
 public:
 	bool cloned;
 	bool defending;
-	bool defendingAnim;
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;
@@ -184,7 +183,7 @@ public:
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;
-	void getCasterName(MetaString & text) const override;
+	std::string getCasterNameTextID() const override;
 	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	int32_t manaLimit() const override;
 
@@ -241,7 +240,7 @@ public:
 	int getAttack(bool ranged) const override;
 	int getDefense(bool ranged) const override;
 
-	void save(JsonNode & data) override;
+	JsonNode save() override;
 	void load(const JsonNode & data) override;
 
 	void damage(int64_t & amount) override;

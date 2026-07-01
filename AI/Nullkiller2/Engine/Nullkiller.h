@@ -79,7 +79,7 @@ private:
 	const CGHeroInstance * activeHero;
 	int3 targetTile;
 	ObjectInstanceID targetObject;
-	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
+	HeroMap<HeroLockedReason> lockedHeroes;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
 	ScanDepth scanDepth;
 	TResources lockedResources;
@@ -139,7 +139,7 @@ public:
 	void invalidatePathfinderData();
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
 	void invalidatePaths();
-	std::map<const CGHeroInstance *, HeroRole> getHeroesForPathfinding() const;
+	HeroMap<HeroRole> getHeroesForPathfinding() const;
 
 private:
 	void resetState();

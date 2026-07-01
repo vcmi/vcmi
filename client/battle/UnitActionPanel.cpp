@@ -27,7 +27,7 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/CSpell.h"
 
 UnitActionPanel::UnitActionPanel(BattleInterface & owner)
 	: CIntObject(0)

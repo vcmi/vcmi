@@ -20,9 +20,9 @@
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
 #include "modding/IdentifierStorage.h"
-#include "spells/CSpellHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
+#include "spells/CSpellHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -18,6 +18,8 @@
 #include "entities/artifact/CArtifactSet.h"
 #include "mapObjects/CGObjectInstance.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
@@ -27,7 +29,7 @@ class CArmedInstance;
 class CCreatureArtifactSet;
 class JsonSerializeFormat;
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature, public GameCallbackHolder
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature, public GameCallbackHolder, public scripting::ApiRawPointer<CStackInstance>
 {
 	BonusValueCache nativeTerrain;
 	BonusValueCache initiative;
@@ -127,7 +129,7 @@ public:
 	PlayerColor getOwner() const override;
 
 	int32_t getInitiative(int turn = 0) const final;
-	TerrainId getNativeTerrain() const final;
+	bool isNativeTerrain(TerrainId terrain) const override;
 	TerrainId getCurrentTerrain() const;
 };
 

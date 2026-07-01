@@ -24,7 +24,7 @@ protected:
 public:
 	SilentCaster(PlayerColor owner_, const Caster * caster);
 
-	void getCasterName(MetaString & text) const override;
+	std::string getCasterNameTextID() const override;
 	void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 	PlayerColor getCasterOwner() const override;

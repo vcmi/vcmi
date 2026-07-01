@@ -11,7 +11,7 @@
 
 #ifdef ENABLE_VIDEO
 
-#include "../lib/Point.h"
+#include "../../lib/Point.h"
 #include "IVideoPlayer.h"
 
 struct SDL_Surface;

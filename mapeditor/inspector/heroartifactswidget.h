@@ -14,6 +14,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 namespace Ui {
 class HeroArtifactsWidget;
 }

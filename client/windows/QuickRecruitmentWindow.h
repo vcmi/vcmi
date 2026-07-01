@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../windows/CWindowObject.h"
+#include "CWindowObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;

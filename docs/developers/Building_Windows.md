@@ -1,199 +1,356 @@
-# Building VCMI for Windows
+# Building VCMI on Windows
 
-## Preparations
+VCMI supports two Windows build environments:
 
-Windows builds can be made in more than one way and with more than one tool. This guide will show how to do it using Microsoft Visual Studio 2022 (MSVC compiler) and MSYS2 (MinGW compiler).
+| Build environment | Dependency manager |
+| --- | --- |
+| [**Visual Studio / MSVC**](#visual-studio-and-conan-recommended) | **Conan 2 — recommended and used by CI** |
+| [MSYS2 / MinGW](#msys2-and-mingw-alternative) | MSYS2 packages |
 
-## Prerequisites
+This guide focuses on generating a Visual Studio solution and then building VCMI from the IDE. Command-line builds are also available for automation.
 
-1. Windows 7 or newer
-2. [Microsoft Visual Studio](https://visualstudio.microsoft.com/downloads/)
-3. Git or git GUI, for example, SourceTree [download link](http://www.sourcetreeapp.com/download)
-4. CMake [download link](https://cmake.org/download/). During install after accepting license agreement make sure to check "Add CMake to the system PATH for all users". You can also install CMake from the Visual Studio Installer or from a package manager like [WinGet](https://github.com/microsoft/winget-cli).
-5. Optional:
-    - To create installer: [Inno Setup](https://jrsoftware.org/isinfo.php)
-    - To speed up recompilation: [CCache](https://github.com/ccache/ccache/releases)
+If you only want to install and play VCMI, see the [Windows installation guide](../players/Installation_Windows.md) instead.
 
-### Choose an installation directory
+## Supported Windows and Visual Studio versions
 
-Create a directory for VCMI development, eg. `C:\VCMI` We will call this directory `%VCMI_DIR%`
+VCMI supports Visual Studio 2019 and newer, including Visual Studio 2022 and Visual Studio 2026.
 
-Warning! Replace `%VCMI_DIR%` with path you've chosen for VCMI installation in the following commands.
+For x86 and x64 builds, choose the compiler toolset according to the oldest Windows version that must run the resulting build:
 
-It is recommended to avoid non-ascii characters in the path to your working folders. The folder should not be write-protected by system.
+- **Windows 7 SP1, Windows 8, or Windows 8.1:** use **MSVC v142 - VS 2019 C++ x64/x86 build tools** and the Conan option `-o "&:target_pre_windows10=True"`.
+- **Windows 10 or Windows 11 only:** the latest MSVC toolset installed with Visual Studio may be used; omit `target_pre_windows10`.
+- **Windows ARM64:** use the current ARM64 toolset. ARM64 builds target Windows 10 or newer.
 
-Good locations:
+Visual Studio 2019 itself can run on Windows 7 SP1 and Windows 8.1. Newer Visual Studio versions require a newer Windows host, but can install the v142 toolset and use it to produce pre-Windows 10 compatible VCMI builds. VCMI CI uses this approach with Visual Studio 2026.
 
-- `C:\VCMI`
+> [!TIP]
+> If you are unsure which configuration to use, follow the x64 Debug examples with v142 and `target_pre_windows10=True`. This is the most compatible local development setup.
 
-Bad locations:
+## Visual Studio and Conan (recommended)
 
-- `C:\Users\Michał\VCMI (non-ascii character)`
-- `C:\Program Files (x86)\VCMI (write protection)`
+### 1. Install the required tools
 
-## Install VCMI dependencies
+Open **Visual Studio Installer**, select the **Desktop development with C++** workload, and verify these individual components:
 
-This step is needed only for MSVC compiler. You can also find legacy Vcpkg instructions in the bottom of the document.
+- **MSVC compiler and Windows SDK**
+- **MSVC v142 - VS 2019 C++ x64/x86 build tools** when targeting Windows 7, 8, or 8.1
+- **C++ CMake tools for Windows**
+- **Git for Windows**
 
-We use Conan package manager to build/consume dependencies, find detailed usage instructions [here](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Conan.md).
+Visual Studio Installer can install both CMake and Git. Their standalone installers are also supported:
 
-On the step where you need to replace **PROFILE**, choose:
+- [Git for Windows](https://git-scm.com/download/win)
+- [CMake](https://cmake.org/download/) - enable **Add CMake to the system PATH** during installation.
 
-- `msvc-x64` to build for Intel 64-bit (x64 / x86_64)
-- `msvc-arm64` to build for ARM 64-bit (arm64)
-- `msvc-x86` to build for Intel 32-bit (x86)
+Also install [Python 3](https://www.python.org/downloads/windows/) and enable **Add Python to PATH** during installation.
 
-*Note*: we recommend using CMD (`cmd.exe`) for the next steps. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the `conan install` command.
-
-## Install CCache
-
-Extract `ccache` to a folder of your choosing, add the folder to the `PATH` environment variable and log out and back in.
-
-## Build VCMI
-
-### Clone VCMI repository
-
-#### From Git GUI
-
-1. Open SourceTree
-2. File -> Clone
-3. Select `https://github.com/vcmi/vcmi/` as source
-4. Select `%VCMI_DIR%/source` as destination
-5. Expand Advanced Options and change Checkout Branch to `develop`
-6. Tick `Recursive submodules`
-7. Click Clone
-
-#### From command line
-
-```sh
-git clone --recursive https://github.com/vcmi/vcmi.git %VCMI_DIR%/source
-```
-
-### Compile VCMI with Visual Studio
-
-#### Generate solution
-
-1. Open command line prompt (`cmd.exe`)
-2. Execute `cd %VCMI_DIR%`
-3. Now you need to run a script* from the Conan directory that you passed to `conan install` (the one that you passed in `--output-folder` parameter). For example, if you passed `conan-msvc`, then the script will be in `source\conan-msvc`.
-    - for CMD: `source\conan-msvc\conanrun.bat`
-    - for Powershell: `source\conan-msvc\conanrun.ps1`. If it gives an error, also run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted`
-4. Create VS solution: `cmake -S source -B build --toolchain source\conan-msvc\conan_toolchain.cmake`
-
-\* This script sets up `PATH` required for Qt tools (`moc`, `uic` etc.) that run during CMake configure and build steps. Those tools depend on `zlib.dll` that was built with Conan, therefore its directory must be in `PATH`. As an alternative to modifying `PATH` you may try [this workaround](https://github.com/kambala-decapitator/ExeWrapper).
-
-#### Build solution
-
-You must launch Visual Studio in a modified `PATH` environment, see `*` in the previous subsection. You can launch it right from the current shell by pasting path to `devenv.exe` (Visual Studio executable, e.g. `"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"`). To launch it later with correct environment, you can create batch script (a file with `bat` extension) which you can double-click, here's an example (use your own path on the first line):
+Install Conan 2 through Python:
 
 ```batchfile
-call "c:\Users\kamba\source\repos\vcmi\conan-msvc\conanrun.bat"
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"
+python -m pip install --upgrade conan
 ```
 
-1. Open `%VCMI_DIR%/build/VCMI.sln` in Visual Studio
-2. Select `RelWithDebInfo` build type in the combobox
-3. If you want to use ccache:
-    - Select `Manage Configurations...` in the combobox
-    - Specify the following CMake variable: `ENABLE_CCACHE=ON`
-    - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
-4. Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer. You can also build individual targets if you want.
-5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. To launch the built executables from a file manager, use respective `bat` files, e.g. `VCMI_launcher.bat`.
+Open an **elevated Command Prompt** by selecting **Run as administrator**. Use it for the setup and CMake commands in this guide.
 
-### Compile VCMI with MinGW64 or UCRT64 via MSYS2
+Verify the tools before continuing:
 
-1. Install MSYS2 from <https://www.msys2.org/>
-2. Open the correct shell
-   - For MinGW64 (MSVCRT): start `MSYS2 MinGW x64`
-   - For UCRT64: start `MSYS2 UCRT64`
-
-   (Sanity check: `echo $MSYSTEM` should be MINGW64 or UCRT64; don’t mix them.)
-3. Update MSYS2 packages: `pacman -Syu`
-4. Install dependencies
-   - For MinGW64 (MSVCRT): `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt5-tools mingw-w64-x86_64-tbb`
-   - For UCRT64: `pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-boost mingw-w64-ucrt-x86_64-minizip mingw-w64-ucrt-x86_64-ffmpeg mingw-w64-ucrt-x86_64-SDL2_image mingw-w64-ucrt-x86_64-SDL2_mixer mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-qt5-static mingw-w64-ucrt-x86_64-tbb`
-5. Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
-
-**NOTE:** This will link Qt5 statically to `VCMI_launcher.exe` and `VCMI_Mapeditor.exe`. See [PR #3421](https://github.com/vcmi/vcmi/pull/3421) for some background.
-
-## Troubleshooting and workarounds
-
-Vcpkg might be very unstable due to limited popularity and fact of using bleeding edge packages (such as most recent Boost). Using latest version of dependencies could also expose both problems in VCMI code or library interface changes that developers not checked yet. So if you're built Vcpkg yourself and can't get it working please try to use binary package.
-
-Pre-built version we provide is always manually tested with all supported versions of MSVC for both Release and Debug builds and all known quirks are listed below.
-
-### Build is successful but can not start new game
-
-Make sure you have:
-
-* Installed Heroes III from disk or using GOG installer
-* Copied `Data`, `Maps` and `Mp3` folders from Heroes III to: `%USERPROFILE%\Documents\My Games\vcmi\`
-
-### VCMI won't run since some library is missing
-
-**If you open solution using vcmi.sln** Try to build INSTALL target and see if its output works as expected. Copy missing libraries or even all libraries from there to your build directory. Or run cpack and use produced installer and see if you can get libs from there. cpack -V will give more info. If cpack complains that it can not find dumpbin try Visual Studio Command Prompt (special version of cmd provided with Visual Studio with additional PATH) or modify PATH to have this tool available. Another alternative if you use prebuilt vcpkg package is to download latest msvc build, install it and copy missing/all libraries from there.
-
-### Debug build is very slow
-
-Debug builds with MSVC are generally extremely slow since it's not just VCMI binaries are built as debug, but every single dependency too and this usually means no optimizations at all. Debug information that available for release builds is often sufficient so just avoid full debug builds unless absolutely necessary. Instead use RelWithDebInfo configuration, optionally with Optimization Disabled (/Od) to avoid variables being optimized away. Also Debug configuration might have some compilation issues because it is not checked via CI for now.
-
-### I got crash within library XYZ.dll
-
-VCPKG generated projects quite often have both debug and regular libs available to linker so it can select wrong lib. For stable RelWithDebInfo build you may try to remove debug folder from VCPKG/installed/x64-windows. Same is done on CI. Also it reduces package size at least twice.
-
-## Legacy instructions for Vcpkg package manager
-
-We have switched to the Conan package manager in v1.7. Legacy Vcpkg integration is no longer supported and may or may not work out of the box.
-
-You have two options: to use pre-built libraries or build your own. We strongly recommend start with using pre-built ones.
-
-### Option A. Use pre-built Vcpkg
-
-#### Download and unpack archive
-
-Vcpkg Archives are available at our GitHub: <https://github.com/vcmi/vcmi-deps-windows/releases>
-
-- Download latest version available.
-EG: v1.6 assets - [vcpkg-export-x64-windows-v143.7z](https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.6/vcpkg-export-x64-windows-v143.7z)
-- Extract archive by right clicking on it and choosing "7-zip -> Extract Here".
-
-#### Move dependencies to target directory
-
-Once extracted, a `vcpkg` directory will appear with `installed` and `scripts` subfolders inside.
-Move extracted `vcpkg` directory into your `%VCMI_DIR%`
-
-### Option B. Build Vcpkg on your own
-
-Please be aware that if you're running 32-bit Windows version, then this is impossible due to <https://github.com/microsoft/vcpkg/issues/26036>
-Be aware that building Vcpkg might take a lot of time depend on your CPU model and 10-20GB of disk space.
-
-#### Create initial directory
-
-#### Clone vcpkg
-
-1. open SourceTree
-2. File -\> Clone
-3. select **<https://github.com/microsoft/vcpkg/>** as source
-4. select **%VCMI_DIR%/vcpkg** as destination
-5. click **Clone**
-
-From command line use:
-
-```sh
-git clone https://github.com/microsoft/vcpkg.git %VCMI_DIR%/vcpkg
+```batchfile
+git --version
+python --version
+conan --version
+cmake --version
 ```
 
-#### Build vcpkg and dependencies
+> [!IMPORTANT]
+> `conan --version` must report Conan 2.x.
 
-- Run
-`%VCMI_DIR%/vcpkg/bootstrap-vcpkg.bat`
-- For 32-bit build run:
-`%VCMI_DIR%/vcpkg/vcpkg.exe install tbb:x64-windows fuzzylite:x64-windows sdl2:x64-windows sdl2-image:x64-windows sdl2-ttf:x64-windows sdl2-mixer[mpg123]:x64-windows boost:x64-windows qt5-base:x64-windows ffmpeg:x64-windows luajit:x64-windows`
-- For 64-bit build run:
-`%VCMI_DIR%/vcpkg/vcpkg.exe install install tbb:x86-windows fuzzylite:x86-windows sdl2:x86-windows sdl2-image:x86-windows sdl2-ttf:x86-windows sdl2-mixer[mpg123]:x86-windows boost:x86-windows qt5-base:x86-windows ffmpeg:x86-windows luajit:x86-windows`
+### 2. Install a compiler cache (strongly recommended)
 
-For the list of the packages used you can also consult [vcmi-deps-windows readme](https://github.com/vcmi/vcmi-deps-windows) in case this article gets outdated a bit.
+A compiler cache considerably reduces rebuild times. For the Visual Studio solution workflow in this guide, install [ccache](https://github.com/ccache/ccache/releases). VCMI's CMake configuration creates the compiler shim required by the Visual Studio generator.
 
-### CMake integration
+Download and extract `ccache.exe`. Then either:
 
-When executing `cmake` configure step, pass `--toolchain %VCMI_DIR%/vcpkg/scripts/buildsystems/vcpkg.cmake`
+- place it in a permanent directory and add that directory to the system `PATH`; or
+- copy it to `%WinDir%\System32`, which keeps it permanently available on `PATH`.
+
+Open a new Command Prompt and verify the installation:
+
+```batchfile
+ccache --version
+```
+
+Enable it when generating the Visual Studio solution by passing `-D ENABLE_CCACHE=ON` to CMake.
+
+> [!TIP]
+> VCMI also supports [sccache](https://github.com/mozilla/sccache/releases) and uses it in Windows CI with the Ninja generator. Its executable can likewise be added to `PATH` or copied to `%WinDir%\System32`. For the Visual Studio generator documented here, use ccache and do not make sccache available on `PATH`, because VCMI prefers sccache when both are found.
+
+### 3. Clone VCMI
+
+Use a short, writable path containing only ASCII characters. Avoid protected directories such as `C:\Program Files`.
+
+The Conan and CMake commands in this guide **must be run from the VCMI source root**: the directory containing `CMakeLists.txt`, `conanfile.py`, and the `dependencies` submodule. This guide uses `C:\VCMI`.
+
+```batchfile
+cd /d C:\
+git clone --recursive https://github.com/vcmi/vcmi.git VCMI
+cd /d C:\VCMI
+```
+
+If VCMI was cloned without submodules, initialize them before continuing:
+
+```batchfile
+git submodule update --init --recursive
+```
+
+> [!IMPORTANT]
+> Before running any later Conan or CMake command, confirm that the prompt is in `C:\VCMI` or your chosen VCMI source root.
+
+### 4. Restore the prebuilt dependencies
+
+Download the dependency archive matching both the VCMI branch/release and target architecture from the [vcmi-dependencies releases page](https://github.com/vcmi/vcmi-dependencies/releases):
+
+- `dependencies-windows-x64.txz` for 64-bit x86 Windows
+- `dependencies-windows-x86.txz` for 32-bit x86 Windows
+- `dependencies-windows-arm64.txz` for Windows on ARM
+
+Use the pre-release dependency archive for VCMI's current development branch and the corresponding release archive for a released VCMI version.
+
+For example, restore x64 dependencies from the VCMI source root:
+
+```batchfile
+cd /d C:\VCMI
+conan profile detect
+conan cache restore "%USERPROFILE%\Downloads\dependencies-windows-x64.txz"
+```
+
+### 5. Generate the Conan toolchain
+
+#### Choosing `compiler.version`
+
+Conan's `compiler.version` is an MSVC binary-compatibility version, not the Visual Studio year or the `v142` toolset number. It is derived from the beginning of the compiler's `19.xx` version number. Common values are:
+
+| Conan `compiler.version` | MSVC compiler version | Visual Studio toolset |
+| --- | --- | --- |
+| `192` | 19.2x | Visual Studio 2019, v142 |
+| `193` | 19.3x | Visual Studio 2022, v143 |
+| `194` | 19.4x | Visual Studio 2022 17.10 and newer, v143 |
+| `195` | 19.5x | Visual Studio 2026, v145 |
+
+For example, compiler version `19.29` uses Conan value `192`. Conan uses these shortened values to identify compatible binary packages without tying them to a specific compiler patch release. See the official [Conan reference](https://docs.conan.io/2/reference/config_files/settings.html#msvc) and [CMake MSVC version table](https://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html) for the complete mappings.
+
+To find the compiler version detected on your system, run `conan profile detect`, then inspect the generated profile:
+
+```batchfile
+conan profile detect
+type "%USERPROFILE%\.conan2\profiles\default"
+```
+
+Look for these lines:
+
+```text
+compiler=msvc
+compiler.version=192
+```
+
+You can also run `cl` from a Visual Studio Developer Command Prompt and map its displayed `19.xx` version using the table above. The `compiler.version` passed to `conan install` must match the toolset selected when generating the Visual Studio solution.
+
+> [!TIP]
+> The VCMI prebuilt x86 and x64 dependencies use `compiler.version=192` and the v142 toolset for compatibility with Windows versions before Windows 10. Keep `192` unless you intentionally want to use a newer compiler and are prepared to build missing dependencies locally.
+
+The examples below generate Debug dependencies in `conan-msvc`. Most developers should use the first command.
+
+#### x64 Debug, compatible with Windows 7 and newer
+
+```batchfile
+cd /d C:\VCMI
+conan install . ^
+  --output-folder=conan-msvc ^
+  --build=never ^
+  --profile=dependencies\conan_profiles\msvc-x64 ^
+  -s "&:compiler.version=192" ^
+  -s "&:build_type=Debug" ^
+  -o "&:target_pre_windows10=True"
+```
+
+#### x86 Debug, compatible with Windows 7 and newer
+
+```batchfile
+cd /d C:\VCMI
+conan install . ^
+  --output-folder=conan-msvc ^
+  --build=never ^
+  --profile=dependencies\conan_profiles\msvc-x86 ^
+  -s "&:compiler.version=192" ^
+  -s "&:build_type=Debug" ^
+  -o "&:target_pre_windows10=True"
+```
+
+#### ARM64 Debug
+
+```batchfile
+cd /d C:\VCMI
+conan install . ^
+  --output-folder=conan-msvc ^
+  --build=never ^
+  --profile=dependencies\conan_profiles\msvc-arm64 ^
+  -s "&:build_type=Debug" ^
+  -o "&:lua_lib=lua"
+```
+
+> [!TIP]
+> To target only Windows 10 and Windows 11 with a newer MSVC toolset, replace `192` with that compiler's Conan version and omit `-o "&:target_pre_windows10=True"`. Check `%USERPROFILE%\.conan2\profiles\default` after `conan profile detect` for the detected compiler version. If no matching prebuilt dependency exists, use `--build=missing`.
+
+If a compatible prebuilt dependency is unavailable, replace `--build=never` with `--build=missing` to build missing packages locally. This is much slower and may require additional tools.
+
+### 6. Generate the Visual Studio solution
+
+Run the command matching the installed Visual Studio version. These examples generate an x64 solution with compiler caching enabled.
+
+#### Visual Studio 2019
+
+```batchfile
+cd /d C:\VCMI
+cmake -S . -B build -G "Visual Studio 16 2019" -A x64 --toolchain conan-msvc\conan_toolchain.cmake -D ENABLE_CCACHE=ON
+```
+
+#### Visual Studio 2022
+
+```batchfile
+cd /d C:\VCMI
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -T v142 --toolchain conan-msvc\conan_toolchain.cmake -D ENABLE_CCACHE=ON
+```
+
+#### Visual Studio 2026
+
+```batchfile
+cd /d C:\VCMI
+cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -T v142 --toolchain conan-msvc\conan_toolchain.cmake -D ENABLE_CCACHE=ON
+```
+
+- For x86, replace `-A x64` with `-A Win32`.
+- For ARM64, use `-A ARM64`, omit `-T v142`, and use the ARM64 Conan toolchain generated above.
+- When targeting only Windows 10 and Windows 11 with the latest compiler, omit `-T v142`.
+
+The generated solution is `build\VCMI.sln`.
+
+### 7. Build in Visual Studio
+
+1. Open `build\VCMI.sln`.
+2. Select the **Debug** configuration and the intended platform.
+3. In Solution Explorer, build `ALL_BUILD` or an individual target.
+4. Find the compiled programs in `build\bin\Debug`.
+
+> [!TIP]
+> `RelWithDebInfo` enables optimizations while retaining debug information and is useful for performance-sensitive debugging. Rerun `conan install` with `-s "&:build_type=RelWithDebInfo"`, select **RelWithDebInfo** in Visual Studio, and ensure the Conan build type and Visual Studio configuration match.
+
+#### Optional: build from Command Prompt
+
+For automation or a quick full build, the generated solution can also be built without opening Visual Studio:
+
+```batchfile
+cd /d C:\VCMI
+cmake --build build --config Debug
+```
+
+## Updating an existing checkout
+
+For normal day-to-day updates, keep the Conan cache and existing solution:
+
+```batchfile
+cd /d C:\VCMI
+git pull
+git submodule update --init --recursive
+conan install . ^
+  --output-folder=conan-msvc ^
+  --build=never ^
+  --profile=dependencies\conan_profiles\msvc-x64 ^
+  -s "&:compiler.version=192" ^
+  -s "&:build_type=Debug" ^
+  -o "&:target_pre_windows10=True"
+cmake -S . -B build -G "Visual Studio 16 2019" -A x64 --toolchain conan-msvc\conan_toolchain.cmake -D ENABLE_CCACHE=ON
+```
+
+Reopen `build\VCMI.sln` and continue building in Visual Studio. If dependencies changed, download and restore the matching dependency archive before running `conan install`.
+
+## Run VCMI
+
+VCMI requires data files from an installed copy of Heroes of Might and Magic III. Copy the `Data`, `Maps`, and `Mp3` directories to:
+
+```text
+%USERPROFILE%\Documents\My Games\vcmi\
+```
+
+Then run `build\bin\Debug\VCMI_launcher.exe`, or the launcher from the matching build configuration.
+
+## Troubleshooting MSVC builds
+
+### Conan cannot find a compatible binary package
+
+Confirm that the restored dependency archive matches the VCMI branch, target architecture, compiler settings, and build type. If no compatible prebuilt package exists, use `--build=missing` instead of `--build=never`.
+
+### CMake cannot find v142
+
+Open Visual Studio Installer, modify the installed Visual Studio version, and add **MSVC v142 - VS 2019 C++ x64/x86 build tools**. Newer Visual Studio installations do not necessarily include v142 by default.
+
+### Compiler cache is not used
+
+Confirm that `ccache --version` works in the same Command Prompt used to configure VCMI. Delete `build`, then rerun CMake with `-D ENABLE_CCACHE=ON`. During configuration, CMake should report that the ccache compiler launcher is enabled.
+
+### Build succeeds, but starting a game fails
+
+Confirm that the original Heroes III `Data`, `Maps`, and `Mp3` directories exist in `%USERPROFILE%\Documents\My Games\vcmi\`.
+
+For additional Conan options and platform details, see [Conan dependencies](Conan.md). For general CMake options, see [CMake options](CMake.md).
+
+## MSYS2 and MinGW (alternative)
+
+Use this setup only if you specifically need a MinGW build. It does not use Conan. Do not mix commands or packages between MSYS2 environments.
+
+1. Install [MSYS2](https://www.msys2.org/).
+2. Open **MSYS2 UCRT64** and confirm that `echo $MSYSTEM` prints `UCRT64`.
+3. Update MSYS2 with `pacman -Syu`. If requested, close the terminal, reopen **MSYS2 UCRT64**, and run it again.
+4. Install the compiler, build tools, and dependencies:
+
+   ```sh
+   pacman -S --needed \
+     git \
+     mingw-w64-ucrt-x86_64-cmake \
+     mingw-w64-ucrt-x86_64-gcc \
+     mingw-w64-ucrt-x86_64-ninja \
+     mingw-w64-ucrt-x86_64-ccache \
+     mingw-w64-ucrt-x86_64-boost \
+     mingw-w64-ucrt-x86_64-zlib \
+     mingw-w64-ucrt-x86_64-minizip \
+     mingw-w64-ucrt-x86_64-ffmpeg \
+     mingw-w64-ucrt-x86_64-SDL2 \
+     mingw-w64-ucrt-x86_64-SDL2_image \
+     mingw-w64-ucrt-x86_64-SDL2_mixer \
+     mingw-w64-ucrt-x86_64-SDL2_ttf \
+     mingw-w64-ucrt-x86_64-qt5-static \
+     mingw-w64-ucrt-x86_64-tbb \
+     mingw-w64-ucrt-x86_64-luajit \
+     mingw-w64-ucrt-x86_64-xz \
+     mingw-w64-ucrt-x86_64-sqlite3 \
+     mingw-w64-ucrt-x86_64-libsquish \
+     mingw-w64-ucrt-x86_64-fmt \
+     mingw-w64-ucrt-x86_64-libiconv \
+     mingw-w64-ucrt-x86_64-onnx \
+     mingw-w64-ucrt-x86_64-onnxruntime
+   ```
+
+5. Clone and build VCMI from the UCRT64 shell:
+
+   ```sh
+   cd /c
+   git clone --recursive https://github.com/vcmi/vcmi.git VCMI
+   cd VCMI
+   cmake --preset windows-mingw-release
+   cmake --build --preset windows-mingw-release
+   ```
+
+> [!TIP]
+> The installed MSYS2 ccache package can be enabled by adding `-D ENABLE_CCACHE=ON` to the configure command.
+
+## Legacy vcpkg builds
+
+VCMI switched from vcpkg to Conan in version 1.7. The old vcpkg integration is unsupported. Use Conan for Visual Studio builds or MSYS2 packages for MinGW builds.

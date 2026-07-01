@@ -38,7 +38,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapService.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)

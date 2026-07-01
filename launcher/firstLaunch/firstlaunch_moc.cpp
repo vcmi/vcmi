@@ -23,16 +23,27 @@
 #include "../helper.h"
 #include "../languages.h"
 #include "../innoextract.h"
+#include "../demo.h"
 #include "progressoverlay.h"
 
 // Create and show overlay immediately
-static ProgressOverlay* createOverlay(QWidget *parent, const QString &title, bool indeterminate = true)
+static ProgressOverlay* createOverlayWidget(QWidget *parent, const QString &title, bool indeterminate = true)
 {
 	auto *overlay = new ProgressOverlay(parent, 50);
 	overlay->setTitle(title);
 	overlay->setIndeterminate(indeterminate);
 	overlay->show();
 	qApp->processEvents(); // paint before heavy work
+	return overlay;
+}
+
+ProgressOverlay * FirstLaunchView::createOverlay(const QString & title, bool indeterminate)
+{
+	auto * overlay = createOverlayWidget(this, title, indeterminate);
+	ui->labelDataTitle->setVisible(false);
+	connect(overlay, &QObject::destroyed, this, [this](){
+		ui->labelDataTitle->setVisible(true);
+	});
 	return overlay;
 }
 
@@ -111,7 +122,7 @@ void FirstLaunchView::on_pushButtonDataBack_clicked()
 
 void FirstLaunchView::on_pushButtonDataSearch_clicked()
 {
-	heroesDataUpdate();
+	heroesDataUpdate(false);
 }
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
@@ -133,9 +144,39 @@ void FirstLaunchView::on_pushButtonGogInstall_clicked()
 	MessageBoxCustom::showDialog(this, [this]{extractGogData();});
 }
 
+void FirstLaunchView::on_pushButtonDemo_clicked()
+{
+	demoOverlay = createOverlay(tr("Downloading Heroes III Demo..."), false);
+	demoOverlay->setRange(100);
+	demoOverlay->setValue(0);
+
+	demo = std::make_unique<DemoInstaller>(this);
+	demo->download();
+}
+
+void FirstLaunchView::onInstallFinished()
+{
+	demoOverlay->deleteLater();
+	demoOverlay = nullptr;
+	heroesDataUpdate(true);
+}
+
+void FirstLaunchView::onInstallError()
+{
+	demoOverlay->deleteLater();
+	demoOverlay = nullptr;
+}
+
+void FirstLaunchView::onInstallProgress(float percent)
+{
+	demoOverlay->setValue(static_cast<int>(percent * 100));
+	qApp->processEvents();
+}
+
 void FirstLaunchView::enterSetup()
 {
 	Languages::fillLanguages(ui->listWidgetLanguage, false);
+	activateTabLanguage();
 }
 
 void FirstLaunchView::setSetupProgress(int progress)
@@ -162,7 +203,7 @@ void FirstLaunchView::activateTabHeroesData()
 	ui->buttonTabHeroesData->setChecked(true);
 	ui->buttonTabModPreset->setChecked(false);
 
-	if(heroesDataUpdate())
+	if(heroesDataUpdate(false))
 	{
 		activateTabModPreset();
 		return;
@@ -204,9 +245,9 @@ void FirstLaunchView::languageSelected(const QString & selectedLanguage)
 		mainWindow->updateTranslation();
 }
 
-bool FirstLaunchView::heroesDataUpdate()
+bool FirstLaunchView::heroesDataUpdate(bool checkDemo)
 {
-	bool detected = heroesDataDetect();
+	bool detected = heroesDataDetect(checkDemo);
 	if(detected)
 		heroesDataDetected();
 	else
@@ -239,6 +280,8 @@ void FirstLaunchView::heroesDataMissing()
 
 	ui->labelDataFound->setVisible(false);
 	ui->pushButtonDataNext->setEnabled(false);
+	ui->labelDataDemoDescr->setVisible(true);
+	ui->pushButtonDemo->setVisible(true);
 }
 
 void FirstLaunchView::heroesDataDetected()
@@ -264,12 +307,15 @@ void FirstLaunchView::heroesDataDetected()
 
 	ui->labelDataFound->setVisible(true);
 	ui->pushButtonDataNext->setEnabled(true);
+	ui->labelDataDemoDescr->setVisible(false);
+	ui->pushButtonDemo->setVisible(false);
+	demoDataActive = CModListView::isDemoDataPresent();
 
 	CGeneralTextHandler::detectInstallParameters();
 }
 
 // Tab Heroes III Data
-bool FirstLaunchView::heroesDataDetect()
+bool FirstLaunchView::heroesDataDetect(bool checkDemo)
 {
 	// user might have copied files to one of our data path.
 	// perform full reinitialization of virtual filesystem
@@ -281,7 +327,7 @@ bool FirstLaunchView::heroesDataDetect()
 	bool heroesDataFoundROE = CResourceHandler::get()->existsResource(ResourcePath("DATA/GENRLTXT.TXT"));
 	bool heroesDataFoundSOD = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
 
-	return heroesDataFoundROE && heroesDataFoundSOD;
+	return heroesDataFoundROE && (heroesDataFoundSOD || checkDemo);
 }
 
 QString FirstLaunchView::getHeroesInstallDir()
@@ -311,7 +357,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 static QString defaultStartDirForOpen()
 {
 #if defined(VCMI_MOBILE)
-	const QStandardPaths::StandardLocation mobilePrefs[] = {
+	const std::array mobilePrefs = {
 		QStandardPaths::HomeLocation
 	};
 	for(auto location : mobilePrefs)
@@ -458,7 +504,7 @@ void FirstLaunchView::extractGogData()
 	QTimer::singleShot(100, this, [this, fileBin, fileExe](){ // background to make sure FileDialog is closed...
 		extractGogDataAsync(fileBin, fileExe);
 		setEnabled(true);
-		heroesDataUpdate();
+		heroesDataUpdate(false);
 	});
 #endif
 }
@@ -579,7 +625,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 	// Defer heavy work to next event-loop tick to ensure overlay is painted
 	QTimer::singleShot(0, this, [this, filePathBin, filePathExe]()
 	{
-		QScopedPointer<ProgressOverlay> overlay(createOverlay(this, tr("Preparing installer..."), true));
+		QScopedPointer<ProgressOverlay> overlay(createOverlay(tr("Preparing installer..."), true));
 		overlay->setFileName(QFileInfo(filePathExe).fileName());
 		overlay->raise();
 		qApp->processEvents();
@@ -688,7 +734,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		overlay->setValue(0);
 
 		if(performCopyFlow(tempDir.path(), overlay.data(), true))
-			if(heroesDataUpdate())
+			if(heroesDataUpdate(false))
 				activateTabModPreset();
 	});
 #endif
@@ -696,11 +742,11 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 
 void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 {
-	QPointer<ProgressOverlay> overlay = createOverlay(this, tr("Scanning selected folder..."), true);
+	QPointer<ProgressOverlay> overlay = createOverlay(tr("Scanning selected folder..."), true);
 	overlay->raise();
 	auto work = [this, path, removeSource, overlay]() {
 		if(performCopyFlow(path, overlay, removeSource))
-			if(heroesDataUpdate())
+			if(heroesDataUpdate(false))
 				activateTabModPreset();
 
 		overlay->deleteLater();
@@ -726,7 +772,6 @@ void FirstLaunchView::modPresetUpdate()
 
 	bool canTrans  = checkCanInstallTranslation();
 	bool canExtras = checkCanInstallExtras();
-	bool canDemo   = checkCanInstallDemo();
 	bool canHota   = checkCanInstallHota();
 	bool canWog	= checkCanInstallWog();
 	bool canTow	= checkCanInstallTow();
@@ -734,7 +779,6 @@ void FirstLaunchView::modPresetUpdate()
 
 	ui->buttonPresetLanguage->setVisible(canTrans);
 	ui->buttonPresetExtras->setVisible(canExtras);
-	ui->buttonPresetDemo->setVisible(canDemo);
 	ui->buttonPresetHota->setVisible(canHota);
 	ui->buttonPresetWog->setVisible(canWog);
 	ui->buttonPresetTow->setVisible(canTow);
@@ -742,14 +786,13 @@ void FirstLaunchView::modPresetUpdate()
 
 	ui->labelPresetLanguageDescr->setVisible(canTrans);
 	ui->labelPresetExtrasDescr->setVisible(canExtras);
-	ui->labelPresetDemoDescr->setVisible(canDemo);
 	ui->labelPresetHotaDescr->setVisible(canHota);
 	ui->labelPresetWogDescr->setVisible(canWog);
 	ui->labelPresetTowDescr->setVisible(canTow);
 	ui->labelPresetFodDescr->setVisible(canFod);
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
-	if(!canTrans && !canExtras && !canDemo && !canHota && !canWog && !canTow && !canFod)
+	if(demoDataActive || (!canTrans && !canExtras && !canHota && !canWog && !canTow && !canFod))
 		exitSetup(false);
 }
 
@@ -778,39 +821,6 @@ bool FirstLaunchView::checkCanInstallTranslation()
 bool FirstLaunchView::checkCanInstallExtras()
 {
 	return checkCanInstallMod("vcmi-extras");
-}
-
-bool FirstLaunchView::checkCanInstallDemo()
-{
-	if(!checkCanInstallMod("demo-support"))
-		return false;
-
-	QDir userRoot = pathToQString(VCMIDirs::get().userDataPath());
-	QDir dataDir(userRoot.filePath(QStringLiteral("Data")));
-	QDir mapsDir(userRoot.filePath(QStringLiteral("Maps")));
-
-	bool hasDemoMap = false;
-	QStringList mapFiles = mapsDir.entryList(QDir::Files | QDir::Readable);
-	for(const QString &name : mapFiles)
-		if(name.compare(QStringLiteral("h3demo.h3m"), Qt::CaseInsensitive) == 0)
-		{
-			hasDemoMap = true;
-			break;
-		}
-	
-	QStringList files = dataDir.entryList(QDir::Files | QDir::Readable);
-	for(const QString &name : files)
-	{
-		if(name.compare(QStringLiteral("H3ab_spr.lod"), Qt::CaseInsensitive) == 0)
-		{
-			QFileInfo lodInfo(dataDir.filePath(name));
-			quint64 fileSize = static_cast<quint64>(lodInfo.size());
-			logGlobal->trace("H3ab_spr.lod size: %llu", fileSize);
-			if(fileSize < 8000000 && hasDemoMap) // 8 MB + Demo map = Merged Windows and MacOS Demo
-				return true;
-		}
-	}
-	return false;
 }
 
 bool FirstLaunchView::checkCanInstallHota()
@@ -863,9 +873,6 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 
 	if(ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
 		modsToInstall.push_back("vcmi-extras");
-
-	if(ui->buttonPresetDemo->isChecked() && checkCanInstallDemo())
-		modsToInstall.push_back("demo-support");
 
 	if(ui->buttonPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");

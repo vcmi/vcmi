@@ -19,6 +19,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class Calendar;
+
 namespace Rewardable
 {
 
@@ -56,26 +58,31 @@ constexpr std::array<std::string_view, 7> VisitModeString{"unlimited", "once", "
 
 struct DLL_LINKAGE ResetInfo
 {
-	ResetInfo()
-		: period(0)
-		, visitors(false)
-		, rewards(false)
-	{}
+	/// raw day count between resets
+	ui32 days = 0;
 
-	/// if above zero, object state will be reset each resetDuration days
-	ui32 period;
+	/// number of weeks between resets (multiplied by days-per-week from game settings)
+	ui32 weeks = 0;
+
+	/// number of months between resets (multiplied by days-per-month from game settings)
+	ui32 months = 0;
 
 	/// if true - reset list of visitors (heroes & players) on reset
-	bool visitors;
+	bool visitors = false;
 
 	/// if true - re-randomize rewards on a new week
-	bool rewards;
-	
+	bool rewards = false;
+
 	void serializeJson(JsonSerializeFormat & handler);
-	
+
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & period;
+		h & days;
+		if (h.version >= Handler::Version::REWARDABLE_RESET_CALENDAR)
+		{
+			h & weeks;
+			h & months;
+		}
 		h & visitors;
 		h & rewards;
 	}
@@ -176,7 +183,9 @@ struct DLL_LINKAGE Configuration
 	EInfoWindowMode infoWindowType = EInfoWindowMode::AUTO;
 	
 	EVisitMode getVisitMode() const;
-	ui16 getResetDuration() const;
+	/// Returns the effective reset interval in days, expanding weeks/months
+	/// counters against the provided calendar's settings.
+	ui32 getResetDuration(const Calendar & calendar) const;
 
 	std::optional<int> getVariable(const std::string & category, const std::string & name) const;
 	const JsonNode & getPresetVariable(const std::string & category, const std::string & name) const;

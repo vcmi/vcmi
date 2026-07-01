@@ -12,7 +12,7 @@
 
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "CaptureObjectsBehavior.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/Composition.h"
@@ -21,7 +21,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/RecruitHero.h"
 #include "../Markers/DefendTown.h"
-#include "../../lib/IGameSettings.h"
+#include "../../../lib/IGameSettings.h"
 
 namespace NK2AI
 {
@@ -49,7 +49,7 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * aiNk) const
 
 bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller * aiNk, const std::vector<AIPath> & paths)
 {
-	int dayOfWeek = aiNk->cc->getDate(Date::DAY_OF_WEEK);
+	int dayOfWeek = aiNk->cc->getCalendar().getDayOfWeek();
 
 	for(const AIPath & path : paths)
 	{
@@ -197,7 +197,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		}
 
 		std::vector<int> pathsToDefend;
-		std::map<const CGHeroInstance *, std::vector<int>> defferedPaths;
+		HeroMap<std::vector<int>> defferedPaths;
 		AIPath * closestWay = nullptr;
 
 		for(int i = 0; i < paths.size(); i++)

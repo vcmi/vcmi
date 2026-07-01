@@ -30,6 +30,7 @@ struct ClientPlayer;
 struct CPackForLobby;
 struct CPackForServer;
 struct CPackForClient;
+struct LobbyModsCheck;
 
 class HighScoreParameter;
 
@@ -112,6 +113,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::thread threadNetwork;
 
 	std::atomic<EClientState> state;
+	bool lobbyPreviewMode = false;
+	std::function<void()> onLobbyPreviewJoin;
 
 	void threadRunNetwork();
 	void waitForServerShutdown();
@@ -229,4 +232,7 @@ public:
 	void visitForClient(CPackForClient & clientPack);
 
 	void sendGamePack(const CPackForServer & pack) const;
+
+	void startLobbyPreview(const std::string & addr, ui16 port, std::function<void()> onJoin);
+	void onLobbyPreviewResponse(LobbyModsCheck & pack);
 };

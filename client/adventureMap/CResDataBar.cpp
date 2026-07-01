@@ -70,10 +70,11 @@ std::string CResDataBar::buildDateString()
 {
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
+	auto calendar = GAME->interface()->cb->getCalendar();
 	auto formatted = boost::format(pattern)
-		% LIBRARY->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
-		% LIBRARY->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
-		% LIBRARY->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
+		% LIBRARY->generaltexth->translate("core.genrltxt.62") % calendar.getMonth()
+		% LIBRARY->generaltexth->translate("core.genrltxt.63") % calendar.getWeek()
+		% LIBRARY->generaltexth->translate("core.genrltxt.64") % calendar.getDayOfWeek();
 
 	return boost::str(formatted);
 }

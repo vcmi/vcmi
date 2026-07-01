@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "../lib/CSoundBase.h"
-#include "../lib/filesystem/ResourcePath.h"
+#include "../../lib/CSoundBase.h"
+#include "../../lib/filesystem/ResourcePath.h"
 
 class ISoundPlayer
 {

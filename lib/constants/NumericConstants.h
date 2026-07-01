@@ -13,8 +13,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace GameConstants
 {
-	DLL_LINKAGE extern const std::string VCMI_VERSION;
-
 	constexpr int PUZZLE_MAP_PIECES = 48;
 
 	constexpr int MAX_HEROES_PER_PLAYER = 8;

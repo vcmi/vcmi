@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "artifactwidget.h"
 #include "heroartifactswidget.h"
 #include "ui_heroartifactswidget.h"
@@ -28,7 +29,7 @@ HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInsta
 	fittingSet(CArtifactFittingSet(h))
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	connect(ui->saveButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onSaveButtonClicked);
 	connect(ui->cancelButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onCancelButtonClicked);
 }

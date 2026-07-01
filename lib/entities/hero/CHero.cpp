@@ -101,14 +101,4 @@ void CHero::registerIcons(const IconRegistar & cb) const
 	cb(getIconIndex(), 0, "PORTRAITSSMALL", portraitSmall);
 }
 
-void CHero::updateFrom(const JsonNode & data)
-{
-	//todo: CHero::updateFrom
-}
-
-void CHero::serializeJson(JsonSerializeFormat & handler)
-{
-
-}
-
 VCMI_LIB_NAMESPACE_END

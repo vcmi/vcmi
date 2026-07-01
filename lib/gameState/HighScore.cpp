@@ -28,7 +28,7 @@ HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerCol
 
 	HighScoreParameter param;
 	param.difficulty = gs->getStartInfo()->difficulty;
-	param.day = gs->getDate();
+	param.day = gs->getCalendar().getCurrentDay();
 	param.townAmount = gs->howManyTowns(player);
 	param.usedCheat = gs->getPlayerState(player)->cheated;
 	param.hasGrail = false;

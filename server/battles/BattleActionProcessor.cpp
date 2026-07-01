@@ -27,9 +27,9 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 #include "../../lib/spells/AbilityCaster.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/spells/CSpell.h"
 
 #include <vstd/RNG.h>
 
@@ -886,17 +886,8 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 				auto hex = unitPath[i];
 				if (!openGateAtHex.isValid() && dbState != EGateState::OPENED)
 				{
-					if (needOpenGates(hex))
+					if (needOpenGates(hex) || needOpenGates(currentUnit->occupiedHex(hex)))
 						openGateAtHex = unitPath[i+1];
-
-					//TODO we need find better way to handle double-wide stacks
-					//currently if only second occupied stack part is standing on gate / bridge hex then stack will start to wait for bridge to lower before it's needed. Though this is just a visual bug.
-					if (currentUnit->doubleWide() && i + 2 < unitPath.size())
-					{
-						BattleHex otherHex = currentUnit->occupiedHex(hex);
-						if (otherHex.isValid() && needOpenGates(otherHex))
-							openGateAtHex = unitPath[i+2];
-					}
 
 					//gate may be opened and then closed during stack movement, but not other way around
 					if (openGateAtHex.isValid())
@@ -1145,8 +1136,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	attackerState->afterAttack(ranged, counter);
 
 	{
-		UnitChanges info(attackerState->unitId(), UnitChanges::EOperation::RESET_STATE);
-		attackerState->save(info.data);
+		UnitChanges info(attackerState->unitId(), UnitChanges::EOperation::UPDATE);
+		info.data = attackerState->save();
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 

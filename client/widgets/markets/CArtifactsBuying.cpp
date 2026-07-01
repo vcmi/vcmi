@@ -12,8 +12,8 @@
 #include "CArtifactsBuying.h"
 
 #include "../../gui/Shortcut.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/TextControls.h"
+#include "../Buttons.h"
+#include "../TextControls.h"
 
 #include "../../CPlayerInterface.h"
 #include "../../GameInstance.h"
@@ -27,7 +27,7 @@
 
 CArtifactsBuying::CArtifactsBuying(const IMarket * market, const CGHeroInstance * hero, const std::string & title)
 	: CMarketBase(market, hero)
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);})
+	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CArtifactsBuying::onSlotClickPressed(heroSlot, bidTradePanel);}, GAME->interface())
 {
 	OBJECT_CONSTRUCTION;
 

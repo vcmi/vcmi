@@ -11,12 +11,13 @@
 #pragma once
 
 #include "Entity.h"
+#include "scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class SecondarySkill;
 
-class DLL_LINKAGE Skill : public EntityT<SecondarySkill>
+class DLL_LINKAGE Skill : public EntityT<SecondarySkill>, public scripting::ApiRawPointer<Skill>
 {
 public:
 	virtual std::string getDescriptionTextID(int level) const = 0;

@@ -365,11 +365,6 @@ const std::map<ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibl
 	return possibleSlots;
 }
 
-void CArtifact::updateFrom(const JsonNode& data)
-{
-	//TODO:CArtifact::updateFrom
-}
-
 void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, const std::string & newLargeImage)
 {
 	iconIndex = newIconIndex;

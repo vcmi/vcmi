@@ -154,6 +154,7 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 - `def2bmp <.def file name>` - extract .def animation as BMP files
 - `extract <relative file path>` - export file into directory used by other extraction commands
 - `generate assets` - generate all assets at once
+- `obstacles debug` - export images of all battlefield obstacles with their placement on battle hex grid and blocked tiles overlayed on top
 
 #### AI commands
 

@@ -16,9 +16,8 @@
 class IBattleInfoCallbackMock : public IBattleInfoCallback
 {
 public:
-#if SCRIPTING_ENABLED
-	MOCK_CONST_METHOD0(getContextPool, scripting::Pool *());
-#endif
+	MOCK_CONST_METHOD0(getScriptContextPool, const scripting::Pool &());
+
 	MOCK_CONST_METHOD0(battleTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(battleGetBattlefieldType, BattleField());
 
@@ -42,6 +41,13 @@ public:
 	MOCK_CONST_METHOD2(battleGetAllObstaclesOnPos, std::vector<std::shared_ptr<const CObstacleInstance>>(const BattleHex&, bool));
 	MOCK_CONST_METHOD2(getAllAffectedObstaclesByStack, std::vector<std::shared_ptr<const CObstacleInstance>>(const battle::Unit *, const BattleHexArray &));
 
+	MOCK_CONST_METHOD0(hasFortifications, bool());
+	MOCK_CONST_METHOD0(hasMoat, bool());
+	MOCK_CONST_METHOD1(battleGetWallState, EWallState(EWallPart));
+	MOCK_CONST_METHOD1(isWallPartAttackable, bool(EWallPart));
+	MOCK_CONST_METHOD1(wallPartToBattleHex, BattleHex(EWallPart));
+	MOCK_CONST_METHOD1(battleHexToWallPart, EWallPart(const BattleHex &));
+	MOCK_CONST_METHOD1(getTowerShooterHex, BattleHex(EWallPart));
 };
 
 

@@ -12,8 +12,8 @@
 
 #include "../GameEngine.h"
 
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/CRandomGenerator.h"
+#include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/CRandomGenerator.h"
 
 #include <SDL_mixer.h>
 

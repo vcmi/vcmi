@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "herospellwidget.h"
 #include "ui_herospellwidget.h"
 #include "inspector.h"
@@ -22,6 +23,7 @@ HeroSpellWidget::HeroSpellWidget(CGHeroInstance & h, QWidget * parent) :
 	hero(h)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 }
 
 HeroSpellWidget::~HeroSpellWidget()

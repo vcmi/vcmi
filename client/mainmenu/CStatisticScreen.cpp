@@ -30,7 +30,7 @@
 
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/GameStatistics.h"
-#include "../../lib/gameState/CGameState.h"
+#include "../../lib/callback/Calendar.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/GameLibrary.h"
@@ -40,7 +40,9 @@
 
 std::string CStatisticScreen::getDay(int d)
 {
-	return std::to_string(CGameState::getDate(d, Date::MONTH)) + "/" + std::to_string(CGameState::getDate(d, Date::WEEK)) + "/" + std::to_string(CGameState::getDate(d, Date::DAY_OF_WEEK));
+	// TODO - find way to provide settings used by game, not global ones - since map might have used different week/month length
+	Calendar calendar(*LIBRARY->engineSettings(), d);
+	return std::to_string(calendar.getMonth()) + "/" + std::to_string(calendar.getWeek()) + "/" + std::to_string(calendar.getDayOfWeek());
 }
 
 CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)

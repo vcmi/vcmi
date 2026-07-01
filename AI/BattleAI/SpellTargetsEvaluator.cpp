@@ -39,7 +39,7 @@ std::vector<Target> SpellTargetEvaluator::getViableTargets(const Mechanics * spe
 			else
 				return theBestLocationCasts(spellMechanics);
 		}
-		case AimType::NO_TARGET:
+		case AimType::NOTHING:
 			return std::vector<Target>(1); //default-constructed target means cast without destination
 		default:
 			return result;

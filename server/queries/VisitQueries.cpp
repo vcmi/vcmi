@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "VisitQueries.h"
 
+#include "BattleQueries.h"
+
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -17,8 +19,8 @@
 #include "../CGameHandler.h"
 #include "QueriesProcessor.h"
 
-VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
-	: CQuery(owner)
+VisitQuery::VisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero, QueryType type)
+	: CQuery(owner, type)
 	, visitedObject(Obj->id)
 	, visitingHero(Hero->id)
 {
@@ -37,15 +39,38 @@ void MapObjectVisitQuery::onExposure(QueryPtr topQuery)
 	auto object = gh->gameState().getObjInstance(visitedObject);
 	auto hero = gh->gameState().getHero(visitingHero);
 
-	//Object may have been removed and deleted.
-	if (object)
+	// Object may have been removed and deleted.
+	// Deferred battle XP level-ups are not part of the object reward pipeline,
+	// so they must not trigger heroLevelUpDone on the visited object.
+	if (object && !processingDeferredBattleLevelUps)
 		topQuery->notifyObjectAboutRemoval(object, hero);
+
+	if(auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(topQuery))
+	{
+		auto levelUps = battleQuery->takeDeferredLevelUps();
+		deferredBattleLevelUps.insert(deferredBattleLevelUps.end(), levelUps.begin(), levelUps.end());
+	}
+
+	if(owner->topQuery(players.front()).get() == this)
+	{
+		if(!deferredBattleLevelUps.empty())
+		{
+			processingDeferredBattleLevelUps = true;
+			for(const auto & heroID : deferredBattleLevelUps)
+				if(const auto * deferredHero = gh->gameState().getHero(heroID))
+					gh->expGiven(deferredHero);
+			deferredBattleLevelUps.clear();
+		}
+
+		if(owner->topQuery(players.front()).get() == this)
+			processingDeferredBattleLevelUps = false;
+	}
 
 	owner->popIfTop(*this);
 }
 
 MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
-	: VisitQuery(owner, Obj, Hero)
+	: VisitQuery(owner, Obj, Hero, TYPE)
 	, removeObjectAfterVisit(false)
 {
 }
@@ -62,7 +87,7 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 }
 
 TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
-	: VisitQuery(owner, Obj, heroes.front())
+	: VisitQuery(owner, Obj, heroes.front(), TYPE)
 	, visitedTown(Obj)
 {
 	// generate in reverse order - first building-hero pair to handle must be in the end of vector

@@ -22,7 +22,6 @@ set(Nullkiller2_SRCS
 		Analyzers/ArmyManager.cpp
 		Analyzers/HeroManager.cpp
 		Engine/Settings.cpp
-		Engine/FuzzyEngines.cpp
 		Engine/FuzzyHelper.cpp
 		Engine/AIMemory.cpp
 		Goals/AbstractGoal.cpp
@@ -96,7 +95,6 @@ set(Nullkiller2_HEADERS
 		Analyzers/ArmyManager.h
 		Analyzers/HeroManager.h
 		Engine/Settings.h
-		Engine/FuzzyEngines.h
 		Engine/FuzzyHelper.h
 		Engine/AIMemory.h
 		Goals/AbstractGoal.h
@@ -119,6 +117,7 @@ set(Nullkiller2_HEADERS
 		Goals/Goals.h
 		Goals/StayAtTown.h
 		Goals/ExploreNeighbourTile.h
+		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
@@ -146,20 +145,13 @@ set(Nullkiller2_HEADERS
 		AIGateway.h
 )
 
-if(NOT ENABLE_STATIC_LIBS)
-	list(APPEND Nullkiller2_SRCS main.cpp StdInc.cpp)
-endif()
 assign_source_group(${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
-	add_library(Nullkiller2 STATIC ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
-else()
-	add_library(Nullkiller2 SHARED ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
-	install(TARGETS Nullkiller2 RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
+add_library(Nullkiller2 OBJECT ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
+target_compile_definitions(Nullkiller2 PRIVATE VCMI_DLL=1)
 
 target_include_directories(Nullkiller2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Nullkiller2 PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
+target_link_libraries(Nullkiller2 PUBLIC vcmiMain TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller2 "AI")
 enable_pch(Nullkiller2)

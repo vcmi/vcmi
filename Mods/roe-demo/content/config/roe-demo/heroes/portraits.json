@@ -1,0 +1,50 @@
+{
+	"core:portraitFinneas": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	},
+	"core:portraitOrdwald": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	},
+	"core:portraitYoungCristian": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	},
+	"core:portraitYoungGem": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	},
+	"core:portraitYoungSandro": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	},
+	"core:portraitYoungYog": {
+		"images": {
+			"large": "null",
+			"small": "null",
+			"specialtyLarge": "default",
+			"specialtySmall": "default"
+		}
+	}
+}

@@ -38,6 +38,13 @@
 		]
 	},
 
+	"tchinese" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/chinese.json"
+		]
+	},
+
 	"dutch" : {
 		"skipValidation" : true,
 		"translations" : [

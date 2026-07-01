@@ -59,7 +59,7 @@ Discord::~Discord()
 #endif
 }
 
-void Discord::setStatus(std::string state, std::string details, std::tuple<int, int> partySize)
+void Discord::setStatus(const std::string & state, const std::string & details, const std::tuple<int, int> & partySize)
 {
 #ifdef ENABLE_DISCORD
 	if(!enabled)

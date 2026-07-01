@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>499</width>
-    <height>660</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -144,12 +150,30 @@
        <string>Prologue/Epilogue</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>3</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <property name="bottomMargin">
+        <number>3</number>
+       </property>
        <item>
         <widget class="QGroupBox" name="groupBoxPrologue">
          <property name="title">
           <string>Prologue</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_8">
+          <property name="leftMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>3</number>
+          </property>
           <item>
            <widget class="QCheckBox" name="checkBoxPrologueEnabled">
             <property name="text">
@@ -165,26 +189,12 @@
             <item>
              <widget class="QLabel" name="labelPrologueVideo">
               <property name="text">
-               <string>Video</string>
+               <string>Videos</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLineEdit" name="lineEditPrologueVideo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3_">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="labelPrologueVideoLoop">
-              <property name="text">
-               <string>Video 2</string>
-              </property>
-             </widget>
             </item>
             <item>
              <widget class="QLineEdit" name="lineEditPrologueVideoLoop"/>
@@ -210,6 +220,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="spacing">
+             <number>6</number>
+            </property>
             <property name="topMargin">
              <number>0</number>
             </property>
@@ -226,14 +239,21 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="labelPrologueText">
-            <property name="text">
-             <string>Text</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <property name="topMargin">
+             <number>5</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="plainTextEditPrologueText"/>
+            <item>
+             <widget class="QLabel" name="labelPrologueText">
+              <property name="text">
+               <string>Text</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="plainTextEditPrologueText"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -244,6 +264,12 @@
           <string>Epilogue</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_9">
+          <property name="leftMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>3</number>
+          </property>
           <item>
            <widget class="QCheckBox" name="checkBoxEpilogueEnabled">
             <property name="text">
@@ -259,26 +285,12 @@
             <item>
              <widget class="QLabel" name="labelEpilogueVideo">
               <property name="text">
-               <string>Video</string>
+               <string>Videos</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLineEdit" name="lineEditEpilogueVideo"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_6_">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="labelEpilogueVideoLoop">
-              <property name="text">
-               <string>Video 2</string>
-              </property>
-             </widget>
             </item>
             <item>
              <widget class="QLineEdit" name="lineEditEpilogueVideoLoop"/>
@@ -320,14 +332,21 @@
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="labelEpilogueText">
-            <property name="text">
-             <string>Text</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <property name="topMargin">
+             <number>5</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="plainTextEditEpilogueText"/>
+            <item>
+             <widget class="QLabel" name="labelEpilogueText">
+              <property name="text">
+               <string>Text</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="plainTextEditEpilogueText"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

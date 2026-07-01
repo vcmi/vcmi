@@ -2,7 +2,7 @@
 	"inferno" :
 	{
 		"index" : 3,
-		"nativeTerrain": "lava",
+		"nativeTerrain": [ "lava" ],
 		"alignment" : "evil",
 		"preferUndergroundPlacement": true,
 		"creatureBackground" :

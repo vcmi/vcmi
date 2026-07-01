@@ -23,6 +23,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/spells/CSpellHandler.h"
 
 #include <vcmi/CreatureService.h>
 
@@ -366,6 +367,8 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 			return hero->hasSpellbook() ? relevant : notRelevant;
 		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
 			return hero->hasBonusOfType(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT) ? relevant : notRelevant;
+		case BonusType::LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE:
+			return hero->hasBonusOfType(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE) ? relevant : notRelevant;
 		case BonusType::NO_DISTANCE_PENALTY:
 		case BonusType::NO_WALL_PENALTY:
 			return getArmyPercentageWithBonus(BonusType::SHOOTER) * veryRelevant;
@@ -447,6 +450,8 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 		case BonusType::SIGHT_RADIUS:
 			return bonus->val * 1000;
 		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
+			return 0; // irrelevant in gameplay
+		case BonusType::LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE:
 			return 0; // irrelevant in gameplay
 		case BonusType::STACK_HEALTH:
 			return bonus->val * 5000;
@@ -558,7 +563,10 @@ bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * 
 
 	//TODO: allow polling of remaining creatures in dwelling
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
-		return rewardable->configuration.getResetDuration() == 7;
+	{
+		const auto & reset = rewardable->configuration.resetParameters;
+		return (reset.weeks == 1 && reset.days == 0 && reset.months == 0) || (reset.days == 7 && reset.weeks == 0 && reset.months == 0);
+	}
 
 	if(dynamic_cast<const CGDwelling *>(obj))
 		return true;

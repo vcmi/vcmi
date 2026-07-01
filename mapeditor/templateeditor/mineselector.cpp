@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "../helper.h"
 
 #include "mineselector.h"
 #include "ui_mineselector.h"
@@ -25,7 +26,7 @@ MineSelector::MineSelector(std::map<GameResID, ui16> & mines) :
 	minesSelected(mines)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Mine Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

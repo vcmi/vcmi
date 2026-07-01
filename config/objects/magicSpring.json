@@ -24,7 +24,7 @@
 				"onVisitedMessage" : 75,
 				"description" : "@core.xtrainfo.15",
 				"resetParameters" : {
-					"period" : 7,
+					"weeks" : 1,
 					"visitors" : true
 				},
 				"visitMode" : "once",

@@ -13,6 +13,12 @@
 #include "../CWindowObject.h"
 #include "../../widgets/CViewport.h"
 
+#include "../../../lib/constants/EntityIdentifiers.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CGHeroInstance;
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 class CLabel;
 class CListBox;
@@ -228,6 +234,10 @@ private:
 	/// Rebuilds a custom-category viewport for the given category index and entry.
 	void rebuildCustomCategoryViewport(int catIdx, const std::string & entryName);
 
+	/// Returns the CGHeroInstance on the currently loaded map whose hero type matches id,
+	/// or nullptr if no map is loaded or no such hero exists.
+	const CGHeroInstance * findMapHero(HeroTypeID id) const;
+
 	/// Shared core: (re-)creates a CViewport, renders markdownText into it, handles
 	/// pendingAnchor, calls applyScrollBounds + totalRedraw.
 	void rebuildMarkdownViewport(std::shared_ptr<CViewport> & view,
@@ -251,4 +261,6 @@ private:
 public:
 	explicit WikiWindow(Style style = Style::BROWN, std::optional<WikiEntryKey> initialEntry = std::nullopt);
 	~WikiWindow() override;
+
+	void keyPressed(EShortcut key) override;
 };

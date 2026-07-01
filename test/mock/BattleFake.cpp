@@ -76,14 +76,7 @@ void UnitsFake::setDefaultBonusExpectations()
 
 BattleFake::~BattleFake() = default;
 
-#if SCRIPTING_ENABLED
-BattleFake::BattleFake(std::shared_ptr<scripting::PoolMock> pool_):
-	pool(pool_)
-{
-}
-#else
 BattleFake::BattleFake() = default;
-#endif
 
 void BattleFake::setUp()
 {
@@ -96,12 +89,11 @@ void BattleFake::setupEmptyBattlefield()
 	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BattleField(0)));
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * BattleFake::getContextPool() const
+void BattleFake::setupNativeStacks(const TStacks & stacks, TerrainId terrain)
 {
-	return pool.get();
+	EXPECT_CALL(*this, getStacksIf(_)).WillRepeatedly(Return(stacks));
+	EXPECT_CALL(*this, getTerrainType()).WillRepeatedly(Return(terrain));
 }
-#endif
 
 }
 }

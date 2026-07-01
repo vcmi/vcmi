@@ -60,10 +60,10 @@ private:
 
 	void initializeGraph();
 
-	STRONG_INLINE
+	inline
 	void push(CGPathNode * node);
 
-	STRONG_INLINE
+	inline
 	CGPathNode * topAndPop();
 };
 
@@ -128,8 +128,8 @@ public:
 		const TerrainTile * dt,
 		const int remainingMovePoints = -1,
 		const bool checkLast = true,
-		boost::logic::tribool isDstSailLayer = boost::logic::indeterminate,
-		boost::logic::tribool isDstWaterLayer = boost::logic::indeterminate) const;
+		const EPathfindingLayer & srcLayer = EPathfindingLayer::AUTO,
+		const EPathfindingLayer & dstLayer = EPathfindingLayer::AUTO) const;
 
 	int getMovementCost(
 		const PathNodeInfo & src,

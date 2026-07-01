@@ -27,7 +27,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Slider.h"
-#include "../windows/CMessage.h"
+#include "CMessage.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"
@@ -270,6 +270,7 @@ void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Poin
 }
 
 template<typename... Args>
+	requires (sizeof...(Args) != 1 || (!std::is_base_of_v<AdventureMapPopup, std::remove_cvref_t<Args>> && ...))
 AdventureMapPopup::AdventureMapPopup(Args&&... args) :
 	CWindowObject(std::forward<Args>(args)...), dragDistance(Point(0, 0))
 {
@@ -402,7 +403,7 @@ void MinimapWithIcons::recreate()
 	}
 
 	iconsOverlay.clear();
-	for(auto & icon : icons)
+	for(const auto & icon : icons)
 	{
 		int positionX = 144 * icon.first.x / GAME->interface()->cb->getMapSize().x;
 		int positionY = 144 * icon.first.y / GAME->interface()->cb->getMapSize().y;

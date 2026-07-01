@@ -177,18 +177,11 @@ public:
 			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
 	}
 
-	// Solution by ChatGPT
-
-	// Assume values up to +- 1000
-    friend std::size_t hash_value(const int3& v) {
-        // Since the range is [-1000, 1000], offsetting by 1000 maps it to [0, 2000]
-        std::size_t hx = v.x + 1000;
-        std::size_t hy = v.y + 1000;
-        std::size_t hz = v.z + 1000;
-
-        // Combine the hash values, multiplying them by prime numbers
-        return ((hx * 4000037u) ^ (hy * 2003u)) + hz;
-    }
+	friend std::size_t hash_value(const int3 & v)
+	{
+		static const std::size_t max_value = 5000; //leaving space for map size increase
+		return (v.z * max_value * max_value) + (v.y * max_value) + v.x;
+	}
 };
 
 template<typename Container>

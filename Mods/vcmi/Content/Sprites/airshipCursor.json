@@ -1,0 +1,21 @@
+{
+	"basepath" : "airshipCursor/",
+	"images" : [
+		{
+			"frame" : 0,
+			"file" : "CRADVNTRA044.png"
+		},
+		{
+			"frame" : 1,
+			"file" : "CRADVNTRA045.png"
+		},
+		{
+			"frame" : 2,
+			"file" : "CRADVNTRA046.png"
+		},
+		{
+			"frame" : 3,
+			"file" : "CRADVNTRA047.png"
+		}
+	]
+}

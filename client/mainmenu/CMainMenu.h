@@ -107,7 +107,7 @@ public:
 };
 
 /// Multiplayer join
-class JoinScreen : public WindowBase, public IServerDiscoveryObserver
+class JoinScreen : public WindowBase, public IServerDiscoveryObserver, public boost::noncopyable
 {
 public:
 	ESelectionScreen screenType;
@@ -122,7 +122,7 @@ public:
 	std::vector<std::shared_ptr<CButton>> buttonsJoin;
 	std::shared_ptr<IServerDiscovery> serverDiscovery;
 
-	JoinScreen(ESelectionScreen ScreenType, std::vector<std::string> playerNames);
+	JoinScreen(ESelectionScreen ScreenType, const std::vector<std::string> & playerNames);
 	~JoinScreen();
 
 	void onServerDiscovered(const DiscoveredServer & server) override;
@@ -212,7 +212,7 @@ class CSimpleJoinScreen : public WindowBase
 	void startConnection(const std::string & addr = {}, ui16 port = 0);
 
 public:
-	CSimpleJoinScreen(bool host = true, std::string server = {}, ui16 port = 0);
+	CSimpleJoinScreen(bool host = true, const std::string & server = {}, ui16 port = 0);
 };
 
 class CLoadingScreen : virtual public CWindowObject, virtual public Load::Progress

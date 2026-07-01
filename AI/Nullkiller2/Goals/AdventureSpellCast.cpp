@@ -12,6 +12,7 @@
 #include "../AIGateway.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
+#include "../../../lib/spells/CSpell.h"
 
 namespace NK2AI
 {

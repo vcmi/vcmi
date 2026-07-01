@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "validator.h"
+#include "helper.h"
 #include "mapcontroller.h"
 #include "ui_validator.h"
 #include "../lib/entities/hero/CHero.h"
@@ -17,7 +18,10 @@
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
-#include "../lib/spells/CSpellHandler.h"
+
+#include <vcmi/spells/Spell.h>
+
+#include "../lib/json/JsonKeyExtractor.h"
 
 Validator::Validator(const CMap * map, QWidget *parent) :
 	QDialog(parent),
@@ -26,9 +30,9 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	ui->setupUi(this);
 
 	screenGeometry = QApplication::primaryScreen()->availableGeometry();
-	
-	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-	
+
+	Helper::decorateDialog(this);
+
 	showValidationResults(map);
 }
 
@@ -40,13 +44,13 @@ Validator::~Validator()
 std::set<Validator::Issue> Validator::validate(const CMap * map)
 {
 	std::set<Validator::Issue> issues;
-	
+
 	if(!map)
 	{
 		issues.insert({ tr("Map is not loaded"), true });
 		return issues;
 	}
-	
+
 	try
 	{
 		//check player settings
@@ -75,12 +79,18 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			issues.insert({ tr("No human players allowed to play this map"), true });
 
 		std::set<const CHero * > allHeroesOnMap; //used to find hero duplicated
-		
+
 		//checking all objects in the map
 		for(auto o : map->objects)
 		{
 			if(!o)
 				continue;
+
+			if(o->isVisitable() && !map->isInTheMap(o->visitablePos()))
+				issues.emplace(tr("Object's %1 visitable position %2 is outside of the map bounds")
+					.arg(o->instanceName.c_str())
+					.arg(QString::fromStdString(o->visitablePos().toString())), false);
+
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{
@@ -118,14 +128,14 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(map->allowedHeroes.count(ins->getHeroTypeID()) == 0)
 						issues.insert({ tr("Hero %1 is prohibited by map settings").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
-					
+
 					if(!allHeroesOnMap.insert(ins->getHeroType()).second)
 						issues.insert({ tr("Hero %1 has duplicate on map").arg(ins->getHeroType()->getNameTranslated().c_str()), false });
 				}
 				else if(ins->ID != Obj::RANDOM_HERO)
 					issues.insert({ tr("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true });
 			}
-			
+
 			//checking for arts
 			if(auto * ins = dynamic_cast<CGArtifact *>(o.get()))
 			{
@@ -145,6 +155,23 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 					{
 						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
 					}
+				}
+			}
+			if(o->ID == MapObjectID::WITCH_HUT)
+			{
+				if(!presetIsValid(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities))
+				{
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
+				}
+			}
+			if(o->ID == MapObjectID::SCHOLAR)
+			{
+				if(!presetIsValid(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities)
+				   || !presetIsValid(map, o, "spell", "gainedSpell", map->allowedSpells))
+				{
+					issues.emplace(tr("A scholar at x: %1 y: %2 on %3 layer holds an invalid reward")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
 				}
 			}
 		}
@@ -168,12 +195,37 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			issues.insert({ tr("Map name is not specified"), false });
 		if(map->description.empty())
 			issues.insert({ tr("Map description is not specified"), false });
-		
+
 		//verification for mods
 		for(auto & mod : MapController::modAssessmentMap(*map))
 		{
 			if(!map->mods.count(mod.first))
 				issues.insert({ MapController::modMissingMessage(mod.second), true });
+		}
+
+		for(const auto & event : map->triggeredEvents)
+		{
+			auto conditionValidator = [map, &issues, &event](const EventCondition & condition) -> EventExpression::Variant
+			{
+				if(const auto * placeholder = map->isHeroPlaceholderObjective(condition))
+				{
+					const auto conditionName =
+						event.effect.type == EventEffect::VICTORY ?
+							Validator::tr("defeat a specific hero") :
+							Validator::tr("lose a specific hero");
+					const QString placeholderName = placeholder->heroType.has_value() ?
+						QString::fromStdString(placeholder->heroType->toHeroType()->getNameTranslated()) :
+						Validator::tr("hero placeholder");
+					issues.emplace(
+						Validator::tr("Triggered event '%1' uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.")
+							.arg(event.identifier.c_str(), conditionName, placeholderName, QString::fromStdString(condition.position.toString())),
+						false);
+				}
+
+				return condition;
+			};
+
+			event.trigger.morph(conditionValidator);
 		}
 	}
 	catch(const std::exception & e)
@@ -184,8 +236,26 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 	{
 		issues.insert({ tr("Unknown exception occurs during validation"), true });
 	}
-	
+
 	return issues;
+}
+
+template<typename IdentifierType>
+bool Validator::presetIsValid(
+    const CMap * map,
+	std::shared_ptr<CGObjectInstance> object,
+	const std::string & category,
+	const std::string & name,
+	const std::set<IdentifierType> & allowedEntities
+)
+{
+	JsonKeyExtractor keyExtractor(map->cb);
+	CRewardableObject * rewardable = static_cast<CRewardableObject *>(object.get());
+	JsonNode preset = rewardable->configuration.getPresetVariable(category, name);
+	if(preset.isNull())
+		return true;
+	auto presetAbilities = keyExtractor.filterKeys(preset, allowedEntities);
+	return !presetAbilities.empty();
 }
 
 void Validator::showValidationResults(const CMap * map)

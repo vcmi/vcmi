@@ -63,10 +63,14 @@ enum class ESerializationVersion : int32_t
 	REWARDABLE_EXTENSIONS_2, // movement points limiter for rewardables
 	BONUS_TRIGGER, // bonus that allows triggered effects in combat
 	CUSTOM_GARRISON_TITLE, // GarrisonDialog pack now has custom title parameter
+	LUA_SCRIPTS,
+	REWARDABLE_RESET_CALENDAR, // rewardable reset period split into days/weeks/months
+	CONTROL_LOSS_TRACKING, // track when players ever controlled special defeat-condition objects
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
-	CURRENT = CUSTOM_GARRISON_TITLE,
+
+	CURRENT = CONTROL_LOSS_TRACKING,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

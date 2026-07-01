@@ -18,6 +18,12 @@
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
 
+#ifdef ENABLE_EDITOR
+class CampaignEditor;
+class CampaignProperties;
+class ScenarioProperties;
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct StartInfo;
@@ -35,10 +41,11 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	friend class CampaignHandler;
 	friend class Campaign;
 
-	// Campaign editor
-	friend class CampaignEditor;
-	friend class CampaignProperties;
-	friend class ScenarioProperties;
+#ifdef ENABLE_EDITOR
+	friend class ::CampaignEditor;
+	friend class ::CampaignProperties;
+	friend class ::ScenarioProperties;
+#endif
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -60,6 +67,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	HeroTypeID yogWizardID;
 	HeroTypeID gemSorceressID;
 
+	int hotaVersion = 0; // not serialized - loading only
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
 	bool restrictGarrisonsAI = false;
@@ -220,10 +228,11 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
 
-	// Campaign editor
-	friend class CampaignEditor;
-	friend class CampaignProperties;
-	friend class ScenarioProperties;
+#ifdef ENABLE_EDITOR
+	friend class ::CampaignEditor;
+	friend class ::CampaignProperties;
+	friend class ::ScenarioProperties;
+#endif
 
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 
@@ -248,10 +257,11 @@ class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
 
-	// Campaign editor
-	friend class CampaignEditor;
-	friend class CampaignProperties;
-	friend class ScenarioProperties;
+#ifdef ENABLE_EDITOR
+	friend class ::CampaignEditor;
+	friend class ::CampaignProperties;
+	friend class ::ScenarioProperties;
+#endif
 
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;

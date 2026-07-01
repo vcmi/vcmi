@@ -69,7 +69,8 @@ uint32_t ModsState::computeChecksum(const TModID & modName) const
 {
 	boost::crc_32_type modChecksum;
 	// first - add current VCMI version into checksum to force re-validation on VCMI updates
-	modChecksum.process_bytes(static_cast<const void*>(GameConstants::VCMI_VERSION.data()), GameConstants::VCMI_VERSION.size());
+	const std::string_view vcmiVersion{GameConstants::VCMI_VERSION};
+	modChecksum.process_bytes(static_cast<const void*>(vcmiVersion.data()), vcmiVersion.size());
 
 	// second - add mod.json into checksum because filesystem does not contains this file
 	if (modName != ModScope::scopeBuiltin())
@@ -511,6 +512,9 @@ ModManager::ModManager(const JsonNode & repositoryList)
 	eraseMissingModsFromPreset();
 	addNewModsToPreset();
 
+	// Sync roe-demo enabled state with demo data presence
+	syncDemoModState();
+
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 	ModDependenciesResolver newResolver(desiredModList, *modsStorage);
 	updatePreset(newResolver);
@@ -616,6 +620,27 @@ void ModManager::addNewModsToPreset()
 		if (!modSettings.count(settingID))
 			modsPreset->setSettingActive(rootMod, settingID, !modsStorage->getMod(modID).keepDisabled());
 	}
+}
+
+void ModManager::syncDemoModState()
+{
+	static const TModID demoModID = "roe-demo";
+
+	if (!vstd::contains(modsStorage->getAllMods(), demoModID))
+		return;
+
+	if (!modsStorage->getMod(demoModID).isInstalled())
+		return;
+
+	bool hasFullData = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
+	bool hasDemoData = !hasFullData && CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
+
+	bool isActive = vstd::contains(modsPreset->getActiveRootMods(), demoModID);
+
+	if (hasDemoData && !isActive)
+		modsPreset->setModActive(demoModID, true);
+	else if (!hasDemoData && isActive)
+		modsPreset->setModActive(demoModID, false);
 }
 
 TModList ModManager::getInstalledValidMods() const

@@ -13,7 +13,7 @@
 
 #include "AdventureSpellMechanics.h"
 
-#include "../CSpellHandler.h"
+#include "../CSpell.h"
 
 #include "../../CPlayerState.h"
 #include "../../callback/IGameInfoCallback.h"

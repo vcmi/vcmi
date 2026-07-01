@@ -15,6 +15,7 @@
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
 #include "../filesystem/ResourcePath.h"
+#include <vcmi/scripting/ApiTags.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,7 +33,7 @@ using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 using TBonusParametersPtr = std::shared_ptr<const BonusParameters>;
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
-struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
+struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable, public scripting::ApiCopyable<Bonus>
 {
 	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values - 2 bytes
 	si32 val = 0;

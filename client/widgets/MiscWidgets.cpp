@@ -22,9 +22,9 @@
 #include "../gui/WindowHandler.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../windows/CMarketWindow.h"
-#include "../widgets/CGarrisonInt.h"
-#include "../widgets/GraphicalPrimitiveCanvas.h"
-#include "../widgets/TextControls.h"
+#include "CGarrisonInt.h"
+#include "GraphicalPrimitiveCanvas.h"
+#include "TextControls.h"
 #include "../windows/CCastleInterface.h"
 #include "../windows/wiki/WikiWindow.h"
 #include "../windows/InfoWindows.h"
@@ -216,10 +216,11 @@ std::string CMinorResDataBar::buildDateString()
 {
 	std::string pattern = "%s: %d, %s: %d, %s: %d";
 
+	auto calendar = GAME->interface()->cb->getCalendar();
 	auto formatted = boost::format(pattern)
-		% LIBRARY->generaltexth->translate("core.genrltxt.62") % GAME->interface()->cb->getDate(Date::MONTH)
-		% LIBRARY->generaltexth->translate("core.genrltxt.63") % GAME->interface()->cb->getDate(Date::WEEK)
-		% LIBRARY->generaltexth->translate("core.genrltxt.64") % GAME->interface()->cb->getDate(Date::DAY_OF_WEEK);
+		% LIBRARY->generaltexth->translate("core.genrltxt.62") % calendar.getMonth()
+		% LIBRARY->generaltexth->translate("core.genrltxt.63") % calendar.getWeek()
+		% LIBRARY->generaltexth->translate("core.genrltxt.64") % calendar.getDayOfWeek();
 
 	return boost::str(formatted);
 }

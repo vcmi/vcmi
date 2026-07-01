@@ -54,12 +54,12 @@
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapService.h"
+#include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "mapping/MapFormatSettings.h"
@@ -317,7 +317,7 @@ void CBonusSelection::createBonusesIcons()
 				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
 				desc.replaceName(bonusValue.skill);
 				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
-					picName = skill->at(bonusValue.mastery).scenarioBonus.empty();
+					picName = skill->at(bonusValue.mastery).scenarioBonus;
 				else
 					picNumber = bonusValue.skill.getNum() * 3 + bonusValue.mastery - 1;
 				break;

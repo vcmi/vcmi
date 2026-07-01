@@ -12,12 +12,16 @@
 
 #include "../mapObjects/CompoundMapObjectID.h"
 
+#ifdef ENABLE_TEMPLATE_EDITOR
+class ObjectSelector;
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE ObjectConfig
 {
 #ifdef ENABLE_TEMPLATE_EDITOR
-	friend class ObjectSelector;
+	friend class ::ObjectSelector;
 #endif
 
 public:

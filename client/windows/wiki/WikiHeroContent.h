@@ -13,6 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CHero;
+class CGHeroInstance;
 VCMI_LIB_NAMESPACE_END
 
 class CIntObject;
@@ -38,4 +39,6 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	const CHero * hero,
 	int viewportWidth,
 	bool blueStyle,
-	WikiHeroNavigateCallback navigateCallback = {});
+    WikiHeroNavigateCallback navigateCallback = {},
+    const CGHeroInstance * mapHero = nullptr
+);

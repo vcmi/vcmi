@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "../helper.h"
 
 #include "townhintselector.h"
 #include "ui_townhintselector.h"
@@ -20,7 +21,7 @@ TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & t
 	townHints(townHints)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Town hint Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

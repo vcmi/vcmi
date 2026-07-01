@@ -28,6 +28,7 @@
 #include "../../../lib/spells/CSpellHandler.h"
 #include "../../../lib/entities/hero/CHero.h"
 #include "../../../lib/entities/hero/CHeroClass.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/entities/hero/EHeroGender.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
@@ -55,7 +56,8 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	const CHero * hero,
 	int viewportWidth,
 	bool blueStyle,
-	WikiHeroNavigateCallback navigateCallback)
+	WikiHeroNavigateCallback navigateCallback,
+	const CGHeroInstance * mapHero)
 {
 	std::vector<std::shared_ptr<CIntObject>> widgets;
 	if(!hero) return widgets;
@@ -73,7 +75,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	widgets.push_back(std::make_shared<CLabel>(
 		W / 2, curY,
 		FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
-		hero->getNameTranslated()));
+		(mapHero && !mapHero->nameCustomTextId.empty()) ? mapHero->getNameTranslated() : hero->getNameTranslated()));
 	curY += 26;
 
 	{
@@ -113,19 +115,32 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		const int bioX = MARGIN + portraitW + GAP;
 		const int bioW = W - bioX - MARGIN;
 
+		const bool hasCustomData = mapHero && (
+			!mapHero->nameCustomTextId.empty() ||
+			!mapHero->biographyCustomTextId.empty() ||
+			mapHero->customPortraitSource.isValid());
+
+		const int portraitFrame = (mapHero && mapHero->customPortraitSource.isValid())
+				? (int)mapHero->getPortraitSource().toHeroType()->getIconIndex()
+			: hero->imageIndex;
 		widgets.push_back(std::make_shared<CAnimImage>(
 			AnimationPath::builtin("PortraitsLarge"),
-			hero->imageIndex, 0,
+			portraitFrame, 0,
 			MARGIN, curY));
 
-		const HeroTypeID hId = hero->getId();
-		widgets.push_back(std::make_shared<WikiClickable>(
-			Rect(MARGIN, curY, portraitW, portraitH),
-			nullptr,
-			[hId](){ ENGINE->windows().createAndPushWindow<CHeroOverview>(hId); },
-			blueStyle));
+		if(!hasCustomData)
+		{
+			const HeroTypeID hId = hero->getId();
+			widgets.push_back(std::make_shared<WikiClickable>(
+				Rect(MARGIN, curY, portraitW, portraitH),
+				nullptr,
+				[hId](){ ENGINE->windows().createAndPushWindow<CHeroOverview>(hId); },
+				blueStyle));
+		}
 
-		const std::string bio = hero->getBiographyTranslated();
+		const std::string bio = (mapHero && !mapHero->biographyCustomTextId.empty())
+			? mapHero->getBiographyTranslated()
+			: hero->getBiographyTranslated();
 		if(!bio.empty())
 		{
 			auto bioLabel = std::make_shared<CMultiLineLabel>(

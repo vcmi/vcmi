@@ -12,7 +12,7 @@
 #include "BattleSpellMechanics.h"
 
 #include "Problem.h"
-#include "CSpellHandler.h"
+#include "CSpell.h"
 
 #include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
@@ -167,7 +167,7 @@ void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & 
 			}
 			else
 			{
-				EffectTarget filtered = effect->filterTarget(this, targets);
+				Target filtered = effect->filterTarget(this, targets);
 				effect->apply(server, this, filtered);
 			}
 		}
@@ -312,11 +312,11 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 {
 	Target spellTarget = transformSpellTarget(target);
 
-	EffectTarget all;
+	Target all;
 
 	effects->forEachEffect(getEffectLevel(), [&all, &target, &spellTarget, this](const effects::Effect * e, bool & stop)
 	{
-		EffectTarget one = e->transformTarget(this, target, spellTarget);
+		Target one = e->transformTarget(this, target, spellTarget);
 		vstd::concatenate(all, one);
 	});
 
@@ -675,7 +675,7 @@ std::vector<AimType> BattleSpellMechanics::getTargetTypes() const
 	{
 		effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * e, bool & stop)
 		{
-			e->adjustTargetTypes(ret);
+			e->adjustTargetTypes(ret, this);
 			stop = ret.empty();
 		});
 	}

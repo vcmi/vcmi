@@ -127,15 +127,6 @@ namespace MasteryLevel
 	};
 }
 
-enum class Date : int8_t
-{
-	DAY = 0,
-	DAY_OF_WEEK = 1,
-	WEEK = 2,
-	MONTH = 3,
-	DAY_OF_MONTH
-};
-
 enum class EActionType : int8_t
 {
 	NO_ACTION,
@@ -241,7 +232,7 @@ enum class EMovementMode : int8_t
 	DIMENSION_DOOR,
 	MONOLITH,
 	CASTLE_GATE,
-	TOWN_PORTAL,
+	TOWN_PORTAL
 };
 
 enum class EMapLevel : int8_t

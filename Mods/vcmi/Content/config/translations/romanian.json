@@ -432,6 +432,7 @@
 	"vcmi.keyBindings.inputSet": "Combinația de taste pentru {%s} va fi schimbată în {%s}.\n\nAdaugi la combinațiile existente? Altfel va fi înlocuită.",
 	"vcmi.keyBindings.keyBinding.adventureCastSpell": "Hartă: aruncă vrajă",
 	"vcmi.keyBindings.keyBinding.adventureDigGrail": "Hartă: sapă pentru Graal",
+	"vcmi.keyBindings.keyBinding.adventureDisembark": "Hartă: debarcare",
 	"vcmi.keyBindings.keyBinding.adventureEndTurn": "Hartă: termină tura",
 	"vcmi.keyBindings.keyBinding.adventureExitWorldView": "Hartă: ieșire din vizualizarea globală",
 	"vcmi.keyBindings.keyBinding.adventureFirstHero": "Hartă: primul erou",

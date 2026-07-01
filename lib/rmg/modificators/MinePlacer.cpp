@@ -60,19 +60,21 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		const auto res = GameResID(mineInfo.first);
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			TObjectTypeHandler mineHandler;
+			std::vector<TObjectTypeHandler> compatibleMineHandlers;
 			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
 			{
 				auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
 				if(handler->getResourceType() == res)
-					mineHandler = handler;
+					compatibleMineHandlers.push_back(handler);
 			}
 
-			if(!mineHandler)
+			if(compatibleMineHandlers.empty())
 			{
 				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
 				continue;
 			}
+
+			auto mineHandler = *RandomGeneratorUtil::nextItem(compatibleMineHandlers, zone.getRand());
 
 			const auto & rmginfo = mineHandler->getRMGInfo();
 			auto mine = std::dynamic_pointer_cast<CGMine>(mineHandler->create(map.mapInstance->cb, nullptr));

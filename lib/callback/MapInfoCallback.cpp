@@ -16,7 +16,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
-#include "../spells/CSpellHandler.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

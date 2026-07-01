@@ -13,7 +13,6 @@
 
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
-#include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"
 #include "../lib/networkPacks/PacksForServer.h"
 #include "../lib/serializer/GameConnectionID.h"
@@ -39,13 +38,6 @@ struct CGarrisonOperationPack;
 struct SetResources;
 struct NewStructures;
 
-#if SCRIPTING_ENABLED
-namespace scripting
-{
-	class PoolImpl;
-}
-#endif
-
 VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
@@ -59,6 +51,7 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 class IGameServer;
+class TurnStartVisitScheduler;
 
 class CGameHandler : public Environment, public IGameEventCallback
 {
@@ -68,6 +61,7 @@ public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
 	std::unique_ptr<QueriesProcessor> queries;
+	std::unique_ptr<TurnStartVisitScheduler> turnStartVisitScheduler;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
@@ -91,8 +85,6 @@ public:
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
 	const GameCb * game() const override;
-	vstd::CLoggerBase * logger() const override;
-	events::EventBus * eventBus() const override;
 	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
@@ -123,6 +115,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
+	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);
 	void giveStackExperience(const CArmedInstance * army, TExpType val);
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
@@ -165,7 +158,7 @@ public:
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town) override; //use hero=nullptr for no hero
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL, const EPathfindingLayer & layer = EPathfindingLayer::AUTO) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
 	void setMovePoints(ObjectInstanceID hid, int val) override;
@@ -271,16 +264,6 @@ public:
 		{
 			h & *statistics;
 		}
-
-
-#if SCRIPTING_ENABLED
-		JsonNode scriptsState;
-		if(h.saving)
-			serverScripts->serializeState(h.saving, scriptsState);
-		h & scriptsState;
-		if(!h.saving)
-			serverScripts->serializeState(h.saving, scriptsState);
-#endif
 	}
 
 	void sendAndApply(CPackForClient & pack) override;
@@ -314,20 +297,8 @@ public:
 
 	vstd::RNG & getRandomGenerator() override;
 
-//#if SCRIPTING_ENABLED
-//	scripting::Pool * getGlobalContextPool() const override;
-//	scripting::Pool * getContextPool() const override;
-//#endif
-
 	friend class CVCMIServer;
 private:
-	std::unique_ptr<events::EventBus> serverEventBus;
-#if SCRIPTING_ENABLED
-	std::shared_ptr<scripting::PoolImpl> serverScripts;
-#endif
-
-	void reinitScripting();
-
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
 
 	const std::string complainNoCreatures;

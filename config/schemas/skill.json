@@ -66,14 +66,6 @@
 			"type" : "number",
 			"description" : "Internal, numeric id of skill, required for existing skills"
 		},
-		"obligatoryMajor" : {
-			"type" : "boolean",
-			"description" : "This skill is major obligatory (like H3 Wisdom)"
-		},
-		"obligatoryMinor" : {
-			"type" : "boolean",
-			"description" : "This skill is minor obligatory (like H3 Magic school)"
-		},
 		"specialty" : {
 			"type" : "array",
 			"description" : "List of bonuses that are affected by hero specialty",
@@ -107,14 +99,13 @@
 		},
 		"expert" : {
 			"$ref" : "#/definitions/skillBonus"
+		},
+		"tags" : {
+			"type" : "object",
+			"description" : "List of tags describing this skill",
+			"additionalProperties" : {
+				"type" : "boolean"
+			}
 		}
-	},
-	"onlyOnWaterMap" : {
-		"type" : "boolean",
-		"description" : "It true, skill won't be available on a map without water"
-	},
-	"special" : {
-		"type" : "boolean",
-		"description" : "If true, skill is not available on maps at random"
 	}
 }

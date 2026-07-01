@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "../helper.h"
 
 #include "objectselector.h"
 #include "ui_objectselector.h"
@@ -29,7 +30,7 @@ ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	advObjects(getAdventureMapItems())
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Object Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);
@@ -53,7 +54,7 @@ QMainWindow* getMainWindow()
 std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 {
 	std::map<CompoundMapObjectID, QString> objects;
-	auto& controller = qobject_cast<MainWindow *>(getMainWindow())->controller;
+	auto& controller = qobject_cast<EditorMainWindow *>(getMainWindow())->controller;
 
 	auto knownObjects = LIBRARY->objtypeh->knownObjects();
 	for(auto & id : knownObjects)

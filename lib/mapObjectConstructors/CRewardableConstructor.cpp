@@ -97,7 +97,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, IGameRan
 	}
 }
 
-std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
+std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo() const
 {
 	return std::unique_ptr<IObjectInfo>(new Rewardable::Info(objectInfo));
 }

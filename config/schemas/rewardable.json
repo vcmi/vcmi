@@ -353,7 +353,10 @@
 			"properties" : {
 				"visitors" : { "type" : "boolean" },
 				"rewards" : { "type" : "boolean" },
-				"period" : { "type" : "number" }
+				"days" : { "type" : "number" },
+				"weeks" : { "type" : "number" },
+				"months" : { "type" : "number" },
+				"period" : { "type" : "number" } // deprecated alias for "days"
 			}
 		},
 		

@@ -23,13 +23,6 @@ CPlayerBattleCallback::CPlayerBattleCallback(const IBattleInfo * battle, PlayerC
 
 }
 
-#if SCRIPTING_ENABLED
-scripting::Pool * CPlayerBattleCallback::getContextPool() const
-{
-	return nullptr; //TODO cl->getGlobalContextPool();
-}
-#endif
-
 const IBattleInfo * CPlayerBattleCallback::getBattle() const
 {
 	return battle;

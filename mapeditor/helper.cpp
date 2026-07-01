@@ -12,6 +12,13 @@
 #include "helper.h"
 #include "mapcontroller.h"
 
+#include <QApplication>
+#include <QScreen>
+#include <QToolButton>
+#include <QResizeEvent>
+#include <QDialog>
+#include <QPainterPath>
+
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
@@ -27,6 +34,77 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 #include "../lib/serializer/CSaveFile.h"
+
+CloseButtonPositioner::CloseButtonPositioner(QDialog * parent, QToolButton * btn)
+	: QObject(parent), dialog(parent), closeButton(btn)
+{}
+
+void CloseButtonPositioner::reposition()
+{
+	if(!dialog || !closeButton)
+		return;
+
+	QPainterPath path;
+	path.addRoundedRect(QRectF(dialog->rect()), 6.0, 6.0);
+	dialog->setMask(QRegion(path.toFillPolygon().toPolygon()));
+
+	closeButton->move(dialog->width() - closeButton->width() - 4, 4);
+}
+
+bool CloseButtonPositioner::eventFilter(QObject * obj, QEvent * ev)
+{
+	switch(ev->type())
+	{
+		case QEvent::Show:
+		case QEvent::Resize:
+		case QEvent::WindowActivate:
+			reposition();
+			closeButton->show();
+			closeButton->raise();
+			break;
+		case QEvent::Hide:
+		case QEvent::Close:
+			closeButton->hide();
+			break;
+		default:
+			break;
+	}
+	return false;
+}
+
+void Helper::decorateDialog(QDialog * dialog)
+{
+#ifdef VCMI_MOBILE
+	dialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+	dialog->setStyleSheet("QDialog { border: 2px solid rgba(0,0,0,160); border-radius: 6px; }");
+
+	auto * closeButton = new QToolButton(dialog);
+	closeButton->setObjectName("closeButton");
+	closeButton->setText(QStringLiteral("X"));
+	closeButton->setFixedSize(22, 22);
+	closeButton->setMask(QRegion(0, 0, 22, 22, QRegion::Ellipse));
+	closeButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+	closeButton->setCursor(Qt::PointingHandCursor);
+	QFont closeFont = closeButton->font();
+	closeFont.setBold(true);
+	closeButton->setFont(closeFont);
+	closeButton->setStyleSheet(
+		"QToolButton#closeButton { border: none; border-radius: 11px; padding: 1px; background: #c0392b; color: white; font-weight: 700; }"
+		"QToolButton#closeButton:hover { background: #e74c3c; }"
+		"QToolButton#closeButton:pressed { background: #922b21; }");
+	closeButton->setToolTip(QObject::tr("Close"));
+	QObject::connect(closeButton, &QToolButton::clicked, dialog, &QDialog::close);
+	QObject::connect(dialog, &QDialog::destroyed, closeButton, &QToolButton::close);
+
+	dialog->installEventFilter(new CloseButtonPositioner(dialog, closeButton));
+
+	// Center on screen
+	const QRect screenGeometry = QApplication::primaryScreen()->availableGeometry();
+	dialog->move(screenGeometry.center() - dialog->rect().center());
+#else
+	dialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+#endif
+}
 
 ResourcePath addFilesystemAndGetResource(const QString & filenameSelect, EResType type, const std::string & typeName)
 {

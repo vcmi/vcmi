@@ -12,6 +12,9 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../constants/Enumerations.h"
 #include "../int3.h"
+#include "Calendar.h"
+
+#include <vcmi/scripting/ApiTags.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -42,12 +45,10 @@ class IMarket;
 
 using FowTilesType = std::set<int3>;
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 class Pool;
 }
-#endif
 
 namespace vstd
 {
@@ -56,7 +57,7 @@ class RNG;
 
 /// Provide interfaces through which map objects can access game state data
 /// TODO: currently it is also used as Environment::GameCb. Consider separating these two interfaces
-class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
+class DLL_LINKAGE IGameInfoCallback : boost::noncopyable, public scripting::ApiRawPointer<IGameInfoCallback>
 {
 public:
 	~IGameInfoCallback() = default;
@@ -69,13 +70,11 @@ public:
 	/// TODO: remove
 	virtual const CGameState & gameState() const = 0;
 
-	/// Returns current date:
-	/// DAY - number of days since start of the game (1..inf)
-	/// DAY_OF_WEEK - number of days since start of the week (1..7)
-	/// WEEK - number of week within month (1..4)
-	/// MONTH - current month (1..inf)
-	/// DAY_OF_MONTH - number of day within current month, (1..28)
-	virtual int getDate(Date mode=Date::DAY) const = 0;
+	/// Returns Calendar wrapper for current in-game date.
+	virtual Calendar getCalendar() const = 0;
+
+	/// Returns Calendar wrapper for arbitrary day count, interpreted using current game settings.
+	Calendar getCalendar(int day) const { return Calendar(getSettings(), day); }
 
 	/// Return pointer to static map header for current map
 	virtual const CMapHeader * getMapHeader() const = 0;
@@ -166,9 +165,8 @@ public:
 	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
 
-#if SCRIPTING_ENABLED
-	virtual scripting::Pool * getGlobalContextPool() const = 0;
-#endif
+	virtual const scripting::Pool & getScriptContextPool() const = 0;
+
 };
 
 VCMI_LIB_NAMESPACE_END

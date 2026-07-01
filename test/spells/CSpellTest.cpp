@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/CSpell.h"
 
 namespace test
 {

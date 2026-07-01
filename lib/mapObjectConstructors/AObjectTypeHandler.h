@@ -126,7 +126,7 @@ public:
 	virtual void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo() const;
 };
 
 VCMI_LIB_NAMESPACE_END

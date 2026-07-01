@@ -81,7 +81,7 @@ Lobby is currently hosted on Hetzner, with migration of other services to Hetzne
 | VPS | Location | Specifications | Services |
 | --- | -------- | -------------- | -------- |
 | `vcmi-forum` | DO Droplet | 2 Gb / 1 CPU / 25 Gb / $12 (+20%) | [Discourse forum](https://forum.vcmi.eu/). Note: 25 Gb droplet - ssd can be expanded, or we can downscale entire droplet to 1 Gb config |
-| `vcmi-weblate` | DO Droplet | 2 Gb / 1 CPU / 50 Gb / $12 | [Weblate](https://weblate.vcmi.eu/) |
+| `vcmi-weblate` | DO Droplet | 4 Gb / 2 CPU / 50 Gb / $24 (+20%) | [Weblate](https://weblate.vcmi.eu/) |
 | `vcmi-web` | DO Droplet | 512 Mb / 1 CPU / 10 Gb + 100 Gb / $4 (+20%) + $10 | Builds uploading from Github, [Build download page](http://download.vcmi.eu/), [Legacy download page](https://builds.vcmi.download/). Also contains nginx server for redirecting [old bug tracker](https://bugs.vcmi.eu/), [old wiki](https://wiki.vcmi.eu/), and [old slack invite page](https://slack.vcmi.eu/) |
 | `vcmi-lobby` | Hetzner Server | 4 Gb / 2 CPU / 40 Gb / €4 (+20%) | Multiplayer lobby (lobby.vcmi.eu or beholder.vcmi.eu - deprecated) as we ll as [API endpoint](https://api.vcmi.eu/) |
 | `vcmi-artifactory` | DO Snapshot | 4 Gb / 2 CPU / 80 Gb / $24 | [Conan Artifactory server](https://artifactory.vcmi.eu/) |

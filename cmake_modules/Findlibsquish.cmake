@@ -31,7 +31,7 @@ set(LIBSQUISH_LIBRARIES ${LIBSQUISH_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-    LibSquish
+    libsquish
     REQUIRED_VARS LIBSQUISH_LIBRARY LIBSQUISH_INCLUDE_DIR
 )
 

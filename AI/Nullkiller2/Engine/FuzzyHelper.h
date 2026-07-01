@@ -8,7 +8,12 @@
  *
 */
 #pragma once
-#include "FuzzyEngines.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+class int3;
+class CGObjectInstance;
+class CGHeroInstance;
+VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {
@@ -19,7 +24,6 @@ class DLL_EXPORT FuzzyHelper
 {
 private:
 	const Nullkiller * aiNk;
-	TacticalAdvantageEngine tacticalAdvantageEngine;
 
 public:
 	FuzzyHelper(const Nullkiller * aiNk): aiNk(aiNk) {}

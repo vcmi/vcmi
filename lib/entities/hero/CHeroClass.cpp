@@ -77,16 +77,6 @@ std::string CHeroClass::getNameTextID() const
 	return TextIdentifier("heroClass", modScope, identifier, "name").get();
 }
 
-void CHeroClass::updateFrom(const JsonNode & data)
-{
-	//TODO: CHeroClass::updateFrom
-}
-
-void CHeroClass::serializeJson(JsonSerializeFormat & handler)
-{
-
-}
-
 CHeroClass::CHeroClass():
 	faction(0),
 	affinity(0),

@@ -205,6 +205,11 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyLoadProgress(LobbyLoadProgress 
 	}
 }
 
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyModsCheck(LobbyModsCheck & pack)
+{
+	handler.onLobbyPreviewResponse(pack);
+}
+
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;

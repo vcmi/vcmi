@@ -27,7 +27,6 @@
 #include "../constants/StringConstants.h"
 #include "../entities/hero/CHero.h"
 #include "../modding/ModUtility.h"
-#include "../spells/CSpellHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

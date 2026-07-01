@@ -55,8 +55,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Optional but it should be present for playable faction
 	"town" : { ... },
 
-	// Native terrain for creatures. Creatures fighting on native terrain receive several bonuses
-	"nativeTerrain" : "grass",
+	// Native terrain for creatures. Can be single value or array.
+	// Creatures fighting on native terrain receive several bonuses
+	"nativeTerrain" : ["grass", "dirt"],
 
 	// Localizable faction name, e.g. "Rampart"
 	"name" : "", 

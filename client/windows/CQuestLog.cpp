@@ -168,7 +168,7 @@ void CQuestLog::recreateLabelList()
 				toSeer.replaceRawString(seersHut->seerName);
 				text.replaceRawString(toSeer.toString());
 			}
-			else
+			else if(questObject)
 				text.replaceRawString(questObject->getObjectName()); //get name of the object
 		}
 		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());

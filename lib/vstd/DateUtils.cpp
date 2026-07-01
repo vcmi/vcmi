@@ -17,7 +17,7 @@ namespace vstd
 
 	DLL_LINKAGE std::string getFormattedDateTime(std::time_t dt, std::string format)
 	{
-		std::tm tm = *std::localtime(&dt);
+		std::tm tm = safeLocalTime(dt);
 		std::stringstream s;
 		s << std::put_time(&tm, format.c_str());
 		return s.str();

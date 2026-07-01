@@ -42,9 +42,21 @@ set(test_SRCS
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
+		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
+		map/TinyH3MBuilderTest.cpp
+
+		quest/QuestTest.cpp
+		quest/QuestAssertions.cpp
+		quest/QuestScenarios.cpp
+		quest/CQuestLoaderTest.cpp
+		quest/CQuestSeerTest.cpp
+		quest/CQuestGuardTest.cpp
+		quest/CQuestBorderTest.cpp
 
 		netpacks/NetPackFixture.cpp
+
+#TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
 		spells/CSpellTest.cpp
@@ -56,7 +68,11 @@ set(test_SRCS
  		spells/effects/DamageTest.cpp
  		spells/effects/DispelTest.cpp
  		spells/effects/HealTest.cpp
- 		spells/effects/SacrificeTest.cpp
+ 		spells/effects/DemonSummonTest.cpp
+		spells/effects/MoatTest.cpp
+		spells/effects/ObstacleTest.cpp
+		spells/effects/RemoveObstacleTest.cpp
+		spells/effects/SacrificeTest.cpp
  		spells/effects/SummonTest.cpp
  		spells/effects/TeleportTest.cpp
  		spells/effects/TimedTest.cpp
@@ -75,11 +91,16 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
+		server/queries/QueriesProcessorTest.cpp
+
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
+ 		mock/mock_MapServiceTinyH3M.cpp
  		mock/mock_BonusBearer.cpp
 		mock/mock_CPSICallback.cpp
+		mock/TinyH3MWriter.cpp
+		mock/TinyH3MBuilder.cpp
 )
 
 set(test_HEADERS
@@ -98,49 +119,19 @@ set(test_HEADERS
 
 		mock/BattleFake.h
 		mock/mock_BonusBearer.h
+		mock/mock_CStack.h
 		mock/mock_IGameEventCallback.h
  		mock/mock_MapService.h
+ 		mock/mock_MapServiceTinyH3M.h
 		mock/mock_BonusBearer.h
+		mock/TownFake.h
+		mock/TinyH3MWriter.h
+		mock/TinyH3MBuilder.h
 
+		quest/QuestTest.h
+		quest/QuestAssertions.h
+		quest/QuestScenarios.h
 )
-
-if(ENABLE_LUA)
-	list(APPEND test_SRCS
-		scripting/LuaSandboxTest.cpp
-		scripting/LuaSpellEffectTest.cpp
-		scripting/LuaSpellEffectAPITest.cpp
-		scripting/PoolTest.cpp
-		scripting/ScriptFixture.cpp
-	)
-
-	list(APPEND test_HEADERS
-		scripting/ScriptFixture.h
-	)
-endif()
-
-if(ENABLE_ERM)
-	list(APPEND test_SRCS
-		erm/ERM_BM.cpp
-		erm/ERM_BU.cpp
-		erm/ERM_FU.cpp
-		erm/ERM_GM_T.cpp
-		erm/ERM_MA.cpp
-		erm/ERM_MC.cpp
-		erm/ERM_MF.cpp
-		erm/ERM_TM_T.cpp
-		erm/ERM_VR.cpp
-		erm/ERM_UN.cpp
-		erm/ERMPersistenceTest.cpp
-		erm/ExamplesTest.cpp
-		erm/interpretter/ERM_VR.cpp
-		erm/interpretter/ERM_UN.cpp
-		erm/interpretter/ErmRunner.cpp
-	)
-
-	list(APPEND test_HEADERS
-		erm/interpretter/ErmRunner.h
-	)
-endif()
 
 if(ENABLE_BATTLE_AI)
 	file(GLOB_RECURSE BATTLE_AI_TEST_SRCS "../AI/BattleAI/*.cpp")
@@ -153,6 +144,13 @@ if(ENABLE_BATTLE_AI)
 
 endif()
 
+if(ENABLE_NULLKILLER2_AI)
+	list(APPEND test_SRCS
+		nullkiller2/Goals/BuyArmyTest.cpp
+		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
+	)
+endif()
+
 assign_source_group(${test_SRCS} ${test_HEADERS})
 
 set(mock_HEADERS
@@ -161,9 +159,7 @@ set(mock_HEADERS
 		mock/mock_Creature.h
 		mock/mock_CreatureService.h
 		mock/mock_IBattleInfoCallback.h
-		mock/mock_scripting_Context.h
-		mock/mock_scripting_Script.h
-		mock/mock_scripting_Service.h
+		mock/mock_scripting_Pool.h
 		mock/mock_spells_Mechanics.h
 		mock/mock_spells_Problem.h
 		mock/mock_spells_Spell.h
@@ -175,6 +171,10 @@ set(mock_HEADERS
 
 if(MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+endif()
+check_cxx_compiler_flag(-Wcharacter-conversion CHARCONV)
+if(CHARCONV)
+	add_compile_options(-Wno-error=character-conversion) #Used in googletest
 endif()
 check_cxx_compiler_flag(-Wimplicit-int-float-conversion CONV)
 if(CONV)
@@ -191,13 +191,7 @@ endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
-target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
-if(ENABLE_LUA)
-	target_link_libraries(vcmitest PRIVATE vcmiLua)
-endif()
-if(ENABLE_NULLKILLER2_AI)
-	target_link_libraries(vcmitest PUBLIC Nullkiller2)
-endif()
+target_link_libraries(vcmitest PRIVATE gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
@@ -211,7 +205,6 @@ target_include_directories(vcmitest
 # slow global initialization.
 gtest_discover_tests(vcmitest
 	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
-
 
 vcmi_set_output_dir(vcmitest "")
 

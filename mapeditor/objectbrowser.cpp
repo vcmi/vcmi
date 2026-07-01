@@ -86,11 +86,11 @@ bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelI
 
 Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
 {
-	Qt::ItemFlags defaultFlags = QSortFilterProxyModel::flags(index);
+	Qt::ItemFlags defaultFlags = QSortFilterProxyModel::flags(index) & ~Qt::ItemIsEditable;
 
 	if (index.isValid())
 		return Qt::ItemIsDragEnabled | defaultFlags;
-	
+
 	return defaultFlags;
 }
 

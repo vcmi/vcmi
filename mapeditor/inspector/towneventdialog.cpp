@@ -9,6 +9,7 @@
  */
 
 #include "../StdInc.h"
+#include "../helper.h"
 #include "townbuildingswidget.h"
 #include "towneventdialog.h"
 #include "ui_towneventdialog.h"
@@ -39,6 +40,7 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	townEventListItem(item)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 
 	ui->buildingsTree->setModel(&buildingsModel);
 

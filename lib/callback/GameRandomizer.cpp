@@ -12,15 +12,15 @@
 
 #include "IGameInfoCallback.h"
 
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/GameLibrary.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/CSkillHandler.h"
-#include "../../lib/IGameSettings.h"
-#include "../../lib/entities/artifact/CArtHandler.h"
-#include "../../lib/entities/artifact/EArtifactClass.h"
-#include "../../lib/entities/hero/CHeroClass.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../CRandomGenerator.h"
+#include "../GameLibrary.h"
+#include "../CCreatureHandler.h"
+#include "../CSkillHandler.h"
+#include "../IGameSettings.h"
+#include "../entities/artifact/CArtHandler.h"
+#include "../entities/artifact/EArtifactClass.h"
+#include "../entities/hero/CHeroClass.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -264,37 +264,30 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
 
-	auto getObligatorySkills = [](CSkill::Obligatory obl)
+	auto getObligatorySkills = [&options](bool magicSchools)
 	{
 		std::set<SecondarySkill> obligatory;
-		for(auto i = 0; i < LIBRARY->skillh->size(); i++)
-			if((*LIBRARY->skillh)[SecondarySkill(i)]->obligatory(obl))
-				obligatory.insert(i); //Always return all obligatory skills
+		for(const auto option : options)
+			if(magicSchools ? option.toSkill()->isSpellSchool() : option.toSkill()->isWisdom())
+				obligatory.insert(option); //Always return all obligatory skills
 
 		return obligatory;
 	};
 
-	auto intersect = [](const std::set<SecondarySkill> & left, const std::set<SecondarySkill> & right)
-	{
-		std::set<SecondarySkill> intersection;
-		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(), std::inserter(intersection, intersection.begin()));
-		return intersection;
-	};
-
-	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);
-	std::set<SecondarySkill> schoolList = getObligatorySkills(CSkill::Obligatory::MINOR);
+	std::set<SecondarySkill> wisdomList = getObligatorySkills(true);
+	std::set<SecondarySkill> schoolList = getObligatorySkills(false);
 
 	bool wantsWisdom = heroRng.wisdomCounter >= hero->maxlevelsToWisdom();
 	bool wantsSchool = heroRng.magicSchoolCounter >= hero->maxlevelsToMagicSchool();
-	bool selectWisdom = wantsWisdom && !intersect(options, wisdomList).empty();
-	bool selectSchool = wantsSchool && !intersect(options, schoolList).empty();
+	bool selectWisdom = wantsWisdom && !wisdomList.empty();
+	bool selectSchool = wantsSchool && !schoolList.empty();
 
 	std::set<SecondarySkill> actualCandidates;
 
 	if(selectWisdom)
-		actualCandidates = intersect(options, wisdomList);
+		actualCandidates = wisdomList;
 	else if(selectSchool)
-		actualCandidates = intersect(options, schoolList);
+		actualCandidates = schoolList;
 	else
 		actualCandidates = options;
 
@@ -318,9 +311,9 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 	int selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, heroRng.seed);
 	SecondarySkill selectedSkill = skills.at(selectedIndex);
 
-	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MAJOR))
+	if((*LIBRARY->skillh)[selectedSkill]->isWisdom())
 		heroRng.wisdomCounter = 0;
-	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MINOR))
+	if((*LIBRARY->skillh)[selectedSkill]->isSpellSchool())
 		heroRng.magicSchoolCounter = 0;
 
 	return selectedSkill;

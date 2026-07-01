@@ -175,7 +175,7 @@
 	"manaVortex": {
 		"configuration" : {
 			"resetParameters" : {
-				"period" : 7,
+				"weeks" : 1,
 				"visitors" : true
 			},
 			"visitMode" : "hero", // Should be 'once' to match (somewhat buggy) H3 logic

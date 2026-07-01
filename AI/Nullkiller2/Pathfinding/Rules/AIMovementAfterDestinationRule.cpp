@@ -331,6 +331,8 @@ namespace AIPathfinding
 
 		if(loss < actualArmyValue)
 		{
+			battleNode->specialAction = nullptr;
+
 			if(destNode->specialAction)
 			{
 				battleNode->specialAction = destNode->specialAction;

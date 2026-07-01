@@ -12,7 +12,7 @@
 
 #include "SummonBoatEffect.h"
 
-#include "../CSpellHandler.h"
+#include "../CSpell.h"
 
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/MiscObjects.h"
@@ -55,7 +55,7 @@ bool SummonBoatEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoC
 	if(caster->getHeroCaster()->inBoat())
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.333");
-		caster->getCasterName(message);
+		message.replaceTextID(caster->getCasterNameTextID());
 		problem.add(std::move(message));
 		return false;
 	}
@@ -65,7 +65,7 @@ bool SummonBoatEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoC
 	if(summonPos.x < 0)
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.334");
-		caster->getCasterName(message);
+		message.replaceTextID(caster->getCasterNameTextID());
 		problem.add(std::move(message));
 		return false;
 	}
@@ -81,7 +81,7 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
 		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
-		parameters.caster->getCasterName(iw.text);
+		iw.text.replaceTextID(parameters.caster->getCasterNameTextID());
 		env->apply(iw);
 		return ESpellCastResult::OK;
 	}

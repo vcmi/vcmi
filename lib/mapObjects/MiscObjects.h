@@ -383,7 +383,8 @@ protected:
 
 public:
 	using CGObjectInstance::CGObjectInstance;
-
+	EPathfindingLayer getBoatLayer() const override;
+	void getBoatCost(ResourceSet & cost) const override;
 	template<typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

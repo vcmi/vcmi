@@ -269,7 +269,19 @@
 		"blockDescriptionPropagation": true
 	},
 
+	"LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE":
+	{
+		"hidden": true,
+		"blockDescriptionPropagation": true
+	},
+
 	"LEARN_BATTLE_SPELL_LEVEL_LIMIT":
+	{
+		"hidden": true,
+		"blockDescriptionPropagation": true
+	},
+
+	"LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE":
 	{
 		"hidden": true,
 		"blockDescriptionPropagation": true
@@ -562,6 +574,11 @@
 	{
 		"blockDescriptionPropagation": true
 	},
+
+	"SURRENDER_MARKETPLACE_ACCESS":
+	{
+		"blockDescriptionPropagation": true
+	},
 	
 	"DEITYOFFIRE":
 	{
@@ -618,5 +635,73 @@
 	{
 		"hidden": true,
 		"blockDescriptionPropagation": true
-	}
+	},
+
+	"SPECIAL_PECULIAR_ENCHANT":
+	{
+	},
+
+	"SPECIAL_ADD_VALUE_ENCHANT":
+	{
+	},
+
+	"SPECIAL_FIXED_VALUE_ENCHANT":
+	{
+	},
+
+	"ACID_BREATH" : {},
+	"ALWAYS_MINIMUM_DAMAGE" : {},
+	"ATTACKS_NEAREST_CREATURE" : {},
+	"BLOCK_ALL_MAGIC" : {},
+	"BLOCK_MAGIC_ABOVE" : {},
+	"BLOCK_MAGIC_BELOW" : {},
+	"BONUS_DAMAGE_CHANCE" : {},
+	"BONUS_DAMAGE_PERCENTAGE" : {},
+	"CASTS" : {},
+	"CREATURE_DAMAGE" : {},
+	"CREATURE_ENCHANT_POWER" : {},
+	"CREATURE_SPELL_POWER" : {},
+	"FORGETFULL" : {},
+	"GENERAL_ATTACK_REDUCTION" : {},
+	"GENERAL_DAMAGE_PREMY" : {},
+	"HATES_TRAIT" : {},
+	"HERO_GRANTS_ATTACKS" : {},
+	"HYPNOTIZED" : {},
+	"IN_FRENZY" : {},
+	"MANA_REGENERATION" : {},
+	"MANUAL_CONTROL" : {},
+	"MAX_LUCK" : {},
+	"MAX_MORALE" : {},
+	"MULTIHEX_ANIMATION" : {},
+	"MULTIHEX_ENEMY_ATTACK" : {},
+	"MULTIHEX_UNIT_ATTACK" : {},
+	"NEGATE_ALL_NATURAL_IMMUNITIES" : {},
+	"NO_LUCK" : {},
+	"NO_RETALIATION" : {},
+	"NO_SPELLCAST_BY_DEFAULT" : {},
+	"NONEVIL_ALIGNMENT_MIX" : {},
+	"NOT_ACTIVE" : {},
+	"ON_COMBAT_EVENT" : {},
+	"POISON" : {},
+	"SHOTS" : {},
+	"SLAYER" : {},
+	"SPECIAL_CRYSTAL_GENERATION" : {},
+	"SPECIAL_SPELL_LEV" : {},
+	"SPECIAL_UPGRADE" : {},
+	"SPECIFIC_SPELL_DAMAGE" : {},
+	"SPECIFIC_SPELL_POWER" : {},
+	"SPECIFIC_SPELL_RANGE" : {},
+	"SPELL" : {},
+	"SPELL_CAST_COUNTER" : {},
+	"SPELL_DAMAGE" : {},
+	"SPELL_DURATION" : {},
+	"SPELLS_OF_LEVEL" : {},
+	"SPELLS_OF_SCHOOL" : {},
+	"STACK_EXPERIENCE_GAIN_PERCENT" : {},
+	"STACK_HEALTH" : {},
+	"STACKS_SPEED" : {},
+	"TERRAIN_NATIVE" : {},
+	"UNIT_DEFENDING" : {},
+	"UNLIMITED_MOVEMENT" : {},
+	"WHIRLPOOL_PROTECTION" : {}
 }

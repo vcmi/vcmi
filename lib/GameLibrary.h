@@ -45,36 +45,38 @@ class MapFormatSettings;
 class CampaignRegionsHandler;
 class MapLayerTypeHandler;
 
-#if SCRIPTING_ENABLED
-namespace scripting
+namespace spells::effects
 {
-	class ScriptHandler;
+	class SpellEffectHandler;
 }
-#endif
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
 {
 public:
+	enum class GameDataMode
+	{
+		SOD,
+		ROE,
+		DEMO_SOD,
+		DEMO_ROE
+	};
+
 	const ArtifactService * artifacts() const override;
 	const CreatureService * creatures() const override;
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
 	const ResourceTypeService * resources() const override;
-#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
-#endif
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
 	const ObstacleService * obstacles() const override;
 	const IGameSettings * engineSettings() const override;
-
-	const spells::effects::Registry * spellEffects() const override;
-	spells::effects::Registry * spellEffects() override;
-
-	const IBonusTypeHandler * getBth() const; //deprecated
+	const spells::effects::SpellEffectService * spellEffects() const override;
+	const spells::SchoolService * spellSchools() const override;
+	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 
 	std::unique_ptr<CArtHandler> arth;
@@ -84,6 +86,7 @@ public:
 	std::unique_ptr<CCreatureHandler> creh;
 	std::unique_ptr<CSpellHandler> spellh;
 	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
+	std::unique_ptr<spells::effects::SpellEffectHandler> spellEffectHandler;
 	std::unique_ptr<CSkillHandler> skillh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;
@@ -103,10 +106,7 @@ public:
 	std::unique_ptr<MapFormatSettings> mapFormat;
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
-
-#if SCRIPTING_ENABLED
-	std::unique_ptr<scripting::ScriptHandler> scriptHandler;
-#endif
+	std::unique_ptr<scripting::Service> scriptHandler;
 
 	GameLibrary();
 	~GameLibrary();
@@ -117,15 +117,21 @@ public:
 	/// Loads all game entities
 	void initializeLibrary();
 
+	/// Returns current game data mode
+	GameDataMode getGameDataMode() const;
+
+	/// Returns true if game is running with RoE data files (either full or demo)
+	bool isRoeData() const;
+
+	/// Returns true if game is running with demo data files
+	bool isDemoData() const;
+
+	GameDataMode gameDataMode = GameDataMode::SOD;
 	// basic initialization. should be called before init(). Can also extract original H3 archives
 	void loadFilesystem(bool extractArchives);
 
 	// loads filesystems of all mods
 	void loadModFilesystem();
-
-#if SCRIPTING_ENABLED
-	void scriptsLoaded();
-#endif
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;

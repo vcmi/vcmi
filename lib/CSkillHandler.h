@@ -12,7 +12,7 @@
 #include <vcmi/Skill.h>
 #include <vcmi/SkillService.h>
 
-#include "../lib/bonuses/Bonus.h"
+#include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
@@ -42,7 +42,7 @@ private:
 	std::string identifier;
 
 public:
-	CSkill(const SecondarySkill & id = SecondarySkill::NONE, std::string identifier = "default", bool obligatoryMajor = false, bool obligatoryMinor = false);
+	CSkill(const SecondarySkill & id = SecondarySkill::NONE, std::string identifier = "default");
 	~CSkill() = default;
 
 	enum class Obligatory : ui8
@@ -68,25 +68,22 @@ public:
 	LevelInfo & at(int level);
 
 	std::string toString() const;
-	bool obligatory(Obligatory val) const { return val == Obligatory::MAJOR ? obligatoryMajor : obligatoryMinor; };
+	bool isWisdom() const;
+	bool isSpellSchool() const;
+	bool isSpecial() const;
+	bool isOnlyOnWaterMap() const;
+	bool hasTag(const std::string & tag) const;
 
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 
 	/// Bonuses that should be given to hero that specializes in this skill
 	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;
 
-	void updateFrom(const JsonNode & data);
-	void serializeJson(JsonSerializeFormat & handler);
-
-	bool onlyOnWaterMap;
-	bool special;
-
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 private:
-	bool obligatoryMajor;
-	bool obligatoryMinor;
+	std::vector<std::string> tags;
 };
 
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSkill, SkillService>

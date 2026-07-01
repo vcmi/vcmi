@@ -20,7 +20,7 @@ class IGameInfoCallbackMock : public IGameInfoCallback
 {
 public:
 	//various
-	MOCK_CONST_METHOD1(getDate, int(Date));
+	MOCK_CONST_METHOD0(getCalendar, Calendar());
 	MOCK_CONST_METHOD0(getStartInfo, const StartInfo *());
 	MOCK_CONST_METHOD0(getMapHeader, const CMapHeader *());
 	MOCK_CONST_METHOD0(getMapSize, int3());
@@ -37,15 +37,15 @@ public:
 
 	//hero
 	MOCK_CONST_METHOD1(getHero, const CGHeroInstance *(ObjectInstanceID));
-	MOCK_CONST_METHOD1(getHeroWithSubid, const CGHeroInstance *(int));
 
 	//objects
 	MOCK_CONST_METHOD2(getObj, const CGObjectInstance *(ObjectInstanceID, bool));
 	MOCK_CONST_METHOD2(getVisitableObjs, std::vector<const CGObjectInstance*>(int3, bool));
 
-	CGameState & gameState() { throw std::runtime_error("not implemented");}
-	const CGameState & gameState() const { throw std::runtime_error("not implemented");}
-	const IGameSettings & getSettings() const { throw std::runtime_error("not implemented");}
+	const scripting::Pool & getScriptContextPool() const override { throw std::runtime_error("not implemented");}
+	CGameState & gameState() override { throw std::runtime_error("not implemented");}
+	const CGameState & gameState() const override { throw std::runtime_error("not implemented");}
+	const IGameSettings & getSettings() const override { throw std::runtime_error("not implemented");}
 
 	MOCK_CONST_METHOD2(isVisibleFor, bool(int3 pos, PlayerColor player));
 	MOCK_CONST_METHOD2(isVisibleFor, bool(const CGObjectInstance * obj, PlayerColor player));
@@ -82,7 +82,5 @@ public:
 
 	MOCK_METHOD2(pickAllowedArtsSet, void(std::vector<ArtifactID> & out, vstd::RNG & rand));
 
-#if SCRIPTING_ENABLED
 	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
-#endif
 };

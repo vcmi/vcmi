@@ -18,7 +18,6 @@
 #include "../callback/IGameEventCallback.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
-#include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"

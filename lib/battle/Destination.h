@@ -11,6 +11,7 @@
 #pragma once
 
 #include "BattleHex.h"
+#include "vcmi/scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +20,7 @@ namespace battle
 
 class Unit;
 
-class DLL_LINKAGE Destination
+class DLL_LINKAGE Destination : public scripting::ApiSerializable<Destination>
 {
 public:
 	Destination();
@@ -34,6 +35,13 @@ public:
 
 	const Unit * unitValue;
 	BattleHex hexValue;
+
+	template<typename Serializer>
+	void serializeScript(Serializer & s)
+	{
+		s("unit", unitValue, "Targeted unit, or null for location targets.");
+		s("hex",  hexValue,  "Targeted battlefield hex (also set for unit targets — equal to the unit's position).");
+	}
 };
 
 using Target = std::vector<Destination>;

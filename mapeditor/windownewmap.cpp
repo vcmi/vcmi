@@ -16,6 +16,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/JsonSerializer.h"
@@ -24,6 +25,7 @@
 #include "../vcmiqt/launcherdirs.h"
 #include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
+#include "helper.h"
 #include "ui_windownewmap.h"
 #include "mainwindow.h"
 #include "generatorprogress.h"
@@ -34,7 +36,7 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	Helper::decorateDialog(this);
 
 	setAttribute(Qt::WA_DeleteOnClose);
 
@@ -107,6 +109,7 @@ bool WindowNewMap::loadUserSettings()
 	if (settings.isValid())
 	{
 		auto node = JsonUtils::toJson(settings);
+		node.setModScope(ModScope::scopeMap());
 		JsonDeserializer handler(nullptr, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
 		templ = mapGenOptions.getMapTemplate(); // Remember for later
@@ -189,6 +192,7 @@ void WindowNewMap::saveUserSettings()
 	JsonSerializer ser(nullptr, data);
 
 	ser.serializeStruct("lastSettings", mapGenOptions);
+	data.setModScope(ModScope::scopeMap());
 
 	auto variant = JsonUtils::toVariant(data);
 	s.setValue(newMapWindow, variant);
@@ -201,7 +205,7 @@ void WindowNewMap::on_cancelButton_clicked()
 	close();
 }
 
-void generateRandomMap(CMapGenerator & gen, MainWindow * window)
+void generateRandomMap(CMapGenerator & gen, EditorMainWindow * window)
 {
 	window->controller.setMap(gen.generate());
 }
@@ -284,7 +288,7 @@ void WindowNewMap::on_okButton_clicked()
 	saveUserSettings();
 
 	std::unique_ptr<CMap> nmap;
-	auto & mapController = static_cast<MainWindow *>(parent())->controller;
+	auto & mapController = static_cast<EditorMainWindow *>(parent())->controller;
 
 	if(ui->randomMapCheck->isChecked())
 	{
@@ -324,7 +328,7 @@ void WindowNewMap::on_okButton_clicked()
 	
 	nmap->mods = MapController::modAssessmentMap(*nmap);
 	mapController.setMap(std::move(nmap));
-	static_cast<MainWindow *>(parent())->initializeMap(true);
+	static_cast<EditorMainWindow *>(parent())->initializeMap(true);
 	close();
 }
 

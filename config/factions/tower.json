@@ -2,7 +2,7 @@
 	"tower" :
 	{
 		"index" : 2,
-		"nativeTerrain" : "snow",
+		"nativeTerrain" : [ "snow" ],
 		"alignment" : "good",
 		"creatureBackground" :
 		{

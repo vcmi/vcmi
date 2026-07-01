@@ -380,42 +380,40 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 		bool useTransit = nextNode.layer == EPathfindingLayer::AIR || nextNode.layer == EPathfindingLayer::WATER;
 		int3 nextCoord = h->convertFromVisitablePos(nextNode.coord);
 
-		GAME->interface()->cb->moveHero(h, nextCoord, useTransit);
+		GAME->interface()->cb->moveHero(h, nextCoord, useTransit, nextNode.layer);
 		return;
 	}
 
-	bool useTransitAtStart = path.nextNode().layer == EPathfindingLayer::AIR || path.nextNode().layer == EPathfindingLayer::WATER;
+	EPathfindingLayer currentLayer = path.nextNode().layer;
+	bool useTransit = currentLayer == EPathfindingLayer::AIR || currentLayer == EPathfindingLayer::WATER;
 	std::vector<int3> pathToMove;
 
 	for (auto const & node : boost::adaptors::reverse(path.nodes))
 	{
-		if (node.coord == h->visitablePos())
-			continue; // first node, ignore - this is hero current position
+			if (node.coord == h->visitablePos())
+				continue; // first node, ignore - this is hero current position
+			if (node.isTeleportAction())
+				break; // pause after monolith / subterra gates
+			if (node.turns != 0)
+				break; // ran out of move points
 
-		if(node.isTeleportAction())
-			break; // pause after monolith / subterra gates
+			if (node.layer != currentLayer)
+				break;  // layer changed, end this movement batch
 
-		if (node.turns != 0)
-			break; // ran out of move points
+			int3 coord = h->convertFromVisitablePos(node.coord);
+			pathToMove.push_back(coord);
 
-		bool useTransitHere = node.layer == EPathfindingLayer::AIR || node.layer == EPathfindingLayer::WATER;
-		if (useTransitHere != useTransitAtStart)
-			break;
+			if (GAME->interface()->cb->guardingCreaturePosition(node.coord) != int3(-1, -1, -1))
+				break; // we reached zone-of-control of wandering monster
 
-		int3 coord = h->convertFromVisitablePos(node.coord);
-		pathToMove.push_back(coord);
-
-		if (GAME->interface()->cb->guardingCreaturePosition(node.coord) != int3(-1, -1, -1))
-			break; // we reached zone-of-control of wandering monster
-
-		if (!GAME->interface()->cb->getVisitableObjs(node.coord).empty())
-			break; // we reached event, garrison or some other visitable object - end this movement batch
+			if (!GAME->interface()->cb->getVisitableObjs(node.coord).empty())
+				break; // we reached event, garrison or some other visitable object - end this movement batch
 	}
 
 	assert(!pathToMove.empty());
 	if (!pathToMove.empty())
 	{
 		updateMovementSound(h, currNode.coord, nextNode.coord, nextNode.action);
-		GAME->interface()->cb->moveHero(h, pathToMove, useTransitAtStart);
+		GAME->interface()->cb->moveHero(h, pathToMove, useTransit, currentLayer);
 	}
 }

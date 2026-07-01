@@ -284,7 +284,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo,
 		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
-	if(developmentInfo.built.size() >= 2 && cc->getDate(Date::DAY_OF_WEEK) > 4)
+	if(developmentInfo.built.size() >= 2 && cc->getCalendar().getDayOfWeek() > cc->getCalendar().getDaysInWeek() / 2)
 	{
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});

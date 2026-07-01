@@ -35,41 +35,33 @@ std::vector<JsonNode> SpellSchoolHandler::loadLegacyData()
 	return std::vector<JsonNode>(4, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadObjectImpl(std::string scope, std::string name, const JsonNode & data, size_t index)
+std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	auto ret = std::make_shared<spells::SpellSchoolType>();
 
 	ret->id = SpellSchool(index);
 	ret->modScope = scope;
-	ret->identifier = name;
-	ret->spellBordersPath = AnimationPath::fromJson(data["schoolBorders"]);
-	ret->schoolBookmarkPath = AnimationPath::fromJson(data["schoolBookmark"]);
-	ret->schoolHeaderPath = ImagePath::fromJson(data["schoolHeader"]);
+	ret->identifier = identifier;
+	ret->spellBordersPath = AnimationPath::fromJson(json["schoolBorders"]);
+	ret->schoolBookmarkPath = AnimationPath::fromJson(json["schoolBookmark"]);
+	ret->schoolHeaderPath = ImagePath::fromJson(json["schoolHeader"]);
 
-	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), data["name"]);
+	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }
 
-/// loads single object into game. Scope is namespace of this object, same as name of source mod
-void SpellSchoolHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+const std::vector<std::string> & SpellSchoolHandler::getTypeNames() const
 {
-	objects.push_back(loadObjectImpl(scope, name, data, objects.size()));
-	registerObject(scope, "spellSchool", name, data, objects.back()->getIndex());
-}
-
-void SpellSchoolHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
-{
-	assert(objects[index] == nullptr); // ensure that this id was not loaded before
-	objects[index] = loadObjectImpl(scope, name, data, index);
-	registerObject(scope, "spellSchool", name, data, objects[index]->getIndex());
+	static const std::vector<std::string> names = {"spellSchool"};
+	return names;
 }
 
 std::vector<SpellSchool> SpellSchoolHandler::getAllObjects() const
 {
 	std::vector<SpellSchool> result;
 
-	for (const auto & school : objects)
+	for(const auto & school : objects)
 		result.push_back(school->id);
 
 	return result;

@@ -64,6 +64,7 @@ public:
 	void visitNewStructures(NewStructures & pack) override;
 	void visitRazeStructures(RazeStructures & pack) override;
 	void visitSetAvailableCreatures(SetAvailableCreatures & pack) override;
+	void visitChangeSpells(ChangeSpells & pack) override;
 	void visitSetHeroesInTown(SetHeroesInTown & pack) override;
 	void visitHeroRecruited(HeroRecruited & pack) override;
 	void visitGiveHero(GiveHero & pack) override;

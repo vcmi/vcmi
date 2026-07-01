@@ -11,10 +11,11 @@
 
 #include "Bonus.h"
 #include "BonusSelector.h"
+#include <vcmi/scripting/ApiTags.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE BonusList
+class DLL_LINKAGE BonusList : public scripting::ApiCopyable<BonusList>
 {
 public:
 	using TInternalContainer = boost::container::small_vector<std::shared_ptr<Bonus>, 16>;
@@ -39,8 +40,8 @@ public:
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, const std::shared_ptr<Bonus> & c = nullptr);
 	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
-	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
-	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
+	inline std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
+	inline const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
 	std::shared_ptr<Bonus> &back() { return bonuses.back(); }
 	std::shared_ptr<Bonus> &front() { return bonuses.front(); }
 	const std::shared_ptr<Bonus> &back() const { return bonuses.back(); }

@@ -16,6 +16,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
+class CGTownInstance;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -65,7 +66,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	/// functions for handling actions after they were confirmed by popup window
 	void reallyFlee();
-	void reallySurrender();
+	void reallySurrender(bool allowMarketplaceOffer = true, bool marketplaceSaleFailed = false);
+	void offerMarketplaceForSurrender();
+	bool canOfferMarketplaceForSurrender() const;
+	const CGTownInstance * findTownWithMarketplace() const;
 	
 	void useSpellIfPossible(int slot);
 

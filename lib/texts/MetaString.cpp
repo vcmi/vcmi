@@ -21,8 +21,9 @@
 #include "GameLibrary.h"
 #include "mapObjects/army/CStackBasicDescriptor.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "spells/CSpellHandler.h"
 #include "serializer/JsonSerializeFormat.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

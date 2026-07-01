@@ -8,16 +8,16 @@
 *
 */
 #include "StdInc.h"
-#include "ExplorationBehavior.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../Goals/Invalid.h"
+#include "../Goals/CaptureObject.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../Markers/ExplorationPoint.h"
-#include "../Goals/CaptureObject.h"
 #include "../Goals/ExploreNeighbourTile.h"
+#include "../Goals/Invalid.h"
 #include "../Helpers/ExplorationHelper.h"
+#include "../Markers/ExplorationPoint.h"
+#include "ExplorationBehavior.h"
 
 namespace NK2AI
 {
@@ -33,19 +33,19 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	for (const ObjectInstanceID objId : aiNk->memory->visitableObjs)
+	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
 		const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
 		if(!obj)
 			continue;
 
-		switch (obj->ID.num)
+		switch(obj->ID.num)
 		{
 			case Obj::REDWOOD_OBSERVATORY:
 			case Obj::PILLAR_OF_FIRE:
 			{
-				auto rObj = dynamic_cast<const CRewardableObject*>(obj);
-				if (!rObj->wasScouted(aiNk->playerID))
+				auto rObj = dynamic_cast<const CRewardableObject *>(obj);
+				if(!rObj->wasScouted(aiNk->playerID))
 					tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 200)).addNext(CaptureObject(obj))));
 				break;
 			}
@@ -54,16 +54,22 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			case Obj::SUBTERRANEAN_GATE:
 			case Obj::WHIRLPOOL:
 			{
-				const auto tObj = dynamic_cast<const CGTeleport*>(obj);
-				for (auto exit : aiNk->cc->getTeleportChannelExits(tObj->channel))
+				const auto tObj = dynamic_cast<const CGTeleport *>(obj);
+				for(auto exit : aiNk->cc->getTeleportChannelExits(tObj->channel))
 				{
-					if (exit != tObj->id)
+					if(exit != tObj->id)
 					{
-						// TODO: Mircea: Looks like a bug. Should use isVisibleFor with aiNk->playerID
-						if (!aiNk->cc->isVisible(aiNk->cc->getObjInstance(exit)))
+						const CGObjectInstance * exitObj = aiNk->cc->getObjInstance(exit);
+
+						// Please check for visible tile and not the visible object due to possible partial visibility
+						// checking the object itself might incorrectly abort the exploration of the fog behind it
+						if(exitObj && !aiNk->cc->isVisible(exitObj->visitablePos()))
+						{
 							tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
+						}
 					}
 				}
+				break;
 			}
 		}
 	}

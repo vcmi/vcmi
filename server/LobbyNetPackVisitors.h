@@ -48,6 +48,7 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
@@ -68,6 +69,7 @@ public:
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
@@ -110,6 +112,7 @@ public:
 	void visitLobbySetSimturns(LobbySetSimturns & pack) override;
 	void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
 	void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
 };

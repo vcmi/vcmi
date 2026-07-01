@@ -68,7 +68,7 @@
 		},
 		"modType" : {
 			"type" : "string",
-			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources" ],
+			"enum" : [ "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources", "Demo" ],
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
@@ -179,7 +179,7 @@
 		"language" : {
 			"type" : "string",
 			"description" : "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "dutch", "english", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "english", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
 		},
 		"belarusian" : {
 			"$ref" : "#/definitions/localizable"
@@ -191,6 +191,9 @@
 			"$ref" : "#/definitions/localizable"
 		},
 		"chinese" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"tchinese" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"dutch" : {
@@ -298,6 +301,10 @@
 			"description" : "List of configuration files for spell schools",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"spellEffects" : {
+			"description" : "List of configuration files for spell effects",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"spells" : {
 			"description" : "List of configuration files for spells",
 			"$ref" : "#/definitions/fileListOrObject"
@@ -344,10 +351,6 @@
 		},
 		"templates" : {
 			"description" : "List of configuration files for RMG templates",
-			"$ref" : "#/definitions/fileListOrObject"
-		},
-		"scripts" : {
-			"description" : "List of configuration files for scripts",
 			"$ref" : "#/definitions/fileListOrObject"
 		}
 	}

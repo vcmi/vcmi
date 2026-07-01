@@ -13,8 +13,8 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../render/Canvas.h"
-#include "../../widgets/Slider.h"
-#include "../../widgets/TextControls.h"
+#include "../Slider.h"
+#include "../TextControls.h"
 #include "../../windows/InfoWindows.h"
 
 #include "../../CPlayerInterface.h"
@@ -268,6 +268,14 @@ ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & click
 	OBJECT_CONSTRUCTION;
 
 	resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
+
+	const auto goldIt = std::find(resourcesForTrade.begin(), resourcesForTrade.end(), GameResID::GOLD);
+	if(goldIt != resourcesForTrade.end())
+	{
+		const auto gold = *goldIt;
+		resourcesForTrade.erase(goldIt);
+		resourcesForTrade.push_back(gold);
+	}
 
 	int lines = vstd::divideAndCeil(resourcesForTrade.size(), 3);
 	if(lines > 3)

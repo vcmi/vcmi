@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Metatype.h"
+#include "scripting/ApiTags.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -29,21 +30,20 @@ class IGameSettings;
 namespace spells
 {
 	class Service;
+	class SchoolService;
 
 	namespace effects
 	{
-		class Registry;
+		class SpellEffectService;
 	}
 }
 
-#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Service;
 }
-#endif
 
-class DLL_LINKAGE Services
+class DLL_LINKAGE Services : public scripting::ApiRawPointer<Services>
 {
 public:
 	virtual ~Services() = default;
@@ -54,18 +54,14 @@ public:
 	virtual const HeroClassService * heroClasses() const = 0;
 	virtual const HeroTypeService * heroTypes() const = 0;
 	virtual const ResourceTypeService * resources() const = 0;
-#if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
-#endif
 	virtual const spells::Service * spells() const = 0;
 	virtual const SkillService * skills() const = 0;
 	virtual const BattleFieldService * battlefields() const = 0;
 	virtual const ObstacleService * obstacles() const = 0;
 	virtual const IGameSettings * engineSettings() const = 0;
-
-	virtual const spells::effects::Registry * spellEffects() const = 0;
-	virtual spells::effects::Registry * spellEffects() = 0;
-	//TODO: put map object types registry access here
+	virtual const spells::effects::SpellEffectService * spellEffects() const = 0;
+	virtual const spells::SchoolService * spellSchools() const = 0;
 };
 
 VCMI_LIB_NAMESPACE_END

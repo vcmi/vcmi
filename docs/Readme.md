@@ -1,4 +1,4 @@
-# VCMI Project
+# VCMI - Open Heroes 3
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.1)
@@ -107,4 +107,4 @@ Engine documentation: (NOTE: may be outdated)
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: <https://github.com/vcmi/vcmi-assets>
 
-Copyright (C) 2007-2025  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2026  VCMI Team (check AUTHORS file for the contributors list)

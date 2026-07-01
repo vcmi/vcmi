@@ -39,7 +39,6 @@ namespace NK2AI
 		bool useOneWayMonoliths;
 		bool updateHitmapOnTileReveal;
 		bool openMap;
-		bool useFuzzy;
 
 	public:
 		explicit Settings(int difficultyLevel);
@@ -63,6 +62,5 @@ namespace NK2AI
 		bool isOneWayMonolithUsageAllowed() const { return useOneWayMonoliths; }
 		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
-		bool isUseFuzzy() const { return useFuzzy; }
 	};
 }

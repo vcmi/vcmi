@@ -11,7 +11,6 @@
 #pragma once
 
 #include "../../../lib/spells/effects/Effect.h"
-#include "../../../lib/spells/effects/Registry.h"
 
 #include "../../mock/mock_spells_Mechanics.h"
 #include "../../mock/mock_spells_Problem.h"
@@ -25,15 +24,18 @@
 #include "../../mock/mock_BonusBearer.h"
 #include "../../mock/mock_battle_IBattleState.h"
 #include "../../mock/mock_battle_Unit.h"
+#include "../../mock/mock_Services.h"
 #include "../../mock/mock_vstd_RNG.h"
-#if SCRIPTING_ENABLED
+#include "mock/mock_vstd_CLoggerBase.h"
 #include "../../mock/mock_scripting_Pool.h"
-#endif
+#include "../../mock/mock_Environment.h"
 #include "../../mock/BattleFake.h"
 #include "../../mock/mock_ServerCallback.h"
 
-
 #include "../../../lib/battle/CBattleInfoCallback.h"
+#include "../../../luascript/LuaScriptPool.h"
+
+#include <vcmi/events/EventBus.h>
 
 namespace battle
 {
@@ -48,9 +50,7 @@ namespace test
 using namespace ::testing;
 using namespace ::spells;
 using namespace ::spells::effects;
-#if SCRIPTING_ENABLED
 using namespace ::scripting;
-#endif
 
 class EffectFixture
 {
@@ -63,13 +63,16 @@ public:
 	StrictMock<SpellServiceMock> spellServiceMock;
 	StrictMock<SpellMock> spellStub;
 	StrictMock<IGameInfoCallbackMock> gameMock;
+	StrictMock<EnvironmentMock> environmentMock;
+	LoggerMock loggerMock;
+	events::EventBus eventBus;
+	StrictMock<ServicesMock> servicesMock;
 	vstd::RNGMock rngMock;
 
 	battle::UnitsFake unitsFake;
 
-#if SCRIPTING_ENABLED
-	std::shared_ptr<PoolMock> pool;
-#endif
+	std::shared_ptr<LuaModule> luaModule;
+	std::unique_ptr<scripting::Pool> pool;
 	std::shared_ptr<battle::BattleFake> battleFake;
 
 	StrictMock<ServerCallbackMock> serverMock;
@@ -80,7 +83,6 @@ public:
 	virtual ~EffectFixture();
 
 	void setupEffect(const JsonNode & effectConfig);
-	void setupEffect(Registry * registry, const JsonNode & effectConfig);
 
 	void setupDefaultRNG();
 

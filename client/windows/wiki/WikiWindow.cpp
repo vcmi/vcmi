@@ -19,6 +19,8 @@
 #include "../../gui/Shortcut.h"
 #include "../../gui/WindowHandler.h"
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
+#include "../../mapView/mapHandler.h"
 #include "../../widgets/Buttons.h"
 #include "../../widgets/CViewport.h"
 #include "../../widgets/GraphicalPrimitiveCanvas.h"
@@ -52,6 +54,10 @@
 #include "../../../lib/json/JsonNode.h"
 #include "../../../lib/CConfigHandler.h"
 #include "../../../lib/json/JsonUtils.h"
+#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapping/MapFeaturesH3M.h"
+#include "../../../lib/mapping/MapFormat.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 
 // ============================================================================
 // Built-in category string-id → WikiCategory mapping
@@ -315,6 +321,9 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 {
 	OBJECT_CONSTRUCTION;
 
+
+    addUsedEvents(KEYBOARD);
+
 	// Resize and centre
 	pos = Rect(pos.x, pos.y, WIN_W, WIN_H);
 	if(style == Style::BLUE)
@@ -462,6 +471,21 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 		          [](const WikiEntry & a, const WikiEntry & b){ return a.name < b.name; });
 	}
 
+	// Expansion scopes for core entities based on when they were introduced
+	static const auto featROE = MapFormatFeaturesH3M::find(EMapFormat::ROE, 0);
+	static const auto featAB  = MapFormatFeaturesH3M::find(EMapFormat::AB,  0);
+	static const auto featSOD = MapFormatFeaturesH3M::find(EMapFormat::SOD, 0);
+
+	// Returns "core.roe", "core.ab", "core.sod" or the original modScope for non-core entities
+	auto coreExpansion = [&](const std::string & scope, int idx, int roe, int ab, int sod) -> std::string
+	{
+		if(scope != "core") return scope;
+		if(idx < roe) return "core.roe";
+		if(idx < ab)  return "core.ab";
+		if(idx < sod) return "core.sod";
+		return "core";
+	};
+
 	// Towns – playable factions that have a town (skip neutral / special)
 	{
 		const int iTown = static_cast<int>(WikiCategory::TOWN);
@@ -479,7 +503,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 			categoryEntries[iTown].push_back({
 				faction->getJsonKey(), faction->getNameTranslated(), "",
 				WikiIconInfo{ AnimationPath::builtin("ITPA"), static_cast<size_t>(faction->town->clientInfo.icons[1][0]) + 2, 0 },
-				faction->getModScope(),
+				coreExpansion(faction->getModScope(), faction->getId().getNum(), featROE.factionsCount, featAB.factionsCount, featSOD.factionsCount),
 				alignStr
 			});
 		}
@@ -487,17 +511,23 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 		          [](const WikiEntry & a, const WikiEntry & b){ return a.name < b.name; });
 	}
 
-	// Hero types – skip special (campaign-only) heroes
+	// Hero types – skip portrait only heroes
 	{
 		const int iHero = static_cast<int>(WikiCategory::HERO);
 		for(const auto & hero : LIBRARY->heroh->objects)
 		{
-			if(!hero || hero->special) continue;
+			if(!hero || hero->getNameTranslated().empty()) continue;
+			const auto * mapHero = findMapHero(hero->getId());
+			const auto name = (mapHero && !mapHero->nameCustomTextId.empty())
+				? mapHero->getNameTranslated() : hero->getNameTranslated();
+			const auto iconFrame = (mapHero && mapHero->customPortraitSource.isValid())
+				? (size_t)mapHero->getPortraitSource().toHeroType()->getIconIndex()
+				: (size_t)hero->getIconIndex();
 			const std::string heroClassName = hero->heroClass ? hero->heroClass->getNameTranslated() : "";
 			categoryEntries[iHero].push_back({
-				hero->getJsonKey(), hero->getNameTranslated(), "",
-				WikiIconInfo{ AnimationPath::builtin("PortraitsSmall"), static_cast<size_t>(hero->getIconIndex()), 0 },
-				hero->getModScope(),
+				hero->getJsonKey(), name, "",
+				WikiIconInfo{ AnimationPath::builtin("PortraitsSmall"), iconFrame, 0 },
+				coreExpansion(hero->getModScope(), hero->getId().getNum(), featROE.heroesCount, featAB.heroesCount, featSOD.heroesCount),
 				heroClassName
 			});
 		}
@@ -531,7 +561,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 				categoryEntries[iCreature].push_back({
 					creature->getJsonKey(), creature->getNameSingularTranslated(), "",
 					WikiIconInfo{ AnimationPath::builtin("CPRSMALL"), static_cast<size_t>(creature->getIconIndex()), 0 },
-					creature->getModScope(),
+					coreExpansion(creature->getModScope(), creature->getIndex(), featROE.creaturesCount, featAB.creaturesCount, featSOD.creaturesCount),
 					factionName
 				});
 			}
@@ -540,17 +570,17 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 		          [](const WikiEntry & a, const WikiEntry & b){ return a.name < b.name; });
 	}
 
-	// Artifacts – exclude "special" class
+	// Artifacts
 	{
 		const int iArtifact = static_cast<int>(WikiCategory::ARTIFACT);
 		for(const auto & artifact : LIBRARY->arth->objects)
-			if(artifact && artifact->aClass != EArtifactClass::ART_SPECIAL)
+			if(artifact)
 				categoryEntries[iArtifact].push_back({
 					artifact->getJsonKey(),
 					artifact->getNameTranslated(),
 					artifact->getDescriptionTranslated(),
 					WikiIconInfo{ AnimationPath::builtin("Artifact"), static_cast<size_t>(artifact->getIconIndex()), 0 },
-					artifact->getModScope(), ""
+					coreExpansion(artifact->getModScope(), artifact->getId().getNum(), featROE.artifactsCount, featAB.artifactsCount, featSOD.artifactsCount), ""
 				});
 		std::sort(categoryEntries[iArtifact].begin(), categoryEntries[iArtifact].end(),
 		          [](const WikiEntry & a, const WikiEntry & b){ return a.name < b.name; });
@@ -639,8 +669,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 				std::string nativeTowns;
 				for(const auto & faction : LIBRARY->townh->objects)
 				{
-					if(faction && faction->hasTown() && !faction->special
-						&& faction->getNativeTerrain() == terrain->getId())
+					if(faction && faction->hasTown() && !faction->special && faction->isNativeTerrain(terrain->getId()))
 					{
 						if(!nativeTowns.empty()) nativeTowns += ", ";
 						nativeTowns += faction->getNameTranslated();
@@ -842,6 +871,15 @@ WikiWindow::~WikiWindow()
 // ============================================================================
 // WikiWindow – helpers
 // ============================================================================
+
+const CGHeroInstance * WikiWindow::findMapHero(HeroTypeID id) const
+{
+	if(!GAME || !GAME->interface())
+		return nullptr;
+	if(const auto * map = GAME->map().getMap())
+		return map->getHero(id);
+	return nullptr;
+}
 
 void WikiWindow::applyScrollBounds()
 {
@@ -1067,7 +1105,13 @@ void WikiWindow::updateContent() // NOSONAR
 			if(showScope)
 			{
 				std::string displayName;
-				if(ms == "core")
+				if(ms == "core.roe")
+					displayName = LIBRARY->generaltexth->translate("vcmi.wiki.modName.core.roe");
+				else if(ms == "core.ab")
+					displayName = LIBRARY->generaltexth->translate("vcmi.wiki.modName.core.ab");
+				else if(ms == "core.sod")
+					displayName = LIBRARY->generaltexth->translate("vcmi.wiki.modName.core.sod");
+				else if(ms == "core")
 					displayName = LIBRARY->generaltexth->translate("vcmi.wiki.modName.core");
 				else
 				{
@@ -1295,6 +1339,9 @@ void WikiWindow::rebuildHeroViewport(const std::string & heroIdentifier)
 	if(!hero || !heroContentView)
 		return;
 
+	// Find CGHeroInstance on current map with matching hero type for custom name/bio/portrait
+	const auto * mapHero = findMapHero(hero->getId());
+
 	static constexpr int VP_W = COL3_W - 6;
 	static constexpr int VP_H = CONTENT_H - 6;
 
@@ -1314,7 +1361,7 @@ void WikiWindow::rebuildHeroViewport(const std::string & heroIdentifier)
 	};
 	{
 		auto moreWidgets = buildHeroContent(*heroContentView, hero,
-			VP_W - CViewport::SLIDER_W, isBlue, navCb);
+			VP_W - CViewport::SLIDER_W, isBlue, navCb, mapHero);
 		heroContentWidgets.insert(heroContentWidgets.end(), moreWidgets.begin(), moreWidgets.end());
 	}
 	heroContentView->fitContentSize();
@@ -1547,6 +1594,56 @@ void WikiWindow::rebuildMarkdownViewport(
 // ============================================================================
 // WikiWindow – event handlers
 // ============================================================================
+
+void WikiWindow::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::MOVE_LEFT)
+	{
+		if(activeElementIndex < 0)
+			return;
+		if(auto old = std::dynamic_pointer_cast<WikiListItem>(elementList->getItem(activeElementIndex)))
+			old->setSelected(false);
+		activeElementIndex = -1;
+		updateContent();
+		return;
+	}
+	if(key == EShortcut::MOVE_RIGHT)
+	{
+		if(activeElementIndex >= 0 || currentDisplayedEntries.empty())
+			return;
+		onElementClicked(0);
+		elementList->scrollTo(0);
+		if(auto item = std::dynamic_pointer_cast<WikiListItem>(elementList->getItem(0)))
+			item->setSelected(true);
+		return;
+	}
+
+	int moveBy = 0;
+	switch(key)
+	{
+	case EShortcut::MOVE_UP:   moveBy = -1; break;
+	case EShortcut::MOVE_DOWN: moveBy = +1; break;
+	default: return;
+	}
+
+	const bool inElements = activeElementIndex >= 0;
+	CListBox * list = inElements ? elementList.get() : categoryList.get();
+	int & activeIndex = inElements ? activeElementIndex : activeCategoryIndex;
+	const int total = inElements ? (int)currentDisplayedEntries.size() : (int)categoryNames.size();
+
+	const int newIndex = std::clamp(activeIndex + moveBy, 0, total - 1);
+	if(newIndex == activeIndex || total == 0)
+		return;
+	if(auto old = std::dynamic_pointer_cast<WikiListItem>(list->getItem(activeIndex)))
+		old->setSelected(false);
+	if(inElements)
+		onElementClicked(newIndex);
+	else
+		onCategoryClicked(newIndex);
+	list->scrollTo(newIndex);
+	if(auto item = std::dynamic_pointer_cast<WikiListItem>(list->getItem(newIndex)))
+		item->setSelected(true);
+}
 
 void WikiWindow::onCategoryClicked(int index)
 {

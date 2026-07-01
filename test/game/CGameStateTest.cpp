@@ -35,9 +35,9 @@
 
 #include "../../lib/mapping/CMap.h"
 
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/AbilityCaster.h"
+#include "../../lib/spells/CSpell.h"
 
 class CGameStateTest : public ::testing::Test, public SpellCastEnvironment, public MapListener
 {
@@ -173,6 +173,8 @@ public:
 			pset.color = PlayerColor(i);
 			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
 			pset.name = "Player";
+			// Avoid order-dependent random starting artifacts in tests that set hero stats directly.
+			pset.bonus = PlayerStartingBonus::GOLD;
 
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
@@ -269,7 +271,7 @@ TEST_F(CGameStateTest, issue2765)
 		info.count = 1;
 		info.type = CreatureID(69);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type.toEntity(LIBRARY), info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -284,7 +286,7 @@ TEST_F(CGameStateTest, issue2765)
 
 	for(const auto & s : gameState->currentBattles.front()->stacks)
 	{
-		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
+		if(s->isBallista() && s->unitSide() == BattleSide::DEFENDER)
 			def = s.get();
 		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
 			att = s.get();
@@ -361,7 +363,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::ATTACKER;
-		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type.toEntity(LIBRARY), info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -377,7 +379,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		info.count = 10;
 		info.type = CreatureID(13);
 		info.side = BattleSide::DEFENDER;
-		info.position = gameState->currentBattles.front()->getAvailableHex(info.type, info.side);
+		info.position = gameState->currentBattles.front()->getAvailableHex(info.type.toEntity(LIBRARY), info.side);
 		info.summoned = false;
 
 		BattleUnitsChanged pack;
@@ -454,7 +456,7 @@ TEST_F(CGameStateTest, battleInterference)
 		"targetSourceType" : "SECONDARY_SKILL",
 		"valueType" : "PERCENT_TO_TARGET_TYPE",
 		"propagator" : "BATTLE_WIDE",
-		"propagationUpdater" : [ "TIMES_HERO_LEVEL", "BONUS_OWNER_UPDATER" ]
+		"propagationUpdater" : [ "TIMES_HERO_LEVEL", "BONUS_OWNER_UPDATER" ],
 		"limiters" : [ "OPPOSITE_SIDE" ]
 	}
 	)";
@@ -483,6 +485,9 @@ TEST_F(CGameStateTest, battleInterference)
 
 	defender->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
 	defender->level = 10;
+
+	ASSERT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
+	ASSERT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
 
 	startTestBattle(attacker, defender);
 

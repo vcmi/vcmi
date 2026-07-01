@@ -24,6 +24,8 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
@@ -335,9 +337,9 @@ bool CVCMIServer::prepareToStartGame()
 	catch(const std::exception & e)
 	{
 		logGlobal->error("Failed to launch game: %s", e.what());
-		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+		auto str = MetaString::createFromTextID("vcmi.client.errors.invalidMap");
 		str.appendRawString(":\n");
-		str.appendRawString(e.what());
+		str.replaceRawString(e.what());
 		announceMessage(str);
 	}
 	current.finish();
@@ -469,7 +471,7 @@ bool CVCMIServer::passHost(GameConnectionID toConnectionId)
 	return false;
 }
 
-void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
+void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
 	assert(getState() == EServerState::LOBBY);
 

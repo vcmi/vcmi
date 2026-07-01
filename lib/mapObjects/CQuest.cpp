@@ -25,16 +25,16 @@
 #include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../spells/CSpellHandler.h"
 #include "../GameConstants.h"
 #include "../constants/StringConstants.h"
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "CGHeroInstance.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModUtility.h"
 #include "../networkPacks/PacksForClient.h"
-#include "../spells/CSpellHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -246,7 +246,7 @@ void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text
 	}
 	
 	if(lastDay >= 0)
-		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
+		text.replaceNumber(lastDay - cb->getCalendar().getCurrentDay());
 }
 
 void CQuest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
@@ -544,7 +544,7 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 void CGSeerHut::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	CRewardableObject::newTurn(gameEvents, gameRandomizer);
-	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getDate() - 1) //time is up
+	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getCalendar().getCurrentDay() - 1) //time is up
 	{
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
 	}

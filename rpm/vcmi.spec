@@ -54,14 +54,11 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/vcmiserver
 %{_bindir}/vcmibuilder
 %{_bindir}/vcmilauncher
-%{_libdir}/%{name}/*
+%{_libdir}/libvcmi.so
 
 %{_datadir}/%{name}/*
 %{_datadir}/applications/*
 %{_datadir}/icons/*
-
-%post
-%{__ln_s} -f %{_libdir}/%{name}/libvcmi.so %{_libdir}/libvcmi.so
 
 %changelog
 

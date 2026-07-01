@@ -157,11 +157,23 @@ void PlayerState::addOwnedObject(CGObjectInstance * object)
 {
 	assert(object->asOwnable() != nullptr);
 	ownedObjects.push_back(object->id);
+	markObjectControlled(object->id);
 }
 
 void PlayerState::removeOwnedObject(CGObjectInstance * object)
 {
 	vstd::erase(ownedObjects, object->id);
+}
+
+void PlayerState::markObjectControlled(ObjectInstanceID objectID)
+{
+	if(objectID != ObjectInstanceID::NONE)
+		everControlledObjects.insert(objectID);
+}
+
+bool PlayerState::hasEverControlled(ObjectInstanceID objectID) const
+{
+	return everControlledObjects.count(objectID) != 0;
 }
 
 VCMI_LIB_NAMESPACE_END

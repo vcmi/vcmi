@@ -14,6 +14,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
+VCMI_LIB_USING_NAMESPACE
+
 Q_DECLARE_METATYPE(int3)
 
 //parses date for lose condition (1m 1w 1d)
@@ -37,6 +39,9 @@ public:
 	static std::string getTownName(const CMap & map, int objectIdx);
 	static std::string getHeroName(const CMap & map, int objectIdx);
 	static std::string getMonsterName(const CMap & map, int objectIdx);
+	static std::vector<int> getHeroTargetObjectIndexes(const CMap & map);
+	static int getHeroTargetObjectByPos(const CMap & map, const int3 & pos);
+	static bool isHeroTargetObject(const CGObjectInstance * obj);
 
 	static JsonNode conditionToJson(const EventCondition & event);
 

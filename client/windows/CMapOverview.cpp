@@ -19,8 +19,8 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Slider.h"
-#include "../windows/GUIClasses.h"
-#include "../windows/InfoWindows.h"
+#include "GUIClasses.h"
+#include "InfoWindows.h"
 #include "../render/CanvasImage.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
@@ -188,7 +188,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 
 	REGISTER_BUILDER("drawMinimap", &CMapOverviewWidget::buildDrawMinimap);
 
-	addCallback("mapLayerSliderChanged", [&](int index){
+	addCallback("mapLayerSliderChanged", [this](int index){
 		OBJECT_CONSTRUCTION;
 		for (int i = 0; i < 2; i++)
 		{

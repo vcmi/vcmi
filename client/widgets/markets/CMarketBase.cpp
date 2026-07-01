@@ -16,8 +16,8 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
-#include "../../widgets/Buttons.h"
-#include "../../widgets/TextControls.h"
+#include "../Buttons.h"
+#include "../TextControls.h"
 
 #include "../../CPlayerInterface.h"
 
@@ -191,9 +191,11 @@ CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & c
 	labels.emplace_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[168]));
 }
 
-CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback)
+CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, CPlayerInterface * tradeInterface)
+	: tradeInterface(tradeInterface)
 {
 	OBJECT_CONSTRUCTION;
+	assert(this->tradeInterface);
 
 	bidTradePanel = std::make_shared<ResourcesPanel>(clickPressedCallback, std::bind(&CResourcesSelling::updateSubtitles, this));
 	labels.emplace_back(std::make_shared<CLabel>(156, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[270]));
@@ -203,7 +205,7 @@ void CResourcesSelling::updateSubtitles() const
 {
 	if(bidTradePanel)
 		for(const auto & slot : bidTradePanel->slots)
-			slot->subtitle->setText(std::to_string(GAME->interface()->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
+			slot->subtitle->setText(std::to_string(tradeInterface->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
 }
 
 CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)

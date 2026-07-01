@@ -11,6 +11,7 @@
 #include "modstateitemmodel_moc.h"
 
 #include "modstatemodel.h"
+#include "cmodlistview_moc.h"
 
 #include <QIcon>
 
@@ -55,6 +56,7 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
 		QT_TR_NOOP("Resources"),
+		QT_TR_NOOP("Demo"),
 	};
 
 	if (modTypes.contains(modTypeID))
@@ -274,7 +276,7 @@ QModelIndex ModStateItemModel::parent(const QModelIndex & child) const
 void CModFilterModel::setTypeFilter(ModFilterMask newFilterMask)
 {
 	filterMask = newFilterMask;
-	invalidateFilter();
+	reloadFilter();
 }
 
 bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
@@ -322,7 +324,15 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 {
 	QModelIndex index = base->index(source_row, 0, source_parent);
 	QString modID = index.data(ModRoles::ModNameRole).toString();
-	if (base->model->getMod(modID).isHidden())
+	const auto & mod = base->model->getMod(modID);
+
+	if (mod.isHidden())
+		return false;
+
+	bool isDemo = CModListView::isDemoDataPresent();
+	if (isDemo && !mod.isTranslation())
+		return false;
+	if (mod.isDemoSupport())
 		return false;
 
 	if(filterMatchesThis(index))

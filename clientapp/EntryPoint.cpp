@@ -12,6 +12,7 @@
 
 #include "StdInc.h"
 #include "../Global.h"
+#include <vstd/DateUtils.h>
 
 #include "../client/ClientCommandManager.h"
 #include "../client/CMT.h"
@@ -37,6 +38,7 @@
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/ScopeGuard.h"
@@ -101,15 +103,16 @@ static void checkForModLoadingFailure()
 
 static void prog_version()
 {
-	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+	printf("%s\n", GameConstants::VCMI_VERSION);
 	std::cout << VCMIDirs::get().genHelpString();
 }
 
 static void prog_help(const po::options_description &opts)
 {
 	auto time = std::time(nullptr);
-	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
+	std::tm tm = vstd::safeLocalTime(time);
+	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", tm.tm_year + 1900);
 	printf("This is free software; see the source for copying conditions. There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
@@ -220,7 +223,7 @@ int main(int argc, char * argv[])
 #endif
 
 	logConfigurator.configureDefault();
-	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
+	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
 
@@ -288,14 +291,18 @@ int main(int argc, char * argv[])
 	};
 
 	testFile("DATA/HELP.TXT", "VCMI requires Heroes III: Shadow of Death or Heroes III: Complete data files to run!");
-	testFile("DATA/TENTCOLR.TXT", "Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!");
 	testFile("MODS/VCMI/MOD.JSON", "VCMI installation is corrupted!\nBuilt-in mod was not found!");
 	testFile("DATA/NOTOSERIF-MEDIUM.TTF", "VCMI installation is corrupted!\nBuilt-in font was not found!\nManually deleting '" + VCMIDirs::get().userDataPath().string() + "/Mods/VCMI' directory (if it exists)\nor clearing app data and reimporting Heroes III files may fix this problem.");
 	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
 	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
 
 	if(!settings["session"]["headless"].Bool())
+	{
+		if(LIBRARY->getGameDataMode() == GameLibrary::GameDataMode::ROE)
+			handleFatalError("Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!", false);
+
 		ENGINE = std::make_unique<GameEngine>();
+	}
 
 	GAME = std::make_unique<GameInstance>();
 
@@ -404,7 +411,11 @@ int main(int argc, char * argv[])
 
 	const auto & cleanupEngine = [&logConfigurator]()
 	{
-		GAME->server().endNetwork();
+		{
+			//aquire interfaceMutex to prevent undefined behavior on vstd::makeUnlockGuard(ENGINE->interfaceMutex)
+			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+			GAME->server().endNetwork();
+		}
 
 		if(!settings["session"]["headless"].Bool())
 		{

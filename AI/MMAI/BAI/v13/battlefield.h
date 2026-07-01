@@ -56,7 +56,7 @@ private:
 
 	static std::tuple<std::shared_ptr<Hexes>, Stack *> InitHexes(const CPlayerBattleCallback * battle, const CStack * acstack, const Stacks & stacks);
 
-	static AllLinks InitAllLinks(const CPlayerBattleCallback * battle, const Stacks & stacks, const Queue & queue, std::shared_ptr<Hexes> & hexes);
+	static AllLinks InitAllLinks(const CPlayerBattleCallback * battle, const Stacks & stacks, const Queue & queue, const std::shared_ptr<Hexes> & hexes);
 
 	static void
 	LinkTwoHexes(AllLinks & allLinks, const CPlayerBattleCallback * battle, const Stacks & stacks, const Queue & queue, const Hex * src, const Hex * dst);

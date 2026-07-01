@@ -118,9 +118,8 @@ int CStackWindow::StackExperienceDetailsWindow::calculateDynamicTableRowCount(co
 			uniqueBonuses.insert({bonus->type, bonus->subtype.getNum()});
 	}
 
-	const int minBonusRows = 1;
 	const int maxRowsWithoutHeader = 7; // keep dialog within 800x600
-	const int rowsWithoutHeader = std::clamp(1 + std::max(minBonusRows, static_cast<int>(uniqueBonuses.size())), 1, maxRowsWithoutHeader); // Experience + bonus rows
+	const int rowsWithoutHeader = std::clamp(1 + static_cast<int>(uniqueBonuses.size()), 1, maxRowsWithoutHeader); // Experience + bonus rows
 	return rowsWithoutHeader;
 }
 
@@ -412,7 +411,7 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 			return PreferredRowPresentation{LIBRARY->generaltexth->translate("vcmi.stackExperience.table.maxDamage"), ImagePath::builtin("stackExperienceIconMaxDamage"), LIBRARY->generaltexth->translate("vcmi.stackExperience.desc.maxDamage"), std::nullopt};
 		if(key.type == BonusType::STACK_HEALTH)
 		{
-			auto override = [selector = makeStackExpSelector(key)](const CStackInstance & stackInst)
+			auto valueOverride = [selector = makeStackExpSelector(key)](const CStackInstance & stackInst)
 			{
 				int result = 0;
 				auto bonuses = stackInst.getBonuses(selector);
@@ -420,7 +419,7 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 					result += b->val;
 				return result;
 			};
-			return PreferredRowPresentation{LIBRARY->generaltexth->allTexts[388], ImagePath::builtin("stackExperienceIconHealth"), LIBRARY->generaltexth->translate("vcmi.stackExperience.desc.health"), override};
+			return PreferredRowPresentation{LIBRARY->generaltexth->allTexts[388], ImagePath::builtin("stackExperienceIconHealth"), LIBRARY->generaltexth->translate("vcmi.stackExperience.desc.health"), valueOverride};
 		}
 		if(key.type == BonusType::STACKS_SPEED)
 			return PreferredRowPresentation{LIBRARY->generaltexth->allTexts[193], ImagePath::builtin("stackExperienceIconSpeed"), LIBRARY->generaltexth->translate("vcmi.stackExperience.desc.speed"), std::nullopt};

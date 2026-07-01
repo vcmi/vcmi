@@ -8,12 +8,13 @@
  *
  */
 #include "StdInc.h"
+#include "../helper.h"
 #include "portraitwidget.h"
 #include "ui_portraitwidget.h"
 #include "../Animation.h"
 
-#include "../lib/GameLibrary.h"
-#include "../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/hero/CHeroHandler.h"
 
 PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
 	QDialog(parent),
@@ -22,6 +23,7 @@ PortraitWidget::PortraitWidget(CGHeroInstance & h, QWidget *parent):
 	portraitIndex(0)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 	ui->portraitView->setScene(&scene);
 	ui->portraitView->fitInView(scene.itemsBoundingRect(), Qt::KeepAspectRatio);
 	show();

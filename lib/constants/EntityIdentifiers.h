@@ -40,6 +40,8 @@ namespace spells
 {
 	class Spell;
 	class Service;
+	class SchoolService;
+	class SpellSchoolType;
 }
 
 class CArtifact;
@@ -733,7 +735,7 @@ class DLL_LINKAGE EPathfindingLayerBase : public IdentifierBase
 public:
 	enum Type : int32_t
 	{
-		LAND = 0, SAIL = 1, WATER, AIR, NUM_LAYERS, WRONG, AUTO
+		LAND = 0, SAIL = 1, WATER, AVIATE, AIR, NUM_LAYERS, WRONG, AUTO
 	};
 };
 
@@ -1067,7 +1069,18 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const spells::SpellSchoolType * toEntity(const Services * services) const;
 };
+
+class DLL_LINKAGE SpellEffectID : public StaticIdentifier<SpellEffectID>
+{
+public:
+	using StaticIdentifier<SpellEffectID>::StaticIdentifier;
+
+	static const SpellEffectID NONE;
+};
+
 
 class GameResIDBase : public IdentifierBase
 {

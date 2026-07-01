@@ -165,13 +165,19 @@ const ResourceSet::nziterator::ResEntry * ResourceSet::nziterator::operator->() 
 
 void ResourceSet::nziterator::advance()
 {
-	do
+	const auto resourceCount = static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	while(true)
 	{
 		++cur.resType;
-	} while(static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && !(cur.resVal=rs[cur.resType]));
-
-	if(static_cast<int>(cur.resType) >= LIBRARY->resourceTypeHandler->getAllObjects().size())
-		cur.resVal = -1;
+		if(static_cast<int>(cur.resType) >= resourceCount)
+		{
+			cur.resVal = -1;
+			return;
+		}
+		cur.resVal = rs[cur.resType];
+		if(cur.resVal)
+			return;
+	}
 }
 
 ResourceSet::nziterator::nziterator(const ResourceSet &RS)

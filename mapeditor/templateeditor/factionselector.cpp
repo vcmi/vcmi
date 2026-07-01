@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "../helper.h"
 
 #include "factionselector.h"
 #include "ui_factionselector.h"
@@ -21,7 +22,7 @@ FactionSelector::FactionSelector(std::set<FactionID> & factions) :
 	factionsSelected(factions)
 {
 	ui->setupUi(this);
-
+	Helper::decorateDialog(this);
 	setWindowTitle(tr("Faction Selector"));
 	
 	setWindowModality(Qt::ApplicationModal);

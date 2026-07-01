@@ -102,11 +102,43 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 	});
 	defaultQuantity = !config["defaultQuantity"].isNull() ? config["defaultQuantity"].Integer() : 1;
 
-	if (!config["name"].isNull())
+	if(!config["name"].isNull())
 		LIBRARY->generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
 
-	if (!config["description"].isNull())
-		LIBRARY->generaltexth->registerString(config.getModScope(), getDescriptionTextID(), config["description"]);
+	if(!config["description"].isNull())
+	{
+		const std::string description = config["description"].String();
+		if(!description.empty() && description.front() == '@')
+			descriptionTextID = description.substr(1);
+		else
+		{
+			descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
+			LIBRARY->generaltexth->registerString(config.getModScope(), descriptionTextID, config["description"]);
+		}
+	}
+
+	guards = config["guards"];
+
+	auto loadAdventureMessageTextID = [&](const JsonNode & inputNode, const std::string & key) -> std::string
+	{
+		if(inputNode.isNull())
+			return {};
+
+		if(inputNode.isNumber())
+			return TextIdentifier("core.advevent", inputNode.Integer()).get();
+
+		const std::string message = inputNode.String();
+		if(!message.empty() && message.front() == '@')
+			return message.substr(1);
+
+		const std::string textID = TextIdentifier(getBaseTextID(), key).get();
+		LIBRARY->generaltexth->registerString(config.getModScope(), textID, inputNode);
+		return textID;
+	};
+
+	onGuardedMessageTextID = loadAdventureMessageTextID(config["onGuardedMessage"], "onGuardedMessage");
+	ownedGuardedMessageTextID = loadAdventureMessageTextID(config["ownedGuardedMessage"], "ownedGuardedMessage");
+	onCaptureMessageTextID = loadAdventureMessageTextID(config["onCaptureMessage"], "onCaptureMessage");
 
 	kingdomOverviewImage = AnimationPath::fromJson(config["kingdomOverviewImage"]);
 }
@@ -123,17 +155,34 @@ ui32 MineInstanceConstructor::getDefaultQuantity() const
 
 std::string MineInstanceConstructor::getDescriptionTextID() const
 {
-	return TextIdentifier(getBaseTextID(), "description").get();
+	return descriptionTextID;
 }
 
-std::string MineInstanceConstructor::getDescriptionTranslated() const
+std::string MineInstanceConstructor::getOnGuardedMessageTextID() const
 {
-	return LIBRARY->generaltexth->translate(getDescriptionTextID());
+	return onGuardedMessageTextID;
+}
+
+std::string MineInstanceConstructor::getOwnedGuardedMessageTextID() const
+{
+	return ownedGuardedMessageTextID;
+}
+
+std::string MineInstanceConstructor::getOnCaptureMessageTextID() const
+{
+	return onCaptureMessageTextID;
 }
 
 AnimationPath MineInstanceConstructor::getKingdomOverviewImage() const
 {
 	return kingdomOverviewImage;
+}
+
+std::vector<CStackBasicDescriptor> MineInstanceConstructor::getGuards(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer) const
+{
+	JsonRandom randomizer(cb, gameRandomizer);
+	JsonRandom::Variables emptyVariables;
+	return randomizer.loadCreatures(guards, emptyVariables);
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
@@ -318,6 +367,11 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
+}
+
+EPathfindingLayer BoatInstanceConstructor::getLayer() const
+{
+	return layer;
 }
 
 VCMI_LIB_NAMESPACE_END

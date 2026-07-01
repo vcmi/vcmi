@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "mapsettings.h"
+#include "../helper.h"
 #include "ui_mapsettings.h"
 #include "mainwindow.h"
 
@@ -27,7 +28,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->setupUi(this);
 
 	setWindowModality(Qt::WindowModal);
-	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	Helper::decorateDialog(this);
 	
 	assert(controller.map());
 	controller.settingsDialog = this;

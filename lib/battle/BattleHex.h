@@ -10,6 +10,7 @@
 #pragma once
 
 #include "BattleSide.h"
+#include <vcmi/scripting/ApiTags.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,7 +31,7 @@ class BattleHexArray;
  * Valid hexes are within the range 0 to 186, excluding some invalid values, ex. castle towers (-2, -3, -4).
  * Available hexes are those valid ones but NOT in the first or last column.
  */
-class DLL_LINKAGE BattleHex
+class DLL_LINKAGE BattleHex : public scripting::ApiCopyable<BattleHex>
 {
 public:
 
@@ -183,6 +184,13 @@ public:
 		result.moveInDirection(dir, hasToBeValid);
 		return result;
 	}
+
+	[[nodiscard]] BattleHex copyToNorthWest() const { return cloneInDirection(TOP_LEFT,     false); }
+	[[nodiscard]] BattleHex copyToNorthEast() const { return cloneInDirection(TOP_RIGHT,    false); }
+	[[nodiscard]] BattleHex copyToEast()      const { return cloneInDirection(RIGHT,        false); }
+	[[nodiscard]] BattleHex copyToSouthEast() const { return cloneInDirection(BOTTOM_RIGHT, false); }
+	[[nodiscard]] BattleHex copyToSouthWest() const { return cloneInDirection(BOTTOM_LEFT,  false); }
+	[[nodiscard]] BattleHex copyToWest()      const { return cloneInDirection(LEFT,         false); }
 
 	[[nodiscard]] static uint8_t getDistance(const BattleHex & hex1, const BattleHex & hex2) noexcept
 	{

@@ -32,6 +32,9 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+
 namespace NK2AI
 {
 
@@ -76,34 +79,7 @@ void EvaluationContext::addNonCriticalStrategicalValue(float value)
 	vstd::amax(strategicalValue, std::min(value, MAX_CRITICAL_VALUE));
 }
 
-PriorityEvaluator::~PriorityEvaluator()
-{
-	delete engine;
-}
-
-void PriorityEvaluator::initVisitTile()
-{
-	auto file = CResourceHandler::get()->load(ResourcePath("config/ai/nk2ai/object-priorities.txt"))->readAll();
-	std::string str = std::string((char *)file.first.get(), file.second);
-	engine = fl::FllImporter().fromString(str);
-	armyLossRatioVariable = engine->getInputVariable("armyLoss");
-	armyGrowthVariable = engine->getInputVariable("armyGrowth");
-	heroRoleVariable = engine->getInputVariable("heroRole");
-	dangerVariable = engine->getInputVariable("danger");
-	turnVariable = engine->getInputVariable("turn");
-	mainTurnDistanceVariable = engine->getInputVariable("mainTurnDistance");
-	scoutTurnDistanceVariable = engine->getInputVariable("scoutTurnDistance");
-	goldRewardVsMovementVariable = engine->getInputVariable("goldReward");
-	armyRewardVariable = engine->getInputVariable("armyReward");
-	skillRewardVariable = engine->getInputVariable("skillReward");
-	rewardTypeVariable = engine->getInputVariable("rewardType");
-	closestHeroRatioVariable = engine->getInputVariable("closestHeroRatio");
-	strategicalValueVariable = engine->getInputVariable("strategicalValue");
-	goldPressureVariable = engine->getInputVariable("goldPressure");
-	goldCostVariable = engine->getInputVariable("goldCost");
-	fearVariable = engine->getInputVariable("fear");
-	value = engine->getOutputVariable("Value");
-}
+PriorityEvaluator::~PriorityEvaluator() = default;
 
 bool isAnotherAi(const CGObjectInstance * obj, const CPlayerSpecificInfoCallback & cb)
 {
@@ -184,7 +160,7 @@ uint64_t getDwellingArmyGrowth(CCallback * cb, const CGObjectInstance * target, 
 			// Increase priority towards the end of the week if units are lost afterwards
 			if(!cb->getSettings().getBoolean(EGameSettings::DWELLINGS_ACCUMULATE_WHEN_OWNED))
 			{
-				const auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+				const auto dayOfWeek = cb->getCalendar().getDayOfWeek();
 				score *= dayOfWeek;
 			}
 		}
@@ -846,7 +822,14 @@ public:
 		if(evaluationContext.evaluator.aiNk->cc->getTile(task->tile)->roadType != RoadId::NO_ROAD)
 			evaluationContext.explorePriority = 1;
 		if(evaluationContext.explorePriority == 0)
-			evaluationContext.explorePriority = 3;
+		{
+			if(tilesDiscovered >= 20)
+				evaluationContext.explorePriority = 1;
+			else if(tilesDiscovered >= 10)
+				evaluationContext.explorePriority = 2;
+			else
+				evaluationContext.explorePriority = 3;
+		}
 	}
 };
 
@@ -913,8 +896,8 @@ public:
 
 		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
-			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
-			auto enemySpeed = threat.heroPtr.get()->movementPointsLimit(true);
+			auto ourSpeed = defendTown.hero->movementPointsLimit();
+			auto enemySpeed = threat.heroPtr.get()->movementPointsLimit();
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -962,7 +945,7 @@ public:
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
-		std::map<const CGHeroInstance *, float> costsPerHero;
+		HeroMap<float> costsPerHero;
 
 		for(auto & node : path.nodes)
 		{
@@ -1133,7 +1116,7 @@ public:
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{
 			auto defenderRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(garrisonHero);
-			auto mpLeft = garrisonHero->movementPointsRemaining() / (float)garrisonHero->movementPointsLimit(true);
+			auto mpLeft = garrisonHero->movementPointsRemaining() / (float)garrisonHero->movementPointsLimit();
 
 			evaluationContext.movementCost += mpLeft;
 			evaluationContext.movementCostByRole[defenderRole] += mpLeft;
@@ -1286,7 +1269,6 @@ uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, cons
 
 PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 {
-	initVisitTile();
 	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(aiNk));
@@ -1371,48 +1353,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 {
 	auto evaluationContext = buildEvaluationContext(task);
 
-	int rewardType = (evaluationContext.goldReward > 0 ? 1 : 0)
-		+ (evaluationContext.armyReward > 0 ? 1 : 0)
-		+ (evaluationContext.skillReward > 0 ? 1 : 0)
-		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
-
-	float goldRewardVsMovement = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
 
-	if (aiNk->settings->isUseFuzzy())
-	{
-		float fuzzyResult = 0;
-		try
-		{
-			armyLossRatioVariable->setValue(evaluationContext.armyLossRatio);
-			heroRoleVariable->setValue(evaluationContext.heroRole);
-			mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
-			scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-			goldRewardVsMovementVariable->setValue(goldRewardVsMovement);
-			armyRewardVariable->setValue(evaluationContext.armyReward);
-			armyGrowthVariable->setValue(evaluationContext.armyGrowth);
-			skillRewardVariable->setValue(evaluationContext.skillReward);
-			dangerVariable->setValue(evaluationContext.danger);
-			rewardTypeVariable->setValue(rewardType);
-			closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
-			strategicalValueVariable->setValue(evaluationContext.strategicalValue);
-			goldPressureVariable->setValue(aiNk->buildAnalyzer->getGoldPressure());
-			goldCostVariable->setValue(evaluationContext.goldCost / ((float)aiNk->getFreeResources()[EGameResID::GOLD] + (float)aiNk->buildAnalyzer->getDailyIncome()[EGameResID::GOLD] + 1.0f));
-			turnVariable->setValue(evaluationContext.turn);
-			fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
-
-			engine->process();
-
-			fuzzyResult = value->getValue();
-		}
-		catch (fl::Exception& fe)
-		{
-			logAi->error("evaluate VisitTile: %s", fe.getWhat());
-		}
-		result = fuzzyResult;
-	}
-	else
 	{
 		float score = 0;
 
@@ -1422,12 +1365,13 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 										 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio
 										 : 1.0;
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
-		const bool arriveNextWeek = aiNk->cc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > LIBRARY->engineSettings()->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+		auto calendar = aiNk->cc->getCalendar();
+		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
 
 #if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"BEFORE: priorityTier %d, Evaluated %s, armyLossRatio: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, "
-			"goldReward: %f, goldRewardVsMovement: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
+			"goldReward: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
 			"heroRole: %s, strategicalValue: %f, conquestValue: %f, buildingCost.marketValue: %f, closestWayRatio: %f, enemyHeroDangerRatio: %f, "
 			"maxEnemyDangerRatio: %f, explorePriority: %d, isDefend: %d, isEnemy: %d, arriveNextWeek: %d, powerRatio: %f",
 			priorityTier,
@@ -1439,7 +1383,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.movementCostByRole[HeroRole::SCOUT],
 			evaluationContext.armyInvolvement,
 			evaluationContext.goldReward,
-			goldRewardVsMovement,
 			evaluationContext.goldCost,
 			evaluationContext.armyReward,
 			evaluationContext.armyGrowth,
@@ -1737,7 +1680,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 #if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace(
 		"priorityTier %d, Evaluated %s, armyLossRatio: %f, turn: %d, turns main: %f, turns scout: %f, armyInvolvement: %f, "
-		"goldReward: %f, goldRewardVsMovement: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
+		"goldReward: %f, goldCost: %d, armyReward: %f, armyGrowth: %f, skillReward: %f, danger: %d, threatTurns: %d, threat: %d, "
 		"heroRole: %s, strategicalValue: %f, conquestValue: %f, buildingCost.marketValue: %f, closestWayRatio: %f, enemyHeroDangerRatio: %f, "
 		"explorePriority: %d, isDefend: %d, isEnemy: %d, powerRatio: %f, result %f",
 		priorityTier,
@@ -1748,7 +1691,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
 		evaluationContext.armyInvolvement,
 		evaluationContext.goldReward,
-		goldRewardVsMovement,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
 		evaluationContext.armyGrowth,

@@ -20,6 +20,7 @@
 #include "Discord.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+#include "globalLobby/GlobalLobbyRoomWindow.h"
 
 #include "gui/WindowHandler.h"
 
@@ -80,6 +81,7 @@ CServerHandler::~CServerHandler()
 	serverRunner.reset();
 	if (threadNetwork.joinable())
 	{
+		//ENGINE->interfaceMutex must have been locked by the current thread, otherwise an unlock will cause undefined behavior
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
@@ -93,6 +95,7 @@ void CServerHandler::endNetwork()
 
 	if (threadNetwork.joinable())
 	{
+		//ENGINE->interfaceMutex must have been locked by the current thread, otherwise an unlock will cause undefined behavior
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
 	}
@@ -284,7 +287,16 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 	logicConnection = std::make_shared<GameConnection>(netConnection);
 	logicConnection->uuid = uuid;
 	logicConnection->enterLobbyConnectionMode();
-	sendClientConnecting();
+
+	if(lobbyPreviewMode)
+	{
+		LobbyQueryState lqs;
+		sendLobbyPack(lqs);
+	}
+	else
+	{
+		sendClientConnecting();
+	}
 }
 
 void CServerHandler::applyPackOnLobbyScreen(CPackForLobby & pack)
@@ -694,7 +706,8 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 
 		endGameplay();
 		GAME->mainmenu()->menu->switchToTab("main");
-		ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
+		if(!ENGINE->isDemoData())
+			ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
@@ -999,7 +1012,12 @@ void CServerHandler::waitForServerShutdown()
 	if (!serverRunner)
 		return; // may not exist for guest in MP
 
-	serverRunner->wait();
+	{
+		// Release interfaceMutex while waiting for server thread to finish
+		// to avoid blocking the GUI thread (same pattern as endNetwork())
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		serverRunner->wait();
+	}
 	int exitCode = serverRunner->exitCode();
 	serverRunner.reset();
 
@@ -1063,4 +1081,55 @@ void CServerHandler::sendGamePack(const CPackForServer & pack) const
 		networkLagCompensator->tryPredictReply(pack);
 
 	logicConnection->sendPack(pack);
+}
+
+void CServerHandler::startLobbyPreview(const std::string & addr, ui16 port, std::function<void()> onJoin)
+{
+	lobbyPreviewMode = true;
+	onLobbyPreviewJoin = std::move(onJoin);
+	connectToServer(addr, port);
+}
+
+void CServerHandler::onLobbyPreviewResponse(LobbyModsCheck & pack)
+{
+	lobbyPreviewMode = false;
+
+	// Close the temporary query connection
+	if(networkConnection)
+	{
+		networkConnection->close();
+		networkConnection.reset();
+	}
+	logicConnection.reset();
+
+	GlobalLobbyRoom roomDescription;
+	roomDescription.gameVersion = pack.vcmiVersion;
+	roomDescription.statusID = "open";
+	roomDescription.playerLimit = 8;
+	roomDescription.modList = pack.mods;
+	roomDescription.hostAccountDisplayName = pack.hostAccountDisplayName;
+	roomDescription.description = "";
+
+	for(const auto & name : pack.participantNames)
+	{
+		GlobalLobbyAccount account;
+		account.displayName = name;
+		roomDescription.participants.push_back(account);
+	}
+
+	ENGINE->windows().createAndPushWindow<GlobalLobbyRoomWindow>(
+		roomDescription,
+		[this]()
+		{
+			ENGINE->windows().popWindows(1);
+			if(onLobbyPreviewJoin)
+				onLobbyPreviewJoin();
+		},
+		[]()
+		{
+			ENGINE->windows().popWindows(1);
+			// Also close the CSimpleJoinScreen that was underneath the preview
+			if(auto w = ENGINE->windows().topWindow<CSimpleJoinScreen>())
+				ENGINE->windows().popWindows(1);
+		});
 }

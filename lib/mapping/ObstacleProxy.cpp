@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "ObstacleProxy.h"
-#include "../mapping/CMap.h"
+#include "CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -18,9 +18,234 @@
 #include "../mapObjects/ObstacleSetHandler.h"
 #include "../GameLibrary.h"
 
+#include <algorithm>
 #include <vstd/RNG.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+namespace
+{
+
+TObstacleTypes getObstacleSetsForType(ObstacleSetFilter filter, ObstacleSet::EObstacleType type)
+{
+	filter.setType(type);
+	return LIBRARY->biomeHandler->getObstacles(filter);
+}
+
+bool addMountainSet(ObstacleSetFilter & localFilter, vstd::RNG & rand, std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets, size_t & selectedSets)
+{
+	localFilter.setType(ObstacleSet::EObstacleType::MOUNTAINS);
+	TObstacleTypes mountainSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+
+	if (mountainSets.empty())
+		return false;
+
+	obstacleSets.push_back(*RandomGeneratorUtil::nextItem(mountainSets, rand));
+	selectedSets++;
+	logGlobal->info("Mountain set added");
+	return true;
+}
+
+void addTreeSets(ObstacleSetFilter & localFilter, vstd::RNG & rand, std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets, size_t & selectedSets)
+{
+	localFilter.setType(ObstacleSet::EObstacleType::TREES);
+	TObstacleTypes treeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+
+	const size_t treeSetsCount = std::min<size_t>(treeSets.size(), rand.nextInt(1, 2));
+	for (size_t i = 0; i < treeSetsCount; i++)
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(treeSets, rand));
+		selectedSets++;
+	}
+	logGlobal->info("Added %d tree sets", static_cast<int>(treeSetsCount));
+}
+
+void addLargeLakeOrCraterSet(ObstacleSetFilter & localFilter, vstd::RNG & rand, std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets, size_t & selectedSets)
+{
+	localFilter.setTypes({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS});
+	TObstacleTypes largeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+
+	if (largeSets.empty())
+		return;
+
+	obstacleSets.push_back(*RandomGeneratorUtil::nextItem(largeSets, rand));
+	selectedSets++;
+	logGlobal->info("Added large set of type %s", obstacleSets.back()->getType());
+}
+
+size_t addRockSets(ObstacleSetFilter & localFilter, vstd::RNG & rand, std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets, size_t & selectedSets, int minCount, int maxCount)
+{
+	localFilter.setType(ObstacleSet::EObstacleType::ROCKS);
+	TObstacleTypes rockSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+
+	const size_t rockSetsCount = std::min<size_t>(rockSets.size(), rand.nextInt(minCount, maxCount));
+	for (size_t i = 0; i < rockSetsCount; i++)
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(rockSets, rand));
+		selectedSets++;
+	}
+	logGlobal->info("Added %d rock sets", static_cast<int>(rockSetsCount));
+	return rockSetsCount;
+}
+
+void addPlantSets(ObstacleSetFilter & localFilter, vstd::RNG & rand, std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets, size_t & selectedSets, size_t rockSetsCount)
+{
+	localFilter.setType(ObstacleSet::EObstacleType::PLANTS);
+	TObstacleTypes plantSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+
+	const auto plantUpper = static_cast<int>(std::max<size_t>(3 - rockSetsCount, 2));
+	const size_t plantSetsCount = std::min<size_t>(plantSets.size(), rand.nextInt(1, plantUpper));
+	for (size_t i = 0; i < plantSetsCount; i++)
+	{
+		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(plantSets, rand));
+		selectedSets++;
+	}
+	logGlobal->info("Added %d plant sets", static_cast<int>(plantSetsCount));
+}
+
+/// Adds up to \p maxAdd sets (1 or 2) from two categories. If maxAdd >= 2 and both pools non-empty, adds one from each (distinct types).
+/// If maxAdd == 1 or a full pair is impossible, adds one random set from any non-empty pool. Returns count added (0, 1, or 2).
+size_t addFromCategoryPair(
+	vstd::RNG & rand,
+	TObstacleTypes & poolA,
+	TObstacleTypes & poolB,
+	std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets,
+	size_t & selectedSets,
+	size_t maxAdd)
+{
+	if (maxAdd == 0)
+		return 0;
+
+	if (maxAdd >= 2 && !poolA.empty() && !poolB.empty())
+	{
+		std::shared_ptr<ObstacleSet> first;
+		std::shared_ptr<ObstacleSet> second;
+
+		if (rand.nextInt(0, 1) == 0)
+		{
+			auto itA = RandomGeneratorUtil::nextItem(poolA, rand);
+			first = *itA;
+			poolA.erase(itA);
+			auto itB = RandomGeneratorUtil::nextItem(poolB, rand);
+			second = *itB;
+			poolB.erase(itB);
+		}
+		else
+		{
+			auto itB = RandomGeneratorUtil::nextItem(poolB, rand);
+			first = *itB;
+			poolB.erase(itB);
+			auto itA = RandomGeneratorUtil::nextItem(poolA, rand);
+			second = *itA;
+			poolA.erase(itA);
+		}
+
+		obstacleSets.push_back(first);
+		obstacleSets.push_back(second);
+		selectedSets += 2;
+		return 2;
+	}
+
+	if (poolA.empty() && poolB.empty())
+		return 0;
+
+	TObstacleTypes * pool = nullptr;
+	if (!poolA.empty() && !poolB.empty())
+		pool = (rand.nextInt(0, 1) == 0) ? &poolA : &poolB;
+	else if (!poolA.empty())
+		pool = &poolA;
+	else
+		pool = &poolB;
+
+	auto it = RandomGeneratorUtil::nextItem(*pool, rand);
+	std::shared_ptr<ObstacleSet> one = *it;
+	pool->erase(it);
+	obstacleSets.push_back(one);
+	selectedSets++;
+	return 1;
+}
+
+void addLeftoverPairedSmallSets(
+	ObstacleSetFilter localFilter,
+	vstd::RNG & rand,
+	std::vector<std::shared_ptr<ObstacleSet>> & obstacleSets,
+	size_t & selectedSets,
+	size_t maxSmallSets,
+	size_t minSmallSets)
+{
+	if (maxSmallSets < minSmallSets)
+		return;
+
+	const int targetSmall = rand.nextInt(static_cast<int>(minSmallSets), static_cast<int>(maxSmallSets));
+	size_t addedSmall = 0;
+
+	TObstacleTypes structurePool = getObstacleSetsForType(localFilter, ObstacleSet::EObstacleType::STRUCTURES);
+	TObstacleTypes animalPool = getObstacleSetsForType(localFilter, ObstacleSet::EObstacleType::ANIMALS);
+	TObstacleTypes rockPool = getObstacleSetsForType(localFilter, ObstacleSet::EObstacleType::ROCKS);
+	TObstacleTypes plantPool = getObstacleSetsForType(localFilter, ObstacleSet::EObstacleType::PLANTS);
+	TObstacleTypes otherPool = getObstacleSetsForType(localFilter, ObstacleSet::EObstacleType::OTHER);
+
+	RandomGeneratorUtil::randomShuffle(structurePool, rand);
+	RandomGeneratorUtil::randomShuffle(animalPool, rand);
+	RandomGeneratorUtil::randomShuffle(rockPool, rand);
+	RandomGeneratorUtil::randomShuffle(plantPool, rand);
+	RandomGeneratorUtil::randomShuffle(otherPool, rand);
+
+	while (addedSmall < static_cast<size_t>(targetSmall))
+	{
+		const size_t budget = static_cast<size_t>(targetSmall) - addedSmall;
+
+		const size_t beforeIter = addedSmall;
+
+		{
+			const size_t n = addFromCategoryPair(
+				rand,
+				structurePool,
+				animalPool,
+				obstacleSets,
+				selectedSets,
+				std::min<size_t>(budget, 2));
+			addedSmall += n;
+			if (n > 0)
+				logGlobal->info("Added %d structure/animal obstacle set(s)", static_cast<int>(n));
+		}
+
+		// One OTHER set after structures/animals attempt (mirrors former small-set + other fill).
+		{
+			const size_t bAfterSa = static_cast<size_t>(targetSmall) - addedSmall;
+			if (bAfterSa >= 1 && !otherPool.empty())
+			{
+				obstacleSets.push_back(otherPool.back());
+				otherPool.pop_back();
+				selectedSets++;
+				addedSmall++;
+				logGlobal->info("Added set of other obstacles");
+			}
+		}
+
+		if (addedSmall >= static_cast<size_t>(targetSmall))
+			break;
+
+		const size_t bAfterOther = static_cast<size_t>(targetSmall) - addedSmall;
+		{
+			const size_t n = addFromCategoryPair(
+				rand,
+				rockPool,
+				plantPool,
+				obstacleSets,
+				selectedSets,
+				std::min<size_t>(bAfterOther, 2));
+			addedSmall += n;
+			if (n > 0)
+				logGlobal->info("Added %d rock/plant obstacle set(s)", static_cast<int>(n));
+		}
+
+		if (addedSmall == beforeIter)
+			break;
+	}
+}
+
+} // namespace
 
 void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 {
@@ -41,6 +266,7 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 		}
 	}
 	sortObstacles();
+	clearRecentObstacleQueue();
 }
 
 void ObstacleProxy::sortObstacles()
@@ -55,159 +281,79 @@ void ObstacleProxy::sortObstacles()
 	});
 }
 
+void ObstacleProxy::clearRecentObstacleQueue()
+{
+	recentPlacedObstacleTemplates.clear();
+}
+
+void ObstacleProxy::recordPlacedObstacleTemplate(const ObjectTemplate * templ)
+{
+	if (!templ || recentObstacleQueueMaxSize == 0)
+		return;
+
+	recentPlacedObstacleTemplates.push_back(templ);
+	while (recentPlacedObstacleTemplates.size() > recentObstacleQueueMaxSize)
+		recentPlacedObstacleTemplates.pop_front();
+}
+
+bool ObstacleProxy::isObstacleTemplateRecentlyUsed(const ObjectTemplate * templ) const
+{
+	if (!templ || recentObstacleQueueMaxSize == 0)
+		return false;
+
+	return std::find(recentPlacedObstacleTemplates.begin(), recentPlacedObstacleTemplates.end(), templ)
+		!= recentPlacedObstacleTemplates.end();
+}
+
 bool ObstacleProxy::prepareBiome(const ObstacleSetFilter & filter, vstd::RNG & rand)
 {
 	possibleObstacles.clear();
 
 	std::vector<std::shared_ptr<ObstacleSet>> obstacleSets;
-
 	size_t selectedSets = 0;
+
 	const size_t MINIMUM_SETS = 3; // Original Lava has only 4 types of sets
-	const size_t MAXIMUM_SETS = 9;
+	const size_t MAXIMUM_SETS = 7;
 	const size_t MIN_SMALL_SETS = 3;
 	const size_t MAX_SMALL_SETS = 5;
 
-	auto terrain = filter.getTerrain();
+	const auto terrain = filter.getTerrain();
 	auto localFilter = filter;
-	localFilter.setType(ObstacleSet::EObstacleType::MOUNTAINS);
 
-	TObstacleTypes mountainSets = LIBRARY->biomeHandler->getObstacles(localFilter);
-
-	if (!mountainSets.empty())
-	{
-		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(mountainSets, rand));
-		selectedSets++;
-		logGlobal->info("Mountain set added");
-	}
-	else
+	if (!addMountainSet(localFilter, rand, obstacleSets, selectedSets))
 	{
 		logGlobal->warn("No mountain sets found for terrain %s", TerrainId::encode(terrain.getNum()));
 		// FIXME: Do we ever want to generate obstacles without any mountains?
 	}
 
-	localFilter.setType(ObstacleSet::EObstacleType::TREES);
-	TObstacleTypes treeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+	addTreeSets(localFilter, rand, obstacleSets, selectedSets);
+	addLargeLakeOrCraterSet(localFilter, rand, obstacleSets, selectedSets);
 
-	// 1 or 2 tree sets
-	size_t treeSetsCount = std::min<size_t>(treeSets.size(), rand.nextInt(1, 2));
-	for (size_t i = 0; i < treeSetsCount; i++)
-	{
-		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(treeSets, rand));
-		selectedSets++;
-	}
-	logGlobal->info("Added %d tree sets", treeSetsCount);
+	const size_t rockSetsCount = addRockSets(localFilter, rand, obstacleSets, selectedSets, 1, 2);
+	addPlantSets(localFilter, rand, obstacleSets, selectedSets, rockSetsCount);
 
-	// Some obstacle types may be completely missing from water, but it's not a problem
-	localFilter.setTypes({ObstacleSet::EObstacleType::LAKES, ObstacleSet::EObstacleType::CRATERS});
-	TObstacleTypes largeSets = LIBRARY->biomeHandler->getObstacles(localFilter);
+	// Up to maxSmallSets paired small sets (structures+animals, then rocks+plants per iteration).
+	const size_t maxSmallSets = std::min<size_t>(MAX_SMALL_SETS, std::max(MIN_SMALL_SETS, MAXIMUM_SETS - selectedSets));
+	addLeftoverPairedSmallSets(localFilter, rand, obstacleSets, selectedSets, maxSmallSets, MIN_SMALL_SETS);
 
-	// We probably don't want to have lakes and craters at the same time, choose one of them
-
-	if (!largeSets.empty())
-	{
-		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(largeSets, rand));
-		selectedSets++;
-
-		// TODO: Convert to string
-		logGlobal->info("Added large set of type %s", obstacleSets.back()->getType());
-	}
-
-	localFilter.setType(ObstacleSet::EObstacleType::ROCKS);
-	TObstacleTypes rockSets = LIBRARY->biomeHandler->getObstacles(localFilter);
-
-	size_t rockSetsCount = std::min<size_t>(rockSets.size(), rand.nextInt(1, 2));
-	for (size_t i = 0; i < rockSetsCount; i++)
-	{
-		obstacleSets.push_back(*RandomGeneratorUtil::nextItem(rockSets, rand));
-		selectedSets++;
-	}
-	logGlobal->info("Added %d rock sets", rockSetsCount);
-
-	localFilter.setType(ObstacleSet::EObstacleType::PLANTS);
-	TObstacleTypes plantSets = LIBRARY->biomeHandler->getObstacles(localFilter);
-
-	// 1 or 2 sets (3 - rock sets)
-	size_t plantSetsCount = std::min<size_t>(plantSets.size(), rand.nextInt(1, std::max<size_t>(3 - rockSetsCount, 2)));
-	for (size_t i = 0; i < plantSetsCount; i++)
-	{
-		{
-			obstacleSets.push_back(*RandomGeneratorUtil::nextItem(plantSets, rand));
-			selectedSets++;
-		}
-	}
-	logGlobal->info("Added %d plant sets", plantSetsCount);
-
-	//3 to 5 of total small sets (rocks, plants, structures, animals and others)
-	//This gives total of 6 to 9 different sets
-
-	size_t maxSmallSets = std::min<size_t>(MAX_SMALL_SETS, std::max(MIN_SMALL_SETS, MAXIMUM_SETS - selectedSets));
-
-	size_t smallSets = rand.nextInt(MIN_SMALL_SETS, maxSmallSets);
-
-	localFilter.setTypes({ObstacleSet::EObstacleType::STRUCTURES, ObstacleSet::EObstacleType::ANIMALS});
-	TObstacleTypes smallObstacleSets = LIBRARY->biomeHandler->getObstacles(localFilter);
-	RandomGeneratorUtil::randomShuffle(smallObstacleSets, rand);
-
-	localFilter.setType(ObstacleSet::EObstacleType::OTHER);
-	TObstacleTypes otherSets = LIBRARY->biomeHandler->getObstacles(localFilter);
-	RandomGeneratorUtil::randomShuffle(otherSets, rand);
-
-	while (smallSets > 0)
-	{
-		if (!smallObstacleSets.empty())
-		{
-			obstacleSets.push_back(smallObstacleSets.back());
-			smallObstacleSets.pop_back();
-			selectedSets++;
-			smallSets--;
-			logGlobal->info("Added small set of type %s", obstacleSets.back()->getType());
-		}
-		else if(otherSets.empty())
-		{
-			logGlobal->warn("No other sets found for terrain %s", terrain.encode(terrain.getNum()));
-			break;
-		}
-
-		if (smallSets > 0)
-		{
-			// Fill with whatever's left
-			if (!otherSets.empty())
-			{
-				obstacleSets.push_back(otherSets.back());
-				otherSets.pop_back();
-				selectedSets++;
-				smallSets--;
-
-				logGlobal->info("Added set of other obstacles");
-			}
-		}
-	}
-
-	// Copy this set to our possible obstacles
-
-	if (selectedSets >= MINIMUM_SETS ||
-		(terrain == TerrainId::WATER && selectedSets > 0))
+	if (selectedSets >= MINIMUM_SETS || (terrain == TerrainId::WATER && selectedSets > 0))
 	{
 		obstaclesBySize.clear();
 		for (const auto & os : obstacleSets)
 		{
 			for (const auto & temp : os->getObstacles())
 			{
-				if(temp->getBlockMapOffset().isValid())
-				{
+				if (temp->getBlockMapOffset().isValid())
 					obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
-				}
 			}
 		}
 
 		sortObstacles();
-
+		clearRecentObstacleQueue();
 		return true;
 	}
-	else
-	{
-		return false; // Proceed with old method
-	}
+
+	return false; // Proceed with old method
 }
 
 void ObstacleProxy::addBlockedTile(const int3& tile)
@@ -241,7 +387,17 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 		auto shuffledObstacles = possibleObstacle.second;
 		RandomGeneratorUtil::randomShuffle(shuffledObstacles, rand);
 
-		for(const auto & temp : shuffledObstacles)
+		ObstacleVector templatesToTry;
+		for (const auto & temp : shuffledObstacles)
+		{
+			if (!isObstacleTemplateRecentlyUsed(temp.get()))
+				templatesToTry.push_back(temp);
+		}
+		// All variants in this bucket were used recently: skip tier and try smaller obstacles.
+		if (templatesToTry.empty())
+			continue;
+
+		for(const auto & temp : templatesToTry)
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
 			auto obj = handler->create(cb, temp);
@@ -335,6 +491,15 @@ std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd:
 		auto objIter = RandomGeneratorUtil::nextItem(weightedObjects, rand);
 		objIter->first->setPosition(objIter->second);
 		placeObject(*objIter->first, objs);
+
+		for (const auto * inst : objIter->first->instances())
+		{
+			if (inst->object().appearance)
+			{
+				recordPlacedObstacleTemplate(inst->object().appearance.get());
+				break;
+			}
+		}
 
 		blockedArea.subtract(objIter->first->getArea());
 		tilePos = 0;

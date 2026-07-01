@@ -57,7 +57,15 @@
 			"description" : "Faction alignment, good, neutral or evil"
 		},
 		"nativeTerrain" : {
-			"type" : "string",
+			"oneOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type" : "array",
+					"items" : { "type" : "string" }
+				}
+			],
 			"description" : "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
 		},
 		"boat" : {

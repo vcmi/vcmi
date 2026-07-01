@@ -26,7 +26,7 @@ struct TerrainTile;
 template<typename N>
 struct DLL_LINKAGE NodeComparer
 {
-	STRONG_INLINE
+	inline
 	bool operator()(const N * lhs, const N * rhs) const
 	{
 		return lhs->getCost() > rhs->getCost();
@@ -85,7 +85,7 @@ struct DLL_LINKAGE CGPathNode
 		reset();
 	}
 
-	STRONG_INLINE
+	inline
 	void reset()
 	{
 		locked = false;
@@ -98,19 +98,19 @@ struct DLL_LINKAGE CGPathNode
 		action = EPathNodeAction::UNKNOWN;
 	}
 
-	STRONG_INLINE
+	inline
 	bool inPQ() const
 	{
 		return pq != nullptr;
 	}
 
-	STRONG_INLINE
+	inline
 	float getCost() const
 	{
 		return cost;
 	}
 
-	STRONG_INLINE
+	inline
 	void setCost(float value)
 	{
 		if(vstd::isAlmostEqual(value, cost))
@@ -132,7 +132,7 @@ struct DLL_LINKAGE CGPathNode
 		}
 	}
 
-	STRONG_INLINE
+	inline
 	void update(const int3 & Coord, const ELayer Layer, const EPathAccessibility Accessible)
 	{
 		if(layer == ELayer::WRONG)
@@ -148,7 +148,7 @@ struct DLL_LINKAGE CGPathNode
 		accessible = Accessible;
 	}
 
-	STRONG_INLINE
+	inline
 	bool reachable() const
 	{
 		return turns < 255;
@@ -169,6 +169,8 @@ struct DLL_LINKAGE CGPathNode
 
 struct DLL_LINKAGE CGPath
 {
+	using ELayer = EPathfindingLayer;
+
 	std::vector<CGPathNode> nodes; //just get node by node
 
 	/// Starting position of path, matches location of hero
@@ -185,6 +187,10 @@ struct DLL_LINKAGE CGPath
 	int3 startPos() const;
 	/// destination point
 	int3 endPos() const;
+	/// start layer
+	ELayer startLayer() const;
+	/// destination layer
+	ELayer endLayer() const;
 };
 
 struct DLL_LINKAGE CPathsInfo
@@ -200,12 +206,19 @@ struct DLL_LINKAGE CPathsInfo
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
-	const CGPathNode * getPathInfo(const int3 & tile) const;
-	bool getPath(CGPath & out, const int3 & dst) const;
+	const CGPathNode * getPathInfo(const int3 & tile, const ELayer layer = ELayer::AUTO) const;
+	bool getPath(CGPath & out, const int3 & dst, const ELayer layer = ELayer::AUTO) const;
 	const CGPathNode * getNode(const int3 & coord) const;
 
-	STRONG_INLINE
+	//FIXME: what is the non-const version used for? internal node storage should be modified via NodeStorage only
+	inline
 	CGPathNode * getNode(const int3 & coord, const ELayer layer)
+	{
+		return &nodes[layer.getNum()][coord.z][coord.x][coord.y];
+	}
+
+	inline
+	const CGPathNode * getNode(const int3 & coord, const ELayer layer) const
 	{
 		return &nodes[layer.getNum()][coord.z][coord.x][coord.y];
 	}

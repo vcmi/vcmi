@@ -127,7 +127,7 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 
 battle::Units CBattleInfoEssentials::battleGetAllUnits(bool includeTurrets) const
 {
-	return battleGetUnitsIf([=](const battle::Unit * unit)
+	return battleGetUnitsIf([includeTurrets](const battle::Unit * unit)
 	{
 		return !unit->isGhost() && (includeTurrets || !unit->isTurret());
 	});
@@ -182,6 +182,28 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 	RETURN_IF_NOT_BATTLE(nullptr);
 
 	return getBattle()->getDefendedTown();
+}
+
+bool CBattleInfoEssentials::hasFortifications() const
+{
+	const auto * town = battleGetDefendedTown();
+	return town != nullptr && town->fortificationsLevel().wallsHealth > 0;
+}
+
+bool CBattleInfoEssentials::hasMoat() const
+{
+	return battleGetFortifications().hasMoat;
+}
+
+BattleHex CBattleInfoEssentials::getTowerShooterHex(EWallPart part) const
+{
+	switch(part)
+	{
+		case EWallPart::KEEP:         return BattleHex(BattleHex::CASTLE_CENTRAL_TOWER);
+		case EWallPart::BOTTOM_TOWER: return BattleHex(BattleHex::CASTLE_BOTTOM_TOWER);
+		case EWallPart::UPPER_TOWER:  return BattleHex(BattleHex::CASTLE_UPPER_TOWER);
+		default:                      return BattleHex(BattleHex::INVALID);
+	}
 }
 
 BattleSide CBattleInfoEssentials::battleGetMySide() const

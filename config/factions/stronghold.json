@@ -2,7 +2,7 @@
 	"stronghold" :
 	{
 		"index" : 6,
-		"nativeTerrain": "rough",
+		"nativeTerrain": [ "rough" ],
 		"alignment" : "neutral",
 		"creatureBackground" :
 		{

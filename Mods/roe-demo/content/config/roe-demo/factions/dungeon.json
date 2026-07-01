@@ -1,0 +1,49 @@
+{
+	"core:dungeon" :
+	{
+		"town" :
+		{
+			"musicTheme" : [ "music/default" ],
+			"structures" :
+			{
+				"mageGuild1":     { "campaignBonus" : "null" },
+				"mageGuild2":     { "campaignBonus" : "null" },
+				"mageGuild3":     { "campaignBonus" : "null" },
+				"mageGuild4":     { "campaignBonus" : "null" },
+				"mageGuild5":     { "campaignBonus" : "null" },
+				"tavern":         { "campaignBonus" : "null" },
+				"fort":           { "campaignBonus" : "null" },
+				"citadel":        { "campaignBonus" : "null" },
+				"castle":         { "campaignBonus" : "null" },
+				"villageHall":    { "campaignBonus" : "null" },
+				"townHall":       { "campaignBonus" : "null" },
+				"cityHall":       { "campaignBonus" : "null" },
+				"capitol":        { "campaignBonus" : "null" },
+				"marketplace":    { "campaignBonus" : "null" },
+				"resourceSilo":   { "campaignBonus" : "null" },
+				"blacksmith":     { "campaignBonus" : "null" },
+				"special1":       { "campaignBonus" : "null" },
+				"horde1":         { "campaignBonus" : "null" },
+				"horde1Upgr":     { "campaignBonus" : "null" },
+				"special2":       { "campaignBonus" : "null" },
+				"special3":       { "campaignBonus" : "null" },
+				"special4":       { "campaignBonus" : "null" },
+				"grail":          { "campaignBonus" : "null" },
+				"dwellingLvl1":   { "campaignBonus" : "null" },
+				"dwellingLvl2":   { "campaignBonus" : "null" },
+				"dwellingLvl3":   { "campaignBonus" : "null" },
+				"dwellingLvl4":   { "campaignBonus" : "null" },
+				"dwellingLvl5":   { "campaignBonus" : "null" },
+				"dwellingLvl6":   { "campaignBonus" : "null" },
+				"dwellingLvl7":   { "campaignBonus" : "null" },
+				"dwellingUpLvl1": { "campaignBonus" : "null" },
+				"dwellingUpLvl2": { "campaignBonus" : "null" },
+				"dwellingUpLvl3": { "campaignBonus" : "null" },
+				"dwellingUpLvl4": { "campaignBonus" : "null" },
+				"dwellingUpLvl5": { "campaignBonus" : "null" },
+				"dwellingUpLvl6": { "campaignBonus" : "null" },
+				"dwellingUpLvl7": { "campaignBonus" : "null" }
+			}
+		}
+	}
+}

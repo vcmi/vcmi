@@ -2,7 +2,7 @@
 	"dungeon" :
 	{
 		"index" : 5,
-		"nativeTerrain": "subterra",
+		"nativeTerrain": [ "subterra" ],
 		"alignment" : "evil",
 		"preferUndergroundPlacement": true,
 		"creatureBackground" :
@@ -184,7 +184,7 @@
 					"requires" : [ "mageGuild1" ],
 					"configuration" : {
 						"resetParameters" : {
-							"period" : 7,
+							"weeks" : 1,
 							"visitors" : true
 						},
 						"visitMode" : "once",

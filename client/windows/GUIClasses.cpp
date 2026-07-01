@@ -41,34 +41,33 @@
 #include "../render/IImage.h"
 #include "../render/IFont.h"
 
-#include "../lib/GameLibrary.h"
-#include "../lib/callback/CCallback.h"
-#include "../lib/entities/building/CBuilding.h"
-#include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/entities/hero/CHeroClass.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/entities/ResourceTypeHandler.h"
-#include "../lib/mapping/CMap.h"
-#include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../lib/mapObjectConstructors/CommonConstructors.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
-#include "../lib/mapObjects/CGMarket.h"
-#include "../lib/mapObjects/CGTownInstance.h"
-#include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/gameState/CGameState.h"
-#include "../lib/gameState/SThievesGuildInfo.h"
-#include "../lib/gameState/TavernHeroesPool.h"
-#include "../lib/gameState/UpgradeInfo.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/texts/TextOperations.h"
-#include "../lib/IGameSettings.h"
-#include "../lib/ConditionalWait.h"
-#include "../lib/CConfigHandler.h"
-#include "../lib/CRandomGenerator.h"
-#include "../lib/CSkillHandler.h"
-#include "../lib/CSoundBase.h"
-#include "../lib/constants/EntityIdentifiers.h"
-#include "../lib/spells/CSpellHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/hero/CHero.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGMarket.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/gameState/CGameState.h"
+#include "../../lib/gameState/SThievesGuildInfo.h"
+#include "../../lib/gameState/TavernHeroesPool.h"
+#include "../../lib/gameState/UpgradeInfo.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/TextOperations.h"
+#include "../../lib/IGameSettings.h"
+#include "../../lib/ConditionalWait.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/CSoundBase.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -518,7 +517,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	portrait = std::make_shared<CHeroArea>(170, 66, hero);
 	portrait->addClickCallback(nullptr);
 	portrait->addRClickCallback([hero](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
-	ok = std::make_shared<CButton>(Point(297, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::close, this), EShortcut::GLOBAL_ACCEPT);
+	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
 	mainTitle = std::make_shared<CLabel>(192, 33, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(LIBRARY->generaltexth->allTexts[444]) % hero->getNameTranslated()));
@@ -564,7 +563,7 @@ void CLevelWindow::createSkillBox()
 		for(auto & skill : skillsToShow)
 		{
 			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
-			comp->onChoose = std::bind(&CLevelWindow::close, this);
+			comp->onChoose = std::bind(&CLevelWindow::submitSelection, this);
 			comps.push_back(comp);
 		}
 
@@ -575,32 +574,59 @@ void CLevelWindow::createSkillBox()
 	redraw();
 }
 
-void CLevelWindow::close()
+void CLevelWindow::setCloseOnSelection(bool value)
 {
-	int idx = -1;
+	closeOnSelection = value;
+}
 
-	if(box)
-		idx = box->selectedIndex();
-
-	// If there are skills available, we must not close without producing a valid choice
-	// For a single available option, auto-pick it
-	if(!skills.empty())
+void CLevelWindow::submitSelection()
+{
+	if(!selectionSubmitted)
 	{
-		if(idx == -1)
+		int idx = -1;
+
+		if(box)
+			idx = box->selectedIndex();
+
+		// If there are skills available, we must not close without producing a valid choice
+		// For a single available option, auto-pick it
+		if(skills.empty())
 		{
-			if(skills.size() == 1)
-				idx = 0;
-			else
-				return; // require explicit selection
+			cb(0);
+		}
+		else
+		{
+			if(idx == -1)
+			{
+				if(skills.size() == 1)
+					idx = 0;
+				else
+					return; // require explicit selection
+			}
+
+			const auto & chosen = sortedSkills[(idx + skillViewOffset) % skills.size()];
+			auto it = std::find(skills.begin(), skills.end(), chosen);
+
+			cb(std::distance(skills.begin(), it));
 		}
 
-		const auto & chosen = sortedSkills[(idx + skillViewOffset) % skills.size()];
-		auto it = std::find(skills.begin(), skills.end(), chosen);
+		selectionSubmitted = true;
+		GAME->interface()->showingDialog->setFree();
 
-		cb(std::distance(skills.begin(), it));
+		if(!closeOnSelection)
+		{
+			deactivate();
+			return;
+		}
 	}
 
-	GAME->interface()->showingDialog->setFree();
+	close();
+}
+
+void CLevelWindow::close()
+{
+	if(!selectionSubmitted && !skills.empty())
+		return;
 
 	CWindowObject::close();
 }
@@ -1225,11 +1251,12 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 	OBJECT_CONSTRUCTION;
 
 	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
+	garr->showMoveUnitsOnHover = true;
 	{
 		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3], ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
 		garr->addSplitBtn(split);
 	}
-	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[8], ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(399, 314), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.garrison.leave"), ""), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 
 	const CGHeroInstance * sourceHero = dynamic_cast<const CGHeroInstance *>(up);
 	const auto * sourceTown = dynamic_cast<const CGTownInstance *>(up);
@@ -1263,6 +1290,7 @@ CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance
 		banner = std::make_shared<CAnimImage>(AnimationPath::builtin("CREST58"), up->getOwner().getNum(), 0, 27, 127);
 
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), down->getIconIndex(), 0, 27, 223);
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CGarrisonWindow::updateGarrisons()

@@ -25,12 +25,12 @@
 #include "../spells/ObstacleCasterProxy.h"
 #include "../spells/ISpellMechanics.h"
 #include "../spells/Problem.h"
-#include "../spells/CSpellHandler.h"
+#include "../spells/CSpell.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
-#include "../lib/spells/effects/UnitEffect.h"
+#include "../spells/effects/Effect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -202,6 +202,9 @@ bool CBattleInfoCallback::battleHasPenaltyOnLine(const BattleHex & from, const B
 	if (!from.isAvailable() || !dest.isAvailable())
 		throw std::runtime_error("Invalid hex (" + std::to_string(from.toInt()) + " and " + std::to_string(dest.toInt()) + ") received in battleHasPenaltyOnLine!" );
 
+	if(battleGetFortifications().wallsHealth == 0)
+		return false;
+
 	auto isTileBlocked = [&](const BattleHex & tile)
 	{
 		EWallPart wallPart = battleHexToWallPart(tile);
@@ -335,20 +338,37 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
 {
 	RETURN_IF_NOT_BATTLE(PossiblePlayerBattleAction::INVALID);
-	auto spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
 
-	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
+	const spells::BattleCast cast(this, caster, mode, spell);
+	auto targetTypes = spell->battleMechanics(&cast)->getTargetTypes();
 
-	if(ti.massive || ti.type == spells::AimType::NO_TARGET)
-		spellSelMode = PossiblePlayerBattleAction::NO_LOCATION;
-	else if(ti.type == spells::AimType::LOCATION && ti.clearAffected)
-		spellSelMode = PossiblePlayerBattleAction::FREE_LOCATION;
-	else if(ti.type == spells::AimType::CREATURE)
-		spellSelMode = PossiblePlayerBattleAction::AIMED_SPELL_CREATURE;
-	else if(ti.type == spells::AimType::OBSTACLE)
-		spellSelMode = PossiblePlayerBattleAction::OBSTACLE;
+	if(targetTypes.empty() || targetTypes.front() == spells::AimType::NOTHING)
+		return PossiblePlayerBattleAction(PossiblePlayerBattleAction::NO_LOCATION, spell->id);
 
-	return PossiblePlayerBattleAction(spellSelMode, spell->id);
+	if(targetTypes.size() >= 2)
+	{
+		if(targetTypes[1] == spells::AimType::CREATURE)
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::SACRIFICE, spell->id);
+		if(targetTypes[1] == spells::AimType::LOCATION)
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::TELEPORT, spell->id);
+	}
+
+	switch(targetTypes.front())
+	{
+		case spells::AimType::CREATURE:
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::AIMED_SPELL_CREATURE, spell->id);
+		case spells::AimType::OBSTACLE:
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::OBSTACLE, spell->id);
+		case spells::AimType::LOCATION:
+		{
+			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
+			if(ti.clearAffected)
+				return PossiblePlayerBattleAction(PossiblePlayerBattleAction::FREE_LOCATION, spell->id);
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::ANY_LOCATION, spell->id);
+		}
+		default:
+			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::NO_LOCATION, spell->id);
+	}
 }
 
 BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
@@ -852,12 +872,15 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 		//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
 		if (attacker->getPosition() != fromHex)
 		{
-			for (const auto & obstacle : battleGetAllObstacles())
+			if (!attacker->hasBonusOfType(BonusType::FLYING))
 			{
-				if (obstacle->getStoppingTile().contains(fromHex))
-					return false;
-				if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
-					return false;
+				for (const auto & obstacle : battleGetAllObstacles())
+				{
+					if (obstacle->getStoppingTile().contains(fromHex))
+						return false;
+					if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
+						return false;
+				}
 			}
 			const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
 			if (defender && defender->isDead() && defender->coversPos(fromHex))
@@ -917,7 +940,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 
 	if (!attacker)
 		return false;
-	if (attacker->creatureIndex() == CreatureID::CATAPULT) //catapult cannot attack creatures
+	if (attacker->isCatapult()) //catapult cannot attack creatures
 		return false;
 
 	if (!attacker->canShoot())
@@ -1087,21 +1110,18 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
 	const spells::Target spellTarget = mech->canonicalizeTarget(aim);
 
 	mech->forEachEffect([&](const spells::effects::Effect &e){
-		if(const auto *ue = dynamic_cast<const spells::effects::UnitEffect*>(&e))
+		auto effTarget = e.transformTarget(mech.get(), aim, spellTarget);
+		// Cure-specific safety net: if empty, but hovering a healable friendly unit, evaluate just that unit
+		if(effTarget.empty() && hoveredUnit)
 		{
-			auto effTarget = ue->transformTarget(mech.get(), aim, spellTarget);
-			// Cure-specific safety net: if empty, but hovering a healable friendly unit, evaluate just that unit
-			if(effTarget.empty() && hoveredUnit)
-			{
-				spells::EffectTarget single;
-				single.emplace_back(spells::Destination(hoveredUnit));
-				*result += ue->getHealthChange(mech.get(), single);
-				return false;
-			}
-
-			if(!effTarget.empty())
-				*result += ue->getHealthChange(mech.get(), effTarget);
+			spells::Target single;
+			single.emplace_back(spells::Destination(hoveredUnit));
+			*result += e.getHealthChange(mech.get(), single);
+			return false;
 		}
+
+		if(!effTarget.empty())
+			*result += e.getHealthChange(mech.get(), effTarget);
 		return false; // continue iterating effects
 	});
 
@@ -1286,7 +1306,7 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 		if(!unit.alive())
 			return false;
 
-		if(obstacle->stopsMovement())
+		if(obstacle->stopsMovement() && !unit.hasBonusOfType(BonusType::FLYING))
 			movementStopped = true;
 	}
 
@@ -1619,12 +1639,12 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 	}
 }
 
-BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
+BattleHex CBattleInfoCallback::getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos) const
 {
-	bool twoHex = LIBRARY->creatures()->getById(creID)->isDoubleWide();
+	bool twoHex = creature->isDoubleWide();
 
-	int pos;
-	if (initialPos > -1)
+	BattleHex pos;
+	if (initialPos.isValid())
 		pos = initialPos;
 	else //summon elementals depending on player side
 	{
@@ -2436,6 +2456,11 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 		return BattleSide::ATTACKER;
 	else
 		return BattleSide::DEFENDER;
+}
+
+const scripting::Pool & CBattleInfoCallback::getScriptContextPool() const
+{
+	return getBattle()->getScriptContextPool();
 }
 
 VCMI_LIB_NAMESPACE_END

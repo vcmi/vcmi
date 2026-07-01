@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../lib/callback/MapInfoCallback.h"
+#include "MapInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,10 +25,11 @@ public:
 	// Access to full game state — not available in editor
 	CGameState & gameState() override;
 	const CGameState & gameState() const override;
+	const scripting::Pool & getScriptContextPool() const override;
 
 	// Unused in editor — return null or dummy
 	const StartInfo * getStartInfo() const override;
-	int getDate(Date mode) const override;
+	Calendar getCalendar() const override;
 
 	const TerrainTile * getTile(int3 tile, bool verbose) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
@@ -53,11 +54,6 @@ public:
 
 	bool isVisibleFor(int3 pos, PlayerColor player) const override;
 	bool isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const override;
-
-// Optional scripting
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
-#endif
 
 	// Player-related (stub or throw)
 	const TeamState * getTeam(TeamID teamID) const override;

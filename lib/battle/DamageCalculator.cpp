@@ -17,10 +17,10 @@
 #include "../bonuses/Bonus.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../spells/CSpellHandler.h"
 #include "../IGameSettings.h"
 #include "../GameLibrary.h"
 
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -41,7 +41,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 		std::swap(minDmg, maxDmg);
 	}
 
-	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
+	if(info.attacker->isTurret())
 	{
 		const auto * town = callback.battleGetDefendedTown();
 		assert(town);
@@ -61,7 +61,7 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 	const std::string cachingStrSiedgeWeapon = "type_SIEGE_WEAPON";
 	static const auto selectorSiedgeWeapon = Selector::type()(BonusType::SIEGE_WEAPON);
 
-	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
+	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && !info.attacker->isTurret())
 	{
 		static const auto bonusSelector =
 			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
@@ -172,7 +172,7 @@ int DamageCalculator::getActorAttackSlayer() const
 		if(isAffected)
 		{
 			SpellID spell(SpellID::SLAYER);
-			int attackBonus = spell.toSpell()->getLevelPower(spLevel);
+			int attackBonus = spell.toEntity(LIBRARY)->getLevelPower(spLevel);
 			if(info.attacker->hasBonusOfType(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(spell)))
 			{
 				ui8 attackerTier = info.attacker->unitType()->getLevel();
@@ -564,16 +564,10 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	double defenseFactorTotal = 1.0;
 
 	for (auto & factor : attackFactors)
-	{
-		assert(factor >= 0.0);
 		attackFactorTotal += factor;
-	}
 
 	for (auto & factor : defenseFactors)
-	{
-		assert(factor >= 0.0);
 		defenseFactorTotal *= (1 - std::min(1.0, factor));
-	}
 
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 

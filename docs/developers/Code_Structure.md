@@ -143,7 +143,3 @@ Here is list of threads including their name that can be seen in logging or in d
 - Initializition thread (`initialize`). On game start, to avoid delay in game loading, most of game library initialization is done in separate thread while main thread is playing intro movies.
 
 - Console command processing (`processCommand`). Some console commands that can be entered in game chat either take a long time to process or expect to run without holding any mutexes (like interface mutex). To avoid such problems, all commands entered in game chat are run in separate thread.
-
-### Fuzzy logic
-
-VCMI includes [FuzzyLite](http://code.google.com/p/fuzzy-lite/) library to make use of fuzzy rule-based algorithms. They are useful to handle uncertainty and resemble human behaviour who takes decisions based on rough observations. FuzzyLite is linked as separate static library in AI/FuzzyLite.lib file.

@@ -1,0 +1,18 @@
+{
+	"core:mephala":    { "special" : true },
+	"core:ufretin":    { "special" : true },
+	"core:jenova":     { "special" : true },
+	"core:ryland":     { "special" : true },
+	"core:thorgrim":   { "special" : true },
+	"core:ivor":       { "special" : true },
+	"core:clancy":     { "special" : true },
+	"core:kyrre":      { "special" : true },
+	"core:coronius":   { "special" : true },
+	"core:uland":      { "special" : true },
+	"core:elleshar":   { "special" : true },
+	"core:gem":        { "special" : true },
+	"core:malcom":     { "special" : true },
+	"core:melodia":    { "special" : true },
+	"core:alagar":     { "special" : true },
+	"core:aeris":      { "special" : true }
+}

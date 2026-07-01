@@ -2,7 +2,7 @@
 	"conflux" :
 	{
 		"index" : 8,
-		"nativeTerrain": "grass",
+		"nativeTerrain": [ "grass" ],
 		"alignment" : "neutral",
 		"creatureBackground" :
 		{

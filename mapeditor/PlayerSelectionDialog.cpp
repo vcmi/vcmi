@@ -9,6 +9,7 @@
  */
 
 #include "PlayerSelectionDialog.h"
+#include "helper.h"
 #include "../lib/mapping/CMap.h"
 #include "mainwindow.h"
 
@@ -19,7 +20,7 @@
 #include <QLabel>
 
 
-PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
+PlayerSelectionDialog::PlayerSelectionDialog(EditorMainWindow * mainWindow)
 	: QDialog(mainWindow), selectedPlayer(PlayerColor::NEUTRAL)
 {
 	setupDialogComponents();
@@ -44,7 +45,7 @@ void PlayerSelectionDialog::setupDialogComponents()
 {
 	setWindowTitle(tr("Select Player"));
 	setFixedWidth(dialogWidth);
-	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+	Helper::decorateDialog(this);
 	font.setPointSize(10);
 	setFont(font);
 

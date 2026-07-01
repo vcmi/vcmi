@@ -59,7 +59,6 @@ public:
 	std::string getModScope() const override;
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
-	void updateFrom(const JsonNode & data) {};
 
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;

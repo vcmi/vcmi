@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "DimensionDoorEffect.h"
 
-#include "../CSpellHandler.h"
 
 #include "../../IGameSettings.h"
 #include "../../callback/IGameInfoCallback.h"

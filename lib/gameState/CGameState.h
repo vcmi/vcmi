@@ -19,6 +19,8 @@
 #include "RumorState.h"
 #include "mapObjects/CGObjectInstance.h"
 
+#include <vcmi/Environment.h>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class EVictoryLossCheckResult;
@@ -43,6 +45,19 @@ class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
+class GameStateEnvironment final : public Environment
+{
+	CGameState & owner;
+public:
+	explicit GameStateEnvironment(CGameState & owner)
+		:owner(owner)
+	{}
+
+	const Services * services() const final;
+	const BattleCb * battle(const BattleID & battleID) const final;
+	const GameCb * game() const final;
+};
+
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
@@ -50,6 +65,9 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 	std::shared_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
 	std::shared_ptr<StartInfo> scenarioOps;
 	std::unique_ptr<CMap> map;
+
+	std::unique_ptr<GameStateEnvironment> scriptingEnvironment;
+	std::unique_ptr<scripting::Pool> scriptingPool;
 
 	void saveCompatibilityRegisterMissingArtifacts();
 public:
@@ -122,6 +140,9 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
+	void markObjectControlled(PlayerColor player, ObjectInstanceID id);
+	bool hasEverControlled(PlayerColor player, ObjectInstanceID id) const;
+
 	//fills tgi with info about other players that is available at given level of thieves' guild
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level) const;
 	const IGameSettings & getSettings() const override;
@@ -165,12 +186,9 @@ public:
 		return false;
 	}
 
-	static int getDate(int day, Date mode);
-	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	Calendar getCalendar() const override;
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
-#endif
+	const scripting::Pool & getScriptContextPool() const final;
 
 	void saveGame(CSaveFile & file) const;
 	void loadGame(CLoadFile & file);
@@ -216,11 +234,13 @@ private:
 	void initRandomFactionsForPlayers(vstd::RNG & randomGenerator);
 	void initOwnedObjects();
 	void randomizeMapObjects(IGameRandomizer & gameRandomizer);
+	void rebuildObjectControlHistory();
 	void initPlayerStates();
 	void placeStartingHeroes(vstd::RNG & randomGenerator);
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void removeHeroPlaceholders();
 	void initDifficulty();
+	void adjustObjectsToMapBounds();
 	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
 	void initFogOfWar();

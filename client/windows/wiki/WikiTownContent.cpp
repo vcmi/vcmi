@@ -28,6 +28,7 @@
 #include "../InfoWindows.h"
 #include "../CCreatureWindow.h"
 
+#include "../../../lib/CStack.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/entities/faction/CFaction.h"
 #include "../../../lib/entities/faction/CTown.h"
@@ -393,18 +394,21 @@ static void addCreaturesTable(
 		{
 			int sx = TABLE_MARGIN + colIcon + nameW + costW;
 			const auto * cr = row.creature;
-			const int dmgMin = cr->getBaseDamageMin();
-			const int dmgMax = cr->getBaseDamageMax();
+			// Use a hypothetical CStackInstance to evaluate limiters correctly (e.g. conditional rune bonuses)
+			CStackInstance fakeStack(nullptr, cr->getId(), 1, true);
+			const bool shooter = fakeStack.hasBonusOfType(BonusType::SHOOTER) && fakeStack.valOfBonuses(BonusType::SHOTS);
+			const int dmgMin = fakeStack.getMinDamage(shooter);
+			const int dmgMax = fakeStack.getMaxDamage(shooter);
 			const std::string dmgStr = (dmgMin == dmgMax)
 				? std::to_string(dmgMin)
 				: (std::to_string(dmgMin) + "-" + std::to_string(dmgMax));
 			for(const auto & val : std::vector<std::string>{
 					std::to_string(cr->getLevel()),
-					std::to_string(cr->getBaseAttack()),
-					std::to_string(cr->getBaseDefense()),
+					std::to_string(fakeStack.getAttack(shooter)),
+					std::to_string(fakeStack.getDefense(shooter)),
 					dmgStr,
-					std::to_string(cr->getBaseSpeed()),
-					std::to_string(cr->getBaseHitPoints()),
+					std::to_string(fakeStack.getMovementRange()),
+					std::to_string(fakeStack.getMaxHealth()),
 					std::to_string(cr->getGrowth()),
 					std::to_string(cr->getAIValue())})
 			{

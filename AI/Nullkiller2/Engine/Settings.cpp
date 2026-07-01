@@ -41,8 +41,7 @@ namespace NK2AI
 		useOneWayMonoliths(false),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
-		openMap(true),
-		useFuzzy(false)
+		openMap(true)
 	{
 		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyLevel];
 		const JsonNode & rootNode = JsonUtils::assembleFromFiles("config/ai/nk2ai/nk2ai-settings");
@@ -64,7 +63,6 @@ namespace NK2AI
 		allowObjectGraph = node["allowObjectGraph"].Bool();
 		updateHitmapOnTileReveal = node["updateHitmapOnTileReveal"].Bool();
 		openMap = node["openMap"].Bool();
-		useFuzzy = node["useFuzzy"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
 		useOneWayMonoliths = node["useOneWayMonoliths"].Bool();
 	}
