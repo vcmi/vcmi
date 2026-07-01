@@ -59,6 +59,7 @@ set(test_SRCS
 #TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
+		spells/AdventureSpellEffectTest.cpp
 		spells/CSpellTest.cpp
  		spells/TargetConditionTest.cpp
 
@@ -141,13 +142,25 @@ if(ENABLE_BATTLE_AI)
 		${BATTLE_AI_TEST_SRCS}
 		battleAI/SpellTargetsEvaluatorTest.cpp
 	)
-
 endif()
 
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
+		nullkiller2/Analyzers/ObjectClusterizerTest.cpp
+		nullkiller2/Behaviors/EscapeBehaviorTest.cpp
+		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
+		nullkiller2/Engine/TaskFailureTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp
+		nullkiller2/Goals/CompositionTest.cpp
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
+		nullkiller2/Helpers/ExplorationHelperTest.cpp
+		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
+		nullkiller2/Pathfinding/ArmyLossTest.cpp
+		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
+	)
+
+	list(APPEND test_HEADERS
+		nullkiller2/Nulkiller2TestUtils.h
 	)
 endif()
 
@@ -191,7 +204,20 @@ endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
-target_link_libraries(vcmitest PRIVATE gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
+if(ENABLE_NULLKILLER2_AI)
+	# Nullkiller tests use internal AI symbols, so embed AI objects in vcmitest
+	# instead of linking the facade and loading a second copy of lib globals.
+	target_sources(vcmitest PRIVATE $<TARGET_OBJECTS:Nullkiller2>)
+	set(vcmitest_LIBS gtest gmock vcmiMain vcmiservercommon TBB::tbb ${SYSTEM_LIBS})
+	foreach(optional_vcmitest_target IN ITEMS vcmiLua EmptyAI StupidAI MMAI)
+		if(TARGET ${optional_vcmitest_target})
+			list(APPEND vcmitest_LIBS ${optional_vcmitest_target})
+		endif()
+	endforeach()
+else()
+	set(vcmitest_LIBS gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
+endif()
+target_link_libraries(vcmitest PRIVATE ${vcmitest_LIBS})
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

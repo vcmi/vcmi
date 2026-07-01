@@ -246,6 +246,33 @@ TEST(TinyH3MBuilderTest, HeroCustomisation)
 	EXPECT_EQ(hero->getStackCount(SlotID(1)), 5);
 }
 
+TEST(TinyH3MBuilderTest, DimensionDoorHeroLoadout)
+{
+	// SpellID 8 = Dimension Door. Keep this tiny generated map as an in-repo
+	// DD fixture foundation instead of relying only on external test maps.
+	const SpellID dimensionDoor{8};
+
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::SOD)
+		.size(36, /*twoLevel*/ false)
+		.name("DimensionDoorHero")
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+		.heroPrimary(10, 10, 10, 50)
+		.heroSecondarySkills({{SecondarySkill::AIR_MAGIC, 3}})
+		.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID::SPELLBOOK}})
+		.heroSpells({dimensionDoor})
+		.buildAndDump("DimensionDoorHeroLoadout");
+
+	auto loaded = loadMap(std::move(bytes));
+	ASSERT_NE(loaded.map, nullptr);
+
+	const auto * hero = findFirst<CGHeroInstance>(*loaded.map);
+	ASSERT_NE(hero, nullptr);
+	EXPECT_TRUE(hero->hasSpellbook());
+	EXPECT_TRUE(hero->spellbookContainsSpell(dimensionDoor));
+	EXPECT_EQ(hero->getSecSkillLevel(SecondarySkill::AIR_MAGIC), 3);
+}
+
 TEST(TinyH3MBuilderTest, KillCreatureQuest)
 {
 	// Monster + quest guard that targets the monster's wire identifier.

@@ -133,6 +133,12 @@ public:
 	/// Per-skill primary stat overrides (attack, defense, spell power, knowledge).
 	TinyH3MBuilder & heroPrimary(uint8_t attack, uint8_t defense, uint8_t spellPower, uint8_t knowledge);
 
+	/// Explicit secondary skill set. Levels use H3 values: 1 basic, 2 advanced, 3 expert.
+	TinyH3MBuilder & heroSecondarySkills(std::vector<std::pair<SecondarySkill, uint8_t>> skills);
+
+	/// Explicit spellbook contents. Use an empty vector to force an empty custom spellbook.
+	TinyH3MBuilder & heroSpells(std::vector<SpellID> spells);
+
 	/// Equipped artifacts keyed by slot. Slots not listed are written as NONE
 	/// (empty). Triggers the hasArtSet branch in `loadArtifactsOfHero`.
 	TinyH3MBuilder & heroEquipped(std::vector<std::pair<ArtifactPosition, ArtifactID>> equipped);
@@ -236,6 +242,8 @@ private:
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;
 		std::optional<uint32_t>                                heroExperienceXp;
 		std::optional<std::array<uint8_t, 4>>                  heroPrimarySkills;
+		std::vector<std::pair<SecondarySkill, uint8_t>>        heroSecondarySkills;
+		std::optional<std::vector<SpellID>>                    heroSpells;
 		std::vector<std::pair<ArtifactPosition, ArtifactID>>   heroEquippedArts;
 		std::vector<ArtifactID>                                heroBackpackArts;
 
@@ -269,6 +277,7 @@ private:
 
 	void writeHeroBody(TinyH3MWriter & w, const ObjectSpec & obj) const;
 	void writeScrollBody(TinyH3MWriter & w, const ObjectSpec & obj) const;
+	void writeSpellBitmask(TinyH3MWriter & w, const std::vector<SpellID> & spells) const;
 	/// Mirrors readCreatureSet: 7 fixed slots, each = creature id + uint16 count.
 	/// Slots past the end of `stacks` are written as NONE / 0.
 	void writeCreatureSet(TinyH3MWriter & w, const std::vector<std::pair<CreatureID, uint16_t>> & stacks) const;

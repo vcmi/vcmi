@@ -126,6 +126,7 @@ void ObjectGraphCalculator::updatePaths()
 	ps.mainTurnDistanceLimit = 5;
 	ps.scoutTurnDistanceLimit = 1;
 	ps.allowBypassObjects = false;
+	ps.useDimensionDoor = false;
 
 	aiNk->pathfinder->updatePaths(actors, ps);
 }

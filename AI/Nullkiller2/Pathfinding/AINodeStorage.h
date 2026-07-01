@@ -10,15 +10,20 @@
 
 #pragma once
 
-#define NK2AI_PATHFINDER_TRACE_LEVEL 0
-constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
-#define NK2AI_TRACE_LEVEL 0
-
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 #include "../Helpers/HeroMap.h"
+
+#define NK2AI_PATHFINDER_TRACE_LEVEL 0
+constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
+#define NK2AI_TRACE_LEVEL 0
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CSpell;
+class DimensionDoorEffect;
+VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {
@@ -26,6 +31,8 @@ namespace AIPathfinding
 {
 	const int CHAIN_MAX_DEPTH = 4;
 }
+
+uint64_t evaluateArmyLossValue(uint64_t armyValue, uint64_t danger, double fightingStrength);
 
 enum DayFlags : ui8
 {
@@ -47,6 +54,7 @@ struct AIPathNode : public CGPathNode
 
 	int16_t manaCost = 0;
 	DayFlags dayFlags = DayFlags::NONE;
+	uint8_t dimensionDoorCasts = 0;
 
 	void addSpecialAction(std::shared_ptr<const SpecialAction> action);
 
@@ -61,6 +69,7 @@ struct AIPathNode : public CGPathNode
 		armyLoss = 0;
 		chainOther = nullptr;
 		dayFlags = DayFlags::NONE;
+		dimensionDoorCasts = 0;
 		this->layer = layer;
 		accessible = accessibility;
 	}
@@ -338,6 +347,75 @@ public:
 
 
 private:
+	struct DimensionDoorSpellPlan
+	{
+		const CSpell * spell = nullptr;
+		const DimensionDoorEffect * effect = nullptr;
+		int manaCost = 0;
+		int plannedSourceTurn = 0;
+		int plannedSourceMoveLimit = 1;
+		int plannedSourceMoveRemains = 0;
+		int plannedDimensionDoorCasts = 0;
+		float destinationCost = 0.f;
+	};
+
+	struct DimensionDoorLandingInfo
+	{
+		const ChainActor * destinationActor = nullptr;
+		uint64_t guardedLandingDanger = 0;
+		uint64_t guardedLandingArmyLoss = 0;
+		bool canLand = true;
+	};
+
+	void calculateObjectTeleportations(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode);
+
+	bool canCalculateDimensionDoorTeleportations(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const AIPathNode * srcNode) const;
+
+	void calculateDimensionDoorTeleportations(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode);
+
+	std::optional<DimensionDoorSpellPlan> getDimensionDoorSpellPlan(
+		const PathNodeInfo & source,
+		const CPathfinderHelper * pathfinderHelper,
+		const AIPathNode * srcNode,
+		const CGHeroInstance * hero,
+		const CSpell * spell) const;
+
+	void calculateDimensionDoorTeleportationsForSpell(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const AIPathNode * srcNode,
+		const DimensionDoorSpellPlan & plan);
+
+	bool isDimensionDoorDestinationValid(
+		const PathNodeInfo & source,
+		const CGHeroInstance * hero,
+		const int3 & destination,
+		const DimensionDoorSpellPlan & plan) const;
+
+	DimensionDoorLandingInfo getDimensionDoorLandingInfo(
+		const AIPathNode * srcNode,
+		const CGHeroInstance * hero,
+		const int3 & destination) const;
+
+	void addDimensionDoorTeleportation(
+		std::vector<CGPathNode *> & neighbours,
+		const PathNodeInfo & source,
+		const AIPathNode * srcNode,
+		const int3 & destination,
+		const DimensionDoorSpellPlan & plan,
+		const DimensionDoorLandingInfo & landing);
+
 	template<class TVector>
 	void calculateTownPortal(
 		const ChainActor * actor,

@@ -24,23 +24,52 @@ AdventureSpellRangedEffect::AdventureSpellRangedEffect(const JsonNode & config)
 {
 }
 
+int AdventureSpellRangedEffect::getRangeX() const
+{
+	return rangeX;
+}
+
+int AdventureSpellRangedEffect::getRangeY() const
+{
+	return rangeY;
+}
+
+bool AdventureSpellRangedEffect::ignoresFogOfWar() const
+{
+	return ignoreFow;
+}
+
 bool AdventureSpellRangedEffect::isTargetInRange(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	if(caster->getHeroCaster())
+		return isTargetInRangeFrom(cb, caster, caster->getHeroCaster()->getSightCenter(), pos);
+
+	return isTargetValidForRangeCheck(cb, caster, pos);
+}
+
+bool AdventureSpellRangedEffect::isTargetValidForRangeCheck(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->isInTheMap(pos))
 		return false;
 
-	if(caster->getHeroCaster())
-	{
-		int3 center = caster->getHeroCaster()->getSightCenter();
-
-		int3 diff = pos - center;
-		return diff.x >= -rangeX && diff.x <= rangeX && diff.y >= -rangeY && diff.y <= rangeY;
-	}
-
-	if(!ignoreFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
+	if(!caster->getHeroCaster() && !ignoreFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
 		return false;
 
 	return true;
+}
+
+bool AdventureSpellRangedEffect::isTargetInRangeFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & pos) const
+{
+	if(!cb->isInTheMap(source) || !isTargetValidForRangeCheck(cb, caster, pos))
+		return false;
+
+	int3 diff = pos - source;
+	return diff.x >= -rangeX && diff.x <= rangeX && diff.y >= -rangeY && diff.y <= rangeY;
+}
+
+bool AdventureSpellRangedEffect::isValidTargetFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & pos) const
+{
+	return isTargetInRangeFrom(cb, caster, source, pos);
 }
 
 VCMI_LIB_NAMESPACE_END

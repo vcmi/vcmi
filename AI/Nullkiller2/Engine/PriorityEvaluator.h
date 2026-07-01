@@ -109,8 +109,8 @@ public:
 		INSTAKILL,
 		INSTADEFEND,
 		KILL,
-		EXPLORE_AND_GATHER, // Includes guarded resources/artifacts/portals
 		ESCAPE,
+		EXPLORE_AND_GATHER, // Includes guarded resources/artifacts/portals
 		DEFEND,
 		MAX_PRIORITY_TIER = DEFEND
 	};

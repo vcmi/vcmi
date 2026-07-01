@@ -14,7 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DimensionDoorEffect final : public AdventureSpellRangedEffect
+class DLL_LINKAGE DimensionDoorEffect final : public AdventureSpellRangedEffect
 {
 	std::string cursor;
 	std::string cursorGuarded;
@@ -25,6 +25,12 @@ class DimensionDoorEffect final : public AdventureSpellRangedEffect
 
 public:
 	DimensionDoorEffect(const CSpell * s, const JsonNode & config);
+
+	int getMovementPointsRequired() const;
+	int getMovementPointsTaken() const;
+	bool doesWaterLandFailureTakePoints() const;
+	bool doesExposeFogOfWar() const;
+	bool isValidTargetFrom(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & source, const int3 & destination) const final;
 
 private:
 	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;

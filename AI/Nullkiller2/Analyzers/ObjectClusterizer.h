@@ -17,6 +17,18 @@ namespace NK2AI
 
 static constexpr float MINIMUM_STRATEGICAL_VALUE_NON_TOWN = 0.3f;
 
+struct DimensionDoorExpansionReach
+{
+	int3 source;
+	int rangeX = 0;
+	int rangeY = 0;
+	int casts = 0;
+};
+
+bool canReachWithDimensionDoor(
+	const std::vector<DimensionDoorExpansionReach> & dimensionDoorReach,
+	const int3 & destination);
+
 struct ClusterObjectInfo
 {
 	float priority = 0.f;
@@ -98,7 +110,8 @@ private:
 		const CGObjectInstance * obj,
 		PriorityEvaluator * priorityEvaluator,
 		std::vector<AIPath> & pathCache,
-		std::vector<const CGHeroInstance *> & heroes);
+		const std::vector<const CGHeroInstance *> & heroes,
+		const std::vector<DimensionDoorExpansionReach> & dimensionDoorReach);
 };
 
 }

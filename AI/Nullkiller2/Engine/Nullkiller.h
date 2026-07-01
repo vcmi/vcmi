@@ -73,6 +73,15 @@ public:
 	void mergeAndFilter(const Goals::TSubgoal& task);
 };
 
+enum class TaskFailureAction
+{
+	TRY_NEXT_TASK,
+	REPLAN,
+	STOP_TURN
+};
+
+TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
+
 class Nullkiller
 {
 private:
@@ -147,9 +156,12 @@ private:
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlanAndFilter(Goals::TGoalVec & tasks, int priorityTier) const;
-	bool executeTask(const Goals::TTask & task) const;
+	bool executeTask(const Goals::TTask & task);
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
+	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
+	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
+	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };
 
