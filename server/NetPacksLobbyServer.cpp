@@ -187,7 +187,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
 	auto scenarios = pack.ourCampaign->allScenarios();
-	for(auto scenarioID : boost::adaptors::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
+	for(auto scenarioID : std::views::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
 	{
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{

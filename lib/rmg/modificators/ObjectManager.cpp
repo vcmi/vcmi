@@ -813,7 +813,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 
 	auto guardTiles = accessibleArea.getTilesVector();
-	auto guardPos = *std::min_element(guardTiles.begin(), guardTiles.end(), [&object](const int3 & l, const int3 & r)
+	auto guardPos = *std::ranges::min_element(guardTiles, [&object](const int3 & l, const int3 & r)
 	{
 		auto p = object.getVisitablePosition();
 		if(l.y > r.y)

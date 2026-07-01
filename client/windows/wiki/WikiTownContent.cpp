@@ -111,8 +111,8 @@ public:
 			if(it == town->buildings.end())
 				continue;
 			const CBuilding * base = it->second.get();
-			const CStructure * best = *std::max_element(
-				group.begin(), group.end(),
+			const CStructure * best = *std::ranges::max_element(
+				group,
 				[base](const CStructure * a, const CStructure * b)
 				{
 					return base->getDistance(a->building->bid)

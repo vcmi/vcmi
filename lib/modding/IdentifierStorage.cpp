@@ -514,7 +514,7 @@ void CIdentifierStorage::debugDumpIdentifiers()
 	}
 
 	for(auto & category : objectList)
-		boost::range::sort(category.second);
+		std::ranges::sort(category.second);
 
 	for(const auto & category : objectList)
 	{

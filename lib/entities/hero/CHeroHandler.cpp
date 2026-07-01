@@ -110,7 +110,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 {
 	for(const JsonNode &set : node["skills"].Vector())
 	{
-		int skillLevel = static_cast<int>(boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
+		int skillLevel = static_cast<int>(std::ranges::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
 		if (skillLevel < MasteryLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
@@ -386,7 +386,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 ui32 CHeroHandler::level (TExpType experience) const
 {
-	return static_cast<ui32>(boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
+	return static_cast<ui32>(std::ranges::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
 }
 
 TExpType CHeroHandler::reqExp (ui32 level) const

@@ -53,7 +53,7 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 		for(const auto & slot : attacker->Slots())
 			stacks.push_back(slot.second.get());
 
-		boost::sort(
+		std::ranges::sort(
 			stacks,
 			[](const CStackInstance * slot1, const CStackInstance * slot2) -> bool
 			{

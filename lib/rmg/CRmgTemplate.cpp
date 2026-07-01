@@ -870,12 +870,14 @@ void CRmgTemplate::CPlayerCountRange::fromString(const std::string & value)
 
 int CRmgTemplate::CPlayerCountRange::maxValue() const
 {
-	return *boost::max_element(getNumbers());
+	auto numbers = getNumbers();
+	return *std::ranges::max_element(numbers);
 }
 
 int CRmgTemplate::CPlayerCountRange::minValue() const
 {
-	return *boost::min_element(getNumbers());
+	auto numbers = getNumbers();
+	return *std::ranges::min_element(numbers);
 }
 
 void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)

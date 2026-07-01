@@ -176,8 +176,8 @@ void MapComparer::compareHeader()
 	{
 		return lhs.identifier < rhs.identifier;
 	};
-	boost::sort (actualEvents, sortByIdentifier);
-	boost::sort (expectedEvents, sortByIdentifier);
+	std::ranges::sort (actualEvents, sortByIdentifier);
+	std::ranges::sort (expectedEvents, sortByIdentifier);
 
 	checkEqual(actualEvents, expectedEvents);
 	checkEqual(actual->disposedHeroes, expected->disposedHeroes);

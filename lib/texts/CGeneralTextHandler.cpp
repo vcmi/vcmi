@@ -97,7 +97,7 @@ void CGeneralTextHandler::detectInstallParameters()
 			deviations[i] += std::abs((footprint[j] - knownFootprints[i][j]));
 	}
 
-	size_t bestIndex = boost::range::min_element(deviations) - deviations.begin();
+	size_t bestIndex = std::ranges::min_element(deviations) - deviations.begin();
 
 	for (size_t i = 0; i < deviations.size(); ++i)
 		logGlobal->debug("Comparing to %s: %f", knownLanguages[i], deviations[i]);

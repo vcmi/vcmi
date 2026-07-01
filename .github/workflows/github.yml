@@ -573,10 +573,10 @@ jobs:
             preset: linux-gcc-debug
 
           - platform: clang-oldest-release
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             before_install: linux_qt5.sh
-            compiler_cxx: clang++-13
-            compiler_cc: clang-13
+            compiler_cxx: clang++-16
+            compiler_cc: clang-16
             preset: linux-clang-test
 
     runs-on: ${{ matrix.os }}

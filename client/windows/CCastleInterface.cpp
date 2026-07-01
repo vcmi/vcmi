@@ -776,7 +776,7 @@ void CCastleBuildings::recreate()
 	{
 		const CBuilding * build = town->getTown()->buildings.at(entry.first).get();
 
-		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
+		const CStructure * toAdd = *std::ranges::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
 			return build->getDistance(a->building->bid) < build->getDistance(b->building->bid);
 		});
@@ -799,7 +799,7 @@ void CCastleBuildings::recreate()
 		return (*b1)<(*b2);
 	};
 
-	boost::sort(children, buildSorter); //TODO: create building in blit order
+	std::ranges::sort(children, buildSorter); //TODO: create building in blit order
 }
 
 void CCastleBuildings::drawOverlays(Canvas & to, std::vector<std::shared_ptr<CBuildingRect>> buildingRects)
@@ -902,7 +902,7 @@ void CCastleBuildings::buildingClicked(BuildingID building)
 		buildingToEnter = b->upgrade;
 	}
 
-	for(BuildingID buildingToEnter : boost::adaptors::reverse(buildingsToTest))
+	for(BuildingID buildingToEnter : std::views::reverse(buildingsToTest))
 	{
 		if (buildingTryActivateCustomUI(buildingToEnter, building))
 			return;

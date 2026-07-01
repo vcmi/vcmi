@@ -11,6 +11,7 @@
 
 #include "../AIUtility.h"
 #include "../../../lib/ResourceSet.h"
+#include "../../../lib/entities/building/CBuilding.h"
 
 namespace NK2AI
 {

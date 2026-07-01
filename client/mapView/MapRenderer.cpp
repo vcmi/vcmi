@@ -735,7 +735,7 @@ size_t MapRendererPath::selectImage(IMapRendererContext & context, const int3 & 
 	if(!path)
 		return std::numeric_limits<size_t>::max();
 
-	const auto & iter = boost::range::find_if(path->nodes, functor);
+	const auto & iter = std::ranges::find_if(path->nodes, functor);
 
 	if(iter == path->nodes.end())
 		return std::numeric_limits<size_t>::max();
@@ -770,7 +770,7 @@ MapRenderer::TileChecksum MapRenderer::getTileChecksum(IMapRendererContext & con
 	// computes basic checksum to determine whether tile needs an update
 	// if any component gives different value, tile will be updated
 	TileChecksum result;
-	boost::range::fill(result, std::numeric_limits<uint8_t>::max());
+	std::ranges::fill(result, std::numeric_limits<uint8_t>::max());
 
 	if(!context.isInMap(coordinates))
 	{

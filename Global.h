@@ -125,6 +125,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <optional>
 #include <queue>
 #include <random>
+#include <ranges>
 #include <regex>
 #include <set>
 #include <shared_mutex>
@@ -165,23 +166,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/format.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_array.hpp>
-// C++ 20 -> std::range
-#include <boost/range/adaptor/filtered.hpp>
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/range/algorithm/count.hpp>
-#include <boost/range/algorithm/count_if.hpp>
-#include <boost/range/algorithm/fill.hpp>
-#include <boost/range/algorithm/find.hpp>
-#include <boost/range/algorithm/find_if.hpp>
-#include <boost/range/algorithm/max_element.hpp>
-#include <boost/range/algorithm/min_element.hpp>
-#include <boost/range/algorithm/remove.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
-#include <boost/range/algorithm/replace.hpp>
-#include <boost/range/algorithm/sort.hpp>
-#include <boost/range/algorithm/unique.hpp>
-#include <boost/range/algorithm/upper_bound.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -559,7 +543,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return std::min_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::ranges::min_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -574,7 +558,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return std::max_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::ranges::max_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});

@@ -104,7 +104,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	for(auto & pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
-	boost::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
+	std::ranges::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		return left.power > right.power;
 	});
@@ -127,7 +127,7 @@ std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<Slo
 
 	const auto & movementPointsLimits = cpsic->getSettings().getVector(EGameSettings::HEROES_MOVEMENT_POINTS_LAND);
 
-	auto fastest = boost::min_element(army, [&](const SlotInfo & left, const SlotInfo & right) -> bool
+	auto fastest = std::ranges::min_element(army, [&](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		uint64_t leftUnitPower = left.power / left.count;
 		uint64_t rightUnitPower = right.power / right.count;

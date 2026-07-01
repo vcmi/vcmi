@@ -537,7 +537,7 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 			std::string dataDirsEnv = tempResult;
 			std::vector<std::string> dataDirs;
 			boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
-			for (auto & entry : boost::adaptors::reverse(dataDirs))
+			for (auto & entry : std::views::reverse(dataDirs))
 				ret.push_back(bfs::path(entry) / "vcmi");
 		}
 		else

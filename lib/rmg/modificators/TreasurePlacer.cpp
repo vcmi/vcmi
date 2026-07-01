@@ -963,7 +963,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
-	boost::sort(treasureInfo, valueComparator);
+	std::ranges::sort(treasureInfo, valueComparator);
 
 	//sort treasures by ascending value so we can stop checking treasures with too high value
 	objects.sortPossibleObjects();
@@ -1227,7 +1227,7 @@ std::vector<ObjectInfo> & TreasurePlacer::ObjectPool::getPossibleObjects()
 
 void TreasurePlacer::ObjectPool::sortPossibleObjects()
 {
-	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
+	std::ranges::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
 	{
 		return oi1.value < oi2.value;
 	});

@@ -334,7 +334,7 @@ void AdventureMapShortcuts::endTurn()
 void AdventureMapShortcuts::showThievesGuild()
 {
 	//find first town with tavern
-	auto itr = boost::range::find_if(GAME->interface()->localState->getOwnedTowns(), [](const CGTownInstance * town)
+	auto itr = std::ranges::find_if(GAME->interface()->localState->getOwnedTowns(), [](const CGTownInstance * town)
 	{
 		return town->hasBuilt(BuildingID::TAVERN);
 	});

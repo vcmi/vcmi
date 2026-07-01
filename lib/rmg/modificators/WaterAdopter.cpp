@@ -229,7 +229,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	Zone::Lock lock(zone.areaMutex);
 	zone.area()->subtract(waterArea);
 	zone.areaPossible()->subtract(waterArea);
-	auto centerSet = std::max_element(reverseDistanceMap.begin(), reverseDistanceMap.end(), 
+	auto centerSet = std::ranges::max_element(reverseDistanceMap,
 		[](const auto &a, const auto &b) 
 		{
 			return a.first < b.first;

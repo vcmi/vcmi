@@ -286,7 +286,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 					{ 'f', 1 }, { 'l', 6}, {'r', 2}, {'b', 4}
 				};
 				int converted = 0;
-				for (const auto & ch : boost::adaptors::reverse(sequence.String()))
+				for (const auto & ch : std::views::reverse(sequence.String()))
 				{
 					char chLower = std::tolower(ch);
 					if (charToDirection.count(chLower))

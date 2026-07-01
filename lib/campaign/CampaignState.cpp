@@ -180,7 +180,7 @@ std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID 
 		bool result = h->tempOwner == owner;
 		return result;
 	};
-	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
+	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | std::views::filter(isOwned);
 
 	if (ownedHeroes.empty())
 		return nullptr;
@@ -216,7 +216,7 @@ const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
 
 void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
 {
-	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
+	std::ranges::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
