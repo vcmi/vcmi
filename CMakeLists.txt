@@ -123,17 +123,28 @@ else()
 			check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
 		endif()
 
-
 		# Determine if Glaze can be used
 		set(DISCORD_RPC_NO_GLAZE OFF)
 		if(
-			(MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "10.15")
-			OR
 			(IOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
 			OR
 			(NOT COMPILER_SUPPORTS_CXX23)
 		)
 			set(DISCORD_RPC_NO_GLAZE ON)
+		elseif(MACOS)
+			# when deployment target is not set, treat current macOS version as deployment target
+			# it's not strictly correct as default compiler behavior is to set macOS major version as deployment target
+			# e.g. if building on macOS 15.7.7, default deployment target would be 15.0
+			# but in this case it's sufficient
+			if(CMAKE_OSX_DEPLOYMENT_TARGET)
+				set(deploymentTarget ${CMAKE_OSX_DEPLOYMENT_TARGET})
+			else()
+				execute_process(COMMAND sw_vers -productVersion
+					OUTPUT_VARIABLE deploymentTarget OUTPUT_STRIP_TRAILING_WHITESPACE)
+			endif()
+			if(deploymentTarget VERSION_LESS "10.15")
+				set(DISCORD_RPC_NO_GLAZE ON)
+			endif()
 		endif()
 	endif()
 endif()
