@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
-#include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 #include "Functions.h"
 
@@ -913,10 +912,11 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	}
 	
 	{
-		boost::bimap<EWaterContent::EWaterContent, std::string> enc;
-		enc.insert({EWaterContent::NONE, "none"});
-		enc.insert({EWaterContent::NORMAL, "normal"});
-		enc.insert({EWaterContent::ISLANDS, "islands"});
+		static const std::array<std::pair<EWaterContent::EWaterContent, std::string>, 3> waterContentNames{{
+			{EWaterContent::NONE, "none"},
+			{EWaterContent::NORMAL, "normal"},
+			{EWaterContent::ISLANDS, "islands"},
+		}};
 		JsonNode node;
 		if(handler.saving)
 		{
@@ -924,7 +924,9 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			for(auto wc : allowedWaterContent)
 			{
 				JsonNode n;
-				n.String() = enc.left.at(wc);
+				for(const auto & [value, name] : waterContentNames)
+					if(value == wc)
+						n.String() = name;
 				node.Vector().push_back(n);
 			}
 		}
@@ -933,7 +935,9 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		{
 			for(auto wc : node.Vector())
 			{
-				allowedWaterContent.insert(enc.right.at(std::string(wc.String())));
+				for(const auto & [value, name] : waterContentNames)
+					if(name == wc.String())
+						allowedWaterContent.insert(value);
 			}
 		}
 	}
