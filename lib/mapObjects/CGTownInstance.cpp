@@ -1082,7 +1082,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			bool customBuildings = false;
 
-			boost::logic::tribool hasFort(false);
+			bool hasFort = false;
 
 			for(const BuildingID & id : forbiddenBuildings)
 			{

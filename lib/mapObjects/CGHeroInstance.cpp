@@ -880,7 +880,7 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const battl
 	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
 	if(singleTarget)
-		attacked.at(0)->addNameReplacement(text, true);
+		attacked.at(0)->addNameReplacement(text, 2);
 }
 
 const CGHeroInstance * CGHeroInstance::getHeroCaster() const

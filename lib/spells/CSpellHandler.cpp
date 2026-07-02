@@ -304,19 +304,23 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 	if(flags["indifferent"].Bool())
 	{
-		spell->positiveness = CSpell::NEUTRAL;
+		spell->positive = false;
+		spell->negative = false;
 	}
 	else if(flags["negative"].Bool())
 	{
-		spell->positiveness = CSpell::NEGATIVE;
+		spell->positive = false;
+		spell->negative = true;
 	}
 	else if(flags["positive"].Bool())
 	{
-		spell->positiveness = CSpell::POSITIVE;
+		spell->positive = true;
+		spell->negative = false;
 	}
 	else if(!implicitPositiveness)
 	{
-		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
+		spell->positive = false; //duplicates constructor but, just in case
+		spell->negative = false;
 		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getNameTranslated());
 	}
 

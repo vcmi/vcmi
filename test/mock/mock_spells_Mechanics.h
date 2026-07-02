@@ -73,7 +73,7 @@ public:
 	MOCK_CONST_METHOD1(canonicalizeTarget, Target(const Target &));
 
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
-	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
+	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, bool));
 
 	MOCK_CONST_METHOD0(creatures, const CreatureService *());
 	MOCK_CONST_METHOD0(scripts, const scripting::Service *());

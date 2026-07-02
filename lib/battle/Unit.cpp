@@ -244,26 +244,20 @@ BattleHex Unit::occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSid
 	}
 }
 
-void Unit::addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural) const
+void Unit::addText(MetaString & text, EMetaText type, int32_t serial) const
 {
-	if(boost::logic::indeterminate(plural))
-		serial = LIBRARY->generaltexth->pluralText(serial, getCount());
-	else if(plural)
-		serial = LIBRARY->generaltexth->pluralText(serial, 2);
-	else
-		serial = LIBRARY->generaltexth->pluralText(serial, 1);
-
+	serial = LIBRARY->generaltexth->pluralText(serial, getCount());
 	text.appendLocalString(type, serial);
 }
 
-void Unit::addNameReplacement(MetaString & text, const boost::logic::tribool & plural) const
+void Unit::addNameReplacement(MetaString & text) const
 {
-	if(boost::logic::indeterminate(plural))
-		text.replaceName(creatureId(), getCount());
-	else if(plural)
-		text.replaceNamePlural(creatureIndex());
-	else
-		text.replaceNameSingular(creatureIndex());
+	addNameReplacement(text, getCount());
+}
+
+void Unit::addNameReplacement(MetaString & text, TQuantity count) const
+{
+	text.replaceName(creatureId(), count);
 }
 
 std::string Unit::formatGeneralMessage(const int32_t baseTextId) const

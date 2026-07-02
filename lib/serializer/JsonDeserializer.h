@@ -25,7 +25,7 @@ public:
 	void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) override;
 
 protected:
-	void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) override;
+	void serializeInternal(const std::string & fieldName, std::optional<bool> & value) override;
 	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
 	void serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder) override;
 	void serializeInternal(const std::string & fieldName, double & value, const std::optional<double> & defaultValue) override;

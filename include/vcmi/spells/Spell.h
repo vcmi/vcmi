@@ -31,7 +31,6 @@ public:
 	virtual int64_t calculateDamage(const Caster * caster) const = 0;
 
 	virtual int32_t getLevel() const = 0;
-	virtual boost::logic::tribool getPositiveness() const = 0;
 	virtual bool isAdventure() const = 0;
 	virtual bool isCombat() const = 0;
 	virtual bool isCreatureAbility() const = 0;

@@ -18,10 +18,10 @@ JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, Json
 
 }
 
-void JsonSerializer::serializeInternal(const std::string & fieldName, boost::logic::tribool & value)
+void JsonSerializer::serializeInternal(const std::string & fieldName, std::optional<bool> & value)
 {
-	if(!boost::logic::indeterminate(value))
-		currentObject->operator[](fieldName).Bool() = (bool)value;
+	if(value.has_value())
+		currentObject->operator[](fieldName).Bool() = *value;
 }
 
 void JsonSerializer::serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)

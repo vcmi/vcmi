@@ -63,7 +63,6 @@ void CPathfinderHelper::calculateNeighbourTiles(NeighbourTilesVector & result, c
 		*source.tile,
 		source.node->coord,
 		result,
-		boost::logic::indeterminate,
 		source.node->layer == EPathfindingLayer::SAIL);
 
 	if(source.isNodeObjectVisitable())
@@ -589,7 +588,6 @@ void CPathfinderHelper::getNeighbours(
 	const TerrainTile & sourceTile,
 	const int3 & srcCoord,
 	NeighbourTilesVector & vec,
-	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
 {
 	const TerrainType * sourceTerrain = sourceTile.getTerrain();
@@ -620,10 +618,7 @@ void CPathfinderHelper::getNeighbours(
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == destTerrain->isLand())
-		{
-			vec.push_back(destCoord);
-		}
+		vec.push_back(destCoord);
 	}
 }
 
@@ -666,21 +661,9 @@ int CPathfinderHelper::getMovementCost(
 		dt = hero->cb->getTile(dst);
 	}
 
-	boost::logic::tribool isDstSailLayer = dstLayer == EPathfindingLayer::SAIL;
-	boost::logic::tribool isDstWaterLayer = dstLayer == EPathfindingLayer::WATER;
+	bool isSailLayer = dstLayer == EPathfindingLayer::SAIL;
+	bool isWaterLayer = dstLayer == EPathfindingLayer::WATER;
 
-	bool isSailLayer;
-	if(indeterminate(isDstSailLayer))
-		isSailLayer = hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::SAIL && dt->isWater();
-	else
-		isSailLayer = static_cast<bool>(isDstSailLayer);
-
-	bool isWaterLayer;
-	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::WATER) || ti->hasWaterWalking()) && dt->isWater();
-	else
-		isWaterLayer = static_cast<bool>(isDstWaterLayer);
-	
 	bool isAirLayer = (hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::AIR) || ti->hasFlyingMovement();
 
 	bool isAviateLayer = hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::AVIATE;
