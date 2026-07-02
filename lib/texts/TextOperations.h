@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

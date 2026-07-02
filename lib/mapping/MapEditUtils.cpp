@@ -17,7 +17,6 @@
 #include "CMap.h"
 #include "CMapOperation.h"
 
-#include <boost/lexical_cast.hpp>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -203,7 +202,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					assert(!rule.name.empty());
 					if (ruleParts.size() > 1)
 					{
-						rule.points = boost::lexical_cast<int>(ruleParts[1]);
+						rule.points = std::stoi(ruleParts[1]);
 					}
 					pattern.data[j].push_back(rule);
 				}
@@ -232,7 +231,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					terGroupPattern.diffImages = TerrainViewPattern::FLIP_MODE_DIFF_IMAGES == &(flipMode[flipMode.length() - 1]);
 					if (terGroupPattern.diffImages)
 					{
-						terGroupPattern.rotationTypesCount = boost::lexical_cast<int>(flipMode.substr(0, flipMode.length() - 1));
+						terGroupPattern.rotationTypesCount = std::stoi(flipMode.substr(0, flipMode.length() - 1));
 						assert(terGroupPattern.rotationTypesCount == 2 || terGroupPattern.rotationTypesCount == 4);
 					}
 					mappingStr = mappingStr.substr(colonIndex + 1);

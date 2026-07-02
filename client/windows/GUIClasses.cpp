@@ -69,7 +69,6 @@
 #include "../../lib/CSoundBase.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
-#include <boost/lexical_cast.hpp>
 
 ImagePath CRecruitmentWindow::getRecruitmentBackground(const CGDwelling * dwelling, int level)
 {
@@ -440,9 +439,9 @@ void CSplitWindow::setAmountText(std::string text, bool left)
 	{
 		try
 		{
-			amount = boost::lexical_cast<int>(text);
+			amount = std::stoi(text);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch(const std::exception &)
 		{
 			amount = left ? leftAmount : rightAmount;
 		}

@@ -15,7 +15,6 @@
 #include "JsonWriter.h"
 #include "filesystem/Filesystem.h"
 
-#include <boost/lexical_cast.hpp>
 
 // to avoid duplicating const and non-const code
 template<typename Node>
@@ -38,7 +37,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
 			throw std::runtime_error("Invalid Json pointer");
 
-		auto index = boost::lexical_cast<size_t>(entry);
+		auto index = std::stoull(entry);
 
 		if(in.Vector().size() > index)
 			return in.Vector()[index].resolvePointer(remainder);
