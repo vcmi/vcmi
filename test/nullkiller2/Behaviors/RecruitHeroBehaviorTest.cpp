@@ -6,28 +6,59 @@
  * License: GNU General Public License v2.0 or later
  * Full text of license available in license.txt file, in main folder
  */
-#include "Global.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include "StdInc.h"
 
 #include "AI/Nullkiller2/Behaviors/RecruitHeroBehavior.h"
-#include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include "lib/constants/NumericConstants.h"
+#include "lib/mapObjects/CGHeroInstance.h"
+#include "lib/mapObjects/CGTownInstance.h"
 
-class MockNullkiller : public NK2AI::Nullkiller
+TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, recruitDecisionAllowsMarkedNextTurnEmergencyUnderGoldPressure)
 {
-public:
-	~MockNullkiller() override = default;
-	MOCK_METHOD(void, makeTurn, (), (override));
-};
+	CGHeroInstance tavernHero(nullptr);
 
-TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, calculateBestHero)
+	ASSERT_TRUE(tavernHero.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+	ASSERT_GT(tavernHero.getArmyCost(), GameConstants::HERO_GOLD_COST / 2.0);
+
+	NK2AI::Goals::RecruitHeroChoice bestChoice;
+	bestChoice.score = 1.0f;
+	bestChoice.hero = &tavernHero;
+	bestChoice.defensiveEmergency = true;
+
+	EXPECT_TRUE(
+		NK2AI::Goals::RecruitHeroBehavior::shouldRecruitHero(1, bestChoice, false, 0, 0, true)
+	) << "severe next-turn town threat should bypass gold pressure for an emergency recruit";
+}
+
+TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, defensiveEmergencyRequiresMeaningfulNextTurnThreat)
 {
-	EXPECT_EQ(1, 1);
-	auto behavior = NK2AI::Goals::RecruitHeroBehavior();
-	EXPECT_FALSE(behavior.invalid());
-	EXPECT_EQ(1, 1);
-	auto * const aiNk = new MockNullkiller();
-	EXPECT_CALL(*aiNk, makeTurn()).Times(1);
-	aiNk->makeTurn();
-	delete aiNk;
+	CGTownInstance threatenedTown(nullptr);
+	CGHeroInstance tavernHero(nullptr);
+
+	ASSERT_TRUE(tavernHero.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	NK2AI::HitMapInfo weakThreat;
+	weakThreat.turn = 1;
+	weakThreat.danger = GameConstants::HERO_GOLD_COST / 2 - 1;
+
+	ASSERT_GT(tavernHero.getTotalStrength(), weakThreat.danger);
+	EXPECT_FALSE(
+		NK2AI::Goals::RecruitHeroBehavior::isDefensiveRecruitEmergency(threatenedTown, tavernHero, weakThreat, 1.0f)
+	) << "weak next-turn threats should not force hero recruitment";
+}
+
+TEST(Nullkiller2_Behaviors_RecruitHeroBehavior, defensiveEmergencyAllowsSevereNextTurnThreatCoveredByHero)
+{
+	CGTownInstance threatenedTown(nullptr);
+	CGHeroInstance tavernHero(nullptr);
+
+	ASSERT_TRUE(tavernHero.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+	NK2AI::HitMapInfo threat;
+	threat.turn = 1;
+	threat.danger = GameConstants::HERO_GOLD_COST / 2;
+
+	ASSERT_GT(tavernHero.getTotalStrength(), threat.danger);
+	EXPECT_TRUE(
+		NK2AI::Goals::RecruitHeroBehavior::isDefensiveRecruitEmergency(threatenedTown, tavernHero, threat, 1.0f)
+	) << "severe next-turn threats should force recruitment when the tavern hero can cover them";
 }
