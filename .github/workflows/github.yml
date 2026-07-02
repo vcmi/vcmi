@@ -556,7 +556,7 @@ jobs:
             path: .summary/source.json
 
   test:
-    name: Test (${{ matrix.platform }})
+    name: Build+Test (${{ matrix.platform }})
     strategy:
       fail-fast: false
       matrix:
