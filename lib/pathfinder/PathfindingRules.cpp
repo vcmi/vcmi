@@ -17,6 +17,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
+#include "../mapObjects/Quest.h"
 #include "../mapping/TerrainTile.h"
 
 void MovementCostRule::process(
@@ -165,9 +166,15 @@ void DestinationActionRule::process(
 				else if(objRel == PlayerRelations::ENEMIES)
 					action = EPathNodeAction::BATTLE;
 			}
-			else if(destination.nodeObject->ID == Obj::BORDER_GATE)
+			// quest gate: a passable doorway (quest guards are blocked-visitable, handled below)
+			else if(const auto * source = destination.nodeObject->asQuestSource();
+				source && source->requiresQuestToPass() && !destination.nodeObject->isBlockedVisitable())
 			{
-				if(destination.nodeObject->passableFor(hero))
+				const auto * quest = source->getActiveQuest();
+				// first encounter: stop so the player learns of the gate before passing through
+				if(quest && !quest->isKnownTo(hero->getOwner()))
+					action = EPathNodeAction::BLOCKING_VISIT;
+				else if(destination.nodeObject->passableFor(hero))
 				{
 					if(destination.guarded)
 						action = EPathNodeAction::BATTLE;
@@ -241,10 +248,20 @@ PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlocking
 			return BlockingReason::NONE;
 		}
 		else if(destination.nodeObject->ID == Obj::GARRISON
-			|| destination.nodeObject->ID == Obj::GARRISON2
-			|| destination.nodeObject->ID == Obj::BORDER_GATE)
+			|| destination.nodeObject->ID == Obj::GARRISON2)
 		{
 			/// Transit via unguarded garrisons is always possible
+			return BlockingReason::NONE;
+		}
+		else if(const auto * source = destination.nodeObject->asQuestSource();
+			source && source->requiresQuestToPass() && !destination.nodeObject->isBlockedVisitable())
+		{
+			// Transit through an opened non-toll gate. A toll gate must be a conscious stop:
+			// the hero lands on it (paying) instead of being routed through for free.
+			const auto * quest = source->getActiveQuest();
+			if(quest && quest->isToll())
+				return BlockingReason::DESTINATION_VISIT;
+
 			return BlockingReason::NONE;
 		}
 

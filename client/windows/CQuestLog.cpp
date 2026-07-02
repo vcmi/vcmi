@@ -158,11 +158,13 @@ void CQuestLog::recreateLabelList()
 		questPtr->getQuestlogText(GAME->interface()->cb.get(), text, false);
 		if (quests[i].obj.hasValue())
 		{
-			if (auto seersHut = dynamic_cast<const SeerHut *>(questObject))
+			const auto * source = questObject ? questObject->asQuestSource() : nullptr;
+			std::string giver = source ? source->getQuestGiverName() : "";
+			if (!giver.empty())
 			{
 				MetaString toSeer;
 				toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
-				toSeer.replaceRawString(seersHut->seerName);
+				toSeer.replaceRawString(giver);
 				text.replaceRawString(toSeer.toString());
 			}
 			else if(questObject)

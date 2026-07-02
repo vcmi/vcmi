@@ -475,7 +475,8 @@ bool QuestSource::questLogEntryShared(PlayerColor player) const
 	for(const auto & qi : cb->getPlayerState(player)->quests)
 	{
 		const auto * other = cb->getObjInstance(qi.obj);
-		if(other && other->questLogSharedColor() == color)
+		const auto * otherSource = other ? other->asQuestSource() : nullptr;
+		if(otherSource && otherSource->questLogSharedColor() == color)
 			return true;
 	}
 	return false;
@@ -586,7 +587,7 @@ std::string SeerHut::buildText(PlayerColor player, bool onHover) const
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
 	MetaString text;
-	if(ID == Obj::SEER_HUT && questActive)
+	if(!seerName.empty() && questActive) // only a real seer hut names a seer; quest guards leave it empty
 	{
 		text.appendTextID(TextIdentifier("core", "genrltxt", 347).get());
 		text.replaceRawString(seerName);
@@ -695,7 +696,7 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		// no active quest: pick a valid "empty seer" flavour without one
 		ui8 emptyOption = allQuests().empty() ? 0 : allQuests().front()->completedOption;
 		iw.text.appendTextID(TextIdentifier("core", "seerhut", "empty", emptyOption).get());
-		if (ID == Obj::SEER_HUT)
+		if(!seerName.empty())
 			iw.text.replaceRawString(seerName);
 		gameEvents.showInfoDialog(&iw);
 	}

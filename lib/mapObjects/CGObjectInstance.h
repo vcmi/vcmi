@@ -22,6 +22,7 @@ class ObjectTemplate;
 class CMap;
 class CGameState;
 class Quest;
+class IQuestSource;
 class AObjectTypeHandler;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
@@ -120,11 +121,9 @@ public:
 	/// Hero-aware passability, used where a concrete hero exists (e.g. a toll Quest
 	/// Gate that needs the hero's inventory). Default forwards to the colour overload.
 	virtual bool passableFor(const CGHeroInstance * hero) const;
-	/// The quest gating this object for quest-log purposes, or nullptr if it has none
-	virtual const Quest * activeQuestForLog() const { return nullptr; }
-	/// Border guards/gates of one keymaster colour share a single quest-log entry per
-	/// player; this returns that colour key(s). Empty (default) = a per-instance entry.
-	virtual std::vector<MapObjectSubID> questLogSharedColor() const { return {}; }
+	/// Quest-source view of this object (active quest, passage blocking, quest-log
+	/// grouping) for the AI, pathfinder and quest log; nullptr if it carries no quest.
+	virtual const IQuestSource * asQuestSource() const { return nullptr; }
 	/// Range of revealed map around this object, counting from getSightCenter()
 	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object

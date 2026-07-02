@@ -187,6 +187,12 @@ double getNormalizedHeroStrength(const CGHeroInstance * hero)
 	return normalizeHeroStrength(hero->getHeroStrength());
 }
 
+bool isQuestBlocker(const CGObjectInstance * obj)
+{
+	const auto * source = obj->asQuestSource();
+	return source && source->requiresQuestToPass();
+}
+
 bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 {
 	return isObjectPassable(obj, aiNk->playerID, aiNk->cc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
@@ -199,8 +205,16 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 		&& objectRelations != PlayerRelations::ENEMIES)
 		return true;
 
-	if(obj->ID == Obj::BORDER_GATE && obj->cb->getPlayerState(playerColor)->wasKeymasterVisited(obj->subID))
-		return true;
+	// a quest gate is passable when its own limiter is satisfied; guards are never passable
+	// (they are blocked-visitable and must be visited to be cleared)
+	if(const auto * source = obj->asQuestSource(); source && source->requiresQuestToPass() && !obj->isBlockedVisitable())
+	{
+		// TODO: the AI cannot yet weigh a toll gate's per-pass resource cost, so treat toll
+		//       gates as impassable for now instead of paying on every transit.
+		if(source->getActiveQuest() && source->getActiveQuest()->isToll())
+			return false;
+		return obj->passableFor(playerColor);
+	}
 
 	return false;
 }

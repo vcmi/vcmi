@@ -167,8 +167,16 @@ namespace AIPathfinding
 		auto questInfo = QuestInfo(destination.nodeObject->id);
 		QuestAction questAction(questInfo);
 
-		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-		   && destination.nodeObject->activeQuestForLog()->mission == Rewardable::Limiter{})
+		// skip a blocker with no actual requirements (empty quest guard)
+		const auto * questSource = destination.nodeObject->asQuestSource();
+		if(questSource && (!questSource->getActiveQuest() || questSource->getActiveQuest()->mission == Rewardable::Limiter{}))
+		{
+			return false;
+		}
+
+		// TODO: the AI cannot weigh a toll gate's per-pass resource cost yet; treat toll gates
+		//       as impassable for now rather than paying the toll on every transit.
+		if(questSource && !destination.nodeObject->isBlockedVisitable() && questSource->getActiveQuest()->isToll())
 		{
 			return false;
 		}
@@ -218,9 +226,7 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-			|| destination.nodeObject->ID == Obj::BORDERGUARD
-			|| destination.nodeObject->ID == Obj::BORDER_GATE)
+		if(isQuestBlocker(destination.nodeObject))
 		{
 			return bypassQuest(source, destination, pathfinderConfig, pathfinderHelper);
 		}

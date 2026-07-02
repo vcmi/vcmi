@@ -18,7 +18,8 @@
 
 const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
-	const Quest * quest = getObject(cb)->activeQuestForLog();
+	const auto * source = getObject(cb)->asQuestSource();
+	const Quest * quest = source ? source->getActiveQuest() : nullptr;
 	assert(quest);
 
 	return quest;

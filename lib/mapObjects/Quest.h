@@ -75,6 +75,9 @@ public:
 
 	static bool checkMissionArmy(const Quest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+
+	/// True once the player has been shown this quest (i.e. is aware of its requirements).
+	bool isKnownTo(PlayerColor player) const { return activeForPlayers.count(player) != 0; }
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
 	void getHoverText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
@@ -145,8 +148,31 @@ public:
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
+/// Narrow, read-only view of a quest-carrying object for outside consumers (AI,
+/// pathfinder, quest log). Reached via CGObjectInstance::asQuestSource() so callers
+class DLL_LINKAGE IQuestSource
+{
+public:
+	virtual ~IQuestSource() = default;
+
+	/// Active quest (mission/limiter, checkQuest, isToll); nullptr when none is offered.
+	virtual const Quest * getActiveQuest() const = 0;
+
+	/// True for objects that gate a hero's passage behind a quest - quest guards (a hard
+	/// obstacle, always blocked-visitable) and quest gates (a doorway that opens once the
+	/// quest is satisfied). False for seer huts, which are optional visits.
+	virtual bool requiresQuestToPass() const = 0;
+
+	/// Keymaster colours sharing one quest-log entry (border guards/gates of a colour).
+	/// Empty means a per-instance entry.
+	virtual std::vector<MapObjectSubID> questLogSharedColor() const = 0;
+
+	/// Quest giver's display name, empty if the object has none (only seer huts do).
+	virtual std::string getQuestGiverName() const { return {}; }
+};
+
 /// Abstract base for rewardable objects that gate a reward behind a Quest.
-class DLL_LINKAGE QuestSource : public CRewardableObject
+class DLL_LINKAGE QuestSource : public CRewardableObject, public IQuestSource
 {
 	// Seer Huts may carry several quests; only one is active at a time and it is
 	// the same for every player. A source with no offerable quest has no active
@@ -172,7 +198,9 @@ public:
 	// kept here for the cross-DLL client KeymasterPopup caller.
 	static std::string keymasterVisitedText(const CGObjectInstance * keyObject, PlayerColor player);
 
-	const Quest * activeQuestForLog() const override { return &getQuest(); }
+	const IQuestSource * asQuestSource() const override { return this; }
+	const Quest * getActiveQuest() const override { return isEmpty() ? nullptr : &getQuest(); }
+	bool requiresQuestToPass() const override { return false; }
 	std::vector<MapObjectSubID> questLogSharedColor() const override;
 	/// Stays visible to any player holding this source in their active quest log,
 	/// so a quest-log entry under fog of war can still resolve its source object.
@@ -225,6 +253,8 @@ public:
 
 	std::string seerName;
 
+	std::string getQuestGiverName() const override { return seerName; }
+
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
@@ -261,7 +291,8 @@ public:
 	using SeerHut::SeerHut;
 
 	void init(vstd::RNG & rand) override;
-	
+
+	bool requiresQuestToPass() const override { return true; }
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const override;
 	bool passableFor(PlayerColor color) const override;
@@ -296,6 +327,7 @@ public:
 	using QuestSource::QuestSource;
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
+	bool requiresQuestToPass() const override { return true; }
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 	bool passableFor(const CGHeroInstance * hero) const override;

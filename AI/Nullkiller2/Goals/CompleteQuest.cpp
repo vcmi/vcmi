@@ -22,8 +22,8 @@ using namespace Goals;
 
 bool isKeyMaster(const QuestInfo & q, CCallback & cc)
 {
-	const auto * const object = q.getObject(&cc);
-	return object && (object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD);
+	const auto * const quest = q.getQuest(&cc);
+	return quest && !quest->mission.requiredKeys.empty();
 }
 
 std::string CompleteQuest::toString() const
@@ -178,14 +178,14 @@ TGoalVec CompleteQuest::missionLevel(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
 {
-	if(isObjectPassable(aiNk, q.getObject(aiNk->cc.get())))
-	{
-		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
-	}
-	else
-	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(aiNk->cc.get())->subID).decompose(aiNk);
-	}
+	const auto * object = q.getObject(aiNk->cc.get());
+	if(isObjectPassable(aiNk, object))
+		return CaptureObjectsBehavior(object).decompose(aiNk);
+
+	TGoalVec solutions;
+	for(const auto & key : q.getQuest(aiNk->cc.get())->mission.requiredKeys)
+		vstd::concatenate(solutions, CaptureObjectsBehavior().ofType(Obj::KEYMASTER, key).decompose(aiNk));
+	return solutions;
 }
 
 TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
