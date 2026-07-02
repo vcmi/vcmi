@@ -402,7 +402,12 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
-        cpack -C ${{matrix.pack_type}}
+        # macOS may fail due to hdiutil error, see https://github.com/actions/runner-images/issues/7522
+        maxCounter=${{ startsWith(matrix.platform, 'mac-') && '10' || '0' }}
+        counter=1
+        until cpack -C ${{matrix.pack_type}} || ((counter > $maxCounter)); do
+          sleep 3; ((counter++))
+        done
 
     - name: Notarize macOS dmg
       if: ${{ startsWith(matrix.platform, 'mac-') && matrix.pack == 1 }}
