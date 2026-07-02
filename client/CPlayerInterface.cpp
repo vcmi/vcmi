@@ -1561,7 +1561,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->onMapTilesChanged(boost::none);
+	adventureInt->onMapTilesChanged(std::none);
 
 	// visiting or garrisoned hero removed - update window
 	if (castleInt)

@@ -144,7 +144,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged(boost::optional<FowTilesType> positions);
+	void onMapTilesChanged(std::optional<FowTilesType> positions);
 
 	/// Called by PlayerInterface when hero starts movement
 	void onHeroMovementStarted(const CGHeroInstance * hero);
