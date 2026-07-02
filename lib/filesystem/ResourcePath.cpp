@@ -23,7 +23,7 @@ static inline void toUpper(std::string & string)
 
 static inline EResType readType(const std::string& name)
 {
-	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
+	return EResTypeHelper::getTypeFromExtension(std::string(FileInfo::GetExtension(name)));
 }
 
 static inline std::string readName(std::string name, bool uppercase)
