@@ -957,6 +957,7 @@ public:
 		evaluationContext.threatTurns = threat.turn;
 
 		vstd::amax(evaluationContext.danger, defendTown.getThreat().danger);
+		vstd::amax(evaluationContext.threat, defendTown.getThreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
 };
@@ -1476,7 +1477,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
-				if(evaluationContext.threatTurns <= evaluationContext.turn)
+				const bool canPrepareForNextTurnThreat = evaluationContext.turn == 0 && evaluationContext.threatTurns == 1;
+				if(evaluationContext.threatTurns <= evaluationContext.turn || canPrepareForNextTurnThreat)
 				{
 					// TODO: Mircea: Too many heroes are rushing for INSTADEFEND.
 					// We need some kind of smart selection of who to go, not everyone qualified

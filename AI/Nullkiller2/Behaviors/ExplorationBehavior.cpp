@@ -151,12 +151,15 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 	const auto heroes = aiNk->cc->getHeroesInfo();
 	for(const CGHeroInstance * hero : heroes)
 	{
-			ExplorationHelper scanResult(hero, aiNk);
-			const bool canUseDimensionDoor = scanResult.canUseDimensionDoor();
-			auto improveWithDimensionDoor = [canUseDimensionDoor, &scanResult]()
-			{
-				return canUseDimensionDoor && scanResult.considerDimensionDoorExplorationTargets();
-			};
+		if(aiNk->isHeroLocked(hero))
+			continue;
+
+		ExplorationHelper scanResult(hero, aiNk);
+		const bool canUseDimensionDoor = scanResult.canUseDimensionDoor();
+		auto improveWithDimensionDoor = [canUseDimensionDoor, &scanResult]()
+		{
+			return canUseDimensionDoor && scanResult.considerDimensionDoorExplorationTargets();
+		};
 
 		const bool foundNearbyTarget = scanResult.scanSector(1);
 
