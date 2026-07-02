@@ -45,6 +45,11 @@ jobs:
             conan_options: --profile=dependencies/conan_profiles/base/apple-system
             artifact_platform: arm
 
+          - platform: mac-homebrew
+            os: macos-latest
+            before_install: macos-brew.sh
+            preset: macos-ninja-release
+
           - platform: ios
             os: macos-26
             pack: 1
@@ -179,7 +184,7 @@ jobs:
       run: source '${{ github.workspace }}/CI/before_install/${{ matrix.before_install }}'
 
     - name: Configure codesigning for macOS
-      if: ${{ startsWith(matrix.platform, 'mac-') }}
+      if: ${{ startsWith(matrix.platform, 'mac-') && matrix.pack == 1 }}
       env: 
         KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
         SIGNING_CERTIFICATE_BASE64: ${{ secrets.MACOS_SIGNING_CERTIFICATE_BASE64 }}
@@ -385,7 +390,7 @@ jobs:
         CI/create_appimage.sh --use-conan
 
     - name: Kill XProtect to work around CPack issue on macOS
-      if: ${{ startsWith(matrix.platform, 'mac') }}
+      if: ${{ startsWith(matrix.platform, 'mac') && matrix.pack == 1 }}
       run: |
         # Cf. https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
         echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
@@ -400,7 +405,7 @@ jobs:
         cpack -C ${{matrix.pack_type}}
 
     - name: Notarize macOS dmg
-      if: ${{ startsWith(matrix.platform, 'mac-') }}
+      if: ${{ startsWith(matrix.platform, 'mac-') && matrix.pack == 1 }}
       env: 
         NOTARIZATION_APPLE_ID: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID }}
         NOTARIZATION_APPLE_ID_PASSWORD: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID_PASSWORD }}

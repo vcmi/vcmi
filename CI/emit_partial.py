@@ -84,6 +84,7 @@ def arch_label(platform: str) -> str:
     mapping = {
         "mac-intel": "Intel",
         "mac-arm": "Apple Silicon",
+        "mac-homebrew": "Homebrew",
         "ios": "ARM64",
         "msvc-x64": "x64",
         "msvc-x86": "x86",
