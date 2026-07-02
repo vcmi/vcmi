@@ -20,15 +20,15 @@ msgstr ""
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "英雄无敌3开源游戏引擎"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "VCMI团队"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -36,65 +36,67 @@ msgid ""
 "possibilities. Years of intensive work resulted in an impressive amount of "
 "features. Among the current features are:"
 msgstr ""
+"VCMI是英雄无敌3的开源引擎，并带来了全新的可能性。经过多年的持续开发，如今已拥有数量众多的功能。"
+"其中包括："
 
 #: eu.vcmi.VCMI.metainfo.xml:14
 msgid "Complete gameplay mechanics"
-msgstr ""
+msgstr "完整游戏机制"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
-msgstr ""
+msgstr "包含接近全部物体、能力、法术及其他内容"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"
-msgstr ""
+msgstr "基础战斗AI与冒险AI"
 
 #: eu.vcmi.VCMI.metainfo.xml:17
 msgid "Many GUI improvements: high resolutions, stack queue, creature window"
-msgstr ""
+msgstr "大量界面改进：高分辨率、部队行动队列、生物窗口"
 
 #: eu.vcmi.VCMI.metainfo.xml:18
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
-msgstr ""
+msgstr "强大且易用的模组支持——可自由添加新城镇、生物、英雄、宝物和法术，无数量限制且互不冲突"
 
 #: eu.vcmi.VCMI.metainfo.xml:19
 msgid ""
 "Launcher for easy configuration - download mods from our server and install "
 "them immediately!"
-msgstr ""
+msgstr "易于配置的启动器，可直接从服务器下载并安装模组！"
 
 #: eu.vcmi.VCMI.metainfo.xml:20
 msgid "Random map generator that supports objects added by mods"
-msgstr ""
+msgstr "支持模组引入的新物体的随机地图生成器"
 
 #: eu.vcmi.VCMI.metainfo.xml:22
 msgid ""
 "Note: In order to play the game using VCMI you need to own data files for "
 "Heroes of Might and Magic III: The Shadow of Death."
-msgstr ""
+msgstr "注意：使用VCMI游玩游戏需要拥有英雄无敌3死亡阴影的数据文件。"
 
 #: eu.vcmi.VCMI.metainfo.xml:23
 msgid "If you want help, please check our forum, bug tracker or GitHub page."
-msgstr ""
+msgstr "如果需要帮助，请查看我们的论坛、bug追踪器或GitHub页面。"
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
-msgstr ""
+msgstr "heroes3"
 
 #: eu.vcmi.VCMI.metainfo.xml:128
 msgid "homm3"
-msgstr ""
+msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
-msgstr ""
+msgstr "策略游戏"
 
 #: vcmilauncher.desktop:6
 msgid "Open-source recreation of Heroes of Might & Magic III"
-msgstr ""
+msgstr "英雄无敌3的开源重制"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
-msgstr ""
+msgstr "heroes of might and magic;heroes;homm;homm3;strategy;"
