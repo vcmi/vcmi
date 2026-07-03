@@ -1,6 +1,4 @@
-# AGENTS.md
-
-This file provides guidance for autonomous coding agents when working with code in this repository.
+# Repository Guidelines
 
 ## Important Patterns and Conventions
 
@@ -210,29 +208,13 @@ Game configuration uses JSON:
 
 Configuration is loaded by handlers in `lib/entities/` (creature handler, spell handler, hero handler, etc.).
 
-### Running the Game
-
-After building, configure game data:
-
-1. Copy Heroes III `Data`, `Maps`, `Mp3` folders to `%USERPROFILE%\Documents\My Games\vcmi\`
-2. On Windows, run `build/bin/RelWithDebInfo/VCMI_launcher.bat`
-3. On Linux, run `build/bin/vcmiclient` or use launcher if built
-
-## Debugging and Logging
-
-### Logging
+## Logging
 
 - `lib/logging/CLogger.h` - Logger class
 - Logs are written to `vcmi.log`
 - Most subsystems have named loggers: `logGlobal`, `logNetwork`, `logAi`, etc.
 
 More details in [`docs/developers/Logging_API.md`](docs/developers/Logging_API.md).
-
-### Visual Studio Debugging
-
-- Use `RelWithDebInfo` build type for debugging with optimizations
-- Debug information is included in this build type
-- Full Debug builds are very slow due to unoptimized dependency builds
 
 ## Dependencies
 
