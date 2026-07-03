@@ -75,10 +75,11 @@ int MAIN_EXPORT main(int argc, char * argv[])
 			QNetworkProxy::setApplicationProxy(systemProxies[0]);
 	}
 
+	launcher::prepare();
+
 #ifdef VCMI_ANDROID
 	if (qgetenv("VCMI_LAUNCH_MAP_EDITOR") == "1")
 	{
-		launcher::prepare();
 		openMapEditor();
 		result = app.exec();
 		// Qt event loop has ended but the Android Activity stays alive,
@@ -87,8 +88,6 @@ int MAIN_EXPORT main(int argc, char * argv[])
 		return result;
 	}
 #endif
-
-	launcher::prepare();
 
 	MainWindow mainWindow;
 	mainWindow.show();

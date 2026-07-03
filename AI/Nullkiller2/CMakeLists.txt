@@ -119,9 +119,9 @@ set(Nullkiller2_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Goals/StayAtTown.h
-			Goals/ExploreNeighbourTile.h
-			Helpers/DimensionDoorUtils.h
-			Helpers/HeroMap.h
+		Goals/ExploreNeighbourTile.h
+		Helpers/DimensionDoorUtils.h
+		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
