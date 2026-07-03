@@ -12,8 +12,6 @@
 #include "ReachabilityInfo.h"
 #include "Unit.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, const BattleHex & StartPosition):
 	perspective(static_cast<BattleSide>(Stack->unitSide())),
 	startPosition(StartPosition),
@@ -86,5 +84,3 @@ uint32_t ReachabilityInfo::distToNearestNeighbour(
 
 	return distToNearestNeighbour(attackableHexes, chosenHex);
 }
-
-VCMI_LIB_NAMESPACE_END

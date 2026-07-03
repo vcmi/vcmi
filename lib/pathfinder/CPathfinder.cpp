@@ -27,8 +27,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../spells/ISpellMechanics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CPathfinderHelper::canMoveFromNode(const PathNodeInfo & source) const
 {
 	// we can always make the first step, even when standing on object
@@ -732,5 +730,3 @@ ui32 CPathfinderHelper::getTileMovementCost(const TerrainTile & dest, const Terr
 
 	return costWithPathfinding;
 }
-
-VCMI_LIB_NAMESPACE_END

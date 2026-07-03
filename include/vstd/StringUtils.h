@@ -1,7 +1,5 @@
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 
@@ -9,5 +7,3 @@ namespace vstd
 	DLL_LINKAGE std::pair<std::string, std::string> splitStringToPair(const std::string& input, char separator);
 
 }
-
-VCMI_LIB_NAMESPACE_END

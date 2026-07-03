@@ -11,12 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArmedInstance;
 class CStackInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CGarrisonInt;
 class CButton;

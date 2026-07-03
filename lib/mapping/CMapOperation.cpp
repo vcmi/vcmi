@@ -19,8 +19,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapOperation::CMapOperation(CMap* map) : map(map)
 {
 
@@ -685,5 +683,3 @@ std::string CRemoveObjectOperation::getLabel() const
 {
 	return "Remove Object";
 }
-
-VCMI_LIB_NAMESPACE_END

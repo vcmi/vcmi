@@ -22,8 +22,6 @@
 
 #include "MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 enum class EMapFormat : uint8_t;
 
@@ -347,5 +345,3 @@ public:
 /// wrapper functions to register string into the map and stores its translation
 std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized);
 std::string DLL_LINKAGE mapRegisterLocalizedString(const std::string & modContext, CMapHeader & mapHeader, const TextIdentifier & UID, const std::string & localized, const std::string & language);
-
-VCMI_LIB_NAMESPACE_END

@@ -20,8 +20,6 @@
 #include "../../../lib/CBonusTypeHandler.h"
 #include "../../../lib/bonuses/BonusParameters.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -117,5 +115,3 @@ Bonus BonusListProxy::getBonus(const BonusList & list, int32_t index)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

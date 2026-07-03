@@ -12,8 +12,6 @@
 #include "../GameConstants.h"
 #include "../networkPacks/ObjProperty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class int3;
 struct GiveBonus;
 struct CPackForClient;
@@ -122,5 +120,3 @@ public:
 	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

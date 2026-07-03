@@ -13,8 +13,6 @@
 #include "Filesystem.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
 {
 	for(auto entry : config.Struct())
@@ -212,5 +210,3 @@ std::time_t CFilesystemList::getLastWriteTime(const ResourcePath& resourceName) 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
 }
-
-VCMI_LIB_NAMESPACE_END

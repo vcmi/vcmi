@@ -13,8 +13,6 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace rmg
 {
 	static const std::array<int3, 4> dirs4 = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) };
@@ -89,5 +87,3 @@ namespace rmg
 		mutable int3 dTotalShiftCache;
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class TavernHeroSlot : int8_t;
 enum class TavernSlotRole : int8_t;
 class PlayerColor;
@@ -26,8 +24,6 @@ namespace vstd
 {
 class RNG;
 }
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 

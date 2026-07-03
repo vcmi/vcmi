@@ -15,8 +15,6 @@
 #include "../../LuaWrapper.h"
 #include "../MethodRegistrar.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -33,5 +31,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

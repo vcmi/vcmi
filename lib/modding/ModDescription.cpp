@@ -17,8 +17,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
 {
 	std::vector<std::string> sections;
@@ -280,5 +278,3 @@ bool ModDescription::isUpdateAvailable() const
 
 	return localVersion < repositoryVersion;
 }
-
-VCMI_LIB_NAMESPACE_END

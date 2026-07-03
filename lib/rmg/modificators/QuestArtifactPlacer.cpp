@@ -22,8 +22,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void QuestArtifactPlacer::process()
 {
 	findZonesForQuestArts();
@@ -204,5 +202,3 @@ void QuestArtifactPlacer::addRandomArtifact(const ArtifactID & artid)
 	questArtifacts.push_back(artid);
 	generator.unbanQuestArt(artid);
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -9,13 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE JsonFormatException : public std::runtime_error
 {
 public:
 	using runtime_error::runtime_error;
 	~JsonFormatException() override;
 };
-
-VCMI_LIB_NAMESPACE_END

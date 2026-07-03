@@ -12,8 +12,6 @@
 
 #include "ModVerificationInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ActiveModsInSaveList
 {
 	std::vector<TModID> getActiveGameplayAffectingMods();
@@ -50,5 +48,3 @@ public:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

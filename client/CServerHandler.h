@@ -17,8 +17,6 @@
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/gameState/GameStatistics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class GameConnection;
 class PlayerColor;
 struct StartInfo;
@@ -33,8 +31,6 @@ struct CPackForClient;
 struct LobbyModsCheck;
 
 class HighScoreParameter;
-
-VCMI_LIB_NAMESPACE_END
 
 class NetworkLagCompensator;
 class CClient;

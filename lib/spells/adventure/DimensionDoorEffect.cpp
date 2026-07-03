@@ -18,8 +18,6 @@
 #include "../../mapping/TerrainTile.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DimensionDoorEffect::DimensionDoorEffect(const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
 	, cursor(config["cursor"].String())
@@ -164,5 +162,3 @@ void DimensionDoorEffect::endCast(SpellCastEnvironment * env, const AdventureSpe
 	if(dest->isClear(curr))
 		env->moveHero(ObjectInstanceID(parameters.caster->getCasterUnitId()), parameters.caster->getHeroCaster()->convertFromVisitablePos(parameters.pos), EMovementMode::DIMENSION_DOOR);
 }
-
-VCMI_LIB_NAMESPACE_END

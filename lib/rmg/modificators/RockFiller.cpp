@@ -23,8 +23,6 @@
 #include "../TileInfo.h"
 #include "../MapProxy.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TileInfo;
 
 void RockFiller::process()
@@ -78,5 +76,3 @@ char RockFiller::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

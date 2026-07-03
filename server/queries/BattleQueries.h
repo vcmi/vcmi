@@ -13,10 +13,8 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/battle/BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class IBattleInfo;
 struct SideInBattle;
-VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery : public CQuery
 {

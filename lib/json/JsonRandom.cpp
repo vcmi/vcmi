@@ -35,8 +35,6 @@
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string JsonRandomizationException::cleanupJson(const JsonNode & value)
 {
 	std::string result = value.toCompactString();
@@ -381,5 +379,3 @@ std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & val
 	}
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -22,8 +22,6 @@
 class TemplateEditor;
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonSerializeFormat;
 struct CompoundMapObjectID;
 
@@ -413,5 +411,3 @@ private:
 						  uint32_t iteration = 0);
 
 };
-
-VCMI_LIB_NAMESPACE_END

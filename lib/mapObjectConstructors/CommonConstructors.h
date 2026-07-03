@@ -18,8 +18,6 @@
 #include "../mapObjects/CGResource.h"
 #include "../mapObjects/CGTownInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGArtifact;
 class CGObjectInstance;
 class CGTownInstance;
@@ -150,5 +148,3 @@ public:
 	AnimationPath getBoatAnimationName() const;
 	EPathfindingLayer getLayer() const;
 };
-
-VCMI_LIB_NAMESPACE_END

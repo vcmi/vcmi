@@ -13,8 +13,6 @@
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
 struct Bonus;
 struct Component;
@@ -103,5 +101,3 @@ public:
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };
-
-VCMI_LIB_NAMESPACE_END

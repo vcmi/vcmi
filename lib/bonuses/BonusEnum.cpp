@@ -12,8 +12,6 @@
 #include "BonusEnum.h"
 #include "../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #define BONUS_VALUE(x) { #x, BonusValueType::x },
 	const std::map<std::string, BonusValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE
@@ -75,5 +73,3 @@ namespace BonusDuration
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

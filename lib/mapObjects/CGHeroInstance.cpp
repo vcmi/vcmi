@@ -55,8 +55,6 @@
 #include "../battle/Unit.h"
 #include "CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1804,5 +1802,3 @@ ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
 	return replacedArtifact;
 }
 
-
-VCMI_LIB_NAMESPACE_END

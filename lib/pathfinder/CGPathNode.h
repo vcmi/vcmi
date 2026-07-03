@@ -15,8 +15,6 @@
 
 #include <boost/heap/fibonacci_heap.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGObjectInstance;
 class CGameState;
@@ -260,5 +258,3 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	virtual bool isBetterWay() const;
 };
-
-VCMI_LIB_NAMESPACE_END

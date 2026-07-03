@@ -26,8 +26,6 @@
 #include "WaterAdopter.h"
 #include "../RmgArea.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void WaterRoutes::process()
 {
 	auto * wproxy = zone.getModificator<WaterProxy>();
@@ -125,5 +123,3 @@ char WaterRoutes::dump(const int3 & t)
 	return ' ';
 }
 
-
-VCMI_LIB_NAMESPACE_END

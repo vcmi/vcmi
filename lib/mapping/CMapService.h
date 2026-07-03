@@ -12,8 +12,6 @@
 
 #include "../modding/ModVerificationInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ResourcePath;
 
 class CMap;
@@ -179,5 +177,3 @@ public:
 
 	 virtual ~IMapSaver(){}
 };
-
-VCMI_LIB_NAMESPACE_END

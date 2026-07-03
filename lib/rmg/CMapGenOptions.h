@@ -14,8 +14,6 @@
 #include "../serializer/Serializeable.h"
 #include "CRmgTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -229,5 +227,3 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

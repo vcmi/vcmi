@@ -17,8 +17,6 @@
 
 #include <vcmi/Artifact.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArtifactSet;
 
 class DLL_LINKAGE CCombinedArtifact
@@ -146,5 +144,3 @@ public:
 
 	friend class CArtHandler;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct ArtifactLocation;
 class CGameState;
 class CArtifactSet;
@@ -142,5 +140,3 @@ void CCombinedArtifactInstance::PartInfo::serialize(Handler & h)
 	}
 	h & slot;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -17,8 +17,6 @@
 #include "SetRewardableConfiguration.h"
 #include "SetStackEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ICPackVisitor
 {
 public:
@@ -197,5 +195,3 @@ public:
 	virtual void visitResponseStatistic(ResponseStatistic & pack) {}
 	virtual void visitAdvInterfaceReady(AdvInterfaceReady & pack) {}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -25,8 +25,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 namespace spells
 {
@@ -563,5 +561,3 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

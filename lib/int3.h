@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Class which consists of three integer values. Represents position on adventure map.
 class int3
 {
@@ -204,11 +202,9 @@ int3 findClosestTile (Container & container, int3 dest)
 	return result;
 }
 
-VCMI_LIB_NAMESPACE_END
-
 template<>
-struct std::hash<VCMI_LIB_WRAP_NAMESPACE(int3)> {
-	std::size_t operator()(VCMI_LIB_WRAP_NAMESPACE(int3) const& pos) const noexcept {
+struct std::hash<::int3> {
+	std::size_t operator()(::int3 const& pos) const noexcept {
 		return hash_value(pos);
 	}
 };

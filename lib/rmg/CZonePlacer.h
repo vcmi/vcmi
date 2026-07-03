@@ -14,8 +14,6 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -75,5 +73,3 @@ private:
 	std::set<TRmgTemplateZoneId> lastSwappedZones;
 	RmgMap & map;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 
 #include "MinizipExtensions.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CZipStream : public CBufferedStream
 {
 	unzFile file;
@@ -75,5 +73,3 @@ public:
 	bool extract(const boost::filesystem::path & where, const std::vector<std::string> & what);
 	bool extract(const boost::filesystem::path & where, const std::string & what);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 
 #include "../IHandlerBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Managed campaign region sets - "map" of campaign locations, with selectable scenarios
 /// Used only for .h3c campaigns. .vmap's embed campaign regions layout in its format
 class DLL_LINKAGE CampaignRegionsHandler : public IHandlerBase
@@ -34,5 +32,3 @@ public:
 private:
 	std::vector<std::shared_ptr<CampaignRegions>> objects;
 };
-
-VCMI_LIB_NAMESPACE_END

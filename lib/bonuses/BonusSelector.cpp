@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "BonusSelector.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace Selector
 {
 	DLL_LINKAGE const CSelectFieldEqual<BonusType> & type()
@@ -86,5 +84,3 @@ namespace Selector
 	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});
 	DLL_LINKAGE CSelector none([](const Bonus * b){return false;});
 }
-
-VCMI_LIB_NAMESPACE_END

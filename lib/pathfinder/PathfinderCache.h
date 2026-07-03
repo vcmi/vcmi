@@ -11,8 +11,6 @@
 
 #include "PathfinderOptions.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class CGHeroInstance;
 class PathfinderConfig;
@@ -36,5 +34,3 @@ public:
 	/// Returns compute path information for requested hero
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 };
-
-VCMI_LIB_NAMESPACE_END

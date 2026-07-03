@@ -44,8 +44,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int CGTownInstance::getSightRadius() const
 {
 	int baseValue = LIBRARY->engineSettings()->getInteger(EGameSettings::TOWNS_BASE_SCOUNTING_RANGE);
@@ -1315,5 +1313,3 @@ std::map<BuildingID, TownRewardableBuildingInstance*> CGTownInstance::convertOld
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

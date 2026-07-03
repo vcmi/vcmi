@@ -20,8 +20,6 @@
 #include "IUnitInfo.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EMetaText : uint8_t;
 class MetaString;
 class JsonNode;
@@ -206,5 +204,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

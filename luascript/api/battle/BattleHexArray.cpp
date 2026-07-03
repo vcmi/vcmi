@@ -14,8 +14,6 @@
 
 #include "BattleHex.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -71,5 +69,3 @@ BattleHex BattleHexArrayProxy::at(const BattleHexArray & hexes, int index)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

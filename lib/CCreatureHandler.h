@@ -20,8 +20,6 @@
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -246,5 +244,3 @@ public:
 	std::set<CreatureID> getDefaultAllowed() const;
 
 };
-
-VCMI_LIB_NAMESPACE_END

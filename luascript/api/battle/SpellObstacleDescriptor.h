@@ -21,8 +21,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SpellCreatedObstacle;
 
 namespace scripting::api
@@ -87,5 +85,3 @@ struct SpellObstacleDescriptor final : ApiSerializable<SpellObstacleDescriptor>
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

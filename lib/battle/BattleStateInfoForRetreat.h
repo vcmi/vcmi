@@ -11,8 +11,6 @@
 
 #include "BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 	class Unit;
@@ -38,5 +36,3 @@ public:
 	uint64_t getOurStrength() const;
 	uint64_t getEnemyStrength() const;
 };
-
-VCMI_LIB_NAMESPACE_END

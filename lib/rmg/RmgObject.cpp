@@ -23,8 +23,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using namespace rmg;
 
 Object::Instance::Instance(const Object& parent, std::shared_ptr<CGObjectInstance> object): dParent(parent), dObject(object)
@@ -570,5 +568,3 @@ void Object::clear()
 	clearCachedArea();
 }
  
-
-VCMI_LIB_NAMESPACE_END

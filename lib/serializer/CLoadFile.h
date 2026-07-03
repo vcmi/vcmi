@@ -11,8 +11,6 @@
 
 #include "BinaryDeserializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CLoadFile : public IBinaryReader
 {
 	BinaryDeserializer serializer;
@@ -34,5 +32,3 @@ public:
 		return serializer.version >= v;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -19,8 +19,6 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 ///CAmmo
@@ -1010,5 +1008,3 @@ void CUnitStateDetached::spendMana(ServerCallback * server, const int spellCost)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

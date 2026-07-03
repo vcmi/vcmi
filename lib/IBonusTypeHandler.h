@@ -12,8 +12,6 @@
 #include "filesystem/ResourcePath.h"
 #include "IHandlerBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBonusBearer;
 struct Bonus;
 
@@ -27,5 +25,3 @@ public:
 	virtual std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const = 0;
 	virtual ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

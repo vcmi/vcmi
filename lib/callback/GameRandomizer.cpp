@@ -22,8 +22,6 @@
 #include "../entities/hero/CHeroClass.h"
 #include "../mapObjects/CGHeroInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool RandomizationBias::roll(vstd::RNG & generator, int successChance, int totalWeight, int biasValue)
 {
 	assert(successChance > 0);
@@ -363,5 +361,3 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	}
 	return skills;
 }
-
-VCMI_LIB_NAMESPACE_END

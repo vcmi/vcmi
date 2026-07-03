@@ -14,8 +14,6 @@
 #include "../../GameLibrary.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //This constructor should be placed here to avoid side effects
 CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
@@ -87,5 +85,3 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 			setType(CreatureID(CreatureID::decode(typeName)).toCreature());
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

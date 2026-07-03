@@ -32,8 +32,6 @@
 #include "../Rect.h"
 #include "../spells/effects/Effect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 {
 	static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 96, 112, 130, 147, 165, 182};
@@ -2461,5 +2459,3 @@ const scripting::Pool & CBattleInfoCallback::getScriptContextPool() const
 {
 	return getBattle()->getScriptContextPool();
 }
-
-VCMI_LIB_NAMESPACE_END

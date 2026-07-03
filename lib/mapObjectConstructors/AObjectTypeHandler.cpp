@@ -19,8 +19,6 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 AObjectTypeHandler::AObjectTypeHandler() = default;
 AObjectTypeHandler::~AObjectTypeHandler() = default;
 
@@ -286,5 +284,3 @@ std::unique_ptr<IObjectInfo> AObjectTypeHandler::getObjectInfo() const
 {
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 
 class DLL_LINKAGE GameCallbackHolder
@@ -22,5 +20,3 @@ public:
 		cb(cb)
 	{}
 };
-
-VCMI_LIB_NAMESPACE_END

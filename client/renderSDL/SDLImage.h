@@ -12,9 +12,7 @@
 #include "../render/IImage.h"
 #include "../../lib/Point.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
 

@@ -15,8 +15,6 @@
 #include "../faction/CFaction.h"
 #include "../faction/CTown.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 	{
 		{ "normal", CBuilding::BUILD_NORMAL },
@@ -89,5 +87,3 @@ void CBuilding::addNewBonus(const std::shared_ptr<Bonus> & b, BonusList & bonusL
 {
 	bonusList.push_back(b);
 }
-
-VCMI_LIB_NAMESPACE_END

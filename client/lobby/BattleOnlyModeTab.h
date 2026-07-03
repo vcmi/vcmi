@@ -14,13 +14,11 @@
 #include "../../lib/mapping/CMap.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CCreatureSet;
 class CMap;
 class EditorCallback;
 class BattleOnlyModeStartInfo;
-VCMI_LIB_NAMESPACE_END
 
 class FilledTexturePlayerColored;
 class CButton;

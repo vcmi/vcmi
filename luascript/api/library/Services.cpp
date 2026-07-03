@@ -37,8 +37,6 @@
 #include <vcmi/spells/SchoolService.h>
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -111,5 +109,3 @@ const spells::SpellSchoolType * ServicesProxy::getSpellSchoolByName(const Servic
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

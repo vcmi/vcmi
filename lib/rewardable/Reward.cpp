@@ -16,8 +16,6 @@
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void Rewardable::RewardRevealTiles::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("hide", hide);
@@ -219,5 +217,3 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 		a->serializeInt("level", spellCast.second);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

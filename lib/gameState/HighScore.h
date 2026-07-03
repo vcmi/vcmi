@@ -11,8 +11,6 @@
 
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGameState;
 
 class DLL_LINKAGE HighScoreParameter
@@ -64,5 +62,3 @@ public:
 	Result calculate();
 	static CreatureID getCreatureForPoints(int points, bool campaign);
 };
-
-VCMI_LIB_NAMESPACE_END

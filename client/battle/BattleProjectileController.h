@@ -13,12 +13,8 @@
 #include "../../lib/Point.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class CSpell;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class Canvas;

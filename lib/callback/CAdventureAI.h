@@ -11,8 +11,6 @@
 
 #include "CGlobalAI.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
 class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
@@ -44,5 +42,3 @@ public:
 	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
 	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
 };
-
-VCMI_LIB_NAMESPACE_END

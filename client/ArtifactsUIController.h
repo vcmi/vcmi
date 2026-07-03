@@ -12,11 +12,7 @@
 #include "../lib/constants/EntityIdentifiers.h"
 #include "../lib/networkPacks/ArtifactLocation.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class ArtifactsUIController
 {

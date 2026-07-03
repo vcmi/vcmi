@@ -12,9 +12,7 @@
 
 #include "SpecialAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CSpell;
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI::AIPathfinding
 {

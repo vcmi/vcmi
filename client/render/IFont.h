@@ -9,10 +9,8 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class ColorRGBA;
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 

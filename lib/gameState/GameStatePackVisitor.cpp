@@ -33,8 +33,6 @@
 #include "../spells/CSpell.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
 	assert(pack.player.isValidPlayer());
@@ -1685,5 +1683,3 @@ void BattleStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

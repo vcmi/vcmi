@@ -11,8 +11,6 @@
 
 #include "CStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /**
  * Abstract class which provides method definitions for writing into a stream.
  */
@@ -28,5 +26,3 @@ public:
 	 */
 	virtual si64 write(const ui8 * data, si64 size) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "../GameConstants.h"
 #include "../callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
@@ -48,5 +46,3 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 		h & additionalMana;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

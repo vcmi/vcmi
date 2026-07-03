@@ -14,8 +14,6 @@
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapInfo;
 
 struct CPackForLobby;
@@ -26,8 +24,6 @@ struct LobbyInfo;
 struct PlayerSettings;
 class PlayerColor;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class CBaseForServerApply;

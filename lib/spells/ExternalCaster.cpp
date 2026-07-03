@@ -12,8 +12,6 @@
 
 #include "ExternalCaster.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -48,5 +46,3 @@ int32_t ExternalCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * o
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

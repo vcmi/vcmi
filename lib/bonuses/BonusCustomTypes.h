@@ -13,8 +13,6 @@
 #include "../constants/VariantIdentifier.h"
 #include "BonusEnum.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE BonusCustomSource : public StaticIdentifier<BonusCustomSource>
 {
 public:
@@ -100,5 +98,3 @@ public:
 
 using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool, BonusTypeID>;
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;
-
-VCMI_LIB_NAMESPACE_END

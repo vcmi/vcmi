@@ -15,8 +15,6 @@
 #include "../ExceptionsCommon.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
@@ -220,5 +218,3 @@ std::time_t CFilesystemLoader::getLastWriteTime(const ResourcePath& resourceName
 	auto resourcePath = getResourceName(resourceName);
 	return  boost::filesystem::last_write_time(*resourcePath);
 }
-
-VCMI_LIB_NAMESPACE_END

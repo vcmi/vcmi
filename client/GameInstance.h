@@ -17,9 +17,7 @@ class CPlayerInterface;
 class CMapHandler;
 class CMainMenu;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class INetworkHandler;
-VCMI_LIB_NAMESPACE_END
 
 class GameShutdownException final : public std::exception
 {

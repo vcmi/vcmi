@@ -18,8 +18,6 @@
 
 #include "Effect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells::effects
 {
 
@@ -116,5 +114,3 @@ void SpellEffectHandler::prepareEffect(SpellEffectID effectID, JsonNode & data, 
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

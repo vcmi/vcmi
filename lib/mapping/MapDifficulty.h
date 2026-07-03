@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EMapDifficulty : uint8_t
 {
 	EASY = 0,
@@ -44,5 +42,3 @@ public:
 		h & mask;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

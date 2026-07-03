@@ -15,8 +15,6 @@
 #include "../../../lib/spells/Problem.h"
 #include "../../../lib/constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells { class Mechanics; }
 
 namespace scripting::api
@@ -41,5 +39,3 @@ namespace scripting::api
 		};
 
 }
-
-VCMI_LIB_NAMESPACE_END

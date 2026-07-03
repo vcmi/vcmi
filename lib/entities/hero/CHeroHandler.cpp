@@ -25,8 +25,6 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
@@ -442,5 +440,3 @@ void CHeroHandler::afterLoadFinalization()
 			objects.at(specialty.hero.getNum())->specialty.push_back(prepSpec(specialty.hero, bonus));
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

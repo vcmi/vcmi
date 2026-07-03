@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #define ART_BEARER_LIST \
 ART_BEARER(HERO)\
 	ART_BEARER(CREATURE)\
@@ -23,5 +21,3 @@ enum class ArtBearer
 		ART_BEARER_LIST
 #undef ART_BEARER
 };
-
-VCMI_LIB_NAMESPACE_END

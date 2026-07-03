@@ -16,8 +16,6 @@
 
 #include "StackInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -49,5 +47,3 @@ bool HeroInstanceProxy::isFemale(const CGHeroInstance & hero)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

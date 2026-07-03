@@ -25,8 +25,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void WaterAdopter::process()
 {
 	createWater(map.getMapGenOptions().getWaterContent());
@@ -271,5 +269,3 @@ char WaterAdopter::dump(const int3 & t)
 	
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -21,8 +21,6 @@
 #include "../../mapObjects/CGTownInstance.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace adventure
@@ -168,5 +166,3 @@ ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment
 }
 }
 }
-
-VCMI_LIB_NAMESPACE_END

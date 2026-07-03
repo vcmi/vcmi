@@ -14,8 +14,6 @@
 #include "../Zone.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
@@ -94,5 +92,3 @@ protected:
 	std::vector<const CCreature *> creatures; //native creatures for this zone
 	std::vector<int> tierValues;
 };
-
-VCMI_LIB_NAMESPACE_END

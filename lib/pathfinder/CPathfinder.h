@@ -11,8 +11,6 @@
 
 #include "CGPathNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class PathfinderConfig;
 class CGWhirlpool;
@@ -141,5 +139,3 @@ public:
 
 	int getGuardiansCount(int3 tile) const;
 };
-
-VCMI_LIB_NAMESPACE_END

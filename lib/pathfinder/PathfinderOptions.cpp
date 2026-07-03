@@ -18,8 +18,6 @@
 #include "../GameLibrary.h"
 #include "../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	: useFlying(true)
 	, useWaterWalking(true)
@@ -74,5 +72,3 @@ CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(cons
 
 	return pathfinderHelper.get();
 }
-
-VCMI_LIB_NAMESPACE_END

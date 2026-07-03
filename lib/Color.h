@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// An object that represents RGBA color
 class ColorRGBA
 {
@@ -85,5 +83,3 @@ ColorRGBA lerp(const ColorRGBA & left, const ColorRGBA & right, const Floating &
 	);
 }
 }
-
-VCMI_LIB_NAMESPACE_END

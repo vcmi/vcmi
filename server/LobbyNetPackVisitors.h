@@ -11,11 +11,9 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class GameConnection;
-VCMI_LIB_NAMESPACE_END
 
-class ClientPermissionsCheckerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ClientPermissionsCheckerNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	std::shared_ptr<GameConnection> connection;
@@ -52,7 +50,7 @@ public:
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
-class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CVCMIServer & srv;
@@ -73,7 +71,7 @@ public:
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
-class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnServerNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	std::shared_ptr<GameConnection> connection;

@@ -18,8 +18,6 @@
 #include "CAndroidVMHelper.h"
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
@@ -592,5 +590,3 @@ namespace VCMIDirs
 		return singleton;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

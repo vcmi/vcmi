@@ -29,7 +29,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 	std::string entry = pointer.substr(1, splitPos - 1);
 	std::string remainder = splitPos == std::string::npos ? "" : pointer.substr(splitPos);
 
-	if(in.getType() == VCMI_LIB_WRAP_NAMESPACE(JsonNode)::JsonType::DATA_VECTOR)
+	if(in.getType() == ::JsonNode::JsonType::DATA_VECTOR)
 	{
 		if(entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
 			throw std::runtime_error("Invalid Json pointer");
@@ -44,8 +44,6 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 	}
 	return in[entry].resolvePointer(remainder);
 }
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 static const JsonNode nullNode;
 
@@ -502,5 +500,3 @@ std::string JsonNode::toString() const
 	writer.writeNode(*this);
 	return out.str();
 }
-
-VCMI_LIB_NAMESPACE_END

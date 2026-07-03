@@ -13,15 +13,11 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CatapultAttack;
 class CCreature;
 class CStack;
 class CGTownInstance;
 class Point;
-
-VCMI_LIB_NAMESPACE_END
 
 class Canvas;
 class BattleInterface;

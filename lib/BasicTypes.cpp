@@ -22,8 +22,6 @@
 #include <vcmi/FactionMember.h>
 #include <vcmi/FactionService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool AFactionMember::isNativeTerrain(TerrainId terrain) const
 {
 	//this code is used in the TerrainLimiter::limit to setup battle bonuses
@@ -186,5 +184,3 @@ bool ACreature::isLiving() const
 	return getBonusBearer()->hasBonusOfType(BonusType::LIVING);
 }
 
-
-VCMI_LIB_NAMESPACE_END

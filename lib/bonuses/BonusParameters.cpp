@@ -13,8 +13,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string BonusParameters::toString() const
 {
     return toJsonNode().toCompactString();
@@ -24,5 +22,3 @@ JsonNode BonusParameters::toJsonNode() const
 {
     return JsonNode(); // TODO
 }
-
-VCMI_LIB_NAMESPACE_END

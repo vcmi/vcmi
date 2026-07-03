@@ -14,8 +14,6 @@
 #define THROW_EDITOR_UNSUPPORTED \
 	throw std::runtime_error(std::string("EditorCallback: ") + __func__ + " is not available in map editor")
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const CMap * EditorCallback::getMapConstPtr() const
 {
 	if(!map)
@@ -196,5 +194,3 @@ int EditorCallback::getResource(PlayerColor, GameResID) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
-
-VCMI_LIB_NAMESPACE_END

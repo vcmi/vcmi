@@ -13,12 +13,9 @@
 #include "lib/constants/EntityIdentifiers.h"
 #include "lib/campaign/CampaignState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CampaignBonus;
 class CMap;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class StartingBonus;

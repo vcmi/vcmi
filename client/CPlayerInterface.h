@@ -17,8 +17,6 @@
 #include "../lib/FunctionList.h"
 #include "gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Artifact;
 struct TryMoveHero;
 class CStack;
@@ -30,8 +28,6 @@ class UpgradeInfo;
 class ConditionalWait;
 struct CPathsInfo;
 class PathfinderCache;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class AdventureMapInterface;

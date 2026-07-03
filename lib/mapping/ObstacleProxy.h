@@ -16,8 +16,6 @@
 #include <cstddef>
 #include <deque>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapEditManager;
 class CGObjectInstance;
 class ObjectTemplate;
@@ -88,5 +86,3 @@ public:
 private:
 	CMap* map;
 };
-
-VCMI_LIB_NAMESPACE_END

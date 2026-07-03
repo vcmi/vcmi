@@ -12,8 +12,6 @@
 
 #include <vcmi/spells/Caster.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -44,5 +42,3 @@ protected:
 };
 
 } // namespace spells
-
-VCMI_LIB_NAMESPACE_END

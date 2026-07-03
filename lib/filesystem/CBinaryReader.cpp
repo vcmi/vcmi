@@ -12,8 +12,6 @@
 
 #include "CInputStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #ifdef VCMI_ENDIAN_BIG
 template <typename CData>
 CData readLE(CData data)
@@ -115,5 +113,3 @@ std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 
 	return ss.str();
 }
-
-VCMI_LIB_NAMESPACE_END

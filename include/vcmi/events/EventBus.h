@@ -13,8 +13,6 @@
 #include "SubscriptionRegistry.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Environment;
 
 namespace events
@@ -45,5 +43,3 @@ public:
 	}
 };
 }
-
-VCMI_LIB_NAMESPACE_END

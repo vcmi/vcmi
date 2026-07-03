@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace ModScope
 {
 
@@ -49,5 +47,3 @@ inline const std::string & scopeMap()
 }
 
 };
-
-VCMI_LIB_NAMESPACE_END

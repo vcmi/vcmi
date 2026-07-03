@@ -17,8 +17,6 @@
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Calendar;
 
 namespace Rewardable
@@ -217,5 +215,3 @@ struct DLL_LINKAGE Configuration
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

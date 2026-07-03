@@ -20,8 +20,6 @@
 #include "../../modding/IdentifierStorage.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
 	: owner(s)
 	, useExistingBoat(config["useExistingBoat"].Bool())
@@ -130,5 +128,3 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 	}
 	return ESpellCastResult::OK;
 }
-
-VCMI_LIB_NAMESPACE_END

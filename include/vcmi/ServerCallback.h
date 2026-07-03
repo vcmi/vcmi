@@ -12,8 +12,6 @@
 
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 	class RNG;
@@ -48,5 +46,3 @@ public:
 	virtual void apply(BattleObstaclesChanged & pack) = 0;
 	virtual void apply(CatapultAttack & pack) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -15,8 +15,6 @@
 
 static constexpr int AI_INTERFACE_VER = 1;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBattleCallback;
 class Environment;
 
@@ -35,5 +33,3 @@ public:
 	virtual void activeStack(const BattleID & battleID, const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(const BattleID & battleID, int distance)=0; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
 };
-
-VCMI_LIB_NAMESPACE_END

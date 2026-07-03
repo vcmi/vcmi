@@ -11,8 +11,6 @@
 
 #include "NetworkDefines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class NetworkServer : public INetworkConnectionListener, public INetworkServer
 {
 	NetworkContext & context;
@@ -33,5 +31,3 @@ public:
 
 	uint16_t start(uint16_t port) override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -15,8 +15,6 @@
 #include "../networkPacks/ObjProperty.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -116,5 +114,3 @@ class DLL_LINKAGE IShipyard : public IBoatGenerator
 public:
 	virtual void getBoatCost(ResourceSet & cost) const;
 };
-
-VCMI_LIB_NAMESPACE_END

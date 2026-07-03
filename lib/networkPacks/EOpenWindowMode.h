@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EOpenWindowMode : uint8_t
 {
 	EXCHANGE_WINDOW,
@@ -24,5 +22,3 @@ enum class EOpenWindowMode : uint8_t
 	PUZZLE_MAP,
 	TAVERN_WINDOW
 };
-
-VCMI_LIB_NAMESPACE_END

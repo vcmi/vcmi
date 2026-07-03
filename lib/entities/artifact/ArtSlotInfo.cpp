@@ -13,8 +13,6 @@
 
 #include "../../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ArtSlotInfo::ArtSlotInfo(IGameInfoCallback * cb)
 	: GameCallbackHolder(cb)
 {
@@ -38,5 +36,3 @@ ArtifactInstanceID ArtSlotInfo::getID() const
 {
 	return artifactID;
 }
-
-VCMI_LIB_NAMESPACE_END

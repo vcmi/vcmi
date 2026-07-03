@@ -14,13 +14,11 @@
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/battle/BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
 struct BattleResult;
 class CBattleInfoCallback;
 class CGHeroInstance;
 class CArmedInstance;
-VCMI_LIB_NAMESPACE_END
 
 class CBattleQuery;
 class BattleProcessor;

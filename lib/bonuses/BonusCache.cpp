@@ -19,8 +19,6 @@
 #include "../IGameSettings.h"
 #include "../spells/SpellSchoolHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int BonusCacheBase::getBonusValueImpl(BonusCacheEntry & currentValue, const CSelector & selector, BonusCacheMode mode) const
 {
 	if (target->getTreeVersion() == currentValue.version)
@@ -206,5 +204,3 @@ const UnitBonusValuesProxy::SelectorsArray * UnitBonusValuesProxy::generateSelec
 
 	return &selectors;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -14,9 +14,7 @@
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct BattleResult;
-VCMI_LIB_NAMESPACE_END
 
 class CLabel;
 class CButton;

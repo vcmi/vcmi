@@ -14,10 +14,6 @@
 #include "constants/EntityIdentifiers.h"
 #include "../Version.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using TExpType = si64;
 using TQuantity = si32;
 using TRmgTemplateZoneId = int;
-
-VCMI_LIB_NAMESPACE_END

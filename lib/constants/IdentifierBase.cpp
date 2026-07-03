@@ -10,8 +10,4 @@
 #include "StdInc.h"
 #include "IdentifierBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 IdentifierResolutionException::~IdentifierResolutionException() = default;
-
-VCMI_LIB_NAMESPACE_END

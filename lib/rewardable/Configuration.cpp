@@ -13,8 +13,6 @@
 #include "../callback/Calendar.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Rewardable::EVisitMode Rewardable::Configuration::getVisitMode() const
 {
 	return static_cast<EVisitMode>(visitMode);
@@ -117,5 +115,3 @@ void Rewardable::Configuration::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("infoWindowType", infoWindowType);
 	variables.serializeJson(handler);
 }
-
-VCMI_LIB_NAMESPACE_END

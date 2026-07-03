@@ -11,8 +11,6 @@
 
 #include "../../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CArtifactSet;
 struct ArtSlotInfo;
@@ -36,5 +34,3 @@ namespace ArtifactUtils
 	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped = false);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -18,8 +18,6 @@
 class CServerHandler;
 class CVCMIServer;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CampaignState;
 class CMapInfo;
 struct StartInfo;
@@ -451,5 +449,3 @@ struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
 		h & name;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

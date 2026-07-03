@@ -25,8 +25,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void TerrainPainter::process()
 {
 	initTerrainType();
@@ -137,5 +135,3 @@ void TerrainPainter::initTerrainType()
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 #include "BattleHex.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleHex BattleHex::getClosestTile(BattleSide side, const BattleHex & initialPos, const BattleHexArray & hexes)
 {
 	if(hexes.empty())
@@ -67,5 +65,3 @@ std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
 	return os << hex.toInt();
 }
-
-VCMI_LIB_NAMESPACE_END

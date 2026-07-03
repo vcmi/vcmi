@@ -18,8 +18,6 @@
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool IMarket::allowsTrade(const EMarketMode mode) const
 {
 	return vstd::contains(availableModes(), mode);
@@ -168,5 +166,3 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) con
 	}
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

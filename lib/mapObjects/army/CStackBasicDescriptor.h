@@ -11,8 +11,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class CCreature;
 class CGHeroInstance;
@@ -61,5 +59,3 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

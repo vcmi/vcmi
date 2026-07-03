@@ -20,8 +20,6 @@
 
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -49,5 +47,3 @@ BattleHex BattleHexProxy::getClosestTile(const BattleHex & self, BattleSide side
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

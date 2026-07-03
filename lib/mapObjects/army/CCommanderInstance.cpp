@@ -13,8 +13,6 @@
 #include "../../GameLibrary.h"
 #include "../../entities/hero/CHeroHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CCommanderInstance::CCommanderInstance(IGameInfoCallback * cb)
 	: CStackInstance(cb)
 {
@@ -76,5 +74,3 @@ bool CCommanderInstance::gainsLevel() const
 {
 	return getTotalExperience() >= LIBRARY->heroh->reqExp(level + 1);
 }
-
-VCMI_LIB_NAMESPACE_END

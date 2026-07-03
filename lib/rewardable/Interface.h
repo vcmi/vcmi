@@ -13,8 +13,6 @@
 #include "../spells/ExternalCaster.h"
 #include "Configuration.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IObjectInterface;
 class IGameEventCallback;
 class CArmedInstance;
@@ -68,5 +66,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 #include "BattleHex.h"
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 	class Unit;
@@ -44,5 +42,3 @@ struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 	private:
 		bool tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const;
 };
-
-VCMI_LIB_NAMESPACE_END

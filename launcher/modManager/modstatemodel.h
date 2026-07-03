@@ -13,10 +13,8 @@
 
 #include <QMap>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 class ModManager;
-VCMI_LIB_NAMESPACE_END
 
 /// Class that represent current state of available mods
 /// Provides Qt-based interface to library class ModManager

@@ -34,8 +34,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::map<CCreature::CreatureQuantityId, std::string> CCreature::creatureQuantityRanges =
 {
 		{CCreature::CreatureQuantityId::FEW, "1-4"},
@@ -1352,5 +1350,3 @@ std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

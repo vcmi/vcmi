@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBonusBearer;
 class FactionID;
 class TerrainId;
@@ -59,5 +57,3 @@ template <typename IdType>
 class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>, public IConstBonusProvider
 {
 };
-
-VCMI_LIB_NAMESPACE_END

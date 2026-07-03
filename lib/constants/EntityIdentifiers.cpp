@@ -49,8 +49,6 @@
 #include "MapLayerHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);
 const QueryID QueryID::NONE(-1);
@@ -738,5 +736,3 @@ bool MapObjectID::isRandomArtifact(MapObjectBaseID id)
 {
 	return id == RANDOM_ART || id == RANDOM_TREASURE_ART || id == RANDOM_MINOR_ART || id == RANDOM_MAJOR_ART || id == RANDOM_RELIC_ART;
 }
-
-VCMI_LIB_NAMESPACE_END

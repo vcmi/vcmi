@@ -16,8 +16,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string spells::SpellSchoolType::getNameTextID() const
 {
 	return TextIdentifier( "spellSchool", modScope, identifier, "name" ).get();
@@ -66,5 +64,3 @@ std::vector<SpellSchool> SpellSchoolHandler::getAllObjects() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

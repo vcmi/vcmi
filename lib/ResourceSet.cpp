@@ -16,8 +16,6 @@
 #include "entities/ResourceTypeHandler.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ResourceSet::ResourceSet()
 {
 	resizeContainer();
@@ -106,12 +104,12 @@ static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 
 bool ResourceSet::canBeAfforded(const ResourceSet &res) const
 {
-	return VCMI_LIB_WRAP_NAMESPACE(canAfford(res, *this));
+	return ::canAfford(res, *this);
 }
 
 bool ResourceSet::canAfford(const ResourceSet &price) const
 {
-	return VCMI_LIB_WRAP_NAMESPACE(canAfford(*this, price));
+	return ::canAfford(*this, price);
 }
 
 TResourceCap ResourceSet::marketValue() const
@@ -189,5 +187,3 @@ ResourceSet::nziterator::nziterator(const ResourceSet &RS)
 	if(!valid())
 		advance();
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "../networkPacks/NetPackVisitor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGameState;
 
 class GameStatePackVisitor final : public ICPackVisitor
@@ -123,5 +121,3 @@ public:
 	void visitCatapultAttack(CatapultAttack & pack) override;
 	void visitBattleStackMoved(BattleStackMoved & pack) override;
 };
-
-VCMI_LIB_NAMESPACE_END

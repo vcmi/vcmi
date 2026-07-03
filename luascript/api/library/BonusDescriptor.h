@@ -16,8 +16,6 @@
 
 #include "../SignatureOf.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 
 namespace scripting::api
@@ -84,5 +82,3 @@ struct BonusDescriptor final : ApiSerializable<BonusDescriptor>
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

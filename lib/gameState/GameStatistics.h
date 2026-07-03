@@ -12,8 +12,6 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PlayerState;
 class CGameState;
 class CGHeroInstance;
@@ -177,5 +175,3 @@ public:
 	static std::map<EGameResID, int> getNumMines(const CGameState * gs, const PlayerState * ps);
 	static float getTownBuiltRatio(const PlayerState * ps);
 };
-
-VCMI_LIB_NAMESPACE_END

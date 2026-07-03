@@ -14,7 +14,6 @@
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class TownBuildingsWidget;

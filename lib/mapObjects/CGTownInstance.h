@@ -14,8 +14,6 @@
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCastleEvent;
 class CTown;
 class TownBuildingInstance;
@@ -245,5 +243,3 @@ private:
 	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,16 +12,12 @@
 #include "CWindowObject.h"
 #include "../widgets/Images.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBuilding;
 class CGTownInstance;
 class CSpell;
 struct CStructure;
 class CGHeroInstance;
 class CCreature;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CCastleBuildings;

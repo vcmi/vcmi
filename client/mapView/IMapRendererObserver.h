@@ -9,14 +9,10 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class int3;
 class CGObjectInstance;
 class CGHeroInstance;
 class PlayerColor;
-
-VCMI_LIB_NAMESPACE_END
 
 class IMapObjectObserver
 {

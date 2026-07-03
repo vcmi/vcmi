@@ -16,8 +16,6 @@
 #include "../mapObjects/army/CArmedInstance.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleLayout BattleLayout::createDefaultLayout(const IGameInfoCallback & gameInfo, const CArmedInstance * attacker, const CArmedInstance * defender)
 {
 	return createLayout(gameInfo, "default", attacker, defender);
@@ -77,5 +75,3 @@ BattleLayout BattleLayout::createLayout(const IGameInfoCallback & gameInfo, cons
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

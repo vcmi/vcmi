@@ -27,8 +27,6 @@
 #include "../entities/ResourceTypeHandler.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void StatisticDataSet::add(StatisticDataSetEntry entry)
 {
 	data.push_back(entry);
@@ -468,5 +466,3 @@ float Statistic::getTownBuiltRatio(const PlayerState * ps)
 	
 	return built / total;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include <tbb/task_group.h>
 #include <tbb/global_control.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Helper class for running asynchronous tasks using TBB thread pool
 class AsyncRunner : boost::noncopyable
 {
@@ -60,5 +58,3 @@ public:
 		wait();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

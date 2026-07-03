@@ -9,12 +9,8 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class GameConnectionID : int8_t
 {
 	INVALID = -1,
 	FIRST_CONNECTION = 1
 };
-
-VCMI_LIB_NAMESPACE_END

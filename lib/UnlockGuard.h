@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 	namespace detail
@@ -97,5 +95,3 @@ namespace vstd
 
 	using unlock_shared_guard = unlock_guard<std::shared_mutex, detail::unlock_shared_policy<std::shared_mutex>>;
 }
-
-VCMI_LIB_NAMESPACE_END

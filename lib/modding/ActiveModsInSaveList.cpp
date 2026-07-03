@@ -15,8 +15,6 @@
 #include "CModHandler.h"
 #include "ModIncompatibility.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::vector<TModID> ActiveModsInSaveList::getActiveGameplayAffectingMods()
 {
 	std::vector<TModID> result;
@@ -57,5 +55,3 @@ void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificati
 		throw ModIncompatibility(missingMods, excessiveMods);
 }
 
-
-VCMI_LIB_NAMESPACE_END

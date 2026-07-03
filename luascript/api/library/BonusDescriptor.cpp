@@ -14,8 +14,6 @@
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/json/JsonBonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -58,5 +56,3 @@ Bonus BonusDescriptor::toBonus() const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

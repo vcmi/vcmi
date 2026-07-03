@@ -14,8 +14,6 @@
 #include "NetworkConnection.h"
 #include "NetworkDiscovery.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::unique_ptr<INetworkHandler> INetworkHandler::createHandler()
 {
 	return std::make_unique<NetworkHandler>();
@@ -111,5 +109,3 @@ void NetworkHandler::stop()
 {
 	context->stop();
 }
-
-VCMI_LIB_NAMESPACE_END

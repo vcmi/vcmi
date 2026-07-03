@@ -12,8 +12,6 @@
 #include "BinarySerializer.h"
 #include "BinaryDeserializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
 class DLL_LINKAGE CMemorySerializer
 	: public IBinaryReader, public IBinaryWriter
@@ -54,5 +52,3 @@ public:
 		return ret;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

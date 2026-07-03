@@ -30,11 +30,7 @@
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct QuestInfo;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAdvmapInterface;
 

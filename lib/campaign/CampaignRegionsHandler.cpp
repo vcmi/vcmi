@@ -12,8 +12,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::vector<JsonNode> CampaignRegionsHandler::loadLegacyData()
 {
 	return {};
@@ -30,5 +28,3 @@ void CampaignRegionsHandler::loadObject(std::string scope, std::string name, con
 {
 	throw std::runtime_error("CampaignRegionsHandler::loadObject - load by index is not supported!");
 }
-
-VCMI_LIB_NAMESPACE_END

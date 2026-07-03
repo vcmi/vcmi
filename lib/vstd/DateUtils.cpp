@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include <vstd/DateUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 
@@ -29,5 +27,3 @@ namespace vstd
 	}
 
 }
-
-VCMI_LIB_NAMESPACE_END

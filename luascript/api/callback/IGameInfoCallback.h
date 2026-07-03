@@ -17,8 +17,6 @@
 
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 
 namespace scripting::api
@@ -37,5 +35,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

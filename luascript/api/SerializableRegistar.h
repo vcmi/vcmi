@@ -13,8 +13,6 @@
 #include "Registry.h"
 #include "FieldDocRegistrar.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -56,5 +54,3 @@ void Registry::registerSerializable()
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

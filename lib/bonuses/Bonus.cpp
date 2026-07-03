@@ -29,8 +29,6 @@
 #include "../modding/ModUtility.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32> customValue) const
 {
 	MetaString descriptionHelper = description;
@@ -271,5 +269,3 @@ std::shared_ptr<Bonus> Bonus::addPropagationUpdater(const TUpdaterPtr & newUpdat
 	propagationUpdater = appendToUpdaters(propagationUpdater, newUpdater);
 	return this->shared_from_this();
 }
-
-VCMI_LIB_NAMESPACE_END

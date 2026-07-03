@@ -12,8 +12,6 @@
 
 #include "CMapEvent.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// The castle event builds/adds buildings/creatures for a specific town.
 class DLL_LINKAGE CCastleEvent : public CMapEvent
 {
@@ -33,5 +31,3 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler) override;
 };
-
-VCMI_LIB_NAMESPACE_END

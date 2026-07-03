@@ -28,8 +28,6 @@
 #include "../IGameSettings.h"
 #include "../CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapInfo::CMapInfo()
 	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
@@ -213,5 +211,3 @@ std::string CMapInfo::getMapSizeName() const
 		return "C";
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

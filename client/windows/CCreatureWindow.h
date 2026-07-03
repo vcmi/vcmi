@@ -14,14 +14,10 @@
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCommanderInstance;
 class CStackInstance;
 class CStack;
 class UpgradeInfo;
-
-VCMI_LIB_NAMESPACE_END
 
 class UnitView;
 class CTabbedInt;

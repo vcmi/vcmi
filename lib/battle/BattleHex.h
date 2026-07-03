@@ -12,8 +12,6 @@
 #include "BattleSide.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //TODO: change to enum class
 
 namespace GameConstants
@@ -302,5 +300,3 @@ private:
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);
-
-VCMI_LIB_NAMESPACE_END

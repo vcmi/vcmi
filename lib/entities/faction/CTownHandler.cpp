@@ -32,8 +32,6 @@
 #include "../../json/JsonBonus.h"
 #include "../../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
 CTownHandler::CTownHandler()
@@ -1027,5 +1025,3 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	static const std::vector<std::string> typeNames = { "faction", "town" };
 	return typeNames;
 }
-
-VCMI_LIB_NAMESPACE_END

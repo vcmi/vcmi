@@ -13,9 +13,7 @@
 
 enum class WikiCategory : int;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CFaction;
-VCMI_LIB_NAMESPACE_END
 
 class CViewport;
 

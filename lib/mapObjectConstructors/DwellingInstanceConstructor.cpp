@@ -20,8 +20,6 @@
 #include "../modding/IdentifierStorage.h"
 #include "../CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool DwellingInstanceConstructor::hasNameTextID() const
 {
 	return true;
@@ -184,5 +182,3 @@ AnimationPath DwellingInstanceConstructor::getKingdomOverviewImage() const
 {
 	return kingdomOverviewImage;
 }
-
-VCMI_LIB_NAMESPACE_END

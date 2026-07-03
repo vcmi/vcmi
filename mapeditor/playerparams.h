@@ -14,7 +14,6 @@
 #include "../lib/mapping/CMapHeader.h"
 #include "mapcontroller.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class PlayerParams;

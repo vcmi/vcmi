@@ -14,7 +14,6 @@
 #include "lib/json/JsonKeyExtractor.h"
 #include "lib/mapObjects/CRewardableObject.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui
 {

@@ -12,8 +12,6 @@
 
 #include "Effect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 namespace spells
 {
@@ -35,5 +33,3 @@ private:
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #include "../../IHandlerBase.h"
 #include "../../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
 	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
@@ -33,5 +31,3 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CHeroClass> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };
-
-VCMI_LIB_NAMESPACE_END

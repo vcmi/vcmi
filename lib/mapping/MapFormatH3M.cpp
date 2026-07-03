@@ -48,8 +48,6 @@
 #include "modding/CModHandler.h"
 #include "modding/ModDescription.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new MapReaderH3M(stream))
@@ -3767,5 +3765,3 @@ void CMapLoaderH3M::afterRead()
 	for (auto & quest : questsToResolve)
 		quest.first->getQuest().killTarget = questIdentifierToId.at(quest.second);
 }
-
-VCMI_LIB_NAMESPACE_END

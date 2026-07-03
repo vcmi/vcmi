@@ -31,8 +31,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -587,5 +585,3 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 
 	return std::make_unique<AdventureSpellMechanics>(s);
 }
-
-VCMI_LIB_NAMESPACE_END

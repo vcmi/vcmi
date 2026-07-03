@@ -11,8 +11,6 @@
 
 #include "TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 struct ExportedStrings
@@ -117,5 +115,3 @@ public:
 
 	TextContainerRegistrable& operator=(const TextContainerRegistrable & b) = default;
 };
-
-VCMI_LIB_NAMESPACE_END

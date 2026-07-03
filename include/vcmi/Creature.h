@@ -13,8 +13,6 @@
 #include "FactionMember.h"
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CreatureID;
 class ResourceSet;
 class GameResID;
@@ -73,5 +71,3 @@ public:
 
 	virtual bool isDoubleWide() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

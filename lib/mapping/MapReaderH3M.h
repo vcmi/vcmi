@@ -15,8 +15,6 @@
 #include "MapFeaturesH3M.h"
 #include "MapIdentifiersH3M.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBinaryReader;
 class CInputStream;
 struct MapFormatFeaturesH3M;
@@ -104,5 +102,3 @@ private:
 
 	std::unique_ptr<CBinaryReader> reader;
 };
-
-VCMI_LIB_NAMESPACE_END

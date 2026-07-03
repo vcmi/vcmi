@@ -50,8 +50,6 @@ constexpr int32_t CONSOLE_GRAY = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_
 constexpr int32_t CONSOLE_TEAL = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #ifdef CREATE_MEMORY_DUMP
 
 static void createMemoryDump(MINIDUMP_EXCEPTION_INFORMATION * meinfo)
@@ -313,5 +311,3 @@ void CConsoleHandler::start()
 {
 	thread = std::thread(std::bind(&CConsoleHandler::run, this));
 }
-
-VCMI_LIB_NAMESPACE_END

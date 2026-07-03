@@ -11,10 +11,8 @@
 
 #include "../../../Global.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CHero;
 class CGHeroInstance;
-VCMI_LIB_NAMESPACE_END
 
 class CIntObject;
 class CViewport;

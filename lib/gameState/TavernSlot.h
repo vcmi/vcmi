@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class TavernHeroSlot : int8_t
 {
 	NONE = -1,
@@ -27,5 +25,3 @@ enum class TavernSlotRole : int8_t
 	RETREATED, // hero was owned by player before, but have retreated from battle and only has 1 creature in army
 	SURRENDERED // hero was owned by player before, but have surrendered in battle and kept some troops
 };
-
-VCMI_LIB_NAMESPACE_END

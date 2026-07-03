@@ -26,8 +26,6 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
@@ -214,5 +212,3 @@ void CHeroClassHandler::afterLoadFinalization()
 }
 
 CHeroClassHandler::~CHeroClassHandler() = default;
-
-VCMI_LIB_NAMESPACE_END

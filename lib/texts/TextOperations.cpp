@@ -19,8 +19,6 @@
 
 #include <iconv.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename FromString, typename DestString>
 FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
 {
@@ -461,5 +459,3 @@ std::string TextOperations::convertMapName(std::string input)
 
 	return input;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -15,8 +15,6 @@
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 MapLayerTypeHandler::MapLayerTypeHandler()
 {
 	objects.resize(3);
@@ -77,4 +75,3 @@ MapLayerType::MapLayerType():
 	modScope("core"),
 	id(MapLayerId::UNKNOWN)
 {}
-VCMI_LIB_NAMESPACE_END

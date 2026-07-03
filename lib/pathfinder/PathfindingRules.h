@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CDestinationNodeInfo;
 struct PathNodeInfo;
 
@@ -112,5 +110,3 @@ protected:
 		const PathfinderConfig * pathfinderConfig,
 		const CPathfinderHelper * pathfinderHelper) const override;
 };
-
-VCMI_LIB_NAMESPACE_END

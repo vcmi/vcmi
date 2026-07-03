@@ -31,8 +31,6 @@
 
 #include <vcmi/spells/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 using ::spells::Mechanics;
@@ -120,5 +118,3 @@ void MechanicsProxy::registerMethods(MethodRegistrar & R)
 		"Picks the appropriate plural-form variant of a text ID for the given count and language.");
 }
 }
-
-VCMI_LIB_NAMESPACE_END

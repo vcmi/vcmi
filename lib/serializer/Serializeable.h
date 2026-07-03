@@ -9,13 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 // Tag class that acts as base for all classes that can be serialized by pointer
 class Serializeable
 {
 public:
     virtual ~Serializeable() = default;
 };
-
-VCMI_LIB_NAMESPACE_END

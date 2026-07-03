@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class INodeStorage;
 class IPathfindingRule;
 class CPathfinderHelper;
@@ -121,5 +119,3 @@ public:
 
 	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };
-
-VCMI_LIB_NAMESPACE_END

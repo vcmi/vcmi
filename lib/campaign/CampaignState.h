@@ -24,8 +24,6 @@ class CampaignProperties;
 class ScenarioProperties;
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
@@ -349,5 +347,3 @@ public:
 		h & highscoreParameters;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

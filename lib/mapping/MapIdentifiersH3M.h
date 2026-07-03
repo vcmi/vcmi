@@ -14,8 +14,6 @@
 #include "../filesystem/ResourcePath.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ObjectTemplate;
 
 struct ObjectTypeIdentifier
@@ -75,5 +73,3 @@ public:
 	const JsonNode & getFormatSettings() const { return formatSettings; }
 
 };
-
-VCMI_LIB_NAMESPACE_END

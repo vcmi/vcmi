@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
 	JsonTreeSerializer(instanceResolver_, &root_, true, false)
 {
@@ -194,5 +192,3 @@ void JsonSerializer::writeLICPartBuffer(const std::string & fieldName, const std
 	}
 }
 
-
-VCMI_LIB_NAMESPACE_END

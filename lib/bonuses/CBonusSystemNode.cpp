@@ -15,8 +15,6 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 constexpr bool cachingEnabled = true;
 static std::atomic<int32_t> globalCounter = 1;
 
@@ -612,5 +610,3 @@ int32_t CBonusSystemNode::getTreeVersion() const
 {
 	return nodeChanged;
 }
-
-VCMI_LIB_NAMESPACE_END

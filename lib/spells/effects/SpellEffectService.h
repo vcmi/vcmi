@@ -12,8 +12,6 @@
 
 #include "../../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 namespace spells::effects
@@ -48,5 +46,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

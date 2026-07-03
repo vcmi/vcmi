@@ -11,8 +11,6 @@
 
 #include "../../lib/Color.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleHex;
 class BattleHexArray;
 class BattleAction;
@@ -20,8 +18,6 @@ class CStack;
 class CSpell;
 class SpellID;
 class Point;
-
-VCMI_LIB_NAMESPACE_END
 
 struct StackAttackedInfo;
 struct StackAttackInfo;

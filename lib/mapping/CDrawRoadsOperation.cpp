@@ -18,8 +18,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template <typename T>
 const std::vector<typename CDrawLinesOperation<T>::LinePattern> CDrawLinesOperation<T>::patterns =
 {
@@ -429,5 +427,3 @@ RoadId CDrawRoadsOperation::getIdentifier(TerrainTile & tile) const
 {
 	return tile.roadType;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "../GameConstants.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 class ILimiter;
 class CSelector;
@@ -27,5 +25,3 @@ namespace JsonUtils
 	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter);
 	CSelector parseSelector(const JsonNode &ability);
 }
-
-VCMI_LIB_NAMESPACE_END

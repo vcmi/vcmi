@@ -11,11 +11,7 @@
 
 #include "../../lib/logging/VisualLogger.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class int3;
-
-VCMI_LIB_NAMESPACE_END
 
 class Canvas;
 class MapViewModel;

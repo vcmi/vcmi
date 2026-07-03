@@ -19,8 +19,6 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/TerrainTile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void MovementCostRule::process(
 	const PathNodeInfo & source,
 	CDestinationNodeInfo & destination,
@@ -463,5 +461,3 @@ void LayerTransitionRule::process(
 		break;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

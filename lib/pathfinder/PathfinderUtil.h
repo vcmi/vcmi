@@ -15,8 +15,6 @@
 #include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace PathfinderUtil
 {
 	using FoW = MapTilesStorage<uint8_t>;
@@ -100,5 +98,3 @@ namespace PathfinderUtil
 		return EPathAccessibility::ACCESSIBLE;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

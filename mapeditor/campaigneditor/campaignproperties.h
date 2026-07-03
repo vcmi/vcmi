@@ -12,11 +12,8 @@
 
 #include "../../lib/campaign/CampaignState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CampaignState;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 class QAbstractButton;
 

@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CMemorySerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int CMemorySerializer::read(std::byte * data, unsigned size)
 {
 	if(buffer.size() < readPos + size)
@@ -34,5 +32,3 @@ CMemorySerializer::CMemorySerializer(): iser(this), oser(this), readPos(0)
 {
 	iser.version = ESerializationVersion::CURRENT;
 }
-
-VCMI_LIB_NAMESPACE_END

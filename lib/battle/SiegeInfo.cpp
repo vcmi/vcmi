@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "SiegeInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 SiegeInfo::SiegeInfo()
 {
@@ -41,5 +39,3 @@ EWallState SiegeInfo::applyDamage(EWallState state, unsigned int value)
 		return EWallState::NONE;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

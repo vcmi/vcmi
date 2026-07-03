@@ -24,8 +24,6 @@
 #endif
 #include <sstream>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static thread_local std::string threadNameForLogging;
 
 static std::string threadIdToString(std::thread::id id)
@@ -104,5 +102,3 @@ void setThreadName(const std::string &name)
 	#error "Failed to find method to set thread name on this system. Please provide one (or disable this line if you just want code to compile)"
 #endif
 }
-
-VCMI_LIB_NAMESPACE_END

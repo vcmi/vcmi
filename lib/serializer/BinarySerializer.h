@@ -14,8 +14,6 @@
 #include "ESerializationVersion.h"
 #include "SerializerReflection.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Main class for serialization of classes into binary form
 /// Behaviour for various classes is following:
 /// Primitives:    copy memory into underlying stream (defined in CSaverBase)
@@ -363,5 +361,3 @@ private:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

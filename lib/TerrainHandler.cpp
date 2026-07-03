@@ -17,8 +17,6 @@
 #include "texts/CLegacyConfigParser.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
@@ -182,5 +180,3 @@ std::string TerrainType::getNameTranslated() const
 {
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
-
-VCMI_LIB_NAMESPACE_END

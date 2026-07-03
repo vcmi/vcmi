@@ -11,8 +11,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded
 ///
@@ -152,5 +150,3 @@ namespace MappedKeys
 		{ "resource-skill", EMarketMode::RESOURCE_SKILL },
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

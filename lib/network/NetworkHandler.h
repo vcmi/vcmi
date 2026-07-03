@@ -11,8 +11,6 @@
 
 #include "NetworkDefines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class NetworkHandler final : public INetworkHandler
 {
 	std::unique_ptr<NetworkContext> context;
@@ -33,5 +31,3 @@ public:
 
 	NetworkContext & getContext() override;
 };
-
-VCMI_LIB_NAMESPACE_END

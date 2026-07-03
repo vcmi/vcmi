@@ -19,8 +19,6 @@
 #include "../gameState/CGameState.h"
 #include "../networkPacks/PacksForServer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, IClient * C):
 	cl(C),
 	player(player)
@@ -108,5 +106,3 @@ int CBattleCallback::sendRequest(const CPackForServer & request)
 {
 	return cl->sendRequest(request, *getPlayerID(), waitTillRealize);
 }
-
-VCMI_LIB_NAMESPACE_END

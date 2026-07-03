@@ -14,8 +14,6 @@
 #include "../lib/filesystem/ResourcePath.h"
 #include <QImage>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGTownInstance;
 class CGObjectInstance;
@@ -24,9 +22,6 @@ class JsonNode;
 class ObjectTemplate;
 class CHeroClass;
 
-VCMI_LIB_NAMESPACE_END
-
-VCMI_LIB_USING_NAMESPACE
 
 struct InfoAboutHero;
 struct InfoAboutTown;

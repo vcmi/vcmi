@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleAction;
 class BattleStateInfoForRetreat;
 
@@ -34,5 +32,3 @@ public:
 	virtual std::shared_ptr<CPlayerBattleCallback> getBattle(const BattleID & battleID) = 0;
 	virtual std::optional<PlayerColor> getPlayerID() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

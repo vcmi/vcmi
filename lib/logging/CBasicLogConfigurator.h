@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CConsoleHandler;
 class JsonNode;
 enum class EConsoleTextColor : int8_t;
@@ -47,5 +45,3 @@ private:
 	CConsoleHandler * console;
 	bool appendToLogFile;
 };
-
-VCMI_LIB_NAMESPACE_END

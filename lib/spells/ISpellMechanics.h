@@ -18,8 +18,6 @@
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Query;
 class IBattleState;
 class CreatureService;
@@ -396,5 +394,3 @@ protected:
 
 	const CSpell * owner;
 };
-
-VCMI_LIB_NAMESPACE_END

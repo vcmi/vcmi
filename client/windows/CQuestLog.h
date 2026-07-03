@@ -18,14 +18,10 @@
 
 #include "../../lib/gameState/QuestInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCreature;
 class CStackInstance;
 class CGHeroInstance;
 struct QuestInfo;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CToggleButton;

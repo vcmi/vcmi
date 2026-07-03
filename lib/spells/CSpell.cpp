@@ -24,8 +24,6 @@
 
 #include <vcmi/spells/Caster.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
 ///CSpell
@@ -508,5 +506,3 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	massive = levelInfo.range.empty();
 	clearAffected = levelInfo.clearAffected;
 }
-
-VCMI_LIB_NAMESPACE_END

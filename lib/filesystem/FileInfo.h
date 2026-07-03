@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace FileInfo
 {
 
@@ -50,5 +48,3 @@ std::string_view DLL_LINKAGE GetParentPath(std::string_view path);
 std::string_view DLL_LINKAGE GetPathStem(std::string_view path);
 
 }
-
-VCMI_LIB_NAMESPACE_END

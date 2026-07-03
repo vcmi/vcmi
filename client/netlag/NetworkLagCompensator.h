@@ -12,11 +12,9 @@
 #include "../../lib/network/NetworkInterface.h"
 #include "../../server/IGameServer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct CPackForServer;
 class CGameState;
 class GameConnection;
-VCMI_LIB_NAMESPACE_END
 
 class NetworkLagReplyPrediction;
 

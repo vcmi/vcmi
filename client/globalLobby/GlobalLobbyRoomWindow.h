@@ -24,9 +24,7 @@ class CListBox;
 struct GlobalLobbyAccount;
 struct GlobalLobbyRoom;
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct ModVerificationInfo;
-VCMI_LIB_NAMESPACE_END
 
 struct GlobalLobbyRoomModInfo
 {

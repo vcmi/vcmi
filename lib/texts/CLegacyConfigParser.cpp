@@ -17,8 +17,6 @@
 #include "filesystem/Filesystem.h"
 #include "../modding/CModHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //Helper for string -> float conversion
 class LocaleWithComma: public std::numpunct<char>
 {
@@ -157,5 +155,3 @@ bool CLegacyConfigParser::endLine()
 
 	return curr < end;
 }
-
-VCMI_LIB_NAMESPACE_END

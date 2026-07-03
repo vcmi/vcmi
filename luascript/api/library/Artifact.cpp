@@ -15,8 +15,6 @@
 #include "../Registry.h"
 #include "../../../lib/bonuses/IBonusBearer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -33,5 +31,3 @@ void ArtifactProxy::registerMethods(MethodRegistrar & R)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

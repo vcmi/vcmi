@@ -13,8 +13,6 @@
 
 #include "../../callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 // Used to try on artifacts before the claimed changes have been applied
 class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallbackHolder
 {
@@ -31,5 +29,3 @@ public:
 protected:
 	ArtBearer bearer;
 };
-
-VCMI_LIB_NAMESPACE_END

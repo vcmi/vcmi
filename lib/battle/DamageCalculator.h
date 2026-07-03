@@ -12,8 +12,6 @@
 
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBattleInfoCallback;
 class IBonusBearer;
 class CSelector;
@@ -78,5 +76,3 @@ public:
 
 	DamageEstimation calculateDmgRange() const;
 };
-
-VCMI_LIB_NAMESPACE_END

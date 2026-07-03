@@ -13,10 +13,8 @@
 #include "../../lib/ConditionalWait.h"
 #include "../../lib/Point.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct ObjectPosInfo;
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 
 struct MapRendererContextState;
 

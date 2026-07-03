@@ -19,8 +19,6 @@
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
 std::vector<JsonNode> CSpellHandler::loadLegacyData()
@@ -522,5 +520,3 @@ std::set<SpellID> CSpellHandler::getDefaultAllowed() const
 
 	return allowedSpells;
 }
-
-VCMI_LIB_NAMESPACE_END

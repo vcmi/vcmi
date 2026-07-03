@@ -10,10 +10,8 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
 class ColorRGBA;
-VCMI_LIB_NAMESPACE_END
 
 /// Base class for applying palette transformation on images
 class ColorFilter

@@ -11,8 +11,6 @@
 
 #include "Enums.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -158,5 +156,3 @@ EnumGroup<BonusValueType> Enums::exportBonusValueType() const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

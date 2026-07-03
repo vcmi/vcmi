@@ -18,8 +18,6 @@
 
 #include <vcmi/Entity.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleInfo;
 class CGameState;
 class JsonSerializeFormat;
@@ -83,5 +81,3 @@ public:
 			attachUnitsToArmy();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

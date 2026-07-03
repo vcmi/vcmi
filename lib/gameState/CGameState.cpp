@@ -73,8 +73,6 @@
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_mutex CGameState::mutex;
 
 const Services * GameStateEnvironment::services() const
@@ -1785,5 +1783,3 @@ void CGameState::saveCompatibilityRegisterMissingArtifacts()
 		map->saveCompatibilityAddMissingArtifact(newArtifact);
 	saveCompatibilityUnregisteredArtifacts.clear();
 }
-
-VCMI_LIB_NAMESPACE_END

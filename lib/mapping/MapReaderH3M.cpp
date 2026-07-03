@@ -15,8 +15,6 @@
 #include "../int3.h"
 #include "../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<>
 BuildingID MapReaderH3M::remapIdentifier(const BuildingID & identifier)
 {
@@ -583,5 +581,3 @@ std::string MapReaderH3M::readBaseString()
 {
 	return reader->readBaseString();
 }
-
-VCMI_LIB_NAMESPACE_END

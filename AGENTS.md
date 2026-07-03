@@ -89,16 +89,6 @@ All changes to game state must go through server via network packets. More detai
 
 See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for detailed threading information.
 
-### Namespace Wrapping (iOS/Android Considerations)
-
-On mobile systems, all binaries are built into a single executable & linked statically. The lib symbols are wrapped in a namespace to keep them isolated. This is handled by:
-
-- `VCMI_LIB_NAMESPACE_BEGIN` / `VCMI_LIB_NAMESPACE_END` macros in lib code
-- Forward declarations of lib symbols in external code must also use these macros
-- In new project parts, add `VCMI_LIB_USING_NAMESPACE` to `StdInc.h`
-
-See [`docs/developers/Code_Structure.md`](docs/developers/Code_Structure.md) for examples.
-
 ### Directory Structure
 
 - **lib/** - Core static library `vcmiMain` with core game logic and data structures.

@@ -23,8 +23,6 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -56,5 +54,3 @@ const spells::Spell * ObstacleProxy::getSpell(std::shared_ptr<const CObstacleIns
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

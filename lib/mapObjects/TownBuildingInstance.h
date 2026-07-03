@@ -13,8 +13,6 @@
 #include "IObjectInterface.h"
 #include "../rewardable/Interface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGTownInstance;
 class CBuilding;
 
@@ -87,5 +85,3 @@ public:
 		h & visitors;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

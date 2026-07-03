@@ -19,8 +19,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TConstBonusListPtr TurnInfoBonusList::getBonusList(const CGHeroInstance * target, const CSelector & bonusSelector)
 {
 	std::lock_guard guard(bonusListMutex);
@@ -235,5 +233,3 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 	else
 		return getMovePointsLimitLand();
 }
-
-VCMI_LIB_NAMESPACE_END

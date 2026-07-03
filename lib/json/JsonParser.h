@@ -11,8 +11,6 @@
 
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //Internal class for string -> JsonNode conversion
 class JsonParser
 {
@@ -57,5 +55,3 @@ public:
 	/// returns true if parsing was successful
 	bool isValid();
 };
-
-VCMI_LIB_NAMESPACE_END

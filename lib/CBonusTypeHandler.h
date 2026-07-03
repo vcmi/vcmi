@@ -14,8 +14,6 @@
 #include "IHandlerBase.h"
 #include "bonuses/Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 class JsonNode;
 
@@ -69,8 +67,6 @@ private:
 	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType
 };
 
-VCMI_LIB_NAMESPACE_END
-
 #ifndef INSTANTIATE_CBonusTypeHandler_HERE
-extern template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
+extern template class std::vector<::CBonusType>;
 #endif

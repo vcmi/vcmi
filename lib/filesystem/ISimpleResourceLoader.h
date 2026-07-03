@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 class ResourcePath;
 
@@ -111,5 +109,3 @@ public:
 		
 	virtual std::time_t getLastWriteTime(const ResourcePath& resourceName) const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

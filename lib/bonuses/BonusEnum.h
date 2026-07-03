@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 #define BONUS_LIST										\
@@ -325,5 +323,3 @@ extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;
-
-VCMI_LIB_NAMESPACE_END

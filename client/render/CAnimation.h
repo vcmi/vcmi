@@ -15,9 +15,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
 class RenderHandler;

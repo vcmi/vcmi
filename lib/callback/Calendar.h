@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameSettings;
 
 /// Small value type that interprets a day count using the game's calendar settings
@@ -44,5 +42,3 @@ public:
 	/// Returns a Calendar advanced by one day
 	Calendar nextDay() const;
 };
-
-VCMI_LIB_NAMESPACE_END

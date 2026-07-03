@@ -17,8 +17,6 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -75,5 +73,3 @@ std::vector<const spells::SpellSchoolType *> SpellProxy::getSchools(const Spell 
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

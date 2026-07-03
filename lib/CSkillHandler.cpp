@@ -24,8 +24,6 @@
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CSkill::CSkill(const SecondarySkill & id, std::string identifier):
 	id(id),
 	identifier(std::move(identifier))
@@ -352,5 +350,3 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

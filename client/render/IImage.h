@@ -11,14 +11,10 @@
 
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PlayerColor;
 class Rect;
 class Point;
 class ColorRGBA;
-
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 struct SDL_Palette;

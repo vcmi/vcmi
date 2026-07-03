@@ -17,8 +17,6 @@
 #include "../../../lib/bonuses/BonusSelector.h"
 #include "../../../lib/bonuses/IBonusBearer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -70,5 +68,3 @@ private:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

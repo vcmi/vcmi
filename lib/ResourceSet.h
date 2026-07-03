@@ -12,8 +12,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using TResource = int32_t;
 using TResourceCap = int64_t; //to avoid overflow when adding integers. Signed values are easier to control.
 
@@ -281,5 +279,3 @@ public:
 
 using TResources = ResourceSet;
 
-
-VCMI_LIB_NAMESPACE_END

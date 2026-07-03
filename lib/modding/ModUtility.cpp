@@ -12,8 +12,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string ModUtility::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier)
 {
 	auto p = vstd::splitStringToPair(identifier, ':');
@@ -73,5 +71,3 @@ std::string ModUtility::makeFullIdentifier(const std::string & scope, const std:
 		return actualName.empty() ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

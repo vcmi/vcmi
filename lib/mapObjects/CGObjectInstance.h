@@ -16,8 +16,6 @@
 #include "../filesystem/ResourcePath.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
@@ -178,5 +176,3 @@ protected:
 
 	void serializeJsonOwner(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

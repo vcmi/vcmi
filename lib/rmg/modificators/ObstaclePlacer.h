@@ -13,8 +13,6 @@
 #include "Modificator.h"
 #include "../../mapping/ObstacleProxy.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMap;
 class CMapEditManager;
 class RiverPlacer;
@@ -42,5 +40,3 @@ private:
 	RiverPlacer * riverManager;
 	ObjectManager * manager;
 };
-
-VCMI_LIB_NAMESPACE_END

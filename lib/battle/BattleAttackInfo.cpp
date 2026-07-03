@@ -11,8 +11,6 @@
 #include "BattleAttackInfo.h"
 #include "CUnitState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleAttackInfo::BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, int chargeDistance, bool Shooting)
 	: attacker(Attacker),
 	defender(Defender),
@@ -30,5 +28,3 @@ BattleAttackInfo BattleAttackInfo::reverse() const
 	ret.attackerPos = defenderPos;
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

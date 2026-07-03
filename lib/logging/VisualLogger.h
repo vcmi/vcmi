@@ -14,8 +14,6 @@
 #include "../battle/BattleHex.h"
 #include "../Color.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IMapOverlayLogVisualizer
 {
 public:
@@ -116,5 +114,3 @@ public:
 };
 
 extern DLL_LINKAGE VisualLogger * logVisual;
-
-VCMI_LIB_NAMESPACE_END

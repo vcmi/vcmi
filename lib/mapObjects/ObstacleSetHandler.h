@@ -16,8 +16,6 @@
 #include "../json/JsonNode.h"
 #include "ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE ObstacleSet
 {
 public:
@@ -135,5 +133,3 @@ private:
 		// FIXME: Store pointers?
 		std::map<ObstacleSet::EObstacleType, std::vector<std::shared_ptr<ObstacleSet>>> obstacleSets;
 };
-
-VCMI_LIB_NAMESPACE_END

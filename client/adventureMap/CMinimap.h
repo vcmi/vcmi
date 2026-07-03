@@ -11,10 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ColorRGBA;
 using FowTilesType = std::set<int3>;
-VCMI_LIB_NAMESPACE_END
 
 class Canvas;
 class CMinimap;

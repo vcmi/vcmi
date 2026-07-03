@@ -13,8 +13,6 @@
 
 #include <QVariant>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 namespace JsonUtils
@@ -25,5 +23,3 @@ VCMIQT_LINKAGE JsonNode jsonFromFile(QString filename);
 VCMIQT_LINKAGE JsonNode toJson(QVariant object);
 VCMIQT_LINKAGE void jsonToFile(QString filename, const JsonNode & object);
 }
-
-VCMI_LIB_NAMESPACE_END

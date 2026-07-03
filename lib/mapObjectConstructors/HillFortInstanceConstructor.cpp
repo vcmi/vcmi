@@ -14,8 +14,6 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
 {
 	parameters = config;
@@ -29,5 +27,3 @@ void HillFortInstanceConstructor::initializeObject(HillFort * fort) const
 {
 	fort->upgradeCostPercentage = parameters["upgradeCostFactor"].convertTo<std::vector<int>>();
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -10,8 +10,6 @@
 #pragma once
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Namespace that provides utilities for unicode support (UTF-8)
 namespace TextOperations
 {
@@ -177,5 +175,3 @@ inline Arithmetic TextOperations::parseMetric(const std::string &text)
 		return 0;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

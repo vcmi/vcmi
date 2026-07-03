@@ -13,8 +13,6 @@
 #include "../ResourceSet.h"
 #include <boost/container/small_vector.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE UpgradeInfo
 {
 public:
@@ -82,6 +80,4 @@ private:
 	boost::container::small_vector<ResourceSet, 4> upgradesCosts; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	bool isAvailable;		// flag for unavailableUpgrades like in miniHillFort from HoTA
 };
-
-VCMI_LIB_NAMESPACE_END
 

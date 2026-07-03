@@ -16,8 +16,6 @@
 #include "../../../lib/bonuses/BonusList.h"
 #include "../../../lib/bonuses/BonusEnum.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -62,5 +60,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

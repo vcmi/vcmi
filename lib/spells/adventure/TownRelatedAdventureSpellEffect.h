@@ -12,8 +12,6 @@
 
 #include "AdventureSpellEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGTownInstance;
 class CSpell;
 struct MapObjectSelectDialog;
@@ -44,5 +42,3 @@ public:
 };
 }
 }
-
-VCMI_LIB_NAMESPACE_END

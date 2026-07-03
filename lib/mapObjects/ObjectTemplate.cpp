@@ -22,8 +22,6 @@
 #include "../modding/IdentifierStorage.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static bool isOnVisitableFromTopList(Obj identifier, int type)
 {
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
@@ -554,5 +552,3 @@ void ObjectTemplate::recalculate()
 	if (visitable && visitDir == 0)
 		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());
 }
-
-VCMI_LIB_NAMESPACE_END

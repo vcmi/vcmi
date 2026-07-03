@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace events
 {
 
@@ -29,5 +27,3 @@ public:
 
 }
 
-
-VCMI_LIB_NAMESPACE_END
