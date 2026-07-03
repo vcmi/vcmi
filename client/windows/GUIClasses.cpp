@@ -24,6 +24,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
