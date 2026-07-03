@@ -45,7 +45,7 @@ msgstr "完整游戏机制"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
-msgstr "包含接近全部物体、技能、法术及其他内容"
+msgstr "包含接近全部物体、能力、法术及其他内容"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"

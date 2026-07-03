@@ -561,7 +561,7 @@
 	"vcmi.keyBindings.keyBinding.exchangeBackpackToRight": "交换 - 行囊中宝物移到右侧",
 	"vcmi.keyBindings.keyBinding.exchangeEquippedSwap": "交换 - 交换装备",
 	"vcmi.keyBindings.keyBinding.exchangeEquippedToLeft": "交换 - 装备移到左侧",
-	"vcmi.keyBindings.keyBinding.exchangeEquippedToRight": "E交换 - 装备移到右侧",
+	"vcmi.keyBindings.keyBinding.exchangeEquippedToRight": "交换 - 装备移到右侧",
 	"vcmi.keyBindings.keyBinding.gameActivateConsole": "打开游戏控制台",
 	"vcmi.keyBindings.keyBinding.globalAccept": "全局 - 接受",
 	"vcmi.keyBindings.keyBinding.globalBackspace": "全局 - 回退",

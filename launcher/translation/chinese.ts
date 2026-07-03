@@ -1182,7 +1182,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="847"/>
         <source>Heroes III Demo files detected. This mod is required to use demo assets in VCMI, or the game will crash</source>
-        <translation>检测到英雄无敌3 Demo文件，需要在VCMI中安装此模组来使用Demo资源，否则游戏将会崩溃</translation>
+        <translation>检测到英雄无敌3试玩版文件，需要在VCMI中安装此模组来使用试玩版资源，否则游戏将会崩溃</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="863"/>
@@ -1202,7 +1202,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1004"/>
         <source>Demo support</source>
-        <translation>Demo支持</translation>
+        <translation>试玩版支持</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="1065"/>
