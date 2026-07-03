@@ -83,6 +83,9 @@ class ScreenHandler final : public IScreenHandler
 	/// Updates state (e.g. position) of game window after resolution/fullscreen change
 	void updateWindowState();
 
+	/// Blocks until renderer reports a valid output size, needed on Wayland where fullscreen window size is assigned asynchronously
+	void waitForValidRenderResolution();
+
 	/// Initializes or reiniitalizes all screen state
 	void recreateWindowAndScreenBuffers();
 

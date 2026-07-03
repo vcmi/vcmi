@@ -63,6 +63,9 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	double maximalScalingHeight = 100.0 * availableResolution.y / minResolution.y;
 	double maximalScaling = std::min(maximalScalingWidth, maximalScalingHeight);
 
+	// guard against a degenerate render resolution (e.g. reported before window is sized) that would invert clamp bounds
+	maximalScaling = std::max(maximalScaling, minimalScaling);
+
 	return { minimalScaling, maximalScaling };
 }
 
@@ -265,12 +268,42 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 	else
 		updateWindowState();
 
+	waitForValidRenderResolution();
+
 	initializeScreenBuffers();
 
 	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 	{
 		NotificationHandler::init(mainWindow);
 	}
+}
+
+void ScreenHandler::waitForValidRenderResolution()
+{
+	// On Wayland (observed with sdl2-compat over SDL3), SDL creates a fullscreen-desktop window before the
+	// compositor assigns it a size, so SDL_GetRendererOutputSize reports a placeholder 1x1 until a configure
+	// event is processed. Block on the event queue until a usable size arrives, otherwise scaling math and
+	// screen buffers are built from garbage. See https://github.com/vcmi/vcmi/issues/5510
+	if(getPreferredWindowMode() != EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
+		return;
+
+	for(int attempt = 0; attempt < 10; ++attempt)
+	{
+		Point resolution = getRenderResolution();
+		if(resolution.x >= heroes3Resolution.x && resolution.y >= heroes3Resolution.y)
+		{
+			if(attempt > 0) // only interesting if we actually had to wait (i.e. Wayland-style async sizing)
+				logGlobal->info("Render resolution %dx%d became available after %d event(s)", resolution.x, resolution.y, attempt);
+			return;
+		}
+
+		logGlobal->debug("Waiting for valid render resolution, attempt %d reported %dx%d", attempt, resolution.x, resolution.y);
+		SDL_Event event;
+		SDL_WaitEventTimeout(&event, 100); // wake as soon as compositor reports window size, instead of busy-polling
+	}
+
+	Point resolution = getRenderResolution();
+	logGlobal->warn("Giving up waiting for valid render resolution, still %dx%d after 10 attempts - rendering may be broken", resolution.x, resolution.y);
 }
 
 void ScreenHandler::updateWindowState()
