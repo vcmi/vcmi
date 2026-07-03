@@ -990,19 +990,19 @@ void TemplateEditor::on_pushButtonRenameSubTemplate_clicked()
 	selectedTemplate = text.toStdString();
 }
 
-void TemplateEditor::on_spinBoxZoneVisPosX_valueChanged()
+void TemplateEditor::on_spinBoxZoneVisPosX_valueChanged(int)
 {
 	if(ui->spinBoxZoneVisPosX->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneVisPosY_valueChanged()
+void TemplateEditor::on_spinBoxZoneVisPosY_valueChanged(int)
 {
 	if(ui->spinBoxZoneVisPosY->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_doubleSpinBoxZoneVisSize_valueChanged()
+void TemplateEditor::on_doubleSpinBoxZoneVisSize_valueChanged(double)
 {
 	if(ui->doubleSpinBoxZoneVisSize->hasFocus())
 		saveZoneMenuContent();
@@ -1030,55 +1030,55 @@ void TemplateEditor::on_comboBoxForcedLevel_currentTextChanged(const QString &te
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneSize_valueChanged()
+void TemplateEditor::on_spinBoxZoneSize_valueChanged(int)
 {
 	if(ui->spinBoxZoneSize->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownCountPlayer_valueChanged()
+void TemplateEditor::on_spinBoxTownCountPlayer_valueChanged(int)
 {
 	if(ui->spinBoxTownCountPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleCountPlayer_valueChanged()
+void TemplateEditor::on_spinBoxCastleCountPlayer_valueChanged(int)
 {
 	if(ui->spinBoxCastleCountPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownDensityPlayer_valueChanged()
+void TemplateEditor::on_spinBoxTownDensityPlayer_valueChanged(int)
 {
 	if(ui->spinBoxTownDensityPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleDensityPlayer_valueChanged()
+void TemplateEditor::on_spinBoxCastleDensityPlayer_valueChanged(int)
 {
 	if(ui->spinBoxCastleDensityPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownCountNeutral_valueChanged()
+void TemplateEditor::on_spinBoxTownCountNeutral_valueChanged(int)
 {
 	if(ui->spinBoxTownCountNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleCountNeutral_valueChanged()
+void TemplateEditor::on_spinBoxCastleCountNeutral_valueChanged(int)
 {
 	if(ui->spinBoxCastleCountNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownDensityNeutral_valueChanged()
+void TemplateEditor::on_spinBoxTownDensityNeutral_valueChanged(int)
 {
 	if(ui->spinBoxTownDensityNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleDensityNeutral_valueChanged()
+void TemplateEditor::on_spinBoxCastleDensityNeutral_valueChanged(int)
 {
 	if(ui->spinBoxCastleDensityNeutral->hasFocus())
 		saveZoneMenuContent();
@@ -1102,37 +1102,37 @@ void TemplateEditor::on_comboBoxMonsterStrength_currentTextChanged(const QString
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneId_valueChanged()
+void TemplateEditor::on_spinBoxZoneId_valueChanged(int)
 {
 	if(ui->spinBoxZoneId->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTowns_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTowns_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTowns->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkMines_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkMines_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkMines->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTerrain_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTerrain_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTerrain->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTreasure_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTreasure_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTreasure->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkCustomObjects_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkCustomObjects_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkCustomObjects->hasFocus())
 		saveZoneMenuContent();
