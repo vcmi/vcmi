@@ -70,7 +70,7 @@ TemplateEditor::TemplateEditor():
 	loadContent();
 
 	setTitle();
-	
+
 	setWindowModality(Qt::ApplicationModal);
 
 	show();
@@ -165,7 +165,7 @@ void TemplateEditor::autoPositionZones()
 			continue;
 		edges.push_back({from, to});
 	}
-		
+
 	GeometryAlgorithm::forceDirectedLayout(nodes, edges, 1000, 500, 500);
 
 	for(auto & item : nodes)
@@ -220,7 +220,7 @@ void TemplateEditor::loadContent(bool autoPosition)
 
 		updateZoneCards();
 	}
-	
+
 	updateConnectionLines(true);
 	updateZonePositions();
 
@@ -348,13 +348,13 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 {
 	if(selectedZone < 0 || selectedTemplate.empty())
 		return;
-	
+
 	auto setValue = [](auto& target, const auto& newValue){ target->setValue(newValue); };
 	auto & zone = templates[selectedTemplate]->getZones().at(selectedZone);
 	setValue(ui->spinBoxZoneVisPosX, zone->getVisiblePosition().x);
 	setValue(ui->spinBoxZoneVisPosY, zone->getVisiblePosition().y);
 	setValue(ui->doubleSpinBoxZoneVisSize, zone->getVisibleSize());
-	
+
 	if(onlyPosition)
 		return;
 
@@ -384,7 +384,7 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->spinBoxZoneLinkTerrain->setEnabled(zone->terrainTypeLikeZone != rmg::ZoneOptions::NO_ZONE);
 	ui->spinBoxZoneLinkTreasure->setEnabled(zone->treasureLikeZone != rmg::ZoneOptions::NO_ZONE);
 	ui->spinBoxZoneLinkCustomObjects->setEnabled(zone->customObjectsLikeZone != rmg::ZoneOptions::NO_ZONE);
-	
+
 	setValue(ui->spinBoxZoneId, zone->id);
 	ui->spinBoxZoneId->setEnabled(false);
 
@@ -749,7 +749,7 @@ bool TemplateEditor::validate()
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -778,7 +778,7 @@ void TemplateEditor::on_actionOpen_triggered()
 
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open template");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("VCMI templates(*.json)");
@@ -829,7 +829,7 @@ void TemplateEditor::on_actionNew_triggered()
 	templates = std::map<std::string, std::shared_ptr<CRmgTemplate>>();
 	templates["TemplateEditor"] = std::make_shared<CRmgTemplate>();
 	setDefaultContent(templates["TemplateEditor"]);
-	
+
 	changed();
 	initContent();
 	loadContent();
@@ -840,7 +840,7 @@ void TemplateEditor::on_actionSave_triggered()
 {
 	if(filename.isNull())
 		on_actionSave_as_triggered();
-	else 
+	else
 		saveTemplate();
 	setTitle();
 }
@@ -1012,7 +1012,7 @@ void TemplateEditor::on_comboBoxZoneType_currentTextChanged(const QString &text)
 {
 	if(!ui->comboBoxZoneType->hasFocus())
 		return;
-	ui->comboBoxZoneType->clearFocus(); 
+	ui->comboBoxZoneType->clearFocus();
 
 	saveZoneMenuContent();
 	loadZoneMenuContent();

@@ -72,7 +72,7 @@ set(Nullkiller2_SRCS
 
 set(Nullkiller2_HEADERS
 		StdInc.h
-		
+
 		Pathfinding/AIPathfinderConfig.h
 		Pathfinding/AIPathfinder.h
 		Pathfinding/AINodeStorage.h

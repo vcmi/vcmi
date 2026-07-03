@@ -52,7 +52,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 #endif
 
 	setAcceptDrops(true);
-	
+
 	setWindowIcon(QIcon{":/icons/menu-game.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
@@ -70,7 +70,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 	connect(ui->campaignView, &CampaignView::fileDropped, this, [this](const QString & filename) {
 		if(!getAnswerAboutUnsavedChanges())
 			return;
-		
+
 		try
 		{
 			loadCampaignFile(filename);
@@ -84,7 +84,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb):
 	redraw();
 
 	setTitle();
-	
+
 	setWindowModality(Qt::ApplicationModal);
 
 	show();
@@ -109,7 +109,7 @@ void CampaignEditor::redraw()
 
 	auto background = BitmapHandler::loadBitmap(campaignState->getRegions().getBackgroundName().getName());
 	if(!ui->actionShowFullBackground->isChecked())
-		background = background.copy(0, 0, 456, 600); 
+		background = background.copy(0, 0, 456, 600);
 	campaignScene->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(background)));
 	for (auto & s : campaignState->scenarios)
 	{
@@ -263,7 +263,7 @@ void CampaignEditor::on_actionOpen_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open campaign");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)");
@@ -271,7 +271,7 @@ void CampaignEditor::on_actionOpen_triggered()
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filenameSelect.isEmpty())
 		return;
-	
+
 	loadCampaignFile(filenameSelect);
 }
 
@@ -299,7 +299,7 @@ void CampaignEditor::on_actionOpenSet_triggered()
 
 	if(!ok)
 		return;
-	
+
 	QMap<QString, ResourcePath> campaigns;
 	for(auto const & campaign : sets.value(selectedSet))
 	{
@@ -311,7 +311,7 @@ void CampaignEditor::on_actionOpenSet_triggered()
 
 	if(!ok)
 		return;
-	
+
 	campaignState = CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName());
 	selectedScenario = *campaignState->allScenarios().begin();
 
@@ -349,7 +349,7 @@ void CampaignEditor::on_actionNew_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	campaignState = std::make_unique<CampaignState>();
 	campaignState->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
 	for (int i = 0; i < campaignState->campaignRegions.regions.size(); i++)
@@ -360,7 +360,7 @@ void CampaignEditor::on_actionNew_triggered()
 	}
 	campaignState->modName = "mapEditor";
 	campaignState->creationDateTime = std::time(nullptr);
-	
+
 	changed();
 	redraw();
 }
@@ -372,7 +372,7 @@ void CampaignEditor::on_actionSave_triggered()
 
 	if(filename.isNull())
 		on_actionSave_as_triggered();
-	else 
+	else
 		saveCampaign();
 	setTitle();
 }

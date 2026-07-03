@@ -98,7 +98,7 @@ private slots:
 	void on_pushButtonEntitiesBannedArtifacts_clicked();
 	void on_pushButtonEntitiesBannedSkills_clicked();
 	void on_pushButtonEntitiesBannedHeroes_clicked();
-	
+
 private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();

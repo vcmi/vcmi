@@ -290,7 +290,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 	setAcceptDrops(true);
-	
+
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
 
 	ExtractionOptions extractionOptions;
@@ -402,10 +402,10 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 			for(auto & box : levelComboBoxes)
 				if (box->currentIndex() != index && combo != box)
         			box->setCurrentIndex(index);
-			
+
 			if(!controller.map())
 				return;
-			
+
 			mapLevel = combo->currentIndex();
 			ui->mapView->setScene(controller.scene(mapLevel));
 			ui->mapView->resetInteractionState();
@@ -447,14 +447,14 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 
 	if (extractionOptions.extractArchives)
 		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
-	
+
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
 	ui->mapView->resetInteractionState();
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &EditorMainWindow::loadInspector);
 	connect(ui->mapView, &MapView::currentCoordinates, this, &EditorMainWindow::currentCoordinatesChanged);
-	
+
 	ui->minimapView->setScene(controller.miniScene(0));
 	ui->minimapView->setController(&controller);
 	connect(ui->minimapView, &MinimapView::cameraPositionChanged, ui->mapView, &MapView::cameraChanged);
@@ -466,16 +466,16 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 
 	//loading objects
 	loadObjectsTree();
-	
+
 	ui->tabWidget->setCurrentIndex(0);
-	
+
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		connect(getActionPlayer(PlayerColor(i)), &QAction::toggled, this, [&, i](){switchDefaultPlayer(PlayerColor(i));});
 	}
 	connect(getActionPlayer(PlayerColor::NEUTRAL), &QAction::toggled, this, [&](){switchDefaultPlayer(PlayerColor::NEUTRAL);});
 	onPlayersChanged();
-	
+
 	show();
 
 #ifdef VCMI_ANDROID
@@ -558,7 +558,7 @@ void EditorMainWindow::initializeMap(bool isNew)
 	if(initialScale.isValid())
 		on_actionZoom_reset_triggered();
 	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
-	
+
 	//enable settings
 	mapSettings = new MapSettings(controller, this);
 	connect(&controller, &MapController::requestModsUpdate,
@@ -577,7 +577,7 @@ void EditorMainWindow::initializeMap(bool isNew)
 	}
 	ui->actionLevel->setEnabled(true);
 	ui->actionMapLayer->setEnabled(true);
-	
+
 	//set minimal players count
 	if(isNew)
 	{
@@ -615,7 +615,7 @@ bool EditorMainWindow::openMap(const QString & filenameSelect)
 		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
 		return false;
 	}
-	
+
 	filename = filenameSelect;
 	initializeMap(controller.map()->version != EMapFormat::VCMI);
 
@@ -642,7 +642,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 {
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open map");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)");
@@ -650,7 +650,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 	auto filenameSelect = EditorFileDialog::getOpenFileName(this, title, dir, filter);
 	if(filenameSelect.isEmpty())
 		return;
-	
+
 	openMap(filenameSelect);
 }
 
@@ -744,13 +744,13 @@ void EditorMainWindow::saveMap(bool force)
 
 	if(!force && !unsaved)
 		return;
-	
+
 	//validate map
 	auto issues = Validator::validate(controller.map());
 	bool critical = false;
 	for(auto & issue : issues)
 		critical |= issue.critical;
-	
+
 	if(!issues.empty())
 	{
 		auto mapValidationTitle = tr("Map validation");
@@ -759,7 +759,7 @@ void EditorMainWindow::saveMap(bool force)
 		else
 			QMessageBox::information(this, mapValidationTitle, tr("Map has some errors. Open Validator from the Map menu to see issues found"));
 	}
-	
+
 	Translations::cleanupRemovedItems(*controller.map());
 
 	for(auto obj : controller.map()->objects)
@@ -787,7 +787,7 @@ void EditorMainWindow::saveMap(bool force)
 		QMessageBox::critical(this, tr("Failed to save map"), e.what());
 		return;
 	}
-	
+
 	unsaved = false;
 	setTitle();
 }
@@ -910,7 +910,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 			continue;
 
 		auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(ID, secondaryID));
-		
+
 		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
 		{
@@ -934,12 +934,12 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 				painter.scale(scale, scale);
 				painter.drawImage(QPoint(0, 0), *picture);
 			}
-			
+
 			//create object to extract name
 			auto temporaryObj(factory->create(controller.getCallback(), templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
-			
+
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
@@ -1263,7 +1263,7 @@ void EditorMainWindow::treeViewSelected(const QModelIndex & index, const QModelI
 {
 	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
-	
+
 	preparePreview(index);
 }
 
@@ -1386,7 +1386,7 @@ void EditorMainWindow::switchDefaultPlayer(const PlayerColor & player)
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		QAction * playerEntry = getActionPlayer(PlayerColor(i));
-		QSignalBlocker blocker(playerEntry); 
+		QSignalBlocker blocker(playerEntry);
 		playerEntry->setChecked(PlayerColor(i) == player);
 	}
 	controller.defaultPlayer = player;
@@ -1408,7 +1408,7 @@ void EditorMainWindow::onPlayersChanged()
 			getActionPlayer(PlayerColor(i))->setEnabled(false);
 		getActionPlayer(PlayerColor::NEUTRAL)->setEnabled(false);
 	}
-	
+
 }
 
 
@@ -1445,18 +1445,18 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 {
 	if(!controller.map())
 		return;
-	
+
 	if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
 	{
 		QMessageBox::information(this, tr("Update appearance"), tr("No objects selected"));
 		return;
 	}
-	
+
 	if(QMessageBox::Yes != QMessageBox::question(this, tr("Update appearance"), tr("This operation is irreversible. Do you want to continue?")))
 		return;
-	
+
 	controller.scene(mapLevel)->selectionTerrainView.clear();
-	
+
 	int errors = 0;
 	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
@@ -1467,9 +1467,9 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 			++errors;
 			continue;
 		}
-		
+
 		auto * terrain = controller.map()->getTile(obj->visitablePos()).getTerrain();
-		
+
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
@@ -1490,7 +1490,7 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 			{
 				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
-				
+
 				auto templates = handler->getTemplates(terrain->getId());
 				if(templates.empty())
 				{
@@ -1507,8 +1507,8 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 	controller.commitObjectChange(mapLevel);
 	controller.commitObjectErase(mapLevel);
 	controller.commitObstacleFill(mapLevel);
-	
-	
+
+
 	if(errors)
 		QMessageBox::warning(this, tr("Update appearance"), QString(tr("Errors occurred. %1 objects were not updated")).arg(errors));
 }
@@ -1548,13 +1548,13 @@ void EditorMainWindow::on_actionMapLayer_triggered()
     );
 
 	if(ok)
-	{    
+	{
 		for (const auto & p : layers)
 		{
 			if (p.first == selected)
 			{
 				currentType = p.second;
-				
+
 				for(auto &box : levelComboBoxes)
 					box->setItemText(mapLevel, tr("Level %1: %2")
 										.arg(mapLevel + 1)
@@ -1622,7 +1622,7 @@ void EditorMainWindow::on_actionExport_triggered()
 	QString imgFormat;
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save to image"), lastSavingDir, "BMP (*.bmp);;JPEG (*.jpeg);;PNG (*.png)", &selectedFilter);
 #endif
- 
+
 	if(!fileName.isNull())
 	{
 		QFileInfo fileInfo(fileName);
@@ -1665,7 +1665,7 @@ void EditorMainWindow::on_actionExport_triggered()
 			QMessageBox::critical(this, tr("Failed to save image"), tr("Cannot save image to %1.").arg(fileName));
 			return;
 		}
-		
+
 		// Restore viewport to visible area
 		ui->mapView->setViewports();
 
@@ -1701,7 +1701,7 @@ void EditorMainWindow::on_actionh3m_converter_triggered()
 	if(saveDirectory.isEmpty())
 		return;
 #endif
-	
+
 	try
 	{
 		for(auto & m : mapFiles)
