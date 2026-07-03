@@ -264,8 +264,9 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 
 void StartGameTab::on_buttonGameEditor_clicked()
 {
-	Helper::getMainWindow()->hide();
-	startEditor({});
+	auto mainWindow = Helper::getMainWindow();
+	mainWindow->hide();
+	startEditor({}, mainWindow);
 }
 
 QStringList StartGameTab::selectImportFiles()

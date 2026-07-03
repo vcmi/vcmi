@@ -136,13 +136,13 @@ void startGame(const QStringList & args)
 #endif
 }
 
-void startEditor(const QStringList & args)
+void startEditor(const QStringList & args, QWidget * parent)
 {
 #ifdef ENABLE_EDITOR
 # ifdef VCMI_ANDROID
 	QtAndroid::androidActivity().callMethod<void>("openMapEditor");
 # elif defined(VCMI_IOS)
-	openMapEditor();
+	openMapEditor(parent);
 # else
 	startExecutable(pathToQString(VCMIDirs::get().mapEditorPath()), args);
 # endif

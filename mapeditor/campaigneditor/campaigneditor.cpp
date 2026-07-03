@@ -40,12 +40,13 @@ using namespace MapEditor;
 #include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-CampaignEditor::CampaignEditor(EditorCallback * cb):
+CampaignEditor::CampaignEditor(EditorCallback * cb, QWidget * parent): QWidget{parent},
 	ui(new Ui::CampaignEditor),
 	selectedScenario(CampaignScenarioID::NONE),
 	cb(cb)
 {
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	ui->menubar->setNativeMenuBar(false);
@@ -205,22 +206,20 @@ void CampaignEditor::saveCampaign()
 
 void CampaignEditor::showCampaignEditor(QWidget *parent, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor(cb);
+	auto * dialog = new CampaignEditor(cb, parent);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb)
 {
-	auto * dialog = new CampaignEditor(cb);
+	auto * dialog = new CampaignEditor(cb, parent);
 
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 
 	try
 	{
@@ -407,6 +406,8 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 		QAndroidJniObject activity = QtAndroid::androidActivity();
 		if(activity.isValid())
 			activity.callMethod<void>("finishAffinity");
+#else
+		parentWidget()->show();
 #endif
 	}
 	else

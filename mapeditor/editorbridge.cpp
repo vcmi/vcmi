@@ -21,12 +21,12 @@ static void initEditorResources()
 }
 #endif
 
-void openMapEditor()
+void openMapEditor(QWidget * parent)
 {
 #ifdef ENABLE_SINGLE_APP_BUILD
 	initEditorResources();
 #endif
-	auto * editorWindow = new EditorMainWindow();
+	auto * editorWindow = new EditorMainWindow(parent);
 	editorWindow->setAttribute(Qt::WA_DeleteOnClose);
 	editorWindow->show();
 }

@@ -29,7 +29,7 @@ class TemplateEditor : public QWidget
 	Q_OBJECT
 
 public:
-	explicit TemplateEditor();
+	explicit TemplateEditor(QWidget * parent = nullptr);
 	~TemplateEditor();
 
 	static void showTemplateEditor(QWidget *parent);

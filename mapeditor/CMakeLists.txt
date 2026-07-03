@@ -76,6 +76,7 @@ endif()
 set(editor_HEADERS
 		StdInc.h
 		mainwindow.h
+		editorbridge.h
 		BitmapHandler.h
 		maphandler.h
 		Animation.h

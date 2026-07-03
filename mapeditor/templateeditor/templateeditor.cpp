@@ -32,10 +32,11 @@
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../../lib/texts/MetaString.h"
 
-TemplateEditor::TemplateEditor():
+TemplateEditor::TemplateEditor(QWidget * parent): QWidget{parent},
 	ui(new Ui::TemplateEditor)
 {
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	ui->menubar->setNativeMenuBar(false);
@@ -763,12 +764,11 @@ void TemplateEditor::saveTemplate()
 
 void TemplateEditor::showTemplateEditor(QWidget *parent)
 {
-	auto * dialog = new TemplateEditor();
-	
+	auto * dialog = new TemplateEditor(parent);
+
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void TemplateEditor::on_actionOpen_triggered()
@@ -921,6 +921,8 @@ void TemplateEditor::closeEvent(QCloseEvent *event)
 		QAndroidJniObject activity = QtAndroid::androidActivity();
 		if(activity.isValid())
 			activity.callMethod<void>("finishAffinity");
+#else
+		parentWidget()->show();
 #endif
 	}
 	else

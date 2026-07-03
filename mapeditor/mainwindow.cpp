@@ -335,6 +335,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	loadTranslation();
 
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	// On Android the native menu bar is hidden; force it into the window content area
@@ -520,6 +521,8 @@ void EditorMainWindow::closeEvent(QCloseEvent *event)
 		// window closes. Quit the app and finish the Activity to avoid a black screen.
 		QApplication::quit();
 		androidFinishActivity();
+#elif defined(VCMI_IOS)
+		parentWidget()->show();
 #endif
 	}
 	else
