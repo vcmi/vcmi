@@ -17,7 +17,9 @@
 static void initEditorResources()
 {
 	Q_INIT_RESOURCE(editor_resources);
+#ifdef ENABLE_TRANSLATIONS
 	Q_INIT_RESOURCE(editor_translations);
+#endif
 }
 #endif
 
