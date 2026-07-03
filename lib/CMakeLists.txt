@@ -823,7 +823,7 @@ add_library(vcmiMain OBJECT ${lib_SRCS} ${lib_HEADERS})
 target_compile_definitions(vcmiMain PRIVATE "VCMI_DLL=1")
 target_link_libraries(vcmiMain PUBLIC
 	minizip::minizip ZLIB::ZLIB Iconv::Iconv
-	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::date_time
+	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options
 )
 
 if (NOT ENABLE_MINIMAL_LIB)

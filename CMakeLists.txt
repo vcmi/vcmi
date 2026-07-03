@@ -488,7 +488,7 @@ endif()
 #        Finding packages                  #
 ############################################
 
-set(BOOST_COMPONENTS date_time filesystem program_options)
+set(BOOST_COMPONENTS filesystem program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()

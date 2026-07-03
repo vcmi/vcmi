@@ -12,6 +12,8 @@
 #include "../CThreadHelper.h"
 #include "../CConsoleHandler.h"
 
+#include <vstd/DateUtils.h>
+
 #ifdef VCMI_ANDROID
 #include <android/log.h>
 
@@ -259,9 +261,6 @@ std::string CLogFormatter::format(const LogRecord & record) const
 {
 	std::string message = pattern;
 
-	//Format date
-//	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
-
 	//Format log level
 	std::string level;
 	switch(record.level)
@@ -288,7 +287,11 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
 	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
-	boost::algorithm::replace_first(message, "%c", boost::posix_time::to_simple_string(record.timeStamp));
+
+	auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(record.timeStamp.time_since_epoch()) % 1000;
+	std::string dateTime = vstd::getFormattedDateTime(std::chrono::system_clock::to_time_t(record.timeStamp), "%Y-%m-%d %H:%M:%S");
+	std::string milliStr = std::to_string(milliseconds.count());
+	boost::algorithm::replace_first(message, "%c", dateTime + '.' + std::string(3 - milliStr.size(), '0') + milliStr);
 
 	//return boost::str (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
@@ -451,7 +454,7 @@ LogRecord::LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, c
 	: domain(domain),
 	level(level),
 	message(message),
-	timeStamp(boost::posix_time::microsec_clock::local_time()),
+	timeStamp(std::chrono::system_clock::now()),
 	threadId(getThreadName())
 {
 
