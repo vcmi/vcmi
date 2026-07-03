@@ -281,7 +281,8 @@ jobs:
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           --conf="tools.cmake.cmaketoolchain:generator=Ninja" \
-          ${{ matrix.conan_options }}
+          ${{ matrix.conan_options }} \
+          ${{ startsWith(matrix.platform, 'msvc') && '--conf="tools.microsoft.msbuild:vs_version=17"' || '' }}
         ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
     # Can't be set in Gradle project
