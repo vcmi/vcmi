@@ -11,17 +11,17 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>全选</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>打开战役</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -1136,12 +1136,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>图像格式</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择图像格式：</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,12 +1152,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>未能保存图像</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>不能保存图像至%1。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1178,7 +1178,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>目录</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1450,12 +1450,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>所有英雄</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>排除英雄</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
@@ -1947,7 +1947,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>选择玩家</translation>
     </message>
 </context>
 <context>
