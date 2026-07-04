@@ -164,18 +164,41 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 {
 	const auto & t = *gameHandler->gameInfo().getTile(tile);
 	TerrainId terrain = t.getTerrainID();
-	if (town)
-		terrain = town->getTownSiegeTerrain(terrain);
-	else if (gameHandler->gameState().getMap().isCoastalTile(tile)) //coastal tile is always ground
-		terrain = ETerrainId::SAND;
 
 	BattleField battlefieldType = gameHandler->gameState().battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
 
-	if (town)
+	// The battle may take place on a terrain dictated by an object rather than the map tile:
+	// a town siege uses the town's native terrain, and objects such as an abandoned mine can
+	// force e.g. subterranean terrain. In that case the battlefield is the object's fixed one if it
+	// defines one, otherwise it is selected from that terrain - keeping terrain, battlefield and
+	// obstacles consistent.
+	// A town's battle terrain is dictated only through the explicit 'town' parameter; a null town
+	// means an outside/field battle that uses the map tile terrain, so the town object sitting on
+	// the battle tile must be ignored here.
+	const CGObjectInstance * topObject = nullptr;
+	if (!town && !t.visitableObjects.empty())
 	{
-		const TerrainType* terrainData = LIBRARY->terrainTypeHandler->getById(terrain);
-		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
+		const auto * tileObject = gameHandler->gameInfo().getObjInstance(t.visitableObjects.front());
+		if (tileObject && tileObject->ID != Obj::TOWN)
+			topObject = tileObject;
 	}
+
+	TerrainId forcedTerrain = town ? town->getBattleTerrain() : (topObject ? topObject->getBattleTerrain() : TerrainId::NONE);
+
+	if (forcedTerrain != TerrainId::NONE)
+	{
+		terrain = forcedTerrain;
+		BattleField forcedBattlefield = topObject ? topObject->getBattlefield() : BattleField::NONE;
+		if (forcedBattlefield != BattleField::NONE)
+			battlefieldType = forcedBattlefield; // object defines a fixed battlefield explicitly
+		else
+		{
+			const TerrainType * terrainData = LIBRARY->terrainTypeHandler->getById(terrain);
+			battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
+		}
+	}
+	else if (gameHandler->gameState().getMap().isCoastalTile(tile)) //coastal tile is always ground
+		terrain = ETerrainId::SAND;
 	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->inBoat() && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->inBoat())
 		battlefieldType = BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 

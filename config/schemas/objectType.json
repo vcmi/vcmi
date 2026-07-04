@@ -67,6 +67,11 @@
 			]
 		},
 
+		"battleTerrain" : {
+			"type" : "string",
+			"description" : "Terrain the combat at this object takes place on. Overrides the map tile terrain and the battlefield is selected from this terrain (e.g. subterranean for an abandoned mine)"
+		},
+
 		"sounds" : {
 			"type" : "object",
 			"additionalProperties" : false,

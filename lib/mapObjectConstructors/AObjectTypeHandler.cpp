@@ -134,6 +134,14 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		}
 	}
 
+	if(!input["battleTerrain"].isNull())
+	{
+		LIBRARY->identifiers()->requestIdentifier("terrain", input["battleTerrain"], [this](int32_t identifier)
+		{
+			battleTerrain = TerrainId(identifier);
+		});
+	}
+
 	initTypeData(input);
 }
 
@@ -213,6 +221,11 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 std::vector<BattleField> AObjectTypeHandler::getBattlefields() const
 {
 	return battlefields;
+}
+
+TerrainId AObjectTypeHandler::getBattleTerrain() const
+{
+	return battleTerrain;
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const

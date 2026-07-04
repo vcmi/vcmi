@@ -97,6 +97,9 @@ public:
 
 	virtual BattleField getBattlefield() const;
 
+	/// terrain the battle at this object takes place on, or NONE to use the map tile's terrain
+	virtual TerrainId getBattleTerrain() const;
+
 	virtual bool isTile2Terrain() const { return false; }
 
 	std::optional<AudioPath> getAmbientSound(vstd::RNG & rng) const;
