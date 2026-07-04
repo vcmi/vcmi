@@ -1307,7 +1307,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation>Maximales Level des Helden begrenzen</translation>
+        <translation>Maximales Level der Helden begrenzen</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
