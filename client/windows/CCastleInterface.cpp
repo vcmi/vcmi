@@ -1373,8 +1373,19 @@ void CCreaInfo::update()
 void CCreaInfo::hover(bool on)
 {
 	MetaString message;
-	message.appendTextID("core.genrltxt.588");
-	message.replaceNameSingular(creature);
+	if(showAvailable)
+	{
+		const auto available = town->creatures[level].first;
+		message.appendTextID("core.genrltxt.217");
+		message.appendNumber(available);
+		message.appendRawString(" ");
+		message.appendName(creature, available);
+	}
+	else
+	{
+		message.appendTextID("core.genrltxt.588");
+		message.replaceNameSingular(creature);
+	}
 
 	if(on)
 	{
