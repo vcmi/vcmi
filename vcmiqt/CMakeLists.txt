@@ -17,7 +17,7 @@ set(vcmiqt_HEADERS
 
 assign_source_group(${vcmiqt_SRCS} ${vcmiqt_HEADERS})
 
-if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
+if(ENABLE_SINGLE_APP_BUILD OR ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 	add_library(vcmiqt STATIC ${vcmiqt_SRCS} ${vcmiqt_HEADERS})
 	target_compile_definitions(vcmiqt PRIVATE VCMIQT_STATIC)
 	set(TARGET_IS_SHARED OFF)
