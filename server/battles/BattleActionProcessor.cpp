@@ -1415,11 +1415,16 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
-	if(!attacker->alive() || !defender->alive()) // can be already dead
+	if(!attacker->alive()) // can be already dead, e.g. from retaliation
+		return;
+
+	// attacker's own combat event (e.g. HotA runes) must fire even if the attack wiped out the defender
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
+
+	if(!defender->alive())
 		return;
 
 	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
 	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
 
 	if(!defender->alive())
