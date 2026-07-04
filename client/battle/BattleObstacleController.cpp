@@ -162,7 +162,11 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 		if (obstacle->obstacleType == CObstacleInstance::USUAL && !obstacle->getInfo().isForegroundObstacle)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
+		// passable obstacles (quicksand, landmine, ...) share their hex with a standing
+		// creature and must draw below it; blocking obstacles stay above via row ordering
+		auto layer = obstacle->blocksTiles() ? EBattleFieldLayer::OBSTACLES : EBattleFieldLayer::GROUND_OBSTACLES;
+
+		renderer.insert(layer, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{

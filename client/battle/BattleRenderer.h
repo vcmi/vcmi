@@ -16,13 +16,14 @@ class BattleInterface;
 
 enum class EBattleFieldLayer {
 					   // confirmed ordering requirements:
-	CORPSES       = 0,
-	WALLS         = 1,
-	HEROES        = 2,
-	STACKS        = 2, // after corpses, obstacles, walls
-	OBSTACLES     = 3, // after stacks FIXME: not correct for quicksands!
-	STACK_AMOUNTS = 3, // after stacks, obstacles, corpses
-	EFFECTS       = 4, // after obstacles, battlements
+	CORPSES          = 0,
+	WALLS            = 1,
+	GROUND_OBSTACLES = 1, // passable obstacles (quicksand, landmine, ...): below stacks, as creatures stand on them
+	HEROES           = 2,
+	STACKS           = 2, // after corpses, obstacles, walls
+	OBSTACLES        = 3, // blocking foreground obstacles: after stacks
+	STACK_AMOUNTS    = 3, // after stacks, obstacles, corpses
+	EFFECTS          = 4, // after obstacles, battlements
 };
 
 class BattleRenderer
