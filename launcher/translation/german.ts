@@ -493,7 +493,9 @@ Bitte melden Sie dieses Problem den Entwicklern</translation>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Erfolgreich heruntergeladene Dateien verarbeiten?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
@@ -1128,12 +1130,12 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Heroes III-Daten? Lade die freie Demo um VCMI zu probieren</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo herunterladen</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1381,7 +1383,7 @@ Bitte wählt das Verzeichnis mit installierten Heroes III-Daten.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III Demo wird heruntergeladen...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
@@ -1996,7 +1998,7 @@ Bin (%n Bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo</translation>
     </message>
 </context>
 <context>
@@ -2128,7 +2130,7 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiel installieren</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2172,12 +2174,12 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="268"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III installieren</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="269"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dadurch werden alle Demo-Spieldaten (Ordner „Data“, „Maps“, „Mp3“ und „Video“) gelöscht und der Einrichtungsassistent neu gestartet. Sind Sie sicher?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="293"/>
