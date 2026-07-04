@@ -29,6 +29,7 @@ class CButton;
 class CMultiLineLabel;
 class CListBox;
 class CCreaturePic;
+class CPicture;
 class CArtPlace;
 class CCommanderArtPlace;
 class LRClickableArea;
@@ -141,6 +142,7 @@ class CStackWindow : public CWindowObject
 		};
 
 		std::shared_ptr<CCreaturePic> animation;
+		std::shared_ptr<CPicture> deadCommanderOverlay;
 		std::shared_ptr<LRClickableArea> animationArea;
 		std::shared_ptr<CLabel> name;
 		std::array<std::shared_ptr<CPicture>, 8> statIcons;

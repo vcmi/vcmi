@@ -1152,9 +1152,21 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 			return;
 		}
 
+		const bool commanderResurrectionDialog = text == LIBRARY->generaltexth->translate("vcmi.commander.resurrectionOffer");
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : components)
-			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
+		for(const auto & component : components)
+		{
+			auto uiComponent = std::make_shared<CComponent>(component);
+			if(commanderResurrectionDialog && intComps.empty() && component.type == ComponentType::CREATURE)
+			{
+				const auto subtitle = uiComponent->getSubtitle();
+				const auto firstSpace = subtitle.find(' ');
+				if(firstSpace != std::string::npos)
+					uiComponent = std::make_shared<CComponent>(component.type, component.subType, subtitle.substr(firstSpace + 1)); //keep only commander name
+				uiComponent->newLine = true;
+			}
+			intComps.push_back(uiComponent); //will be deleted by close in window
+		}
 
 		showYesNoDialog(text, [this, askID](){ cb->selectionMade(1, askID); }, [this, askID](){ cb->selectionMade(0, askID); }, intComps);
 	}

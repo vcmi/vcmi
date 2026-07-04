@@ -22,6 +22,7 @@
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
 #include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "texts/CGeneralTextHandler.h"
@@ -448,6 +449,8 @@ void CCreatureHandler::loadCommanders()
 	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
+	
+	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"]);
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
@@ -589,6 +592,11 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	cre->serializeJson(handler);
 
 	cre->cost.resolveFromJson(node["cost"]);
+	if(!node["resurrectionPrice"].isNull())
+	{
+		cre->commanderResurrectionPrice.emplace();
+		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"]);
+	}
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
 	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
@@ -1308,6 +1316,14 @@ CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & p : skillRequirements)
 		p.first.clear();
+}
+
+const ResourceSet & CCreatureHandler::getCommanderResurrectionPrice(const CCreature * commander) const
+{
+	if(commander && commander->commanderResurrectionPrice)
+		return *commander->commanderResurrectionPrice;
+
+	return commanderResurrectionPrice;
 }
 
 void CCreatureHandler::afterLoadFinalization()
