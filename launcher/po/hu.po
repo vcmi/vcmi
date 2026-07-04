@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: VCMI 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 20:10+0200\n"
-"PO-Revision-Date: 2026-05-16 12:24+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-06-09 12:57+0000\n"
+"Last-Translator: summoner001 <summoner@disroot.org>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/vcmi/linux/hu/>"
 "\n"
 "Language: hu\n"
@@ -16,19 +16,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.6\n"
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "Nyílt forráskódú játékmotor a Heroes of Might and Magic III játékhoz"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "VCMI-csapat"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -36,65 +36,81 @@ msgid ""
 "possibilities. Years of intensive work resulted in an impressive amount of "
 "features. Among the current features are:"
 msgstr ""
+"A VCMI a Heroes of Might and Magic III nyílt forráskódú motorja, amely új "
+"lehetőségeket kínál. Az évekig tartó intenzív munka eredményeként lenyűgöző "
+"mennyiségű funkcióval rendelkezik. A jelenlegi funkciók között szerepelnek:"
 
 #: eu.vcmi.VCMI.metainfo.xml:14
 msgid "Complete gameplay mechanics"
-msgstr ""
+msgstr "A játékmenet teljes mechanikája"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
-msgstr ""
+msgstr "Szinte az összes tárgy, képesség, varázslat és egyéb tartalom"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"
-msgstr ""
+msgstr "Alapvető harci és kaland MI"
 
 #: eu.vcmi.VCMI.metainfo.xml:17
 msgid "Many GUI improvements: high resolutions, stack queue, creature window"
 msgstr ""
+"Számos felhasználói felületi fejlesztés: nagy felbontás támogatása, "
+"várólistakezelő, lényablak"
 
 #: eu.vcmi.VCMI.metainfo.xml:18
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
 msgstr ""
+"Fejlett és egyszerű modtámogatás - új városok, lények, hősök, ereklyék és "
+"varázslatok hozzáadása korlátozások és összeférhetetlenségek nélkül"
 
 #: eu.vcmi.VCMI.metainfo.xml:19
 msgid ""
 "Launcher for easy configuration - download mods from our server and install "
 "them immediately!"
 msgstr ""
+"Könnyen konfigurálható indítóprogram - töltse le a modokat a "
+"kiszolgálónkról, és telepítse őket azonnal!"
 
 #: eu.vcmi.VCMI.metainfo.xml:20
 msgid "Random map generator that supports objects added by mods"
 msgstr ""
+"Véletlenszerű térkép-előállító, amely támogatja a modok által hozzáadott "
+"objektumokat"
 
 #: eu.vcmi.VCMI.metainfo.xml:22
 msgid ""
 "Note: In order to play the game using VCMI you need to own data files for "
 "Heroes of Might and Magic III: The Shadow of Death."
 msgstr ""
+"Megjegyzés: Ahhoz, hogy a játékot a VCMI segítségével futtathassa, "
+"rendelkeznie kell a Heroes of Might and Magic III: The Shadow of Death "
+"adatfájljaival."
 
 #: eu.vcmi.VCMI.metainfo.xml:23
 msgid "If you want help, please check our forum, bug tracker or GitHub page."
 msgstr ""
+"Ha segítségre van szüksége, tekintse meg a fórumunkat, a hibajelentő "
+"rendszerünket vagy a GitHub-oldalunkat."
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
-msgstr ""
+msgstr "heroes3"
 
 #: eu.vcmi.VCMI.metainfo.xml:128
 msgid "homm3"
-msgstr ""
+msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
-msgstr ""
+msgstr "Stratégiai játék"
 
 #: vcmilauncher.desktop:6
 msgid "Open-source recreation of Heroes of Might & Magic III"
-msgstr ""
+msgstr "A Heroes of Might & Magic III nyílt forráskódú újraalkotása"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
-msgstr ""
+msgstr "heroes of might and magic;heroes;homm;homm3; stratégia;"
