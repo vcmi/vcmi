@@ -257,8 +257,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	for(int i = 0; i < customSchoolCount; i++)
 		interactiveAreas.push_back(std::make_shared<InteractiveArea>(Rect(schoolTabCustom[i]->pos.topLeft(), Point(80, iaHeight)), std::bind(&CSpellWindow::selectSchool, this, customSpellSchools[i]), LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getNameTextID(), this));
 
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect(  97 + offL + pos.x, 77 + offT + pos.y, leftCorner->pos.h,  leftCorner->pos.w  ), std::bind(&CSpellWindow::fLcornerb, this), 450, this));
-	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
+	leftCornerArea = std::make_shared<InteractiveArea>( Rect(  97 + offL + pos.x, 77 + offT + pos.y, leftCorner->pos.h,  leftCorner->pos.w  ), std::bind(&CSpellWindow::fLcornerb, this), 450, this);
+	rightCornerArea = std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this);
 
 	//areas for spells
 	int xpos = 117 + offL + pos.x;
@@ -609,15 +609,15 @@ void CSpellWindow::setCurrentPage(int value)
 	currentPage = value;
 	setSchoolImages(selectedTab);
 
-	if (currentPage != 0)
-		leftCorner->enable();
-	else
-		leftCorner->disable();
+	bool canTurnLeft = currentPage != 0;
+	bool canTurnRight = currentPage + 1 < pagesWithinCurrentTab();
 
-	if (currentPage + 1 < pagesWithinCurrentTab())
-		rightCorner->enable();
-	else
-		rightCorner->disable();
+	leftCorner->setEnabled(canTurnLeft);
+	rightCorner->setEnabled(canTurnRight);
+	leftCornerArea->setEnabled(canTurnLeft);
+	rightCornerArea->setEnabled(canTurnRight);
+
+	ENGINE->fakeMouseMove(); // refresh hover state so a stale page-turn hint clears when the corner is disabled under the cursor
 
 	mana->setText(std::to_string(myHero->mana));//just in case, it will be possible to cast spell without closing book
 }

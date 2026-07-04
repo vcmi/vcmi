@@ -73,6 +73,10 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::shared_ptr<CPicture> leftCorner;
 	std::shared_ptr<CPicture> rightCorner;
 
+	// clickable page-turn areas
+	std::shared_ptr<InteractiveArea> leftCornerArea;
+	std::shared_ptr<InteractiveArea> rightCornerArea;
+
 	std::shared_ptr<CAnimImage> schoolTab;
 	std::vector<std::shared_ptr<CAnimImage>> schoolTabCustom;
 	std::shared_ptr<CPicture> schoolTabAnyDisabled;
