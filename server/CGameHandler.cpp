@@ -866,7 +866,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		{
 			const auto * object = gameState().getObjInstance(objectID);
 
-			if (object->ID == MapObjectID::MONSTER) // exclude other objects, such as hero flying above monster
+			if(isAdventureMapGuard(object)) // exclude other objects, such as hero flying above monster
 				guardian = object;
 		}
 	}

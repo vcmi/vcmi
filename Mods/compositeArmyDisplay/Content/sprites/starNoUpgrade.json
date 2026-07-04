@@ -1,0 +1,11 @@
+{
+	"basepath" : "",
+	"sequences" : [
+		{
+			"group" : 0,
+			"frames" : [
+				"starNoUpgrade.png"
+			]
+		}
+	]
+}

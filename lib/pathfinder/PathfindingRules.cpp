@@ -167,6 +167,12 @@ void DestinationActionRule::process(
 				else if(objRel == PlayerRelations::ENEMIES)
 					action = EPathNodeAction::BATTLE;
 			}
+			else if(const auto * compositeArmy = dynamic_cast<const CGCompositeArmy *>(destination.nodeObject))
+			{
+				action = compositeArmy->hasAnyCreatures()
+					? EPathNodeAction::BATTLE
+					: EPathNodeAction::VISIT;
+			}
 			else if(destination.nodeObject->ID == Obj::BORDER_GATE)
 			{
 				if(destination.nodeObject->passableFor(hero->tempOwner))

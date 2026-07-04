@@ -44,6 +44,7 @@ private:
 	std::string name;
 
 	bool preloaded;
+	bool useH3SpecialColors = false;
 
 	std::shared_ptr<DefFile> defFile;
 

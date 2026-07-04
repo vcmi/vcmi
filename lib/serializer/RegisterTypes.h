@@ -89,6 +89,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGArtifact>(36);
 	s.template registerType<CGResource>(37);
 	s.template registerType<CGMine>(38);
+	s.template registerType<CGCompositeArmy>(39);
 	s.template registerType<CGSeerHut>(40);
 	s.template registerType<CGQuestGuard>(41);
 	s.template registerType<IUpdater>(42);

@@ -90,6 +90,30 @@ protected:
 
 };
 
+class DLL_LINKAGE CGCompositeArmy : public CArmedInstance
+{
+public:
+	using CArmedInstance::CArmedInstance;
+
+	// Composite armies are unowned neutral objects, but are always hostile on contact.
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	bool passableFor(PlayerColor color) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
+	std::string getPopupText(PlayerColor player) const override;
+	std::string getPopupText(const CGHeroInstance * hero) const override;
+
+	bool hasAnyCreatures() const;
+	const CStackInstance * getRepresentativeStack() const;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CArmedInstance &>(*this);
+	}
+};
+
+DLL_LINKAGE bool isAdventureMapGuard(const CGObjectInstance * object);
+
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 	ArtifactInstanceID storedArtifact;

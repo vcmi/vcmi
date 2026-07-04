@@ -1172,7 +1172,7 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 			const CGObjectInstance * object = getObjInstance(objectID);
 			if(object->isBlockedVisitable())
 			{
-				if (object->ID == Obj::MONSTER) // Monster
+				if(isAdventureMapGuard(object))
 					guards.push_back(object);
 			}
 		}
@@ -1191,7 +1191,7 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 					{
 						const CGObjectInstance * object = getObjInstance(objectID);
 
-						if (object->ID == Obj::MONSTER  &&  map->checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						if(isAdventureMapGuard(object) && map->checkForVisitableDir(pos, &map->getTile(originalPos), originalPos))
 						{
 							guards.push_back(object);
 						}

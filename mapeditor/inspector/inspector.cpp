@@ -535,7 +535,8 @@ void Inspector::updateProperties()
 		addProperty(QObject::tr("IsStatic"), factory->isStaticObject());
 	}
 
-	addProperty(QObject::tr("Owner"), obj->tempOwner, new OwnerDelegate(controller), true);
+	if(!dynamic_cast<CGCompositeArmy *>(obj))
+		addProperty(QObject::tr("Owner"), obj->tempOwner, new OwnerDelegate(controller), true);
 
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
