@@ -211,11 +211,14 @@ CLogManager & CLogManager::get()
 }
 
 CLogManager::CLogManager() = default;
-CLogManager::~CLogManager()
-{
-	for(auto & i : loggers)
-		delete i.second;
-}
+
+CLogManager::~CLogManager() = default;
+// FIXME: workaround for crash on shutdown via handleFatalError on Android
+// Intentionally leak loggers to avoid dangling pointer during static destruction phase
+//{
+//	for(auto & i : loggers)
+//		delete i.second;
+//}
 
 void CLogManager::addLogger(CLogger * logger)
 {

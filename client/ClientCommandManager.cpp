@@ -49,7 +49,7 @@
 
 void ClientCommandManager::handleQuitCommand()
 {
-		exit(EXIT_SUCCESS);
+		throw GameShutdownException();
 }
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)

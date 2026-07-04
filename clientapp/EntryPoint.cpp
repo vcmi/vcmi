@@ -455,5 +455,5 @@ void handleFatalError(const std::string & message, bool terminate)
 	if (terminate)
 		throw std::runtime_error(message);
 	else
-		::exit(1);
+		throw GameShutdownException();
 }

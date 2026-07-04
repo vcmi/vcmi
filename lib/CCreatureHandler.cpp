@@ -657,7 +657,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	loadJsonAnimation(cre.get(), node["graphics"]);
 	loadCreatureJson(cre.get(), node);
 
-	if (!cre->special &&
+	if (!node["disabled"].Bool() &&
 		!CResourceHandler::get()->existsResource(cre->animDefName) &&
 		!CResourceHandler::get()->existsResource(cre->animDefName.toType<EResType::JSON>()) &&
 		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/")) &&

@@ -38,6 +38,9 @@ public:
 
 	std::vector<InitialArmyStack> initialArmy;
 
+	/// Returns unit which should be given the hero on retreat from battle
+	CreatureID defaultCreature() const;
+
 	const CHeroClass * heroClass = nullptr;
 
 	//initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)

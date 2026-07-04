@@ -1000,7 +1000,24 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
 		// addInfo[0] = required necromancy skill
-		if(newPick->parameters && newPick->parameters->toNumber() > necromancerPower)
+		// MOD COMPATIBILITY: Bonus::convertAddInfo stored multi-element legacy addInfo
+		// as std::vector<int32_t> regardless of bonus type; saves taken with that bug
+		// keep the wrong variant after re-save. Fall back to the first vector element.
+		int requiredSkill = 0;
+		if(newPick->parameters)
+		{
+			try
+			{
+				requiredSkill = newPick->parameters->toNumber();
+			}
+			catch(const std::runtime_error &)
+			{
+				const auto & vec = newPick->parameters->toVector();
+				if(!vec.empty())
+					requiredSkill = vec.front();
+			}
+		}
+		if(newPick->parameters && requiredSkill > necromancerPower)
 			continue;
 
 		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
