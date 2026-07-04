@@ -354,6 +354,11 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	removeBonuses(battle, stack, attackerBonusesToRemove);
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 
+	// attacking without moving still triggers the obstacle the unit stands on (e.g. moat damage);
+	// units that moved into the obstacle were already charged during the movement above
+	if(movementResult.distance == 0)
+		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
+
 	return true;
 }
 
