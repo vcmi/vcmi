@@ -1131,6 +1131,12 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 		newConsoleMsg = actionGetStatusMessageBlocked(action, hoveredHex);
 	}
 
+	if (owner.siegeController && owner.siegeController->isTowerHex(hoveredHex))
+	{
+		ENGINE->cursor().set(Cursor::Combat::QUERY); // question cursor over a siege tower
+		newConsoleMsg = LIBRARY->generaltexth->translate("core.genrltxt.156"); // "View arrow tower info."
+	}
+
 	if (!currentConsoleMsg.empty())
 		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
@@ -1256,6 +1262,8 @@ void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex)
 
 	if (selectedStack != nullptr)
 		ENGINE->windows().createAndPushWindow<CStackWindow>(selectedStack, true);
+	else if (owner.siegeController && owner.siegeController->isTowerHex(clickedHex))
+		CRClickPopup::createAndPush(owner.siegeController->getTowersInfoText());
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

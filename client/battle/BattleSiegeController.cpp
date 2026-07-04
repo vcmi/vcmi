@@ -24,8 +24,11 @@
 #include "../render/IRenderHandler.h"
 
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/entities/building/TownFortifications.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -346,6 +349,53 @@ bool BattleSiegeController::isAttackableByCatapult(const BattleHex & hex) const
 
 	auto wallPart = owner.getBattle()->battleHexToWallPart(hex);
 	return owner.getBattle()->isWallPartAttackable(wallPart);
+}
+
+bool BattleSiegeController::isTowerHex(const BattleHex & hex) const
+{
+	const auto fortifications = town->fortificationsLevel();
+	switch(owner.getBattle()->battleHexToWallPart(hex))
+	{
+	case EWallPart::KEEP:         return fortifications.citadelHealth > 0;
+	case EWallPart::UPPER_TOWER:  return fortifications.upperTowerHealth > 0;
+	case EWallPart::BOTTOM_TOWER: return fortifications.lowerTowerHealth > 0;
+	default:                      return false;
+	}
+}
+
+std::string BattleSiegeController::getTowersInfoText() const
+{
+	const auto fortifications = town->fortificationsLevel();
+	std::string result;
+
+	auto appendTower = [&](EWallVisual::EWallVisual creaturePiece, EWallPart wallPart, int towerHealth, const DamageRange & damage, const std::string & nameTextID)
+	{
+		if(towerHealth <= 0)
+			return; // tower not built
+
+		const std::string name = LIBRARY->generaltexth->translate(nameTextID);
+
+		if(owner.getBattle()->battleGetWallState(wallPart) == EWallState::DESTROYED)
+		{
+			result += (boost::format(LIBRARY->generaltexth->translate("core.genrltxt.154")) % name).str();
+		}
+		else
+		{
+			// towers use town-specific damage ranges, not the turret creature's own damage
+			const CStack * turret = getTurretStack(creaturePiece);
+			result += (boost::format(LIBRARY->generaltexth->translate("core.genrltxt.155"))
+				% name
+				% turret->getAttack(true) // NOTE: H3 bug - tower attack always shows 10, but has no effect. VCMI shows 0
+				% damage.min
+				% damage.max).str();
+		}
+	};
+
+	appendTower(EWallVisual::KEEP_BATTLEMENT,   EWallPart::KEEP,         fortifications.citadelHealth,   town->getKeepDamageRange(),  "vcmi.battleWindow.siegeTower.keep");
+	appendTower(EWallVisual::UPPER_BATTLEMENT,  EWallPart::UPPER_TOWER,  fortifications.upperTowerHealth, town->getTowerDamageRange(), "vcmi.battleWindow.siegeTower.upper");
+	appendTower(EWallVisual::BOTTOM_BATTLEMENT, EWallPart::BOTTOM_TOWER, fortifications.lowerTowerHealth, town->getTowerDamageRange(), "vcmi.battleWindow.siegeTower.lower");
+
+	return result;
 }
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
