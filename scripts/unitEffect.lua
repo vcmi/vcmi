@@ -119,8 +119,11 @@ function Script:transformByRange(mechanics, aimPoint, spellTarget)
 	local targetsOrder = {}
 
 	local function addUnit(unit)
-		if not targetsSet[unit] then
-			targetsSet[unit] = true
+		-- key by stable unit id: each push creates a fresh Lua userdata, so the same
+		-- underlying unit would otherwise never compare equal as a table key
+		local id = unit:unitID()
+		if not targetsSet[id] then
+			targetsSet[id] = true
 			table.insert(targetsOrder, unit)
 		end
 	end
@@ -188,7 +191,7 @@ function Script:transformByChain(mechanics, aimPoint, spellTarget, chainLength)
 
 	local function buildPossibleHexes()
 		local units = battle:getUnitsIf(function(u)
-			return isEligible(u) and not processedIds[u]
+			return isEligible(u) and not processedIds[u:unitID()]
 		end)
 		if #units == 0 then return nil end
 		local hexes = units[1]:getHexes()
@@ -225,7 +228,7 @@ function Script:transformByChain(mechanics, aimPoint, spellTarget, chainLength)
 			end
 		elseif isEligible(unit) and wouldResist then
 			-- unit skipped, no resistance animation (H3 logic); don't advance targetIndex
-			processedIds[unit] = true
+			processedIds[unit:unitID()] = true
 			local hexes = buildPossibleHexes()
 			if not hexes then break end
 			destHex = destHex:getClosestTile(unit:unitSide(), hexes)
@@ -234,7 +237,7 @@ function Script:transformByChain(mechanics, aimPoint, spellTarget, chainLength)
 			table.insert(effectTarget, {})
 		end
 
-		processedIds[unit] = true
+		processedIds[unit:unitID()] = true
 
 		local hexes = buildPossibleHexes()
 		if not hexes then break end
