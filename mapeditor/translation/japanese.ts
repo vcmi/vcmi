@@ -11,22 +11,22 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて選択解除</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて選択</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタマイズ</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;表示されているスキルは、デフォルトの魔女の小屋の実装を前提としています。modで上書きできます。&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンペーンを開く</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -912,14 +912,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>マップエディター</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Android版マップエディタは試験運用段階です。
+
+最適な操作性を得るには、タブレット端末（またはマウス/ペン）でのマップエディタのご利用をお勧めします。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1136,12 +1138,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>画像形式</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>画像形式を選択してください：</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,12 +1154,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像の保存に失敗しました</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>画像を%1に保存できません。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1178,7 +1180,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1450,12 +1452,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのヒーロー</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>特別なヒーロー</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
@@ -1948,7 +1950,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>プレイヤーを選択</translation>
     </message>
 </context>
 <context>
@@ -2309,7 +2311,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="483"/>
         <location filename="../inspector/inspector.cpp" line="634"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>利用可能</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="958"/>
@@ -2321,7 +2323,8 @@ Do you want to do that now ?</source>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>利用可能：
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="443"/>
@@ -2598,24 +2601,24 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>どの場所のファイルを開きますか？</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>内部</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>外部</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルをどこに保存しますか？</translation>
     </message>
 </context>
 <context>
@@ -2812,12 +2815,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> 週</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> 月</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3160,7 +3163,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>ビデオ</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -4248,12 +4251,12 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>ゾーンが少なすぎます</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>接続を追加する前に、少なくとも2つのゾーンを作成してください。</translation>
     </message>
 </context>
 <context>
@@ -4816,7 +4819,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="163"/>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>%3 レイヤー上の x: %1 y: %2 にあるカスタマイズされた魔女の小屋には、有効な二次スキルがありません</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="180"/>
