@@ -494,7 +494,9 @@ Please report this issue to developers</source>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Обробити успішно завантажені файли?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
@@ -1129,12 +1131,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Немає даних Героїв 3? Завантажте безкоштовне демо, щоб спробувати VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажити демо</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1382,7 +1384,7 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантаження демо Героїв 3...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="415"/>
@@ -2003,7 +2005,7 @@ Bin (%n байтів):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Демо</translation>
     </message>
 </context>
 <context>
@@ -2135,7 +2137,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити гру</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2182,12 +2184,12 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="268"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити Герої 3</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="269"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Це видалить усі дані демо-гри (теки Data, Maps, Mp3, Video) та перезапустить майстер налаштування. Ви впевнені?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="293"/>
