@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Fähigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle abwählen</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Anpassen</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Die angezeigten Fähigkeiten basieren auf der Standardimplementierung der Hexenhütte. Mods können diese überschreiben.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Kampagne öffnen</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -912,14 +912,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Karteneditor</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Karteneditor auf Android befindet sich noch in der Testphase.
+
+Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (oder mit einer Maus/einem Stift) zu verwenden.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1136,12 +1138,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildformat</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildformat auswählen:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,12 +1154,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern des Bildes fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Bild kann nicht unter %1 gespeichert werden.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1178,7 +1180,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1307,7 +1309,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation>Maximales Level des Helden begrenzen</translation>
+        <translation>Maximales Level der Helden begrenzen</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
@@ -1543,7 +1545,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Objekt kann nicht platziert werden</translation>
+        <translation>Objekt kann nicht platziert werden</translation>
     </message>
 </context>
 <context>
@@ -1947,7 +1949,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Spieler auswählen</translation>
     </message>
 </context>
 <context>
@@ -2303,13 +2305,13 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="459"/>
         <source>Abilities</source>
-        <translation type="unfinished">Fähigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="483"/>
         <location filename="../inspector/inspector.cpp" line="634"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbar für</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="958"/>
@@ -2321,7 +2323,8 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbar für:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="443"/>
@@ -2439,7 +2442,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="219"/>
         <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
@@ -2598,24 +2601,24 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Von wo aus möchten Sie die Datei öffnen?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Intern</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Extern</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wo möchten Sie die Datei speichern?</translation>
     </message>
 </context>
 <context>
@@ -2812,12 +2815,12 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> Wochen</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> Monate</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3160,7 +3163,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Videos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -4248,12 +4251,12 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu wenige Zonen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen Sie mindestens zwei Zonen, bevor Sie eine Verbindung hinzufügen.</translation>
     </message>
 </context>
 <context>
@@ -4703,27 +4706,27 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="76"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Terrain-Wähler</translation>
+        <translation>Terrain-Auswahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="80"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Zauberauswahl</translation>
+        <translation>Zauber-Auswahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="84"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Artefaktauswahl</translation>
+        <translation>Artefakt-Auswahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="88"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Fertigkeitenauswahl</translation>
+        <translation>Fertigkeiten-Auswahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="92"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Heldentypauswahl</translation>
+        <translation>Heldentyp-Auswahl</translation>
     </message>
 </context>
 <context>
@@ -4816,7 +4819,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="163"/>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine individuell angepasste Hexenhütte bei x: %1 y: %2 auf Ebene %3 verfügt nicht über eine gültige Sekundärfähigkeit</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="180"/>

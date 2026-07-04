@@ -493,7 +493,9 @@ Vänligen rapportera detta problem till utvecklarna</translation>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Behandla filer som har laddats ner?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
@@ -1128,12 +1130,12 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga Heroes III-data? Ladda ner den kostnadsfria demoversionen för att testa VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda ner demoversion</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1353,7 +1355,7 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Laddar ner Heroes III demoversion…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
@@ -1614,12 +1616,12 @@ Bin-filer (%n byte):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Förenklad kinesiska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Traditionell kinesiska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -1996,7 +1998,7 @@ Bin-filer (%n byte):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demoversion</translation>
     </message>
 </context>
 <context>
@@ -2128,7 +2130,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Installera spelet</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2172,12 +2174,12 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="268"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Installera Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="269"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Detta kommer att radera all data från demoversionen (mapparna Data, Maps, Mp3 och Video) och starta om installationsguiden. Är du säker?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="293"/>

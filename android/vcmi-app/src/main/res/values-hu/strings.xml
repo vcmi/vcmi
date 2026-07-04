@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    </resources>
+    <string name="server_name">VCMI-kiszolgáló</string>
+    <string name="shortcut_editor">VCMI-szerkesztő megnyitása</string>
+    <string name="shortcut_play">VCMI</string>
+</resources>

@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Уміння</translation>
+        <translation>Уміння</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Зняти виділення</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Виділити все</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштувати</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;Відображені навички відповідають стандартній реалізації хатини відьми. Моди можуть її перевизначати.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити кампанію</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -912,14 +912,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор карт</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактор карт на Android є експериментальним.
+
+Для найкращого досвіду рекомендуємо використовувати редактор карт на планшеті (або з мишею чи стилусом).</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1136,12 +1138,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат зображення</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть формат зображення:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,12 +1154,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалося зберегти зображення</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдається зберегти зображення до %1.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1178,7 +1180,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Тека</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1543,7 +1545,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Неможливо розмістити об&apos;єкт</translation>
+        <translation>Неможливо розмістити об&apos;єкт</translation>
     </message>
 </context>
 <context>
@@ -1947,7 +1949,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть гравців</translation>
     </message>
 </context>
 <context>
@@ -2304,13 +2306,13 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="459"/>
         <source>Abilities</source>
-        <translation type="unfinished">Уміння</translation>
+        <translation>Уміння</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="483"/>
         <location filename="../inspector/inspector.cpp" line="634"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно для</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="958"/>
@@ -2322,7 +2324,8 @@ Do you want to do that now ?</source>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Доступно для:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="443"/>
@@ -2440,7 +2443,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="219"/>
         <source>Custom</source>
-        <translation type="unfinished">Користувацьке</translation>
+        <translation>Користувацьке</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
@@ -2599,24 +2602,24 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Звідки ви хочете відкрити файл?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Внутрішня</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Зовнішня</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Куди ви хочете зберегти файл?</translation>
     </message>
 </context>
 <context>
@@ -2813,12 +2816,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> тижнів</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> місяців</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3161,7 +3164,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Відео</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -4249,12 +4252,12 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Замало зон</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Створіть принаймні дві зони перед додаванням з&apos;єднання.</translation>
     </message>
 </context>
 <context>
@@ -4704,27 +4707,27 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="76"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Вибір ґрунту</translation>
+        <translation>Вибір ґрунту</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="80"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Вибір заклять</translation>
+        <translation>Вибір заклять</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="84"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Вибір артефактів</translation>
+        <translation>Вибір артефактів</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="88"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Вибір вторинних навичок</translation>
+        <translation>Вибір вторинних навичок</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="92"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Вибір типу героя</translation>
+        <translation>Вибір типу героя</translation>
     </message>
 </context>
 <context>
@@ -4817,7 +4820,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="163"/>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Користувацька хатина відьми на x: %1 y: %2 на шарі %3 не містить дійсної вторинної навички</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="180"/>

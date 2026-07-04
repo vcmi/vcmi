@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">能力</translation>
+        <translation>能力</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>全不选</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>全选</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;显示的技能基于女巫小屋的默认机制推算，模组可能会覆盖此设定。&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -185,7 +185,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>打开战役</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
@@ -912,14 +912,16 @@
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>地图编辑器</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>Android版地图编辑器仍处于实验阶段。
+
+为获得最佳体验，建议在平板设备上使用地图编辑器（或搭配鼠标/手写笔）。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -1106,12 +1108,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1220"/>
         <source>Grid clicked</source>
-        <translation>开关网格</translation>
+        <translation>触发网格</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1301"/>
         <source>Fill clicked</source>
-        <translation>已填充</translation>
+        <translation>触发填充</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1451"/>
@@ -1136,12 +1138,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>图像格式</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择图像格式：</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,12 +1154,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>未能保存图像</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>不能保存图像至%1。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
@@ -1178,7 +1180,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>目录</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1445,22 +1447,22 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">窗体</translation>
+        <translation>窗体</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>所有英雄</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>排除英雄</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">已禁用英雄</translation>
+        <translation>已禁用英雄</translation>
     </message>
 </context>
 <context>
@@ -1543,7 +1545,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">无法放置物体</translation>
+        <translation>无法放置物体</translation>
     </message>
 </context>
 <context>
@@ -1916,7 +1918,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
-        <translation>玩家ID: %1</translation>
+        <translation>玩家标识符: %1</translation>
     </message>
 </context>
 <context>
@@ -1947,7 +1949,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>选择玩家</translation>
     </message>
 </context>
 <context>
@@ -2126,12 +2128,12 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="517"/>
         <source>ID</source>
-        <translation>ID</translation>
+        <translation>标识符</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="518"/>
         <source>SubID</source>
-        <translation>子ID</translation>
+        <translation>子标识符</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="519"/>
@@ -2302,13 +2304,13 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="459"/>
         <source>Abilities</source>
-        <translation type="unfinished">能力</translation>
+        <translation>能力</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="483"/>
         <location filename="../inspector/inspector.cpp" line="634"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>适用于</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="958"/>
@@ -2320,7 +2322,8 @@ Do you want to do that now ?</source>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>适用于：
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="443"/>
@@ -2438,7 +2441,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="219"/>
         <source>Custom</source>
-        <translation type="unfinished">自定义</translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
@@ -2597,24 +2600,24 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>你想从哪里打开这个文件？</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>内部存储</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>外部存储</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished"></translation>
+        <translation>你想将文件保存到哪里？</translation>
     </message>
 </context>
 <context>
@@ -2811,12 +2814,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> 周</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> 月</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -3030,7 +3033,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="57"/>
         <source>Day %1</source>
-        <translation>%1 天</translation>
+        <translation>第%1日</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="250"/>
@@ -3159,7 +3162,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>视频</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
@@ -3743,7 +3746,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="673"/>
         <source>ID</source>
-        <translation>ID</translation>
+        <translation>标识符</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
@@ -4020,7 +4023,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="309"/>
         <source>ID: %1</source>
-        <translation>ID: %1</translation>
+        <translation>标识符：%1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
@@ -4237,7 +4240,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>模版过少！</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
@@ -4247,12 +4250,12 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>区域过少</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>添加链接前需要创建至少两个区域。</translation>
     </message>
 </context>
 <context>
@@ -4629,7 +4632,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation>字符串标识</translation>
+        <translation>字符串标识符</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
@@ -4702,27 +4705,27 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="76"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">地形选择器</translation>
+        <translation>地形选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="80"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">法术选择器</translation>
+        <translation>法术选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="84"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">宝物选择器</translation>
+        <translation>宝物选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="88"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">技能选择器</translation>
+        <translation>技能选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="92"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">英雄类型选择器</translation>
+        <translation>英雄类型选择器</translation>
     </message>
 </context>
 <context>
@@ -4815,7 +4818,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="163"/>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>位于%3层 x:%1 y:%2 的自定义女巫小屋包含无效的辅助技能</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="180"/>
@@ -5009,7 +5012,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="489"/>
         <source>Human teams</source>
-        <translation>人类队伍</translation>
+        <translation>玩家队伍</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="476"/>
@@ -5164,7 +5167,7 @@ Guard: %3</source>
     <message>
         <location filename="../mainwindow.cpp" line="199"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 und Un44切分为独立的PNG文件。</translation>
+        <translation>数据文件解压后，将TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32和Un44切分为独立的PNG文件。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="200"/>

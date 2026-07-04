@@ -494,7 +494,9 @@ Nahlaste prosím tento problém vývojářům</translation>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Zpracovat úspěšně stažené soubory?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1393"/>
@@ -1129,12 +1131,12 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemáte data Heroes III? Stáhněte si bezplatné demo a vyzkoušejte VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Stáhnout demo</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
@@ -1353,7 +1355,7 @@ Vyberte prosím složku s Heroes III: Complete Edition nebo Heroes III: Shadow o
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="149"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Stahuje se demo Heroes III...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="395"/>
@@ -1620,12 +1622,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Zjednodušená čínština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Tradiční čínština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
@@ -2002,7 +2004,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Demo</translation>
     </message>
 </context>
 <context>
@@ -2134,7 +2136,7 @@ Důvod: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalovat hru</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
@@ -2181,12 +2183,12 @@ nainstalováno %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="268"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalovat Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="269"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tím odstraníte všechna herní data dema (složky Data, Maps, Mp3 a Video) a znovu spustíte průvodce nastavením. Opravdu chcete pokračovat?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="293"/>

@@ -2,4 +2,5 @@
 <resources>
     <string name="server_name">VCMI сервер</string>
     <string name="shortcut_play">Грати у VCMI</string>
+    <string name="shortcut_editor">Відкрити Редактор VCMI</string>
 </resources>
