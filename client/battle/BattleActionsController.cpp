@@ -628,12 +628,25 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 					return "";
 				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
-				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
+				BattleAttackInfo attackInfo(attacker, targetStack, distance, false);
 				attackInfo.attackerPos = attackFromHex;
 				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
 				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
 				bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
+
+				// breath and other multi-hex attacks also strike extra units - add their kills to the prediction
+				// (getAttackedBattleUnits excludes the directly-attacked hex, so the main target is handled above)
+				for(const auto * splashTarget : owner.getBattle()->getAttackedBattleUnits(attacker, targetStack, targetHex, false, attackFromHex))
+				{
+					if(splashTarget == targetStack || splashTarget == attacker)
+						continue;
+					BattleAttackInfo splashInfo(attacker, splashTarget, distance, false);
+					splashInfo.attackerPos = attackFromHex;
+					DamageEstimation splash = owner.getBattle()->battleEstimateDamage(splashInfo, nullptr);
+					estimation.kills.min += std::min<int64_t>(splash.kills.min, splashTarget->getCount());
+					estimation.kills.max += std::min<int64_t>(splash.kills.max, splashTarget->getCount());
+				}
 
 				return formatMeleeAttack(estimation, targetStack->getName()) + "\n" + formatRetaliation(retaliation, enemyMayBeKilled);
 			}
