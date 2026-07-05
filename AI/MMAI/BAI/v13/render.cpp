@@ -202,9 +202,9 @@ namespace
 		auto estacks = getAllStacksForSide(ctx, !EI(cstack->unitSide()));
 		const auto it = std::ranges::find_if( // NOLINT(readability-qualified-auto)
 			estacks,
-			[&nbh](const auto & stack)
+			[&nbh](const auto & estack)
 			{
-				return stack && stack->coversPos(nbh);
+				return estack && estack->coversPos(nbh);
 			}
 		);
 
@@ -820,9 +820,8 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 								ensureValueMatch(vf, cstack->ableToRetaliate(), "HEX.STACK_FLAGS1.CAN_RETALIATE");
 								break;
 							case SF1::SLEEPING:
-								cstack->isAmmoCart()
-									? ensureValueMatch(vf, false, "HEX.STACK_FLAGS1.SLEEPING")
-									: ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::NOT_ACTIVE), "HEX.STACK_FLAGS1.SLEEPING");
+								cstack->isAmmoCart() ? ensureValueMatch(vf, false, "HEX.STACK_FLAGS1.SLEEPING")
+													 : ensureValueMatch(vf, cstack->hasBonusOfType(BonusType::NOT_ACTIVE), "HEX.STACK_FLAGS1.SLEEPING");
 								break;
 							case SF1::BLOCKED:
 							{

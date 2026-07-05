@@ -337,6 +337,8 @@ std::tuple<Stacks, Queue> Battlefield::InitStacks(
 			if(adjacent->unitOwner() == cstack->unitOwner())
 				continue;
 
+			// XXX: battleIsUnitBlocked can return true for ballista => don't use
+			// 	    (though properly detects blocked by frenzied ally)
 			if(!blocked[cstack] && cstack->canShoot() && !cstack->hasBonusOfType(BonusType::FREE_SHOOTING) && !cstack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 			{
 				blocked[cstack] = true;

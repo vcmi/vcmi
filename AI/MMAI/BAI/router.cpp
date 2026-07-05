@@ -21,6 +21,7 @@
 #include "BAI/factory.h"
 #include "BAI/fallback/scripted_model.h"
 #include "BAI/router.h"
+#include "BAI/v13/BAI.h"
 
 #include "common.h"
 
@@ -143,7 +144,7 @@ namespace
 		if(!model)
 		{
 			logAi->error("MMAI: %s: falling back to %s", key, repo->fallbackName);
-			ASSERT(repo->fallbackModel, "fallback error: model is null");
+			ASSERT(repo->fallbackModel != nullptr, "fallback error: model is null");
 			model = repo->fallbackModel;
 		}
 
@@ -309,7 +310,13 @@ void Router::battleStart(
 	auto realside = static_cast<Schema::Side>(EI(side));
 
 	if(modelside != realside && modelside != Schema::Side::BOTH)
-		logAi->warn("The loaded '%s' model was not trained to play as %s", modelkey, modelkey);
+		logAi->warn(
+			"The loaded '%s' model was not trained to play as %s (modelside=%d, realside=%d)",
+			modelkey,
+			modelkey,
+			static_cast<int>(modelside),
+			static_cast<int>(realside)
+		);
 
 	switch(model->getType())
 	{

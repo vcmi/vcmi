@@ -28,16 +28,10 @@
 #		define MMAI_IMPORT __declspec(dllimport)
 #		define MMAI_EXPORT __declspec(dllexport)
 #	endif
-#	ifndef ELF_VISIBILITY
-#		define ELF_VISIBILITY
-#	endif
 #else
 #	ifdef __GNUC__
 #		define MMAI_IMPORT __attribute__((visibility("default")))
 #		define MMAI_EXPORT __attribute__((visibility("default")))
-#		ifndef ELF_VISIBILITY
-#			define ELF_VISIBILITY __attribute__((visibility("default")))
-#		endif
 #	endif
 #endif
 
@@ -60,6 +54,7 @@ using AttentionMask = std::vector<float>;
 constexpr Action ACTION_RETREAT = 0;
 constexpr Action ACTION_RESET = -1;
 constexpr Action ACTION_RENDER_ANSI = -2;
+constexpr Action ACTION_ERROR = -3;
 
 class IState
 {

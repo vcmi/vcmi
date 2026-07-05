@@ -25,6 +25,7 @@ public:
 	void activeStack(const BattleID & bid, const CStack * stack) override;
 	void actionStarted(const BattleID & bid, const BattleAction & action) override;
 	void actionFinished(const BattleID & bid, const BattleAction & action) override;
+	void battleNewRound(const BattleID & bid) override;
 	void yourTacticPhase(const BattleID & bid, int distance) override;
 
 	void battleStacksAttacked(
@@ -62,6 +63,7 @@ public:
 
 	// consecutive invalid actions counter
 	int errcounter = 0;
+	int roundcounter = 0;
 	bool inFallback = false;
 
 	int getActionTotalMs = 0;

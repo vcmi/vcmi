@@ -12,6 +12,7 @@
 
 #include "StdInc.h"
 #include "CThreadHelper.h"
+#include <filesystem>
 
 namespace MMAI
 {
@@ -19,17 +20,53 @@ namespace MMAI
 // https://en.cppreference.com/w/cpp/utility/to_underlying
 #define EI(enum_value) static_cast<int>(enum_value)
 
-#define ASSERT(cond, msg) \
-	if(!(cond))           \
-	throw std::runtime_error(std::string("Assertion failed in ") + boost::filesystem::path(__FILE__).filename().string() + ": " + msg)
+inline void ASSERT(bool cond, std::string_view msg, const std::source_location & loc = std::source_location::current())
+{
+	if(!cond)
+	{
+		throw std::runtime_error(
+			std::string("Assertion failed in ") + std::filesystem::path(loc.file_name()).filename().string() + ":" + std::to_string(loc.line()) + ": "
+			+ std::string(msg)
+		);
+	}
+}
 
 #define THROW_FORMAT(message, formatting_elems) throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
+
+// constexpr version of EI with proper underlying type conversion
+// underlying_type_t requires C++23, but Global.h uses it already
+template<typename E>
+requires std::is_enum_v<E>
+constexpr std::underlying_type_t<E> EU(E value) noexcept
+{
+	return static_cast<std::underlying_type_t<E>>(value);
+}
 
 inline bool isMMAIVerbose()
 {
 	static const bool value = []
 	{
 		const char * envvar = std::getenv("MMAI_VERBOSE");
+		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
+	}();
+	return value;
+}
+
+inline bool isMMAIAutoRender()
+{
+	static const bool value = []
+	{
+		const char * envvar = std::getenv("MMAI_AUTO_RENDER");
+		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
+	}();
+	return value;
+}
+
+inline bool isMMAIAutoVerify()
+{
+	static const bool value = []
+	{
+		const char * envvar = std::getenv("MMAI_AUTO_VERIFY");
 		return envvar != nullptr && std::strcmp(envvar, "1") == 0;
 	}();
 	return value;

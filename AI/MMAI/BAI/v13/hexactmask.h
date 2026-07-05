@@ -15,8 +15,8 @@
 namespace MMAI::BAI::V13
 {
 /*
-  * A list of flags for a single hex (see HexAction)
-  */
+ * A list of flags for a single hex (see HexAction)
+ */
 using HexActMask = std::bitset<EI(HexAction::_count)>;
 
 struct ActMask
@@ -25,13 +25,13 @@ struct ActMask
 	bool wait = false;
 
 	/*
-      * A list of HexActMask objects
-      *
-      * [0] HexActMask for hex 0
-      * [1] HexActMask for hex 1
-      * ...
-      * [164] HexActMask for hex 164
-      */
+	 * A list of HexActMask objects
+	 *
+	 * [0] HexActMask for hex 0
+	 * [1] HexActMask for hex 1
+	 * ...
+	 * [164] HexActMask for hex 164
+	 */
 	std::array<HexActMask, 165> hexactmasks = {};
 };
 }

@@ -54,10 +54,10 @@ private:
 	std::vector<const char *> outputNames;
 	Vec3D<int32_t> actionTable;
 
-	std::vector<Ort::Value> prepareInputsV13(const MMAI::Schema::IState * state, const MMAI::Schema::V13::ISupplementaryData * sup);
+	std::vector<Ort::Value> prepareInputsV13(const MMAI::Schema::IState * state, const MMAI::Schema::V13::ISupplementaryData * sup) const;
 
 	template<typename T>
-	Ort::Value toTensor(const std::string & name, std::vector<T> & vec, const std::vector<int64_t> & shape);
+	Ort::Value toTensor(const std::string & name, std::vector<T> & vec, const std::vector<int64_t> & shape) const;
 
 	Schema::Side readSide() const;
 	Vec3D<int32_t> readActionTable() const;

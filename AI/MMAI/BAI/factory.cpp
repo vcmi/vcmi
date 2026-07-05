@@ -15,6 +15,8 @@
 
 #include "BAI/v13/BAI.h"
 #include "BAI/v13/nn_model.h"
+#include "BAI/v15/BAI.h"
+#include "BAI/v15/nn_model.h"
 
 namespace MMAI::BAI
 {
@@ -24,15 +26,15 @@ namespace
 	std::unique_ptr<Ort::Session> load(const std::string & path)
 	{
 		/*
-         * IMPORTANT:
-         * There seems to be an UB in the model unless either of the below is set:
-         *  a) GraphOptimizationLevel::ORT_DISABLE_ALL
-         *  b) DisableMemPattern
-         *
-         * Mem pattern does not impact performance => disable.
-         * Graph optimization causes < 30% speedup => not worth the risk, disable.
-         *
-         */
+		 * IMPORTANT:
+		 * There seems to be an UB in the model unless either of the below is set:
+		 *  a) GraphOptimizationLevel::ORT_DISABLE_ALL
+		 *  b) DisableMemPattern
+		 *
+		 * Mem pattern does not impact performance => disable.
+		 * Graph optimization causes < 30% speedup => not worth the risk, disable.
+		 *
+		 */
 		auto opts = Ort::SessionOptions();
 		opts.DisableMemPattern();
 		opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
@@ -53,14 +55,14 @@ namespace
 	int readVersion(Ort::Session * session, OrtAllocator * allocator, const Ort::ModelMetadata & md)
 	{
 		/*
-         * version
-         *   dtype=int
-         *   shape=scalar
-         *
-         * Version of the model (current implementation is at version 13).
-         * If needed, NNModel may be extended to support other versions as well.
-         *
-         */
+		 * version
+		 *   dtype=int
+		 *   shape=scalar
+		 *
+		 * Version of the model (current implementation is at version 13).
+		 * If needed, NNModel may be extended to support other versions as well.
+		 *
+		 */
 		int res = -1;
 
 		Ort::AllocatedStringPtr v = md.LookupCustomMetadataMapAllocated("version", allocator);
@@ -99,6 +101,8 @@ std::shared_ptr<MMAI::Schema::IModel> CreateNNModel(const std::string & path, fl
 
 	if(container->version == 13)
 		return std::make_shared<V13::NNModel>(container, temperature, seed);
+	if(container->version == 15)
+		return std::make_shared<V15::NNModel>(container, temperature, seed);
 	else
 		throw std::runtime_error("CreateNNModel: unsupported schema version: " + std::to_string(container->version));
 }
@@ -112,6 +116,8 @@ CreateBAI(Schema::IModel * model, const std::shared_ptr<Environment> & env, cons
 
 	if(version == 13)
 		return std::make_shared<V13::BAI>(model, version, env, cb, enableSpellsUsage);
+	else if(version == 15)
+		return std::make_shared<V15::BAI>(model, version, env, cb, enableSpellsUsage);
 	else
 		throw std::runtime_error("CreateBAI: unsupported schema version: " + std::to_string(version));
 

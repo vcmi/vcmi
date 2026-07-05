@@ -275,21 +275,21 @@ void Hex::setStateMask(const EAccessibility accessibility, const std::vector<std
 	switch(accessibility)
 	{
 		case EAccessibility::ACCESSIBLE:
-			ASSERT(!stack, "accessibility is ACCESSIBLE, but a stack was found on hex");
+			ASSERT(stack == nullptr, "accessibility is ACCESSIBLE, but a stack was found on hex");
 			statemask |= S_PASSABLE;
 			break;
 		case EAccessibility::OBSTACLE:
-			ASSERT(!stack, "accessibility is OBSTACLE, but a stack was found on hex");
+			ASSERT(stack == nullptr, "accessibility is OBSTACLE, but a stack was found on hex");
 			statemask &= ~S_PASSABLE;
 			break;
 		case EAccessibility::ALIVE_STACK:
 			// XXX: stack can be NULL if it was left out of the observation
-			// ASSERT(stack, "accessibility is ALIVE_STACK, but no stack was found on hex");
+			// ASSERT(stack != nullptr, "accessibility is ALIVE_STACK, but no stack was found on hex");
 			statemask &= ~S_PASSABLE;
 			break;
 		case EAccessibility::DESTRUCTIBLE_WALL:
 			// XXX: Destroyed walls become ACCESSIBLE.
-			ASSERT(!stack, "accessibility is DESTRUCTIBLE_WALL, but a stack was found on hex");
+			ASSERT(stack == nullptr, "accessibility is DESTRUCTIBLE_WALL, but a stack was found on hex");
 			statemask &= ~S_PASSABLE;
 			break;
 		case EAccessibility::GATE:

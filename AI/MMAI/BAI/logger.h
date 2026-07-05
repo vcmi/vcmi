@@ -10,7 +10,7 @@
 
 #pragma once
 
-namespace MMAI::BAI::V13
+namespace MMAI::BAI
 {
 
 class Logger

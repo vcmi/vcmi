@@ -13,3 +13,4 @@
 #include "schema/base.h"
 
 #include "schema/v13/schema.h"
+#include "schema/v15/schema.h"

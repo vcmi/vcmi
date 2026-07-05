@@ -30,6 +30,9 @@ using HexActionMask = std::bitset<EI(HexAction::_count)>;
 using HexStateMask = std::bitset<EI(HexState::_count)>;
 using HexActionHex = std::array<BattleHex, 12>;
 
+static_assert(1 << EI(HexAction::_count) < std::numeric_limits<int>::max(), "HexActionMask must be convertible to int");
+static_assert(1 << EI(HexState::_count) < std::numeric_limits<int>::max(), "HexStateMask must be convertible to int");
+
 struct ActiveStackInfo
 {
 	const Stack * stack;

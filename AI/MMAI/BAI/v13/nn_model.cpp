@@ -319,7 +319,12 @@ std::vector<const char *> NNModel::readInputNames()
 	std::vector<const char *> res;
 	auto count = container->session->GetInputCount();
 	if(count != 4)
+	{
+		for(size_t i = 0; i < count; ++i)
+			std::cout << "input[" << i << "] " << container->session->GetInputNameAllocated(i, container->allocator) << "\n";
+
 		throwf("wrong input count: want: %d, have: %lld", 4, count);
+	}
 
 	inputNamePtrs.reserve(count);
 	res.reserve(count);
@@ -358,7 +363,12 @@ std::vector<const char *> NNModel::readOutputNames()
 	std::vector<const char *> res;
 	auto count = container->session->GetOutputCount();
 	if(count != 6)
+	{
+		for(size_t i = 0; i < count; ++i)
+			std::cout << "output[" << i << "] " << container->session->GetOutputNameAllocated(i, container->allocator) << "\n";
+
 		throwf("wrong output count: want: %d, have: %lld", 6, count);
+	}
 
 	outputNamePtrs.reserve(count);
 	res.reserve(count);
@@ -512,7 +522,7 @@ double NNModel::getValue(const MMAI::Schema::IState * s)
 	return 0;
 }
 
-std::vector<Ort::Value> NNModel::prepareInputsV13(const MMAI::Schema::IState * s, const MMAI::Schema::V13::ISupplementaryData * sup)
+std::vector<Ort::Value> NNModel::prepareInputsV13(const MMAI::Schema::IState * s, const MMAI::Schema::V13::ISupplementaryData * sup) const
 {
 	NestedLogTag _("prepareInputsV13");
 	auto lengths = std::vector<int>{};
@@ -580,7 +590,7 @@ std::vector<Ort::Value> NNModel::prepareInputsV13(const MMAI::Schema::IState * s
 }
 
 template<typename T>
-Ort::Value NNModel::toTensor(const std::string & name, std::vector<T> & vec, const std::vector<int64_t> & shape)
+Ort::Value NNModel::toTensor(const std::string & name, std::vector<T> & vec, const std::vector<int64_t> & shape) const
 {
 	// Sanity check
 	int64_t numel = 1;
