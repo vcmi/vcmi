@@ -279,8 +279,9 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId) const
 
 int Unit::getRawSurrenderCost() const
 {
-	//we pay for our stack that comes from our army slots - condition eliminates summoned cres and war machines
-	if(unitSlot().validSlot())
+	//we pay for army-slot stacks and for war machines (ballista, ammo cart, first aid tent);
+	//summoned creatures and the free siege catapult are not paid for
+	if(unitSlot().validSlot() || (unitSlot() == SlotID::WAR_MACHINES_SLOT && !isCatapult()))
 		return creatureCost() * getCount();
 	else
 		return 0;
