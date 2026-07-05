@@ -131,6 +131,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
@@ -164,7 +165,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
-#include <boost/logic/tribool.hpp>
 #include <boost/multi_array.hpp>
 
 #ifndef M_PI

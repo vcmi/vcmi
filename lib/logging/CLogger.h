@@ -10,10 +10,6 @@
 #pragma once
 
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/date_time/posix_time/time_formatters.hpp>
-
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CLogger;
@@ -116,7 +112,7 @@ struct DLL_LINKAGE LogRecord
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
 	std::string message;
-	boost::posix_time::ptime timeStamp;
+	std::chrono::system_clock::time_point timeStamp;
 	std::string threadId;
 };
 

@@ -10,7 +10,6 @@
 
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
-#include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 #include "Functions.h"
 
@@ -22,7 +21,6 @@
 #include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-#include <boost/lexical_cast.hpp>
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -31,7 +29,7 @@ namespace
 {
 	si32 decodeZoneId(const std::string & json)
 	{
-		return boost::lexical_cast<si32>(json);
+		return std::stoi(json);
 	}
 
 	std::string encodeZoneId(si32 id)
@@ -855,13 +853,13 @@ void CRmgTemplate::CPlayerCountRange::fromString(const std::string & value)
 			boost::split(rangeParts, commaPart, boost::is_any_of("-"));
 			if(rangeParts.size() == 2)
 			{
-				auto lower = boost::lexical_cast<int>(rangeParts[0]);
-				auto upper = boost::lexical_cast<int>(rangeParts[1]);
+				auto lower = std::stoi(rangeParts[0]);
+				auto upper = std::stoi(rangeParts[1]);
 				addRange(lower, upper);
 			}
 			else if(rangeParts.size() == 1)
 			{
-				auto val = boost::lexical_cast<int>(rangeParts.front());
+				auto val = std::stoi(rangeParts.front());
 				addNumber(val);
 			}
 		}
@@ -914,10 +912,11 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	}
 	
 	{
-		boost::bimap<EWaterContent::EWaterContent, std::string> enc;
-		enc.insert({EWaterContent::NONE, "none"});
-		enc.insert({EWaterContent::NORMAL, "normal"});
-		enc.insert({EWaterContent::ISLANDS, "islands"});
+		static const std::array<std::pair<EWaterContent::EWaterContent, std::string>, 3> waterContentNames{{
+			{EWaterContent::NONE, "none"},
+			{EWaterContent::NORMAL, "normal"},
+			{EWaterContent::ISLANDS, "islands"},
+		}};
 		JsonNode node;
 		if(handler.saving)
 		{
@@ -925,7 +924,9 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			for(auto wc : allowedWaterContent)
 			{
 				JsonNode n;
-				n.String() = enc.left.at(wc);
+				for(const auto & [value, name] : waterContentNames)
+					if(value == wc)
+						n.String() = name;
 				node.Vector().push_back(n);
 			}
 		}
@@ -934,7 +935,9 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		{
 			for(auto wc : node.Vector())
 			{
-				allowedWaterContent.insert(enc.right.at(std::string(wc.String())));
+				for(const auto & [value, name] : waterContentNames)
+					if(name == wc.String())
+						allowedWaterContent.insert(value);
 			}
 		}
 	}
@@ -1125,9 +1128,9 @@ void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, co
 			std::vector<std::string> parts;
 			boost::split(parts, encodedValue, boost::is_any_of("x"));
 
-			value.x = (boost::lexical_cast<int>(parts.at(0)));
-			value.y = (boost::lexical_cast<int>(parts.at(1)));
-			value.z = (boost::lexical_cast<int>(parts.at(2)));
+			value.x = (std::stoi(parts.at(0)));
+			value.y = (std::stoi(parts.at(1)));
+			value.z = (std::stoi(parts.at(2)));
 		}
 		else
 		{

@@ -20,11 +20,11 @@ JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, 
 
 }
 
-void JsonDeserializer::serializeInternal(const std::string & fieldName, boost::logic::tribool & value)
+void JsonDeserializer::serializeInternal(const std::string & fieldName, std::optional<bool> & value)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 	if(data.getType() != JsonNode::JsonType::DATA_BOOL)
-		value = boost::logic::indeterminate;
+		value = std::nullopt;
 	else
 		value = data.Bool();
 }

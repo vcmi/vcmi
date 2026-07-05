@@ -9,8 +9,6 @@
  */
 
 #include "StdInc.h"
-#include <boost/bimap.hpp>
-#include <boost/assign.hpp>
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 

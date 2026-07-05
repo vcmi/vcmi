@@ -62,7 +62,6 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 
-#include <boost/lexical_cast.hpp>
 
 ISelectionScreenInfo * SEL = nullptr;
 
@@ -773,7 +772,7 @@ void CSimpleJoinScreen::connectToServer()
 		buttonOk->block(true);
 	ENGINE->input().stopTextInput();
 
-	startConnection(inputAddress ? inputAddress->getText() : "", inputPort ? boost::lexical_cast<ui16>(inputPort->getText()) : 0);
+	startConnection(inputAddress ? inputAddress->getText() : "", inputPort ? static_cast<ui16>(std::stoul(inputPort->getText())) : 0);
 }
 
 void CSimpleJoinScreen::leaveScreen()

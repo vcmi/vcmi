@@ -68,7 +68,6 @@
 #include <vcmi/events/EventBus.h>
 #include <SDL_thread.h>
 
-#include <boost/lexical_cast.hpp>
 
 CServerHandler::~CServerHandler()
 {
@@ -571,7 +570,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		if(id.length())
 		{
 			LobbyChangeHost lch;
-			lch.newHostConnectionId = static_cast<GameConnectionID>(boost::lexical_cast<int>(id));
+			lch.newHostConnectionId = static_cast<GameConnectionID>(std::stoi(id));
 			sendLobbyPack(lch);
 		}
 	}
@@ -583,8 +582,8 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
 		{
-			auto connected = static_cast<PlayerConnectionID>(boost::lexical_cast<int>(connectedId));
-			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
+			auto connected = static_cast<PlayerConnectionID>(std::stoi(connectedId));
+			auto color = PlayerColor(std::stoi(playerColorId));
 			if(color.isValidPlayer() && playerNames.find(connected) != playerNames.end())
 			{
 				LobbyForceSetPlayer lfsp;

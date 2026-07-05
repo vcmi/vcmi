@@ -38,7 +38,6 @@ CSpell::CSpell():
 	castOnSelf(false),
 	castOnlyOnSelf(false),
 	castWithoutSkip(false),
-	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	rising(false),
 	damage(false),
@@ -205,35 +204,22 @@ bool CSpell::isMagical() const
 
 bool CSpell::isPositive() const
 {
-	return positiveness == POSITIVE;
+	return positive;
 }
 
 bool CSpell::isNegative() const
 {
-	return positiveness == NEGATIVE;
+	return negative;
 }
 
 bool CSpell::isNeutral() const
 {
-	return positiveness == NEUTRAL;
+	return !positive && !negative;
 }
 
 bool CSpell::isPersistent() const
 {
 	return persistent;
-}
-
-boost::logic::tribool CSpell::getPositiveness() const
-{
-	switch (positiveness)
-	{
-	case CSpell::POSITIVE:
-		return true;
-	case CSpell::NEGATIVE:
-		return false;
-	default:
-		return boost::logic::indeterminate;
-	}
 }
 
 bool CSpell::isDamage() const
@@ -423,7 +409,8 @@ void CSpell::setIsOffensive(const bool val)
 
 	if(val)
 	{
-		positiveness = CSpell::NEGATIVE;
+		positive = false;
+		negative = true;
 		damage = true;
 	}
 }
@@ -434,7 +421,8 @@ void CSpell::setIsRising(const bool val)
 
 	if(val)
 	{
-		positiveness = CSpell::POSITIVE;
+		positive = true;
+		negative = false;
 	}
 }
 

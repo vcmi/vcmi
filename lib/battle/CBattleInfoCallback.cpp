@@ -1184,7 +1184,6 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender))
 		return ret;
 
-	//TODO: rewrite using boost::numeric::interval
 	//TODO: rewire once more using interval-based fuzzy arithmetic
 
 	const auto & estimateRetaliation = [&](int64_t damage)

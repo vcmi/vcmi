@@ -31,7 +31,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 
 #include <vcmi/spells/Spell.h>
-#include <boost/lexical_cast.hpp>
 
 BattleResultProcessor::BattleResultProcessor(CGameHandler * gameHandler)
 	: gameHandler(gameHandler)
@@ -268,7 +267,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
-		gameHandler->complain("Player " + boost::lexical_cast<std::string>(battle.sideToPlayer(BattleSide::ATTACKER)) + " has no battle query at the top!");
+		gameHandler->complain("Player " + std::to_string(battle.sideToPlayer(BattleSide::ATTACKER).getNum()) + " has no battle query at the top!");
 		return;
 	}
 

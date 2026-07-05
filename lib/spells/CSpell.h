@@ -98,13 +98,6 @@ public:
 	std::string identifier;
 	std::string modScope;
 public:
-	enum ESpellPositiveness
-	{
-		NEGATIVE = -1,
-		NEUTRAL = 0,
-		POSITIVE = 1
-	};
-
 	struct DLL_LINKAGE TargetInfo
 	{
 		spells::AimType type;
@@ -171,8 +164,6 @@ public:
 	std::string getAdventureEffectTextID(const std::string & effectType, const std::string & field) const;
 
 	int32_t getLevel() const override;
-
-	boost::logic::tribool getPositiveness() const override;
 
 	bool isPositive() const override;
 	bool isNegative() const override;
@@ -266,7 +257,8 @@ private:
 	bool castOnSelf; // if set, creature caster can cast this spell on itself
 	bool castOnlyOnSelf; // if set, creature caster can cast this spell on itself
 	bool castWithoutSkip; // if set the creature will not skip the turn after casting a spell
-	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
+	bool positive = false; // spell is beneficial for influenced stacks
+	bool negative = false; // spell is harmful for influenced stacks; neither set means indifferent
 
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize

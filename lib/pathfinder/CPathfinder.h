@@ -118,7 +118,6 @@ public:
 		const TerrainTile & srcTile,
 		const int3 & srcCoord,
 		NeighbourTilesVector & vec,
-		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
 
 	int getMovementCost(

@@ -118,7 +118,6 @@
 
 #include "../lib/filesystem/Filesystem.h"
 
-#include <boost/lexical_cast.hpp>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.
@@ -1573,7 +1572,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->onMapTilesChanged(boost::none);
+	adventureInt->onMapTilesChanged(std::nullopt);
 
 	// visiting or garrisoned hero removed - update window
 	if (castleInt)
@@ -1640,7 +1639,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 			{
 				char nr = name[namePrefix.size()];
 				if (std::isdigit(nr))
-					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
+					dates[last_write_time(dir->path())] = nr - '0';
 			}
 		}
 	}

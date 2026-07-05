@@ -129,9 +129,7 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 	spell(spell_),
 	cb(cb_),
 	caster(caster_),
-	mode(mode_),
-	smart(boost::logic::indeterminate),
-	massive(boost::logic::indeterminate)
+	mode(mode_)
 {
 }
 
@@ -177,14 +175,9 @@ BattleCast::OptionalValue64 BattleCast::getEffectValue() const
 	return effectValue;
 }
 
-boost::logic::tribool BattleCast::isSmart() const
+bool BattleCast::isForceMassive() const
 {
-	return smart;
-}
-
-boost::logic::tribool BattleCast::isMassive() const
-{
-	return massive;
+	return forceMassive;
 }
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
@@ -278,8 +271,7 @@ Mechanics::~Mechanics() = default;
 BaseMechanics::BaseMechanics(const IBattleCast * event):
 	owner(event->getSpell()),
 	mode(event->getMode()),
-	smart(event->isSmart()),
-	massive(event->isMassive()),
+	forceMassive(event->isForceMassive()),
 	cb(event->getBattle())
 {
 	caster = event->getCaster();
@@ -415,28 +407,17 @@ int32_t BaseMechanics::getSpellLevel() const
 
 bool BaseMechanics::isSmart() const
 {
-	if(boost::logic::indeterminate(smart))
-	{
-		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-		return targetInfo.smart;
-	}
-	else
-	{
-		return (bool)smart;
-	}
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+	return targetInfo.smart;
 }
 
 bool BaseMechanics::isMassive() const
 {
-	if(boost::logic::indeterminate(massive))
-	{
-		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-		return targetInfo.massive;
-	}
-	else
-	{
-		return (bool)massive;
-	}
+	if(forceMassive)
+		return true;
+
+	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+	return targetInfo.massive;
 }
 
 bool BaseMechanics::requiresClearTiles() const
@@ -497,12 +478,15 @@ Target BaseMechanics::canonicalizeTarget(const Target & aim) const
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
-	return ownerMatches(unit, owner->getPositiveness());
+	if(owner->isNeutral())
+		return true; // neutral spell: no ownership filtering
+
+	return ownerMatches(unit, owner->isPositive());
 }
 
-bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
+bool BaseMechanics::ownerMatches(const battle::Unit * unit, const bool sameOwner) const
 {
-	return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
+	return cb->battleMatchOwner(caster->getCasterOwner(), unit, sameOwner);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const
