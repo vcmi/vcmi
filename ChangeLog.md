@@ -39,7 +39,7 @@
 * Improved initial placement of zones to reduce number of monoliths on 2-level maps
 * Generator will no longer repeat last 10 obstacles to improved visual diversity of biomes
 
-## AI
+### AI
 
 * Nullkiller AI (version 1) has been removed from the game in favour of NKAI2
 * Removed unused support for fuzzy logic from NKAI2
@@ -628,7 +628,7 @@
 * Fixed selection of starting faction in last scenario in Spoils of War campaign
 * Magic heroes without spellbook will no longer receive one on transferring to next scenario (e.g. Yog)
 
-## AI
+### AI
 
 * Added an improved Nullkiller2 adventure map AI as the default option.
 * Removed the deprecated VCAI adventure map AI
