@@ -24,22 +24,13 @@ SiegeInfo::SiegeInfo()
 
 EWallState SiegeInfo::applyDamage(EWallState state, unsigned int value)
 {
-	if(value == 0)
-		return state;
-
-	switch(applyDamage(state, value - 1))
-	{
-	case EWallState::REINFORCED:
-		return EWallState::INTACT;
-	case EWallState::INTACT:
-		return EWallState::DAMAGED;
-	case EWallState::DAMAGED:
-		return EWallState::DESTROYED;
-	case EWallState::DESTROYED:
-		return EWallState::DESTROYED;
-	default:
+	if(state == EWallState::NONE)
 		return EWallState::NONE;
-	}
+
+	// wall health is stored as EWallState value and may exceed REINFORCED for extra-fortified walls,
+	// so decrement numerically instead of stepping through named states
+	int reduced = static_cast<int>(state) - static_cast<int>(value);
+	return static_cast<EWallState>(std::max(reduced, static_cast<int>(EWallState::DESTROYED)));
 }
 
 VCMI_LIB_NAMESPACE_END
