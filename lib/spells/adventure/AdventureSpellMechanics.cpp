@@ -27,8 +27,6 @@
 #include "../../networkPacks/PacksForClient.h"
 #include "../../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::unique_ptr<IAdventureSpellEffect> AdventureSpellMechanics::createAdventureEffect(const CSpell * s, const JsonNode & node)
 {
 	const std::string & typeID = node["type"].String();
@@ -215,5 +213,3 @@ void AdventureSpellMechanics::performCast(SpellCastEnvironment * env, const Adve
 		getLevel(parameters.caster).effect->endCast(env, parameters);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

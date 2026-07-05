@@ -22,8 +22,6 @@
 #include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapGenOptions;
 class CampaignState;
 class CMapInfo;
@@ -279,5 +277,3 @@ public:
 		h & spells;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGTownInstance;
 class CHeroClass;
 class CTown;
@@ -96,5 +94,3 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 	InfoAboutTown(const CGTownInstance *t, bool detailed);
 	void initFromTown(const CGTownInstance *t, bool detailed);
 };
-
-VCMI_LIB_NAMESPACE_END

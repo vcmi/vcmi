@@ -12,8 +12,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputStream;
 
 /**
@@ -70,5 +68,3 @@ private:
 	 */
 	std::unordered_map<ResourcePath, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };
-
-VCMI_LIB_NAMESPACE_END

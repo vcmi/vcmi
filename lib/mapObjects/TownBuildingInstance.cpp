@@ -19,8 +19,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TownBuildingInstance::TownBuildingInstance(IGameInfoCallback * cb)
 	: IObjectInterface(cb)
 	, town(nullptr)
@@ -237,5 +235,3 @@ void TownRewardableBuildingInstance::markAsScouted(IGameEventCallback & gameEven
 	// no-op - town building is always 'scouted' by owner
 }
 
-
-VCMI_LIB_NAMESPACE_END

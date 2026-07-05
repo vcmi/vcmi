@@ -15,8 +15,6 @@
 
 #include "../lib/json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -37,5 +35,3 @@ std::shared_ptr<Context> LuaScriptPool::getContext(const Script * script) const
 	return cache.at(script);
 }
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ObstacleSet::ObstacleSet():
 	type(INVALID),
 	level(EMapLevel::ANY),
@@ -515,6 +513,4 @@ TObstacleTypes ObstacleSetHandler::getObstacles( const ObstacleSetFilter &filter
 	}
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END
 

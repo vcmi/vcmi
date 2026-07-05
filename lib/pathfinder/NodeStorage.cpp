@@ -19,8 +19,6 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void NodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
 	//TODO: fix this code duplication with AINodeStorage::initialize, problem is to keep `resetTile` inline
@@ -150,5 +148,3 @@ void NodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo 
 	destination.node->theNodeBefore = source.node;
 	destination.node->action = destination.action;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -17,8 +17,6 @@
 #include "../filesystem/ResourcePath.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBonusBearer;
 class IPropagator;
 class IUpdater;
@@ -188,5 +186,3 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
-
-VCMI_LIB_NAMESPACE_END

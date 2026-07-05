@@ -25,8 +25,6 @@
 #include "../mapping/CCastleEvent.h"
 #include "../rmg/CMapGenOptions.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename Type>
 class SerializerReflection final : public ISerializerReflection
 {
@@ -81,5 +79,3 @@ CSerializationApplier & CSerializationApplier::getInstance()
 	static CSerializationApplier registry;
 	return registry;
 }
-
-VCMI_LIB_NAMESPACE_END

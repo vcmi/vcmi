@@ -11,8 +11,6 @@
 
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonWriter
 {
 	//prefix for each line (tabulation)
@@ -32,5 +30,3 @@ public:
 	void writeNode(const JsonNode & node);
 	JsonWriter(std::ostream & output, bool compact);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class JsonSerializeFormat;
 
@@ -211,13 +209,11 @@ namespace EResTypeHelper
 	std::string getEResTypeAsString(EResType type);
 };
 
-VCMI_LIB_NAMESPACE_END
-
 namespace std
 {
-template <> struct hash<VCMI_LIB_WRAP_NAMESPACE(ResourcePath)>
+template <> struct hash<::ResourcePath>
 {
-	size_t operator()(const VCMI_LIB_WRAP_NAMESPACE(ResourcePath) & resourceIdent) const
+	size_t operator()(const ::ResourcePath & resourceIdent) const
 	{
 		std::hash<int> intHasher;
 		std::hash<std::string> stringHasher;

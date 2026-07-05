@@ -11,8 +11,6 @@
 
 #include "CGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct QuestInfo;
 
 class ResourceSet;
@@ -38,5 +36,3 @@ public:
 	virtual int getResourceAmount(GameResID type) const;
 	virtual ResourceSet getResourceAmount() const;
 };
-
-VCMI_LIB_NAMESPACE_END

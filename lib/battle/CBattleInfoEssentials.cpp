@@ -21,8 +21,6 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../mapObjects/CGTownInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CBattleInfoEssentials::duringBattle() const
 {
 	return getBattle() != nullptr;
@@ -490,5 +488,3 @@ bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const
 
 	return (attacker == initialOwner) == sameOwner;
 }
-
-VCMI_LIB_NAMESPACE_END

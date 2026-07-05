@@ -13,13 +13,9 @@
 #include "PotentialTargets.h"
 #include "BattleExchangeVariant.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CSpell;
 class CBattleCallback;
 class BattleAction;
-
-VCMI_LIB_NAMESPACE_END
 
 struct CachedAttack
 {

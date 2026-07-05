@@ -15,7 +15,6 @@
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui
 {

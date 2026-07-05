@@ -16,8 +16,6 @@
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
@@ -51,5 +49,3 @@ private:
 	void loadType(CArtifact * art, const JsonNode & node) const;
 	void loadComponents(CArtifact * art, const JsonNode & node);
 };
-
-VCMI_LIB_NAMESPACE_END

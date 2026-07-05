@@ -15,10 +15,8 @@
 #include "../../../lib/GameLibrary.h"
 #include "../Goals/AbstractGoal.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CSpell;
 class DimensionDoorEffect;
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {

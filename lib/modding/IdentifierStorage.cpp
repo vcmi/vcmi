@@ -19,8 +19,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CIdentifierStorage::CIdentifierStorage()
 {
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
@@ -537,5 +535,3 @@ std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

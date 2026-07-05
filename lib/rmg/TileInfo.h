@@ -12,8 +12,6 @@
 
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TileInfo
 {
 public:
@@ -40,5 +38,3 @@ private:
 	TerrainId terrain;
 	RoadId roadType;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "Metatype.h"
 #include "scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ArtifactService;
 class CreatureService;
 class FactionService;
@@ -63,5 +61,3 @@ public:
 	virtual const spells::effects::SpellEffectService * spellEffects() const = 0;
 	virtual const spells::SchoolService * spellSchools() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

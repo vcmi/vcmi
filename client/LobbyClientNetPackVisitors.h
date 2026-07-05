@@ -14,11 +14,9 @@
 
 class CClient;
 class CLobbyScreen;
-VCMI_LIB_NAMESPACE_BEGIN
 class CGameState;
-VCMI_LIB_NAMESPACE_END
 
-class ApplyOnLobbyHandlerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnLobbyHandlerNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CServerHandler & handler;
@@ -42,7 +40,7 @@ public:
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 };
 
-class ApplyOnLobbyScreenNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnLobbyScreenNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CServerHandler & handler;

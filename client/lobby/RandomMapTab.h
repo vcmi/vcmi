@@ -18,11 +18,7 @@
 
 #include <optional>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapGenOptions;
-
-VCMI_LIB_NAMESPACE_END
 
 class CToggleButton;
 class CLabel;

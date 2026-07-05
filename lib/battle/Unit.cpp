@@ -21,8 +21,6 @@
 #include <vcmi/Faction.h>
 #include <vcmi/FactionService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 
@@ -307,5 +305,3 @@ void UnitInfo::load(uint32_t id_, const JsonNode & data)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

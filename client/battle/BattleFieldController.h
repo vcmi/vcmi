@@ -13,10 +13,8 @@
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
 class CAnimation;

@@ -20,8 +20,6 @@
 
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class CCreature;
 class CGHeroInstance;
@@ -132,5 +130,3 @@ public:
 	bool isNativeTerrain(TerrainId terrain) const override;
 	TerrainId getCurrentTerrain() const;
 };
-
-VCMI_LIB_NAMESPACE_END

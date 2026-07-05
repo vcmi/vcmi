@@ -14,9 +14,7 @@
 class CLabel;
 class CAnimImage;
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct InfoAboutHero;
-VCMI_LIB_NAMESPACE_END
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
 {

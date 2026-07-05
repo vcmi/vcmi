@@ -17,8 +17,6 @@
 #include "../../GameConstants.h"
 #include "../../IHandlerBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero, HeroTypeService>
 {
 	/// expPerLEvel[i] is amount of exp needed to reach level i;
@@ -66,5 +64,3 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CHero> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };
-
-VCMI_LIB_NAMESPACE_END

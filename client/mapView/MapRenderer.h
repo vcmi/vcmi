@@ -12,12 +12,8 @@
 #include "../../lib/int3.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ObjectInstanceID;
 class CGObjectInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class IImage;

@@ -13,8 +13,6 @@
 #include "../Entity.h"
 #include "../scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class SpellID;
 class SpellSchool;
 
@@ -62,5 +60,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

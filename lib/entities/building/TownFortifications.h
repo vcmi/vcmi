@@ -11,8 +11,6 @@
 
 #include "../../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct TownFortifications
 {
 	CreatureID citadelShooter;
@@ -45,5 +43,3 @@ struct TownFortifications
 		return *this;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

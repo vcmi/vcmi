@@ -12,8 +12,6 @@
 
 #include "Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CSelector : std::function<bool(const Bonus*)>
 {
 	using TBase = std::function<bool(const Bonus*)>;
@@ -147,5 +145,3 @@ namespace Selector
 	 */
 	extern DLL_LINKAGE CSelector none;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -21,8 +21,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DLL_LINKAGE bool ArtifactUtils::checkIfSlotValid(const CArtifactSet & artSet, const ArtifactPosition & slot)
 {
 	if(artSet.bearerType() == ArtBearer::HERO)
@@ -247,5 +245,3 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

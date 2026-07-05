@@ -23,8 +23,6 @@
 
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace
 {
 	si32 decodeZoneId(const std::string & json)
@@ -1166,5 +1164,3 @@ const std::vector<ObjectInfo> & ZoneOptions::getConfiguredObjects() const
 {
 	return objectConfig.getConfiguredObjects();
 }
-
-VCMI_LIB_NAMESPACE_END

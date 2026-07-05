@@ -13,7 +13,6 @@
 #include <QSortFilterProxyModel>
 #include "../lib/GameConstants.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 class ObjectBrowserProxyModel : public QSortFilterProxyModel
 {

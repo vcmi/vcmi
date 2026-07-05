@@ -14,8 +14,6 @@
 
 #include "../lib/filesystem/Filesystem.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -55,5 +53,3 @@ std::shared_ptr<LuaContext> LuaScriptInstance::createContext(const Environment *
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

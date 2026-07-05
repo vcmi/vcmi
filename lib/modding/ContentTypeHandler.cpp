@@ -45,8 +45,6 @@
 #include "../spells/effects/SpellEffectHandler.h"
 #include "../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
 	entityName(entityName),
@@ -315,5 +313,3 @@ const ContentTypeHandler & CContentHandler::operator[](const std::string & name)
 {
 	return handlers.at(name);
 }
-
-VCMI_LIB_NAMESPACE_END

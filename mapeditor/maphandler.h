@@ -18,17 +18,12 @@
 #include <QPixmap>
 #include <QRect>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGHeroInstance;
 class CGBoat;
 class CMap;
 class PlayerColor;
 
-VCMI_LIB_NAMESPACE_END
-
-VCMI_LIB_USING_NAMESPACE
 
 struct ObjectRect
 {

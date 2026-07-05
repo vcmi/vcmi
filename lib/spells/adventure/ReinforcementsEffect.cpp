@@ -20,8 +20,6 @@
 #include "../../mapping/CMap.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ReinforcementsEffect::ReinforcementsEffect(const CSpell * s, const JsonNode & config)
 	: TownRelatedAdventureSpellEffect(s, config["allowTownSelection"].Bool(), false)
 	, casterInTownTextID(config["casterInTown"].String().starts_with("@") ? config["casterInTown"].String().substr(1) : s->getAdventureEffectTextID("reinforcements", "casterInTown"))
@@ -95,5 +93,3 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 
 	return ESpellCastResult::OK;
 }
-
-VCMI_LIB_NAMESPACE_END

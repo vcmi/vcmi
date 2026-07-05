@@ -12,8 +12,6 @@
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 MapProxy::MapProxy(RmgMap & map):
 	map(map)
 {
@@ -63,5 +61,3 @@ void MapProxy::drawRoads(vstd::RNG & generator, std::vector<int3> & tiles, RoadI
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
 	map.getEditManager()->drawRoad(roadType, &generator);
 }
-
-VCMI_LIB_NAMESPACE_END

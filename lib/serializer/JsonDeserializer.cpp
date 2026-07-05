@@ -12,8 +12,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
 	JsonTreeSerializer(instanceResolver_, &root_, false, false)
 {
@@ -211,5 +209,3 @@ void JsonDeserializer::serializeRaw(const std::string & fieldName, JsonNode & va
 		value = data;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

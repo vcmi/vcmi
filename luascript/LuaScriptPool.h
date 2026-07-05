@@ -12,8 +12,6 @@
 
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 namespace scripting
@@ -39,5 +37,3 @@ private:
 	const Environment * env;
 };
 }
-
-VCMI_LIB_NAMESPACE_END

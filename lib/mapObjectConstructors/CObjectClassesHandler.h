@@ -13,8 +13,6 @@
 #include "../IHandlerBase.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class AObjectTypeHandler;
 class ObjectTemplate;
 struct SObjectSounds;
@@ -105,5 +103,3 @@ public:
 
 	std::string getJsonKey(MapObjectID type) const;
 };
-
-VCMI_LIB_NAMESPACE_END

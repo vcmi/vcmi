@@ -12,8 +12,6 @@
 #include "callback/IGameRandomizer.h"
 #include "CRandomGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EGameSettings;
 
 class CGHeroInstance;
@@ -142,5 +140,3 @@ public:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

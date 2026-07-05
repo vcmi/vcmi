@@ -15,8 +15,6 @@
 #include "../../constants/Enumerations.h"
 #include "../../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -77,5 +75,3 @@ public:
 
 	int tavernProbability(FactionID faction) const;
 };
-
-VCMI_LIB_NAMESPACE_END

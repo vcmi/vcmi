@@ -13,8 +13,6 @@
 
 #include "Unit.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 
@@ -46,5 +44,3 @@ Destination::Destination(const Unit * destination, const BattleHex & exactHex)
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

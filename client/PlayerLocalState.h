@@ -11,8 +11,6 @@
 
 #include "../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
@@ -20,8 +18,6 @@ class JsonNode;
 struct CGPath;
 class int3;
 struct CPathsInfo;
-
-VCMI_LIB_NAMESPACE_END
 
 class CPlayerInterface;
 

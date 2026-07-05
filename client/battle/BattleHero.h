@@ -14,9 +14,7 @@
 #include "../gui/CIntObject.h"
 #include "../../lib/FunctionList.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
-VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class BattleInterface;

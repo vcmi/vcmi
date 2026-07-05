@@ -16,8 +16,6 @@
 #include "IHandlerBase.h"
 #include "filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE MapLayerType : public EntityT<MapLayerId>
 {
 	friend class MapLayerTypeHandler;
@@ -57,5 +55,3 @@ public:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 };
-
-VCMI_LIB_NAMESPACE_END

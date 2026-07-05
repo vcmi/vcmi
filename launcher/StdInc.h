@@ -22,4 +22,3 @@
 
 #include "../vcmiqt/convpathqstring.h"
 
-VCMI_LIB_USING_NAMESPACE

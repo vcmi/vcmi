@@ -13,11 +13,9 @@ class ObjectBrowser;
 class ObjectBrowserProxyModel;
 class MapSettings;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CConsoleHandler;
 class CBasicLogConfigurator;
 class CGObjectInstance;
-VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {

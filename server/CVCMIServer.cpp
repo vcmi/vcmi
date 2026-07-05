@@ -38,7 +38,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/program_options.hpp>
 
-class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class CVCMIServerPackVisitor : public ::ICPackVisitor
 {
 private:
 	CVCMIServer & handler;

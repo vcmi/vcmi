@@ -13,8 +13,6 @@
 #include "NumericConstants.h"
 #include "IdentifierBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Services;
 class Artifact;
 class ArtifactService;
@@ -1169,5 +1167,3 @@ using EGameResID = GameResID;
 using River = RiverId;
 using Road = RoadId;
 using ETerrainId = TerrainId;
-
-VCMI_LIB_NAMESPACE_END

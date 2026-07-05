@@ -27,8 +27,6 @@
 #include "../../mapObjects/CGObjectInstance.h"
 #include "../../mapObjects/ObstacleSetHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ObstaclePlacer::process()
 {
 	manager = zone.getModificator<ObjectManager>();
@@ -171,5 +169,3 @@ bool ObstaclePlacer::isProhibited(const rmg::Area & objArea) const
 	
 	return false;
 }
-
-VCMI_LIB_NAMESPACE_END

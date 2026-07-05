@@ -14,8 +14,6 @@
 #include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -50,5 +48,3 @@ SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

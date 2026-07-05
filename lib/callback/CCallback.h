@@ -13,12 +13,6 @@
 #include "CBattleCallback.h"
 #include "IGameActionCallback.h"
 
-#ifdef VCMI_LIB_NAMESPACE
-VCMI_LIB_USING_NAMESPACE
-#endif
-
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBattleEventsReceiver;
 
 class DLL_LINKAGE CCallback final : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
@@ -89,5 +83,3 @@ public:
 //friends
 	friend class CClient;
 };
-
-VCMI_LIB_NAMESPACE_END

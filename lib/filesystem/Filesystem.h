@@ -13,8 +13,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CFilesystemList;
 class JsonNode;
 
@@ -126,5 +124,3 @@ private:
 	CResourceHandler() {};
 	std::unique_ptr<ISimpleResourceLoader> rootLoader;
 };
-
-VCMI_LIB_NAMESPACE_END

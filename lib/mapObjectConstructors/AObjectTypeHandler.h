@@ -13,8 +13,6 @@
 #include "RandomMapInfo.h"
 #include "SObjectSounds.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -128,5 +126,3 @@ public:
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo() const;
 };
-
-VCMI_LIB_NAMESPACE_END

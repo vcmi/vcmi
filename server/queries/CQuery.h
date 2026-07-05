@@ -12,13 +12,9 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 #include <boost/container/small_vector.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CPackForServer;
 class CGObjectInstance;
 class CGHeroInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CObjectVisitQuery;
 class QueriesProcessor;

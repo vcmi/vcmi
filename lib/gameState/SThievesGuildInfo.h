@@ -12,8 +12,6 @@
 #include "../GameConstants.h"
 #include "InfoAboutArmy.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<PlayerColor> playerColors; //colors of players that are in-game
@@ -43,5 +41,3 @@ struct DLL_LINKAGE SThievesGuildInfo
 //	}
 
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "IOwnableObject.h"
 #include "../bonuses/CBonusSystemNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 class FlaggableInstanceConstructor;
 
@@ -55,5 +53,3 @@ public:
 			initBonuses();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

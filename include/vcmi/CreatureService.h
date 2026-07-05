@@ -12,8 +12,6 @@
 
 #include "EntityService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CreatureID;
 class Creature;
 
@@ -21,5 +19,3 @@ class DLL_LINKAGE CreatureService : public EntityServiceT<CreatureID, Creature>
 {
 public:
 };
-
-VCMI_LIB_NAMESPACE_END

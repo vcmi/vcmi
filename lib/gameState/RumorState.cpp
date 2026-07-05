@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "RumorState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool RumorState::update(int id, int extra)
 {
 	if(vstd::contains(last, type))
@@ -29,5 +27,3 @@ bool RumorState::update(int id, int extra)
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

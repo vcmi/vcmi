@@ -19,8 +19,6 @@
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CHero;
 class CGBoat;
 class CGTownInstance;
@@ -391,5 +389,3 @@ public:
 			attachCommanderToArmy();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

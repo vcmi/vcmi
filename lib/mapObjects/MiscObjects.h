@@ -14,8 +14,6 @@
 #include "../entities/artifact/CArtifactInstance.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMap;
 class UpgradeInfo;
 class MineInstanceConstructor;
@@ -470,5 +468,3 @@ public:
 		h & upgradeCostPercentage;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

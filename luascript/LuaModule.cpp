@@ -19,8 +19,6 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/spells/effects/SpellEffectService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -46,5 +44,3 @@ void LuaModule::exportDocs(const boost::filesystem::path & outDir) const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

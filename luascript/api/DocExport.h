@@ -12,8 +12,6 @@
 
 #include <boost/filesystem/path.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -23,5 +21,3 @@ namespace scripting::api
 void exportLuaApiDocs(const boost::filesystem::path & outDir);
 
 }
-
-VCMI_LIB_NAMESPACE_END

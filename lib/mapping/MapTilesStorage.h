@@ -12,8 +12,6 @@
 
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename DataType>
 class MapTilesStorage
 {
@@ -70,5 +68,3 @@ public:
 			h & element;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

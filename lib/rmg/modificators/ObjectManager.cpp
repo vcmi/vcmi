@@ -33,8 +33,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ObjectManager::process()
 {
 	zone.fractalize();
@@ -849,7 +847,5 @@ RequiredObjectInfo::RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui
 	guardStrength(guardStrength),
 	createRoad(createRoad)
 {}
-
-VCMI_LIB_NAMESPACE_END
 
 

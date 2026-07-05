@@ -54,9 +54,7 @@ Server is responsible for:
 
 ### Main purposes of lib
 
-VCMI_Lib is a library that contains code common to server and client, so we avoid it's duplication. Important: the library code is common for client and server and used by them, but the library instance (in opposition to the library as file) is not shared by them! Both client and server create their own "copies" of lib with all its class instances.
-
-iOS platform pioneered single process build, where server is a static library and not a dedicated executable. For that to work, the lib had to be wrapped into special namespace that is defined by client and server targets on iOS, so that single process is able to contain 2 versions of the library. To make it more convenient, a few macros were introduced that can be found in [Global.h](https://github.com/vcmi/vcmi/blob/develop/Global.h). The most important ones are `VCMI_LIB_NAMESPACE_BEGIN` and `VCMI_LIB_NAMESPACE_END` which must be used anywhere a symbol from the lib is needed, otherwise building iOS (or any other platform that would use single process approach) fails.
+VCMI_Lib is a library that contains code common to server and client, so we avoid it's duplication.
 
 Lib contains code responsible for:
 
@@ -72,32 +70,6 @@ The serialization framework can serialize basic types, several standard containe
 In addition to the basic functionality it provides light-weight transfer of CGObjectInstance objects by sending only the index/id.
 
 Serialization page for all the details.
-
-#### Wrapped namespace examples
-
-##### Inside the lib
-
-Both header and implementation of a new class inside the lib should have the following structure:
-
-`<includes>`  
-`VCMI_LIB_NAMESPACE_BEGIN`  
-`<code>`  
-`VCMI_LIB_NAMESPACE_END`
-
-##### Headers outside the lib
-
-Forward declarations of the lib in headers of other parts of the project need to be wrapped in the macros:
-
-`<includes>`  
-`VCMI_LIB_NAMESPACE_BEGIN`  
-`<lib forward declarations>`  
-`VCMI_LIB_NAMESPACE_END`  
-`<other forward declarations>`  
-`<classes>`
-
-##### New project part
-
-If you're creating new project part, place `VCMI_LIB_USING_NAMESPACE` in its `StdInc.h` to be able to use lib classes without explicit namespace in implementation files. Example: <https://github.com/vcmi/vcmi/blob/develop/launcher/StdInc.h>
 
 ## Artificial Intelligence
 

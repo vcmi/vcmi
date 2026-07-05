@@ -15,8 +15,6 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../callback/IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 AdventureSpellRangedEffect::AdventureSpellRangedEffect(const JsonNode & config)
 	: rangeX(config["rangeX"].Integer())
 	, rangeY(config["rangeY"].Integer())
@@ -71,5 +69,3 @@ bool AdventureSpellRangedEffect::isValidTargetFrom(const IGameInfoCallback * cb,
 {
 	return isTargetInRangeFrom(cb, caster, source, pos);
 }
-
-VCMI_LIB_NAMESPACE_END

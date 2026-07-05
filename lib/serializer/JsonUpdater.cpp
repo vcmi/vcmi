@@ -14,8 +14,6 @@
 #include "../bonuses/Bonus.h"
 #include "../json/JsonBonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonUpdater::JsonUpdater(const IInstanceResolver * instanceResolver_, const JsonNode & root_)
 	: JsonTreeSerializer(instanceResolver_, &root_, false, true)
 {
@@ -218,5 +216,3 @@ void JsonUpdater::serializeBonuses(const std::string & fieldName, CBonusSystemNo
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

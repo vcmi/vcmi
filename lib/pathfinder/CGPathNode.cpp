@@ -16,8 +16,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/TerrainTile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static bool canSeeObj(const CGObjectInstance * obj)
 {
 	/// Pathfinder should ignore placed events
@@ -196,5 +194,3 @@ bool CDestinationNodeInfo::isBetterWay() const
 	else
 		return cost < node->getCost(); //this route is faster
 }
-
-VCMI_LIB_NAMESPACE_END

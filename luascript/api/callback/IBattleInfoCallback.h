@@ -16,8 +16,6 @@
 #include "../../LuaWrapper.h"
 #include "../MethodRegistrar.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CObstacleInstance;
 class CBattleInfoCallback;
 
@@ -54,5 +52,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

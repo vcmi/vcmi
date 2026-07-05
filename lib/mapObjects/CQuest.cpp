@@ -38,8 +38,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 //TODO: Remove constructor
 CQuest::CQuest():
@@ -874,5 +872,3 @@ bool CGBorderGate::passableFor(PlayerColor color) const
 {
 	return wasMyColorVisited(color);
 }
-
-VCMI_LIB_NAMESPACE_END

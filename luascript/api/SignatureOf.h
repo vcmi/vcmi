@@ -16,8 +16,6 @@
 
 #include "Registry.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -127,5 +125,3 @@ inline std::string returnTypeOfFunction()
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

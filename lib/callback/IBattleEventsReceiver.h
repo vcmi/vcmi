@@ -12,8 +12,6 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleAction;
 struct BattleAttack;
 struct BattleStackAttacked;
@@ -56,5 +54,3 @@ public:
 	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca){}; //called when catapult makes an attack
 	virtual void battleGateStateChanged(const BattleID & battleID, const EGateState state){};
 };
-
-VCMI_LIB_NAMESPACE_END

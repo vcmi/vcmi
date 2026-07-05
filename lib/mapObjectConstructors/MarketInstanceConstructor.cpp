@@ -18,8 +18,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	if (settings["mods"]["validation"].String() != "off")
@@ -117,5 +115,3 @@ int MarketInstanceConstructor::getMarketEfficiency() const
 {
 	return marketEfficiency;
 }
-
-VCMI_LIB_NAMESPACE_END

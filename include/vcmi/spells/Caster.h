@@ -12,8 +12,6 @@
 
 #include "../../../lib/battle/BattleHex.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PlayerColor;
 class MetaString;
 class ServerCallback;
@@ -81,5 +79,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

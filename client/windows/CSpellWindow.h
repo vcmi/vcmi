@@ -12,12 +12,8 @@
 #include "CWindowObject.h"
 #include "../widgets/IVideoHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CSpell;
-
-VCMI_LIB_NAMESPACE_END
 
 class IImage;
 class CAnimImage;

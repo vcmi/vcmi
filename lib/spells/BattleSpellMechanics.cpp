@@ -23,8 +23,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -734,5 +732,3 @@ const Spell * BattleSpellMechanics::getSpell() const
 
 }
 
-
-VCMI_LIB_NAMESPACE_END

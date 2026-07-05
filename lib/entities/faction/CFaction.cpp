@@ -15,8 +15,6 @@
 #include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CFaction::CFaction() = default;
 CFaction::~CFaction() = default;
 
@@ -110,5 +108,3 @@ bool CFaction::isNativeTerrain(TerrainId terrain) const
 {
 	return vstd::contains(nativeTerrains, terrain);
 }
-
-VCMI_LIB_NAMESPACE_END

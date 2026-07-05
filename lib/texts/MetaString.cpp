@@ -25,8 +25,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 MetaString MetaString::createFromRawString(const std::string & value)
 {
 	MetaString result;
@@ -450,5 +448,3 @@ void MetaString::replaceName(const CStackBasicDescriptor & stack)
 {
 	replaceName(stack.getId(), stack.getCount());
 }
-
-VCMI_LIB_NAMESPACE_END

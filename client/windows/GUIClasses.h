@@ -14,15 +14,11 @@
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class LRClickableArea;

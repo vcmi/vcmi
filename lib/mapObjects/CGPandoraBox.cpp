@@ -26,8 +26,6 @@
 #include "CGHeroInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CGPandoraBox::init()
 {
 	blockVisit = true;
@@ -354,5 +352,3 @@ void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
 	if (handler.saving || !handler.getCurrent()["availableFor"].isNull())
 		handler.serializeIdArray("availableFor", availableFor); // else - keep default value
 }
-
-VCMI_LIB_NAMESPACE_END

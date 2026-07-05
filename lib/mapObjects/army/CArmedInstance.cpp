@@ -20,8 +20,6 @@
 #include "../../GameLibrary.h"
 #include "../../gameState/CGameState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CArmedInstance::randomizeArmy(FactionID type)
 {
 	for(auto & elem : stacks)
@@ -191,5 +189,3 @@ TerrainId CArmedInstance::getCurrentTerrain() const
 	else
 		return TerrainId::NONE;
 }
-
-VCMI_LIB_NAMESPACE_END

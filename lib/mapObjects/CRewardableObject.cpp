@@ -27,8 +27,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const IObjectInterface * CRewardableObject::getObject() const
 {
 	return this;
@@ -423,5 +421,3 @@ bool CRewardableObject::isCoastVisitable() const
 {
 	return configuration.coastVisitable;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class ModDescription;
 struct CModVersion;
@@ -173,5 +171,3 @@ public:
 	/// Returns name of imported preset and list of mods that must be installed to activate preset
 	std::tuple<std::string, TModList> importPreset(const JsonNode & data);
 };
-
-VCMI_LIB_NAMESPACE_END

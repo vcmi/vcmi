@@ -21,8 +21,6 @@
 #include "networkPacks/PacksForClientBattle.h"
 #include "spells/CSpell.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
@@ -393,5 +391,3 @@ void CStack::postDeserialize(const CArmedInstance * army)
 
 	doubleWideCached = battle::CUnitState::doubleWide();
 }
-
-VCMI_LIB_NAMESPACE_END

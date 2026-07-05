@@ -23,8 +23,6 @@
 #include "BattleHexArray.h"
 #include "Unit.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -238,5 +236,3 @@ int LuaUnitStateProxy::heal(lua_State * L)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,9 +11,7 @@
 
 #include "../../../Global.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CArtifact;
-VCMI_LIB_NAMESPACE_END
 
 class CIntObject;
 class CViewport;

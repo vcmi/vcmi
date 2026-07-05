@@ -30,8 +30,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //TODO: remove constructor
 CGObjectInstance::CGObjectInstance(IGameInfoCallback *cb):
 	IObjectInterface(cb),
@@ -435,5 +433,3 @@ const IOwnableObject * CGObjectInstance::asOwnable() const
 {
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

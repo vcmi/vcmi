@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class int3;
 class Point;
 class CGObjectInstance;
@@ -18,8 +16,6 @@ class ObjectInstanceID;
 struct TerrainTile;
 class ColorRGBA;
 struct CGPath;
-
-VCMI_LIB_NAMESPACE_END
 
 class IMapRendererContext
 {

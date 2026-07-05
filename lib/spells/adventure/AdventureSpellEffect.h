@@ -12,8 +12,6 @@
 
 #include "../ISpellMechanics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class ESpellCastResult : int8_t
 {
 	OK, // cast successful
@@ -62,5 +60,3 @@ public:
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 };
-
-VCMI_LIB_NAMESPACE_END

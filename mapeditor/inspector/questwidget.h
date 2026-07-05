@@ -13,7 +13,6 @@
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CQuest.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 class QuestWidget;

@@ -11,8 +11,6 @@
 
 #include "FileInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace FileInfo
 {
 
@@ -65,5 +63,3 @@ std::string_view GetPathStem(std::string_view path)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

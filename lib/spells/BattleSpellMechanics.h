@@ -14,8 +14,6 @@
 
 #include "effects/Effects.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct BattleSpellCast;
 
 namespace battle
@@ -97,5 +95,3 @@ private:
 
 }
 
-
-VCMI_LIB_NAMESPACE_END

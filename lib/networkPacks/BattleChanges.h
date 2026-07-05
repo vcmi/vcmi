@@ -11,8 +11,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleChanges
 {
 public:
@@ -75,6 +73,4 @@ public:
 		h & operation;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END
 

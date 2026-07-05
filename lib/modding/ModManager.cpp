@@ -18,8 +18,6 @@
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static std::string getModDirectory(const TModID & modName)
 {
 	std::string result = modName;
@@ -949,5 +947,3 @@ std::tuple<std::string, TModList> ModManager::importPreset(const JsonNode & data
 
 	return {presetName, missingMods};
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 
 #include "../ISpellMechanics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IAdventureSpellEffect;
 
 class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::noncopyable
@@ -47,5 +45,3 @@ private:
 	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
 	bool givesBonus(const spells::Caster * caster, BonusType which) const final;
 };
-
-VCMI_LIB_NAMESPACE_END

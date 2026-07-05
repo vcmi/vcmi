@@ -13,8 +13,6 @@
 #include "../ResourceSet.h"
 #include "../mapping/MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct InfoWindow;
 
 class DLL_LINKAGE CGPandoraBox : public CRewardableObject
@@ -79,5 +77,3 @@ protected:
 private:
 	void activated(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -50,12 +50,10 @@ if(NOT ENABLE_MINIMAL_LIB)
 endif()
 
 # Forward vcmiMain's public interface (include dirs, external runtime deps
-# such as Boost/TBB/ZLIB/Iconv, and compile definitions like VCMI_LIB_NAMESPACE
-# on mobile single-binary builds) to consumers of the facade. The OBJECT
-# library itself is PRIVATE so its objects are absorbed only once, but
-# downstream code still needs to see vcmi headers, link the same runtime
-# libraries vcmiMain depends on, and observe the same lib-side macros so
-# namespaced symbols resolve correctly at link time.
+# such as Boost/TBB/ZLIB/Iconv, and compile definitions) to consumers of the
+# facade. The OBJECT library itself is PRIVATE so its objects are absorbed only
+# once, but downstream code still needs to see vcmi headers and link the same
+# runtime libraries vcmiMain depends on.
 target_include_directories(vcmi PUBLIC
 	$<TARGET_PROPERTY:vcmiMain,INTERFACE_INCLUDE_DIRECTORIES>)
 target_link_libraries(vcmi PUBLIC

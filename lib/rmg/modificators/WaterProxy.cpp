@@ -33,8 +33,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void WaterProxy::process()
 {
 	auto area = zone.area();
@@ -427,5 +425,3 @@ char WaterProxy::dump(const int3 & t)
 	
 	return '~';
 }
-
-VCMI_LIB_NAMESPACE_END

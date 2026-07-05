@@ -28,8 +28,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Zone> otherZone)
 {
 	if (zone.getId() == otherZone->getId())
@@ -525,5 +523,3 @@ void ConnectionsPlacer::createBorder()
 		});
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

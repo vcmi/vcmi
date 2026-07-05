@@ -22,8 +22,6 @@
 #include "../../GameLibrary.h"
 #include "../TileInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TileInfo;
 
 void RockPlacer::process()
@@ -102,5 +100,3 @@ char RockPlacer::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

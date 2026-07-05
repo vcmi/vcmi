@@ -17,8 +17,6 @@
 #include "../bonuses/Bonus.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CSpell;
 class IAdventureSpellMechanics;
 class CBattleInfoCallback;
@@ -263,5 +261,3 @@ private:
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "CBonusSystemNode.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void BonusList::stackBonuses()
 {
 	std::ranges::sort(bonuses, [](const std::shared_ptr<Bonus> & b1, const std::shared_ptr<Bonus> & b2) -> bool
@@ -248,5 +246,3 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusL
 	}
 	return out;
 }
-
-VCMI_LIB_NAMESPACE_END

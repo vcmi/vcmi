@@ -15,8 +15,6 @@
 #include "../../IHandlerBase.h"
 #include "../../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells::effects
 {
 
@@ -58,5 +56,3 @@ private:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

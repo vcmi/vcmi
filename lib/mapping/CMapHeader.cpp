@@ -20,8 +20,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 SHeroName::SHeroName() : heroId(-1)
 {
 }
@@ -214,5 +212,3 @@ std::string mapRegisterLocalizedString(const std::string & modContext, CMapHeade
 	mapHeader.translations.Struct()[language].Struct()[UID.get()].String() = localized;
 	return UID.get();
 }
-
-VCMI_LIB_NAMESPACE_END

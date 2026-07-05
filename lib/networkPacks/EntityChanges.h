@@ -13,8 +13,6 @@
 
 #include <vcmi/Metatype.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class EntityChanges
 {
 public:
@@ -28,6 +26,4 @@ public:
 		h & data;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END
 

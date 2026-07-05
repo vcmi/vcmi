@@ -11,15 +11,11 @@
 
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleHex;
 struct CObstacleInstance;
 class JsonNode;
 class ObstacleChanges;
 class Point;
-
-VCMI_LIB_NAMESPACE_END
 
 class IImage;
 class Canvas;

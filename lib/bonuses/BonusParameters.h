@@ -13,8 +13,6 @@
 
 #include "Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct BonusParametersOnCombatEvent
 {
 	struct CombatEffectBonus
@@ -118,5 +116,3 @@ public:
 private:
 	storage_type data_;
 };
-
-VCMI_LIB_NAMESPACE_END

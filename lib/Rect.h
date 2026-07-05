@@ -11,8 +11,6 @@
 
 #include "Point.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Rectangle class, which have a position and a size
 class Rect
 {
@@ -178,5 +176,3 @@ public:
 		h & this->h;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

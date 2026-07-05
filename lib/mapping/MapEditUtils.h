@@ -13,8 +13,6 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CMap;
 
@@ -237,5 +235,3 @@ class DLL_LINKAGE CTerrainViewPatternUtils
 public:
 	static void printDebuggingInfoAboutTile(const CMap * map, const int3 & pos);
 };
-
-VCMI_LIB_NAMESPACE_END

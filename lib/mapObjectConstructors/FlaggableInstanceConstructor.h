@@ -15,8 +15,6 @@
 #include "../bonuses/Bonus.h"
 #include "../mapObjects/FlaggableMapObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class FlaggableInstanceConstructor final : public CDefaultObjectTypeHandler<FlaggableMapObject>
 {
 	/// List of bonuses that are provided by every map object of this type
@@ -37,5 +35,3 @@ public:
 	const std::vector<std::shared_ptr<Bonus>> & getProvidedBonuses() const;
 	const ResourceSet & getDailyIncome() const;
 };
-
-VCMI_LIB_NAMESPACE_END

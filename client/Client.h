@@ -18,8 +18,6 @@
 #include "../lib/ResourceSet.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CPackForClient;
 struct CPackForServer;
 class IBattleEventsReceiver;
@@ -35,8 +33,6 @@ namespace events
 {
 	class EventBus;
 }
-
-VCMI_LIB_NAMESPACE_END
 
 class CClient;
 class CBaseForCLApply;

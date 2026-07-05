@@ -43,8 +43,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -411,5 +409,3 @@ int ServerCallbackProxy::healUnit(lua_State * L)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

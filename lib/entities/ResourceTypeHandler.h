@@ -18,8 +18,6 @@
 #include "../IHandlerBase.h"
 #include "../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ResourceTypeHandler;
 
 class DLL_LINKAGE Resource : public ResourceType
@@ -66,5 +64,3 @@ public:
 
 	const std::vector<GameResID> & getAllObjects() const;
 };
-
-VCMI_LIB_NAMESPACE_END

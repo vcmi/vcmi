@@ -20,8 +20,6 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CObstacleInstance;
 
 namespace battle { class Unit; class UnitInfo; }
@@ -63,5 +61,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

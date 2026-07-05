@@ -23,8 +23,6 @@
 #include "../serializer/JsonSerializer.h"
 #include "../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CampaignScenario::loadPreconditionRegions(ui32 regions)
 {
 	for (int i=0; i<32; i++) //for each bit in region. h3c however can only hold up to 16
@@ -451,5 +449,3 @@ bool CampaignHeader::restrictedGarrisonsForAI() const
 {
 	return restrictGarrisonsAI;
 }
-
-VCMI_LIB_NAMESPACE_END

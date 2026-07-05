@@ -13,8 +13,6 @@
 #include "../constants/Enumerations.h"
 #include "../entities/artifact/CArtifactSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE IMarket : public virtual Serializeable, boost::noncopyable
 {
 public:
@@ -46,5 +44,3 @@ public:
 private:
 	std::unique_ptr<CArtifactSetAltar> altarArtifactsStorage;
 };
-
-VCMI_LIB_NAMESPACE_END

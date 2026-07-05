@@ -11,8 +11,6 @@
 
 #include "IdentifierBase.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// This class represents field that may contain value of multiple different identifier types
 template<typename... Types>
 class VariantIdentifier
@@ -79,5 +77,3 @@ public:
 		return value < other.value;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

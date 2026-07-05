@@ -21,8 +21,6 @@
 #include <algorithm>
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace
 {
 
@@ -555,5 +553,3 @@ std::set<std::shared_ptr<CGObjectInstance>> EditorObstaclePlacer::placeObstacles
 	finalInsertion(map->getEditManager(), obstacles);
 	return obstacles;
 }
-
-VCMI_LIB_NAMESPACE_END

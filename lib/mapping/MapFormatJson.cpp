@@ -42,8 +42,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -1545,5 +1543,3 @@ void CMapSaverJson::writeTranslations()
 		addToArchive(translationsToSave, language + ".json");
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

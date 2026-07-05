@@ -228,25 +228,17 @@ typedef int8_t si8; //signed int 8 bits (1 byte)
 #endif
 #endif // VCMI_IOS
 
-// single-process build makes 2 copies of the main lib by wrapping it in a namespace
-#ifdef VCMI_LIB_NAMESPACE
-#define VCMI_LIB_NAMESPACE_BEGIN namespace VCMI_LIB_NAMESPACE {
-#define VCMI_LIB_NAMESPACE_END }
-#define VCMI_LIB_USING_NAMESPACE using namespace VCMI_LIB_NAMESPACE;
-#define VCMI_LIB_WRAP_NAMESPACE(x) VCMI_LIB_NAMESPACE::x
-#else
+// Transition no-op macros: VCMI_LIB_NAMESPACE_* were removed from the codebase,
+// these stubs keep code from not-yet-merged branches compiling. Remove once stale.
 #define VCMI_LIB_NAMESPACE_BEGIN
 #define VCMI_LIB_NAMESPACE_END
 #define VCMI_LIB_USING_NAMESPACE
 #define VCMI_LIB_WRAP_NAMESPACE(x) ::x
-#endif
 
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
 #include <vstd/CLoggerBase.h>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace vstd
 {
@@ -744,5 +736,3 @@ namespace vstd
 	}
 }
 using vstd::operator-=;
-
-VCMI_LIB_NAMESPACE_END

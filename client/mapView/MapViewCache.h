@@ -11,9 +11,7 @@
 
 #include "../../lib/Point.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ObjectInstanceID;
-VCMI_LIB_NAMESPACE_END
 
 class IImage;
 class CAnimation;

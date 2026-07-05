@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "NetworkConnection.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 NetworkConnection::NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, NetworkContext & context)
 	: socket(socket)
 	, timer(std::make_shared<NetworkTimer>(context))
@@ -260,5 +258,3 @@ void InternalConnection::close()
 	otherSideWeak.reset();
 	connectionActive = false;
 }
-
-VCMI_LIB_NAMESPACE_END

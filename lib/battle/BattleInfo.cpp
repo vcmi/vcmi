@@ -28,8 +28,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const SideInBattle & BattleInfo::getSide(BattleSide side) const
 {
 	return sides.at(side);
@@ -1013,5 +1011,3 @@ CMP_stack::CMP_stack(int Phase, int Turn, BattleSide Side):
 	side(Side) 
 {
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include <condition_variable>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE TerminationRequestedException : public std::exception
 {
 public:
@@ -109,5 +107,3 @@ public:
 			throw TerminationRequestedException();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

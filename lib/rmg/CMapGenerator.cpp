@@ -39,8 +39,6 @@
 
 #include <tbb/task_group.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
@@ -590,5 +588,3 @@ Zone * CMapGenerator::getZoneWater() const
 			return z.second.get();
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

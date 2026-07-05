@@ -10,8 +10,4 @@
 #include "StdInc.h"
 #include "JsonFormatException.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonFormatException::~JsonFormatException() = default;
-
-VCMI_LIB_NAMESPACE_END

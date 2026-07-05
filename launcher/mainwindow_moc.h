@@ -12,9 +12,7 @@
 #include <QStringList>
 #include <QTranslator>
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CConsoleHandler;
-VCMI_LIB_NAMESPACE_END
 
 namespace Ui
 {

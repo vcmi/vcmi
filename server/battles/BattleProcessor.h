@@ -13,7 +13,6 @@
 #include "../../lib/constants/Enumerations.h"
 #include "../../lib/battle/BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
@@ -23,7 +22,6 @@ class CBattleInfoCallback;
 struct BattleResult;
 struct BattleLayout;
 class BattleID;
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class CBattleQuery;

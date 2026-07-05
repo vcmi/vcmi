@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE IObjectInfo
 {
 public:
@@ -54,5 +52,3 @@ public:
 	virtual ~IObjectInfo() = default;
 
 };
-
-VCMI_LIB_NAMESPACE_END

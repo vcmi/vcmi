@@ -18,8 +18,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CRoadRandomizer::CRoadRandomizer(RmgMap & map)
 	: map(map)
 {
@@ -236,5 +234,3 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 
 	logGlobal->info("Finished road generation - created minimal spanning tree connecting all towns");
 }
-
-VCMI_LIB_NAMESPACE_END

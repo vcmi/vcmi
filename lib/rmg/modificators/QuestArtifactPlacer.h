@@ -13,8 +13,6 @@
 #include "../Functions.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class QuestArtifactPlacer : public Modificator
 {
 public:
@@ -58,5 +56,3 @@ protected:
 	size_t maxQuestArtifacts;
 	std::vector<ArtifactID> questArtifacts;
 };
-
-VCMI_LIB_NAMESPACE_END

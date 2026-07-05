@@ -953,7 +953,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	}
 }
 
-class ServerHandlerCPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ServerHandlerCPackVisitor : public ::ICPackVisitor
 {
 private:
 	CServerHandler & handler;

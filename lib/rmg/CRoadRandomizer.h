@@ -12,8 +12,6 @@
 
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -36,5 +34,3 @@ private:
 // Helper functions for Union-Find (Disjoint Set Union)
 TRmgTemplateZoneId findSet(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x);
 void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x, TRmgTemplateZoneId y);
-
-VCMI_LIB_NAMESPACE_END

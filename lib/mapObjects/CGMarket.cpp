@@ -27,8 +27,6 @@
 #include "../networkPacks/PacksForClient.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ObjectInstanceID CGMarket::getObjInstanceID() const
 {
 	return id;
@@ -165,5 +163,3 @@ std::vector<Component> CGUniversity::getPopupComponents(PlayerColor player) cons
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,10 +11,7 @@
 
 #include "NetworkInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 using NetworkSocket = boost::asio::ip::tcp::socket;
 using NetworkAcceptor = boost::asio::ip::tcp::acceptor;
 using NetworkBuffer = boost::asio::streambuf;
 using NetworkTimer = boost::asio::steady_timer;
-
-VCMI_LIB_NAMESPACE_END

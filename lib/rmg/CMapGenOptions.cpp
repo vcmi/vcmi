@@ -21,8 +21,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), levels(2),
 	humanOrCpuPlayerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
@@ -859,5 +857,3 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 		resetPlayersMap();
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

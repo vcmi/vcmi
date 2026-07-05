@@ -46,8 +46,6 @@
 #include "library/SpellSchool.h"
 #include "adventure/StackInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -144,5 +142,3 @@ const Registar * Registry::find(const std::string & name) const
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

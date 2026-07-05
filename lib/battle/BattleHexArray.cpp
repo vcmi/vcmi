@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleHexArray::BattleHexArray(std::initializer_list<BattleHex> initList) noexcept 
 	: BattleHexArray()
 {
@@ -116,5 +114,3 @@ const std::map<BattleSide, BattleHexArray::ArrayOfBattleHexArrays> BattleHexArra
 	   { BattleSide::ATTACKER, precalculateNeighbouringTilesDoubleWide(BattleSide::ATTACKER) },
 	   { BattleSide::DEFENDER, precalculateNeighbouringTilesDoubleWide(BattleSide::DEFENDER) }
 	};
-
-VCMI_LIB_NAMESPACE_END

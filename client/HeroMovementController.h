@@ -13,7 +13,6 @@
 #include "../lib/int3.h"
 #include "../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
 class CGHeroInstance;
@@ -23,7 +22,6 @@ struct CGPathNode;
 struct CGPath;
 struct TryMoveHero;
 enum class EPathNodeAction : ui8;
-VCMI_LIB_NAMESPACE_END
 
 class HeroMovementController
 {

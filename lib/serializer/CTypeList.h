@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Class that implements basic reflection-like mechanisms
 /// For every type registered via registerType() generates inheritance tree
 /// Rarely used directly - usually used as part of CApplier
@@ -61,5 +59,3 @@ public:
 		return typeInfos.at(typeInfo.name());
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

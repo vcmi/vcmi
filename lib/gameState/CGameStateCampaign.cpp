@@ -33,8 +33,6 @@
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CampaignHeroReplacement::CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId):
 	hero(hero),
 	heroPlaceholderId(heroPlaceholderId)
@@ -717,5 +715,3 @@ std::unique_ptr<CMap> CGameStateCampaign::getCurrentMap()
 {
 	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE, gameState);
 }
-
-VCMI_LIB_NAMESPACE_END

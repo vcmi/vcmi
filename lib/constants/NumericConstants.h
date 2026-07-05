@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace GameConstants
 {
 	constexpr int PUZZLE_MAP_PIECES = 48;
@@ -52,5 +50,3 @@ namespace GameConstants
 
 	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }
-
-VCMI_LIB_NAMESPACE_END

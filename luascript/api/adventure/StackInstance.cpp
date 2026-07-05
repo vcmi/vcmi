@@ -19,8 +19,6 @@
 
 #include "../library/Creature.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 void StackInstanceProxy::registerMethods(MethodRegistrar & R)
@@ -33,5 +31,3 @@ void StackInstanceProxy::registerMethods(MethodRegistrar & R)
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

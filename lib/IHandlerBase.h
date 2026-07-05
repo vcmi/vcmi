@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class Entity;
 
@@ -149,5 +147,3 @@ protected:
 public: //todo: make private
 	std::vector<ObjectPtr> objects;
 };
-
-VCMI_LIB_NAMESPACE_END

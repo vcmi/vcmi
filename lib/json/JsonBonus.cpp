@@ -23,7 +23,6 @@
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 template <typename T>
 const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, const std::string & err)
@@ -542,8 +541,6 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	return nullptr;
 }
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
@@ -1039,5 +1036,3 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

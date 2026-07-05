@@ -13,8 +13,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE SaveLocalState : public CPackForServer
 {
 	JsonNode data;
@@ -27,5 +25,3 @@ struct DLL_LINKAGE SaveLocalState : public CPackForServer
 		h & data;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

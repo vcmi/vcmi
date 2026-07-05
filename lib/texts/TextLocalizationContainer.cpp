@@ -18,8 +18,6 @@
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::recursive_mutex TextLocalizationContainer::globalTextMutex;
 
 void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
@@ -217,5 +215,3 @@ TextContainerRegistrable::TextContainerRegistrable(TextContainerRegistrable && o
 	LIBRARY->generaltexth->addSubContainer(*this);
 }
 
-
-VCMI_LIB_NAMESPACE_END

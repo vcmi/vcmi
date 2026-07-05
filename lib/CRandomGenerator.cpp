@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CRandomGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CRandomGenerator::CRandomGenerator()
 {
 	logRng->trace("CRandomGenerator constructed");
@@ -104,5 +102,3 @@ CRandomGenerator & CRandomGenerator::getDefault()
 	return defaultRand;
 }
 
-
-VCMI_LIB_NAMESPACE_END

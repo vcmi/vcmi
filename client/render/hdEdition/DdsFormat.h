@@ -13,9 +13,7 @@
 
 struct SDL_Surface;
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
-VCMI_LIB_NAMESPACE_END
 
 constexpr std::uint32_t FOURCC(char a, char b, char c, char d) noexcept
 {

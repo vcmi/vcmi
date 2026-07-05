@@ -16,8 +16,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	return b;
@@ -314,5 +312,3 @@ std::shared_ptr<Bonus> CompositeUpdater::createUpdatedBonus(const std::shared_pt
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

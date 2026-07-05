@@ -13,8 +13,6 @@
 #include "../json/JsonNode.h"
 #include "../mapObjects/MiscObjects.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGShipyard;
 
 class ShipyardInstanceConstructor final : public CDefaultObjectTypeHandler<CGShipyard>
@@ -27,5 +25,3 @@ protected:
 
 public:
 };
-
-VCMI_LIB_NAMESPACE_END

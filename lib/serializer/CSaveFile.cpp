@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CSaveFile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CSaveFile::CSaveFile()
 	: serializer(this)
 {
@@ -40,5 +38,3 @@ int CSaveFile::write(const std::byte * data, unsigned size)
 	saveData.insert(saveData.end(), data, data + size);
 	return size;
 }
-
-VCMI_LIB_NAMESPACE_END

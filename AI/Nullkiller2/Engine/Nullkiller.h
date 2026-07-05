@@ -23,11 +23,7 @@
 
 #include "../../../lib/ConditionalWait.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PathfinderCache;
-
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {

@@ -11,8 +11,6 @@
 
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Class for Json validation. Mostly compliant with json-schema v6 draf
 struct JsonValidator
 {
@@ -39,5 +37,3 @@ struct JsonValidator
 	std::string check(const std::string & schemaName, const JsonNode & data);
 	std::string check(const JsonNode & schema, const JsonNode & data);
 };
-
-VCMI_LIB_NAMESPACE_END

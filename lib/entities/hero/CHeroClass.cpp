@@ -17,8 +17,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CHeroClass::isMagicHero() const
 {
 	return affinity == MAGIC;
@@ -83,5 +81,3 @@ CHeroClass::CHeroClass():
 	defaultTavernChance(0)
 {
 }
-
-VCMI_LIB_NAMESPACE_END

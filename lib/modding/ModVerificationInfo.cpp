@@ -18,8 +18,6 @@
 #include "../json/JsonNode.h"
 #include "../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonNode ModVerificationInfo::jsonSerializeList(const ModCompatibilityInfo & input)
 {
 	JsonNode output;
@@ -128,5 +126,3 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

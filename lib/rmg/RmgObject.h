@@ -14,8 +14,6 @@
 #include "../int3.h"
 #include "RmgArea.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -121,5 +119,3 @@ private:
 	uint32_t value;
 };
 }
-
-VCMI_LIB_NAMESPACE_END

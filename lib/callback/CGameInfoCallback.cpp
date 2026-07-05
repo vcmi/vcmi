@@ -27,8 +27,6 @@
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
@@ -939,5 +937,3 @@ bool CGameInfoCallback::checkForVisitableDir(const int3 & src, const int3 & dst)
 	const TerrainTile * pom = &map.getTile(dst);
 	return map.checkForVisitableDir(src, pom, dst);
 }
-
-VCMI_LIB_NAMESPACE_END

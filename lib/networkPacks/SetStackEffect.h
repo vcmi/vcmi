@@ -13,8 +13,6 @@
 
 #include "../bonuses/Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IBattleState;
 
 struct DLL_LINKAGE SetStackEffect : public CPackForClient
@@ -35,5 +33,3 @@ struct DLL_LINKAGE SetStackEffect : public CPackForClient
 		assert(battleID != BattleID::NONE);
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

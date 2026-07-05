@@ -11,13 +11,9 @@
 
 #include "../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SObjectSounds
 {
 	std::vector<AudioPath> ambient;
 	std::vector<AudioPath> visit;
 	std::vector<AudioPath> removal;
 };
-
-VCMI_LIB_NAMESPACE_END

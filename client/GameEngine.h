@@ -9,11 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class AsyncRunner;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 enum class MouseButton;
 class ShortcutHandler;

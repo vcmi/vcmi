@@ -14,11 +14,8 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/PossiblePlayerBattleAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class CGTownInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class BattleInterface;

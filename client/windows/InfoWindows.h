@@ -13,8 +13,6 @@
 #include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
@@ -23,8 +21,6 @@ class CGCreature;
 class CGTeleport;
 class CGKeys;
 class CGObelisk;
-
-VCMI_LIB_NAMESPACE_END
 
 class CComponent;
 class CComponentBox;

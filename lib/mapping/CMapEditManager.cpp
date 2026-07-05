@@ -17,8 +17,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapUndoManager::CMapUndoManager() :
 	undoRedoLimit(100000), //not sure if we ever need to bother about undo limit
 	undoCallback([](bool, bool) {})
@@ -202,5 +200,3 @@ CMapUndoManager & CMapEditManager::getUndoManager()
 {
 	return undoManager;
 }
-
-VCMI_LIB_NAMESPACE_END

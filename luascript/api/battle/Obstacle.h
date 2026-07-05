@@ -17,8 +17,6 @@
 #include "../MethodRegistrar.h"
 #include "../../../lib/battle/CObstacleInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -39,5 +37,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

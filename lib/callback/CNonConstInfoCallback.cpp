@@ -16,8 +16,6 @@
 #include "gameState/CGameState.h"
 #include "mapping/CMap.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
 	if(!gameState().getMap().isInTheMap(pos))
@@ -92,5 +90,3 @@ CArtifactSet * CNonConstInfoCallback::getArtSet(const ArtifactLocation & loc)
 	}
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

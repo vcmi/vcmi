@@ -20,8 +20,6 @@
 #include "../GameLibrary.h"
 #include "../CSkillHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -71,5 +69,3 @@ void BonusCaster::spendMana(ServerCallback * server, const int spellCost) const
 
 
 } // namespace spells
-
-VCMI_LIB_NAMESPACE_END

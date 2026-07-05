@@ -13,8 +13,6 @@
 #include "../../GameLibrary.h"
 #include "../../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CHero::CHero() = default;
 CHero::~CHero() = default;
 
@@ -100,5 +98,3 @@ void CHero::registerIcons(const IconRegistar & cb) const
 	cb(getIconIndex(), 0, "PORTRAITSLARGE", portraitLarge);
 	cb(getIconIndex(), 0, "PORTRAITSSMALL", portraitSmall);
 }
-
-VCMI_LIB_NAMESPACE_END

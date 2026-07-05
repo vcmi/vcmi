@@ -30,8 +30,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string CGCreature::getHoverText(PlayerColor player) const
 {
 	if(stacks.empty())
@@ -760,5 +758,3 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool("neverFlees", neverFlees);
 	handler.serializeStruct("rewardMessage", message);
 }
-
-VCMI_LIB_NAMESPACE_END

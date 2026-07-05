@@ -12,8 +12,6 @@
 
 #include "Entity.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class GameResID;
 
 class DLL_LINKAGE ResourceType : public EntityT<GameResID>
@@ -21,5 +19,3 @@ class DLL_LINKAGE ResourceType : public EntityT<GameResID>
 	virtual int getPrice() const = 0;
 };
 
-
-VCMI_LIB_NAMESPACE_END

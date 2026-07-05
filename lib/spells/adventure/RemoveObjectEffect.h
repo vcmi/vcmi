@@ -12,8 +12,6 @@
 
 #include "AdventureSpellEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class RemoveObjectEffect final : public AdventureSpellRangedEffect
 {
 	const CSpell * owner;
@@ -29,5 +27,3 @@ private:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 };
-
-VCMI_LIB_NAMESPACE_END

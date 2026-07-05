@@ -12,8 +12,6 @@
 #include "CampaignState.h" // Convenience include - not required for build, but required for any user of CampaignHandler
 #include "../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CampaignHandler
 {
 	static std::string readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier);
@@ -47,5 +45,3 @@ public:
 	static JsonNode writeHeaderToJson(CampaignHeader & header);
 	static JsonNode writeScenarioToJson(const CampaignScenario & scenario);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -13,8 +13,6 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CQuest.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const CQuest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
 	auto questObject = dynamic_cast<const IQuestObject*>(getObject(cb));
@@ -32,5 +30,3 @@ int3 QuestInfo::getPosition(IGameInfoCallback *cb) const
 {
 	return getObject(cb)->visitablePos();
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -13,11 +13,9 @@
 #include "../windows/CWindowObject.h"
 #include "../widgets/Scrollable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 struct PlayerSettings;
 struct PlayerInfo;
 enum class PlayerStartingBonus : int8_t;
-VCMI_LIB_NAMESPACE_END
 
 class CLabel;
 class CMultiLineLabel;

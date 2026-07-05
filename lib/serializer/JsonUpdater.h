@@ -11,8 +11,6 @@
 
 #include "JsonTreeSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBonusSystemNode;
 
 class DLL_LINKAGE JsonUpdater: public JsonTreeSerializer<const JsonNode *>
@@ -41,5 +39,3 @@ protected:
 	void serializeInternal(std::string & value) override;
 	void serializeInternal(int64_t & value) override;
 };
-
-VCMI_LIB_NAMESPACE_END

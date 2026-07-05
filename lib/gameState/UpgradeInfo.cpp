@@ -11,8 +11,6 @@
 #include "UpgradeInfo.h"
 #include "CCreatureHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * creature, int costPercentageModifier)
 {
 	isAvailable = costPercentageModifier >= 0;
@@ -32,5 +30,3 @@ void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * crea
 		--pos;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

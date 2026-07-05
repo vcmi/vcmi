@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class CampaignVersion : uint8_t
 {
 	NONE = 0,
@@ -48,5 +46,3 @@ enum class CampaignBonusType : int8_t
 	HEROES_FROM_PREVIOUS_SCENARIO,
 	HERO
 };
-
-VCMI_LIB_NAMESPACE_END

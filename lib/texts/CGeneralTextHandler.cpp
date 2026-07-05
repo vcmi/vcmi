@@ -17,8 +17,6 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CQuest.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CGeneralTextHandler::isRoEData()
 {
 	return !CResourceHandler::get("core")->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
@@ -385,5 +383,3 @@ std::pair<std::string, std::string> LegacyHelpContainer::operator[](size_t index
 		owner.translate(basePath + "." + std::to_string(index) + ".help")
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

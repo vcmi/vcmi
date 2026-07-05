@@ -14,8 +14,6 @@
 #include "../RmgObject.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
@@ -96,5 +94,3 @@ protected:
 	boost::heap::priority_queue<TDistance, boost::heap::compare<DistanceMaximizeFunctor>> tilesByDistance;
 	
 };
-
-VCMI_LIB_NAMESPACE_END

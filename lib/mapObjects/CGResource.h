@@ -11,8 +11,6 @@
 
 #include "army/CArmedInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ResourceInstanceConstructor;
 
 class DLL_LINKAGE CGResource : public CArmedInstance
@@ -55,5 +53,3 @@ public:
 		h & message;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

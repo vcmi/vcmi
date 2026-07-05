@@ -10,8 +10,6 @@
 #pragma once
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CLogger;
 class CConsoleHandler;
 struct LogRecord;
@@ -218,5 +216,3 @@ private:
 	CLogFormatter formatter;
 	mutable std::mutex mx;
 };
-
-VCMI_LIB_NAMESPACE_END

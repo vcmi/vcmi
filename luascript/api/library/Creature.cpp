@@ -16,8 +16,6 @@
 #include "../../../lib/bonuses/IBonusBearer.h"
 #include "../../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -58,5 +56,3 @@ std::string CreatureProxy::getNameTextID(const Creature & creature, int amount)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

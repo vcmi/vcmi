@@ -25,8 +25,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<ResourceInstanceConstructor> CGResource::getResourceHandler() const
 {
 	const auto & baseHandler = getObjectHandler();
@@ -152,5 +150,3 @@ void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 	handler.serializeStruct("guardMessage", message);
 }
 
-
-VCMI_LIB_NAMESPACE_END

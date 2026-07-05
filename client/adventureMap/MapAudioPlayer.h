@@ -12,11 +12,9 @@
 #include "../mapView/IMapRendererObserver.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ObjectInstanceID;
 class CArmedInstance;
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 
 class MapAudioPlayer : public IMapObjectObserver
 {

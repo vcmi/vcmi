@@ -16,8 +16,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleHex;
 class BattleHexArray;
 class CBattleInfoCallback;
@@ -110,5 +108,3 @@ protected:
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

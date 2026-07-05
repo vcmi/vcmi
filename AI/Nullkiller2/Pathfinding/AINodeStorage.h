@@ -20,10 +20,8 @@
 constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
 #define NK2AI_TRACE_LEVEL 0
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CSpell;
 class DimensionDoorEffect;
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 // FIXME: Class doesn't contain three float values. Update name and description.
 /// Class which consists of three float values. Represents position virtual RMG (0;1) area.
 class float3
@@ -143,5 +141,3 @@ struct Shashfloat3
 		return ret;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

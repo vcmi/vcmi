@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "VisualLogger.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DLL_LINKAGE VisualLogger * logVisual = new VisualLogger();
 
 
@@ -111,5 +109,3 @@ void IVisualLogBuilder::addText(int3 tile, const std::string & text, PlayerColor
 
 	addText(tile, text, rgbColor);
 }
-
-VCMI_LIB_NAMESPACE_END

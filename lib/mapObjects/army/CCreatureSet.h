@@ -14,8 +14,6 @@
 
 #include "serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CStackInstance;
 class CArmedInstance;
 class CStackBasicDescriptor;
@@ -155,5 +153,3 @@ public:
 		return !stacks.empty();
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

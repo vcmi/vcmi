@@ -16,8 +16,6 @@
 #include "../int3.h"
 #include "../battle/BattleAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE GamePause : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -810,5 +808,3 @@ struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
 
 	void visitTyped(ICPackVisitor & cpackVisitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

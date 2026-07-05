@@ -37,8 +37,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void TreasurePlacer::process()
 {
 	if (zone.getMaxTreasureValue() == 0)
@@ -1339,5 +1337,3 @@ ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(Comp
 	// Not interesting for us
 	return ObjectConfig::EObjectCategory::NONE;
 }
-
-VCMI_LIB_NAMESPACE_END

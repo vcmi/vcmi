@@ -37,8 +37,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const CGHeroPlaceholder * CMap::findHeroPlaceholder(const int3 & position) const
 {
 	for(const auto * placeholder : getObjects<CGHeroPlaceholder>())
@@ -1202,5 +1200,3 @@ void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance>
 			heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
 }
 
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #include "../json/JsonUtils.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 {
 	if (settings["mods"]["validation"].String() != "off")
@@ -61,5 +59,3 @@ const ResourceSet & FlaggableInstanceConstructor::getDailyIncome() const
 {
 	return dailyIncome;
 }
-
-VCMI_LIB_NAMESPACE_END

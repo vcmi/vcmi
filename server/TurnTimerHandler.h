@@ -12,13 +12,9 @@
 
 #include "../lib/TurnTimerInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class PlayerColor;
 class BattleID;
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 

@@ -14,4 +14,3 @@
 
 // Here you can add specific libraries and macros which are specific to this project.
 
-VCMI_LIB_USING_NAMESPACE

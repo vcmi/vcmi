@@ -13,8 +13,6 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CZipStream::CZipStream(const std::shared_ptr<CIOApi> & api, const boost::filesystem::path & archive, unz64_file_pos filepos)
 {
 	zlib_filefunc64_def zlibApi;
@@ -274,5 +272,3 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 		return false;
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

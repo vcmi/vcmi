@@ -12,8 +12,6 @@
 #include "RmgPath.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using namespace rmg;
 
 const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FUNCTION =
@@ -278,5 +276,3 @@ Path::MoveCostFunction Path::createBezierCostFunction(const int3 & p0, const int
 
 	};
 }
-
-VCMI_LIB_NAMESPACE_END

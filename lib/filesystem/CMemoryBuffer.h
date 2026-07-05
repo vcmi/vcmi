@@ -11,8 +11,6 @@
 
 #include "CInputOutputStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /**
  * A class which provides IO memory buffer.
  */
@@ -86,5 +84,3 @@ private:
 	si64 position;
 };
 
-
-VCMI_LIB_NAMESPACE_END

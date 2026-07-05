@@ -12,8 +12,6 @@
 #include "../filesystem/ResourcePath.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
@@ -34,5 +32,3 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 		h & prologText;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

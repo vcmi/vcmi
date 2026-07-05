@@ -12,8 +12,6 @@
 
 #include "EntityService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class FactionID;
 class Faction;
 
@@ -21,5 +19,3 @@ class DLL_LINKAGE FactionService : public EntityServiceT<FactionID, Faction>
 {
 public:
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 
 #include "../IGameSettings.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Calendar::Calendar(const IGameSettings & settings, int day)
 	: gameSettings(&settings), day(day)
 {
@@ -70,5 +68,3 @@ Calendar Calendar::nextDay() const
 {
 	return Calendar(*gameSettings, day + 1);
 }
-
-VCMI_LIB_NAMESPACE_END

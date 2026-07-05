@@ -17,8 +17,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 {
 	// FIXME: We do not need to store the object info, just the id
@@ -385,5 +383,3 @@ std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> ObjectConfig
 {
 	return requiredObjects;
 }
-
-VCMI_LIB_NAMESPACE_END

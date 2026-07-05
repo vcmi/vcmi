@@ -13,8 +13,6 @@
 #include "BonusSelector.h"
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE BonusList : public scripting::ApiCopyable<BonusList>
 {
 public:
@@ -103,5 +101,3 @@ public:
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
-
-VCMI_LIB_NAMESPACE_END

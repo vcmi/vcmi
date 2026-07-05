@@ -34,8 +34,6 @@
 class CClient;
 class CGameHandler;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGameState;
 class CArtifact;
 class CGObjectInstance;
@@ -1555,5 +1553,3 @@ struct DLL_LINKAGE ResponseStatistic : public CPackForClient
 		h & statistic;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

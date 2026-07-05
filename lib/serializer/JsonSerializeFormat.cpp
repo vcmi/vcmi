@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 //JsonSerializeHelper
 JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other) noexcept: owner(other.owner), restoreState(false)
 {
@@ -145,5 +143,3 @@ void JsonSerializeFormat::readLICPart(const JsonNode & part, const JsonSerialize
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

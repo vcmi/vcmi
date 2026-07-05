@@ -12,8 +12,6 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGameState;
 class ICPackVisitor;
 
@@ -78,5 +76,3 @@ struct DLL_LINKAGE CPackForLobby : public CPack
 protected:
 	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

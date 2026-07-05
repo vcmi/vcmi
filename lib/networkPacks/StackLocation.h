@@ -11,8 +11,6 @@
 
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StackLocation
 {
 	ObjectInstanceID army;
@@ -32,5 +30,3 @@ struct StackLocation
 		h & slot;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

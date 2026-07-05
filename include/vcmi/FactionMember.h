@@ -12,8 +12,6 @@
 
 #include "Entity.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BonusList;
 class PrimarySkill;
 
@@ -61,5 +59,3 @@ public:
 
 	bool unaffectedByMorale() const;
 };
-
-VCMI_LIB_NAMESPACE_END

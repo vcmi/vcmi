@@ -12,8 +12,6 @@
 
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells::effects
 {
 class LuaSpellEffectFactory;
@@ -44,5 +42,3 @@ private:
 	std::shared_ptr<spells::effects::LuaSpellEffectFactory> luaSpellEffects;
 };
 }
-
-VCMI_LIB_NAMESPACE_END

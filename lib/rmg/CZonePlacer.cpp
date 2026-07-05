@@ -29,8 +29,6 @@
 
 #include <limits>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
@@ -888,5 +886,3 @@ const TDistanceMap& CZonePlacer::getDistanceMap()
 {
 	return distancesBetweenZones;
 }
-
-VCMI_LIB_NAMESPACE_END

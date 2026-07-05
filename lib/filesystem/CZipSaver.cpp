@@ -13,8 +13,6 @@
 
 #include <vstd/DateUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///CZipOutputStream
 CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const std::string & archiveFilename):
 	handle(archive),
@@ -121,5 +119,3 @@ std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFil
 	return stream;
 }
 
-
-VCMI_LIB_NAMESPACE_END

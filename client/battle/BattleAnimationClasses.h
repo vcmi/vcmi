@@ -14,14 +14,10 @@
 #include "../../lib/Color.h"
 #include "BattleConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CStack;
 class CCreature;
 class CSpell;
 class Point;
-
-VCMI_LIB_NAMESPACE_END
 
 class ColorFilter;
 class BattleHero;

@@ -14,11 +14,7 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/networkPacks/Component.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Component;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimImage;
 class CLabel;

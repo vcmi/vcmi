@@ -12,8 +12,6 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE GameSettings final : public IGameSettings, boost::noncopyable
 {
 	struct SettingOption
@@ -70,5 +68,3 @@ public:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

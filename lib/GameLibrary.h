@@ -11,8 +11,6 @@
 
 #include <vcmi/Services.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -135,5 +133,3 @@ public:
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "CGObjectInstance.h"
 #include "IMarket.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MarketInstanceConstructor;
 
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
@@ -74,5 +72,3 @@ public:
 		h & skills;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -14,11 +14,7 @@
 #include "../../render/EFont.h"
 #include "../../render/Colors.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IMarket;
-
-VCMI_LIB_NAMESPACE_END
 
 class CPlayerInterface;
 

@@ -16,8 +16,6 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 	bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
 {
 	return lhs.first->getAIValue() < rhs.first->getAIValue(); // Descendant order sorting
@@ -668,5 +666,3 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

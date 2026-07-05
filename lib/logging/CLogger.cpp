@@ -17,8 +17,6 @@
 #ifdef VCMI_ANDROID
 #include <android/log.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace ELogLevel
 {
 	int toAndroid(ELogLevel logLevel)
@@ -36,16 +34,12 @@ namespace ELogLevel
 		return ANDROID_LOG_UNKNOWN;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END
 #elif defined(VCMI_IOS)
 #import "iOS_utils.h"
 extern "C" {
 #include <os/log.h>
 }
 #endif
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 namespace vstd
 {
@@ -459,5 +453,3 @@ LogRecord::LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, c
 {
 
 }
-
-VCMI_LIB_NAMESPACE_END

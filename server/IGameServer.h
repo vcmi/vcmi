@@ -11,11 +11,8 @@
 
 #include "../lib/serializer/GameConnectionID.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
 struct CPackForClient;
-
-VCMI_LIB_NAMESPACE_END
 
 enum class EServerState : ui8
 {

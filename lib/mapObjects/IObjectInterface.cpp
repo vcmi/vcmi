@@ -21,8 +21,6 @@
 #include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void IObjectInterface::showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
@@ -165,5 +163,3 @@ void IShipyard::getBoatCost(TResources & cost) const
 	cost[EGameResID::WOOD] = 10;
 	cost[EGameResID::GOLD] = 1000;
 }
-
-VCMI_LIB_NAMESPACE_END

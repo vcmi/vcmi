@@ -13,8 +13,6 @@
 
 #include "MapFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 MapFormatFeaturesH3M MapFormatFeaturesH3M::find(EMapFormat format, uint32_t hotaVersion)
 {
 	switch(format)
@@ -190,5 +188,3 @@ MapFormatFeaturesH3M MapFormatFeaturesH3M::getFeaturesHOTA(uint32_t hotaVersion)
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

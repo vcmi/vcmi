@@ -15,8 +15,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMap.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TavernHeroesPool::TavernHeroesPool(CGameState * owner)
 	: owner(owner)
 {}
@@ -152,5 +150,3 @@ void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> ma
 {
 	perPlayerAvailability[hero] = mask;
 }
-
-VCMI_LIB_NAMESPACE_END

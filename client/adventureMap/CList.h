@@ -12,12 +12,8 @@
 #include "../widgets/Scrollable.h"
 #include "../../lib/FunctionList.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGTownInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CListBox;
 class CButton;

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EAlignment : int8_t
 {
 	ANY = -1,
@@ -279,5 +277,3 @@ enum class CombatEventType : int8_t
 	AFTER_MOVE = 8,
 	UNIT_SPELLCAST = 9,
 };
-
-VCMI_LIB_NAMESPACE_END

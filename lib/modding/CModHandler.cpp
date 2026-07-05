@@ -25,8 +25,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CModHandler::CModHandler()
 	: content(std::make_shared<CContentHandler>())
 	, modManager(std::make_unique<ModManager>())
@@ -353,5 +351,3 @@ bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -15,8 +15,6 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
 	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);
@@ -244,5 +242,3 @@ int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 {
 	return imageHeight;
 }
-
-VCMI_LIB_NAMESPACE_END

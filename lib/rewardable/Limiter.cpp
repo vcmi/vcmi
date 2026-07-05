@@ -20,8 +20,6 @@
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Rewardable::Limiter::Limiter()
 	: dayOfWeek(0)
 	, daysPassed(0)
@@ -332,5 +330,3 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	serializeSublimitersList("anyOf", anyOf);
 	serializeSublimitersList("noneOf", noneOf);
 }
-
-VCMI_LIB_NAMESPACE_END
