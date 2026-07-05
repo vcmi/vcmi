@@ -4,51 +4,61 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 
 ## Step 1: Download and install VCMI
 
+### Via TestFlight
+
 We're on the road to publish VCMI on the AppStore and we have TestFlight now! Please join via [this link](https://testflight.apple.com/join/pJWHSbmu)
 
-The easiest and recommended way to install on a non-jailbroken device is to install the [AltStore Classic](https://altstore.io/) or [Sideloadly](https://sideloadly.io/). We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
+### Via AltStore Classic
 
-a) Install AltStore
+Although the easiest way to install VCMI is TestFlight, you can also sideload it via [AltStore Classic](https://altstore.io/), [Sideloadly](https://sideloadly.io/), [SideStore](https://sidestore.io) etc. We will use AltStore as an example below. Using this method means the VCMI certificate is auto-signed automatically.
 
-Follow the official instructions for your operating system:
+To install AltStore, follow the official instructions for your operating system:
 
 - [AltStore Windows Classic](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows)
-- [AltStore macOS](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos)
+- [AltStore macOS Classic](https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos)
 
 **Troubleshooting Tip:** If you encounter issues enabling "Sync with this iOS device over Wi-Fi," click the rectangular icon under "Account" in iTunes. See the example below:
 
 ![iTunes](https://vcmi.eu/players/images/itunes.jpg)
 
-b) Download the VCMI-iOS.ipa file on your iOS device directly from the [latest releases](https://github.com/vcmi/vcmi/releases/latest).
+#### Add source via deeplink
 
-c) Install the IPA File
+Simply tap this link on your iOS device: <altstore-classic://source?url=https://github.com/vcmi/vcmi-updates/raw/refs/heads/master/altstore/altstore.json>
 
-To install the IPA file, choose one of the following methods:
+#### Add source manually
 
-- In AltStore:
-  1. Go to **My Apps**.
+In the iOS AltStore app:
+
+  1. Go to **Sources** tab.
   2. Press the **+** button in the top-left corner.
-  3. Select `VCMI-iOS.ipa` to install.
-- Alternatively, drag and drop the IPA file into your iOS device using iTunes.
+  3. Paste link: <https://github.com/vcmi/vcmi-updates/raw/refs/heads/master/altstore/altstore.json>
+  4. Press the **+** button on the right of the VCMI entry and confirm adding the source.
+  5. Tap the new VCMI entry.
+  6. Press the **FREE** button to install and wait for the installation to finish.
+
+### Via other sideloading methods
+
+- SideStore deeplink: <sidestore://source?url=https://github.com/vcmi/vcmi-updates/raw/refs/heads/master/altstore/altstore.json>
+- Others: go to <https://stikstore.app/altdirect/> and paste link: <https://github.com/vcmi/vcmi-updates/raw/refs/heads/master/altstore/altstore.json>
 
 ## Step 2: Installing Heroes III data files
 
-d) If you purchased HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the required files directly on your device.
+a) If you purchased HoMM3 on [GOG](https://www.gog.com/de/game/heroes_of_might_and_magic_3_complete_edition), you can download the required files directly on your device.
 
 gog.com download page:
 ![GoG-Installer](images/gog_offline_installer.png)
 
-e) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
+b) Launch the VCMI app on your device. The launcher will prompt you to upload two files to complete the installation.
 
-f) First, select the **.exe** file, then select the **.bin** file.
+c) First, select the **.exe** file, then select the **.bin** file.
 
 ![image](https://github.com/user-attachments/assets/9a02a76f-bb2e-45ad-b2fe-ffd97112021f)
 
-g) The process may take a few seconds. Please be patient.
+d) The process may take a few seconds. Please be patient.
 
 ## Step 3: Configuration settings
 
-h) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
+e) After installing VCMI, open the launcher and go to **Settings** in the left sidebar. Adjust the following video settings for the best experience:
 
 - Set **Reserved Screen Area** to **0%**.
 - Increase **Interface Scaling** to the maximum value suitable for your device (e.g., 250% for an 11" iPad Air).
