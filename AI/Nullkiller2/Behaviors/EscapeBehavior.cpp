@@ -167,6 +167,9 @@ Goals::TGoalVec EscapeBehavior::decompose(const Nullkiller * aiNk) const
 
 	for(const CGHeroInstance * candidateHero : aiNk->cc->getHeroesInfo())
 	{
+		if(aiNk->isHeroLocked(candidateHero))
+			continue;
+
 		const auto & threat = aiNk->dangerHitMap->getTileThreat(candidateHero->visitablePos()).fastestDanger;
 		if(isHeroImmediatelyThreatened(candidateHero, threat, safeAttackRatio))
 			threatenedHeroes[candidateHero] = threat;

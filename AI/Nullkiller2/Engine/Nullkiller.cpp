@@ -68,6 +68,14 @@ bool canUseOpenMap(const std::shared_ptr<CCallback>& cb, const PlayerColor playe
 	return !hasHumanInTeam;
 }
 
+std::vector<HitMapInfo> getTownThreatsForDefenderReservation(const CGTownInstance * town, const Nullkiller * aiNk)
+{
+	std::vector<HitMapInfo> threats = aiNk->dangerHitMap->getTownThreats(town);
+	threats.push_back(aiNk->dangerHitMap->getObjectThreat(town).fastestDanger);
+
+	return threats;
+}
+
 void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * aiGwInput)
 {
 	cc = cbInput;
@@ -360,9 +368,84 @@ void Nullkiller::updateState()
 	}
 }
 
+const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance * town) const
+{
+	const auto threats = getTownThreatsForDefenderReservation(town, this);
+	const auto safeAttackRatio = settings->getSafeAttackRatio();
+	const CGHeroInstance * result = nullptr;
+	int bestCoveredThreats = 0;
+	uint64_t bestStrength = 0;
+
+	const auto evaluateHero = [&](const CGHeroInstance * hero)
+	{
+		if(!hero)
+			return;
+
+		const int coveredThreats = Goals::countTownThreatsCoveredByDefender(*town, *hero, threats, safeAttackRatio);
+		const bool reserveDefender = Goals::shouldReserveTownDefender(*town, *hero, threats, safeAttackRatio);
+		const uint64_t strength = hero->getTotalStrength();
+
+		if(!reserveDefender)
+			return;
+
+		if(coveredThreats > bestCoveredThreats || (coveredThreats == bestCoveredThreats && strength > bestStrength))
+		{
+			result = hero;
+			bestCoveredThreats = coveredThreats;
+			bestStrength = strength;
+		}
+	};
+
+	evaluateHero(town->getGarrisonHero());
+	evaluateHero(town->getVisitingHero());
+
+	return result;
+}
+
+void Nullkiller::reserveRequiredTownDefenders()
+{
+	for(const auto * town : cc->getTownsInfo())
+	{
+		const auto * defender = findRequiredTownDefender(town);
+
+		if(!defender || getHeroLockedReason(defender) != HeroLockedReason::NOT_LOCKED)
+			continue;
+
+		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
+		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
+	}
+
+	for(const auto * town : cc->getTownsInfo())
+	{
+		const auto * garrisonHero = town->getGarrisonHero();
+
+		if(!garrisonHero || getHeroLockedReason(garrisonHero) != HeroLockedReason::NOT_LOCKED)
+			continue;
+
+		logAi->debug("Keeping %s in garrison of %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
+		lockedHeroes[garrisonHero] = HeroLockedReason::DEFENCE;
+	}
+}
+
 bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
 {
 	return getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED;
+}
+
+void Nullkiller::lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason)
+{
+	if(!hero)
+		return;
+
+	lockedHeroes[hero] = lockReason;
+}
+
+void Nullkiller::unlockHero(const CGHeroInstance * hero)
+{
+	if(!hero)
+		return;
+
+	lockedHeroes.erase(hero);
 }
 
 bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
@@ -416,6 +499,8 @@ void Nullkiller::makeTurn()
 
 		if (!updateStateAndExecutePriorityPass(tasks, pass))
 			return;
+
+		reserveRequiredTownDefenders();
 
 		tasks.clear();
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);

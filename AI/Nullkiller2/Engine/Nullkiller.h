@@ -135,8 +135,8 @@ public:
 	ObjectInstanceID getTargetObject() const { return targetObject; }
 	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
 	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
-	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason) { lockedHeroes[hero] = lockReason; }
-	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
+	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
+	void unlockHero(const CGHeroInstance * hero);
 	bool arePathHeroesLocked(const AIPath & path) const;
 	TResources getFreeResources() const;
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
@@ -153,6 +153,8 @@ public:
 private:
 	void resetState();
 	void updateState();
+	void reserveRequiredTownDefenders();
+	const CGHeroInstance * findRequiredTownDefender(const CGTownInstance * town) const;
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlanAndFilter(Goals::TGoalVec & tasks, int priorityTier) const;

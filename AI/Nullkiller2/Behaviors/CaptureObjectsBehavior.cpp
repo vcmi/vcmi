@@ -89,6 +89,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			continue;
 		}
 
+		if(nullkiller->arePathHeroesLocked(path))
+			continue;
+
 		auto firstBlockedAction = path.getFirstBlockedAction();
 		if(firstBlockedAction)
 		{
@@ -138,11 +141,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 				closestWay = &path;
 			}
 
-			if(!nullkiller->arePathHeroesLocked(path))
-			{
-				waysToVisitObj.push_back(newWay);
-				tasks[tasks.size() - 1] = sharedPtr;
-			}
+			waysToVisitObj.push_back(newWay);
+			tasks[tasks.size() - 1] = sharedPtr;
 		}
 	}
 
