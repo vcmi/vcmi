@@ -38,8 +38,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///helpers
 static std::string visitedTxt(const bool visited)
 {
@@ -1324,5 +1322,3 @@ std::string HillFort::getUnavailableUpgradeMessage() const
 	assert(getObjectHandler()->getModScope() != "core");
 	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
 }
-
-VCMI_LIB_NAMESPACE_END

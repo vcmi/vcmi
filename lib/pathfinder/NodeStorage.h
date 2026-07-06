@@ -12,8 +12,6 @@
 #include "INodeStorage.h"
 #include "CGPathNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE NodeStorage : public INodeStorage
 {
 private:
@@ -50,5 +48,3 @@ public:
 
 	void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 };
-
-VCMI_LIB_NAMESPACE_END

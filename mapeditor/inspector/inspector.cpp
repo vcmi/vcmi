@@ -979,7 +979,7 @@ QTableWidgetItem * Inspector::addProperty(const std::set<PlayerColor> & value)
 {
 	QString tooltip = QObject::tr("Available for:\n");
 	QStringList colors;
-	if(value.size() > 0)
+	if(!value.empty())
 		for (const PlayerColor &color : value)
 			colors << QString::fromStdString(PlayerColor::encode(color));
 

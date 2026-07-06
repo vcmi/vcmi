@@ -18,8 +18,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBuilding;
 class CTown;
 
@@ -86,5 +84,3 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
-
-VCMI_LIB_NAMESPACE_END

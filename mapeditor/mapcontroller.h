@@ -15,12 +15,9 @@
 #include "lib/modding/ModVerificationInfo.h"
 #include "../lib/callback/EditorCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
 class EditorObstaclePlacer;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 class EditorMainWindow;
 class MapController : public QObject

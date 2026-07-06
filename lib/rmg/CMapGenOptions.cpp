@@ -21,8 +21,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), levels(2),
 	humanOrCpuPlayerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
@@ -662,7 +660,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 
 int CMapGenOptions::countHumanPlayers() const
 {
-	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(std::ranges::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == EPlayerType::HUMAN;
 	}));
@@ -670,7 +668,7 @@ int CMapGenOptions::countHumanPlayers() const
 
 int CMapGenOptions::countCompOnlyPlayers() const
 {
-	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(std::ranges::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == EPlayerType::COMP_ONLY;
 	}));
@@ -870,5 +868,3 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 		resetPlayersMap();
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

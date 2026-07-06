@@ -147,7 +147,7 @@ RandomMapTab::RandomMapTab():
 	{
 		auto getTemplates = [](){
 			auto templates = LIBRARY->tplh->getTemplates();
-			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
+			std::ranges::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
 			});
 			return templates;

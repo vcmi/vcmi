@@ -13,8 +13,6 @@
 #include "Filesystem.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
 {
 	for(auto entry : config.Struct())
@@ -79,7 +77,7 @@ CFilesystemList::~CFilesystemList()
 std::unique_ptr<CInputStream> CFilesystemList::load(const ResourcePath & resourceName) const
 {
 	// load resource from last loader that have it (last overridden version)
-	for(const auto & loader : boost::adaptors::reverse(loaders))
+	for(const auto & loader : std::views::reverse(loaders))
 		if (loader->existsResource(resourceName))
 			return loader->load(resourceName);
 
@@ -141,7 +139,7 @@ std::unordered_set<ResourcePath> CFilesystemList::getFilteredFiles(std::function
 bool CFilesystemList::createResource(const std::string & filename, bool update)
 {
 	logGlobal->trace("Creating %s", filename);
-	for (auto & loader : boost::adaptors::reverse(loaders))
+	for (auto & loader : std::views::reverse(loaders))
 	{
 		if (writeableLoaders.count(loader.get()) != 0                       // writeable,
 			&& loader->createResource(filename, update))          // successfully created
@@ -164,7 +162,7 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 	std::vector<const ISimpleResourceLoader *> ret;
 
 	for(const auto & loader : loaders)
-		boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
+		std::ranges::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
 
 	return ret;
 }
@@ -195,7 +193,7 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 
 std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : boost::adaptors::reverse(loaders))
+	for (const auto& loader : std::views::reverse(loaders))
 		if (loader->existsResource(resourceName))
 			return loader->getFullFileURI(resourceName);
 
@@ -205,12 +203,10 @@ std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) co
 
 std::time_t CFilesystemList::getLastWriteTime(const ResourcePath& resourceName) const
 {
-	for (const auto& loader : boost::adaptors::reverse(loaders))
+	for (const auto& loader : std::views::reverse(loaders))
 		if (loader->existsResource(resourceName))
 			return loader->getLastWriteTime(resourceName);
 
 	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
 		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
 }
-
-VCMI_LIB_NAMESPACE_END

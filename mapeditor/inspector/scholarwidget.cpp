@@ -21,12 +21,8 @@
 #include "lib/modding/IdentifierStorage.h"
 #include "lib/spells/CSpellHandler.h"
 
-const std::string ScholarWidget::presetNotFoundWarning =
-	"<font color='red'>The scholar has %1 preset set to \"%2\", "
-	"but the value is unknown. Maybe it is a mod configuration problem?</font color='red'>";
-
 ScholarWidget::ScholarWidget(CRewardableObject & scholar, MapController & controller, QWidget * parent)
-	: scholar(scholar), controller(controller), QDialog(parent), extractor(controller.getCallback()), ui(new Ui::ScholarWidget)
+	: QDialog(parent), ui(new Ui::ScholarWidget), scholar(scholar), extractor(controller.getCallback()), controller(controller)
 {
 	ui->setupUi(this);
 	rewardsData = {
@@ -145,13 +141,13 @@ void ScholarWidget::changeComboBoxesAllowedState()
 
 void ScholarWidget::showInvalidPresetWarning(std::string type, std::string name)
 {
-	auto warning = tr(presetNotFoundWarning.c_str()).arg(type.c_str()).arg(name.c_str());
+	auto warning = tr(presetNotFoundWarning).arg(type.c_str()).arg(name.c_str());
 	ui->label->setText(warning);
 	adjustSize();
 }
 
 ScholarDelegate::ScholarDelegate(MapController & controller, CRewardableObject & scholar)
-	: BaseInspectorItemDelegate(), controller(controller), scholar(scholar)
+	: BaseInspectorItemDelegate(), scholar(scholar), controller(controller)
 {
 }
 

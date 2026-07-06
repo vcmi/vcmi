@@ -13,8 +13,6 @@
 #include "ArtSlotInfo.h"
 #include "../../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArtifactInstance;
 class CMap;
 
@@ -65,5 +63,3 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
-
-VCMI_LIB_NAMESPACE_END

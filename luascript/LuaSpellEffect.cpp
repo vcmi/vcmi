@@ -30,8 +30,6 @@ static const std::string GET_HEALTH_CHANGE = "getHealthChange";
 static const std::string ADJUST_AFFECTED_HEXES = "adjustAffectedHexes";
 static const std::string ADJUST_TARGET_TYPES = "adjustTargetTypes";
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace effects
@@ -142,5 +140,3 @@ std::shared_ptr<scripting::LuaContext> LuaSpellEffect::resolveScript(const Mecha
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -33,8 +33,6 @@
 #include "../spells/CSpell.h"
 
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
 	assert(pack.player.isValidPlayer());
@@ -1331,6 +1329,7 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		switch(pack.ba.actionType)
 		{
 			case EActionType::DEFEND:
+				st->defending = true;
 				st->waiting = false;
 				break;
 			case EActionType::WAIT:
@@ -1398,7 +1397,7 @@ void GameStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 
 void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 {
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == battleID;
 	});
@@ -1422,7 +1421,7 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 {
 	restorePreBattleState(pack.battleID);
 
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1456,7 +1455,7 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	for(auto & movingPack : pack.movingArtifacts)
 		movingPack.visit(*this);
 
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1474,7 +1473,7 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 
 void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)
 {
-	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	auto battleIter = std::ranges::find_if(gs.currentBattles, [&](const auto & battle)
 	{
 		return battle->battleID == pack.battleID;
 	});
@@ -1684,5 +1683,3 @@ void BattleStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 		}
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

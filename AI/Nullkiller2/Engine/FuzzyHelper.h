@@ -9,11 +9,9 @@
 */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class int3;
 class CGObjectInstance;
 class CGHeroInstance;
-VCMI_LIB_NAMESPACE_END
 
 namespace NK2AI
 {

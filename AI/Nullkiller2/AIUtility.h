@@ -196,6 +196,8 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
+double normalizeHeroStrength(double heroStrength);
+double getNormalizedHeroStrength(const CGHeroInstance * hero);
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet *, uint64_t dangerStrength, float safeAttackRatio);
 

@@ -23,8 +23,6 @@
 #include "BattleHexArray.h"
 #include "UnitState.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 using ::battle::IUnitInfo;
@@ -120,5 +118,3 @@ LuaUnitState UnitProxy::copy(const Unit & unit)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

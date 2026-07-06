@@ -11,8 +11,6 @@
 
 #include "IBattleCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CPackForServer;
 
 class IBattleInfo;
@@ -41,5 +39,3 @@ public:
 	void onBattleEnded(const BattleID & battleID);
 	std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> getActiveBattles();
 };
-
-VCMI_LIB_NAMESPACE_END

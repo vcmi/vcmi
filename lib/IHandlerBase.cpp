@@ -16,8 +16,6 @@
 #include "modding/CModHandler.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string IHandlerBase::getScopeBuiltin()
 {
 	return ModScope::scopeBuiltin();
@@ -45,5 +43,3 @@ std::optional<int32_t> IHandlerBase::resolveIdentifier(const std::string & scope
 {
 	return LIBRARY->identifiersHandler->getIdentifier(scope, typeName, name);
 }
-
-VCMI_LIB_NAMESPACE_END

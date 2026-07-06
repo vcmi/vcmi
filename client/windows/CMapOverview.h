@@ -9,9 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
-VCMI_LIB_NAMESPACE_END
 #include "CWindowObject.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../gui/InterfaceObjectConfigurable.h"

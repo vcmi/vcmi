@@ -12,8 +12,6 @@
 
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class JsonSerializeFormat;
 class Services;
@@ -58,5 +56,3 @@ private:
 	void loadLayer(const std::string & modScope, const std::string & sourcePath);
 };
 }
-
-VCMI_LIB_NAMESPACE_END

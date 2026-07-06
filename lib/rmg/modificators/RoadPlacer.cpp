@@ -23,8 +23,6 @@
 #include "../../TerrainHandler.h"
 #include "../../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TerrainType;
 
 void RoadPlacer::process()
@@ -255,5 +253,3 @@ char RoadPlacer::dump(const int3 & t)
 		return 'i';
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

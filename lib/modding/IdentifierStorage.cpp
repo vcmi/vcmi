@@ -19,8 +19,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CIdentifierStorage::CIdentifierStorage()
 {
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
@@ -514,7 +512,7 @@ void CIdentifierStorage::debugDumpIdentifiers()
 	}
 
 	for(auto & category : objectList)
-		boost::range::sort(category.second);
+		std::ranges::sort(category.second);
 
 	for(const auto & category : objectList)
 	{
@@ -537,5 +535,3 @@ std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

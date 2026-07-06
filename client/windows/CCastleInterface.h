@@ -12,16 +12,12 @@
 #include "CWindowObject.h"
 #include "../widgets/Images.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CBuilding;
 class CGTownInstance;
 class CSpell;
 struct CStructure;
 class CGHeroInstance;
 class CCreature;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CCastleBuildings;
@@ -104,8 +100,6 @@ class CHeroGSlot : public CIntObject
 	HeroSlots * owner;
 	const CGHeroInstance * hero;
 	int upg; //0 - up garrison, 1 - down garrison
-
-	auto getUpgradableSlots(const CArmedInstance *obj) const;
 
 public:
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner);
@@ -242,6 +236,7 @@ class CCastleInterface final : public CStatusbarWindow, public IGarrisonHolder, 
 	std::shared_ptr<CButton> fastArmyPurchase;
 	std::shared_ptr<LRClickableArea> fastMarket;
 	std::shared_ptr<LRClickableArea> fastWiki;
+	std::shared_ptr<CIntObject> townRadialArea;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 

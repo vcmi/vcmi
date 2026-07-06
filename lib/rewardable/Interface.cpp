@@ -27,8 +27,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::vector<ui32> Rewardable::Interface::getAvailableRewards(const CGHeroInstance * hero, Rewardable::EEventType event) const
 {
 	std::vector<ui32> ret;
@@ -428,5 +426,3 @@ void Rewardable::Interface::onBlockingDialogAnswered(IGameEventCallback & gameEv
 		throw std::runtime_error("Unhandled choice");
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -26,7 +26,6 @@
 
 #include "../vcmiqt/convpathqstring.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 using NumericPointer = typename std::conditional_t<sizeof(void *) == sizeof(unsigned long long),
 												 unsigned long long, unsigned int>;

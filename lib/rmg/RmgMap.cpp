@@ -39,8 +39,6 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
@@ -419,5 +417,3 @@ void RmgMap::dump(bool zoneId) const
 	}
 	out << std::endl;
 }
-
-VCMI_LIB_NAMESPACE_END

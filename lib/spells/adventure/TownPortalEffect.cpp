@@ -21,8 +21,6 @@
 #include "../../mapping/CMap.h"
 #include "../../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TownPortalEffect::TownPortalEffect(const CSpell * s, const JsonNode & config)
 	: TownRelatedAdventureSpellEffect(s, config["allowTownSelection"].Bool(), config["skipOccupiedTowns"].Bool())
 	, movementPointsRequired(config["movementPointsRequired"].Integer())
@@ -186,5 +184,3 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 		env->apply(smp);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 #pragma once
 #include "../Zone.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const float VISITABLE_PENALTY = 1.33f;
 
 class RoadPlacer: public Modificator
@@ -48,5 +46,3 @@ protected:
 
 	bool noRoadNodes = false;
 };
-
-VCMI_LIB_NAMESPACE_END

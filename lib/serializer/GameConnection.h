@@ -13,8 +13,6 @@
 
 enum class ESerializationVersion : int32_t;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BinaryDeserializer;
 class BinarySerializer;
 struct CPack;
@@ -55,5 +53,3 @@ public:
 	void setCallback(IGameInfoCallback & cb);
 	void setSerializationVersion(ESerializationVersion version);
 };
-
-VCMI_LIB_NAMESPACE_END

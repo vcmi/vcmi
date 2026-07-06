@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include <vstd/DateUtils.h>
+
 #include "../server/CVCMIServer.h"
 
 #include "../lib/CConsoleHandler.h"
@@ -32,7 +34,7 @@
 #include <vcmi/scripting/Service.h>
 
 static const std::string SERVER_NAME_AFFIX = "server";
-static const std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
+static const std::string SERVER_NAME = std::string(GameConstants::VCMI_PROJECT_NAME_VERSIONED) + " (" + SERVER_NAME_AFFIX + ')';
 
 static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 {
@@ -253,8 +255,9 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	if(options.count("help"))
 	{
 		auto time = std::time(nullptr);
-		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
+		std::tm tm = vstd::safeLocalTime(time);
+		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", tm.tm_year + 1900);
 		printf("This is free software; see the source for copying conditions. There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		printf("\n");
@@ -277,7 +280,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 
 	if(options.count("version"))
 	{
-		printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+		printf("%s\n", GameConstants::VCMI_VERSION);
 		std::cout << VCMIDirs::get().genHelpString();
 		exit(0);
 	}

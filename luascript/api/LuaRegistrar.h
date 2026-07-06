@@ -12,8 +12,6 @@
 
 #include "MethodRegistrar.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -42,5 +40,3 @@ private:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

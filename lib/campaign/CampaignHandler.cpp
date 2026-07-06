@@ -28,8 +28,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	if (input.front() < uint8_t(' ')) // binary format
@@ -571,5 +569,3 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 		return ret;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

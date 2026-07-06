@@ -11,9 +11,7 @@
 
 #include "ImageLocator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 
 class ISharedImage;
 class CanvasImage;
@@ -88,6 +86,7 @@ private:
 	CanvasPtr createStackExperienceIcon(const std::string & iconId) const;
 	CanvasPtr createStackExperienceInactiveOverlay() const;
 	CanvasPtr createAdventureOptionsBackground(PlayerColor color) const;
+	CanvasPtr createDeadCommanderOverlay() const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);

@@ -44,12 +44,22 @@ set(test_SRCS
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
 		map/MapComparer.cpp
+		map/TinyH3MBuilderTest.cpp
+
+		quest/QuestTest.cpp
+		quest/QuestAssertions.cpp
+		quest/QuestScenarios.cpp
+		quest/CQuestLoaderTest.cpp
+		quest/CQuestSeerTest.cpp
+		quest/CQuestGuardTest.cpp
+		quest/CQuestBorderTest.cpp
 
 		netpacks/NetPackFixture.cpp
 
 #TODO		scripting/BindingsCoverageTest.cpp
 
 		spells/AbilityCasterTest.cpp
+		spells/AdventureSpellEffectTest.cpp
 		spells/CSpellTest.cpp
  		spells/TargetConditionTest.cpp
 
@@ -87,8 +97,11 @@ set(test_SRCS
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
+ 		mock/mock_MapServiceTinyH3M.cpp
  		mock/mock_BonusBearer.cpp
 		mock/mock_CPSICallback.cpp
+		mock/TinyH3MWriter.cpp
+		mock/TinyH3MBuilder.cpp
 )
 
 set(test_HEADERS
@@ -110,8 +123,15 @@ set(test_HEADERS
 		mock/mock_CStack.h
 		mock/mock_IGameEventCallback.h
  		mock/mock_MapService.h
+ 		mock/mock_MapServiceTinyH3M.h
 		mock/mock_BonusBearer.h
 		mock/TownFake.h
+		mock/TinyH3MWriter.h
+		mock/TinyH3MBuilder.h
+
+		quest/QuestTest.h
+		quest/QuestAssertions.h
+		quest/QuestScenarios.h
 )
 
 if(ENABLE_BATTLE_AI)
@@ -122,7 +142,28 @@ if(ENABLE_BATTLE_AI)
 		${BATTLE_AI_TEST_SRCS}
 		battleAI/SpellTargetsEvaluatorTest.cpp
 	)
+endif()
 
+if(ENABLE_NULLKILLER2_AI)
+	list(APPEND test_SRCS
+		nullkiller2/Analyzers/ObjectClusterizerTest.cpp
+		nullkiller2/Behaviors/DefenceBehaviorTest.cpp
+		nullkiller2/Behaviors/EscapeBehaviorTest.cpp
+		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
+		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Engine/TaskFailureTest.cpp
+		nullkiller2/Goals/BuyArmyTest.cpp
+		nullkiller2/Goals/CompositionTest.cpp
+		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
+		nullkiller2/Helpers/ExplorationHelperTest.cpp
+		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
+		nullkiller2/Pathfinding/ArmyLossTest.cpp
+		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
+	)
+
+	list(APPEND test_HEADERS
+		nullkiller2/Nulkiller2TestUtils.h
+	)
 endif()
 
 assign_source_group(${test_SRCS} ${test_HEADERS})
@@ -146,6 +187,10 @@ set(mock_HEADERS
 if(MSVC)
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
 endif()
+check_cxx_compiler_flag(-Wcharacter-conversion CHARCONV)
+if(CHARCONV)
+	add_compile_options(-Wno-error=character-conversion) #Used in googletest
+endif()
 check_cxx_compiler_flag(-Wimplicit-int-float-conversion CONV)
 if(CONV)
 	add_compile_options(-Wno-error=implicit-int-float-conversion) #Used in googletest
@@ -161,7 +206,20 @@ endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
-target_link_libraries(vcmitest PRIVATE gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
+if(ENABLE_NULLKILLER2_AI)
+	# Nullkiller tests use internal AI symbols, so embed AI objects in vcmitest
+	# instead of linking the facade and loading a second copy of lib globals.
+	target_sources(vcmitest PRIVATE $<TARGET_OBJECTS:Nullkiller2>)
+	set(vcmitest_LIBS gtest gmock vcmiMain vcmiservercommon TBB::tbb ${SYSTEM_LIBS})
+	foreach(optional_vcmitest_target IN ITEMS vcmiLua EmptyAI StupidAI MMAI)
+		if(TARGET ${optional_vcmitest_target})
+			list(APPEND vcmitest_LIBS ${optional_vcmitest_target})
+		endif()
+	endforeach()
+else()
+	set(vcmitest_LIBS gtest gmock vcmi vcmiservercommon ${SYSTEM_LIBS})
+endif()
+target_link_libraries(vcmitest PRIVATE ${vcmitest_LIBS})
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

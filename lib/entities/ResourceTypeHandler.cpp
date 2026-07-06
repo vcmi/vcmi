@@ -16,8 +16,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::string Resource::getNameTextID() const
 {
 	if(id.getNum() < GameConstants::RESOURCE_QUANTITY) // OH3 resources
@@ -80,5 +78,3 @@ const std::vector<GameResID> & ResourceTypeHandler::getAllObjects() const
 {
 	return allObjects;
 }
-
-VCMI_LIB_NAMESPACE_END

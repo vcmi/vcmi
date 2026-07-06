@@ -14,8 +14,6 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CTown;
 class CHeroClass;
@@ -107,5 +105,3 @@ public:
 		h & currentTavern;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -22,8 +22,6 @@
 #include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapGenOptions;
 class CampaignState;
 class CMapInfo;
@@ -207,7 +205,6 @@ struct DLL_LINKAGE LobbyState
 	// Before start both go into CCampaignState that is part of StartInfo
 	CampaignScenarioID campaignMap;
 	int campaignBonus;
-
 	LobbyState() : si(new StartInfo()), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h)
@@ -280,5 +277,3 @@ public:
 		h & spells;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

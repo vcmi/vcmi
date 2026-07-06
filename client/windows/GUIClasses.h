@@ -14,15 +14,11 @@
 #include "../widgets/Images.h"
 #include "../widgets/IVideoHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CGObjectInstance;
 class CGDwelling;
 class IMarket;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class LRClickableArea;
@@ -431,7 +427,7 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowObject, public IGarrisonHolder
+class CGarrisonWindow : public CStatusbarWindow, public IGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CAnimImage> banner;

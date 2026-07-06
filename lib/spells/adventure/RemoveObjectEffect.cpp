@@ -19,8 +19,6 @@
 #include "../../networkPacks/PacksForClient.h"
 #include "../../modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
 	, owner(s)
@@ -80,5 +78,3 @@ ESpellCastResult RemoveObjectEffect::applyAdventureEffects(SpellCastEnvironment 
 	env->apply(ro);
 	return ESpellCastResult::OK;
 }
-
-VCMI_LIB_NAMESPACE_END

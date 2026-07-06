@@ -15,8 +15,6 @@
 
 #include "MapDifficulty.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonSerializeFormat;
 
 /// The map event is an event which e.g. gives or takes resources of a specific
@@ -61,5 +59,3 @@ public:
 
 	virtual void serializeJson(JsonSerializeFormat & handler);
 };
-
-VCMI_LIB_NAMESPACE_END

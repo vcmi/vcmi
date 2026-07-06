@@ -9,14 +9,10 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EInfoWindowMode : uint8_t
 {
 	AUTO,
 	MODAL,
 	INFO
 };
-
-VCMI_LIB_NAMESPACE_END
 

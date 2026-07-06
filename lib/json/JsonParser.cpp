@@ -15,8 +15,6 @@
 #include "../texts/TextOperations.h"
 #include "JsonFormatException.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonParser::JsonParser(const std::byte * inputString, size_t stringSize, const JsonParsingSettings & settings)
     : JsonParser(reinterpret_cast<const char*>(inputString), stringSize, settings) // NOSONAR
 {
@@ -623,5 +621,3 @@ bool JsonParser::error(const std::string & message, bool warning)
 
 	return warning;
 }
-
-VCMI_LIB_NAMESPACE_END

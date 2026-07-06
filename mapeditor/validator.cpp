@@ -87,9 +87,9 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				continue;
 
 			if(o->isVisitable() && !map->isInTheMap(o->visitablePos()))
-				issues.insert({ tr("Object's %1 visitable position %2 is outside of the map bounds")
+				issues.emplace(tr("Object's %1 visitable position %2 is outside of the map bounds")
 					.arg(o->instanceName.c_str())
-					.arg(QString::fromStdString(o->visitablePos().toString())), false });
+					.arg(QString::fromStdString(o->visitablePos().toString())), false);
 
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
@@ -161,9 +161,8 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			{
 				if(!presetIsValid(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities))
 				{
-					issues.insert({tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward")
-						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true}
-					);
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
 				}
 			}
 			if(o->ID == MapObjectID::SCHOLAR)
@@ -171,8 +170,8 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 				if(!presetIsValid(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities)
 				   || !presetIsValid(map, o, "spell", "gainedSpell", map->allowedSpells))
 				{
-					issues.insert({tr("A scholar at x: %1 y: %2 on %3 layer holds an invalid reward")
-						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true});
+					issues.emplace(tr("A scholar at x: %1 y: %2 on %3 layer holds an invalid reward")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
 				}
 			}
 		}
@@ -217,11 +216,10 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 					const QString placeholderName = placeholder->heroType.has_value() ?
 						QString::fromStdString(placeholder->heroType->toHeroType()->getNameTranslated()) :
 						Validator::tr("hero placeholder");
-					issues.insert({
+					issues.emplace(
 						Validator::tr("Triggered event '%1' uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.")
 							.arg(event.identifier.c_str(), conditionName, placeholderName, QString::fromStdString(condition.position.toString())),
-						false
-					});
+						false);
 				}
 
 				return condition;

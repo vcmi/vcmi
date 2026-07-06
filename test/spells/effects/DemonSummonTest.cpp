@@ -101,7 +101,6 @@ public:
 	const int64_t corpseTotalHealth = 1000;
 	const int64_t effectValue = 400;
 	const BattleHex corpsePosition = BattleHex(5, 5);
-	// finalAmount = min(floor(1000/200)=5, 10, floor(400/200)=2) = 2
 	const int32_t expectedAmount = 2;
 
 	bool permanent;

@@ -14,8 +14,6 @@
 #include "../constants/NumericConstants.h"
 #include "../constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArmedInstance;
 class IGameInfoCallback;
 
@@ -35,5 +33,3 @@ struct DLL_EXPORT BattleLayout
 	static BattleLayout createDefaultLayout(const IGameInfoCallback & gameInfo, const CArmedInstance * attacker, const CArmedInstance * defender);
 	static BattleLayout createLayout(const IGameInfoCallback & gameInfo, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender);
 };
-
-VCMI_LIB_NAMESPACE_END

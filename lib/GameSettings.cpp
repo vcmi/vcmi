@@ -11,8 +11,6 @@
 #include "GameSettings.h"
 #include "json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool IGameSettings::getBoolean(EGameSettings option) const
 {
 	return getValue(option).Bool();
@@ -207,5 +205,3 @@ JsonNode GameSettings::getAllOverrides() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

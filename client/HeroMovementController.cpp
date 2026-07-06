@@ -388,7 +388,7 @@ void HeroMovementController::sendMovementRequest(const CGHeroInstance * h, const
 	bool useTransit = currentLayer == EPathfindingLayer::AIR || currentLayer == EPathfindingLayer::WATER;
 	std::vector<int3> pathToMove;
 
-	for (auto const & node : boost::adaptors::reverse(path.nodes))
+	for (auto const & node : std::views::reverse(path.nodes))
 	{
 			if (node.coord == h->visitablePos())
 				continue; // first node, ignore - this is hero current position

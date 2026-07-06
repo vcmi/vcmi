@@ -11,8 +11,6 @@
 #pragma once
 #include "../Zone.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class RockFiller: public Modificator
 {
 public:
@@ -24,5 +22,3 @@ public:
 	
 	void processMap();
 };
-
-VCMI_LIB_NAMESPACE_END

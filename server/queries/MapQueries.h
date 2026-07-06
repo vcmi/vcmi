@@ -12,12 +12,10 @@
 #include "CQuery.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGObjectInstance;
 class IObjectInterface;
 class CArmedInstance;
-VCMI_LIB_NAMESPACE_END
 
 //Created when player starts turn or when player puts game on [ause
 //Removed when player accepts a turn or continur play
@@ -98,7 +96,7 @@ public:
 
 	TeleportDialog td; //copy of pack... debug purposes
 
-	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog &td);
+	CTeleportDialogQuery(CGameHandler * owner, const TeleportDialog & dialog);
 
 	void notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const override;
 };

@@ -19,8 +19,6 @@
 #include "../callback/GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArtifactInstance;
 class CArtifactSet;
 class CGObjectInstance;
@@ -405,5 +403,3 @@ inline const TerrainTile & CMap::getTile(const int3 & tile) const
 	assert(isInTheMap(tile));
 	return terrain[tile];
 }
-
-VCMI_LIB_NAMESPACE_END

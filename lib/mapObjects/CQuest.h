@@ -14,8 +14,6 @@
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGCreature;
 
 enum class EQuestMission {
@@ -252,5 +250,3 @@ public:
 
 	bool passableFor(PlayerColor color) const override;
 };
-
-VCMI_LIB_NAMESPACE_END

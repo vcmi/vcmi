@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGlobalAI;
 class CBattleGameInterface;
 
@@ -22,5 +20,3 @@ namespace AIFactory
 	/// Returns true if the given name maps to a known statically-linked adventure AI.
 	DLL_LINKAGE bool isAvailableAdventureAI(const std::string & name);
 }
-
-VCMI_LIB_NAMESPACE_END

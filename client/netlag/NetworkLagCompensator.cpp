@@ -126,7 +126,7 @@ bool NetworkLagCompensator::verifyReply(const CPackForClient & pack)
 	else
 	{
 		// Prediction was incorrect - rollback everything that is left in this prediction and use real server packs
-		for(auto & prediction : boost::adaptors::reverse(predictedReplies.front().writtenPacks))
+		for(auto & prediction : std::views::reverse(predictedReplies.front().writtenPacks))
 		{
 			for(auto & pack : prediction.rollbackPacks)
 				GAME->server().client->handlePack(*pack);

@@ -16,8 +16,6 @@
 #include "../../constants/Enumerations.h"
 #include "../../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CTown;
 
 struct DLL_LINKAGE SPuzzleInfo
@@ -78,5 +76,3 @@ public:
 	EAlignment getAlignment() const override;
 	BoatId getBoatType() const override;
 };
-
-VCMI_LIB_NAMESPACE_END

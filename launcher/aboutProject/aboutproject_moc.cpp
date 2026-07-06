@@ -73,7 +73,7 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
 	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
 	ui->lineEditConfigDir->setText(pathToQString(VCMIDirs::get().userConfigPath()));
-	ui->lineEditBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
+	ui->lineEditBuildVersion->setText(QString(GameConstants::VCMI_VERSION));
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
 
 #ifdef VCMI_MOBILE
@@ -147,7 +147,7 @@ static QString gatherDeviceInfo()
 {
 	QString info;
 	QTextStream ts(&info);
-	ts << "VCMI version: " << QString::fromStdString(GameConstants::VCMI_VERSION) << '\n';
+	ts << "VCMI version: " << QString(GameConstants::VCMI_VERSION) << '\n';
 	ts << "Operating system: " << QSysInfo::prettyProductName() << " (" << QSysInfo::kernelVersion() << ")" << '\n';
 	ts << "CPU architecture: " << QSysInfo::currentCpuArchitecture() << '\n';
 	ts << "Qt version: " << QT_VERSION_STR << '\n';

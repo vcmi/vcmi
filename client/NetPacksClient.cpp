@@ -460,6 +460,8 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	const CGObjectInstance *o = cl.gameInfo().getObj(pack.objectID);
+	if(!o)
+		return;
 	const auto * h = dynamic_cast<const CGHeroInstance*>(o);
 
 	GAME->map().onObjectFadeOut(o, pack.initiator);
@@ -474,7 +476,8 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		if(gs.isVisibleFor(o, i->first) || (!cl.gameInfo().getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
+		const auto * playerState = cl.gameInfo().getPlayerState(i->first);
+		if(gs.isVisibleFor(o, i->first) || (playerState && !playerState->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 		{
 			i->second->objectRemoved(o, pack.initiator);
 			if (h && h->inBoat())

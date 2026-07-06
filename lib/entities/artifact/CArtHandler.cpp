@@ -48,8 +48,6 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData()
@@ -516,5 +514,3 @@ void CArtHandler::afterLoadFinalization()
 	}
 }
 
-
-VCMI_LIB_NAMESPACE_END

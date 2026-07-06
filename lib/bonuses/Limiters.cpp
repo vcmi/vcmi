@@ -22,8 +22,6 @@
 #include "../battle/BattleInfo.h"
 #include "../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 {
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(BonusType::SHOOTER)},
@@ -634,5 +632,3 @@ ILimiter::EDecision HasChargesLimiter::limit(const BonusLimitationContext & cont
 	}
 	return ILimiter::EDecision::DISCARD;
 }
-
-VCMI_LIB_NAMESPACE_END

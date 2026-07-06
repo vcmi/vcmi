@@ -13,7 +13,6 @@
 #include "../battle/BattleHex.h"
 #include "../battle/CObstacleInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
@@ -49,4 +48,3 @@ private:
 };
 
 }//
-VCMI_LIB_NAMESPACE_END

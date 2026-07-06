@@ -15,8 +15,6 @@
 #include "../building/CBuilding.h"
 #include "../../texts/TextIdentifier.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), defaultTavernChance(0)
 {
@@ -70,5 +68,3 @@ BuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
 	const auto * building = getSpecialBuilding(subID);
 	return building == nullptr ? BuildingID::NONE : building->bid.num;
 }
-
-VCMI_LIB_NAMESPACE_END

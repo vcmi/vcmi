@@ -20,8 +20,6 @@
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Rewardable::Limiter::Limiter()
 	: dayOfWeek(0)
 	, daysPassed(0)
@@ -48,8 +46,8 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.heroLevel == r.heroLevel
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
-	&& l.movePoints == r.manaPoints
-	&& l.movePercentage == r.manaPercentage
+	&& l.movePoints == r.movePoints
+	&& l.movePercentage == r.movePercentage
 	&& l.canLearnSkills == r.canLearnSkills
 	&& l.commanderAlive == r.commanderAlive
 	&& l.hasExtraCreatures == r.hasExtraCreatures
@@ -332,5 +330,3 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	serializeSublimitersList("anyOf", anyOf);
 	serializeSublimitersList("noneOf", noneOf);
 }
-
-VCMI_LIB_NAMESPACE_END

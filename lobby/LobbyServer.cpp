@@ -148,7 +148,7 @@ void LobbyServer::sendChatHistory(const NetworkConnectionPtr & target, const std
 	reply["channelName"].String() = channelName;
 	reply["messages"].Vector(); // force creation of empty vector
 
-	for(const auto & message : boost::adaptors::reverse(history))
+	for(const auto & message : std::views::reverse(history))
 	{
 		JsonNode jsonEntry;
 

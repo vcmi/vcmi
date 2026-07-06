@@ -22,8 +22,6 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template<typename IdentifierID>
 void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName)
 {
@@ -271,5 +269,3 @@ AudioPath MapIdentifiersH3M::remapCampaignMusic(int input) const
 
 	return mappingCampaignMusic.at(input);
 }
-
-VCMI_LIB_NAMESPACE_END

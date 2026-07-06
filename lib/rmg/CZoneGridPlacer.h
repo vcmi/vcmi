@@ -10,8 +10,6 @@
 #include <memory>
 #include <vector>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -111,5 +109,3 @@ private:
 	const DistanceMap & distancesBetweenZones;
 	ScaleForceFn scaleForceBetweenZones;
 };
-
-VCMI_LIB_NAMESPACE_END

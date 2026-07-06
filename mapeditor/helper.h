@@ -17,14 +17,11 @@ class QToolButton;
 
 #include "../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
 class CampaignState;
 class CRmgTemplate;
 class IGameInfoCallback;
-VCMI_LIB_NAMESPACE_END
 
-VCMI_LIB_USING_NAMESPACE
 
 class CloseButtonPositioner : public QObject
 {

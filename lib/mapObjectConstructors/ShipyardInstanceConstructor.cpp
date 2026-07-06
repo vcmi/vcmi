@@ -14,8 +14,6 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void ShipyardInstanceConstructor::initTypeData(const JsonNode & config)
 {
 	parameters = config;
@@ -25,5 +23,3 @@ void ShipyardInstanceConstructor::initializeObject(CGShipyard * shipyard) const
 {
 	shipyard->createdBoat = BoatId(*LIBRARY->identifiers()->getIdentifier("core:boat", parameters["boat"]));
 }
-
-VCMI_LIB_NAMESPACE_END

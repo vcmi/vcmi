@@ -25,8 +25,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void WaterAdopter::process()
 {
 	createWater(map.getMapGenOptions().getWaterContent());
@@ -229,7 +227,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	Zone::Lock lock(zone.areaMutex);
 	zone.area()->subtract(waterArea);
 	zone.areaPossible()->subtract(waterArea);
-	auto centerSet = std::max_element(reverseDistanceMap.begin(), reverseDistanceMap.end(), 
+	auto centerSet = std::ranges::max_element(reverseDistanceMap,
 		[](const auto &a, const auto &b) 
 		{
 			return a.first < b.first;
@@ -271,5 +269,3 @@ char WaterAdopter::dump(const int3 & t)
 	
 	return Modificator::dump(t);
 }
-
-VCMI_LIB_NAMESPACE_END

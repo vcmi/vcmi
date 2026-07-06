@@ -10,8 +10,6 @@
 #pragma once
 #include "CBattleInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 
 class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
@@ -34,5 +32,3 @@ public:
 	InfoAboutHero battleGetEnemyHero() const;
 };
 
-
-VCMI_LIB_NAMESPACE_END

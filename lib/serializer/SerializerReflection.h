@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class Serializeable;
 class GameCallbackHolder;
@@ -67,5 +65,3 @@ public:
 
 	static CSerializationApplier & getInstance();
 };
-
-VCMI_LIB_NAMESPACE_END

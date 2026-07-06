@@ -17,8 +17,6 @@
 #include "SetRewardableConfiguration.h"
 #include "SetStackEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ICPackVisitor
 {
 public:
@@ -170,6 +168,8 @@ public:
 	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyChangeHost(LobbyChangeHost & pack) {}
+	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}
+	virtual void visitLobbyModsCheck(LobbyModsCheck & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
@@ -195,5 +195,3 @@ public:
 	virtual void visitResponseStatistic(ResponseStatistic & pack) {}
 	virtual void visitAdvInterfaceReady(AdvInterfaceReady & pack) {}
 };
-
-VCMI_LIB_NAMESPACE_END

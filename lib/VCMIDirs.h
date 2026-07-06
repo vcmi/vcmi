@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE IVCMIDirs
 {
 public:
@@ -59,5 +57,3 @@ namespace VCMIDirs
 {
 	extern DLL_LINKAGE const IVCMIDirs & get();
 }
-
-VCMI_LIB_NAMESPACE_END

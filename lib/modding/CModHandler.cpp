@@ -25,8 +25,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CModHandler::CModHandler()
 	: content(std::make_shared<CContentHandler>())
 	, modManager(std::make_unique<ModManager>())
@@ -133,7 +131,7 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 	try
 	{
 		auto activeMode = modManager->getActiveMods();
-		for(const auto & modID : boost::adaptors::reverse(activeMode))
+		for(const auto & modID : std::views::reverse(activeMode))
 		{
 			if(CResourceHandler::get(modID)->existsResource(name))
 				return modID;
@@ -353,5 +351,3 @@ bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

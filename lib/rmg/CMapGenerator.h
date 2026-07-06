@@ -13,8 +13,6 @@
 #include "CMapGenOptions.h"
 #include "../LoadProgress.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MetaString;
 class CRmgTemplate;
 class CMapGenOptions;
@@ -102,5 +100,3 @@ private:
 	void genZones();
 	void fillZones();
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -14,11 +14,7 @@
 #include "../../lib/LoadProgress.h"
 #include "../../lib/network/NetworkInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CampaignState;
-
-VCMI_LIB_NAMESPACE_END
 
 class CTextInput;
 class CGStatusBar;

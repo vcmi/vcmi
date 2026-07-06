@@ -43,8 +43,6 @@
 #include "../networkPacks/SetRewardableConfiguration.h"
 #include "../networkPacks/SetStackEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// This method defines all types that are part of Serializeable hieararchy and can be serialized as their base type
 /// Each class is registered with a unique index that is used to determine correct type on deserialization
 /// For example, if CGHeroInstance is serialized as pointer to CGObjectInstance serializer will write type index for CGHeroInstance, followed by CGHeroInstance::serialize() call
@@ -305,6 +303,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<ChangeTactics>(262);
 	s.template registerType<CompositeUpdater>(263);
 	s.template registerType<BonusParameters>(264);
+	s.template registerType<LobbyQueryState>(265);
+	s.template registerType<LobbyModsCheck>(266);
 }
-
-VCMI_LIB_NAMESPACE_END

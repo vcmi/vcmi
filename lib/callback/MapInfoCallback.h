@@ -11,8 +11,6 @@
 
 #include "IGameInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMap;
 
 class DLL_LINKAGE MapInfoCallback : public IGameInfoCallback
@@ -41,5 +39,3 @@ public:
 	const CMapHeader * getMapHeader() const override;
 
 };
-
-VCMI_LIB_NAMESPACE_END

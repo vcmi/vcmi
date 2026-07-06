@@ -10,8 +10,6 @@
 #pragma once
 #include "bonuses/Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct BattleLogMessage;
 struct BattleAttack;
 class BattleAction;
@@ -27,8 +25,6 @@ class Unit;
 struct HealInfo;
 class CUnitState;
 }
-
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class BattleProcessor;

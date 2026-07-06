@@ -259,7 +259,8 @@
                 "ENABLE_MULTI_PROCESS_BUILDS": "OFF",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "CMAKE_C_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
-                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7"
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
+				"ENABLE_COPY_CONAN_RUNTIME_DLLS": "OFF"
             }
         },
         {

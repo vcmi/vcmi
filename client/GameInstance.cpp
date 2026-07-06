@@ -105,6 +105,14 @@ bool GameInstance::capturedAllEvents()
 
 void GameInstance::onShutdownRequested(bool ask)
 {
+	if(!ENGINE)
+	{
+		if(server().client)
+			server().endGameplay();
+		server().stopNetwork();
+		return;
+	}
+
 	auto doQuit = [](){ throw GameShutdownException(); };
 
 	if(!ask)

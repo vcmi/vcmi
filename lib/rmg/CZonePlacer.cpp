@@ -29,8 +29,6 @@
 
 #include <limits>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), mapSize(0),
 	gravityConstant(1e-3f),
@@ -571,7 +569,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 	if (misplacedZones.empty())
 		return;
 
-	boost::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
+	std::ranges::sort(misplacedZones, [](const Misplacement& lhs, Misplacement& rhs)
 	{
 		return lhs.first > rhs.first; //Largest displacement first
 	});
@@ -765,7 +763,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 				{
 					distances.emplace_back(zone.second, static_cast<float>(pos.dist2dSQ(zone.second->getPos())));
 				}
-				boost::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
+				std::ranges::min_element(distances, compareByDistance)->first->area()->add(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -798,7 +796,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 			{
 				distances.emplace_back(zone.second, zone.second->getCenter().dist2dSQ(float3(vertex.x(), vertex.y(), level)));
 			}
-			auto closestZone = boost::min_element(distances, compareByDistance)->first;
+			auto closestZone = std::ranges::min_element(distances, compareByDistance)->first;
 
 			vertexMapping[closestZone].insert(int3(vertex.x() * width, vertex.y() * height, level)); //Closest vertex belongs to zone
 		}
@@ -820,7 +818,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 				}
 
 				//Tile closest to vertex belongs to zone
-				auto closestZone = boost::min_element(distances, simpleCompareByDistance)->first;
+				auto closestZone = std::ranges::min_element(distances, simpleCompareByDistance)->first;
 				closestZone->area()->add(pos);
 				map.setZoneID(pos, closestZone->getId());
 			}
@@ -888,5 +886,3 @@ const TDistanceMap& CZonePlacer::getDistanceMap()
 {
 	return distancesBetweenZones;
 }
-
-VCMI_LIB_NAMESPACE_END

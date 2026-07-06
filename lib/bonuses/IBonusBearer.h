@@ -11,8 +11,6 @@
 
 #include "Bonus.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE IBonusBearer
 {
 public:
@@ -42,5 +40,3 @@ public:
 
 	virtual int32_t getTreeVersion() const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -32,8 +32,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("sameAsTown", instanceId);
@@ -606,5 +604,3 @@ std::vector<CreatureID> CGDwelling::providedCreatures() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

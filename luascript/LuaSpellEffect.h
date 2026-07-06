@@ -14,8 +14,6 @@
 #include "../lib/spells/effects/Effect.h"
 #include "../lib/spells/effects/SpellEffectService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 namespace scripting
@@ -85,5 +83,3 @@ private:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

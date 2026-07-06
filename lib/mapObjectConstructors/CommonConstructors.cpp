@@ -27,8 +27,6 @@
 #include "../texts/TextIdentifier.h"
 #include "../texts/CGeneralTextHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CObstacleConstructor::isStaticObject()
 {
 	return true;
@@ -373,5 +371,3 @@ EPathfindingLayer BoatInstanceConstructor::getLayer() const
 {
 	return layer;
 }
-
-VCMI_LIB_NAMESPACE_END

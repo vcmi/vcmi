@@ -33,8 +33,6 @@
 #	define VCMI_LUA_PUSH_GLOBALS(L) lua_rawgeti((L), LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS)
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -408,5 +406,3 @@ int LuaContext::loadModule()
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

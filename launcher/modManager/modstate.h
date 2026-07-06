@@ -9,9 +9,7 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ModDescription;
-VCMI_LIB_NAMESPACE_END
 
 /// Class that represent current state of mod in Launcher
 /// Provides Qt-based interface to library class ModDescription

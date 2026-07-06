@@ -12,8 +12,6 @@
 
 #include "../ISpellMechanics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IAdventureSpellEffect;
 
 class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::noncopyable
@@ -37,6 +35,8 @@ public:
 	~AdventureSpellMechanics();
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const final;
+	int getCastsAlreadyPerformed(const spells::Caster * caster) const final;
 
 private:
 	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
@@ -45,5 +45,3 @@ private:
 	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
 	bool givesBonus(const spells::Caster * caster, BonusType which) const final;
 };
-
-VCMI_LIB_NAMESPACE_END

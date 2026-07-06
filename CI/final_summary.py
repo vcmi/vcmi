@@ -182,12 +182,14 @@ def _rows_for_job(j: Dict[str, Any]) -> List[Dict[str, Any]]:
     # Tests matrix
     if name.startswith("Test "):
         pretty = _test_pretty_name(name)
+        platform = name.replace("Test (", "").removesuffix(")")
         steps = j.get("steps") or []
         test_step = next((s for s in steps if s.get("name") == "Test"), None)
         status = (test_step.get("conclusion") if test_step else None) or j.get("conclusion") or "neutral"
         rows.append({
             "group": "tests",
             "name": pretty,
+            "platform": platform,
             "status": status,
             "duration": dur,
             "url": j.get("html_url"),
@@ -237,6 +239,15 @@ def _load_installer_map() -> Dict[str, str]:
         if plat and url:
             inst_map[plat] = url
     return inst_map
+
+def _load_test_cache_map() -> Dict[str, Dict[str, Any]]:
+    cache_map: Dict[str, Dict[str, Any]] = {}
+    for p in glob.glob("partials/test-*.json"):
+        obj = read_json_file(p) or {}
+        plat = obj.get("platform")
+        if plat:
+            cache_map[plat] = obj
+    return cache_map
 
 def _durations_map(val_rows: List[Dict[str, Any]]) -> Dict[str, str]:
     return {r["name"]: r.get("duration", "-") for r in val_rows if r.get("group") == "builds"}
@@ -310,15 +321,19 @@ def _render_tests_section(val_rows: List[Dict[str, Any]]) -> None:
         return
 
     append_summary("### 🧪 Tests\n")
-    append_summary("| Matrix | Status | Time | Logs |\n")
-    append_summary(ALIGN_4_COLS)
+    append_summary("| Matrix | Status | Cache statistic | Time | Logs |\n")
+    append_summary("|:--|:--:|:--:|:--:|:--:|\n")
 
     for r in rows:
         icon = status_icon(r.get("status", ""))
         dur = r.get("duration") or "-"
         url = r.get("url") or ""
         logs = f"[Logs]({url})" if url else "—"
-        append_summary(f"| {r.get('name','')} | {icon} | {dur} | {logs} |\n")
+        hits = r.get("hits")
+        total = r.get("total")
+        rate = r.get("rate")
+        cache = f"{rate} ({hits} / {total})" if hits is not None and total is not None and rate else "—"
+        append_summary(f"| {r.get('name','')} | {icon} | {cache} | {dur} | {logs} |\n")
     append_summary("\n")
 
 def _render_build_matrix_section(val_rows: List[Dict[str, Any]]) -> None:
@@ -351,6 +366,10 @@ def compose_summary() -> None:
     items = _load_primary_items()
     inst_map = _load_installer_map()
     val_rows: List[Dict[str, Any]] = read_json_file("partials/validation.json") or []
+    test_cache = _load_test_cache_map()
+    for row in val_rows:
+        if row.get("group") == "tests":
+            row.update(test_cache.get(row.get("platform", ""), {}))
     dur_map = _durations_map(val_rows)
 
     # Family tables

@@ -11,8 +11,6 @@
 
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 
 class CMapHeader;
@@ -73,5 +71,3 @@ public:
 		h & isRandomMap;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

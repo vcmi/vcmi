@@ -15,8 +15,6 @@
 
 #include "../battle/Unit.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -60,5 +58,3 @@ void AbilityCaster::spendMana(ServerCallback * server, const int32_t spellCost) 
 }
 
 } // namespace spells
-
-VCMI_LIB_NAMESPACE_END

@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class Entity;
 
 class DLL_LINKAGE EntityService
@@ -33,5 +31,3 @@ public:
 
 	virtual void forEach(const std::function<void(const EntityType * entity, bool & stop)> & cb) const = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

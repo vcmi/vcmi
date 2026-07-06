@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CLoadFile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 template <typename From, typename To>
 struct static_caster
 {
@@ -71,5 +69,3 @@ int CLoadFile::read(std::byte * data, unsigned size)
 	sfile.read(reinterpret_cast<char *>(data), size);
 	return size;
 }
-
-VCMI_LIB_NAMESPACE_END

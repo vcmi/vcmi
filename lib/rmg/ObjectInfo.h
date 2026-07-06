@@ -13,8 +13,6 @@
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapObjects/CompoundMapObjectID.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct CompoundMapObjectID;
 class CGObjectInstance;
 
@@ -42,5 +40,3 @@ struct DLL_LINKAGE ObjectInfo
 	CompoundMapObjectID getCompoundID() const;
 	//bool matchesId(const CompoundMapObjectID & id) const;
 };
-
-VCMI_LIB_NAMESPACE_END

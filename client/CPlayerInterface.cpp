@@ -118,7 +118,6 @@
 
 #include "../lib/filesystem/Filesystem.h"
 
-#include <boost/lexical_cast.hpp>
 
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.
@@ -1152,9 +1151,21 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 			return;
 		}
 
+		const bool commanderResurrectionDialog = text == LIBRARY->generaltexth->translate("vcmi.commander.resurrectionOffer");
 		std::vector<std::shared_ptr<CComponent>> intComps;
-		for (auto & component : components)
-			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
+		for(const auto & component : components)
+		{
+			auto uiComponent = std::make_shared<CComponent>(component);
+			if(commanderResurrectionDialog && intComps.empty() && component.type == ComponentType::CREATURE)
+			{
+				const auto subtitle = uiComponent->getSubtitle();
+				const auto firstSpace = subtitle.find(' ');
+				if(firstSpace != std::string::npos)
+					uiComponent = std::make_shared<CComponent>(component.type, component.subType, subtitle.substr(firstSpace + 1)); //keep only commander name
+				uiComponent->newLine = true;
+			}
+			intComps.push_back(uiComponent); //will be deleted by close in window
+		}
 
 		showYesNoDialog(text, [this, askID](){ cb->selectionMade(1, askID); }, [this, askID](){ cb->selectionMade(0, askID); }, intComps);
 	}
@@ -1388,7 +1399,10 @@ void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop
 {
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1409,7 +1423,10 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id);
+		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+
+		if(!obj)
+			return;
 
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1448,7 +1465,11 @@ void CPlayerInterface::initializeHeroTownList()
 			localState->addOwnedTown(town);
 	}
 
-	localState->deserialize(*cb->getPlayerState(playerID)->playerLocalSettings);
+	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
+	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
+	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	if(playerState)
+		localState->deserialize(*playerState->playerLocalSettings);
 
 	if(adventureInt)
 		adventureInt->onHeroChanged(nullptr);
@@ -1551,7 +1572,7 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj, const PlayerC
 void CPlayerInterface::objectRemovedAfter()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->onMapTilesChanged(boost::none);
+	adventureInt->onMapTilesChanged(std::nullopt);
 
 	// visiting or garrisoned hero removed - update window
 	if (castleInt)
@@ -1618,7 +1639,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 			{
 				char nr = name[namePrefix.size()];
 				if (std::isdigit(nr))
-					dates[last_write_time(dir->path())] = boost::lexical_cast<int>(nr);
+					dates[last_write_time(dir->path())] = nr - '0';
 			}
 		}
 	}

@@ -12,9 +12,7 @@
 #include "../render/IRenderHandler.h"
 #include "../render/CDefFile.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class EntityService;
-VCMI_LIB_NAMESPACE_END
 
 class CDefFile;
 class SDLImageShared;

@@ -9,13 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class PlayerConnectionID : int8_t
 {
 	INVALID = -1,
 	PLAYER_AI = 0,
 	FIRST_HUMAN = 1
 };
-
-VCMI_LIB_NAMESPACE_END

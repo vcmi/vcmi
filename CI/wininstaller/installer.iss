@@ -86,6 +86,11 @@
 
 #define VCMIFilesFolder "My Games\vcmi"
 
+; Display name (user-facing). VCMIFolder above is the install/registry identity and must not change.
+#ifndef VCMIDisplayName
+  #define VCMIDisplayName "VCMI - Open Heroes 3"
+#endif
+
 #define AppComment "VCMI is an open-source engine for Heroes III, offering new and extended possibilities."
 #define VCMITeam "VCMI Team"
 #define VCMICopyright "Copyright © VCMI Team. All rights reserved."
@@ -96,9 +101,9 @@
 
 [Setup]
 AppId={#VCMIFolder}.{#InstallerArch}
-AppName={#VCMIFolder}
+AppName={#VCMIDisplayName}
 AppVersion={#AppVersion}.{#AppBuild}
-AppVerName={#VCMIFolder}
+AppVerName={#VCMIDisplayName}
 AppPublisher={#VCMITeam}
 AppPublisherURL={#VCMIHome}
 AppSupportURL={#VCMIContact}
@@ -133,8 +138,8 @@ WizardImageFile={#WizardLogo}
 ; Version informations
 MinVersion=6.1sp1
 VersionInfoCompany={#VCMITeam}
-VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
-VersionInfoProductName={#VCMIFolder}
+VersionInfoDescription={#VCMIDisplayName} {#AppVersion} Setup (Build {#AppBuild})
+VersionInfoProductName={#VCMIDisplayName}
 VersionInfoCopyright={#VCMICopyright}
 VersionInfoVersion={#AppVersion}
 VersionInfoOriginalFileName={#InstallerName}.exe
@@ -638,7 +643,7 @@ begin
   // Create a custom label for the footer message
   FooterLabel := TLabel.Create(WizardForm);
   FooterLabel.Parent := WizardForm;
-  FooterLabel.Caption := '{#VCMIFolder} v' + '{#AppVersion}' + '.' + '{#AppBuild}';
+  FooterLabel.Caption := '{#VCMIDisplayName} v' + '{#AppVersion}' + '.' + '{#AppBuild}';
   // Padding from the left edge
   FooterLabel.Left := 10;
   // Adjust to leave space for multiple lines

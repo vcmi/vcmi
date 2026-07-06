@@ -14,8 +14,6 @@
 #include "MapFeaturesH3M.h"
 #include "../constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class MapReaderH3M;
 class MetaString;
@@ -306,5 +304,3 @@ private:
 	std::string fileEncoding;
 
 };
-
-VCMI_LIB_NAMESPACE_END

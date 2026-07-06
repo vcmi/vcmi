@@ -14,8 +14,6 @@
 #include "modding/IdentifierStorage.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 int32_t ObstacleInfo::getIndex() const
 {
 	return obstacle.getNum();
@@ -125,5 +123,3 @@ const std::vector<std::string> & ObstacleHandler::getTypeNames() const
 	static const std::vector<std::string> types = { "obstacle" };
 	return types;
 }
-
-VCMI_LIB_NAMESPACE_END

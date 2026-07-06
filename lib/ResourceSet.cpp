@@ -16,8 +16,6 @@
 #include "entities/ResourceTypeHandler.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ResourceSet::ResourceSet()
 {
 	resizeContainer();
@@ -106,12 +104,12 @@ static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 
 bool ResourceSet::canBeAfforded(const ResourceSet &res) const
 {
-	return VCMI_LIB_WRAP_NAMESPACE(canAfford(res, *this));
+	return ::canAfford(res, *this);
 }
 
 bool ResourceSet::canAfford(const ResourceSet &price) const
 {
-	return VCMI_LIB_WRAP_NAMESPACE(canAfford(*this, price));
+	return ::canAfford(*this, price);
 }
 
 TResourceCap ResourceSet::marketValue() const
@@ -165,13 +163,19 @@ const ResourceSet::nziterator::ResEntry * ResourceSet::nziterator::operator->() 
 
 void ResourceSet::nziterator::advance()
 {
-	do
+	const auto resourceCount = static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	while(true)
 	{
 		++cur.resType;
-	} while(static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && !(cur.resVal=rs[cur.resType]));
-
-	if(static_cast<int>(cur.resType) >= LIBRARY->resourceTypeHandler->getAllObjects().size())
-		cur.resVal = -1;
+		if(static_cast<int>(cur.resType) >= resourceCount)
+		{
+			cur.resVal = -1;
+			return;
+		}
+		cur.resVal = rs[cur.resType];
+		if(cur.resVal)
+			return;
+	}
 }
 
 ResourceSet::nziterator::nziterator(const ResourceSet &RS)
@@ -183,5 +187,3 @@ ResourceSet::nziterator::nziterator(const ResourceSet &RS)
 	if(!valid())
 		advance();
 }
-
-VCMI_LIB_NAMESPACE_END

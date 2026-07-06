@@ -58,7 +58,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 
 		if(ci.count)
 		{
-			if (town->getUpperArmy()->stacksCount() == GameConstants::ARMY_SIZE)
+			if (needsFreeSlotToRecruit(town->getUpperArmy(), ci.creID))
 			{
 				SlotID lowestValueSlot;
 				int lowestValue = std::numeric_limits<int>::max();

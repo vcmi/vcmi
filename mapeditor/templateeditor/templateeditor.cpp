@@ -658,7 +658,7 @@ bool TemplateEditor::getAnswerAboutUnsavedChanges()
 void TemplateEditor::setTitle()
 {
 	QFileInfo fileInfo(filename);
-	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", tr("VCMI Template Editor"), GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", tr("VCMI Template Editor"), GameConstants::VCMI_VERSION);
 	setWindowTitle(title);
 }
 

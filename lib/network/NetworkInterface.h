@@ -21,8 +21,6 @@
 #endif
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 #if BOOST_VERSION >= 106600
 using NetworkContext = boost::asio::io_context;
 #else
@@ -187,5 +185,3 @@ public:
 
 	virtual NetworkContext & getContext() = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -1,4 +1,4 @@
-# VCMI Project
+# VCMI - Open Heroes 3
 
 [![VCMI](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg?branch=develop&event=push)](https://github.com/vcmi/vcmi/actions/workflows/github.yml?query=branch%3Adevelop+event%3Apush)
 [![Github Downloads](https://img.shields.io/github/downloads/vcmi/vcmi/1.7.1/total)](https://github.com/vcmi/vcmi/releases/tag/1.7.1)

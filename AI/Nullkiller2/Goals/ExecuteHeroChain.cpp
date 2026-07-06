@@ -11,11 +11,74 @@
 #include "ExecuteHeroChain.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
+#include "../Pathfinding/Actions/DimensionDoorAction.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
+
+namespace
+{
+bool isDimensionDoorAction(const SpecialAction & action)
+{
+	return dynamic_cast<const AIPathfinding::DimensionDoorAction *>(&action) != nullptr;
+}
+
+bool recoverStaleDimensionDoorAction(
+	AIGateway * aiGw,
+	const CGHeroInstance * hero,
+	const HeroPtr & heroPtr,
+	const int3 & destination)
+{
+	if(!heroPtr.isVerified())
+	{
+		logAi->error("Hero %s was lost trying to execute Dimension Door. Exit hero chain.", heroPtr.nameOrDefault());
+
+		return false;
+	}
+
+	logAi->debug(
+		"Skipping stale Dimension Door plan for hero %s towards %s. Replanning.",
+		hero->getNameTranslated(),
+		destination.toString());
+	aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+	aiGw->nullkiller->invalidatePathfinderData();
+	return false;
+}
+
+bool executeSpecialAction(
+	AIGateway * aiGw,
+	const CGHeroInstance * hero,
+	const HeroPtr & heroPtr,
+	const int3 & destination,
+	const std::shared_ptr<const SpecialAction> & action)
+{
+	const auto parts = action->getParts();
+	for(const auto & part : parts)
+	{
+		if(!executeSpecialAction(aiGw, hero, heroPtr, destination, part))
+			return false;
+	}
+
+	if(!parts.empty())
+		return true;
+
+	try
+	{
+		action->execute(aiGw, hero);
+	}
+	catch(const cannotFulfillGoalException &)
+	{
+		if(!isDimensionDoorAction(*action))
+			throw;
+
+		return recoverStaleDimensionDoorAction(aiGw, hero, heroPtr, destination);
+	}
+
+	return true;
+}
+}
 
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
@@ -146,7 +209,8 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
 
-					node->specialAction->execute(aiGw, hero);
+					if(!executeSpecialAction(aiGw, hero, heroPtr, node->coord, node->specialAction))
+						return;
 
 					if(!heroPtr.isVerified())
 					{

@@ -13,8 +13,6 @@
 #include "../GameConstants.h"
 #include "BattleSide.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCreature;
 
 namespace battle
@@ -44,5 +42,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

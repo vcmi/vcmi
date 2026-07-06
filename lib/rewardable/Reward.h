@@ -14,8 +14,6 @@
 #include "../bonuses/Bonus.h"
 #include "../networkPacks/Component.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 struct Component;
 class CStackBasicDescriptor;
@@ -184,5 +182,3 @@ struct DLL_LINKAGE Reward final
 	void serializeJson(JsonSerializeFormat & handler);
 };
 }
-
-VCMI_LIB_NAMESPACE_END

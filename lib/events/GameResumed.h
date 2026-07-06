@@ -12,8 +12,6 @@
 
 #include <vcmi/events/GameResumed.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace events
 {
 
@@ -26,5 +24,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

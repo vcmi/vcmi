@@ -12,8 +12,6 @@
 #include "RmgArea.h"
 #include "CMapGenerator.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace rmg
 {
 
@@ -447,5 +445,3 @@ bool operator== (const Area & l, const Area & r)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

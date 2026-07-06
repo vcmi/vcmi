@@ -14,8 +14,6 @@
 #include "../MethodRegistrar.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 	class MechanicsProxy : public RawPointerWrapper<::spells::Mechanics, MechanicsProxy>
@@ -34,5 +32,3 @@ namespace scripting::api
 	};
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -15,12 +15,8 @@
 #include "../../lib/filesystem/ResourcePath.h"
 #include "BattleConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleAction;
 struct BattleTriggerEffect;
-
-VCMI_LIB_NAMESPACE_END
 
 class CAnimation;
 class Canvas;

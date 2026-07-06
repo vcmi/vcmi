@@ -11,8 +11,6 @@
 
 #include "NetworkDefines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class NetworkConnection final : public INetworkConnection, public std::enable_shared_from_this<NetworkConnection>
 {
 	static const int messageHeaderSize = sizeof(uint32_t);
@@ -62,5 +60,3 @@ public:
 	void setAsyncWritesEnabled(bool on) override;
 	void close() override;
 };
-
-VCMI_LIB_NAMESPACE_END

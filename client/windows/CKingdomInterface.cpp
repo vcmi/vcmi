@@ -508,6 +508,9 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	std::map<int, OwnedObjectInfo> visibleObjects;
 	for(const CGObjectInstance * object : ownedObjects)
 	{
+		if(!object)
+			continue;
+
 		//Dwellings
 		if(auto * dwelling = dynamic_cast<const CGDwelling *>(object))
 		{

@@ -13,10 +13,8 @@
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
 class CAnimation;
@@ -130,4 +128,15 @@ public:
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
 	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
+
+	/// starts screen shake effect (used by earthquake spell)
+	void startShakeAnimation();
+
+private:
+	void updateShake();
+
+	/// current shake offset and animation progress
+	Point shakeOffset;
+	int shakeFrameCounter = 0;
+	int shakeFrameTotal = 0;
 };

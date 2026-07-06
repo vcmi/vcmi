@@ -11,9 +11,7 @@
 
 #include "../lib/network/NetworkInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 class CVCMIServer;
 

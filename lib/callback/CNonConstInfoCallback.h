@@ -13,8 +13,6 @@
 
 #include <vcmi/Metatype.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 class DLL_LINKAGE CNonConstInfoCallback : public CGameInfoCallback
@@ -44,5 +42,3 @@ public:
 
 	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
 };
-
-VCMI_LIB_NAMESPACE_END

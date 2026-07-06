@@ -11,15 +11,21 @@
 
 #include "CMarketBase.h"
 
+class CPlayerInterface;
+
 class CMarketResources :
 	public CResourcesSelling, public CResourcesBuying, public CMarketSlider, public CMarketTraderText
 {
 public:
-	CMarketResources(const IMarket * market, const CGHeroInstance * hero);
+	CMarketResources(const IMarket * market, const CGHeroInstance * hero, bool allowTradeWhenNotMakingTurn, CPlayerInterface * tradeInterface);
 	void deselect() override;
 	void makeDeal() override;
 
 private:
+	bool allowTradeWhenNotMakingTurn;
+	CPlayerInterface * tradeInterface;
+
+	CPlayerInterface * getTradeInterface() const;
 	CMarketBase::MarketShowcasesParams getShowcasesParams() const override;
 	void highlightingChanged() override;
 	void updateSubtitles();

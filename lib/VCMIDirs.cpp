@@ -18,8 +18,6 @@
 #include "CAndroidVMHelper.h"
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
@@ -212,7 +210,11 @@ bool IVCMIDirsUNIX::developmentMode() const
 {
 	// We want to be able to run VCMI from single directory. E.g to run from build output directory
 	const bool hasConfigs = bfs::exists("config") && bfs::exists("Mods");
-	const bool hasBinaries = bfs::exists("vcmiclient") || bfs::exists("vcmiserver") || bfs::exists("vcmilobby") || bfs::exists("vcmieditor");
+	const bool hasBinaries = bfs::exists("vcmiclient")
+		|| bfs::exists("vcmiserver")
+		|| bfs::exists("vcmilobby")
+		|| bfs::exists("vcmieditor")
+		|| bfs::exists("vcmitest");
 	return hasConfigs && hasBinaries;
 }
 
@@ -537,7 +539,7 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 			std::string dataDirsEnv = tempResult;
 			std::vector<std::string> dataDirs;
 			boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
-			for (auto & entry : boost::adaptors::reverse(dataDirs))
+			for (auto & entry : std::views::reverse(dataDirs))
 				ret.push_back(bfs::path(entry) / "vcmi");
 		}
 		else
@@ -588,5 +590,3 @@ namespace VCMIDirs
 		return singleton;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

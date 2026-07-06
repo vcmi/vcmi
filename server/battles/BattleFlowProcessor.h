@@ -12,7 +12,6 @@
 #include "../../lib/battle/BattleSide.h"
 #include "../../lib/battle/BattleUnitTurnReason.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
 class BattleHex;
 class BattleHexArray;
@@ -23,7 +22,6 @@ namespace battle
 {
 class Unit;
 }
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 class BattleProcessor;

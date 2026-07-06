@@ -17,8 +17,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CHero : public HeroType
 {
 	friend class CHeroHandler;
@@ -80,5 +78,3 @@ public:
 	std::string getSpecialtyDescriptionTextID() const override;
 	std::string getSpecialtyTooltipTextID() const override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -210,12 +210,12 @@ MusicEntry::MusicEntry(CMusicHandler * owner, std::string setName, const AudioPa
 	: owner(owner)
 	, music(nullptr)
 	, setName(std::move(setName))
+	, currentName()
 	, startTime(static_cast<uint32_t>(-1))
 	, startPosition(0)
 	, loop(looped ? -1 : 1)
 	, fromStart(fromStart)
 	, playing(false)
-
 {
 	if(!musicURI.empty())
 		load(musicURI);

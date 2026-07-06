@@ -47,8 +47,6 @@
 
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 GameLibrary * LIBRARY = nullptr;
 
 
@@ -241,5 +239,3 @@ void GameLibrary::initializeLibrary()
 
 GameLibrary::GameLibrary() = default;
 GameLibrary::~GameLibrary() = default;
-
-VCMI_LIB_NAMESPACE_END

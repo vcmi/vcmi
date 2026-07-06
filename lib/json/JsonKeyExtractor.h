@@ -5,8 +5,6 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE JsonKeyExtractor
 {
 
@@ -141,5 +139,3 @@ std::set<IdentifierType> JsonKeyExtractor::filterKeysTyped(const JsonNode & valu
 {
 	return valuesSet;
 }
-
-VCMI_LIB_NAMESPACE_END

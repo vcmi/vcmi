@@ -30,8 +30,6 @@
 #include "MapFormatJson.h"
 #include "../callback/EditorCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameInfoCallback * cb) const
 {
@@ -187,5 +185,3 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 	logGlobal->debug("Request to patch map %s", scenarioName);
 	return std::make_unique<CMapPatcher>(LIBRARY->mapFormat->mapOverrides(scenarioName));
 }
-
-VCMI_LIB_NAMESPACE_END

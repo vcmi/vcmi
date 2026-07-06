@@ -10,9 +10,7 @@
 #pragma once
 
 #include "CSelectionBase.h"
-VCMI_LIB_NAMESPACE_BEGIN
 class CMap;
-VCMI_LIB_NAMESPACE_END
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/filesystem/ResourcePath.h"
 

@@ -15,8 +15,6 @@
 #include "../campaign/CampaignConstants.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MapFormatSettings : boost::noncopyable
 {
 	static MapIdentifiersH3M generateMapping(EMapFormat format);
@@ -61,5 +59,3 @@ public:
 		return mapOverridesConfig[mapName];
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

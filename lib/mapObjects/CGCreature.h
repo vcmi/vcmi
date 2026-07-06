@@ -12,8 +12,6 @@
 #include "army/CArmedInstance.h"
 #include "../ResourceSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
 public:
@@ -122,5 +120,3 @@ private:
 	int getNumberOfStacksFromBonus(const CGHeroInstance * hero) const;
 	ui32 hashByPosition() const;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 
 #include "../filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
 
 struct SpellAnimationItem
@@ -33,5 +31,3 @@ struct SpellAnimationItem
 };
 
 using SpellAnimationQueue = std::vector<SpellAnimationItem>;
-
-VCMI_LIB_NAMESPACE_END

@@ -14,8 +14,6 @@
 #include "../CConfigHandler.h"
 #include "../CConsoleHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console) :
 	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
 
@@ -151,5 +149,3 @@ void CBasicLogConfigurator::deconfigure()
 		l->clearTargets();
 	appendToLogFile = true;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -12,11 +12,7 @@
 
 #include "RegisterTypes.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CTypeList::CTypeList()
 {
 	registerTypes(*this);
 }
-
-VCMI_LIB_NAMESPACE_END

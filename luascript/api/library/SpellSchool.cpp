@@ -14,8 +14,6 @@
 #include "EntityBindings.h"
 #include "../Registry.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -27,5 +25,3 @@ void SpellSchoolProxy::registerMethods(MethodRegistrar & R)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

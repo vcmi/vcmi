@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EArtifactClass
 {
 	ART_SPECIAL = 1,
@@ -19,5 +17,3 @@ enum class EArtifactClass
 	ART_MAJOR = 8,
 	ART_RELIC = 16
 };
-
-VCMI_LIB_NAMESPACE_END

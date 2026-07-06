@@ -16,8 +16,6 @@
 #include "../../CStopWatch.h"
 #include "../../mapping/CMap.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Modificator::Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 	mapProxy = map.getMapProxy();
@@ -159,5 +157,3 @@ char Modificator::dump(const int3 & t)
 	}
 	return '?';
 }
-
-VCMI_LIB_NAMESPACE_END

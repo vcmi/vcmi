@@ -16,8 +16,6 @@
 #include "../lib/json/JsonNode.h"
 #include <vcmi/scripting/Service.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -163,5 +161,3 @@ ReturnType LuaContext::callMethod(const std::string & name, const JsonNode & par
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

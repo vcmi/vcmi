@@ -21,9 +21,11 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/GameLibrary.h"
 
-RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout)
+RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string & hoverText, const std::function<void()> & callback, bool alternativeLayout, bool visible, bool disabled)
 	: callback(callback)
 	, hoverText(hoverText)
+	, visible(visible)
+	, disabled(disabled)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -32,12 +34,17 @@ RadialMenuItem::RadialMenuItem(const std::string & imageName, const std::string 
 
 	iconImage = std::make_shared<CPicture>(ImagePath::builtin("radialMenu/" + imageName), Point(0, 0));
 
+	if (disabled)
+		iconImage->setAlpha(80);
+
 	pos = selectedImage->pos;
 	selectedImage->setEnabled(false);
 }
 
 void RadialMenuItem::setSelected(bool selected)
 {
+	if (disabled || !visible)
+		return;
 	selectedImage->setEnabled(selected);
 	inactiveImage->setEnabled(!selected);
 }
@@ -54,7 +61,7 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	pos.h = itemSize.y;
 
 	for (auto const & item : menuConfig)
-		addItem(item.itemPosition, item.enabled, item.imageName, item.hoverText, item.callback);
+		addItem(item.itemPosition, item.visible, item.disabled, item.imageName, item.hoverText, item.callback);
 
 	statusBar = CGStatusBar::create(-80, -100, ImagePath::builtin("radialMenu/statusBar"));
 
@@ -67,12 +74,12 @@ RadialMenu::RadialMenu(const Point & positionToCenter, const std::vector<RadialM
 	addUsedEvents(GESTURE);
 }
 
-void RadialMenu::addItem(const Point & offset, bool enabled, const std::string & path, const std::string & hoverText, const std::function<void()>& callback )
+void RadialMenu::addItem(const Point & offset, bool visible, bool disabled, const std::string & path, const std::string & hoverText, const std::function<void()>& callback )
 {
-	if (!enabled)
+	if (!visible)
 		return;
 
-	auto item = std::make_shared<RadialMenuItem>(path, LIBRARY->generaltexth->translate(hoverText), callback, alternativeLayout);
+	auto item = std::make_shared<RadialMenuItem>(path, LIBRARY->generaltexth->translate(hoverText), callback, alternativeLayout, visible, disabled);
 
 	item->moveBy(offset);
 
@@ -92,6 +99,9 @@ std::shared_ptr<RadialMenuItem> RadialMenu::findNearestItem(const Point & cursor
 
 	for(const auto & item : items)
 	{
+		if (!item->visible || item->disabled)
+			continue;
+
 		Point vector = item->pos.center() - cursorPosition;
 
 		if (vector.length() < bestDistance)

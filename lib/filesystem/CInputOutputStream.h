@@ -12,11 +12,7 @@
 #include "CInputStream.h"
 #include "COutputStream.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CInputOutputStream: public CInputStream, public COutputStream
 {
 	
 };
-
-VCMI_LIB_NAMESPACE_END

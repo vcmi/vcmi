@@ -13,8 +13,6 @@
 #include "Unit.h"
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const
 {
 	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
@@ -60,5 +58,3 @@ bool AccessibilityInfo::accessible(const BattleHex & tile, bool doubleWide, Batt
 
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

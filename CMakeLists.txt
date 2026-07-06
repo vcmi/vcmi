@@ -16,14 +16,19 @@ if(APPLE AND NOT IOS)
 	set(MACOS 1)
 endif()
 
+# Use Visual Studio's latest debugger information format settings.
 if(POLICY CMP0142)
-  cmake_policy(SET CMP0142 NEW)
+	cmake_policy(SET CMP0142 NEW)
 endif()
+
+# Use the new FindBoost behavior and prefer Boost's own CMake package.
 if(POLICY CMP0167)
-  cmake_policy(SET CMP0167 NEW)
+	cmake_policy(SET CMP0167 NEW)
 endif()
+
+# Normalize install() destination paths before processing them.
 if(POLICY CMP0177)
-  cmake_policy(SET CMP0177 NEW)
+	cmake_policy(SET CMP0177 NEW)
 endif()
 
 ############################################
@@ -57,7 +62,6 @@ option(ENABLE_MMAI "Enable compilation of MMAI AI library" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_STRICT_COMPILATION "Treat all compiler warnings as errors" OFF)
-option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(ENABLE_COLORIZED_COMPILER_OUTPUT "Colorize compilation output (Clang/GNU)." ON)
 option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" OFF)
 
@@ -78,6 +82,11 @@ endif()
 if(IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+endif()
+
+if(MSVC)
+	option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+	option(ENABLE_COPY_CONAN_RUNTIME_DLLS "Copy Conan runtime DLLs to target output (and run windeployqt for Qt apps) on Windows" ON)
 endif()
 
 include(CMakeDependentOption)
@@ -114,17 +123,28 @@ else()
 			check_cxx_compiler_flag("-std=c++23" COMPILER_SUPPORTS_CXX23)
 		endif()
 
-
 		# Determine if Glaze can be used
 		set(DISCORD_RPC_NO_GLAZE OFF)
 		if(
-			(MACOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "10.15")
-			OR
 			(IOS AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "13.0")
 			OR
 			(NOT COMPILER_SUPPORTS_CXX23)
 		)
-	        set(DISCORD_RPC_NO_GLAZE ON)
+			set(DISCORD_RPC_NO_GLAZE ON)
+		elseif(MACOS)
+			# when deployment target is not set, treat current macOS version as deployment target
+			# it's not strictly correct as default compiler behavior is to set macOS major version as deployment target
+			# e.g. if building on macOS 15.7.7, default deployment target would be 15.0
+			# but in this case it's sufficient
+			if(CMAKE_OSX_DEPLOYMENT_TARGET)
+				set(deploymentTarget ${CMAKE_OSX_DEPLOYMENT_TARGET})
+			else()
+				execute_process(COMMAND sw_vers -productVersion
+					OUTPUT_VARIABLE deploymentTarget OUTPUT_STRIP_TRAILING_WHITESPACE)
+			endif()
+			if(deploymentTarget VERSION_LESS "10.15")
+				set(DISCORD_RPC_NO_GLAZE ON)
+			endif()
 		endif()
 	endif()
 endif()
@@ -239,14 +259,10 @@ define_property(
 )
 
 # Generate Version.cpp
-if(ENABLE_GITVERSION)
-	add_custom_target(update_version ALL
-		BYPRODUCTS "Version.cpp"
-		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${PROJECT_SOURCE_DIR}/cmake_modules/Version.cmake"
-	)
-else()
-	add_definitions(-DVCMI_NO_EXTRA_VERSION)
-endif(ENABLE_GITVERSION)
+add_custom_target(update_version ALL
+	BYPRODUCTS "Version.cpp"
+	COMMAND ${CMAKE_COMMAND} -DENABLE_GITVERSION=${ENABLE_GITVERSION} -P "${PROJECT_SOURCE_DIR}/cmake_modules/Version.cmake"
+)
 
 if(ENABLE_PCH)
 	macro(enable_pch name)
@@ -416,11 +432,6 @@ if(MINGW OR MSVC)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 		endif()
 
-		# Workaround: Visual Studio has issues with exports of classes that inherit templates
-		# https://stackoverflow.com/questions/44960760/msvc-dll-exporting-class-that-inherits-from-template-cause-lnk2005-already-defin
-		# Reported to Microsoft here:
-		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 	endif(MSVC)
 endif(MINGW OR MSVC)
 
@@ -473,6 +484,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 	endif()
 endif()
 
+# Qt build-time tools (e.g. rcc.exe) depend on zlib dll
+# this lets opening Visual Studio without modifying PATH env var
+if(MSVC AND CONAN_ZLIB_DIR)
+	set(CMAKE_MSVCIDE_RUN_PATH ${CONAN_ZLIB_DIR})
+endif()
+
 # Check if some platform-specific libraries are needed for linking
 if(HAIKU)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
@@ -482,7 +499,7 @@ endif()
 #        Finding packages                  #
 ############################################
 
-set(BOOST_COMPONENTS date_time filesystem program_options)
+set(BOOST_COMPONENTS filesystem program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()
@@ -539,6 +556,24 @@ endif()
 
 if(ENABLE_LOBBY)
 	find_package(SQLite3 REQUIRED)
+endif()
+
+if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
+	file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" conanRuntimeLibs)
+
+	set(conanRuntimeDirs)
+	foreach(runtimeLib IN LISTS conanRuntimeLibs)
+		cmake_path(GET runtimeLib PARENT_PATH runtimeLibDir)
+		if(runtimeLibDir)
+			list(APPEND conanRuntimeDirs "${runtimeLibDir}")
+		endif()
+	endforeach()
+
+	if(conanRuntimeDirs)
+		list(REMOVE_DUPLICATES conanRuntimeDirs)
+		list(JOIN conanRuntimeDirs ";" conanRuntimePath)
+		set(ENV{PATH} "${conanRuntimePath};$ENV{PATH}")
+	endif()
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
@@ -672,7 +707,7 @@ endif()
 
 add_subdirectory(lib)
 
-if (ENABLE_CLIENT)
+if (ENABLE_CLIENT OR ENABLE_TEST)
 	add_subdirectory_with_folder("AI" AI)
 endif()
 
@@ -767,9 +802,9 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 
 if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
-	set(CPACK_PACKAGE_NAME "VCMI")
+	set(CPACK_PACKAGE_NAME "${VCMI_PROJECT_NAME}")
 else()
-	set(CPACK_PACKAGE_NAME "VCMI ${PACKAGE_NAME_SUFFIX}")
+	set(CPACK_PACKAGE_NAME "${VCMI_PROJECT_NAME} ${PACKAGE_NAME_SUFFIX}")
 endif()
 if("${PACKAGE_FILE_NAME}" STREQUAL "")
 	set(CPACK_PACKAGE_FILE_NAME "vcmi-${CPACK_PACKAGE_VERSION}")
@@ -784,7 +819,7 @@ if(WIN32)
 	set(CPACK_GENERATOR ZIP)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/license.txt")
-	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "VCMI")
 	if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION}")
 	else()
@@ -857,8 +892,8 @@ elseif(MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 	string(TIMESTAMP CURRENT_YEAR "%Y")
 
-	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
-	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_NAME "${VCMI_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_BUNDLE_NAME "${VCMI_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2007-${CURRENT_YEAR} VCMI team")
 	set(MACOSX_BUNDLE_GUI_IDENTIFIER "eu.vcmi.vcmi")
 	set(MACOSX_BUNDLE_BUNDLE_VERSION ${GIT_SHA1})

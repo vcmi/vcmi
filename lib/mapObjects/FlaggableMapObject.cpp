@@ -20,8 +20,6 @@
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../networkPacks/PacksForClient.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 FlaggableMapObject::FlaggableMapObject(IGameInfoCallback *cb)
 	:CGObjectInstance(cb)
 	,CBonusSystemNode(BonusNodeType::UNKNOWN)
@@ -92,5 +90,3 @@ void FlaggableMapObject::restoreBonusSystem(CGameState & gs)
 {
 	attachToBonusSystem(gs);
 }
-
-VCMI_LIB_NAMESPACE_END

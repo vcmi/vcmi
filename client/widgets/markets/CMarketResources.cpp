@@ -24,13 +24,17 @@
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/GameLibrary.h"
 
-CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero)
+CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance * hero, bool allowTradeWhenNotMakingTurn, CPlayerInterface * tradeInterface)
 	: CMarketBase(market, hero)
-	, CResourcesSelling([this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, bidTradePanel);})
+	, CResourcesSelling(
+		[this](const std::shared_ptr<CTradeableItem> & heroSlot){CMarketResources::onSlotClickPressed(heroSlot, bidTradePanel);},
+		tradeInterface)
 	, CResourcesBuying(
 		[this](const std::shared_ptr<CTradeableItem> & resSlot){CMarketResources::onSlotClickPressed(resSlot, offerTradePanel);},
 		[this](){CMarketResources::updateSubtitles();})
 	, CMarketSlider([this](int newVal){CMarketSlider::onOfferSliderMoved(newVal);})
+	, allowTradeWhenNotMakingTurn(allowTradeWhenNotMakingTurn)
+	, tradeInterface(tradeInterface)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -49,6 +53,13 @@ CMarketResources::CMarketResources(const IMarket * market, const CGHeroInstance 
 	CMarketResources::deselect();
 }
 
+
+CPlayerInterface * CMarketResources::getTradeInterface() const
+{
+	assert(tradeInterface);
+	return tradeInterface;
+}
+
 void CMarketResources::deselect()
 {
 	CMarketBase::deselect();
@@ -60,7 +71,7 @@ void CMarketResources::makeDeal()
 {
 	if(auto toTrade = offerSlider->getValue(); toTrade != 0)
 	{
-		GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
+		getTradeInterface()->cb->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(bidTradePanel->getHighlightedItemId()),
 			GameResID(offerTradePanel->highlightedSlot->id), bidQty * toTrade, hero);
 		CMarketTraderText::makeDeal();
 		deselect();
@@ -84,12 +95,12 @@ void CMarketResources::highlightingChanged()
 	if(bidTradePanel->isHighlighted() && offerTradePanel->isHighlighted())
 	{
 		market->getOffer(bidTradePanel->getHighlightedItemId(), offerTradePanel->getHighlightedItemId(), bidQty, offerQty, EMarketMode::RESOURCE_RESOURCE);
-		offerSlider->setAmount(GAME->interface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
+		offerSlider->setAmount(getTradeInterface()->cb->getResourceAmount(GameResID(bidTradePanel->getHighlightedItemId())) / bidQty);
 		offerSlider->scrollTo(0);
 		const bool isControlsBlocked = bidTradePanel->getHighlightedItemId() != offerTradePanel->getHighlightedItemId() ? false : true;
 		offerSlider->block(isControlsBlocked);
 		maxAmount->block(isControlsBlocked);
-		deal->block(isControlsBlocked || !GAME->interface()->makingTurn);
+		deal->block(isControlsBlocked || (!getTradeInterface()->makingTurn && !allowTradeWhenNotMakingTurn));
 	}
 	CMarketBase::highlightingChanged();
 	CMarketTraderText::highlightingChanged();

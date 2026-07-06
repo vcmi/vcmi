@@ -55,8 +55,6 @@
 #include "../battle/Unit.h"
 #include "CConfigHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -880,7 +878,7 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const battl
 	text.replaceTextID(getCasterNameTextID());
 	text.replaceName(spell->getId());
 	if(singleTarget)
-		attacked.at(0)->addNameReplacement(text, true);
+		attacked.at(0)->addNameReplacement(text, 2);
 }
 
 const CGHeroInstance * CGHeroInstance::getHeroCaster() const
@@ -1804,5 +1802,3 @@ ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
 	return replacedArtifact;
 }
 
-
-VCMI_LIB_NAMESPACE_END

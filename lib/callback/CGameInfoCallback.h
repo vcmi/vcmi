@@ -11,8 +11,6 @@
 
 #include "MapInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SThievesGuildInfo;
 class Player;
 
@@ -119,5 +117,3 @@ public:
 
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt) const;
 };
-
-VCMI_LIB_NAMESPACE_END

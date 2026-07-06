@@ -725,7 +725,7 @@ function Server:addObstacle(battle, descriptor) end
 
 ---Performs a catapult attack against the given wall section, dealing the supplied damage.
 ---@param battle Battle # Battle in which the catapult attack happens.
----@param attacker Unit # Unit performing the catapult attack.
+---@param attacker Unit? # Unit performing the catapult attack, or nil for spell-caused attacks.
 ---@param attackedPart WallPart # Wall section to attack.
 ---@param damageDealt integer # Damage to apply to the wall section.
 function Server:catapultAttack(battle, attacker, attackedPart, damageDealt) end

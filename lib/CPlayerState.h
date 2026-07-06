@@ -20,8 +20,6 @@
 #include "mapObjects/CGObjectInstance.h"
 #include "mapping/MapTilesStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
@@ -173,5 +171,3 @@ public:
 	}
 
 };
-
-VCMI_LIB_NAMESPACE_END

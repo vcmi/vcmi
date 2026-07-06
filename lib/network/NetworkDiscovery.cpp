@@ -12,8 +12,6 @@
 #include "NetworkDiscovery.h"
 #include "NetworkInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ServerDiscovery::ServerDiscovery(NetworkContext & context, IServerDiscoveryObserver & observer)
 	: context(context), observer(observer)
 {
@@ -217,5 +215,3 @@ void ServerDiscoveryListener::asyncReceive()
 		}
 	);
 }
-
-VCMI_LIB_NAMESPACE_END

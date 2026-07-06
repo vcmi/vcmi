@@ -12,8 +12,6 @@
 #include "BinarySerializer.h"
 #include "CSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CSaveFile final : public IBinaryWriter
 {
 	BinarySerializer serializer;
@@ -38,5 +36,3 @@ public:
 		return saveData;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

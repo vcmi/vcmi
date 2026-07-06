@@ -14,8 +14,6 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static inline void toUpper(std::string & string)
 {
 	boost::to_upper(string);
@@ -23,7 +21,7 @@ static inline void toUpper(std::string & string)
 
 static inline EResType readType(const std::string& name)
 {
-	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
+	return EResTypeHelper::getTypeFromExtension(std::string(FileInfo::GetExtension(name)));
 }
 
 static inline std::string readName(std::string name, bool uppercase)
@@ -176,5 +174,3 @@ std::string EResTypeHelper::getEResTypeAsString(EResType type)
 
 	return iter->second;
 }
-
-VCMI_LIB_NAMESPACE_END

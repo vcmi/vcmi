@@ -11,8 +11,6 @@
 #include "NetworkServer.h"
 #include "NetworkConnection.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 NetworkServer::NetworkServer(INetworkServerListener & listener, NetworkContext & context)
 	: context(context)
 	, listener(listener)
@@ -73,5 +71,3 @@ void NetworkServer::onPacketReceived(const std::shared_ptr<INetworkConnection> &
 {
 	listener.onPacketReceived(connection, message);
 }
-
-VCMI_LIB_NAMESPACE_END

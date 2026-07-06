@@ -11,12 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CArmedInstance;
 class CStackInstance;
-
-VCMI_LIB_NAMESPACE_END
 
 class CGarrisonInt;
 class CButton;
@@ -85,6 +81,8 @@ public:
 /// Class which manages slots of upper and lower garrison, splitting of units
 class CGarrisonInt :public CIntObject
 {
+	friend class CGarrisonSlot;
+
 	/// Chosen slot. Should be changed only via selectSlot.
 	CGarrisonSlot * highlighted;
 	bool inSplittingMode;
@@ -92,6 +90,8 @@ class CGarrisonInt :public CIntObject
 
 	void createSlots();
 	bool checkSelected(const CGarrisonSlot * selected, TQuantity min = 0) const;
+	bool isStackTransferLocked(const CGarrisonSlot * selected) const;
+	bool showStackTransferError(const CGarrisonSlot * selected) const;
 
 	std::map<EGarrisonType, const CArmedInstance*> armedObjs;
 
@@ -109,6 +109,7 @@ public:
 
 	bool smallIcons;      ///< true - 32x32 imgs, false - 58x64
 	bool removableUnits;  ///< player Can remove units from up
+	bool showMoveUnitsOnHover = false; ///< show move action instead of select action when no slot is selected
 
 	ESlotsLayout layout;
 

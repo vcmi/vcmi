@@ -19,8 +19,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 MapInfoCallback::~MapInfoCallback() = default;
 
 const CGObjectInstance * MapInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
@@ -126,5 +124,3 @@ const CMapHeader * MapInfoCallback::getMapHeader() const
 {
 	return getMapConstPtr();
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -18,8 +18,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
@@ -129,5 +127,3 @@ BattleField BattleFieldHandler::selectRandomBattlefield(const std::vector<Battle
 
 	return *RandomGeneratorUtil::nextItem(filteredBattleFields, randomGenerator);
 }
-
-VCMI_LIB_NAMESPACE_END

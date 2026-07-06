@@ -14,8 +14,6 @@
 
 #include "SignatureOf.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MetaString;
 
 namespace scripting::api
@@ -46,5 +44,3 @@ struct LuaMetaString final : ApiSerializable<LuaMetaString>
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

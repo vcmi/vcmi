@@ -43,8 +43,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -139,7 +137,7 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 	R.function<&ServerCallbackProxy::catapultAttack>("catapultAttack",
 		{
 			{"battle",       "Battle in which the catapult attack happens."},
-			{"attacker",     "Unit performing the catapult attack."},
+			{"attacker",     "Unit performing the catapult attack, or nil for spell-caused attacks."},
 			{"attackedPart", "Wall section to attack."},
 			{"damageDealt",  "Damage to apply to the wall section."}
 		}, {},
@@ -247,11 +245,11 @@ void ServerCallbackProxy::removeObstacle(ServerCallback & object, const IBattleI
 	object.apply(pack);
 }
 
-void ServerCallbackProxy::catapultAttack(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & attacker, EWallPart attackedPart, int32_t damageDealt)
+void ServerCallbackProxy::catapultAttack(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit * attacker, EWallPart attackedPart, int32_t damageDealt)
 {
 	CatapultAttack ca;
 	ca.battleID = battle.getBattle()->getBattleID();
-	ca.attacker = attacker.unitId();
+	ca.attacker = attacker ? attacker->unitId() : -1;
 	ca.attackedPart = attackedPart;
 	ca.destinationTile = battle.wallPartToBattleHex(attackedPart).toInt();
 	ca.damageDealt = static_cast<ui8>(std::clamp(damageDealt, 0, 255));
@@ -411,5 +409,3 @@ int ServerCallbackProxy::healUnit(lua_State * L)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

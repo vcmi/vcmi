@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Képességek</translation>
+        <translation>Képességek</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Összes elvetése</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Összes kijelölése</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished"></translation>
+        <translation>Személyre szabás</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&apos;red&apos;&gt;A feltüntetett jártasságok az alapértelmezett boszorkánykunyhó-megvalósítást feltételezik. A modok felülírhatják ezt.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -34,17 +34,17 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="23"/>
         <source>Army settings</source>
-        <translation>Sereg beállítások</translation>
+        <translation>Seregbeállítások</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="142"/>
         <source>Wide formation</source>
-        <translation>Széles formáció</translation>
+        <translation>Széles alakzat</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="129"/>
         <source>Tight formation</source>
-        <translation>Szűk formáció</translation>
+        <translation>Szűk alakzat</translation>
     </message>
 </context>
 <context>
@@ -53,7 +53,7 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation>Tárgy</translation>
+        <translation>Varázstárgy</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
@@ -77,7 +77,7 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="173"/>
         <source>VCMI Campaign Editor</source>
-        <translation type="unfinished">VCMI kampány szerkesztő</translation>
+        <translation>VCMI-hadjáratszerkesztő</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
@@ -85,72 +85,82 @@
         <translation>Fájl</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="46"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="48"/>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="53"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="55"/>
         <source>View</source>
         <translation>Nézet</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="65"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="67"/>
         <source>Toolbar</source>
         <translation>Eszköztár</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="105"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="107"/>
         <source>Open</source>
         <translation>Megnyitás</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="113"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="115"/>
         <source>Open Campaignset</source>
-        <translation type="unfinished">Kampánykészlet megnyitása</translation>
+        <translation>Hadjáratkészlet megnyitása</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="121"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="123"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="129"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
         <source>New</source>
         <translation>Új</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="137"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Save as...</source>
         <translation>Mentés másként...</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="140"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="142"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="145"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="148"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="147"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished">Kampány tulajdonságai</translation>
+        <translation>Hadjárat tulajdonságai</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="159"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="162"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="161"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Szintró tulajdonságai</translation>
+        <translation>Történetszál tulajdonságai</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaigneditor.ui" line="173"/>
-        <location filename="../campaigneditor/campaigneditor.ui" line="176"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="175"/>
+        <location filename="../campaigneditor/campaigneditor.ui" line="178"/>
         <source>Show full background</source>
-        <translation type="unfinished">Teljes háttér megjelenítése</translation>
+        <translation>Teljes háttér megjelenítése</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="138"/>
         <source>Scenario editor</source>
-        <translation type="unfinished">Szintró szerkesztő</translation>
+        <translation>Történetszál-szerkesztő</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="161"/>
@@ -166,17 +176,17 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="80"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="445"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült megnyitni a hadjáratot</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="187"/>
         <source>Validation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült az ellenőrzés</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="187"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>A hadjárthoz nincs megadva térkép.</translation>
     </message>
     <message>
         <source>Open map</source>
@@ -185,42 +195,42 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="267"/>
         <source>Open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Hadjárat megnyitása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="269"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
-        <translation type="unfinished">Minden támogatott kampány (*.vcmp *.h3c);;VCMI kampányok (*.vcmp);;HoMM3 kampányok (*.h3c)</translation>
+        <translation>Támogatott hadjáratok: (*.vcmp, *.h3c);;VCMI-hadjáratok (*.vcmp);;HoMM3-hadjáratok (*.h3c)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="298"/>
         <source>Open Campaign set</source>
-        <translation type="unfinished">Kampánykészlet megnyitása</translation>
+        <translation>Hadjáratkészlet megnyitása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="298"/>
         <source>Select Campaign set</source>
-        <translation type="unfinished">Kampánykészlet kiválasztása</translation>
+        <translation>Hadjáratkészlet kiválasztása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="310"/>
         <source>Open Campaign</source>
-        <translation type="unfinished">Kampány megnyitása</translation>
+        <translation>Hadjárat megnyitása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="310"/>
         <source>Select Campaign</source>
-        <translation type="unfinished">Kampány kiválasztása</translation>
+        <translation>Hadjárat kiválasztása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="326"/>
         <source>Save campaign</source>
-        <translation type="unfinished">Kampány mentése</translation>
+        <translation>Hadjárat mentése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="328"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation>VCMI kampányok (*.vcmp)</translation>
+        <translation>VCMI-hadjáratok (*.vcmp)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="463"/>
@@ -231,16 +241,16 @@
         <location filename="../campaigneditor/campaigneditor.cpp" line="471"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="476"/>
         <source>Failed to open map</source>
-        <translation>Nem sikerült a térkép megnyitása</translation>
+        <translation>Nem sikerült megnyitni a térképet</translation>
     </message>
 </context>
 <context>
     <name>CampaignProperties</name>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="27"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="29"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished">Kampány tulajdonságai</translation>
+        <translation>Hadjárat tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
@@ -250,12 +260,12 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
         <source>Campaign name</source>
-        <translation type="unfinished">Kampány neve</translation>
+        <translation>Hadjárat neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="46"/>
         <source>Campaign description</source>
-        <translation type="unfinished">Kampány leírása</translation>
+        <translation>Hadjárat leírása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
@@ -265,58 +275,58 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
         <source>Author contact (e.g. e-mail)</source>
-        <translation type="unfinished">Szerző elérhetősége (pl. e-mail)</translation>
+        <translation>Szerző elérhetősége (például: e-mail-cím)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="76"/>
         <source>Campaign creation date</source>
-        <translation type="unfinished">Kampány létrehozásának dátuma</translation>
+        <translation>Hadjárat létrehozásának dátuma</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="86"/>
         <source>Campaign version</source>
-        <translation type="unfinished">Kampány verziója</translation>
+        <translation>Hadjárat verziója</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="96"/>
         <source>Music</source>
-        <translation type="unfinished">Zene</translation>
+        <translation>Zene</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="106"/>
         <source>Scenario difficulty is user selectable</source>
-        <translation type="unfinished">A szintró nehézsége választható</translation>
+        <translation>A történetszál nehézségi szintjét a felhasználó állíthatja be</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished">Régiók</translation>
+        <translation>Területek</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation type="unfinished">Régió előbeállítás</translation>
+        <translation>Területek előbeállítása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
         <source>Background</source>
-        <translation type="unfinished">Háttér</translation>
+        <translation>Háttér</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="147"/>
         <source>Suffix</source>
-        <translation type="unfinished">Utótag</translation>
+        <translation>Utótag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="173"/>
         <source>Prefix</source>
-        <translation type="unfinished">Előtag</translation>
+        <translation>Előtag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="183"/>
         <source>Color suffix length</source>
-        <translation type="unfinished">Szín utótag hossza</translation>
+        <translation>Szín utótagjának hossza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
@@ -331,72 +341,72 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
         <source>Misc</source>
-        <translation type="unfinished">Egyéb</translation>
+        <translation>Egyéb</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="264"/>
         <source>Loading background image</source>
-        <translation type="unfinished">Háttérkép betöltése</translation>
+        <translation>Háttérkép betöltése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="274"/>
         <source>Video rim image</source>
-        <translation type="unfinished">Videó szegély képe</translation>
+        <translation>Videó peremképe</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translation type="unfinished">Keretkép engedélyezése</translation>
+        <translation>Peremkép engedélyezése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
-        <translation type="unfinished">Bevezető videó</translation>
+        <translation>Bevezetővideó</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
-        <translation type="unfinished">Záró videó</translation>
+        <translation>Záróvideó</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="56"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="58"/>
         <source>Custom</source>
-        <translation type="unfinished">Egyéni</translation>
+        <translation>Egyéni</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="148"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Infix</source>
-        <translation type="unfinished">Köztag</translation>
+        <translation>Köztag</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="148"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="148"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="148"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Label Pos X</source>
-        <translation type="unfinished">Címke X pozíció</translation>
+        <translation>Címke X-pozíció</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="148"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="150"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished">Címke Y pozíció</translation>
+        <translation>Címke Y-pozíció</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="200"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="202"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished">Kevesebb szintró</translation>
+        <translation>Kevesebb történetszál</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="200"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="202"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished">Az új régióbeállítás kevesebb szintrót támogat, mint korábban. Néhány törlésre kerül. Folytatja?</translation>
+        <translation>Az új területbeállítás kevesebb történetszálat támogat, mint korábban. Néhány törlésre kerül. Folytatja?</translation>
     </message>
 </context>
 <context>
@@ -405,7 +415,7 @@
         <location filename="../mainwindow.ui" line="14"/>
         <location filename="../mainwindow.cpp" line="536"/>
         <source>VCMI Map Editor</source>
-        <translation>VCMI térképszerkesztő</translation>
+        <translation>VCMI-térképszerkesztő</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="59"/>
@@ -414,307 +424,307 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1041"/>
+        <location filename="../mainwindow.ui" line="1043"/>
         <source>Open Recent</source>
         <translation>Legutóbbi megnyitása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="82"/>
+        <location filename="../mainwindow.ui" line="84"/>
         <source>Map</source>
         <translation>Térkép</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="94"/>
+        <location filename="../mainwindow.ui" line="96"/>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="107"/>
+        <location filename="../mainwindow.ui" line="109"/>
         <source>View</source>
         <translation>Nézet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="119"/>
+        <location filename="../mainwindow.ui" line="121"/>
         <source>Player</source>
         <translation>Játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="139"/>
+        <location filename="../mainwindow.ui" line="141"/>
         <source>Toolbar</source>
         <translation>Eszköztár</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="200"/>
+        <location filename="../mainwindow.ui" line="202"/>
         <source>Minimap</source>
-        <translation>Miniatűr térkép</translation>
+        <translation>Minitérkép</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="273"/>
+        <location filename="../mainwindow.ui" line="275"/>
         <source>Map Objects View</source>
         <translation>Térképobjektumok nézete</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="317"/>
+        <location filename="../mainwindow.ui" line="319"/>
         <source>Browser</source>
         <translation>Böngésző</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="395"/>
+        <location filename="../mainwindow.ui" line="397"/>
         <source>Inspector</source>
         <translation>Ellenőrző</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="437"/>
+        <location filename="../mainwindow.ui" line="439"/>
         <source>Property</source>
         <translation>Tulajdonság</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="442"/>
+        <location filename="../mainwindow.ui" line="444"/>
         <source>Value</source>
         <translation>Érték</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="466"/>
+        <location filename="../mainwindow.ui" line="468"/>
         <source>Tools</source>
         <translation>Eszközök</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="830"/>
+        <location filename="../mainwindow.ui" line="832"/>
         <source>Painting</source>
         <translation>Festés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="882"/>
+        <location filename="../mainwindow.ui" line="884"/>
         <source>Terrains</source>
         <translation>Felszínek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="925"/>
+        <location filename="../mainwindow.ui" line="927"/>
         <source>Roads</source>
         <translation>Utak</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="965"/>
+        <location filename="../mainwindow.ui" line="967"/>
         <source>Rivers</source>
         <translation>Folyók</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="999"/>
+        <location filename="../mainwindow.ui" line="1001"/>
         <source>Preview</source>
         <translation>Előnézet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1033"/>
+        <location filename="../mainwindow.ui" line="1035"/>
         <source>Open</source>
         <translation>Megnyitás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1036"/>
+        <location filename="../mainwindow.ui" line="1038"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished">Ctrl+O</translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1046"/>
+        <location filename="../mainwindow.ui" line="1048"/>
         <source>More...</source>
         <translation>Továbbiak...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1054"/>
+        <location filename="../mainwindow.ui" line="1056"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1057"/>
+        <location filename="../mainwindow.ui" line="1059"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished">Ctrl+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1062"/>
+        <location filename="../mainwindow.ui" line="1064"/>
         <source>New</source>
         <translation>Új</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1065"/>
+        <location filename="../mainwindow.ui" line="1067"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished">Ctrl+N</translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1070"/>
+        <location filename="../mainwindow.ui" line="1072"/>
         <source>Save as...</source>
-        <translation>Mentés másként...</translation>
+        <translation>Mentés másként…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1073"/>
+        <location filename="../mainwindow.ui" line="1075"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1078"/>
-        <location filename="../mainwindow.ui" line="1081"/>
+        <location filename="../mainwindow.ui" line="1080"/>
+        <location filename="../mainwindow.ui" line="1083"/>
         <source>Campaign editor</source>
-        <translation type="unfinished">Kampány szerkesztő</translation>
+        <translation>Hadjáratszerkesztő</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1086"/>
-        <location filename="../mainwindow.ui" line="1089"/>
+        <location filename="../mainwindow.ui" line="1088"/>
+        <location filename="../mainwindow.ui" line="1091"/>
         <source>Template editor</source>
-        <translation type="unfinished">Sablonszerkesztő</translation>
+        <translation>Sablonszerkesztő</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1097"/>
-        <location filename="../mainwindow.ui" line="1100"/>
+        <location filename="../mainwindow.ui" line="1099"/>
+        <location filename="../mainwindow.ui" line="1102"/>
         <source>View underground</source>
         <translation>Földalatti nézet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1103"/>
+        <location filename="../mainwindow.ui" line="1105"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished">Ctrl+U</translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1111"/>
+        <location filename="../mainwindow.ui" line="1113"/>
         <source>Pass</source>
         <translation>Átjárhatóság</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1114"/>
+        <location filename="../mainwindow.ui" line="1116"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished">Ctrl+Shift+P</translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1119"/>
+        <location filename="../mainwindow.ui" line="1121"/>
         <source>Cut</source>
         <translation>Kivágás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1122"/>
+        <location filename="../mainwindow.ui" line="1124"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished">Ctrl+X</translation>
+        <translation>Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1127"/>
+        <location filename="../mainwindow.ui" line="1129"/>
         <source>Copy</source>
         <translation>Másolás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1130"/>
+        <location filename="../mainwindow.ui" line="1132"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished">Ctrl+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1135"/>
+        <location filename="../mainwindow.ui" line="1137"/>
         <source>Paste</source>
         <translation>Beillesztés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1138"/>
+        <location filename="../mainwindow.ui" line="1140"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished">Ctrl+V</translation>
+        <translation>Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1143"/>
+        <location filename="../mainwindow.ui" line="1145"/>
         <source>Fill</source>
         <translation>Kitöltés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1146"/>
+        <location filename="../mainwindow.ui" line="1148"/>
         <source>Fills the selection with obstacles</source>
         <translation>Kitölti a kijelölést akadályokkal</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1157"/>
+        <location filename="../mainwindow.ui" line="1159"/>
         <source>Grid</source>
         <translation>Rács</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1160"/>
+        <location filename="../mainwindow.ui" line="1162"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished">Ctrl+G</translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1168"/>
+        <location filename="../mainwindow.ui" line="1170"/>
         <source>General</source>
         <translation>Általános</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1171"/>
+        <location filename="../mainwindow.ui" line="1173"/>
         <source>Map title and description</source>
-        <translation>Térkép címe és leírása</translation>
+        <translation>Térkép neve és leírása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1174"/>
+        <location filename="../mainwindow.ui" line="1176"/>
         <source>Ctrl+Enter</source>
-        <translation type="unfinished">Ctrl+Enter</translation>
+        <translation>Ctrl+Enter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1182"/>
+        <location filename="../mainwindow.ui" line="1184"/>
         <source>Players settings</source>
-        <translation>Játékos beállítások</translation>
+        <translation>Játékosok beállításai</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1185"/>
+        <location filename="../mainwindow.ui" line="1187"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished">Ctrl+P</translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1193"/>
-        <location filename="../mainwindow.ui" line="1196"/>
+        <location filename="../mainwindow.ui" line="1195"/>
+        <location filename="../mainwindow.ui" line="1198"/>
         <source>Undo</source>
         <translation>Visszavonás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1199"/>
+        <location filename="../mainwindow.ui" line="1201"/>
         <source>Ctrl+Z</source>
-        <translation type="unfinished">Ctrl+Z</translation>
+        <translation>Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1210"/>
+        <location filename="../mainwindow.ui" line="1212"/>
         <source>Redo</source>
         <translation>Újra</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1213"/>
+        <location filename="../mainwindow.ui" line="1215"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished">Ctrl+Y</translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1224"/>
+        <location filename="../mainwindow.ui" line="1226"/>
         <source>Erase</source>
         <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1227"/>
+        <location filename="../mainwindow.ui" line="1229"/>
         <source>Del</source>
-        <translation type="unfinished">Del</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1235"/>
+        <location filename="../mainwindow.ui" line="1237"/>
         <source>Neutral</source>
         <translation>Semleges</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1238"/>
+        <location filename="../mainwindow.ui" line="1240"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished">Ctrl+0</translation>
+        <translation>Ctrl+0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1243"/>
+        <location filename="../mainwindow.ui" line="1245"/>
         <source>Validate</source>
         <translation>Érvényesítés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1246"/>
+        <location filename="../mainwindow.ui" line="1248"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished">Ctrl+Shift+V</translation>
+        <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1254"/>
+        <location filename="../mainwindow.ui" line="1256"/>
         <location filename="../mainwindow.cpp" line="1542"/>
         <source>Select map layer type</source>
-        <translation type="unfinished"></translation>
+        <translation>Térképréteg típusának kiválasztása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1265"/>
+        <location filename="../mainwindow.ui" line="1267"/>
         <location filename="../mainwindow.cpp" line="1451"/>
         <location filename="../mainwindow.cpp" line="1455"/>
         <location filename="../mainwindow.cpp" line="1513"/>
@@ -722,204 +732,216 @@
         <translation>Megjelenés frissítése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1276"/>
+        <location filename="../mainwindow.ui" line="1278"/>
         <source>Recreate obstacles</source>
-        <translation>Akadályok újragenerálása</translation>
+        <translation>Akadályok újraelőállítása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1287"/>
+        <location filename="../mainwindow.ui" line="1289"/>
         <source>Player 1</source>
         <translation>1. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1290"/>
+        <location filename="../mainwindow.ui" line="1292"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished">Ctrl+1</translation>
+        <translation>Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1298"/>
+        <location filename="../mainwindow.ui" line="1300"/>
         <source>Player 2</source>
         <translation>2. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1301"/>
+        <location filename="../mainwindow.ui" line="1303"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished">Ctrl+2</translation>
+        <translation>Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1309"/>
+        <location filename="../mainwindow.ui" line="1311"/>
         <source>Player 3</source>
         <translation>3. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1312"/>
+        <location filename="../mainwindow.ui" line="1314"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished">Ctrl+3</translation>
+        <translation>Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1320"/>
+        <location filename="../mainwindow.ui" line="1322"/>
         <source>Player 4</source>
         <translation>4. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1323"/>
+        <location filename="../mainwindow.ui" line="1325"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished">Ctrl+4</translation>
+        <translation>Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1331"/>
+        <location filename="../mainwindow.ui" line="1333"/>
         <source>Player 5</source>
         <translation>5. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1334"/>
+        <location filename="../mainwindow.ui" line="1336"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished">Ctrl+5</translation>
+        <translation>Ctrl+5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1342"/>
+        <location filename="../mainwindow.ui" line="1344"/>
         <source>Player 6</source>
         <translation>6. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1345"/>
+        <location filename="../mainwindow.ui" line="1347"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished">Ctrl+6</translation>
+        <translation>Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1353"/>
+        <location filename="../mainwindow.ui" line="1355"/>
         <source>Player 7</source>
         <translation>7. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1356"/>
+        <location filename="../mainwindow.ui" line="1358"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished">Ctrl+7</translation>
+        <translation>Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1364"/>
+        <location filename="../mainwindow.ui" line="1366"/>
         <source>Player 8</source>
         <translation>8. játékos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1367"/>
+        <location filename="../mainwindow.ui" line="1369"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished">Ctrl+8</translation>
+        <translation>Ctrl+8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1372"/>
+        <location filename="../mainwindow.ui" line="1374"/>
         <source>Export as...</source>
-        <translation>Exportálás másként...</translation>
+        <translation>Exportálás másként…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1375"/>
+        <location filename="../mainwindow.ui" line="1377"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished">Ctrl+E</translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1383"/>
+        <location filename="../mainwindow.ui" line="1385"/>
         <source>Translations</source>
         <translation>Fordítások</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1386"/>
+        <location filename="../mainwindow.ui" line="1388"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1391"/>
-        <location filename="../mainwindow.ui" line="1394"/>
+        <location filename="../mainwindow.ui" line="1393"/>
+        <location filename="../mainwindow.ui" line="1396"/>
         <source>h3m converter</source>
-        <translation>h3m konverter</translation>
+        <translation>h3m-átalakító</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1397"/>
+        <location filename="../mainwindow.ui" line="1399"/>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished">Ctrl+Shift+M</translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1402"/>
-        <location filename="../mainwindow.ui" line="1405"/>
+        <location filename="../mainwindow.ui" line="1404"/>
+        <location filename="../mainwindow.ui" line="1407"/>
         <source>h3c converter</source>
-        <translation>h3c konverter</translation>
+        <translation>h3c-átalakító</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1408"/>
+        <location filename="../mainwindow.ui" line="1410"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished">Ctrl+Shift+C</translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1413"/>
+        <location filename="../mainwindow.ui" line="1415"/>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1418"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="1423"/>
         <source>Lock</source>
         <translation>Zárolás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1416"/>
+        <location filename="../mainwindow.ui" line="1426"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation>Objektumok zárolása a térképen a véletlen változtatások elkerüléséhez</translation>
+        <translation>Objektumok zárolása a térképen a véletlenszerű változtatások elkerülése érdekében</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1419"/>
+        <location filename="../mainwindow.ui" line="1429"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1424"/>
+        <location filename="../mainwindow.ui" line="1434"/>
         <source>Unlock</source>
         <translation>Feloldás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1427"/>
+        <location filename="../mainwindow.ui" line="1437"/>
         <source>Unlock all objects on the map</source>
         <translation>Összes objektum feloldása a térképen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.ui" line="1430"/>
+        <location filename="../mainwindow.ui" line="1259"/>
+        <location filename="../mainwindow.ui" line="1440"/>
         <source>Ctrl+Shift+L</source>
         <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1435"/>
+        <location filename="../mainwindow.ui" line="1445"/>
         <source>Zoom in</source>
         <translation>Nagyítás</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1438"/>
+        <location filename="../mainwindow.ui" line="1448"/>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1443"/>
+        <location filename="../mainwindow.ui" line="1453"/>
         <source>Zoom out</source>
         <translation>Kicsinyítés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1446"/>
+        <location filename="../mainwindow.ui" line="1456"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1451"/>
+        <location filename="../mainwindow.ui" line="1461"/>
         <source>Zoom reset</source>
-        <translation>Nagyítás alaphelyzetbe</translation>
+        <translation>Nagyítás visszaállítása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1454"/>
+        <location filename="../mainwindow.ui" line="1464"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="484"/>
         <source>Mapeditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Térképszerkesztő</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="485"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished"></translation>
+        <translation>A térképszerkesztő Androidos verziója kísérleti állapotban van.
+
+A legjobb felhasználói élmény érdekében azt javasoljuk, hogy a térképszerkesztőt táblagépen (vagy egérrel/tollal) használja.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="504"/>
@@ -935,7 +957,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../mainwindow.cpp" line="575"/>
         <location filename="../mainwindow.cpp" line="1559"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. szint: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="601"/>
@@ -946,7 +968,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../mainwindow.cpp" line="609"/>
         <location filename="../mainwindow.cpp" line="615"/>
         <source>Failed to open map</source>
-        <translation>Nem sikerült a térkép megnyitása</translation>
+        <translation>Nem sikerült megnyitni a térképet</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="646"/>
@@ -956,7 +978,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="648"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation>Minden támogatott térkép (*.vmap *.h3m);;VCMI térképek (*.vmap);;HoMM3 térképek (*.h3m)</translation>
+        <translation>Minden támogatott térkép: (*.vmap *.h3m);;VCMI-térképek (*.vmap);;HoMM3-térképek (*.h3m)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="703"/>
@@ -971,17 +993,17 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="758"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation>A térképen kritikus hibák vannak, és valószínűleg nem játszható. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
+        <translation>A térképen kritikus hibák vannak, és valószínűleg nem játszható. Nyissa meg az ellenőrzőt a térképmenüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="760"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation>A térképen hibák vannak. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
+        <translation>A térképen hibák vannak. Nyissa meg az ellenőrzőt a térképmenüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="787"/>
         <source>Failed to save map</source>
-        <translation>Nem sikerült a térkép mentése</translation>
+        <translation>Nem sikerült menteni a térképet</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="800"/>
@@ -991,7 +1013,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="801"/>
         <source>VCMI maps (*.vmap)</source>
-        <translation>VCMI térképek (*.vmap)</translation>
+        <translation>VCMI-térképek (*.vmap)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1014"/>
@@ -1016,12 +1038,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1030"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1031"/>
         <source>Resources</source>
-        <translation>Erőforrások</translation>
+        <translation>Nyersanyagok</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1032"/>
@@ -1031,7 +1053,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1033"/>
         <source>Dwellings</source>
-        <translation>Lakhelyek</translation>
+        <translation>Lényszállások</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1034"/>
@@ -1066,7 +1088,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1040"/>
         <source>Wog Objects</source>
-        <translation>Wog Objektumok</translation>
+        <translation>Wog-objektumok</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1041"/>
@@ -1081,67 +1103,67 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1179"/>
         <source>Mods loading problem</source>
-        <translation>Mod betöltési probléma</translation>
+        <translation>Modbetöltési probléma</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1179"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
-        <translation>Kritikus hiba történt a Modok betöltése során. Tiltsa le az érvénytelen modokat és indítsa újra.</translation>
+        <translation>Kritikus hiba történt a modok betöltésekor. Tiltsa le az érvénytelen modokat és indítsa újra.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1185"/>
         <source>Undo clicked</source>
-        <translation type="unfinished">Visszavonás megnyomva</translation>
+        <translation>Visszavonás</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1196"/>
         <source>Redo clicked</source>
-        <translation type="unfinished">Mégis megnyomva</translation>
+        <translation>Mégis</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1207"/>
         <source>Passability clicked</source>
-        <translation type="unfinished">Járhatóság megnyomva</translation>
+        <translation>Járhatóság</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1220"/>
         <source>Grid clicked</source>
-        <translation type="unfinished">Rács megnyomva</translation>
+        <translation>Rács</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1301"/>
         <source>Fill clicked</source>
-        <translation type="unfinished">Kitöltés megnyomva</translation>
+        <translation>Kitöltés</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1451"/>
         <source>No objects selected</source>
-        <translation>Nincs kiválasztott objektum</translation>
+        <translation>Nincs kiválasztva objektum</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1455"/>
         <source>This operation is irreversible. Do you want to continue?</source>
-        <translation>Ez a művelet visszafordíthatatlan. Folytatja?</translation>
+        <translation>Ez a művelet nem vonható vissza. Biztosan folytatja?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1513"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation>Hibák történtek. %1 objektum nem lett frissítve</translation>
+        <translation>Hibák történtek. A(z) %1 objektum nem lett frissítve</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1543"/>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Típus:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1604"/>
         <source>Image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Képformátum</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1605"/>
         <source>Select image format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Képformátum kiválasztása:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1619"/>
@@ -1152,33 +1174,33 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Failed to save image</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült menteni a képet</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1665"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>A kép nem menthető ide: %1.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1685"/>
         <source>Select maps to convert</source>
-        <translation>Térképek kiválasztása konvertáláshoz</translation>
+        <translation>Térképek kiválasztása az átalakításhoz</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1687"/>
         <source>HoMM3 maps(*.h3m)</source>
-        <translation>HoMM3 térképek (*.h3m)</translation>
+        <translation>HoMM3-térképek (*.h3m)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1693"/>
         <location filename="../mainwindow.cpp" line="1700"/>
         <source>Choose directory to save converted maps</source>
-        <translation>Könyvtár kiválasztása a konvertált térképek mentéséhez</translation>
+        <translation>Válassza ki az átalakított térképek mentési helyét</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1695"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Könyvtár</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
@@ -1188,22 +1210,22 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1716"/>
         <source>Successfully converted %1 maps</source>
-        <translation>Sikeresen konvertálva: %1 térkép</translation>
+        <translation>Sikeresen átalakítva: %1 térkép</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1720"/>
         <source>Failed to convert the map. Abort operation</source>
-        <translation>Nem sikerült a térkép konvertálása. Művelet megszakítva</translation>
+        <translation>Nem sikerült átalakítani a térképet. Művelet megszakítva</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1728"/>
         <source>Select campaign to convert</source>
-        <translation>Kampány kiválasztása konvertáláshoz</translation>
+        <translation>Hadjárat kiválasztása az átalakításhoz</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1729"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation>HoMM3 kampányok (*.h3c)</translation>
+        <translation>HoMM3-hadjáratok (*.h3c)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1735"/>
@@ -1213,7 +1235,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1736"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation>VCMI kampányok (*.vcmp)</translation>
+        <translation>VCMI-hadjáratok (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -1222,7 +1244,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../templateeditor/entitiesselector.ui" line="14"/>
         <location filename="../templateeditor/entitiesselector.ui" line="20"/>
         <source>Select Entities</source>
-        <translation type="unfinished">Entitások kiválasztása</translation>
+        <translation>Objektumok kiválasztása</translation>
     </message>
 </context>
 <context>
@@ -1230,7 +1252,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
         <source>Form</source>
-        <translation>Formáció</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="34"/>
@@ -1259,12 +1281,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished">Frakciók kiválasztása</translation>
+        <translation>Frakciók kiválasztása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/factionselector.cpp" line="24"/>
+        <location filename="../templateeditor/factionselector.cpp" line="26"/>
         <source>Faction Selector</source>
-        <translation type="unfinished">Frakcióválasztó</translation>
+        <translation>Frakcióválasztó</translation>
     </message>
 </context>
 <context>
@@ -1272,7 +1294,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="14"/>
         <source>Form</source>
-        <translation>Formáció</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="32"/>
@@ -1312,7 +1334,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
         <source>Difficulty</source>
-        <translation>Nehézség</translation>
+        <translation>Nehézségi szint</translation>
     </message>
 </context>
 <context>
@@ -1320,7 +1342,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../generatorprogress.ui" line="29"/>
         <source>Generating map</source>
-        <translation>Térkép generálása</translation>
+        <translation>Térkép előállítása</translation>
     </message>
 </context>
 <context>
@@ -1328,7 +1350,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
@@ -1348,7 +1370,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation>Tárgy</translation>
+        <translation>Varázstárgy</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
@@ -1366,7 +1388,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation>Hős képességei</translation>
+        <translation>Hős jártasságai</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -1389,7 +1411,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation>Képesség</translation>
+        <translation>Jártasság</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
@@ -1399,7 +1421,7 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
-        <translation>Képességek testreszabása</translation>
+        <translation>Jártasságok testreszabása</translation>
     </message>
 </context>
 <context>
@@ -1445,22 +1467,22 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/heroessettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Minden hős</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished"></translation>
+        <translation>Kizárólagos hősök</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Tiltott hősök</translation>
+        <translation>Kitiltott hősök</translation>
     </message>
 </context>
 <context>
@@ -1468,12 +1490,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="14"/>
         <source>Form</source>
-        <translation>Formáció</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="40"/>
         <source>Defeat message</source>
-        <translation>Vereség üzenete</translation>
+        <translation>Vereségüzenet</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="59"/>
@@ -1521,22 +1543,21 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mapcontroller.cpp" line="626"/>
         <source>Missing Required Mod</source>
-        <translation type="unfinished">Hiányzó szükséges mod</translation>
+        <translation>Hiányzó szükséges mod</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="626"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished">
+        <translation>
 
-
-Szeretnéd ezt most megtenni?</translation>
+Szeretné ezt most megtenni?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="636"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translation type="unfinished">Ennek az objektumnak a modja kötelező ahhoz, hogy a térkép érvényes maradjon.</translation>
+        <translation>A térkép érvényességének fenntartásához ennek az objektumnak a módosítása kötelező.</translation>
     </message>
 </context>
 <context>
@@ -1544,7 +1565,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapview.cpp" line="664"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nem lehet objektumot elhelyezni</translation>
+        <translation>Nem lehet objektumot elhelyezni</translation>
     </message>
 </context>
 <context>
@@ -1552,7 +1573,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="23"/>
         <source>Map settings</source>
-        <translation>Térkép beállítások</translation>
+        <translation>Térképbeállítások</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="42"/>
@@ -1602,7 +1623,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="249"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="284"/>
@@ -1612,7 +1633,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="306"/>
         <source>Ok</source>
-        <translation>Rendben</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1636,20 +1657,20 @@ Szeretnéd ezt most megtenni?</translation>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished">Bányák kiválasztása</translation>
+        <translation>Bányák kiválasztása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="28"/>
+        <location filename="../templateeditor/mineselector.cpp" line="30"/>
         <source>Mine Selector</source>
-        <translation type="unfinished">Bányaválasztó</translation>
+        <translation>Bányaválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="34"/>
+        <location filename="../templateeditor/mineselector.cpp" line="36"/>
         <source>Resource</source>
-        <translation>Erőforrás</translation>
+        <translation>Nyersanyag</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="34"/>
+        <location filename="../templateeditor/mineselector.cpp" line="36"/>
         <source>Mines</source>
         <translation>Bányák</translation>
     </message>
@@ -1659,7 +1680,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="14"/>
         <source>Form</source>
-        <translation>Formáció</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="32"/>
@@ -1684,12 +1705,12 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>Kötelező modok beállítása a térképen elhelyezett objektumok alapján. Ez a módszer problémákat okozhat, ha testreszabott jutalmak, helyőrségek stb. vannak modokból</translation>
+        <translation>Kötelező modok beállítása a térképen elhelyezett objektumok alapján. Ez a módszer problémákat okozhat, ha testre szabott jutalmak, helyőrségek stb. származnak modokból</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
         <source>Map objects mods</source>
-        <translation>Térképobjektum modok</translation>
+        <translation>Térképobjektum-modok</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
@@ -1699,7 +1720,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
         <source>Full content mods</source>
-        <translation>Teljes tartalom modok</translation>
+        <translation>Teljes tartalmi modok</translation>
     </message>
 </context>
 <context>
@@ -1707,7 +1728,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="14"/>
         <source>Select Objects</source>
-        <translation type="unfinished">Objektumok kiválasztása</translation>
+        <translation>Objektumok kiválasztása</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="20"/>
@@ -1717,149 +1738,149 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Szükséges objektumok</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Objects</source>
-        <translation type="unfinished">Tiltott objektumok</translation>
+        <translation>Tiltott objektumok</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="50"/>
         <source>Banned Object Categories</source>
-        <translation type="unfinished">Tiltott objektumkategóriák</translation>
+        <translation>Tiltott objektumkategóriák</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="33"/>
+        <location filename="../templateeditor/objectselector.cpp" line="34"/>
         <source>Object Selector</source>
-        <translation type="unfinished">Objektumválasztó</translation>
+        <translation>Objektumválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="96"/>
+        <location filename="../templateeditor/objectselector.cpp" line="97"/>
         <source>Category</source>
-        <translation type="unfinished">Kategória</translation>
+        <translation>Kategória</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="96"/>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="226"/>
-        <location filename="../templateeditor/objectselector.cpp" line="310"/>
+        <location filename="../templateeditor/objectselector.cpp" line="97"/>
+        <location filename="../templateeditor/objectselector.cpp" line="165"/>
+        <location filename="../templateeditor/objectselector.cpp" line="227"/>
+        <location filename="../templateeditor/objectselector.cpp" line="311"/>
         <source>Action</source>
-        <translation type="unfinished">Művelet</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="100"/>
+        <location filename="../templateeditor/objectselector.cpp" line="101"/>
         <source>Other</source>
         <translation>Egyéb</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="101"/>
+        <location filename="../templateeditor/objectselector.cpp" line="102"/>
         <source>All</source>
         <translation>Összes</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="102"/>
-        <location filename="../templateeditor/objectselector.cpp" line="257"/>
+        <location filename="../templateeditor/objectselector.cpp" line="103"/>
+        <location filename="../templateeditor/objectselector.cpp" line="258"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="103"/>
+        <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>Creature bank</source>
-        <translation type="unfinished">Lénybank</translation>
+        <translation>Lénybank</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="104"/>
+        <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <source>Bonus</source>
         <translation>Bónusz</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="105"/>
-        <source>Dwelling</source>
-        <translation type="unfinished">Lakhely</translation>
-    </message>
-    <message>
         <location filename="../templateeditor/objectselector.cpp" line="106"/>
-        <source>Resource</source>
-        <translation>Erőforrás</translation>
+        <source>Dwelling</source>
+        <translation>Lényszállás</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="107"/>
-        <source>Resource generator</source>
-        <translation type="unfinished">Erőforrás-termelő</translation>
+        <source>Resource</source>
+        <translation>Nyersanyag</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="108"/>
+        <source>Resource generator</source>
+        <translation>Nyersanyag-termelő</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Spell scroll</source>
         <translation>Varázstekercs</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="109"/>
-        <source>Random artifact</source>
-        <translation type="unfinished">Véletlen ereklye</translation>
-    </message>
-    <message>
         <location filename="../templateeditor/objectselector.cpp" line="110"/>
-        <source>Pandoras box</source>
-        <translation type="unfinished">Pandóra szelencéje</translation>
+        <source>Random artifact</source>
+        <translation>Véletlenszerű varázstárgy</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="111"/>
-        <source>Quest artifact</source>
-        <translation type="unfinished">Küldetés-ereklye</translation>
+        <source>Pandoras box</source>
+        <translation>Pandóra szelencéje</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="112"/>
+        <source>Quest artifact</source>
+        <translation>Küldetés-varázstárgy</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="113"/>
         <source>Seer hut</source>
-        <translation type="unfinished">Jós kunyhó</translation>
+        <translation>Látnok kunyhója</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="124"/>
-        <location filename="../templateeditor/objectselector.cpp" line="184"/>
-        <location filename="../templateeditor/objectselector.cpp" line="261"/>
-        <location filename="../templateeditor/objectselector.cpp" line="345"/>
+        <location filename="../templateeditor/objectselector.cpp" line="125"/>
+        <location filename="../templateeditor/objectselector.cpp" line="185"/>
+        <location filename="../templateeditor/objectselector.cpp" line="262"/>
+        <location filename="../templateeditor/objectselector.cpp" line="346"/>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="139"/>
-        <location filename="../templateeditor/objectselector.cpp" line="199"/>
-        <location filename="../templateeditor/objectselector.cpp" line="278"/>
-        <location filename="../templateeditor/objectselector.cpp" line="360"/>
+        <location filename="../templateeditor/objectselector.cpp" line="140"/>
+        <location filename="../templateeditor/objectselector.cpp" line="200"/>
+        <location filename="../templateeditor/objectselector.cpp" line="279"/>
+        <location filename="../templateeditor/objectselector.cpp" line="361"/>
         <source>Add</source>
-        <translation type="unfinished">Hozzáadás</translation>
+        <translation>Hozzáadás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="164"/>
-        <location filename="../templateeditor/objectselector.cpp" line="226"/>
-        <location filename="../templateeditor/objectselector.cpp" line="310"/>
+        <location filename="../templateeditor/objectselector.cpp" line="165"/>
+        <location filename="../templateeditor/objectselector.cpp" line="227"/>
+        <location filename="../templateeditor/objectselector.cpp" line="311"/>
         <source>Object</source>
-        <translation type="unfinished">Objektum</translation>
+        <translation>Objektum</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="227"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Darabszám</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="226"/>
+        <location filename="../templateeditor/objectselector.cpp" line="227"/>
         <source>Guard</source>
-        <translation type="unfinished">Őrség</translation>
+        <translation>Őrség</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="310"/>
+        <location filename="../templateeditor/objectselector.cpp" line="311"/>
         <source>Value</source>
         <translation>Érték</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="310"/>
+        <location filename="../templateeditor/objectselector.cpp" line="311"/>
         <source>Probability</source>
-        <translation type="unfinished">Valószínűség</translation>
+        <translation>Esély</translation>
     </message>
     <message>
-        <location filename="../templateeditor/objectselector.cpp" line="310"/>
+        <location filename="../templateeditor/objectselector.cpp" line="311"/>
         <source>Max per zone</source>
-        <translation type="unfinished">Zónánkénti maximum</translation>
+        <translation>Zónánkénti maximum</translation>
     </message>
 </context>
 <context>
@@ -1917,30 +1938,30 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../playerparams.cpp" line="108"/>
         <source>Player ID: %1</source>
-        <translation>Játékos azonosító: %1</translation>
+        <translation>Játékosazonosító: %1</translation>
     </message>
 </context>
 <context>
     <name>PlayerSelectionDialog</name>
     <message>
-        <location filename="../PlayerSelectionDialog.cpp" line="45"/>
+        <location filename="../PlayerSelectionDialog.cpp" line="46"/>
         <source>Select Player</source>
-        <translation type="unfinished">Játékos kiválasztása</translation>
+        <translation>Játékos kiválasztása</translation>
     </message>
     <message>
-        <location filename="../PlayerSelectionDialog.cpp" line="54"/>
+        <location filename="../PlayerSelectionDialog.cpp" line="55"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished">A hős nem hozható létre SEMLEGESKÉNT</translation>
+        <translation>A hős nem hozható létre SEMLEGESKÉNT</translation>
     </message>
     <message>
-        <location filename="../PlayerSelectionDialog.cpp" line="60"/>
+        <location filename="../PlayerSelectionDialog.cpp" line="61"/>
         <source>Switch to one of the available players:</source>
-        <translation type="unfinished">Váltás az egyik elérhető játékosra:</translation>
+        <translation>Váltás az egyik elérhető játékosra:</translation>
     </message>
     <message>
-        <location filename="../PlayerSelectionDialog.cpp" line="89"/>
+        <location filename="../PlayerSelectionDialog.cpp" line="90"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished">Gyorsbillentyű: %1</translation>
+        <translation>Gyorsbillentyű: %1</translation>
     </message>
 </context>
 <context>
@@ -1948,7 +1969,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished"></translation>
+        <translation>Játékosok kiválasztása</translation>
     </message>
 </context>
 <context>
@@ -1956,7 +1977,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation>Játékos beállítások</translation>
+        <translation>Játékosbeállítások</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
@@ -1971,7 +1992,7 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation>Rendben</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1996,404 +2017,404 @@ Szeretnéd ezt most megtenni?</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="22"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="23"/>
         <source>Beginner</source>
         <translation>Kezdő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="23"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
         <source>Advanced</source>
         <translation>Haladó</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="25"/>
         <source>Expert</source>
         <translation>Szakértő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="170"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="172"/>
         <source>Default secondary skills:</source>
-        <translation>Alapértelmezett másodlagos képességek:</translation>
+        <translation>Alapértelmezett másodlagos jártasságok:</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="175"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="177"/>
         <source>Random hero secondary skills</source>
-        <translation type="unfinished">Véletlen hős másodlagos képességek</translation>
+        <translation>Véletlenszerű másodlagos jártasságok</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="181"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="183"/>
         <source>Secondary skills:</source>
-        <translation>Másodlagos képességek:</translation>
+        <translation>Másodlagos jártasságok:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="989"/>
+        <location filename="../inspector/inspector.cpp" line="1000"/>
         <source>Compliant</source>
         <translation>Engedékeny</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="990"/>
+        <location filename="../inspector/inspector.cpp" line="1001"/>
         <source>Friendly</source>
         <translation>Barátságos</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="991"/>
+        <location filename="../inspector/inspector.cpp" line="1002"/>
         <source>Aggressive</source>
         <translation>Aggresszív</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="992"/>
+        <location filename="../inspector/inspector.cpp" line="1003"/>
         <source>Hostile</source>
         <translation>Ellenséges</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="993"/>
+        <location filename="../inspector/inspector.cpp" line="1004"/>
         <source>Savage</source>
         <translation>Vad</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="357"/>
         <location filename="../inspector/inspector.cpp" line="360"/>
+        <location filename="../inspector/inspector.cpp" line="363"/>
         <source>No patrol</source>
         <translation>Nincs őrjárat</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="300"/>
+        <location filename="../inspector/inspector.cpp" line="303"/>
         <source>POWER RANK</source>
-        <translation>ERŐ RANG</translation>
+        <translation>ERŐRANG</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="300"/>
+        <location filename="../inspector/inspector.cpp" line="303"/>
         <source>HERO TYPE</source>
-        <translation>HŐS TÍPUS</translation>
+        <translation>HŐSTÍPUS</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="323"/>
+        <location filename="../inspector/inspector.cpp" line="326"/>
         <source>Hero class</source>
-        <translation>Hős osztály</translation>
+        <translation>Hősosztály</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
+        <location filename="../inspector/inspector.cpp" line="335"/>
         <source>Portrait</source>
         <translation>Portré</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="335"/>
+        <location filename="../inspector/inspector.cpp" line="338"/>
         <source>Skills</source>
-        <translation>Képességek</translation>
+        <translation>Jártasságok</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="340"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="359"/>
-        <location filename="../inspector/inspector.cpp" line="360"/>
+        <location filename="../inspector/inspector.cpp" line="362"/>
+        <location filename="../inspector/inspector.cpp" line="363"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n mező</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="372"/>
+        <location filename="../inspector/inspector.cpp" line="375"/>
         <source>Buildings</source>
         <translation>Épületek</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="374"/>
+        <location filename="../inspector/inspector.cpp" line="377"/>
         <source>Events</source>
         <translation>Események</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="414"/>
+        <location filename="../inspector/inspector.cpp" line="417"/>
         <source>Resource</source>
-        <translation>Erőforrás</translation>
+        <translation>Nyersanyag</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="445"/>
+        <location filename="../inspector/inspector.cpp" line="448"/>
         <source>Artifact reward</source>
-        <translation>Tárgy jutalom</translation>
+        <translation>Varázstárgy-jutalom</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="498"/>
+        <location filename="../inspector/inspector.cpp" line="509"/>
         <source>Quest</source>
         <translation>Küldetés</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="516"/>
+        <location filename="../inspector/inspector.cpp" line="527"/>
         <source>Identifier</source>
         <translation>Azonosító</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="517"/>
+        <location filename="../inspector/inspector.cpp" line="528"/>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="518"/>
+        <location filename="../inspector/inspector.cpp" line="529"/>
         <source>SubID</source>
-        <translation>SubID</translation>
+        <translation>Altípusazonosító</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="519"/>
+        <location filename="../inspector/inspector.cpp" line="530"/>
         <source>InstanceName</source>
-        <translation>InstanceName</translation>
+        <translation>Példány neve</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="524"/>
+        <location filename="../inspector/inspector.cpp" line="535"/>
         <source>IsStatic</source>
         <translation>Statikus-e</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="915"/>
-        <location filename="../inspector/inspector.cpp" line="1043"/>
+        <location filename="../inspector/inspector.cpp" line="926"/>
+        <location filename="../inspector/inspector.cpp" line="1054"/>
         <source>neutral</source>
         <translation>semleges</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="248"/>
-        <location filename="../inspector/inspector.cpp" line="446"/>
+        <location filename="../inspector/inspector.cpp" line="251"/>
+        <location filename="../inspector/inspector.cpp" line="449"/>
         <source>Army</source>
         <translation>Sereg</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="255"/>
-        <location filename="../inspector/inspector.cpp" line="268"/>
-        <location filename="../inspector/inspector.cpp" line="275"/>
-        <location filename="../inspector/inspector.cpp" line="283"/>
-        <location filename="../inspector/inspector.cpp" line="290"/>
-        <location filename="../inspector/inspector.cpp" line="321"/>
-        <location filename="../inspector/inspector.cpp" line="412"/>
-        <location filename="../inspector/inspector.cpp" line="527"/>
-        <location filename="../inspector/inspector.cpp" line="574"/>
+        <location filename="../inspector/inspector.cpp" line="258"/>
+        <location filename="../inspector/inspector.cpp" line="271"/>
+        <location filename="../inspector/inspector.cpp" line="278"/>
+        <location filename="../inspector/inspector.cpp" line="286"/>
+        <location filename="../inspector/inspector.cpp" line="293"/>
+        <location filename="../inspector/inspector.cpp" line="324"/>
+        <location filename="../inspector/inspector.cpp" line="415"/>
+        <location filename="../inspector/inspector.cpp" line="538"/>
+        <location filename="../inspector/inspector.cpp" line="585"/>
         <source>Owner</source>
         <translation>Tulajdonos</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="260"/>
-        <location filename="../inspector/inspector.cpp" line="699"/>
+        <location filename="../inspector/inspector.cpp" line="263"/>
+        <location filename="../inspector/inspector.cpp" line="710"/>
         <source>Same as town</source>
         <translation>Azonos a várossal</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="276"/>
-        <location filename="../inspector/inspector.cpp" line="714"/>
+        <location filename="../inspector/inspector.cpp" line="279"/>
+        <location filename="../inspector/inspector.cpp" line="725"/>
         <source>Removable units</source>
         <translation>Eltávolítható egységek</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="301"/>
-        <location filename="../inspector/inspector.cpp" line="722"/>
-        <source>Placeholder type</source>
-        <translation>Helyőrző típus</translation>
-    </message>
-    <message>
         <location filename="../inspector/inspector.cpp" line="304"/>
-        <location filename="../inspector/inspector.cpp" line="740"/>
+        <location filename="../inspector/inspector.cpp" line="733"/>
+        <source>Placeholder type</source>
+        <translation>Helyőrző típusa</translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="307"/>
+        <location filename="../inspector/inspector.cpp" line="751"/>
         <source>Power rank</source>
-        <translation>Erő rang</translation>
+        <translation>Erőrang</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="312"/>
-        <location filename="../inspector/inspector.cpp" line="352"/>
-        <location filename="../inspector/inspector.cpp" line="743"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
+        <location filename="../inspector/inspector.cpp" line="315"/>
+        <location filename="../inspector/inspector.cpp" line="355"/>
+        <location filename="../inspector/inspector.cpp" line="754"/>
+        <location filename="../inspector/inspector.cpp" line="778"/>
         <source>Hero type</source>
-        <translation>Hős típus</translation>
+        <translation>Hőstípus</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="322"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="325"/>
+        <location filename="../inspector/inspector.cpp" line="775"/>
         <source>Experience</source>
         <translation>Tapasztalat</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="330"/>
+        <location filename="../inspector/inspector.cpp" line="331"/>
         <source>MALE</source>
         <translation>FÉRFI</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="330"/>
+        <location filename="../inspector/inspector.cpp" line="331"/>
         <source>FEMALE</source>
         <translation>NŐ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="328"/>
-        <location filename="../inspector/inspector.cpp" line="753"/>
+        <location filename="../inspector/inspector.cpp" line="331"/>
+        <location filename="../inspector/inspector.cpp" line="764"/>
         <source>Gender</source>
         <translation>Nem</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="330"/>
-        <location filename="../inspector/inspector.cpp" line="756"/>
+        <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="767"/>
         <source>Name</source>
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="331"/>
-        <location filename="../inspector/inspector.cpp" line="760"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
+        <location filename="../inspector/inspector.cpp" line="771"/>
         <source>Biography</source>
         <translation>Életrajz</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="373"/>
+        <location filename="../inspector/inspector.cpp" line="339"/>
+        <location filename="../inspector/inspector.cpp" line="376"/>
         <source>Spells</source>
         <translation>Varázslatok</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="361"/>
-        <location filename="../inspector/inspector.cpp" line="779"/>
+        <location filename="../inspector/inspector.cpp" line="364"/>
+        <location filename="../inspector/inspector.cpp" line="790"/>
         <source>Patrol radius</source>
         <translation>Őrjárat sugara</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="369"/>
-        <location filename="../inspector/inspector.cpp" line="656"/>
+        <location filename="../inspector/inspector.cpp" line="372"/>
+        <location filename="../inspector/inspector.cpp" line="667"/>
         <source>Town name</source>
         <translation>Város neve</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="376"/>
-        <location filename="../inspector/inspector.cpp" line="660"/>
+        <location filename="../inspector/inspector.cpp" line="379"/>
+        <location filename="../inspector/inspector.cpp" line="671"/>
         <source>Same as player</source>
         <translation>Azonos a játékossal</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="383"/>
-        <location filename="../inspector/inspector.cpp" line="423"/>
-        <location filename="../inspector/inspector.cpp" line="430"/>
-        <location filename="../inspector/inspector.cpp" line="437"/>
-        <location filename="../inspector/inspector.cpp" line="472"/>
-        <location filename="../inspector/inspector.cpp" line="616"/>
-        <location filename="../inspector/inspector.cpp" line="668"/>
-        <location filename="../inspector/inspector.cpp" line="685"/>
-        <location filename="../inspector/inspector.cpp" line="804"/>
+        <location filename="../inspector/inspector.cpp" line="386"/>
+        <location filename="../inspector/inspector.cpp" line="426"/>
+        <location filename="../inspector/inspector.cpp" line="433"/>
+        <location filename="../inspector/inspector.cpp" line="440"/>
+        <location filename="../inspector/inspector.cpp" line="483"/>
+        <location filename="../inspector/inspector.cpp" line="627"/>
+        <location filename="../inspector/inspector.cpp" line="679"/>
+        <location filename="../inspector/inspector.cpp" line="696"/>
+        <location filename="../inspector/inspector.cpp" line="815"/>
         <source>Message</source>
         <translation>Üzenet</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="403"/>
-        <location filename="../inspector/inspector.cpp" line="689"/>
+        <location filename="../inspector/inspector.cpp" line="406"/>
+        <location filename="../inspector/inspector.cpp" line="700"/>
         <source>Spell</source>
         <translation>Varázslat</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="415"/>
-        <location filename="../inspector/inspector.cpp" line="677"/>
+        <location filename="../inspector/inspector.cpp" line="418"/>
+        <location filename="../inspector/inspector.cpp" line="688"/>
         <source>Productivity</source>
         <translation>Termelékenység</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="422"/>
-        <location filename="../inspector/inspector.cpp" line="447"/>
-        <location filename="../inspector/inspector.cpp" line="796"/>
-        <location filename="../inspector/inspector.cpp" line="813"/>
+        <location filename="../inspector/inspector.cpp" line="425"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="807"/>
+        <location filename="../inspector/inspector.cpp" line="824"/>
         <source>Amount</source>
         <translation>Mennyiség</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="441"/>
-        <location filename="../inspector/inspector.cpp" line="807"/>
+        <location filename="../inspector/inspector.cpp" line="444"/>
+        <location filename="../inspector/inspector.cpp" line="818"/>
         <source>Character</source>
         <translation>Karakter</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="459"/>
         <source>Abilities</source>
-        <translation type="unfinished">Képességek</translation>
+        <translation type="vanished">Képességek</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="483"/>
-        <location filename="../inspector/inspector.cpp" line="634"/>
+        <location filename="../inspector/inspector.cpp" line="494"/>
+        <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Available for</source>
-        <translation type="unfinished"></translation>
+        <translation>Elérhető ehhez:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="958"/>
+        <location filename="../inspector/inspector.cpp" line="969"/>
         <source>Select town</source>
         <translation>Város kiválasztása</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="969"/>
+        <location filename="../inspector/inspector.cpp" line="980"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="103"/>
         <source>Available for:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Elérhető ehhez::
+</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="443"/>
-        <location filename="../inspector/inspector.cpp" line="809"/>
+        <location filename="../inspector/inspector.cpp" line="446"/>
+        <location filename="../inspector/inspector.cpp" line="820"/>
         <source>Never flees</source>
         <translation>Soha nem menekül</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="444"/>
-        <location filename="../inspector/inspector.cpp" line="811"/>
+        <location filename="../inspector/inspector.cpp" line="447"/>
+        <location filename="../inspector/inspector.cpp" line="822"/>
         <source>Not growing</source>
         <translation>Nem növekszik</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="464"/>
-        <location filename="../inspector/inspector.cpp" line="506"/>
+        <location filename="../inspector/inspector.cpp" line="476"/>
+        <location filename="../inspector/inspector.cpp" line="517"/>
         <source>Reward</source>
         <translation>Jutalom</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="479"/>
-        <location filename="../inspector/inspector.cpp" line="625"/>
+        <location filename="../inspector/inspector.cpp" line="490"/>
+        <location filename="../inspector/inspector.cpp" line="636"/>
         <source>Remove after</source>
-        <translation>Eltávolítás idő után</translation>
+        <translation>Eltávolítás ennyi idő után</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="480"/>
-        <location filename="../inspector/inspector.cpp" line="628"/>
+        <location filename="../inspector/inspector.cpp" line="491"/>
+        <location filename="../inspector/inspector.cpp" line="639"/>
         <source>Human trigger</source>
         <translation>Ember által indított</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="481"/>
-        <location filename="../inspector/inspector.cpp" line="631"/>
+        <location filename="../inspector/inspector.cpp" line="492"/>
+        <location filename="../inspector/inspector.cpp" line="642"/>
         <source>Cpu trigger</source>
         <translation>CPU által indított</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="490"/>
-        <location filename="../inspector/inspector.cpp" line="821"/>
+        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="832"/>
         <source>First visit text</source>
         <translation>Első látogatás szövege</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="491"/>
-        <location filename="../inspector/inspector.cpp" line="824"/>
+        <location filename="../inspector/inspector.cpp" line="502"/>
+        <location filename="../inspector/inspector.cpp" line="835"/>
         <source>Next visit text</source>
         <translation>Következő látogatás szövege</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="492"/>
-        <location filename="../inspector/inspector.cpp" line="827"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
+        <location filename="../inspector/inspector.cpp" line="838"/>
         <source>Completed text</source>
         <translation>Teljesített szöveg</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="493"/>
-        <location filename="../inspector/inspector.cpp" line="507"/>
-        <location filename="../inspector/inspector.cpp" line="830"/>
+        <location filename="../inspector/inspector.cpp" line="504"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Repeat quest</source>
         <translation>Küldetés ismétlése</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="494"/>
-        <location filename="../inspector/inspector.cpp" line="832"/>
+        <location filename="../inspector/inspector.cpp" line="505"/>
+        <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Time limit</source>
         <translation>Időkorlát</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="913"/>
+        <location filename="../inspector/inspector.cpp" line="924"/>
         <source>UNFLAGGABLE</source>
-        <translation>NEM ZÁSZLÓZHATÓ</translation>
+        <translation>NEM JELÖLHETŐ MEG ZÁSZLÓVAL</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="417"/>
@@ -2408,213 +2429,229 @@ Szeretnéd ezt most megtenni?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="649"/>
         <source> (submod of %1)</source>
-        <translation type="unfinished"> (%1 almodulja)</translation>
+        <translation> (%1 almodja)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="651"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">A(z) &apos;%1&apos;%2 modot egy objektum igényli a térképen.
-Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállításokban.</translation>
+        <translation>A(z) „%1”%2 nevű mod szükséges a térképen található egyik objektumhoz.
+Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beállítások menüpontban.</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="217"/>
-        <location filename="../inspector/townspellswidget.cpp" line="178"/>
+        <location filename="../inspector/herospellwidget.cpp" line="219"/>
+        <location filename="../inspector/townspellswidget.cpp" line="180"/>
         <source>Custom Spells:</source>
         <translation>Egyéni varázslatok:</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="226"/>
-        <location filename="../inspector/townspellswidget.cpp" line="198"/>
+        <location filename="../inspector/herospellwidget.cpp" line="228"/>
+        <location filename="../inspector/townspellswidget.cpp" line="200"/>
         <source>Default Spells</source>
         <translation>Alapértelmezett varázslatok</translation>
     </message>
     <message>
-        <location filename="../inspector/abilitieswidget.cpp" line="217"/>
-        <location filename="../inspector/portraitwidget.cpp" line="151"/>
+        <location filename="../inspector/abilitieswidget.cpp" line="216"/>
+        <location filename="../inspector/portraitwidget.cpp" line="153"/>
+        <location filename="../inspector/scholarwidget.cpp" line="203"/>
         <source>Default</source>
         <translation>Alapértelmezett</translation>
     </message>
     <message>
-        <location filename="../inspector/abilitieswidget.cpp" line="219"/>
+        <location filename="../inspector/abilitieswidget.cpp" line="218"/>
         <source>Custom</source>
-        <translation type="unfinished">Egyéni</translation>
+        <translation>Egyéni</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="448"/>
+        <location filename="../inspector/questwidget.cpp" line="450"/>
         <source>Quest:</source>
         <translation>Küldetés:</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="449"/>
+        <location filename="../inspector/questwidget.cpp" line="451"/>
         <source>Day of Week: %1</source>
         <translation>A hét napja: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="450"/>
+        <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Days Passed: %1</source>
         <translation>Eltelt napok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="451"/>
-        <location filename="../inspector/rewardswidget.cpp" line="793"/>
-        <source>Hero Level: %1</source>
-        <translation>Hős szint: %1</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.cpp" line="452"/>
-        <location filename="../inspector/rewardswidget.cpp" line="794"/>
-        <source>Hero Experience: %1</source>
-        <translation>Hős tapasztalat: %1</translation>
-    </message>
-    <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
-        <source>Mana Points: %1</source>
-        <translation>Mana pontok: %1</translation>
+        <location filename="../inspector/rewardswidget.cpp" line="794"/>
+        <source>Hero Level: %1</source>
+        <translation>Hősszint: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="454"/>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
-        <source>Mana Percentage: %1</source>
-        <translation>Mana százalék: %1</translation>
+        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <source>Hero Experience: %1</source>
+        <translation>Hőstapasztalat: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="455"/>
-        <location filename="../inspector/rewardswidget.cpp" line="799"/>
+        <source>Mana Points: %1</source>
+        <translation>Manapontok: %1</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="456"/>
+        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <source>Mana Percentage: %1</source>
+        <translation>Mana százalékban: %1</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="457"/>
+        <location filename="../inspector/rewardswidget.cpp" line="800"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation>Elsődleges képességek: %1/%2/%3/%4</translation>
+        <translation>Elsődleges jártasságok: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="466"/>
-        <location filename="../inspector/rewardswidget.cpp" line="809"/>
+        <location filename="../inspector/questwidget.cpp" line="468"/>
+        <location filename="../inspector/rewardswidget.cpp" line="810"/>
         <source>Resources: %1</source>
-        <translation>Erőforrások: %1</translation>
+        <translation>Nyersanyagok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="473"/>
-        <location filename="../inspector/rewardswidget.cpp" line="815"/>
+        <location filename="../inspector/questwidget.cpp" line="475"/>
+        <location filename="../inspector/rewardswidget.cpp" line="816"/>
         <source>Artifacts: %1</source>
-        <translation>Tárgyak: %1</translation>
+        <translation>Varázstárgy: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="480"/>
-        <location filename="../inspector/rewardswidget.cpp" line="821"/>
+        <location filename="../inspector/questwidget.cpp" line="482"/>
+        <location filename="../inspector/rewardswidget.cpp" line="822"/>
         <source>Spells: %1</source>
         <translation>Varázslatok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="487"/>
-        <location filename="../inspector/rewardswidget.cpp" line="827"/>
+        <location filename="../inspector/questwidget.cpp" line="489"/>
+        <location filename="../inspector/rewardswidget.cpp" line="828"/>
         <source>Secondary Skills: %1</source>
-        <translation>Másodlagos képességek: %1</translation>
+        <translation>Másodlagos jártasságok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="494"/>
-        <location filename="../inspector/rewardswidget.cpp" line="833"/>
+        <location filename="../inspector/questwidget.cpp" line="496"/>
+        <location filename="../inspector/rewardswidget.cpp" line="834"/>
         <source>Creatures: %1</source>
         <translation>Egységek: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="501"/>
+        <location filename="../inspector/questwidget.cpp" line="503"/>
         <source>Heroes: %1</source>
         <translation>Hősök: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="508"/>
+        <location filename="../inspector/questwidget.cpp" line="510"/>
         <source>Hero Classes: %1</source>
-        <translation>Hős osztályok: %1</translation>
+        <translation>Hősosztályok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="517"/>
+        <location filename="../inspector/questwidget.cpp" line="519"/>
         <source>Players: %1</source>
         <translation>Játékosok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="789"/>
+        <location filename="../inspector/rewardswidget.cpp" line="790"/>
         <source>Rewards:</source>
         <translation>Jutalmak:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="792"/>
+        <location filename="../inspector/rewardswidget.cpp" line="793"/>
         <source>Reward Message: %1</source>
-        <translation>Jutalom üzenet: %1</translation>
+        <translation>Jutalomüzenet: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <location filename="../inspector/rewardswidget.cpp" line="796"/>
         <source>Mana Diff: %1</source>
-        <translation>Mana különbség: %1</translation>
+        <translation>Manakülönbség: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Move Points: %1</source>
         <translation>Mozgáspontok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/rewardswidget.cpp" line="799"/>
         <source>Move Percentage: %1</source>
-        <translation>Mozgás százalék: %1</translation>
+        <translation>Mozgás százalékban: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="836"/>
+        <location filename="../inspector/rewardswidget.cpp" line="837"/>
         <source>Spell Cast: %1 (%2)</source>
-        <translation>Varázslat használat: %1 (%2)</translation>
+        <translation>Varázslathasználat: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="844"/>
+        <location filename="../inspector/rewardswidget.cpp" line="845"/>
         <source>Bonuses: %1</source>
         <translation>Bónuszok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="363"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="365"/>
         <source>Built buildings:</source>
         <translation>Megépített épületek:</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="374"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="376"/>
         <source>Forbidden buildings:</source>
         <translation>Tiltott épületek:</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="183"/>
+        <location filename="../inspector/towneventswidget.cpp" line="185"/>
         <source>Town Events:</source>
         <translation>Városi események:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="179"/>
+        <location filename="../inspector/townspellswidget.cpp" line="181"/>
         <source>Required:</source>
         <translation>Szükséges:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="186"/>
+        <location filename="../inspector/townspellswidget.cpp" line="188"/>
         <source>Possible:</source>
         <translation>Lehetséges:</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="236"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült megnyitni a hadjáratot</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished"></translation>
+        <translation>Honnan szeretné megnyitni a fájlt?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished"></translation>
+        <translation>Belső</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished"></translation>
+        <translation>Külső</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
+        <translation>Hová szeretné menteni a fájlt?</translation>
+    </message>
+    <message>
+        <location filename="../helper.cpp" line="95"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/scholarwidget.cpp" line="212"/>
+        <source>Invalid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/abstractsettings.cpp" line="115"/>
+        <source>Hero placeholder (power rank %1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2638,12 +2675,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation>Hős szint</translation>
+        <translation>Hősszint</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation>Hős tapasztalat</translation>
+        <translation>Hőstapasztalat</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="136"/>
@@ -2668,7 +2705,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation>Elsődleges képességek</translation>
+        <translation>Elsődleges jártasságok</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
@@ -2693,12 +2730,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation>Erőforrások</translation>
+        <translation>Nyersanyagok</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="370"/>
@@ -2708,7 +2745,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation>Képességek</translation>
+        <translation>Jártasságok</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="442"/>
@@ -2733,7 +2770,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation>Hős osztályok</translation>
+        <translation>Hősosztályok</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
@@ -2741,12 +2778,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <translation>Játékosok</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="40"/>
+        <location filename="../inspector/questwidget.cpp" line="42"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="42"/>
+        <location filename="../inspector/questwidget.cpp" line="44"/>
         <source>Day %1</source>
         <translation>Nap %1</translation>
     </message>
@@ -2807,17 +2844,17 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/rewardswidget.ui" line="148"/>
         <source> days</source>
-        <translation>napok</translation>
+        <translation> nap</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished"></translation>
+        <translation> hét</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished"></translation>
+        <translation> hónap</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
@@ -2837,7 +2874,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/rewardswidget.ui" line="219"/>
         <source>Event info</source>
-        <translation>Esemény információ</translation>
+        <translation>Eseményinformáció</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="237"/>
@@ -2853,13 +2890,13 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../inspector/rewardswidget.ui" line="268"/>
         <location filename="../inspector/rewardswidget.ui" line="1055"/>
         <source>Hero level</source>
-        <translation>Hős szint</translation>
+        <translation>Hősszint</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="285"/>
         <location filename="../inspector/rewardswidget.ui" line="1072"/>
         <source>Hero experience</source>
-        <translation>Hős tapasztalat</translation>
+        <translation>Hőstapasztalat</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="325"/>
@@ -2894,7 +2931,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../inspector/rewardswidget.ui" line="437"/>
         <location filename="../inspector/rewardswidget.ui" line="1157"/>
         <source>Primary skills</source>
-        <translation>Elsődleges képességek</translation>
+        <translation>Elsődleges jártasságok</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="452"/>
@@ -2924,13 +2961,13 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../inspector/rewardswidget.ui" line="524"/>
         <location filename="../inspector/rewardswidget.ui" line="1228"/>
         <source>Resources</source>
-        <translation>Erőforrások</translation>
+        <translation>Nyersanyagok</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="573"/>
         <location filename="../inspector/rewardswidget.ui" line="1277"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="605"/>
@@ -2942,7 +2979,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../inspector/rewardswidget.ui" line="637"/>
         <location filename="../inspector/rewardswidget.ui" line="1341"/>
         <source>Skills</source>
-        <translation>Képességek</translation>
+        <translation>Jártasságok</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="677"/>
@@ -3016,7 +3053,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1509"/>
         <source>Hero classes</source>
-        <translation>Hős osztályok</translation>
+        <translation>Hősosztályok</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1541"/>
@@ -3024,20 +3061,20 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <translation>Játékosok</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="55"/>
+        <location filename="../inspector/rewardswidget.cpp" line="56"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="57"/>
+        <location filename="../inspector/rewardswidget.cpp" line="58"/>
         <source>Day %1</source>
-        <translation>Nap %1</translation>
+        <translation>Nap: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="250"/>
-        <location filename="../inspector/rewardswidget.cpp" line="623"/>
+        <location filename="../inspector/rewardswidget.cpp" line="251"/>
+        <location filename="../inspector/rewardswidget.cpp" line="624"/>
         <source>Reward %1</source>
-        <translation>Jutalom %1</translation>
+        <translation>Jutalom: %1</translation>
     </message>
 </context>
 <context>
@@ -3045,7 +3082,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="14"/>
         <source>Form</source>
-        <translation>Űrlap</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
@@ -3072,9 +3109,9 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <name>ScenarioProperties</name>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="37"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="39"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Forgatókönyv tulajdonságai</translation>
+        <translation>Történetszál tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
@@ -3084,32 +3121,32 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="42"/>
         <source>Region name</source>
-        <translation type="unfinished">Régió neve</translation>
+        <translation>Terület neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="56"/>
         <source>Region color</source>
-        <translation type="unfinished">Régió színe</translation>
+        <translation>Terület színe</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="66"/>
         <source>Scenario name</source>
-        <translation type="unfinished">Forgatókönyv neve</translation>
+        <translation>Történetszál neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="80"/>
         <source>Map file</source>
-        <translation type="unfinished">Térkép fájl</translation>
+        <translation>Térképfájl</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="96"/>
         <source>Import...</source>
-        <translation type="unfinished">Importálás...</translation>
+        <translation>Importálás…</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="103"/>
         <source>Export...</source>
-        <translation type="unfinished">Exportálás...</translation>
+        <translation>Exportálás…</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="110"/>
@@ -3120,27 +3157,27 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="119"/>
         <source>Default difficulty</source>
-        <translation type="unfinished">Alapértelmezett nehézség</translation>
+        <translation>Alapértelmezett nehézségi szint</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="129"/>
         <source>Prerequisites</source>
-        <translation type="unfinished">Előfeltételek</translation>
+        <translation>Előfeltételek</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="139"/>
         <source>Region right-click text</source>
-        <translation type="unfinished">Jobb kattintás szövege a régión</translation>
+        <translation>Jobb kattintás szövege a területen</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="150"/>
         <source>Prologue/Epilogue</source>
-        <translation type="unfinished">Prológus/Epilógus</translation>
+        <translation>Prológus/Epilógus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
         <source>Prologue</source>
-        <translation type="unfinished">Prológus</translation>
+        <translation>Prológus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="180"/>
@@ -3160,19 +3197,19 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Videók</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="308"/>
         <source>Music</source>
-        <translation type="unfinished">Zene</translation>
+        <translation>Zene</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="232"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="325"/>
         <source>Voice</source>
-        <translation type="unfinished">Hang</translation>
+        <translation>Hang</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="249"/>
@@ -3183,17 +3220,17 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="264"/>
         <source>Epilogue</source>
-        <translation type="unfinished">Epilógus</translation>
+        <translation>Epilógus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="358"/>
         <source>Crossover</source>
-        <translation type="unfinished">Átvezetés</translation>
+        <translation>Átvezetés</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="364"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished">Átvezetett hősök megtartása</translation>
+        <translation>Átvezetett hősök megtartása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="370"/>
@@ -3203,12 +3240,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="377"/>
         <source>Primary skills</source>
-        <translation>Elsődleges képességek</translation>
+        <translation>Elsődleges jártasságok</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="384"/>
         <source>Secondary skills</source>
-        <translation type="unfinished">Másodlagos képességek</translation>
+        <translation>Másodlagos jártasságok</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="391"/>
@@ -3218,12 +3255,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="398"/>
         <source>Artifacts</source>
-        <translation>Tárgyak</translation>
+        <translation>Ereklyék</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="431"/>
         <source>All</source>
-        <translation type="unfinished">Összes</translation>
+        <translation>Összes</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="438"/>
@@ -3233,136 +3270,164 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="465"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished">Átvezetett tárgyak</translation>
+        <translation>Átvezetett ereklyék</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="494"/>
         <source>Starting</source>
-        <translation type="unfinished">Kezdő</translation>
+        <translation>Kezdés</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="500"/>
         <source>Starting options are</source>
-        <translation type="unfinished">Kezdő beállítások</translation>
+        <translation>Kezdeti beállítások</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="507"/>
         <source>Starting bonus options</source>
-        <translation type="unfinished">Kezdő bónusz opciók</translation>
+        <translation>Kezdeti bónuszbeállítások</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="514"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished">Hős átvezetési opciók</translation>
+        <translation>Hősátvezetési beállítások</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="521"/>
         <source>Starting hero options</source>
-        <translation type="unfinished">Kezdő hős opciók</translation>
+        <translation>Kezdeti hősbeállítások</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="539"/>
         <source>Bonus</source>
-        <translation type="unfinished">Bónusz</translation>
+        <translation>Bónusz</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="474"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="484"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="476"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Player position</source>
-        <translation type="unfinished">Játékos pozíció</translation>
+        <translation>Játékos pozíciója</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="555"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished">Kezdő bónusz opció</translation>
+        <translation>Kezdeti bónuszbeállítás</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="566"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished">Átvezetett / Kezdő hős</translation>
+        <translation>Átvezetett / Kezdeti hős</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="584"/>
         <source>Add...</source>
-        <translation type="unfinished">Hozzáadás...</translation>
+        <translation>Hozzáadás…</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="591"/>
         <source>Edit...</source>
-        <translation type="unfinished">Szerkesztés...</translation>
-    </message>
-    <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="123"/>
-        <source>Strongest</source>
-        <translation type="unfinished">Leghatalmasabb</translation>
-    </message>
-    <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="124"/>
-        <source>Generated</source>
-        <translation type="unfinished">Generált</translation>
+        <translation>Szerkesztés…</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="125"/>
+        <source>Strongest</source>
+        <translation>Legerősebb</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
+        <source>Generated</source>
+        <translation>Előállított</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="127"/>
         <source>Random</source>
         <translation>Véletlen</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="142"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="144"/>
         <source>No map</source>
-        <translation type="unfinished">Nincs térkép</translation>
+        <translation>Nincs térkép</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="185"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="187"/>
         <source>Player</source>
         <translation>Játékos</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="393"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>Open map</source>
         <translation>Térkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="397"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation>Minden támogatott térkép (*.vmap *.h3m);;VCMI térképek (*.vmap);;HoMM3 térképek (*.h3m)</translation>
+        <translation>Minden támogatott térkép: (*.vmap *.h3m);;VCMI-térképek (*.vmap);;HoMM3-térképek (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="404"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="443"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="406"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>Error</source>
-        <translation type="unfinished">Hiba</translation>
+        <translation>Hiba</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="404"/>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="443"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="406"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>Could not open the file.</source>
-        <translation type="unfinished">Nem sikerült megnyitni a fájlt.</translation>
+        <translation>Nem sikerült megnyitni a fájlt.</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="433"/>
         <source>Save map</source>
         <translation>Térkép mentése</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="433"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="435"/>
         <source>VCMI maps (*.vmap);</source>
-        <translation type="unfinished">VCMI térképek (*.vmap);</translation>
+        <translation>VCMI-térképek (*.vmap);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="433"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="435"/>
         <source>HoMM3 maps (*.h3m);</source>
-        <translation type="unfinished">HoMM3 térképek (*.h3m);</translation>
+        <translation>HoMM3-térképek (*.h3m);</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="474"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="476"/>
         <source>Source scenario</source>
-        <translation type="unfinished">Forrás forgatókönyv</translation>
+        <translation>Forrás-történetszál</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/scenarioproperties.cpp" line="484"/>
+        <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Hero</source>
-        <translation type="unfinished">Hős</translation>
+        <translation>Hős</translation>
+    </message>
+</context>
+<context>
+    <name>ScholarWidget</name>
+    <message>
+        <location filename="../inspector/scholarwidget.ui" line="35"/>
+        <source>Scholar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/scholarwidget.ui" line="64"/>
+        <source>Random</source>
+        <translation type="unfinished">Véletlen</translation>
+    </message>
+    <message>
+        <location filename="../inspector/scholarwidget.ui" line="105"/>
+        <source>Primary Skill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/scholarwidget.ui" line="138"/>
+        <source>Secondary Skill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/scholarwidget.ui" line="174"/>
+        <source>Spell</source>
+        <translation type="unfinished">Varázslat</translation>
     </message>
 </context>
 <context>
@@ -3370,12 +3435,12 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="14"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Forgatókönyv tulajdonságai</translation>
+        <translation>Történetszál tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="20"/>
         <source>Select a bonus type</source>
-        <translation type="unfinished">Bónusz típus kiválasztása</translation>
+        <translation>Bónusztípus kiválasztása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="27"/>
@@ -3389,49 +3454,49 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished">Lény</translation>
+        <translation>Lény</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
         <location filename="../campaigneditor/startingbonus.ui" line="184"/>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="363"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="364"/>
         <source>Building</source>
-        <translation type="unfinished">Épület</translation>
+        <translation>Épület</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="48"/>
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation>Tárgy</translation>
+        <translation>Varázstárgy</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
         <location filename="../campaigneditor/startingbonus.ui" line="254"/>
         <source>Spell scroll</source>
-        <translation type="unfinished">Varázstekercs</translation>
+        <translation>Varázstekercs</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation type="unfinished">Elsődleges képesség</translation>
+        <translation>Elsődleges jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
         <location filename="../campaigneditor/startingbonus.ui" line="364"/>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="387"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="388"/>
         <source>Secondary skill</source>
-        <translation type="unfinished">Másodlagos képesség</translation>
+        <translation>Másodlagos jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="391"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="392"/>
         <source>Resource</source>
-        <translation>Erőforrás</translation>
+        <translation>Nyersanyag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="100"/>
@@ -3441,28 +3506,28 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../campaigneditor/startingbonus.ui" line="300"/>
         <location filename="../campaigneditor/startingbonus.ui" line="370"/>
         <source>Recipient</source>
-        <translation type="unfinished">Címzett</translation>
+        <translation>Kedvezményezett</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished">Lénytípus</translation>
+        <translation>Lénytípus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
         <location filename="../campaigneditor/startingbonus.ui" line="430"/>
         <source>Quantity</source>
-        <translation type="unfinished">Mennyiség</translation>
+        <translation>Mennyiség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="310"/>
         <source>Attack skill</source>
-        <translation type="unfinished">Támadó képesség</translation>
+        <translation>Támadási jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="320"/>
         <source>Defense skill</source>
-        <translation type="unfinished">Védő képesség</translation>
+        <translation>Védekezési jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
@@ -3477,92 +3542,92 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
         <source>Mastery</source>
-        <translation type="unfinished">Jártasság</translation>
+        <translation>Jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="420"/>
         <source>Resource type</source>
-        <translation type="unfinished">Erőforrás típusa</translation>
+        <translation>Nyersanyagtípus</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="34"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="35"/>
         <source>Edit Starting Bonus</source>
-        <translation type="unfinished">Kezdő bónusz szerkesztése</translation>
-    </message>
-    <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="62"/>
-        <source>Strongest</source>
-        <translation type="unfinished">Leghatalmasabb</translation>
+        <translation>Kezdeti bónusz szerkesztése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="63"/>
-        <source>Generated</source>
-        <translation type="unfinished">Generált</translation>
+        <source>Strongest</source>
+        <translation>Legerősebb</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
+        <source>Generated</source>
+        <translation>Előállított</translation>
+    </message>
+    <message>
+        <location filename="../campaigneditor/startingbonus.cpp" line="65"/>
         <source>Random</source>
         <translation>Véletlen</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="95"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="96"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished">A fő város véletlenszerű frakcióé</translation>
+        <translation>A főváros véletlenszerű frakcióhoz tartozik</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="107"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="108"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished">A játékosnak nincs fő városa!</translation>
+        <translation>A játékosnak nincs fővárosa!</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="132"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="133"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished">Gyakori (%1 és %2)</translation>
+        <translation>Gyakori (%1 és %2)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="137"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="138"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished">Ritka (%1, %2, %3, %4)</translation>
+        <translation>Ritka (%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="319"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="320"/>
         <source>strongest hero</source>
-        <translation type="unfinished">leghatalmasabb hős</translation>
+        <translation>Legerősebb hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="321"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
         <source>generated hero</source>
-        <translation type="unfinished">generált hős</translation>
+        <translation>előállított hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="323"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
         <source>random hero</source>
-        <translation type="unfinished">véletlen hős</translation>
+        <translation>véletlen hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="354"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="355"/>
         <source>%1 spell for %2</source>
-        <translation type="unfinished">%1 varázslat %2 számára</translation>
+        <translation>%1 varázslat %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="359"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="360"/>
         <source>%1 %2 for %3</source>
-        <translation type="unfinished">%1 %2 %3 számára</translation>
+        <translation>%1 %2 %3 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="368"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="369"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished">%1 tárgy %2 számára</translation>
+        <translation>%1 varázstárgy %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="373"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="374"/>
         <source>%1 spell scroll for %2</source>
-        <translation type="unfinished">%1 varázstekercs %2 számára</translation>
+        <translation>%1 varázstekercs %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="378"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="379"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished">Elsődleges képesség (Támadás: %1, Védekezés: %2, Mágia: %3, Tudás: %4) %5 számára</translation>
+        <translation>Elsődleges jártasság (támadás: %1, védekezés: %2, mágia: %3, tudás: %4) %5 számára</translation>
     </message>
 </context>
 <context>
@@ -3571,7 +3636,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
         <location filename="../templateeditor/templateeditor.cpp" line="661"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished">VCMI Sablonszerkesztő</translation>
+        <translation>VCMI-sablonszerkesztő</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
@@ -3579,484 +3644,494 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <translation>Fájl</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="45"/>
+        <location filename="../templateeditor/templateeditor.ui" line="47"/>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="53"/>
+        <location filename="../templateeditor/templateeditor.ui" line="55"/>
         <source>View</source>
         <translation>Nézet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="68"/>
+        <location filename="../templateeditor/templateeditor.ui" line="70"/>
         <source>Toolbar</source>
         <translation>Eszköztár</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="114"/>
+        <location filename="../templateeditor/templateeditor.ui" line="116"/>
         <source>Selected Template:</source>
-        <translation type="unfinished">Kiválasztott sablon:</translation>
+        <translation>Kiválasztott sablon:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="137"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1325"/>
+        <location filename="../templateeditor/templateeditor.ui" line="139"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1327"/>
         <location filename="../templateeditor/templateeditor.cpp" line="281"/>
         <source>Add</source>
         <translation>Hozzáadás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="144"/>
+        <location filename="../templateeditor/templateeditor.ui" line="146"/>
         <source>Remove</source>
         <translation>Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="151"/>
+        <location filename="../templateeditor/templateeditor.ui" line="153"/>
         <source>Rename</source>
-        <translation type="unfinished">Átnevezés</translation>
+        <translation>Átnevezés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="215"/>
+        <location filename="../templateeditor/templateeditor.ui" line="217"/>
         <source>General</source>
         <translation>Általános</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="221"/>
+        <location filename="../templateeditor/templateeditor.ui" line="223"/>
         <source>Name</source>
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="233"/>
+        <location filename="../templateeditor/templateeditor.ui" line="235"/>
         <source>Description</source>
-        <translation type="unfinished">Leírás</translation>
+        <translation>Leírás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="245"/>
+        <location filename="../templateeditor/templateeditor.ui" line="247"/>
         <source>Min Size</source>
-        <translation type="unfinished">Min. méret</translation>
+        <translation>Min. méret</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="264"/>
-        <location filename="../templateeditor/templateeditor.ui" line="363"/>
-        <location filename="../templateeditor/templateeditor.ui" line="585"/>
+        <location filename="../templateeditor/templateeditor.ui" line="266"/>
+        <location filename="../templateeditor/templateeditor.ui" line="365"/>
+        <location filename="../templateeditor/templateeditor.ui" line="587"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="294"/>
-        <location filename="../templateeditor/templateeditor.ui" line="393"/>
-        <location filename="../templateeditor/templateeditor.ui" line="615"/>
+        <location filename="../templateeditor/templateeditor.ui" line="296"/>
+        <location filename="../templateeditor/templateeditor.ui" line="395"/>
+        <location filename="../templateeditor/templateeditor.ui" line="617"/>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="324"/>
-        <location filename="../templateeditor/templateeditor.ui" line="423"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1378"/>
+        <location filename="../templateeditor/templateeditor.ui" line="326"/>
+        <location filename="../templateeditor/templateeditor.ui" line="425"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1380"/>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="344"/>
+        <location filename="../templateeditor/templateeditor.ui" line="346"/>
         <source>Max Size</source>
-        <translation type="unfinished">Max. méret</translation>
+        <translation>Max. méret</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="443"/>
-        <location filename="../templateeditor/templateeditor.ui" line="449"/>
+        <location filename="../templateeditor/templateeditor.ui" line="445"/>
+        <location filename="../templateeditor/templateeditor.ui" line="451"/>
         <source>Players</source>
         <translation>Játékosok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="459"/>
+        <location filename="../templateeditor/templateeditor.ui" line="461"/>
         <source>Human</source>
-        <translation type="unfinished">Ember</translation>
+        <translation>Ember</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="472"/>
+        <location filename="../templateeditor/templateeditor.ui" line="474"/>
         <source>Allowed water content</source>
-        <translation type="unfinished">Engedélyezett víztartalom</translation>
+        <translation>Engedélyezett víztartalom</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="478"/>
+        <location filename="../templateeditor/templateeditor.ui" line="480"/>
         <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <location filename="../templateeditor/templateeditor.cpp" line="432"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="485"/>
+        <location filename="../templateeditor/templateeditor.ui" line="487"/>
         <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <source>Normal</source>
         <translation>Normál</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="492"/>
+        <location filename="../templateeditor/templateeditor.ui" line="494"/>
         <source>Islands</source>
         <translation>Szigetek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="502"/>
+        <location filename="../templateeditor/templateeditor.ui" line="504"/>
         <source>Entities</source>
-        <translation type="unfinished">Entitások</translation>
+        <translation>Objektumok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="508"/>
+        <location filename="../templateeditor/templateeditor.ui" line="510"/>
         <source>Banned Spells</source>
-        <translation type="unfinished">Tiltott varázslatok</translation>
+        <translation>Tiltott varázslatok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="515"/>
+        <location filename="../templateeditor/templateeditor.ui" line="517"/>
         <source>Banned Artifacts</source>
-        <translation type="unfinished">Tiltott ereklyék</translation>
+        <translation>Tiltott ereklyék</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="522"/>
+        <location filename="../templateeditor/templateeditor.ui" line="524"/>
         <source>Banned Skills</source>
-        <translation type="unfinished">Tiltott képességek</translation>
+        <translation>Tiltott játasságok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="529"/>
+        <location filename="../templateeditor/templateeditor.ui" line="531"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Tiltott hősök</translation>
+        <translation>Tiltott hősök</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="561"/>
+        <location filename="../templateeditor/templateeditor.ui" line="563"/>
         <source>Zone</source>
-        <translation type="unfinished">Zóna</translation>
+        <translation>Zóna</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="567"/>
+        <location filename="../templateeditor/templateeditor.ui" line="569"/>
         <source>Visualisation</source>
-        <translation type="unfinished">Vizualizáció</translation>
+        <translation>Megjelenítés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="573"/>
+        <location filename="../templateeditor/templateeditor.ui" line="575"/>
         <source>Position</source>
-        <translation type="unfinished">Pozíció</translation>
+        <translation>Pozíció</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="645"/>
-        <location filename="../templateeditor/templateeditor.ui" line="701"/>
+        <location filename="../templateeditor/templateeditor.ui" line="647"/>
+        <location filename="../templateeditor/templateeditor.ui" line="703"/>
         <source>Size</source>
-        <translation type="unfinished">Méret</translation>
+        <translation>Méret</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="673"/>
+        <location filename="../templateeditor/templateeditor.ui" line="675"/>
         <source>ID</source>
-        <translation type="unfinished">Azonosító</translation>
+        <translation>Azonosító</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="689"/>
+        <location filename="../templateeditor/templateeditor.ui" line="691"/>
         <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="717"/>
+        <location filename="../templateeditor/templateeditor.ui" line="719"/>
         <source>Owner</source>
         <translation>Tulajdonos</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="729"/>
+        <location filename="../templateeditor/templateeditor.ui" line="731"/>
         <source>Forced level</source>
-        <translation type="unfinished">Kényszerített szint</translation>
+        <translation>Kényszerített szint</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="741"/>
+        <location filename="../templateeditor/templateeditor.ui" line="743"/>
         <source>Zone link</source>
-        <translation type="unfinished">Zónakapcsolat</translation>
+        <translation>Zónakapcsolat</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="747"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1245"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1251"/>
+        <location filename="../templateeditor/templateeditor.ui" line="749"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1247"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1253"/>
         <source>Mines</source>
         <translation>Bányák</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="754"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1267"/>
+        <location filename="../templateeditor/templateeditor.ui" line="756"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1269"/>
         <source>Custom objects</source>
-        <translation type="unfinished">Egyéni objektumok</translation>
+        <translation>Egyéni objektumok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="761"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1139"/>
+        <location filename="../templateeditor/templateeditor.ui" line="763"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1141"/>
         <source>Towns</source>
         <translation>Városok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="768"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1109"/>
+        <location filename="../templateeditor/templateeditor.ui" line="770"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1111"/>
         <source>Terrain</source>
-        <translation type="unfinished">Terep</translation>
+        <translation>Felszín</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="785"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1229"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1235"/>
+        <location filename="../templateeditor/templateeditor.ui" line="787"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1231"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1237"/>
         <location filename="../templateeditor/templateeditor.cpp" line="394"/>
         <source>Treasure</source>
-        <translation type="unfinished">Kincs</translation>
+        <translation>Kincs</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="848"/>
+        <location filename="../templateeditor/templateeditor.ui" line="850"/>
         <source>Town info</source>
-        <translation type="unfinished">Város adatai</translation>
+        <translation>Város adatai</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="854"/>
+        <location filename="../templateeditor/templateeditor.ui" line="856"/>
         <source>Town count</source>
-        <translation type="unfinished">Városok száma</translation>
+        <translation>Városok száma</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="866"/>
-        <location filename="../templateeditor/templateeditor.ui" line="929"/>
-        <location filename="../templateeditor/templateeditor.ui" line="992"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1055"/>
+        <location filename="../templateeditor/templateeditor.ui" line="868"/>
+        <location filename="../templateeditor/templateeditor.ui" line="931"/>
+        <location filename="../templateeditor/templateeditor.ui" line="994"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1057"/>
         <source>Player</source>
         <translation>Játékos</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="892"/>
-        <location filename="../templateeditor/templateeditor.ui" line="955"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1018"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1081"/>
+        <location filename="../templateeditor/templateeditor.ui" line="894"/>
+        <location filename="../templateeditor/templateeditor.ui" line="957"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1020"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1083"/>
         <source>Neutral</source>
         <translation>Semleges</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="917"/>
+        <location filename="../templateeditor/templateeditor.ui" line="919"/>
         <source>Castle count</source>
-        <translation type="unfinished">Várak száma</translation>
+        <translation>Várak száma</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="980"/>
+        <location filename="../templateeditor/templateeditor.ui" line="982"/>
         <source>Town density</source>
-        <translation type="unfinished">Várossűrűség</translation>
+        <translation>Várossűrűség</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1043"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1045"/>
         <source>Castle density</source>
-        <translation type="unfinished">Vársűrűség</translation>
+        <translation>Vársűrűség</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1115"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1117"/>
         <source>Match terrain to town</source>
-        <translation type="unfinished">Terep illesztése a városhoz</translation>
+        <translation>Felszín illesztése a városhoz</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1122"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1124"/>
         <source>Terrain types</source>
-        <translation type="unfinished">Tereptípusok</translation>
+        <translation>Felszíntípusok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1129"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1131"/>
         <source>Banned terrain types</source>
-        <translation type="unfinished">Tiltott tereptípusok</translation>
+        <translation>Tiltott felszíntípusok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1145"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1147"/>
         <source>Towns are same type</source>
-        <translation type="unfinished">A városok azonos típusúak</translation>
+        <translation>A városok azonos típusúak</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1152"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1154"/>
         <source>Allowed towns</source>
-        <translation type="unfinished">Engedélyezett városok</translation>
+        <translation>Engedélyezett városok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1159"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1161"/>
         <source>Banned towns</source>
-        <translation type="unfinished">Tiltott városok</translation>
+        <translation>Tiltott városok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1166"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1168"/>
         <source>Town hints</source>
-        <translation type="unfinished">Várostippek</translation>
+        <translation>Várostippek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1176"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1178"/>
         <source>Monsters</source>
         <translation>Szörnyek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1182"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1184"/>
         <source>Allowed monsters</source>
-        <translation type="unfinished">Engedélyezett szörnyek</translation>
+        <translation>Engedélyezett szörnyek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1189"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1191"/>
         <source>Banned monsters</source>
-        <translation type="unfinished">Tiltott szörnyek</translation>
+        <translation>Tiltott szörnyek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1207"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1209"/>
         <source>Strength</source>
-        <translation type="unfinished">Erősség</translation>
+        <translation>Erősség</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1261"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1263"/>
         <source>Objects</source>
         <translation>Objektumok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1299"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1301"/>
         <source>Connections</source>
-        <translation type="unfinished">Kapcsolatok</translation>
+        <translation>Kapcsolatok</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1343"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1345"/>
         <source>Open</source>
         <translation>Megnyitás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1351"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1353"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1359"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1361"/>
         <source>New</source>
         <translation>Új</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1367"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1369"/>
         <source>Save as...</source>
-        <translation>Mentés másként...</translation>
+        <translation>Mentés másként…</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1370"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1372"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1375"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1377"/>
         <source>Add zone</source>
-        <translation type="unfinished">Zóna hozzáadása</translation>
+        <translation>Zóna hozzáadása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1386"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1388"/>
         <source>Remove zone</source>
-        <translation type="unfinished">Zóna eltávolítása</translation>
+        <translation>Zóna eltávolítása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1389"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1391"/>
         <location filename="../templateeditor/templateeditor.cpp" line="484"/>
         <source>Del</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1394"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1396"/>
         <source>Auto position</source>
-        <translation type="unfinished">Automatikus pozíció</translation>
+        <translation>Automatikus pozíció</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1397"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1399"/>
         <source>Ctrl+P</source>
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1402"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1404"/>
         <source>Zoom in</source>
         <translation>Nagyítás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1405"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1407"/>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1410"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1412"/>
         <source>Zoom out</source>
         <translation>Kicsinyítés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1413"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1415"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1418"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1420"/>
         <source>Zoom auto</source>
-        <translation type="unfinished">Automatikus nagyítás</translation>
+        <translation>Automatikus nagyítás</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1421"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1423"/>
         <source>Ctrl+Shift+:</source>
-        <translation type="unfinished">Ctrl+Shift+:</translation>
+        <translation>Ctrl+Shift+:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1426"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1428"/>
         <source>Zoom reset</source>
-        <translation>Nagyítás alaphelyzetbe</translation>
+        <translation>Nagyítás visszaállítása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1429"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1431"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1436"/>
+        <source>Exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1439"/>
+        <source>Ctrl+Q</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
         <source>Min</source>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
         <source>Max</source>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
         <source>Action</source>
-        <translation type="unfinished">Művelet</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="270"/>
         <location filename="../templateeditor/templateeditor.cpp" line="485"/>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="309"/>
         <source>ID: %1</source>
-        <translation type="unfinished">Azonosító: %1</translation>
+        <translation>Azonosító: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished">Max. kincs: %1</translation>
+        <translation>Max. kincs: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="392"/>
         <source>Player start</source>
-        <translation type="unfinished">Játékos kezdés</translation>
+        <translation>Játékos kezdés</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="393"/>
         <source>CPU start</source>
-        <translation type="unfinished">CPU kezdés</translation>
+        <translation>CPU-kezdés</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="395"/>
         <source>Junction</source>
-        <translation type="unfinished">Csomópont</translation>
+        <translation>Csomópont</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Water</source>
-        <translation type="unfinished">Víz</translation>
+        <translation>Víz</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="397"/>
         <source>Sealed</source>
-        <translation type="unfinished">Lezárt</translation>
+        <translation>Elzárt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="424"/>
         <source>Automatic</source>
-        <translation type="unfinished">Automatikus</translation>
+        <translation>Automatikus</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="425"/>
@@ -4087,64 +4162,64 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Zone A</source>
-        <translation type="unfinished">A zóna</translation>
+        <translation>A zóna</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Zone B</source>
-        <translation type="unfinished">B zóna</translation>
+        <translation>B zóna</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Guard</source>
-        <translation type="unfinished">Őrség</translation>
+        <translation>Őrség</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="453"/>
         <source>Road</source>
-        <translation type="unfinished">Út</translation>
+        <translation>Út</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="467"/>
         <source>Guarded</source>
-        <translation type="unfinished">Őrzött</translation>
+        <translation>Őrzött</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="468"/>
         <source>Fictive</source>
-        <translation type="unfinished">Fiktív</translation>
+        <translation>Fiktív</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="469"/>
         <source>Repulsive</source>
-        <translation type="unfinished">Taszító</translation>
+        <translation>Taszító</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="470"/>
         <source>Wide</source>
-        <translation type="unfinished">Széles</translation>
+        <translation>Széles</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="471"/>
         <source>Force portal</source>
-        <translation type="unfinished">Kényszerített portál</translation>
+        <translation>Kényszerített portál</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="473"/>
         <source>Yes</source>
-        <translation type="unfinished">Igen</translation>
+        <translation>Igen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="474"/>
         <source>No</source>
-        <translation type="unfinished">Nem</translation>
+        <translation>Nem</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="589"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">A zóna: %1
+        <translation>A zóna: %1
 B zóna: %2
 Őrség: %3</translation>
     </message>
@@ -4161,99 +4236,99 @@ B zóna: %2
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="673"/>
         <source>Validation failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült az ellenőrzés!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="678"/>
         <source>No player range defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nincs megadva játékostartomány.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="685"/>
         <source>Invalid range for players.</source>
-        <translation type="unfinished"></translation>
+        <translation>Érvénytelen játékostartomány.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="693"/>
         <source>Invalid range for human players.</source>
-        <translation type="unfinished"></translation>
+        <translation>Érvénytelen tartomány az emberi játékosokhoz.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="708"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>A kapcsolat nem létező zónára/zónákra hivatkozik: %1 - %2</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="720"/>
         <source>Zone %1 has no connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Az 1. zónának nincsenek kapcsolatai.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="744"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>A(z) %1 játékosnak pontosan egy kezdőpont-zónával kell rendelkeznie (%2 található).</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="782"/>
         <source>Open template</source>
-        <translation type="unfinished">Sablon megnyitása</translation>
+        <translation>Sablon megnyitása</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="784"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished">VCMI sablonok (*.json)</translation>
+        <translation>VCMI- sablonok (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="802"/>
         <source>Save template</source>
-        <translation type="unfinished">Sablon mentése</translation>
+        <translation>Sablon mentése</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="803"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished">VCMI sablonok (*.json)</translation>
+        <translation>VCMI-sablonok (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="940"/>
         <location filename="../templateeditor/templateeditor.cpp" line="981"/>
         <source>Enter Name</source>
-        <translation type="unfinished">Név megadása</translation>
+        <translation>Név megadása</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="940"/>
         <location filename="../templateeditor/templateeditor.cpp" line="981"/>
         <source>Name:</source>
-        <translation type="unfinished">Név:</translation>
+        <translation>Név:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="947"/>
         <source>Already existing!</source>
-        <translation type="unfinished">Már létezik!</translation>
+        <translation>Már létezik!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="947"/>
         <source>A template with this name is already existing.</source>
-        <translation type="unfinished">Már létezik ilyen nevű sablon.</translation>
+        <translation>Már létezik ilyen nevű sablon.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
         <source>Too few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Túl kevés sablon van!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="964"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished">Eltávolítás után legalább egy sablonnak maradnia kell.</translation>
+        <translation>Eltávolítás után legalább egy sablonnak maradnia kell.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Too few zones</source>
-        <translation type="unfinished"></translation>
+        <translation>Túl kevés zóna van</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1214"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>A kapcsolat hozzáadása előtt hozzon létre legalább két zónát.</translation>
     </message>
 </context>
 <context>
@@ -4301,7 +4376,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
-        <translation>Erőforrások</translation>
+        <translation>Nyersanyagok</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="194"/>
@@ -4331,7 +4406,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/timedevent.ui" line="235"/>
         <source>Ok</source>
-        <translation>Rendben</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -4344,12 +4419,12 @@ B zóna: %2
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="53"/>
         <source>Build all</source>
-        <translation>Minden épület</translation>
+        <translation>Összes építése</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="60"/>
         <source>Demolish all</source>
-        <translation>Minden lebontása</translation>
+        <translation>Összes lebontása</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="67"/>
@@ -4359,20 +4434,20 @@ B zóna: %2
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="74"/>
         <source>Disable all</source>
-        <translation>Összes tiltása</translation>
+        <translation>Összes letiltása</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Enabled</source>
         <translation>Engedélyezve</translation>
     </message>
     <message>
-        <location filename="../inspector/townbuildingswidget.cpp" line="132"/>
+        <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Built</source>
         <translation>Megépítve</translation>
     </message>
@@ -4427,7 +4502,7 @@ B zóna: %2
     <message>
         <location filename="../inspector/towneventdialog.ui" line="166"/>
         <source>Resources</source>
-        <translation>Erőforrások</translation>
+        <translation>Nyersanyagok</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="198"/>
@@ -4445,12 +4520,12 @@ B zóna: %2
         <translation>Rendben</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="172"/>
+        <location filename="../inspector/towneventdialog.cpp" line="174"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>Egység szint %1 / Egység szint %1 fejlesztve</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="214"/>
+        <location filename="../inspector/towneventdialog.cpp" line="216"/>
         <source>Day %1 - %2</source>
         <translation>Nap %1 - %2</translation>
     </message>
@@ -4458,7 +4533,7 @@ B zóna: %2
 <context>
     <name>TownEventsDelegate</name>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="187"/>
+        <location filename="../inspector/towneventswidget.cpp" line="189"/>
         <source>Day %1 - %2</source>
         <translation>Nap %1 - %2</translation>
     </message>
@@ -4486,12 +4561,12 @@ B zóna: %2
         <translation>Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="107"/>
+        <location filename="../inspector/towneventswidget.cpp" line="109"/>
         <source>Day %1 - %2</source>
         <translation>Nap %1 - %2</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="128"/>
+        <location filename="../inspector/towneventswidget.cpp" line="130"/>
         <source>New event</source>
         <translation>Új esemény</translation>
     </message>
@@ -4501,57 +4576,57 @@ B zóna: %2
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="14"/>
         <source>Select Town hints</source>
-        <translation type="unfinished">Várostippek kiválasztása</translation>
+        <translation>Várostippek kiválasztása</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="20"/>
         <source>Town hints</source>
-        <translation type="unfinished">Várostippek</translation>
+        <translation>Várostippek</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="23"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="25"/>
         <source>Town hint Selector</source>
-        <translation type="unfinished">Várostipp-választó</translation>
+        <translation>Várostipp-választó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="29"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="29"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Value</source>
         <translation>Érték</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="29"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Action</source>
-        <translation type="unfinished">Művelet</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="32"/>
-        <source>Like Zone</source>
-        <translation type="unfinished">Zónához hasonló</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="33"/>
-        <source>Not like zone (comma separated)</source>
-        <translation type="unfinished">Ne legyen mint a zóna (vesszővel elválasztva)</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="34"/>
+        <source>Like Zone</source>
+        <translation>Zónához hasonló</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="35"/>
+        <source>Not like zone (comma separated)</source>
+        <translation>Ne legyen zónához hasonló (vesszővel elválasztva)</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="36"/>
         <source>Related to zone terrain</source>
-        <translation type="unfinished">A zóna terepéhez kapcsolódik</translation>
+        <translation>A zóna felszínéhez kapcsolódik</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="59"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="61"/>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/townhintselector.cpp" line="98"/>
+        <location filename="../templateeditor/townhintselector.cpp" line="100"/>
         <source>Add</source>
-        <translation type="unfinished">Hozzáadás</translation>
+        <translation>Hozzáadás</translation>
     </message>
 </context>
 <context>
@@ -4615,7 +4690,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/translations.ui" line="14"/>
         <source>Map translations</source>
-        <translation>Térképfeliratok</translation>
+        <translation>Térképfordítások</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="31"/>
@@ -4638,18 +4713,18 @@ B zóna: %2
         <translation>Szöveg</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="177"/>
-        <location filename="../mapsettings/translations.cpp" line="181"/>
+        <location filename="../mapsettings/translations.cpp" line="178"/>
+        <location filename="../mapsettings/translations.cpp" line="182"/>
         <source>Remove translation</source>
         <translation>Fordítás eltávolítása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="177"/>
+        <location filename="../mapsettings/translations.cpp" line="178"/>
         <source>Default language cannot be removed</source>
         <translation>Az alapértelmezett nyelv nem távolítható el</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="181"/>
+        <location filename="../mapsettings/translations.cpp" line="182"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translation>Minden meglévő szövegrekord törlődik az adott nyelvhez. Folytatja?</translation>
     </message>
@@ -4660,70 +4735,70 @@ B zóna: %2
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished">Kincsek kiválasztása</translation>
+        <translation>Kincsek kiválasztása</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="25"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="27"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished">Kincsválasztó</translation>
+        <translation>Kincsválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="31"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Min</source>
-        <translation type="unfinished">Min</translation>
+        <translation>Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="31"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Max</source>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="31"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Density</source>
-        <translation type="unfinished">Sűrűség</translation>
+        <translation>Sűrűség</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="31"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Action</source>
-        <translation type="unfinished">Művelet</translation>
+        <translation>Művelet</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="49"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="51"/>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../templateeditor/treasureselector.cpp" line="64"/>
+        <location filename="../templateeditor/treasureselector.cpp" line="66"/>
         <source>Add</source>
-        <translation type="unfinished">Hozzáadás</translation>
+        <translation>Hozzáadás</translation>
     </message>
 </context>
 <context>
     <name>Ts</name>
     <message>
-        <location filename="../templateeditor/entitiesselector.cpp" line="76"/>
+        <location filename="../templateeditor/entitiesselector.cpp" line="77"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Terepválasztó</translation>
+        <translation>Felszínválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/entitiesselector.cpp" line="80"/>
+        <location filename="../templateeditor/entitiesselector.cpp" line="81"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Varázslatválasztó</translation>
+        <translation>Varázslatválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/entitiesselector.cpp" line="84"/>
+        <location filename="../templateeditor/entitiesselector.cpp" line="85"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Ereklyeválasztó</translation>
+        <translation>Varázstárgy-választó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/entitiesselector.cpp" line="88"/>
+        <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Képességválasztó</translation>
+        <translation>Jártasságválasztó</translation>
     </message>
     <message>
-        <location filename="../templateeditor/entitiesselector.cpp" line="92"/>
+        <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Hőstípus-választó</translation>
+        <translation>Hőstípus-választó</translation>
     </message>
 </context>
 <context>
@@ -4731,7 +4806,7 @@ B zóna: %2
     <message>
         <location filename="../validator.ui" line="17"/>
         <source>Map validation results</source>
-        <translation>Térkép érvényességi eredmények</translation>
+        <translation>Térkép ellenőrzésének eredményei</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="50"/>
@@ -4756,95 +4831,129 @@ B zóna: %2
     <message>
         <location filename="../validator.cpp" line="79"/>
         <source>No human players allowed to play this map</source>
-        <translation>Nincsenek emberi játékosok, akik játszhatnák ezt a térképet</translation>
+        <translation>Nincsenek emberi játékosok, akik játszhatnának ezen a térképen</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="99"/>
+        <location filename="../validator.cpp" line="90"/>
+        <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="105"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>A(z) %1 objektum egy nem játszható játékoshoz van rendelve: %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="144"/>
+        <location filename="../validator.cpp" line="150"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>A(z) %1 varázstekercsnek nincs hozzárendelt példánya, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="150"/>
+        <location filename="../validator.cpp" line="156"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation>A(z) %1 tárgy tiltva van a térképbeállítások szerint</translation>
+        <translation>A(z) %1 varázstárgy tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="178"/>
+        <location filename="../validator.cpp" line="164"/>
+        <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="173"/>
+        <source>A scholar at x: %1 y: %2 on %3 layer holds an invalid reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="187"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation>A(z) %1 játékosnak nincs hozzárendelt városa és hőse</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="112"/>
+        <location filename="../validator.cpp" line="118"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation>A(z) %1 börtönnek semlegesnek kell lennie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="93"/>
+        <location filename="../validator.cpp" line="99"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished">A birtokolható objektum %1 NEM ZÁSZLÓZHATÓ, de semleges vagy játékos tulajdonossal kell rendelkeznie</translation>
+        <translation>A(z) %1 objektum nem jelölhető meg zázszlóval, de tulajdonosának semlegesnek vagy játékosnak kell lennie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="117"/>
+        <location filename="../validator.cpp" line="123"/>
         <source>Hero %1 must have an owner</source>
         <translation>A(z) %1 hősnek tulajdonossal kell rendelkeznie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="124"/>
+        <location filename="../validator.cpp" line="130"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation>A(z) %1 hős tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="127"/>
+        <location filename="../validator.cpp" line="133"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation>A(z) %1 hős duplikátumként szerepel a térképen</translation>
+        <translation>A(z) %1 hős duplikátumként szerepel a páylán</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="130"/>
+        <location filename="../validator.cpp" line="136"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation>A(z) %1 hős típus nélküli, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="141"/>
+        <location filename="../validator.cpp" line="147"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation>A(z) %1 varázstekercs tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="163"/>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">A(z) %3 rétegen, x: %1 y: %2 koordinátákon található testre szabott boszorkánykunyhó nem rendelkezik érvényes másodlagos jártassággal</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="180"/>
+        <location filename="../validator.cpp" line="189"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>A(z) %1 játékosnak nincs kezdővárosa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="186"/>
+        <location filename="../validator.cpp" line="195"/>
         <source>Map name is not specified</source>
         <translation>A térkép neve nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="188"/>
+        <location filename="../validator.cpp" line="197"/>
         <source>Map description is not specified</source>
         <translation>A térkép leírása nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="226"/>
-        <source>The map is valid and has no issues.</source>
-        <translation type="unfinished">A térkép érvényes és nem tartalmaz hibákat.</translation>
+        <location filename="../validator.cpp" line="214"/>
+        <source>defeat a specific hero</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="199"/>
+        <location filename="../validator.cpp" line="215"/>
+        <source>lose a specific hero</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="218"/>
+        <source>hero placeholder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="220"/>
+        <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="278"/>
+        <source>The map is valid and has no issues.</source>
+        <translation>A térkép érvényes és nem tartalmaz hibákat.</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="233"/>
         <source>Exception occurs during validation: %1</source>
         <translation>Hiba történt az érvényesítés során: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="203"/>
+        <location filename="../validator.cpp" line="237"/>
         <source>Unknown exception occurs during validation</source>
         <translation>Ismeretlen hiba történt az érvényesítés során</translation>
     </message>
@@ -4854,7 +4963,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="14"/>
         <source>Form</source>
-        <translation>Űrlap</translation>
+        <translation>Adatlap</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="40"/>
@@ -4869,7 +4978,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="66"/>
         <source>Allow standard victory</source>
-        <translation>Standard győzelem engedélyezése</translation>
+        <translation>Szabványos győzelem engedélyezése</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="79"/>
@@ -4884,7 +4993,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Capture artifact</source>
-        <translation>Tárgy megszerzése</translation>
+        <translation>Varázstárgy megszerzése</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
@@ -4894,7 +5003,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Accumulate resources</source>
-        <translation>Erőforrások felhalmozása</translation>
+        <translation>Nyersanyagok felhalmozása</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
@@ -4914,7 +5023,7 @@ B zóna: %2
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
         <source>Transport artifact</source>
-        <translation>Tárgy szállítása</translation>
+        <translation>Varázstárgy szállítása</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
@@ -4922,7 +5031,7 @@ B zóna: %2
         <translation>Szörny megölése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="435"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="436"/>
         <source>Any town</source>
         <translation>Bármely város</translation>
     </message>
@@ -4957,7 +5066,7 @@ B zóna: %2
     <message>
         <location filename="../windownewmap.ui" line="357"/>
         <source>Random map</source>
-        <translation>Véletlen térkép</translation>
+        <translation>Véletlenszerű térkép</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="369"/>
@@ -4997,7 +5106,7 @@ B zóna: %2
     <message>
         <location filename="../windownewmap.ui" line="312"/>
         <source>Levels</source>
-        <translation type="unfinished">Szintek</translation>
+        <translation>Szintek</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="397"/>
@@ -5020,12 +5129,12 @@ B zóna: %2
     <message>
         <location filename="../windownewmap.ui" line="265"/>
         <source>Standard size</source>
-        <translation>Standard méret</translation>
+        <translation>Szabványos méret</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="290"/>
         <source>Custom size</source>
-        <translation>Egyedi méret</translation>
+        <translation>Egyéni méret</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="457"/>
@@ -5107,7 +5216,7 @@ B zóna: %2
     <message>
         <location filename="../windownewmap.ui" line="1048"/>
         <source>Generate random map</source>
-        <translation>Véletlen térkép generálása</translation>
+        <translation>Véletlenszerű térkép előállítása</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1076"/>
@@ -5120,32 +5229,32 @@ B zóna: %2
         <translation>Mégse</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="297"/>
+        <location filename="../windownewmap.cpp" line="298"/>
         <source>No template</source>
         <translation>Nincs sablon</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="297"/>
+        <location filename="../windownewmap.cpp" line="298"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
-        <translation>Nincs sablon a megadott paraméterekhez. Véletlen térkép nem generálható.</translation>
+        <translation>A paraméterekhez nincs megadva sablon. A véletlenszerű térkép nem állítható elő.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="319"/>
+        <location filename="../windownewmap.cpp" line="320"/>
         <source>RMG failure</source>
-        <translation>Véletlen térkép generálási hiba</translation>
+        <translation>Véletlenszerűtérkép-előállítási hiba</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="346"/>
+        <location filename="../windownewmap.cpp" line="347"/>
         <source>Multilevel support</source>
-        <translation type="unfinished">Többszintes támogatás</translation>
+        <translation>Többszintes támogatás</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="346"/>
+        <location filename="../windownewmap.cpp" line="347"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
-        <translation type="unfinished">A többszintes támogatás erősen kísérleti. Várhatóak hibák.</translation>
+        <translation>A többszintes támogatás erősen kísérleti. Várhatóak hibák.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="467"/>
+        <location filename="../windownewmap.cpp" line="468"/>
         <source>[default]</source>
         <translation>[alapértelmezett]</translation>
     </message>
@@ -5155,27 +5264,27 @@ B zóna: %2
     <message>
         <location filename="../mainwindow.cpp" line="195"/>
         <source>Filepath of the map to open.</source>
-        <translation>A megnyitni kívánt térkép fájlútvonala.</translation>
+        <translation>A megnyitandó térkép elérési útja.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="198"/>
         <source>Extract original H3 archives into a separate folder.</source>
-        <translation>Az eredeti H3 archívumok kibontása egy külön mappába.</translation>
+        <translation>Az eredeti H3 -rchívumok kibontása egy külön mappába.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="199"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation>Egy kibontott archívumból a TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 és Un44 fájlokat egyedi PNG-kre bontja.</translation>
+        <translation>Egy kibontott archívumból a TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 és Un44 fájlokat egyedi PNG-fájlokra bontja.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="200"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation>Egy kibontott archívumból az egyedi képeket (az Images mappában találhatók) .pcx formátumból png formátumba konvertálja.</translation>
+        <translation>Egy kibontott archívum „Images” mappájában található képfájlokat .pcx formátumból .png formátumba alakítja át.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="201"/>
         <source>Delete original files, for the ones split / converted.</source>
-        <translation>Az eredeti fájlokat törli azok helyett, amelyek szétbontásra/konvertálásra kerültek.</translation>
+        <translation>Az eredeti fájlokat törli azok helyett, amelyek szétbontásra/átalakításra kerültek.</translation>
     </message>
 </context>
 <context>

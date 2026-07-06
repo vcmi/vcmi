@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /** The color enum is used for colored text console output. */
 enum class EConsoleTextColor : int8_t
 {
@@ -102,5 +100,3 @@ private:
 
 	std::thread thread;
 };
-
-VCMI_LIB_NAMESPACE_END

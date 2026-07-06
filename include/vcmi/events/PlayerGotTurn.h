@@ -14,8 +14,6 @@
 #include "SubscriptionRegistry.h"
 #include "../scripting/ApiTags.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PlayerColor;
 
 namespace events
@@ -42,5 +40,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

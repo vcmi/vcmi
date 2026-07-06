@@ -18,8 +18,6 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CCombinedArtifact::isCombined() const
 {
 	return !(constituents.empty());
@@ -372,5 +370,3 @@ void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, con
 	scenarioBonus = newLargeImage;
 }
 
-
-VCMI_LIB_NAMESPACE_END

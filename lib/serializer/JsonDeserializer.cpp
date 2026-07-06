@@ -12,19 +12,17 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
 	JsonTreeSerializer(instanceResolver_, &root_, false, false)
 {
 
 }
 
-void JsonDeserializer::serializeInternal(const std::string & fieldName, boost::logic::tribool & value)
+void JsonDeserializer::serializeInternal(const std::string & fieldName, std::optional<bool> & value)
 {
 	const JsonNode & data = currentObject->operator[](fieldName);
 	if(data.getType() != JsonNode::JsonType::DATA_BOOL)
-		value = boost::logic::indeterminate;
+		value = std::nullopt;
 	else
 		value = data.Bool();
 }
@@ -211,5 +209,3 @@ void JsonDeserializer::serializeRaw(const std::string & fieldName, JsonNode & va
 		value = data;
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

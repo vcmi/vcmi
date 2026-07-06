@@ -12,6 +12,7 @@
 
 #include "StdInc.h"
 #include "../Global.h"
+#include <vstd/DateUtils.h>
 
 #include "../client/ClientCommandManager.h"
 #include "../client/CMT.h"
@@ -61,7 +62,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 
-static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
 static void init()
@@ -102,15 +102,16 @@ static void checkForModLoadingFailure()
 
 static void prog_version()
 {
-	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+	printf("%s\n", GameConstants::VCMI_VERSION);
 	std::cout << VCMIDirs::get().genHelpString();
 }
 
 static void prog_help(const po::options_description &opts)
 {
 	auto time = std::time(nullptr);
-	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
+	std::tm tm = vstd::safeLocalTime(time);
+	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
+	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", tm.tm_year + 1900);
 	printf("This is free software; see the source for copying conditions. There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
@@ -221,7 +222,7 @@ int main(int argc, char * argv[])
 #endif
 
 	logConfigurator.configureDefault();
-	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_VERSION);
+	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
 
@@ -394,10 +395,7 @@ int main(int argc, char * argv[])
 			}
 			else
 			{
-				while(!headlessQuit)
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				GAME->server().waitForNetworkThread();
 			}
 		}
 		catch (const GameShutdownException & )
@@ -409,9 +407,17 @@ int main(int argc, char * argv[])
 
 	const auto & cleanupEngine = [&logConfigurator]()
 	{
+		if(settings["session"]["headless"].Bool() && GAME->server().client)
+			GAME->server().endGameplay();
+
+		if(ENGINE)
 		{
 			//aquire interfaceMutex to prevent undefined behavior on vstd::makeUnlockGuard(ENGINE->interfaceMutex)
 			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+			GAME->server().endNetwork();
+		}
+		else
+		{
 			GAME->server().endNetwork();
 		}
 
@@ -433,10 +439,13 @@ int main(int argc, char * argv[])
 			graphics = nullptr;
 		}
 
-		// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
-		ENGINE->async().wait();
+		if(ENGINE)
+		{
+			// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
+			ENGINE->async().wait();
 
-		ENGINE.reset();
+			ENGINE.reset();
+		}
 
 		delete LIBRARY;
 		LIBRARY = nullptr;

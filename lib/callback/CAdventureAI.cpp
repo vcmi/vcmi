@@ -12,8 +12,6 @@
 
 #include "AIFactory.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CGlobalAI::CGlobalAI()
 {
 	human = false;
@@ -109,5 +107,3 @@ void CAdventureAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
 	battleAI->yourTacticPhase(battleID, distance);
 }
-
-VCMI_LIB_NAMESPACE_END

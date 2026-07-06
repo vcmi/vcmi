@@ -19,8 +19,6 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 AObjectTypeHandler::AObjectTypeHandler() = default;
 AObjectTypeHandler::~AObjectTypeHandler() = default;
 
@@ -238,7 +236,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getMostSpe
 	if (!templates.empty())
 	{
 		//Get terrain-specific template if possible
-		int leastTerrains = (*boost::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
+		int leastTerrains = (*std::ranges::min_element(templates, [](const std::shared_ptr<const ObjectTemplate> & tmp1, const std::shared_ptr<const ObjectTemplate> & tmp2)
 		{
 			return tmp1->getTotalAllowedTerrains() < tmp2->getTotalAllowedTerrains();
 		}))->getTotalAllowedTerrains();
@@ -286,5 +284,3 @@ std::unique_ptr<IObjectInfo> AObjectTypeHandler::getObjectInfo() const
 {
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

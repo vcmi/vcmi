@@ -21,8 +21,6 @@
 #include "../gameState/InfoAboutArmy.h"
 #include "../mapObjects/CGTownInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool CBattleInfoEssentials::duringBattle() const
 {
 	return getBattle() != nullptr;
@@ -473,24 +471,20 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const battle::U
 	return getBattle()->getSideHero(side);
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness) const
+bool CBattleInfoEssentials::battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const bool sameOwner) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	if(boost::logic::indeterminate(positivness))
-		return true;
-	else if(attacker->unitId() == defender->unitId())
-		return (bool)positivness;
+	if(attacker->unitId() == defender->unitId())
+		return sameOwner;
 	else
-		return battleMatchOwner(battleGetOwner(attacker), defender, positivness);
+		return battleMatchOwner(battleGetOwner(attacker), defender, sameOwner);
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness) const
+bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const bool sameOwner) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(defender->unitSide());
 
-	return boost::logic::indeterminate(positivness) || (attacker == initialOwner) == (bool)positivness;
+	return (attacker == initialOwner) == sameOwner;
 }
-
-VCMI_LIB_NAMESPACE_END

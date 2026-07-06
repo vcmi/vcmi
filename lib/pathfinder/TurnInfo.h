@@ -13,8 +13,6 @@
 #include "../bonuses/BonusSelector.h"
 #include "../bonuses/BonusCache.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 
 class TurnInfoBonusList
@@ -85,5 +83,3 @@ public:
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
 };
-
-VCMI_LIB_NAMESPACE_END

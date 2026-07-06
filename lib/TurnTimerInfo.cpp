@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "TurnTimerInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 bool TurnTimerInfo::isEnabled() const
 {
 	return turnTimer > 0 || baseTimer > 0;
@@ -58,5 +56,3 @@ bool TurnTimerInfo::operator == (const TurnTimerInfo & other) const
 			accumulatingTurnTimer == other.accumulatingTurnTimer &&
 			accumulatingUnitTimer == other.accumulatingUnitTimer;
 }
-
-VCMI_LIB_NAMESPACE_END

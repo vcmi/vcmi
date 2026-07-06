@@ -13,8 +13,6 @@
 #include "CBonusTypeHandler.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const BonusCustomSubtype BonusCustomSubtype::creatureDamageBoth(0);
 const BonusCustomSubtype BonusCustomSubtype::creatureDamageMin(1);
 const BonusCustomSubtype BonusCustomSubtype::creatureDamageMax(2);
@@ -91,5 +89,3 @@ si32 BonusTypeID::decode(const std::string & identifier)
 
 	return resolveIdentifier("bonus", identifier);
 }
-
-VCMI_LIB_NAMESPACE_END

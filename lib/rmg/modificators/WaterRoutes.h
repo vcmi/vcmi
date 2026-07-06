@@ -11,8 +11,6 @@
 #pragma once
 #include "../Zone.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct RouteInfo
 {
 	rmg::Area blocked;
@@ -33,5 +31,3 @@ public:
 private:
 	std::vector<RouteInfo> result;
 };
-
-VCMI_LIB_NAMESPACE_END

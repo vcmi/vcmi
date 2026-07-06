@@ -13,8 +13,6 @@
 #include "IGameEventsReceiver.h"
 #include "../constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleStateInfoForRetreat;
 struct ObjectPosInfo;
 
@@ -56,5 +54,3 @@ public:
 
 	virtual void setColorScheme(ColorScheme scheme){};
 };
-
-VCMI_LIB_NAMESPACE_END

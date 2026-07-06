@@ -21,8 +21,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void PrisonHeroPlacer::process()
 {
 	getAllowedHeroes();
@@ -71,5 +69,3 @@ void PrisonHeroPlacer::restoreDrawnHero(const HeroTypeID & hid)
 	RecursiveLock lock(externalAccessMutex);
 	allowedHeroes.push_back(hid);
 }
-
-VCMI_LIB_NAMESPACE_END

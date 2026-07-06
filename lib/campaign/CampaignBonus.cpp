@@ -15,8 +15,6 @@
 #include "../json/JsonNode.h"
 #include "../constants/StringConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 static const std::map<std::string, CampaignBonusType> bonusTypeMap = {
 	{"spell", CampaignBonusType::SPELL},
 	{"creature", CampaignBonusType::MONSTER},
@@ -349,5 +347,3 @@ JsonNode CampaignBonus::toJson() const
 	}
 	return bnode;
 }
-
-VCMI_LIB_NAMESPACE_END

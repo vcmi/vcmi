@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 namespace effects
@@ -23,5 +21,3 @@ class Effects;
 }
 }
 
-
-VCMI_LIB_NAMESPACE_END

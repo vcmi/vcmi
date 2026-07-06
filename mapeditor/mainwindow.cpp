@@ -308,7 +308,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 		logConfig = std::make_unique<CBasicLogConfigurator>(logPath, nullptr);
 #endif
 		logConfig->configureDefault();
-		logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
+		logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 		logGlobal->info("The log file will be saved to %s", logPath);
 
 		//init
@@ -540,7 +540,7 @@ void EditorMainWindow::setStatusMessage(const QString & status)
 
 void EditorMainWindow::setTitle()
 {
-	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION);
 	setWindowTitle(title);
 }
 

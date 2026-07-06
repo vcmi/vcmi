@@ -178,9 +178,11 @@ void DemoInstaller::install(QString filename)
             dir.mkpath(folder);
 
         QFile f(dir.filePath(fileEntry.name));
-        f.open(QIODevice::WriteOnly);
-        f.write(fileData);
-        f.close();
+        if (f.open(QIODevice::WriteOnly))
+        {
+            f.write(fileData);
+            f.close();
+        }
     }
 
     if(callback)

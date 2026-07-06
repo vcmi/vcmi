@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 #define BONUS_LIST										\
@@ -207,6 +205,7 @@ class JsonNode;
 	BONUS_NAME(SPELL_CAST_COUNTER)  /*used to keep count how many times a particular spells has been cast*/ \
 	BONUS_NAME(LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE) /*skill-agnostic eagle eye chance to learn enemy hero spells at battle start*/\
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT_PRE_BATTLE) /*skill-agnostic eagle eye spell level limit to learn enemy hero spells at battle start*/\
+	BONUS_NAME(SURRENDER_MARKETPLACE_ACCESS) /*Allows hero to open marketplace when unable to pay surrender cost*/ \
 
 	/* end of list */
 
@@ -324,5 +323,3 @@ extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;
-
-VCMI_LIB_NAMESPACE_END

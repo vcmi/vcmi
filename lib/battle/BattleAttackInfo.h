@@ -11,8 +11,6 @@
 
 #include "BattleHex.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace battle
 {
 	class Unit;
@@ -37,5 +35,3 @@ struct DLL_LINKAGE BattleAttackInfo
 	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, int chargeDistance, bool Shooting);
 	BattleAttackInfo reverse() const;
 };
-
-VCMI_LIB_NAMESPACE_END

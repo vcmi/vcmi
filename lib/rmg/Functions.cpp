@@ -22,8 +22,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
 {
 	// Get random control points from within the zone
@@ -79,5 +77,3 @@ int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);
 }
-
-VCMI_LIB_NAMESPACE_END

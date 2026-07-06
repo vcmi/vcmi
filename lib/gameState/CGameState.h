@@ -21,8 +21,6 @@
 
 #include <vcmi/Environment.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class EVictoryLossCheckResult;
 class Services;
 class IGameRandomizer;
@@ -275,5 +273,3 @@ private:
 	friend class CMapHandler;
 	friend class CGameHandler;
 };
-
-VCMI_LIB_NAMESPACE_END

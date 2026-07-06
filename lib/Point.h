@@ -9,7 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class int3;
 
 // A point with x/y coordinate, used mostly for graphic rendering
@@ -133,5 +132,3 @@ public:
 		h & y;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

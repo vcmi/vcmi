@@ -14,8 +14,6 @@
 
 #include <boost/filesystem/path.hpp>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells::effects
 {
     class SpellEffectService;
@@ -65,5 +63,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

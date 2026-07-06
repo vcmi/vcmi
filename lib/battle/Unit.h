@@ -20,8 +20,6 @@
 #include "IUnitInfo.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 enum class EMetaText : uint8_t;
 class MetaString;
 class JsonNode;
@@ -160,8 +158,9 @@ public:
 	static BattleHex occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSide side);
 
 	///MetaStrings
-	void addText(MetaString & text, EMetaText type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
-	void addNameReplacement(MetaString & text, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
+	void addText(MetaString & text, EMetaText type, int32_t serial) const;
+	void addNameReplacement(MetaString & text) const;
+	void addNameReplacement(MetaString & text, TQuantity count) const;
 	std::string formatGeneralMessage(const int32_t baseTextId) const;
 
 	int getRawSurrenderCost() const;
@@ -205,5 +204,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

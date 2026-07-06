@@ -215,7 +215,7 @@ void ClientCommandManager::handleTranslateGameCommand(bool onlyMissing)
 		if (!output.isNull())
 		{
 			std::string filename = modEntry.first;
-			boost::range::replace(filename, '.', '_');
+			std::ranges::replace(filename, '.', '_');
 			const boost::filesystem::path filePath = outPath / (filename + ".json");
 			std::ofstream file(filePath.c_str());
 			file << output.toString();

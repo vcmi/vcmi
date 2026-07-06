@@ -1,5 +1,5 @@
 {
-	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Сфера Уязвимости}\n\nОтменяет естественное сопротивление магии у всех существ на поле боя",
+	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Сфера Уязвимости}\nОтменяет естественное сопротивление магии у всех существ на поле боя.",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Дополнительные атаки}\nОтряд может атаковать дополнительно ${val} раз(а)",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Дополнительные ответные атаки}\nОтвечает на атаку дополнительно ${val} раз",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Соседний Заклинатель}\nОтряд может произнести ${subtype.spell}, стоя рядом с целью",

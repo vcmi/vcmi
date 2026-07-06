@@ -20,8 +20,6 @@
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace vstd
 {
 class RNG;
@@ -52,6 +50,7 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 	bool doubleWide = false;
 
 	TResources cost; //cost[res_id] - amount of that resource required to buy creature from dwelling
+	std::optional<ResourceSet> commanderResurrectionPrice; // custom resurrection price when this creature is used as commander
 
 public:
 	std::string getDescriptionTranslated() const;
@@ -221,6 +220,7 @@ public:
 	si8 expAfterUpgrade;//multiplier in %
 
 	//Commanders
+	ResourceSet commanderResurrectionPrice; // fallback resources paid to resurrect a commander in town
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
@@ -235,6 +235,8 @@ public:
 	/// load all stack modifier bonuses from H3 files. TODO: move this to json
 	void loadCrExpMod();
 
+	const ResourceSet & getCommanderResurrectionPrice(const CCreature * commander) const;
+
 	void afterLoadFinalization() override;
 
 	std::vector<JsonNode> loadLegacyData() override;
@@ -242,5 +244,3 @@ public:
 	std::set<CreatureID> getDefaultAllowed() const;
 
 };
-
-VCMI_LIB_NAMESPACE_END

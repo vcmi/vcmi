@@ -270,6 +270,7 @@ void CRClickPopupInt::mouseDraggedPopup(const Point & cursorPosition, const Poin
 }
 
 template<typename... Args>
+	requires (sizeof...(Args) != 1 || (!std::is_base_of_v<AdventureMapPopup, std::remove_cvref_t<Args>> && ...))
 AdventureMapPopup::AdventureMapPopup(Args&&... args) :
 	CWindowObject(std::forward<Args>(args)...), dragDistance(Point(0, 0))
 {

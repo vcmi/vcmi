@@ -317,7 +317,7 @@ void CBonusSelection::createBonusesIcons()
 				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
 				desc.replaceName(bonusValue.skill);
 				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
-					picName = skill->at(bonusValue.mastery).scenarioBonus.empty();
+					picName = skill->at(bonusValue.mastery).scenarioBonus;
 				else
 					picNumber = bonusValue.skill.getNum() * 3 + bonusValue.mastery - 1;
 				break;

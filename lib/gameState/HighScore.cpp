@@ -20,8 +20,6 @@
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerColor player, bool victory)
 {
 	const auto * playerState = gs->getPlayerState(player);
@@ -112,5 +110,3 @@ CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
 
 	throw std::runtime_error("Unable to find creature for score " + std::to_string(points));
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 #include "BattleHex.h"
 #include "BattleHexArray.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleHex BattleHex::getClosestTile(BattleSide side, const BattleHex & initialPos, const BattleHexArray & hexes)
 {
 	if(hexes.empty())
@@ -44,7 +42,7 @@ BattleHex BattleHex::getClosestTile(BattleSide side, const BattleHex & initialPo
 		return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
 	};
 
-	auto bestTile = std::min_element(closestTiles.begin(), closestTiles.end(), compareHorizontal);
+	auto bestTile = std::ranges::min_element(closestTiles, compareHorizontal);
 	return (bestTile != closestTiles.end()) ? *bestTile : BattleHex();
 }
 
@@ -67,5 +65,3 @@ std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
 	return os << hex.toInt();
 }
-
-VCMI_LIB_NAMESPACE_END

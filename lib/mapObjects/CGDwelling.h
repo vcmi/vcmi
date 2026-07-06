@@ -14,8 +14,6 @@
 
 #include "army/CArmedInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGDwelling;
 
 class DLL_LINKAGE CGDwellingRandomizationInfo
@@ -77,5 +75,3 @@ public:
 	}
 };
 
-
-VCMI_LIB_NAMESPACE_END

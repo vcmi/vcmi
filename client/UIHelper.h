@@ -14,15 +14,11 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct MoveArtifactInfo;
 struct Component;
 class CArtifactSet;
 class CGHeroInstance;
 class CStackBasicDescriptor;
-
-VCMI_LIB_NAMESPACE_END
 
 namespace UIHelper
 {

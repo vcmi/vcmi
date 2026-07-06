@@ -29,8 +29,6 @@
 #include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/BattleFieldHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -240,5 +238,3 @@ int IBattleInfoCallbackProxy::getUnitsIf(lua_State * L)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -10,9 +10,6 @@
 
 #include "StdInc.h"
 
-#ifndef VCMI_NO_EXTRA_VERSION
-#include "../../Version.h"
-#endif
 #include <vcmi/Artifact.h>
 #include <vcmi/ArtifactService.h>
 #include <vcmi/Faction.h>
@@ -51,8 +48,6 @@
 #include "ObstacleHandler.h"
 #include "MapLayerHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);
@@ -127,15 +122,6 @@ const MapLayerId MapLayerId::NONE(-1);
 const MapLayerId MapLayerId::SURFACE(0);
 const MapLayerId MapLayerId::UNDERGROUND(1);
 const MapLayerId MapLayerId::UNKNOWN(2);
-
-namespace GameConstants
-{
-#ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING;
-#else
-	const std::string VCMI_VERSION = "VCMI " VCMI_VERSION_STRING "." + std::string{GIT_SHA1};
-#endif
-}
 
 BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
 	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
@@ -480,6 +466,9 @@ std::string PlayerColor::encode(const si32 index)
 	if (index == -1)
 		return "neutral";
 
+	if (index == PlayerColor::SPECTATOR.num)
+		return "spectator";
+
 	if (index < 0 || index >= std::size(GameConstants::PLAYER_COLOR_NAMES))
 	{
 		assert(0);
@@ -747,5 +736,3 @@ bool MapObjectID::isRandomArtifact(MapObjectBaseID id)
 {
 	return id == RANDOM_ART || id == RANDOM_TREASURE_ART || id == RANDOM_MINOR_ART || id == RANDOM_MAJOR_ART || id == RANDOM_RELIC_ART;
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "LuaReference.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting
 {
 
@@ -43,5 +41,3 @@ void LuaReference::push()
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

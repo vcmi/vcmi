@@ -14,8 +14,6 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army, const CGTownInstance * town)
 {
 	armyObjectID = Army->id;
@@ -58,5 +56,3 @@ const CGHeroInstance * SideInBattle::getHero() const
 		return cb->getHero(heroID);
 	return nullptr;
 }
-
-VCMI_LIB_NAMESPACE_END

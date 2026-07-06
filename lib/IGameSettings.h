@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 
 enum class EGameSettings
@@ -129,5 +127,3 @@ public:
 	std::vector<int> getVector(EGameSettings option) const;
 	int getVectorValue(EGameSettings option, size_t index) const;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -17,8 +17,6 @@
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/texts/MetaString.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 using ::spells::Problem;
@@ -56,5 +54,3 @@ void ProblemProxy::registerMethods(MethodRegistrar & R)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

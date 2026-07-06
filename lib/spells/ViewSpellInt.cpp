@@ -13,12 +13,8 @@
 #include "ViewSpellInt.h"
 #include "../mapObjects/CGObjectInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ObjectPosInfo::ObjectPosInfo(const CGObjectInstance * obj):
 	pos(obj->visitablePos()), id(obj->ID), subId(obj->getObjTypeIndex()), owner(obj->tempOwner)
 {
 
 }
-
-VCMI_LIB_NAMESPACE_END

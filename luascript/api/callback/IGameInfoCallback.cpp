@@ -20,8 +20,6 @@
 #include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -39,5 +37,3 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

@@ -12,8 +12,6 @@
 #include "../gui/CIntObject.h"
 #include "AdventureMapShortcuts.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
@@ -24,8 +22,6 @@ struct ObjectPosInfo;
 struct Component;
 class int3;
 using FowTilesType = std::set<int3>;
-
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class IImage;
@@ -144,7 +140,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged(boost::optional<FowTilesType> positions);
+	void onMapTilesChanged(std::optional<FowTilesType> positions);
 
 	/// Called by PlayerInterface when hero starts movement
 	void onHeroMovementStarted(const CGHeroInstance * hero);

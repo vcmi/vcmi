@@ -15,8 +15,6 @@
 #include "../serializer/Serializeable.h"
 #include "../constants/Enumerations.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct Bonus;
 class BonusList;
 class CBonusSystemNode;
@@ -319,5 +317,3 @@ public:
 		h & chargeCost;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

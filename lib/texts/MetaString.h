@@ -11,8 +11,6 @@
 
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class JsonNode;
 class ArtifactID;
 class CreatureID;
@@ -144,5 +142,3 @@ public:
 		h & numbers;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -16,8 +16,6 @@
 #undef patch
 #endif
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using TModID = std::string;
 
 struct DLL_LINKAGE CModVersion
@@ -49,5 +47,3 @@ struct DLL_LINKAGE CModVersion
 };
 
 DLL_LINKAGE bool operator < (const CModVersion & lesser, const CModVersion & greater);
-
-VCMI_LIB_NAMESPACE_END

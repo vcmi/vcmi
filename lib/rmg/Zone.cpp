@@ -21,8 +21,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 {
 	return true;
@@ -434,5 +432,3 @@ vstd::RNG& Zone::getRand()
 {
 	return *rand;
 }
-
-VCMI_LIB_NAMESPACE_END

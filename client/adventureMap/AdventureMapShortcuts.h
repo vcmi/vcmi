@@ -12,10 +12,8 @@
 
 #include "../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 enum class EShortcut;
 class AdventureMapInterface;

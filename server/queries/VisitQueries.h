@@ -11,9 +11,7 @@
 
 #include "CQuery.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGTownInstance;
-VCMI_LIB_NAMESPACE_END
 
 //Created when hero visits object.
 //Removed when query above is resolved (or immediately after visit if no queries were created)

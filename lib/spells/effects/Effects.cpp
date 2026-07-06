@@ -20,8 +20,6 @@
 #include "../../json/JsonNode.h"
 #include "../../modding/IdentifierStorage.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 namespace spells
 {
@@ -145,7 +143,7 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 		effect->spellIdentifier = spellIdentifier;
 		effect->init(std::move(data));
 
-		result.emplace(name, std::move(effect));
+		result.try_emplace(name, std::move(effect));
 	}
 
 	return result;
@@ -153,5 +151,3 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 }
 }
-
-VCMI_LIB_NAMESPACE_END

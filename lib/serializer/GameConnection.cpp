@@ -17,8 +17,6 @@
 #include "../networkPacks/NetPacksBase.h"
 #include "../network/NetworkInterface.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class GameConnectionPackWriter final : public IBinaryWriter
 {
 public:
@@ -133,5 +131,3 @@ void GameConnection::setSerializationVersion(ESerializationVersion version)
 	deserializer->version = version;
 	serializer->version = version;
 }
-
-VCMI_LIB_NAMESPACE_END

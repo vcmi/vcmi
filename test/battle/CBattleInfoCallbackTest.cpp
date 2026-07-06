@@ -855,7 +855,6 @@ TEST_F(BattleMatchOwnerTest, normalToSelf)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit1, false));
 }
 
@@ -870,7 +869,6 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToSelf)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit1, false));
 }
 
@@ -886,7 +884,6 @@ TEST_F(BattleMatchOwnerTest, normalToNormalAlly)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -904,7 +901,6 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToNormalAlly)
 	startBattle();
 
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -921,7 +917,6 @@ TEST_F(BattleMatchOwnerTest, normalToHypnotizedAlly)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -940,7 +935,6 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedAlly)
 	startBattle();
 
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -957,7 +951,6 @@ TEST_F(BattleMatchOwnerTest, normalToNormalEnemy)
 	startBattle();
 
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -975,7 +968,6 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToNormalEnemy)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -992,7 +984,6 @@ TEST_F(BattleMatchOwnerTest, normalToHypnotizedEnemy)
 	startBattle();
 
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
 }
 
@@ -1011,6 +1002,5 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedEnemy)
 	startBattle();
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
-	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
 }

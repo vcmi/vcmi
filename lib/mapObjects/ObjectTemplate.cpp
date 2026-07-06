@@ -21,9 +21,6 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../modding/IdentifierStorage.h"
 
-#include <boost/lexical_cast.hpp>
-
-VCMI_LIB_NAMESPACE_BEGIN
 
 static bool isOnVisitableFromTopList(Obj identifier, int type)
 {
@@ -117,10 +114,10 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	//assuming that object can be placed on other land terrains
 	anyLandTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
-	id    = Obj(boost::lexical_cast<int>(strings[5]));
-	subid = boost::lexical_cast<int>(strings[6]);
-	int type  = boost::lexical_cast<int>(strings[7]);
-	printPriority = boost::lexical_cast<int>(strings[8]) * 100; // to have some space in future
+	id    = Obj(std::stoi(strings[5]));
+	subid = std::stoi(strings[6]);
+	int type  = std::stoi(strings[7]);
+	printPriority = std::stoi(strings[8]) * 100; // to have some space in future
 
 	if (isOnVisitableFromTopList(id, type))
 		visitDir = 0xff;
@@ -555,5 +552,3 @@ void ObjectTemplate::recalculate()
 	if (visitable && visitDir == 0)
 		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());
 }
-
-VCMI_LIB_NAMESPACE_END

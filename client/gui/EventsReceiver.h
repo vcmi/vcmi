@@ -9,10 +9,8 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 class EventDispatcher;
 enum class EShortcut;

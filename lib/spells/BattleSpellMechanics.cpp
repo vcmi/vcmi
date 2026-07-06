@@ -23,8 +23,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace spells
 {
 
@@ -296,7 +294,7 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		if(mainTarget && mainTarget == caster)
 			return false; // can't cast on self
 
-		if(mainTarget && mainTarget->isInvincible() && !getSpell()->getPositiveness())
+		if(mainTarget && mainTarget->isInvincible() && getSpell()->isNegative())
 			return false;
 	}
 	else if(getSpell()->canCastOnlyOnSelf())
@@ -734,5 +732,3 @@ const Spell * BattleSpellMechanics::getSpell() const
 
 }
 
-
-VCMI_LIB_NAMESPACE_END

@@ -357,7 +357,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 static QString defaultStartDirForOpen()
 {
 #if defined(VCMI_MOBILE)
-	const QStandardPaths::StandardLocation mobilePrefs[] = {
+	const std::array mobilePrefs = {
 		QStandardPaths::HomeLocation
 	};
 	for(auto location : mobilePrefs)

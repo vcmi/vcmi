@@ -16,8 +16,6 @@
 
 #include <tbb/concurrent_hash_map.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 using TNodes = std::set<CBonusSystemNode *>;
 using TCNodes = std::set<const CBonusSystemNode *>;
 using TNodesVector = std::vector<CBonusSystemNode *>;
@@ -147,5 +145,3 @@ public:
 
 	friend class CBonusProxy;
 };
-
-VCMI_LIB_NAMESPACE_END

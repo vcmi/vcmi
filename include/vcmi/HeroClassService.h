@@ -12,8 +12,6 @@
 
 #include "EntityService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class HeroClassID;
 class HeroClass;
 
@@ -21,5 +19,3 @@ class DLL_LINKAGE HeroClassService : public EntityServiceT<HeroClassID, HeroClas
 {
 public:
 };
-
-VCMI_LIB_NAMESPACE_END

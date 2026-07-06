@@ -23,8 +23,6 @@
 #include "modding/ModIncompatibility.h"
 #include "serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 PlayerSettings::PlayerSettings()
 	: bonus(PlayerStartingBonus::RANDOM), color(0), compOnly(false)
 {
@@ -326,5 +324,3 @@ void BattleOnlyModeStartInfo::serializeJson(JsonSerializeFormat & handler)
 		s->serializeBool("spellBook", spellBook[i]);
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

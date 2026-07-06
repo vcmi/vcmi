@@ -12,10 +12,8 @@
 
 #include "../IGameSettings.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Calendar::Calendar(const IGameSettings & settings, int day)
-	: settings(&settings), day(day)
+	: gameSettings(&settings), day(day)
 {
 }
 
@@ -53,7 +51,7 @@ int Calendar::getMonth() const
 
 int Calendar::getDaysInWeek() const
 {
-	return settings->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
+	return gameSettings->getInteger(EGameSettings::GENERAL_DAYS_PER_WEEK);
 }
 
 int Calendar::getDaysInMonth() const
@@ -63,12 +61,10 @@ int Calendar::getDaysInMonth() const
 
 int Calendar::getWeeksInMonth() const
 {
-	return settings->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH);
+	return gameSettings->getInteger(EGameSettings::GENERAL_WEEKS_PER_MONTH);
 }
 
 Calendar Calendar::nextDay() const
 {
-	return Calendar(*settings, day + 1);
+	return Calendar(*gameSettings, day + 1);
 }
-
-VCMI_LIB_NAMESPACE_END

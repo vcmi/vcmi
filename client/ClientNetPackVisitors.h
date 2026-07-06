@@ -13,13 +13,9 @@
 
 class CClient;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGameState;
 
-VCMI_LIB_NAMESPACE_END
-
-class ApplyClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyClientNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CClient & cl;
@@ -110,7 +106,7 @@ public:
 	void visitResponseStatistic(ResponseStatistic & pack) override;
 };
 
-class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyFirstClientNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CClient & cl;

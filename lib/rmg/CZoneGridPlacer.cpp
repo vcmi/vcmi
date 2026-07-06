@@ -20,8 +20,6 @@
 
 #include <limits>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace
 {
 template <typename Fn>
@@ -529,5 +527,3 @@ void CZoneGridPlacer::placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const
 	logInitialGrid(grids, gridSizes, mapLevels);
 	setInitialZoneCenters(grids, gridSizes, mapLevels, rand);
 }
-
-VCMI_LIB_NAMESPACE_END

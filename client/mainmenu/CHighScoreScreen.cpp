@@ -285,7 +285,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 		baseNode.resize(highscoreEntriesCap - 1);
 
 	baseNode.push_back(newNode);
-	boost::range::sort(baseNode, sortFunctor);
+	std::ranges::sort(baseNode, sortFunctor);
 
 	int pos = -1;
 	for (int i = 0; i < baseNode.size(); i++)

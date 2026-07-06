@@ -263,14 +263,11 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = spellID.toEntity(LIBRARY)->getPositiveness();
-		if(!boost::logic::indeterminate(positiveness))
-		{
-			if(positiveness)
-				effectsPositivness++;
-			else
-				effectsPositivness--;
-		}
+		const auto * spell = spellID.toEntity(LIBRARY);
+		if(spell->isPositive())
+			effectsPositivness++;
+		else if(spell->isNegative())
+			effectsPositivness--;
 	}
 
 	if (effectsPositivness > 0)

@@ -16,8 +16,6 @@
 #include "../int3.h"
 #include "../battle/BattleAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE GamePause : public CPackForServer
 {
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -658,7 +656,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 	HeroTypeID hid; //available hero serial
 	HeroTypeID nhid; //next hero
 	ObjectInstanceID tid; //town (tavern) id
-	PlayerColor player;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -668,7 +665,6 @@ struct DLL_LINKAGE HireHero : public CPackForServer
 		h & hid;
 		h & nhid;
 		h & tid;
-		h & player;
 	}
 };
 
@@ -812,5 +808,3 @@ struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
 
 	void visitTyped(ICPackVisitor & cpackVisitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

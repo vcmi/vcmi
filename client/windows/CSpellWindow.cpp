@@ -158,14 +158,31 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 {
 	OBJECT_CONSTRUCTION;
 
-	for(const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects())
+	int maxCustomSchools = (isBigSpellbook ? MAX_CUSTOM_SPELL_SCHOOLS_BIG : MAX_CUSTOM_SPELL_SCHOOLS) * 2;
+	int customSchoolsAvailable = 0;
+	std::vector<SpellSchool> sortedSchools = LIBRARY->spellSchoolHandler->getAllObjects();
+	std::ranges::sort(sortedSchools, [&](SpellSchool a, SpellSchool b) {
+		auto cnt = [&](SpellSchool s) {
+			return std::ranges::count_if(LIBRARY->spellh->objects, [&](auto const & sp) {
+				return myHero->canCastThisSpell(sp.get()) && sp->schools.count(s);
+			});
+		};
+		return cnt(a) > cnt(b);
+	});
+	for(const auto schoolId : sortedSchools)
 		if(
 			!isLegacySpellSchool(schoolId) &&
-			customSpellSchools.size() < (isBigSpellbook ? MAX_CUSTOM_SPELL_SCHOOLS_BIG : MAX_CUSTOM_SPELL_SCHOOLS) &&
 			!LIBRARY->spellSchoolHandler->getById(schoolId)->getSchoolBookmarkPath().empty() &&
 			!LIBRARY->spellSchoolHandler->getById(schoolId)->getSchoolHeaderPath().empty()
 		)
-			customSpellSchools.push_back(schoolId);
+		{
+			customSchoolsAvailable++;
+			if(customSpellSchools.size() < maxCustomSchools)
+				customSpellSchools.push_back(schoolId);
+		}
+
+	if(customSchoolsAvailable > maxCustomSchools)
+		logGlobal->warn("Too many custom spell schools (%d) — showing only first %d", customSchoolsAvailable, maxCustomSchools);
 
 	if(isBigSpellbook)
 	{
@@ -211,8 +228,12 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	rightCorner = std::make_shared<CPicture>(ImagePath::builtin("SpelTrnR.bmp"), 487 + offR, 72 + offT);
 
 	schoolTab = std::make_shared<CAnimImage>(AnimationPath::builtin("SpelTab"), getAnimFrameFromSchool(selectedTab), 0, 524 + offR, 88);
-	for(int i = 0; i < customSpellSchools.size(); i++)
-		schoolTabCustom.push_back(std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getSchoolBookmarkPath(), i == 0 ? 0 : 1, 0, isBigSpellbook ? 0 : 15, 93 + 62 * i));
+	int customSchoolCount = customSpellSchools.size();
+	int yStart = 93;
+	int yEnd = yStart + (std::min(customSchoolCount, isBigSpellbook ? MAX_CUSTOM_SPELL_SCHOOLS_BIG : MAX_CUSTOM_SPELL_SCHOOLS) - 1) * 62;
+	int denom = std::max(customSchoolCount - 1, 1);
+	for(int i = 0; i < customSchoolCount; i++)
+		schoolTabCustom.push_back(std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getSchoolBookmarkPath(), i == 0 ? 0 : 1, 0, isBigSpellbook ? 0 : 15, yStart + ((yEnd - yStart) * i) / denom));
 	schoolPicture = std::make_shared<CAnimImage>(AnimationPath::builtin("Schools"), 0, 0, 117 + offL, 74 + offT);
 
 	mana = std::make_shared<CLabel>(435 + (isBigSpellbook ? 159 : 0), 426 + offB, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, std::to_string(myHero->mana));
@@ -232,8 +253,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 116), std::bind(&CSpellWindow::selectSchool,   this, SpellSchool::FIRE), 455, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 176), std::bind(&CSpellWindow::selectSchool,   this, SpellSchool::WATER), 456, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( schoolRect + Point(0, 236), std::bind(&CSpellWindow::selectSchool,   this, SpellSchool::ANY), 458, this));
-	for(int i = 0; i < customSpellSchools.size(); i++)
-		interactiveAreas.push_back(std::make_shared<InteractiveArea>(Rect(schoolTabCustom[i]->pos.topLeft(), Point(80, 60)), std::bind(&CSpellWindow::selectSchool, this, customSpellSchools[i]), LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getNameTextID(), this));
+	int iaHeight = customSchoolCount > 1 ? std::min((yEnd - yStart) / denom, 60) : 60;
+	for(int i = 0; i < customSchoolCount; i++)
+		interactiveAreas.push_back(std::make_shared<InteractiveArea>(Rect(schoolTabCustom[i]->pos.topLeft(), Point(80, iaHeight)), std::bind(&CSpellWindow::selectSchool, this, customSpellSchools[i]), LIBRARY->spellSchoolHandler->getById(customSpellSchools[i])->getNameTextID(), this));
 
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect(  97 + offL + pos.x, 77 + offT + pos.y, leftCorner->pos.h,  leftCorner->pos.w  ), std::bind(&CSpellWindow::fLcornerb, this), 450, this));
 	interactiveAreas.push_back(std::make_shared<InteractiveArea>( Rect( 487 + offR + pos.x, 72 + offT + pos.y, rightCorner->pos.h, rightCorner->pos.w ), std::bind(&CSpellWindow::fRcornerb, this), 451, this));
@@ -264,10 +286,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	}
 
 	SpellSchool school = battleSpellsOnly ? myInt->localState->getSpellbookSettings().spellbookLastTabBattle : myInt->localState->getSpellbookSettings().spellbookLastTabAdvmap;
-	bool schoolFound = false;
-	for(const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects()) // check if spellschool exists -> if not, then keep any
-		if(schoolId == school)
-			schoolFound = true;
+	bool schoolFound = isLegacySpellSchool(school) || std::find(customSpellSchools.begin(), customSpellSchools.end(), school) != customSpellSchools.end();
 	if(schoolFound)
 		selectedTab = school;
 	setSchoolImages(selectedTab);
@@ -571,6 +590,10 @@ void CSpellWindow::setSchoolImages(SpellSchool school)
 	int pos = (it == customSpellSchools.end()) ? -1 : std::distance(customSpellSchools.begin(), it);
 	for(int i = 0; i < schoolTabCustom.size(); i++)
 		schoolTabCustom[i]->setFrame(i == pos ? 0 : 1, 0);
+	for(int i = 0; i < schoolTabCustom.size(); i++)
+		moveChildForeground(schoolTabCustom[i].get());
+	if(pos >= 0)
+		moveChildForeground(schoolTabCustom[pos].get());
 
 	schoolPicture->visible = school != SpellSchool::ANY && currentPage == 0 && isLegacySpellSchool(school);
 	if(school != SpellSchool::ANY && isLegacySpellSchool(school))
@@ -637,13 +660,15 @@ void CSpellWindow::keyPressed(EShortcut key)
 		case EShortcut::MOVE_DOWN:
 		{
 			bool down = key == EShortcut::MOVE_DOWN;
-			static const std::array schoolsOrder = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
-			int index = -1;
-			while(schoolsOrder[++index] != selectedTab);
-			index += (down ? 1 : -1);
-			vstd::abetween<int>(index, 0, std::size(schoolsOrder) - 1);
-			if(selectedTab != schoolsOrder[index])
-				selectSchool(schoolsOrder[index]);
+			static const std::array legacyOrder = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
+
+			auto order = customSpellSchools;
+			order.insert(order.begin(), legacyOrder.begin(), legacyOrder.end());
+
+			int idx = std::distance(order.begin(), std::find(order.begin(), order.end(), selectedTab));
+			idx = (idx + (down ? 1 : -1) + static_cast<int>(order.size())) % static_cast<int>(order.size());
+			if(selectedTab != order[idx])
+				selectSchool(order[idx]);
 			break;
 		}
 		case EShortcut::SPELLBOOK_TAB_COMBAT:
@@ -829,7 +854,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 			OBJECT_CONSTRUCTION;
 
 			schoolBorder.reset();
-			if (!isLegacySpellSchool(owner->selectedTab) || owner->selectedTab == SpellSchool::ANY)
+			if (owner->selectedTab == SpellSchool::ANY)
 			{
 				if (whichSchool.hasValue())
 					schoolBorder = std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(whichSchool)->getSpellBordersPath(), schoolLevel);

@@ -11,8 +11,6 @@
 
 #include "../GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class PossiblePlayerBattleAction // actions performed at l-click
 {
 public:
@@ -82,5 +80,3 @@ public:
 		return action != other.action || spellToCast != other.spellToCast;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

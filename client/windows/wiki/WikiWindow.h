@@ -15,9 +15,7 @@
 
 #include "../../../lib/constants/EntityIdentifiers.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
-VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CLabel;

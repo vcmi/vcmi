@@ -10,8 +10,6 @@
 #include "CAndroidVMHelper.h"
 
 #ifdef VCMI_ANDROID
-VCMI_LIB_NAMESPACE_BEGIN
-
 static JavaVM * vmCache = nullptr;
 
 /// cached java classloader so that we can find our classes from other threads
@@ -112,6 +110,4 @@ void CAndroidVMHelper::initClassloader(void * baseEnv)
 	vcmiClassLoader = (jclass) env->NewGlobalRef(env->CallObjectMethod(anyVCMIClass, getClassLoaderMethod));
 	vcmiFindClassMethod = env->GetMethodID(classLoaderClass, "findClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 }
-
-VCMI_LIB_NAMESPACE_END
 #endif

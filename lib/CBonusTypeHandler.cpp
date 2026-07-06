@@ -24,8 +24,6 @@
 #include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///CBonusType
 
 std::string CBonusType::getDescriptionTextID() const
@@ -227,5 +225,3 @@ std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
 
 	return ret;
 }
-
-VCMI_LIB_NAMESPACE_END

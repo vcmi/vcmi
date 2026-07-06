@@ -23,8 +23,6 @@
 #include "../serializer/JsonSerializer.h"
 #include "../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 void CampaignScenario::loadPreconditionRegions(ui32 regions)
 {
 	for (int i=0; i<32; i++) //for each bit in region. h3c however can only hold up to 16
@@ -180,7 +178,7 @@ std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID 
 		bool result = h->tempOwner == owner;
 		return result;
 	};
-	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
+	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | std::views::filter(isOwned);
 
 	if (ownedHeroes.empty())
 		return nullptr;
@@ -216,7 +214,7 @@ const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
 
 void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
 {
-	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
+	std::ranges::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
@@ -451,5 +449,3 @@ bool CampaignHeader::restrictedGarrisonsForAI() const
 {
 	return restrictGarrisonsAI;
 }
-
-VCMI_LIB_NAMESPACE_END

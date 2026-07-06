@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE ExtraOptionsInfo
 {
 	bool cheatsAllowed = true;
@@ -26,5 +24,3 @@ struct DLL_LINKAGE ExtraOptionsInfo
 		h & unlimitedReplay;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

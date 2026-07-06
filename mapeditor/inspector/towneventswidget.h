@@ -15,7 +15,6 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../mapcontroller.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui {
 	class TownEventsWidget;

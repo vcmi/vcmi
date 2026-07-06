@@ -13,8 +13,6 @@
 #include "../mapObjects/CGMarket.h"
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 {
 	std::string descriptionTextID;
@@ -36,5 +34,3 @@ public:
 	std::string getSpeechTranslated() const;
 	int getMarketEfficiency() const;
 };
-
-VCMI_LIB_NAMESPACE_END

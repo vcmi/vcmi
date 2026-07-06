@@ -13,8 +13,6 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CQuest;
 class CGObjectInstance;
 class IGameInfoCallback;
@@ -58,5 +56,3 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -91,8 +91,8 @@ TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTow
 	, visitedTown(Obj)
 {
 	// generate in reverse order - first building-hero pair to handle must be in the end of vector
-	for (auto const * hero : boost::adaptors::reverse(heroes))
-		for (auto const & building : boost::adaptors::reverse(buildingToVisit))
+	for (auto const * hero : std::views::reverse(heroes))
+		for (auto const & building : std::views::reverse(buildingToVisit))
 			visitedBuilding.push_back({ hero, building});
 }
 

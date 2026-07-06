@@ -12,8 +12,6 @@
 
 #include "TownRelatedAdventureSpellEffect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGTownInstance;
 
 class DLL_LINKAGE TownPortalEffect final : public spells::adventure::TownRelatedAdventureSpellEffect
@@ -34,5 +32,3 @@ private:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
-
-VCMI_LIB_NAMESPACE_END

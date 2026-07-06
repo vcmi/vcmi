@@ -15,8 +15,6 @@
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CStackBasicDescriptor;
 struct Component;
@@ -166,5 +164,3 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 
 bool DLL_LINKAGE operator== (const Rewardable::Limiter & l, const Rewardable::Limiter & r);
 bool DLL_LINKAGE operator!= (const Rewardable::Limiter & l, const Rewardable::Limiter & r);
-
-VCMI_LIB_NAMESPACE_END

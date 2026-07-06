@@ -23,6 +23,7 @@
 #include "../modManager/hdextractor.h"
 
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/GameConstants.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../vcmiqt/MessageBox.h"
 #include "../../vcmiqt/convpathqstring.h"
@@ -229,7 +230,7 @@ void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 {
 	QString availableVersion; // TODO
 
-	ui->labelTitleEngine->setText("VCMI " VCMI_VERSION_STRING);
+	ui->labelTitleEngine->setText(QString(GameConstants::VCMI_PROJECT_NAME_VERSIONED));
 	ui->buttonUpdateCheck->setVisible(status == EGameUpdateStatus::NOT_CHECKED);
 	ui->labelUpdateNotFound->setVisible(status == EGameUpdateStatus::NO_UPDATE);
 	ui->labelUpdateAvailable->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);

@@ -13,11 +13,9 @@
 #include "../../lib/serializer/GameConnectionID.h"
 #include "../../lib/json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
 class MetaString;
-VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
 

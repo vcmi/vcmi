@@ -11,8 +11,6 @@
 
 #include "CGPathNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IGameInfoCallback;
 class PathfinderConfig;
 class CGWhirlpool;
@@ -118,7 +116,6 @@ public:
 		const TerrainTile & srcTile,
 		const int3 & srcCoord,
 		NeighbourTilesVector & vec,
-		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
 
 	int getMovementCost(
@@ -142,5 +139,3 @@ public:
 
 	int getGuardiansCount(int3 tile) const;
 };
-
-VCMI_LIB_NAMESPACE_END

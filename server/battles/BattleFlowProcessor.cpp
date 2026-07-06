@@ -258,7 +258,7 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 			int32_t spellLevel = b->parameters ? b->parameters->toNumber() : 3;
 			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
-			parameters.massive = true;
+			parameters.forceMassive = true;
 			parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target());
 		}
 	}
@@ -662,7 +662,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 		if(!isReachable)
 			continue;
 
-		BattleHex closestTargetAdjacentHex = boost::min_element(attackableHexes, [&reachabilityCache](const BattleHex & lhs, const BattleHex & rhs)
+		BattleHex closestTargetAdjacentHex = std::ranges::min_element(attackableHexes, [&reachabilityCache](const BattleHex & lhs, const BattleHex & rhs)
 		{
 			return reachabilityCache.distances[lhs.toInt()] < reachabilityCache.distances[rhs.toInt()];
 		})[0];
@@ -1037,7 +1037,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				parameters.setSpellLevel(bonus->val);
 
 				//todo: recheck effect level
-				if(parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target(1, parameters.massive ? spells::Destination() : spells::Destination(st))))
+				if(parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target(1, parameters.forceMassive ? spells::Destination() : spells::Destination(st))))
 				{
 					cast = true;
 

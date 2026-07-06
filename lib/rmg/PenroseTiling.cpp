@@ -15,8 +15,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 
 Point2D Point2D::operator * (float scale) const
 {
@@ -194,5 +192,3 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, vstd::RN
 
 	return finalPoints;
 }
-
-VCMI_LIB_NAMESPACE_END

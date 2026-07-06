@@ -21,8 +21,6 @@
 
 class CClient;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CArmedInstance;
 class IBattleState;
@@ -530,5 +528,3 @@ struct DLL_LINKAGE BattleUpdateGateState : public CPackForClient
 protected:
 	void visitTyped(ICPackVisitor & visitor) override;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -11,8 +11,6 @@
 
 #include "json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace LogicalExpressionDetail
 {
 	/// class that defines required types for logical expressions
@@ -73,7 +71,7 @@ namespace LogicalExpressionDetail
 
 		size_t countPassed(const std::vector<typename Base::Variant> & element) const
 		{
-			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			return std::ranges::count_if(element, [&](const typename Base::Variant & expr)
 			{
 				return std::visit(*this, expr);
 			});
@@ -123,7 +121,7 @@ namespace LogicalExpressionDetail
 
 		size_t countSatisfiable(const std::vector<typename Base::Variant> & element) const
 		{
-			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			return std::ranges::count_if(element, [&](const typename Base::Variant & expr)
 			{
 				return std::visit(*satisfiabilityVisitor, expr);
 			});
@@ -131,7 +129,7 @@ namespace LogicalExpressionDetail
 
 		size_t countFalsifiable(const std::vector<typename Base::Variant> & element) const
 		{
-			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			return std::ranges::count_if(element, [&](const typename Base::Variant & expr)
 			{
 				return std::visit(*falsifiabilityVisitor, expr);
 			});
@@ -248,7 +246,7 @@ namespace LogicalExpressionDetail
 			if (!classTest(element))
 			{
 				for (auto & elem : element.expressions)
-					boost::range::copy(std::visit(*this, elem), std::back_inserter(ret));
+					std::ranges::copy(std::visit(*this, elem), std::back_inserter(ret));
 			}
 			return ret;
 		}
@@ -259,7 +257,7 @@ namespace LogicalExpressionDetail
 			if (!classTest(element))
 			{
 				for (auto & elem : element.expressions)
-					boost::range::copy(std::visit(*this, elem), std::back_inserter(ret));
+					std::ranges::copy(std::visit(*this, elem), std::back_inserter(ret));
 			}
 			return ret;
 		}
@@ -619,5 +617,3 @@ public:
 		h & data;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

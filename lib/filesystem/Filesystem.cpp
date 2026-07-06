@@ -22,8 +22,6 @@
 #include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
@@ -264,5 +262,3 @@ std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createFileSystem(const 
 	generator.loadConfig(fsConfig);
 	return generator.acquireFilesystem();
 }
-
-VCMI_LIB_NAMESPACE_END

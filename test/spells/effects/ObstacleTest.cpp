@@ -209,7 +209,7 @@ TEST_F(ObstacleApplyTest, PlacesObstacleWithMultiHexShape)
 	JsonNode config;
 	JsonNode shape;
 	JsonNode firstShapeEntry;
-	firstShapeEntry.Vector().push_back(JsonNode());  // empty direction list ⇒ NONE
+	firstShapeEntry.Vector().emplace_back();  // empty direction list ⇒ NONE
 	JsonNode secondShapeEntry;
 	JsonNode trDir;
 	trDir.String() = "TR";
@@ -326,12 +326,12 @@ TEST_F(ObstacleApplyTest, NoServerCallWhenNoAvailableTiles)
 TEST_F(ObstacleApplyTest, UsesDefenderSideOptions)
 {
 	JsonNode config;
-	config["attacker"]["shape"].Vector().push_back(JsonNode());
-	config["attacker"]["shape"].Vector()[0].Vector().push_back(JsonNode());
+	config["attacker"]["shape"].Vector().emplace_back();
+	config["attacker"]["shape"].Vector()[0].Vector().emplace_back();
 	config["attacker"]["shape"].Vector()[0].Vector()[0].String() = "TL";
 
-	config["defender"]["shape"].Vector().push_back(JsonNode());
-	config["defender"]["shape"].Vector()[0].Vector().push_back(JsonNode());
+	config["defender"]["shape"].Vector().emplace_back();
+	config["defender"]["shape"].Vector()[0].Vector().emplace_back();
 	config["defender"]["shape"].Vector()[0].Vector()[0].String() = "TR";
 
 	setupEffect(config);

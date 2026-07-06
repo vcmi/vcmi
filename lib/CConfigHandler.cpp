@@ -15,8 +15,6 @@
 #include "VCMIDirs.h"
 #include "json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 SettingsStorage settings;
 SettingsStorage persistentStorage;
 SettingsStorage keyBindingsConfig;
@@ -206,5 +204,3 @@ JsonNode & Settings::operator[](const std::string & value)
 // That way method definitions can sit in the cpp file
 template struct SettingsStorage::NodeAccessor<SettingsListener>;
 template struct SettingsStorage::NodeAccessor<Settings>;
-
-VCMI_LIB_NAMESPACE_END

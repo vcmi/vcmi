@@ -17,8 +17,6 @@
 #include "battle/BattleHexArray.h"
 #include "filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE BattleFieldInfo : public EntityT<BattleField>
 {
 public:
@@ -79,5 +77,3 @@ public:
 
 	static BattleField selectRandomBattlefield(const std::vector<BattleField> & battleFields, MapLayerId currentLayer, vstd::RNG & randomGenerator);
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -18,8 +18,6 @@
 #include "../lib/serializer/GameConnectionID.h"
 #include "../lib/serializer/PlayerConnectionID.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct SideInBattle;
 class IMarket;
 class SpellCastEnvironment;
@@ -37,8 +35,6 @@ struct NewTurn;
 struct CGarrisonOperationPack;
 struct SetResources;
 struct NewStructures;
-
-VCMI_LIB_NAMESPACE_END
 
 class HeroPoolProcessor;
 class CVCMIServer;

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TextIdentifier
 {
 	std::string identifier;
@@ -38,5 +36,3 @@ public:
 		TextIdentifier(id + '.' + id2, rest...)
 	{}
 };
-
-VCMI_LIB_NAMESPACE_END

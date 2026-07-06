@@ -36,10 +36,11 @@ namespace AIPathfinding
 		return rules;
 	}
 
-	AIPathfinderConfig::AIPathfinderConfig(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects)
+	AIPathfinderConfig::AIPathfinderConfig(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects, bool useDimensionDoor)
 		: PathfinderConfig(nodeStorage, *aiNk->cc, makeRuleset(aiNk->cc.get(), aiNk, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
+		options.useDimensionDoor = useDimensionDoor;
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;

@@ -11,8 +11,6 @@
 #include "BattleProxy.h"
 #include "Unit.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ///BattleProxy
 
 BattleProxy::BattleProxy(Subject subject_): 
@@ -125,5 +123,3 @@ const IBonusBearer * BattleProxy::getBonusBearer() const
 	return subject->getBonusBearer();
 }
 
-
-VCMI_LIB_NAMESPACE_END

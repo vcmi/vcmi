@@ -9,13 +9,9 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 class INetworkHandler;
 class INetworkClientListener;
-
-VCMI_LIB_NAMESPACE_END
 
 class CVCMIServer;
 

@@ -10,9 +10,7 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Rect;
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_TextEditingEvent;
 struct SDL_TextInputEvent;

@@ -23,10 +23,13 @@
 #include "../../../lib/GameSettings.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/AdventureSpellCast.h"
 #include "../Goals/BuildThis.h"
 #include "../Goals/StayAtTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../Goals/DismissHero.h"
+#include "../../../lib/spells/CSpell.h"
+#include "../../../lib/spells/adventure/DimensionDoorEffect.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
@@ -801,26 +804,31 @@ public:
 		int tilesDiscovered = task->value;
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
 
-		for(const auto obj : evaluationContext.evaluator.aiNk->cc->getVisitableObjs(task->tile))
+		// Hidden exploration targets may have no visible object data yet.
+		if(evaluationContext.evaluator.aiNk->cc->isVisible(task->tile))
 		{
-			switch(obj->ID.num)
+			for(const auto obj : evaluationContext.evaluator.aiNk->cc->getVisitableObjs(task->tile))
 			{
-				case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-				case Obj::MONOLITH_TWO_WAY:
-				case Obj::SUBTERRANEAN_GATE:
-					evaluationContext.explorePriority = 1;
-					break;
-				case Obj::REDWOOD_OBSERVATORY:
-				case Obj::PILLAR_OF_FIRE:
-					evaluationContext.explorePriority = 2;
-					break;
-				default:
-					logAi->warn("ExplorePointEvaluator buildEvaluationContext unknown exploration point %d", obj->ID.num);
+				switch(obj->ID.num)
+				{
+					case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+					case Obj::MONOLITH_TWO_WAY:
+					case Obj::SUBTERRANEAN_GATE:
+						evaluationContext.explorePriority = 1;
+						break;
+					case Obj::REDWOOD_OBSERVATORY:
+					case Obj::PILLAR_OF_FIRE:
+						evaluationContext.explorePriority = 2;
+						break;
+					default:
+						logAi->warn("ExplorePointEvaluator buildEvaluationContext unknown exploration point %d", obj->ID.num);
+				}
 			}
-		}
 
-		if(evaluationContext.evaluator.aiNk->cc->getTile(task->tile)->roadType != RoadId::NO_ROAD)
-			evaluationContext.explorePriority = 1;
+			const TerrainTile * tile = evaluationContext.evaluator.aiNk->cc->getTile(task->tile, false);
+			if(tile && tile->roadType != RoadId::NO_ROAD)
+				evaluationContext.explorePriority = 1;
+		}
 		if(evaluationContext.explorePriority == 0)
 		{
 			if(tilesDiscovered >= 20)
@@ -829,6 +837,37 @@ public:
 				evaluationContext.explorePriority = 2;
 			else
 				evaluationContext.explorePriority = 3;
+		}
+	}
+};
+
+class AdventureSpellCastEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::ADVENTURE_SPELL_CAST || !task->hero)
+			return;
+
+		const auto & adventureSpellCast = dynamic_cast<Goals::AdventureSpellCast &>(*task);
+		const CSpell * spell = adventureSpellCast.getSpell();
+
+		if(!spell)
+			return;
+
+		auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(task->hero);
+		evaluationContext.heroRole = role;
+
+		if(auto dimensionDoorEffect = spell->getAdventureMechanics().getEffectAs<DimensionDoorEffect>(task->hero))
+		{
+			const float movementLimit = std::max(1, task->hero->movementPointsLimit());
+			const float movementSpent = std::min(
+				task->hero->movementPointsRemaining(),
+				dimensionDoorEffect->getMovementPointsTaken());
+			const float movementCost = movementSpent / movementLimit;
+
+			evaluationContext.movementCost += movementCost;
+			evaluationContext.movementCostByRole[role] += movementCost;
 		}
 	}
 };
@@ -918,6 +957,7 @@ public:
 		evaluationContext.threatTurns = threat.turn;
 
 		vstd::amax(evaluationContext.danger, defendTown.getThreat().danger);
+		vstd::amax(evaluationContext.threat, defendTown.getThreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
 };
@@ -1278,6 +1318,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<AdventureSpellCastEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
 }
 
@@ -1436,7 +1477,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
-				if(evaluationContext.threatTurns <= evaluationContext.turn)
+				const bool canPrepareForNextTurnThreat = evaluationContext.turn == 0 && evaluationContext.threatTurns == 1;
+				if(evaluationContext.threatTurns <= evaluationContext.turn || canPrepareForNextTurnThreat)
 				{
 					// TODO: Mircea: Too many heroes are rushing for INSTADEFEND.
 					// We need some kind of smart selection of who to go, not everyone qualified

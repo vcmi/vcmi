@@ -14,8 +14,6 @@
 #include "CBattleInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 BattleStateInfoForRetreat::BattleStateInfoForRetreat():
 	canFlee(false),
 	canSurrender(false),
@@ -52,5 +50,3 @@ uint64_t BattleStateInfoForRetreat::getEnemyStrength() const
 {
 	return getFightingStrength(enemyStacks, enemyHero);
 }
-
-VCMI_LIB_NAMESPACE_END

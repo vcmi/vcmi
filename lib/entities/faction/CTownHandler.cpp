@@ -32,8 +32,6 @@
 #include "../../json/JsonBonus.h"
 #include "../../json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
 CTownHandler::CTownHandler()
@@ -632,7 +630,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 
 void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 {
-	const auto * resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
+	const auto * resIter = std::ranges::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
 		town->primaryRes = GameResID(EGameResID::WOOD_AND_ORE); //Wood + Ore
 	else
@@ -1027,5 +1025,3 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	static const std::vector<std::string> typeNames = { "faction", "town" };
 	return typeNames;
 }
-
-VCMI_LIB_NAMESPACE_END

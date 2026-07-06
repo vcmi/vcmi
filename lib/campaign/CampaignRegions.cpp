@@ -12,8 +12,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CampaignRegions::RegionDescription::RegionDescription(const JsonNode & node)
 {
 	infix = node["infix"].String();
@@ -133,5 +131,3 @@ int CampaignRegions::regionsCount() const
 {
 	return regions.size();
 }
-
-VCMI_LIB_NAMESPACE_END

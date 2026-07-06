@@ -15,10 +15,8 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/filesystem/ResourcePath.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class PlayerColor;
-VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 class SDLImageShared;

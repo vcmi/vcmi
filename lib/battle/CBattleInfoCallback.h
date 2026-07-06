@@ -14,8 +14,6 @@
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGHeroInstance;
 class CStack;
 class ISpellCaster;
@@ -210,5 +208,3 @@ protected:
 	bool isInObstacle(const BattleHex & hex, const BattleHexArray & obstacles, const ReachabilityInfo::Parameters & params) const;
 	BattleHexArray getStoppers(BattleSide whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
 };
-
-VCMI_LIB_NAMESPACE_END

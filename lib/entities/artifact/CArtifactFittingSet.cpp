@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "CArtifactFittingSet.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CArtifactFittingSet::CArtifactFittingSet(IGameInfoCallback *cb, ArtBearer bearer)
 	: CArtifactSet(cb)
 	, GameCallbackHolder(cb)
@@ -32,5 +30,3 @@ ArtBearer CArtifactFittingSet::bearerType() const
 {
 	return this->bearer;
 }
-
-VCMI_LIB_NAMESPACE_END

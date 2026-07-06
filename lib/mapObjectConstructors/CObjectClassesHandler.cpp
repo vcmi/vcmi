@@ -47,8 +47,6 @@
 
 #include <vstd/StringUtils.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CObjectClassesHandler::CObjectClassesHandler()
 {
 #define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>
@@ -630,5 +628,3 @@ std::string CObjectClassesHandler::getJsonKey(MapObjectID type) const
 	logGlobal->warn("Unknown object of type %d!", type);
 	return mapObjectTypes.front()->getJsonKey();
 }
-
-VCMI_LIB_NAMESPACE_END

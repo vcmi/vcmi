@@ -14,8 +14,6 @@
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class TerrainType;
 class RiverType;
 class RoadType;
@@ -177,5 +175,3 @@ inline bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 	const TerrainType * terrain = getTerrain();
 	return terrain->isPassable() && ((allowSea && terrain->isWater()) || (allowLand && terrain->isLand()));
 }
-
-VCMI_LIB_NAMESPACE_END

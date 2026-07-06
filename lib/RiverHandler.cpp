@@ -15,8 +15,6 @@
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 RiverTypeHandler::RiverTypeHandler()
 {
 	objects.emplace_back(new RiverType());
@@ -94,5 +92,3 @@ RiverType::RiverType():
 	identifier("empty"),
 	modScope("core")
 {}
-
-VCMI_LIB_NAMESPACE_END

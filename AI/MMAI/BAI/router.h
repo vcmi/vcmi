@@ -79,6 +79,7 @@ private:
 	AutocombatPreferences autocombatPreferences;
 	std::string addrstr = "?";
 	std::string colorname = "?";
+	const std::string basetag = "?";
 	std::string logtag = "?";
 };
 }

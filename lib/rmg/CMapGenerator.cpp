@@ -39,8 +39,6 @@
 
 #include <tbb/task_group.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
@@ -641,5 +639,3 @@ void CMapGenerator::validateConnectivity() const
 	if(unreachable > 0)
 		logGlobal->warn("RMG: %d player town(s) unreachable — consider regenerating with a different seed.", unreachable);
 }
-
-VCMI_LIB_NAMESPACE_END

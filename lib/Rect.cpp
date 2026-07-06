@@ -12,8 +12,6 @@
 #include "Rect.h"
 #include "int3.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 Point::Point(const int3 & a)
 	: x(a.x)
 	, y(a.y)
@@ -143,5 +141,3 @@ int Rect::distanceTo(const Point & target) const
 
 	return Point(distanceX, distanceY).length();
 }
-
-VCMI_LIB_NAMESPACE_END

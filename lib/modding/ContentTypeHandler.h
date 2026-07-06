@@ -11,8 +11,6 @@
 
 #include "../json/JsonNode.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IHandlerBase;
 class ModDescription;
 
@@ -70,5 +68,3 @@ public:
 	const ContentTypeHandler & operator[] (const std::string & name) const;
 };
 
-
-VCMI_LIB_NAMESPACE_END

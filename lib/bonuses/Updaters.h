@@ -12,8 +12,6 @@
 #include "Bonus.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class AggregateLimiter;
 class CCreatureTypeLimiter;
 class HasAnotherBonusLimiter;
@@ -203,5 +201,3 @@ public:
 		h & updaters;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

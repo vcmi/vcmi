@@ -12,9 +12,7 @@
 #include "../lib/network/NetworkDefines.h"
 #include "LobbyDefines.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class JsonNode;
-VCMI_LIB_NAMESPACE_END
 
 class LobbyDatabase;
 

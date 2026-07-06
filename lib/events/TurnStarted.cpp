@@ -13,8 +13,6 @@
 
 #include <vcmi/events/EventBus.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace events
 {
 
@@ -39,5 +37,3 @@ bool CTurnStarted::isEnabled() const
 
 
 }
-
-VCMI_LIB_NAMESPACE_END

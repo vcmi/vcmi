@@ -16,8 +16,6 @@
 #include <jni.h>
 #include <string>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// helper class that allows access to java vm to communicate with java code from native
 class DLL_LINKAGE CAndroidVMHelper
 {
@@ -50,7 +48,5 @@ public:
 
 	static constexpr const char * NATIVE_METHODS_DEFAULT_CLASS = "eu/vcmi/vcmi/NativeMethods";
 };
-
-VCMI_LIB_NAMESPACE_END
 
 #endif

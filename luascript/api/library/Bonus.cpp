@@ -20,8 +20,6 @@
 #include "../../../lib/CBonusTypeHandler.h"
 #include "../../../lib/bonuses/BonusParameters.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace scripting::api
 {
 
@@ -70,7 +68,7 @@ si32        BonusProxy::getParametersAsNumber(const Bonus & b) { return b.parame
 
 std::vector<BonusDuration::BonusDuration> BonusProxy::getDuration(const Bonus & b)
 {
-	static constexpr BonusDuration::BonusDuration all[] = {
+	static constexpr std::array all = {
 		BonusDuration::PERMANENT,
 		BonusDuration::ONE_BATTLE,
 		BonusDuration::ONE_DAY,
@@ -117,5 +115,3 @@ Bonus BonusListProxy::getBonus(const BonusList & list, int32_t index)
 }
 
 }
-
-VCMI_LIB_NAMESPACE_END

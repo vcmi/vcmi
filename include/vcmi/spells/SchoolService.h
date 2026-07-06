@@ -12,8 +12,6 @@
 
 #include "../EntityService.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class SpellSchool;
 
 namespace spells
@@ -28,5 +26,3 @@ public:
 };
 
 }
-
-VCMI_LIB_NAMESPACE_END

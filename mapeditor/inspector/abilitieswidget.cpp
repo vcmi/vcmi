@@ -28,7 +28,7 @@ const std::string AbilitiesWidget::V_CATEGORY="secondarySkill";
 const std::string AbilitiesWidget::V_NAME="gainedSkill";
 
 AbilitiesWidget::AbilitiesWidget(CRewardableObject & hut, MapController & controller, QWidget * parent)
-	: hut(hut), controller(controller), QDialog(parent), extractor(controller.getCallback()), ui(new Ui::AbilitiesWidget)
+	: QDialog(parent), ui(new Ui::AbilitiesWidget), hut(hut), extractor(controller.getCallback()), controller(controller)
 {
 	ui->setupUi(this);
 }
@@ -176,7 +176,7 @@ bool AbilitiesWidget::isSetToDefault()
 	return !ui->customize->isChecked();
 }
 
-AbilitiesDelegate::AbilitiesDelegate(MapController & controller, CRewardableObject & hut) : BaseInspectorItemDelegate(), controller(controller), hut(hut) {}
+AbilitiesDelegate::AbilitiesDelegate(MapController & controller, CRewardableObject & hut) : BaseInspectorItemDelegate(), hut(hut), controller(controller) {}
 
 QWidget * AbilitiesDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {

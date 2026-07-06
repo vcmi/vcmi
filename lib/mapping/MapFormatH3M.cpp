@@ -48,8 +48,6 @@
 #include "modding/CModHandler.h"
 #include "modding/ModDescription.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new MapReaderH3M(stream))
@@ -549,7 +547,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 		if(allowNormalVictory)
 		{
-			size_t playersOnMap = boost::range::count_if(
+			size_t playersOnMap = std::ranges::count_if(
 				mapHeader->players,
 				[](const PlayerInfo & info)
 				{
@@ -1359,9 +1357,9 @@ void CMapLoaderH3M::readHotaScriptExpressionInternal()
 		HERO_OWNED_ARTIFACTS = 17,
 	};
 
-	int unknown = reader->readBool();
-	assert(unknown==true);
-	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, unknown);
+	const bool unknown = reader->readBool();
+	assert(unknown);
+	logGlobal->warn("Map %s: HotA Script expression - unknown value %d", mapName, static_cast<int>(unknown));
 
 
 	HotaScriptExpression expressionCode = static_cast<HotaScriptExpression>(reader->readInt32());
@@ -3767,5 +3765,3 @@ void CMapLoaderH3M::afterRead()
 	for (auto & quest : questsToResolve)
 		quest.first->getQuest().killTarget = questIdentifierToId.at(quest.second);
 }
-
-VCMI_LIB_NAMESPACE_END

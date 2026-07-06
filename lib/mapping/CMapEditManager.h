@@ -13,8 +13,6 @@
 #include "../GameConstants.h"
 #include "MapEditUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CMapOperation;
 
 namespace vstd
@@ -103,5 +101,3 @@ private:
 	CTerrainSelection terrainSel;
 	CObjectSelection objectSel;
 };
-
-VCMI_LIB_NAMESPACE_END

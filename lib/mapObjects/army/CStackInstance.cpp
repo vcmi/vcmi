@@ -21,8 +21,6 @@
 #include "../../IBonusTypeHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CStackInstance::CStackInstance(IGameInfoCallback * cb)
 	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
 {
@@ -356,5 +354,3 @@ const IBonusBearer * CStackInstance::getBonusBearer() const
 {
 	return this;
 }
-
-VCMI_LIB_NAMESPACE_END

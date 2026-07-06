@@ -14,7 +14,6 @@
 #include "lib/json/JsonKeyExtractor.h"
 #include "lib/mapObjects/CRewardableObject.h"
 
-VCMI_LIB_USING_NAMESPACE
 
 namespace Ui
 {
@@ -44,7 +43,7 @@ private:
 	{
 		QRadioButton * radioButton;
 		QComboBox * comboBox;
-		std::string variables[2];
+		std::array<std::string, 2> variables;
 		std::string name;
 		JsonNode dice;
 	};
@@ -59,7 +58,9 @@ private:
 	MapController & controller;
 
 	std::vector<RewardData> rewardsData;
-	static const std::string presetNotFoundWarning;
+	static constexpr const char * presetNotFoundWarning =
+		"<font color='red'>The scholar has %1 preset set to \"%2\", "
+		"but the value is unknown. Maybe it is a mod configuration problem?</font color='red'>";
 };
 
 class ScholarDelegate : public BaseInspectorItemDelegate

@@ -11,8 +11,6 @@
 
 #include "MapInfoCallback.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE EditorCallback : public MapInfoCallback
 {
 
@@ -70,5 +68,3 @@ public:
 private:
 	const CMap * map;
 };
-
-VCMI_LIB_NAMESPACE_END

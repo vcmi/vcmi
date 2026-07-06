@@ -11,8 +11,6 @@
 
 #include "AObjectTypeHandler.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Class that is used as base for multiple object constructors
 template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
@@ -53,5 +51,3 @@ protected:
 		return std::make_shared<ObjectType>(cb);
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

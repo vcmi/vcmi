@@ -17,8 +17,6 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	: isDetailed(detailed)
 {
@@ -175,5 +173,3 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		details->garrisonedHero = t->getGarrisonHero();
 	}
 }
-
-VCMI_LIB_NAMESPACE_END

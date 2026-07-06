@@ -9,7 +9,9 @@ set(serverapp_HEADERS
 
 assign_source_group(${serverapp_SRCS} ${serverapp_HEADERS})
 add_executable(vcmiserver ${serverapp_SRCS} ${serverapp_HEADERS})
-vcmi_create_exe_shim(vcmiserver)
+if(USING_CONAN)
+	vcmi_copy_conan_runtime_deps(vcmiserver)
+endif()
 
 set(serverapp_LIBS vcmi)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD OR HAIKU)

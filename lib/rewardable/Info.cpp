@@ -26,8 +26,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 namespace {
 	MetaString loadMessage(const JsonNode & value, const TextIdentifier & textIdentifier, EMetaText textSource = EMetaText::ADVOB_TXT )
 	{
@@ -588,5 +586,3 @@ const JsonNode & Rewardable::Info::getParameters() const
 {
 	return parameters;
 }
-
-VCMI_LIB_NAMESPACE_END

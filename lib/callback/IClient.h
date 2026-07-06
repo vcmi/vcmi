@@ -9,8 +9,6 @@
  */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class BattleID;
 class BattleAction;
 class BattleStateInfoForRetreat;
@@ -24,5 +22,3 @@ public:
 	virtual int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) = 0;
 	virtual ~IClient() = default;
 };
-
-VCMI_LIB_NAMESPACE_END

@@ -14,8 +14,6 @@
 #include "../../constants/EntityIdentifiers.h"
 #include "../../callback/GameCallbackHolder.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 {
 	ArtifactInstanceID artifactID;
@@ -45,5 +43,3 @@ struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 		h & locked;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

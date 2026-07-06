@@ -16,8 +16,6 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInstance * h, CPathsInfo & out)
 {
 	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, *cb, h);
@@ -62,5 +60,3 @@ std::shared_ptr<const CPathsInfo> PathfinderCache::getPathsInfo(const CGHeroInst
 	else
 		return iter->second;
 }
-
-VCMI_LIB_NAMESPACE_END

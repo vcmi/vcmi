@@ -11,11 +11,9 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class GameConnection;
-VCMI_LIB_NAMESPACE_END
 
-class ClientPermissionsCheckerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ClientPermissionsCheckerNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	std::shared_ptr<GameConnection> connection;
@@ -48,10 +46,11 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
-class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	CVCMIServer & srv;
@@ -68,10 +67,11 @@ public:
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
-class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
+class ApplyOnServerNetPackVisitor : public ::ICPackVisitor
 {
 private:
 	std::shared_ptr<GameConnection> connection;
@@ -110,6 +110,7 @@ public:
 	void visitLobbySetSimturns(LobbySetSimturns & pack) override;
 	void visitLobbySetDifficulty(LobbySetDifficulty & pack) override;
 	void visitLobbyForceSetPlayer(LobbyForceSetPlayer & pack) override;
+	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
 };

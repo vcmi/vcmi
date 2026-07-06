@@ -13,8 +13,6 @@
 #include "../campaign/CampaignConstants.h"
 #include "../serializer/Serializeable.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CampaignBonus;
 struct CampaignTravel;
 class CampaignState;
@@ -88,5 +86,3 @@ public:
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

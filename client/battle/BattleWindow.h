@@ -14,10 +14,8 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/PossiblePlayerBattleAction.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
-
-VCMI_LIB_NAMESPACE_END
+class CGTownInstance;
 
 class CButton;
 class BattleInterface;
@@ -65,7 +63,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	/// functions for handling actions after they were confirmed by popup window
 	void reallyFlee();
-	void reallySurrender();
+	void reallySurrender(bool allowMarketplaceOffer = true, bool marketplaceSaleFailed = false);
+	void offerMarketplaceForSurrender();
+	bool canOfferMarketplaceForSurrender() const;
+	const CGTownInstance * findTownWithMarketplace() const;
 	
 	void useSpellIfPossible(int slot);
 

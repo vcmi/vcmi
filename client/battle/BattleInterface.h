@@ -17,8 +17,6 @@
 #include "../../lib/spells/SpellAnimationItem.h"
 #include "../../lib/ConditionalWait.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CCreatureSet;
 class CGHeroInstance;
 class CStack;
@@ -34,8 +32,6 @@ struct InfoAboutHero;
 class ObstacleChanges;
 class CPlayerBattleCallback;
 class MetaString;
-
-VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
 class Canvas;

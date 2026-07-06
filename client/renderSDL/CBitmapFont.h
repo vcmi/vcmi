@@ -13,9 +13,7 @@
 
 #include "../../lib/Rect.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class ResourcePath;
-VCMI_LIB_NAMESPACE_END
 
 class CBitmapFont final : public IFont
 {

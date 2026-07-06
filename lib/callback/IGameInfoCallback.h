@@ -16,8 +16,6 @@
 
 #include <vcmi/scripting/ApiTags.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct StartInfo;
 
 class CGHeroInstance;
@@ -168,5 +166,3 @@ public:
 	virtual const scripting::Pool & getScriptContextPool() const = 0;
 
 };
-
-VCMI_LIB_NAMESPACE_END

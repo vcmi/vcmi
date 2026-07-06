@@ -10,9 +10,9 @@
 #include "StdInc.h"
 #include "DefenceBehavior.h"
 
+#include "../../../lib/IGameSettings.h"
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "CaptureObjectsBehavior.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/Composition.h"
@@ -21,7 +21,8 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/RecruitHero.h"
 #include "../Markers/DefendTown.h"
-#include "../../../lib/IGameSettings.h"
+#include "CaptureObjectsBehavior.h"
+#include "RecruitHeroBehavior.h"
 
 namespace NK2AI
 {
@@ -29,6 +30,173 @@ namespace NK2AI
 const float THREAT_IGNORE_RATIO = 2;
 
 using namespace Goals;
+
+namespace Goals
+{
+	uint64_t estimateTownFortificationDefence(const CGTownInstance & town, bool hasDefenders)
+	{
+		if(!hasDefenders)
+			return 0;
+
+		if(town.fortLevel() == CGTownInstance::CASTLE)
+			return 10000;
+
+		if(town.fortLevel() == CGTownInstance::CITADEL)
+			return 4000;
+
+		return 0;
+	}
+
+	uint64_t estimateTownDefence(const CGTownInstance & town, const CGHeroInstance * committedDefender)
+	{
+		uint64_t result = town.getArmyStrength();
+
+		if(committedDefender)
+			result = std::max(result, committedDefender->getTotalStrength());
+
+		return result + estimateTownFortificationDefence(town, committedDefender && result > 0);
+	}
+
+	bool isTownDefenceSufficient(uint64_t defenceStrength, const HitMapInfo & threat, float safeAttackRatio)
+	{
+		if(threat.danger == 0)
+			return true;
+
+		const auto requiredDefence = threat.turn == 0 ? static_cast<float>(threat.danger) : threat.danger * safeAttackRatio;
+
+		return defenceStrength >= requiredDefence;
+	}
+
+	bool shouldLockTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const HitMapInfo & threat, float safeAttackRatio)
+	{
+		if(threat.danger == 0 || threat.turn > 1)
+			return false;
+
+		if(isTownDefenceSufficient(estimateTownDefence(town, nullptr), threat, safeAttackRatio))
+			return false;
+
+		return isTownDefenceSufficient(estimateTownDefence(town, &defender), threat, safeAttackRatio);
+	}
+
+	int countTownThreatsCoveredByDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio)
+	{
+		int result = 0;
+		const auto townDefence = estimateTownDefence(town, nullptr);
+		const auto defenceWithHero = estimateTownDefence(town, &defender);
+
+		for(const auto & threat : threats)
+		{
+			if(threat.danger == 0 || threat.turn > 1)
+				continue;
+
+			if(isTownDefenceSufficient(townDefence, threat, safeAttackRatio))
+				continue;
+
+			if(isTownDefenceSufficient(defenceWithHero, threat, safeAttackRatio))
+				++result;
+		}
+
+		return result;
+	}
+
+	bool isHeroRequiredForTownDefence(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio)
+	{
+		return countTownThreatsCoveredByDefender(town, defender, threats, safeAttackRatio) > 0;
+	}
+
+	bool shouldReserveTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio)
+	{
+		const auto townDefence = estimateTownDefence(town, nullptr);
+		const auto defenceWithHero = estimateTownDefence(town, &defender);
+
+		if(defenceWithHero <= townDefence)
+			return false;
+
+		for(const auto & threat : threats)
+		{
+			if(threat.danger == 0 || threat.turn > 1)
+				continue;
+
+			if(!isTownDefenceSufficient(townDefence, threat, safeAttackRatio))
+				return true;
+		}
+
+		return false;
+	}
+}
+
+namespace
+{
+	constexpr float DEFENSIVE_EMERGENCY_PRIORITY = 1000000.0f;
+
+	uint64_t estimateTownMobileDefence(const CGTownInstance * town)
+	{
+		uint64_t result = town->getArmyStrength();
+
+		if(const auto * visitingHero = town->getVisitingHero())
+			result = std::max(result, visitingHero->getTotalStrength());
+
+		if(const auto * garrisonHero = town->getGarrisonHero())
+			result = std::max(result, garrisonHero->getTotalStrength());
+
+		return result;
+	}
+
+	bool shouldLockPathDefender(const CGTownInstance * town, const HitMapInfo & threat, const AIPath & path, const Nullkiller * aiNk)
+	{
+		return path.turn() == 0 && shouldLockTownDefender(*town, *path.targetHero, threat, aiNk->settings->getSafeAttackRatio());
+	}
+
+	void setDefensiveEmergencyPriority(Composition & composition, bool emergency)
+	{
+		if(emergency)
+			composition.setpriority(DEFENSIVE_EMERGENCY_PRIORITY);
+	}
+
+	uint64_t stableTownDefence(const CGTownInstance * town, const Nullkiller * aiNk)
+	{
+		uint64_t result = estimateTownDefence(*town, nullptr);
+
+		if(const auto * garrisonHero = town->getGarrisonHero())
+		{
+			if(aiNk->getHeroLockedReason(garrisonHero) == HeroLockedReason::DEFENCE)
+				result = std::max(result, estimateTownDefence(*town, garrisonHero));
+		}
+
+		if(const auto * visitingHero = town->getVisitingHero())
+		{
+			if(aiNk->getHeroLockedReason(visitingHero) == HeroLockedReason::DEFENCE)
+				result = std::max(result, estimateTownDefence(*town, visitingHero));
+		}
+
+		return result;
+	}
+
+	bool hasStableTownDefence(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller * aiNk)
+	{
+		if(threat.danger == 0)
+			return true;
+
+		return isTownDefenceSufficient(stableTownDefence(town, aiNk), threat, aiNk->settings->getSafeAttackRatio());
+	}
+
+	bool containsRecruitHeroTask(const Goals::TSubgoal & task, const CGHeroInstance * hero)
+	{
+		if(const auto * recruitGoal = dynamic_cast<const Goals::RecruitHero *>(task.get()))
+			return recruitGoal->getHero() == hero;
+
+		if(task->goalType == Goals::COMPOSITION)
+		{
+			for(const auto & subgoal : task->decompose(nullptr))
+			{
+				if(containsRecruitHeroTask(subgoal, hero))
+					return true;
+			}
+		}
+
+		return false;
+	}
+}
 
 std::string DefenceBehavior::toString() const
 {
@@ -82,6 +250,9 @@ void handleCounterAttack(
 	Goals::TGoalVec & tasks
 )
 {
+	if(!hasStableTownDefence(town, threat, aiNk))
+		return;
+
 	if(threat.heroPtr.isVerified() && threat.turn <= 1 && (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
 		auto heroCapturingPaths = aiNk->pathfinder->getPathInfo(threat.heroPtr->visitablePos());
@@ -102,11 +273,13 @@ void handleCounterAttack(
 	}
 }
 
-bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller * aiNk)
+bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller * aiNk, const std::vector<HitMapInfo> & threats)
 {
-	if(aiNk->isHeroLocked(town->getGarrisonHero()))
+	const auto * garrisonHero = town->getGarrisonHero();
+
+	if(aiNk->isHeroLocked(garrisonHero) || shouldReserveTownDefender(*town, *garrisonHero, threats, aiNk->settings->getSafeAttackRatio()))
 	{
-		logAi->trace("Hero %s in garrison of town %s is supposed to defend the town", town->getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
+		logAi->trace("Hero %s in garrison of town %s is supposed to defend the town", garrisonHero->getNameTranslated(), town->getNameTranslated());
 		return true;
 	}
 
@@ -114,12 +287,12 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	{
 		if(aiNk->cc->getHeroCount(aiNk->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
 		{
-			logAi->trace("Extracting hero %s from garrison of town %s", town->getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
+			logAi->trace("Extracting hero %s from garrison of town %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 			return false;
 		}
 
-		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(town->getGarrisonHero()) == HeroRole::MAIN)
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(garrisonHero) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
 			auto heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(armyDismissLimit);
@@ -146,7 +319,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	// or simply no one is around
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
 
-	if(town->getGarrisonHero() && handleGarrisonHeroFromPreviousTurn(town, tasks, aiNk))
+	if(town->getGarrisonHero() && handleGarrisonHeroFromPreviousTurn(town, tasks, aiNk, threats))
 		return;
 
 	if(!threatNode.fastestDanger.heroPtr.isVerified())
@@ -217,9 +390,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			);
 #endif
 
-			auto townDefenseStrength = town->getGarrisonHero()
-										 ? town->getGarrisonHero()->getTotalStrength()
-										 : (town->getVisitingHero() ? town->getVisitingHero()->getTotalStrength() : town->getUpperArmy()->getArmyStrength());
+			const auto townDefenseStrength = estimateTownMobileDefence(town);
+			const bool lockDefenderNow = shouldLockPathDefender(town, threat, path, aiNk);
 
 			if(town->getVisitingHero() && path.targetHero == town->getVisitingHero())
 			{
@@ -262,13 +434,12 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				if(town->getGarrisonHero() || town->getUpperArmy()->stacksCount() == 0 || path.targetHero->canBeMergedWith(*town)
 				   || (town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL))
 				{
-					tasks.push_back(
-						Goals::sptr(
-							Composition()
-								.addNext(DefendTown(town, threat, path.targetHero))
-								.addNext(ExchangeSwapTownHeroes(town, town->getVisitingHero(), HeroLockedReason::DEFENCE))
-						)
-					);
+					Composition composition;
+					composition.addNext(DefendTown(town, threat, path.targetHero))
+						.addNext(ExchangeSwapTownHeroes(town, town->getVisitingHero(), HeroLockedReason::DEFENCE));
+
+					setDefensiveEmergencyPriority(composition, lockDefenderNow);
+					tasks.push_back(Goals::sptr(composition));
 				}
 
 				continue;
@@ -296,7 +467,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 
-			if(threat.turn == 0 || (path.turn() <= threat.turn && path.getHeroStrength() >= threat.danger * aiNk->settings->getSafeAttackRatio()))
+			const bool heroStrengthCoversThreat = path.turn() <= threat.turn && path.getHeroStrength() >= threat.danger * aiNk->settings->getSafeAttackRatio();
+			if(threat.turn == 0 || lockDefenderNow || heroStrengthCoversThreat)
 			{
 				if(aiNk->arePathHeroesLocked(path))
 				{
@@ -314,6 +486,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		for(int i : pathsToDefend)
 		{
 			AIPath & path = paths[i];
+			const bool lockDefenderNow = shouldLockPathDefender(town, threat, path, aiNk);
+
 			for(int j : defferedPaths[path.targetHero])
 			{
 				AIPath & defferedPath = paths[j];
@@ -330,6 +504,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			if(town->getGarrisonHero() && path.targetHero == town->getGarrisonHero() && path.exchangeCount == 1)
 			{
 				composition.addNext(ExchangeSwapTownHeroes(town, town->getGarrisonHero(), HeroLockedReason::DEFENCE));
+				setDefensiveEmergencyPriority(composition, lockDefenderNow);
 				tasks.push_back(Goals::sptr(composition));
 
 #if NK2AI_TRACE_LEVEL >= 1
@@ -366,7 +541,12 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			}
 
 			sequence.push_back(sptr(heroChain));
+
+			if(lockDefenderNow)
+				sequence.push_back(sptr(ExchangeSwapTownHeroes(town, path.targetHero, HeroLockedReason::DEFENCE)));
+
 			composition.addNextSequence(sequence);
+			setDefensiveEmergencyPriority(composition, lockDefenderNow);
 
 			const auto firstBlockedAction = path.getFirstBlockedAction();
 			if(firstBlockedAction)
@@ -397,31 +577,22 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * aiNk)
 {
-	// TODO: Mircea: Shouldn't it be threat.turn < 1? How does the current one make sense?
-	if(threat.turn > 0 || town->getGarrisonHero() || town->getVisitingHero())
-		return;
-
 	// TODO: Mircea: Replace with aiNk->heroManager->canRecruitHero(town) but skip limit?
 	if(town->hasBuilt(BuildingID::TAVERN) && aiNk->cc->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 	{
 		const auto heroesInTavern = aiNk->cc->getAvailableHeroes(town);
 		for(auto hero : heroesInTavern)
 		{
-			// TODO: Mircea: Investigate if this logic might be off, as the attacker will most probably be more powerful than a tavern hero
-			// A new hero improves the defence strength of town's army if it has defence > 0 in primary skills
-			if(hero->getTotalStrength() < threat.danger)
+			if(!RecruitHeroBehavior::isDefensiveRecruitEmergency(*town, *hero, threat, aiNk->settings->getSafeAttackRatio()))
 				continue;
 
 			bool heroAlreadyHiredInOtherTown = false;
 			for(const auto & task : tasks)
 			{
-				if(auto * const recruitGoal = dynamic_cast<Goals::RecruitHero *>(task.get()))
+				if(containsRecruitHeroTask(task, hero))
 				{
-					if(recruitGoal->getHero() == hero)
-					{
-						heroAlreadyHiredInOtherTown = true;
-						break;
-					}
+					heroAlreadyHiredInOtherTown = true;
+					break;
 				}
 			}
 			if(heroAlreadyHiredInOtherTown)
@@ -471,7 +642,6 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			}
 
 			TGoalVec sequence;
-			Goals::Composition recruitHeroComposition;
 
 			if(needSwap)
 				sequence.push_back(sptr(ExchangeSwapTownHeroes(town, town->getVisitingHero())));
@@ -480,7 +650,12 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 				sequence.push_back(sptr(DismissHero(heroToDismiss)));
 
 			sequence.push_back(sptr(Goals::RecruitHero(town, hero)));
-			tasks.push_back(sptr(Goals::Composition().addNext(DefendTown(town, threat, hero)).addNextSequence(sequence)));
+			sequence.push_back(sptr(ExchangeSwapTownHeroes(town, hero, HeroLockedReason::DEFENCE)));
+
+			Goals::Composition composition;
+			composition.addNext(DefendTown(town, threat, hero)).addNextSequence(sequence);
+			composition.setpriority(DEFENSIVE_EMERGENCY_PRIORITY);
+			tasks.push_back(sptr(composition));
 		}
 	}
 }

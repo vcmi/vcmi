@@ -11,8 +11,6 @@
 
 #include "GameConstants.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class IArmyDescriptor
 {
 public:
@@ -50,5 +48,3 @@ public:
 		h & army;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

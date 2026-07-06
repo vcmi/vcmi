@@ -1281,6 +1281,10 @@ Increases amount of counted marketplaces when trading in town. You may want to u
 
 - val: additional number of 'marketplaces' to reduce costs
 
+### SURRENDER_MARKETPLACE_ACCESS
+
+Allows affected hero or player to open a marketplace after failing to pay surrender cost, sell resources, and retry surrender payment. This can be granted by artifacts, global/per-hero game config bonuses, or other bonus sources.
+
 ### DEITYOFFIRE
 
 Enforce the "week of" to a special creature. If this bonus is existing multiple times, it's randomly selected from all bonus sources.

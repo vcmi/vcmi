@@ -21,7 +21,7 @@ FramerateManager::FramerateManager(int targetFrameRate)
 	, lastTimePoint(Clock::now())
 	, vsyncEnabled(settings["video"]["vsync"].Bool())
 {
-	boost::range::fill(lastFrameTimes, targetFrameTime);
+	std::ranges::fill(lastFrameTimes, targetFrameTime);
 }
 
 void FramerateManager::framerateDelay()

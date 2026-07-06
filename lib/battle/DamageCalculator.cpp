@@ -22,8 +22,6 @@
 
 #include <vcmi/spells/Spell.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DamageRange DamageCalculator::getBaseDamageSingle() const
 {
 	int64_t minDmg = 0.0;
@@ -564,16 +562,10 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	double defenseFactorTotal = 1.0;
 
 	for (auto & factor : attackFactors)
-	{
-		assert(factor >= 0.0);
 		attackFactorTotal += factor;
-	}
 
 	for (auto & factor : defenseFactors)
-	{
-		assert(factor >= 0.0);
 		defenseFactorTotal *= (1 - std::min(1.0, factor));
-	}
 
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
@@ -591,5 +583,3 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	return DamageEstimation{damageDealt, killsDealt};
 }
-
-VCMI_LIB_NAMESPACE_END

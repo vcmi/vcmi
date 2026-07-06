@@ -13,8 +13,6 @@
 #include "../gui/TextAlignment.h"
 #include "../../lib/FunctionList.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
@@ -23,8 +21,6 @@ class CGCreature;
 class CGTeleport;
 class CGKeys;
 class CGObelisk;
-
-VCMI_LIB_NAMESPACE_END
 
 class CComponent;
 class CComponentBox;
@@ -101,6 +97,7 @@ class AdventureMapPopup : public CWindowObject
 
 public:
 	template<typename... Args>
+		requires (sizeof...(Args) != 1 || (!std::is_base_of_v<AdventureMapPopup, std::remove_cvref_t<Args>> && ...))
 	AdventureMapPopup(Args&&... args);
 	void mouseDraggedPopup(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 };

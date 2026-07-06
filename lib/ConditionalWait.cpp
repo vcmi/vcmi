@@ -10,9 +10,5 @@
 #include "StdInc.h"
 #include "ConditionalWait.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 TerminationRequestedException::~TerminationRequestedException() = default;
 InterruptionRequestedException::~InterruptionRequestedException() = default;
-
-VCMI_LIB_NAMESPACE_END

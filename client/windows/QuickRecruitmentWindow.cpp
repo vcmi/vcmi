@@ -82,7 +82,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
 {
 	auto allAvailableResources = GAME->interface()->cb->getResourceAmount();
-	for(auto i : boost::adaptors::reverse(cards))
+	for(auto i : std::views::reverse(cards))
 	{
 		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
 		vstd::amin(maxAmount, i->maxAmount);
@@ -105,7 +105,7 @@ void QuickRecruitmentWindow::purchaseUnits()
 {
 	int freeSlotsLeft = town->getUpperArmy()->getFreeSlots().size();
 
-	for(auto selected : boost::adaptors::reverse(cards))
+	for(auto selected : std::views::reverse(cards))
 	{
 		if(selected->slider->getValue() == 0)
 			continue;
@@ -148,7 +148,7 @@ int QuickRecruitmentWindow::getAvailableCreatures()
 void QuickRecruitmentWindow::updateAllSliders()
 {
 	auto allAvailableResources = GAME->interface()->cb->getResourceAmount();
-	for(auto i : boost::adaptors::reverse(cards))
+	for(auto i : std::views::reverse(cards))
 		allAvailableResources -= (i->creatureOnTheCard->getFullRecruitCost() * i->slider->getValue());
 	for(auto i : cards)
 	{

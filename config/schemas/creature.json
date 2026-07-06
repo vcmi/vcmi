@@ -105,6 +105,13 @@
 			},
 			"description" : "Cost to recruit this creature"
 		},
+		"resurrectionPrice" : {
+			"type" : "object",
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Cost to resurrect this creature when used as commander; falls back to config/commanders.json when omitted"
+		},
 		"speed" :     { "type" : "number" },
 		"hitPoints" : { "type" : "number" },
 		"attack" :    { "type" : "number" },

@@ -10,8 +10,6 @@
 
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 struct DLL_LINKAGE TurnTimerInfo
 {
 	int turnTimer = 0; //in ms, counts down when player is making his turn on adventure map
@@ -55,5 +53,3 @@ struct DLL_LINKAGE TurnTimerInfo
 		}
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

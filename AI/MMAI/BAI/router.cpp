@@ -162,7 +162,7 @@ namespace
 
 #define MMAI_LOG_TAG LogTag _(logtag + "." + __func__)
 
-Router::Router() : addrstr(MakeAddrStr(this)), logtag(addrstr + ":MMAI") {}
+Router::Router() : addrstr(MakeAddrStr(this)), basetag(addrstr + ":MMAI"), logtag(basetag) {}
 
 Router::~Router()
 {
@@ -302,7 +302,7 @@ void Router::battleStart(
 
 	model = GetModel(modelkey);
 
-	logtag += ".v" + std::to_string(model->getVersion());
+	logtag = basetag + ".v" + std::to_string(model->getVersion());
 	LogTag _2(logtag + "." + __func__);
 
 	auto modelside = model->getSide();

@@ -15,8 +15,6 @@
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 RoadTypeHandler::RoadTypeHandler()
 {
 	objects.emplace_back(new RoadType());
@@ -86,4 +84,3 @@ RoadType::RoadType():
 	modScope("core"),
 	movementCost(0)
 {}
-VCMI_LIB_NAMESPACE_END

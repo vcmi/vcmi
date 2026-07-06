@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <component type="desktop">
 	<id>eu.vcmi.VCMI</id>
-	<name>VCMI</name>
+	<name>VCMI - Open Heroes 3</name>
 	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
 	<developer id="eu.vcmi">
 		<name>VCMI Team</name>

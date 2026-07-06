@@ -24,8 +24,6 @@
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 CSkill::CSkill(const SecondarySkill & id, std::string identifier):
 	id(id),
 	identifier(std::move(identifier))
@@ -229,16 +227,16 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			skill->tags.push_back(tag.first);
 
 	if (json["onlyOnWaterMap"].Bool() && !vstd::contains(skill->tags, "onlyOnWaterMap"))
-		skill->tags.push_back("onlyOnWaterMap");
+		skill->tags.emplace_back("onlyOnWaterMap");
 
 	if (json["special"].Bool() && !vstd::contains(skill->tags, "special"))
-		skill->tags.push_back("special");
+		skill->tags.emplace_back("special");
 
 	if (json["obligatoryMajor"].Bool() && !vstd::contains(skill->tags, "wisdom"))
-		skill->tags.push_back("wisdom");
+		skill->tags.emplace_back("wisdom");
 
 	if (json["obligatoryMinor"].Bool() && !vstd::contains(skill->tags, "spellSchool"))
-		skill->tags.push_back("spellSchool");
+		skill->tags.emplace_back("spellSchool");
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 
@@ -352,5 +350,3 @@ std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const
 
 	return result;
 }
-
-VCMI_LIB_NAMESPACE_END

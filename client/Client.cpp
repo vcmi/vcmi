@@ -179,11 +179,8 @@ void CClient::initMapHandler()
 	// TODO: CMapHandler initialization can probably go somewhere else
 	// It's can't be before initialization of interfaces
 	// During loading CPlayerInterface from serialized state it's depend on MH
-	if(!settings["session"]["headless"].Bool())
-	{
-		GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState().getMap()));
-		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
-	}
+	GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState().getMap()));
+	logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 }
 
 void CClient::initPlayerEnvironments()
@@ -211,7 +208,10 @@ void CClient::initPlayerEnvironments()
 	
 	if(settings["session"]["spectate"].Bool())
 	{
-		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gamestate, std::nullopt, this));
+		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(
+			PlayerColor::SPECTATOR,
+			this,
+			std::make_shared<CCallback>(gamestate, findPlayerColorForSpectatorInterface(), this));
 	}
 }
 
@@ -254,13 +254,32 @@ void CClient::initPlayerInterfaces()
 
 	if(settings["session"]["spectate"].Bool())
 	{
-		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
+		const PlayerColor spectatorInterfacePlayer = findPlayerColorForSpectatorInterface().value_or(PlayerColor(0));
+		installNewPlayerInterface(std::make_shared<CPlayerInterface>(spectatorInterfacePlayer), PlayerColor::SPECTATOR, true);
 	}
 
 	if(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(AIFactory::createBattleAI(settings["ai"]["combatNeutralAI"].String()), PlayerColor::NEUTRAL);
 
 	logNetwork->trace("Initialized player interfaces %d ms", GAME->server().th->getDiff());
+}
+
+std::optional<PlayerColor> CClient::findPlayerColorForSpectatorInterface() const
+{
+	// The adventure UI is not fully spectator-aware and still reads player-local state via CPlayerInterface::playerID.
+	for(const PlayerColor & color : gameState().actingPlayers)
+	{
+		if(color.isValidPlayer() && gameState().players.count(color))
+			return color;
+	}
+
+	for(const auto & playerState : gameState().players)
+	{
+		if(playerState.first.isValidPlayer())
+			return playerState.first;
+	}
+
+	return std::nullopt;
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI, bool alliedToHuman) const
@@ -291,7 +310,11 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	playerint[color] = gameInterface;
 
 	logGlobal->trace("\tInitializing the interface for player %s", color.toString());
-	auto cb = std::make_shared<CCallback>(gamestate, color, this);
+	std::optional<PlayerColor> callbackPlayer = color;
+	if(color == PlayerColor::SPECTATOR)
+		callbackPlayer = findPlayerColorForSpectatorInterface();
+
+	auto cb = std::make_shared<CCallback>(gamestate, callbackPlayer, this);
 	battleCallbacks[color] = cb;
 	gameInterface->initGameInterface(playerEnvironments.at(color), cb);
 
@@ -456,23 +479,35 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 		return; // not our combat in MP
 
 	auto battleint = battleints.at(color);
+	auto activateStack = [&]()
+	{
+		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+	};
 
 	if (!battleint->human)
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
-		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		if(ENGINE)
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+			activateStack();
+		}
+		else
+		{
+			activateStack();
+		}
 	}
 	else
 	{
-		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
+		activateStack();
 	}
 }
 
 void CClient::removeGUI() const
 {
 	// CClient::endGame
-	ENGINE->windows().clear();
+	if(ENGINE)
+		ENGINE->windows().clear();
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
 

@@ -12,8 +12,6 @@
 
 #include <zlib.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 DecompressionException::~DecompressionException() = default;
 
 static const int inflateBlockSize = 10000;
@@ -197,5 +195,3 @@ bool CCompressedStream::getNextBlock()
 	reset();
 	return true;
 }
-
-VCMI_LIB_NAMESPACE_END

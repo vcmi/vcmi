@@ -9,8 +9,6 @@
 */
 #pragma once
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class ResourceSet;
 class CreatureID;
 
@@ -27,5 +25,3 @@ public:
 
 	virtual ~IOwnableObject() = default;
 };
-
-VCMI_LIB_NAMESPACE_END
