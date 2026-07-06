@@ -127,12 +127,33 @@ namespace Goals
 
 	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio, float availableMovement)
 	{
-		return false;
+		if(path.targetHero != &hero || path.heroArmy == nullptr)
+			return false;
+
+		if(path.turn() != 0 || path.exchangeCount != 1)
+			return false;
+
+		if(path.getFirstBlockedAction())
+			return false;
+
+		for(const auto & node : path.nodes)
+		{
+			if(node.targetHero != &hero || node.specialAction)
+				return false;
+		}
+
+		if(!isSafeToVisit(&hero, path.heroArmy, path.getTotalDanger(), safeAttackRatio))
+			return false;
+
+		return path.movementCost() * 2.0f <= availableMovement;
 	}
 
 	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio)
 	{
-		return false;
+		const float movementLimit = std::max(1, hero.movementPointsLimit());
+		const float availableMovement = hero.movementPointsRemaining() / movementLimit;
+
+		return isSafeSameTurnReturnPath(hero, path, safeAttackRatio, availableMovement);
 	}
 }
 
@@ -284,6 +305,44 @@ void handleCounterAttack(
 	}
 }
 
+void handleGarrisonReturnCounterAttack(
+	const CGTownInstance * town,
+	const HitMapInfo & threat,
+	const HitMapInfo & maximumDanger,
+	const Nullkiller * aiNk,
+	Goals::TGoalVec & tasks)
+{
+	const auto * garrisonHero = town->getGarrisonHero();
+
+	if(!garrisonHero)
+		return;
+
+	const auto lockReason = aiNk->getHeroLockedReason(garrisonHero);
+	if(lockReason != HeroLockedReason::NOT_LOCKED && lockReason != HeroLockedReason::DEFENCE)
+		return;
+
+	if(threat.heroPtr.isVerified() && threat.turn <= 1 && (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
+	{
+		auto heroCapturingPaths = aiNk->pathfinder->getPathInfo(threat.heroPtr->visitablePos());
+
+		for(const auto & path : heroCapturingPaths)
+		{
+			if(!isSafeSameTurnReturnPath(*garrisonHero, path, aiNk->settings->getSafeAttackRatio()))
+				continue;
+
+			Composition composition;
+			TGoalVec sequence;
+			sequence.push_back(sptr(ExchangeSwapTownHeroes(town, nullptr)));
+			sequence.push_back(sptr(ExecuteHeroChain(path, threat.heroPtr.get())));
+			sequence.push_back(sptr(ExchangeSwapTownHeroes(town, garrisonHero, HeroLockedReason::DEFENCE)));
+
+			composition.addNext(DefendTown(town, threat, path, true)).addNextSequence(sequence);
+			setDefensiveEmergencyPriority(composition, shouldLockTownDefender(*town, *garrisonHero, threat, aiNk->settings->getSafeAttackRatio()));
+			tasks.push_back(Goals::sptr(composition));
+		}
+	}
+}
+
 bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller * aiNk, const std::vector<HitMapInfo> & threats)
 {
 	const auto * garrisonHero = town->getGarrisonHero();
@@ -329,6 +388,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	// TODO: Mircea: Why don't we check if there's any danger in threadNode? Maybe map is still unexplored and no danger
 	// or simply no one is around
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
+
+	for(const auto & threat : threats)
+		handleGarrisonReturnCounterAttack(town, threat, threatNode.maximumDanger, aiNk, tasks);
 
 	if(town->getGarrisonHero() && handleGarrisonHeroFromPreviousTurn(town, tasks, aiNk, threats))
 		return;
