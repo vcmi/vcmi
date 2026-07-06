@@ -12,8 +12,6 @@
 
 #include "../demo.h"
 
-#include "../../lib/texts/TextLocalizationContainer.h"
-
 namespace Ui
 {
 class FirstLaunchView;
@@ -64,23 +62,19 @@ class FirstLaunchView : public QWidget, public IDemoInstallerCallback
 	struct ModPreset
 	{
 		QString modID;
-		QString nameTextID;
-		QString descriptionTextID;
-		int order = 0;
+		const char * name;
+		const char * description;
 		bool checkedByDefault = false;
 		QToolButton * button = nullptr;
-		QLabel * description = nullptr;
+		QLabel * descriptionLabel = nullptr;
 	};
 
 	QVector<ModPreset> modPresets;
-	TextLocalizationContainer modPresetTexts;
 
 	void modPresetUpdate();
 	void loadModPresets();
 	void createModPresetWidgets();
-	void loadModPresetTranslations();
 	void updateModPresetTexts();
-	QString translateModPresetText(const QString & textID) const;
 
 	QString findTranslationModName();
 

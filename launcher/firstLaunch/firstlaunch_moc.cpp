@@ -15,8 +15,6 @@
 #include "modManager/cmodlistview_moc.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/json/JsonNode.h"
-#include "../../lib/json/JsonUtils.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/VCMIDirs.h"
@@ -56,7 +54,6 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	ui->setupUi(this);
 
 	loadModPresets();
-	loadModPresetTranslations();
 	createModPresetWidgets();
 
 	enterSetup();
@@ -108,7 +105,6 @@ void FirstLaunchView::changeEvent(QEvent * event)
 	{
 		ui->retranslateUi(this);
 		Languages::fillLanguages(ui->listWidgetLanguage, false);
-		loadModPresetTranslations();
 		updateModPresetTexts();
 	}
 	QWidget::changeEvent(event);
@@ -774,37 +770,39 @@ void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 // Tab Mod Preset
 void FirstLaunchView::loadModPresets()
 {
-	JsonNode presetConfig(JsonPath::builtin("config/firstLaunchMods.json"));
-
-	for(const auto & [modID, presetNode] : presetConfig.Struct())
-	{
-		const auto & nameNode = presetNode["name"];
-		const auto & descriptionNode = presetNode["description"];
-		const auto & checkedNode = presetNode["checked"];
-		const auto & orderNode = presetNode["order"];
-
-		if(nameNode.getType() != JsonNode::JsonType::DATA_STRING ||
-		   descriptionNode.getType() != JsonNode::JsonType::DATA_STRING ||
-		   (!checkedNode.isNull() && checkedNode.getType() != JsonNode::JsonType::DATA_BOOL) ||
-		   (!orderNode.isNull() && orderNode.getType() != JsonNode::JsonType::DATA_INTEGER))
+	modPresets = {
 		{
-			logGlobal->warn("Skipping invalid first launch mod preset '%s'", modID.c_str());
-			continue;
+			"vcmi-extras",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "VCMI Extras"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle"),
+			true
+		},
+		{
+			"hota",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Horn of the Abyss"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III")
+		},
+		{
+			"wake-of-gods",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "In The Wake of Gods"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects")
+		},
+		{
+			"tides-of-war",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Tides of War"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells")
+		},
+		{
+			"fallen-of-the-depth",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Fallen of the Depth"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI")
+		},
+		{
+			"tears-of-ashan",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Tears of Ashan"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III")
 		}
-
-		ModPreset preset;
-		preset.modID = QString::fromStdString(modID);
-		preset.nameTextID = QString::fromStdString(nameNode.String());
-		preset.descriptionTextID = QString::fromStdString(descriptionNode.String());
-		preset.order = orderNode.isNull() ? modPresets.size() : static_cast<int>(orderNode.Integer());
-		preset.checkedByDefault = !checkedNode.isNull() && checkedNode.Bool();
-		modPresets.push_back(preset);
-	}
-
-	std::sort(modPresets.begin(), modPresets.end(), [](const ModPreset & left, const ModPreset & right)
-	{
-		return left.order < right.order;
-	});
+	};
 }
 
 void FirstLaunchView::createModPresetWidgets()
@@ -835,7 +833,7 @@ void FirstLaunchView::createModPresetWidgets()
 		ui->gridLayoutModsPreset->addWidget(description.get(), row, 1);
 
 		preset.button = button.release();
-		preset.description = description.release();
+		preset.descriptionLabel = description.release();
 
 		++row;
 	}
@@ -843,32 +841,12 @@ void FirstLaunchView::createModPresetWidgets()
 	updateModPresetTexts();
 }
 
-void FirstLaunchView::loadModPresetTranslations()
-{
-	auto loadTranslations = [this](const std::string & language)
-	{
-		const JsonNode translations = JsonUtils::assembleFromFiles("Mods/vcmi/Content/config/translations/" + language + ".json");
-		if(!translations.isNull())
-			modPresetTexts.loadTranslationOverrides("vcmi", language, translations);
-	};
-
-	const std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
-	loadTranslations("english");
-	if(preferredLanguage != "english")
-		loadTranslations(preferredLanguage);
-}
-
-QString FirstLaunchView::translateModPresetText(const QString & textID) const
-{
-	return QString::fromStdString(modPresetTexts.translate(textID.toStdString()));
-}
-
 void FirstLaunchView::updateModPresetTexts()
 {
 	for(const auto & preset : modPresets)
 	{
-		preset.button->setText(translateModPresetText(preset.nameTextID));
-		preset.description->setText(translateModPresetText(preset.descriptionTextID));
+		preset.button->setText(tr(preset.name));
+		preset.descriptionLabel->setText(tr(preset.description));
 	}
 }
 
@@ -889,7 +867,7 @@ void FirstLaunchView::modPresetUpdate()
 	{
 		const bool canInstall = checkCanInstallMod(preset.modID);
 		preset.button->setVisible(canInstall);
-		preset.description->setVisible(canInstall);
+		preset.descriptionLabel->setVisible(canInstall);
 		canInstallPreset |= canInstall;
 	}
 

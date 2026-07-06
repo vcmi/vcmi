@@ -1082,6 +1082,26 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
 <context>
     <name>FirstLaunchView</name>
     <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp"/>
+        <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
+        <translation>Přidává vylepšení rozhraní a hratelnosti, například lepší rozhraní pro náhodné mapy, tlačítka Znovunavštívit a Vyhledat na mapě dobrodružství, rychlou výměnu hrdinů, ikony bonusů a imunit a akce v bitvě</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp"/>
+        <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
+        <translation>Vypilované fanouškovské rozšíření, které přidává města Zátoka, Továrna a Bulwark, nové kampaně, hrdiny, artefakty, objekty na mapě, dovednosti Síla vůle a Runy, úpravy vyvážení a nové terény, při zachování ducha Heroes III</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp"/>
+        <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
+        <translation>Prohlubuje Heroes III o Velitele, zkušenosti jednotek, artefakty pro oddíly, mnoho nových artefaktů pro hrdiny i Velitele, další systémy rozvoje a interaktivní objekty na mapě dobrodružství</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp"/>
+        <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
+        <translation>Fanouškovské rozšíření inspirované Heroes V, které do Heroes III přidává alternativní vylepšení jednotek, Magii světla a temnoty, Bránu, vyšší limit sekundárních dovedností a přepracovaný Soutok</translation>
+    </message>
+    <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
         <source>Language</source>
         <translation>Jazyk</translation>
