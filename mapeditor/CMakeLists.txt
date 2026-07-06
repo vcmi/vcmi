@@ -8,6 +8,7 @@ set(editor_SRCS
 		Animation.cpp
 		graphics.cpp
 		windownewmap.cpp
+		GenerateMapDialog.cpp
 		generatorprogress.cpp
 		mapview.cpp
 		objectbrowser.cpp
@@ -81,6 +82,7 @@ set(editor_HEADERS
 		Animation.h
 		graphics.h
 		windownewmap.h
+		GenerateMapDialog.h
 		generatorprogress.h
 		mapview.h
 		objectbrowser.h
@@ -151,6 +153,7 @@ endif()
 set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
+		GenerateMapDialog.ui
 		generatorprogress.ui
 		mapsettings/mapsettings.ui
 		mapsettings/generalsettings.ui

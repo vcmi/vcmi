@@ -46,6 +46,7 @@
 #include "maphandler.h"
 #include "graphics.h"
 #include "windownewmap.h"
+#include "GenerateMapDialog.h"
 #include "objectbrowser.h"
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
@@ -296,43 +297,47 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
-	//configure logging
-	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
+	if(!LIBRARY)
+	{
+
+		//configure logging
+		const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
 #ifndef VCMI_MOBILE
-	console = std::make_unique<CConsoleHandler>();
-	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
+		console = std::make_unique<CConsoleHandler>();
+		logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
 #else
-	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, nullptr);
+		logConfig = std::make_unique<CBasicLogConfigurator>(logPath, nullptr);
 #endif
-	logConfig->configureDefault();
-	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
-	logGlobal->info("The log file will be saved to %s", logPath);
+		logConfig->configureDefault();
+		logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
+		logGlobal->info("The log file will be saved to %s", logPath);
 
-	//init
-	LIBRARY = new GameLibrary();
-	LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
+		//init
+		LIBRARY = new GameLibrary();
+		LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
 
-	// Initialize logging based on settings
-	logConfig->configure();
-	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
+		// Initialize logging based on settings
+		logConfig->configure();
+		logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
-	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message) -> bool
-	{
-		if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
-			return true;
+		// Some basic data validation to produce better error messages in cases of incorrect install
+		auto testFile = [](std::string filename, std::string message) -> bool
+		{
+			if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
+				return true;
 
-		logGlobal->error("Error: %s was not found!", message);
-		return false;
-	};
+			logGlobal->error("Error: %s was not found!", message);
+			return false;
+		};
 
-	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
-	{
-		QApplication::quit();
+		if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
+			!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+		{
+			QApplication::quit();
+		}
+
+		loadTranslation();
 	}
-
-	loadTranslation();
 
 	ui->setupUi(this);
 
@@ -435,18 +440,21 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	LIBRARY->initializeLibrary();
+	if(!graphics)
+	{
+		LIBRARY->initializeLibrary();
 
-	Settings config = settings.write["session"]["editor"];
-	config->Bool() = true;
+		Settings config = settings.write["session"]["editor"];
+		config->Bool() = true;
 
-	logGlobal->info("Initializing VCMI_Lib");
+		logGlobal->info("Initializing VCMI_Lib");
 
-	graphics = new Graphics(); // should be before curh->init()
-	graphics->load();//must be after Content loading but should be in main thread
+		graphics = new Graphics(); // should be before curh->init()
+		graphics->load();//must be after Content loading but should be in main thread
 
-	if (extractionOptions.extractArchives)
-		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
+		if (extractionOptions.extractArchives)
+			ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
+	}
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
@@ -843,6 +851,12 @@ void EditorMainWindow::on_actionNew_triggered()
 {
 	if(getAnswerAboutUnsavedChanges())
 		new WindowNewMap(this);
+}
+
+void EditorMainWindow::on_actionGenerateMap_triggered()
+{
+	if(getAnswerAboutUnsavedChanges())
+		new GenerateMapDialog(this);
 }
 
 void EditorMainWindow::on_actionSave_triggered()

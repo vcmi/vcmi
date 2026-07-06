@@ -84,6 +84,8 @@ private slots:
 
 	void on_actionNew_triggered();
 
+	void on_actionGenerateMap_triggered();
+
 	void on_actionSave_triggered();
 
 	void on_actionErase_triggered();

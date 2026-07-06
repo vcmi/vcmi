@@ -65,6 +65,7 @@
      <addaction name="actionOpenRecentMore"/>
     </widget>
     <addaction name="actionNew"/>
+    <addaction name="actionGenerateMap"/>
     <addaction name="actionOpen"/>
     <addaction name="menuOpenRecent"/>
     <addaction name="actionSave"/>
@@ -1065,6 +1066,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionGenerateMap">
+   <property name="text">
+    <string>Generate Map...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+G</string>
    </property>
   </action>
   <action name="actionSave_as">

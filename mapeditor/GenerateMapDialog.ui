@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GenerateMapDialog</class>
+ <widget class="QDialog" name="GenerateMapDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Generate Random Map</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="widthLabel">
+       <property name="text">
+        <string>Map Width:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="widthSpinBox"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="heightLabel">
+       <property name="text">
+        <string>Map Height:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="heightSpinBox"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="playersLabel">
+       <property name="text">
+        <string>Player Count:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="playerCountSpinBox"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="waterLabel">
+       <property name="text">
+        <string>Water Content:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="waterComboBox"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="monsterLabel">
+       <property name="text">
+        <string>Monster Strength:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="monsterStrengthComboBox"/>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="levelsLabel">
+       <property name="text">
+        <string>Levels:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="levelsSpinBox"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="densityLabel">
+       <property name="text">
+        <string>Object Density:</string>
+       </property>
+       <property name="toolTip">
+        <string>Average number of objects reachable per hero turn (1 = sparse, 5 = dense)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSpinBox" name="densitySpinBox">
+       <property name="toolTip">
+        <string>Average number of objects reachable per hero turn (1 = sparse, 5 = dense)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="replaceMapCheckBox">
+     <property name="text">
+      <string>Replace Current Map</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="generateButton">
+       <property name="text">
+        <string>Generate</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
