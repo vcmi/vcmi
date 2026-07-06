@@ -121,12 +121,8 @@ void GenerateMapDialog::on_generateButton_clicked()
 		return;
 	}
 
-	EditorMainWindow * mainWindow = static_cast<EditorMainWindow *>(parent());
-
-	if(replaceCurrentMap && !mainWindow->getAnswerAboutUnsavedChanges())
-		return;
-
 	hide();
+	EditorMainWindow * mainWindow = static_cast<EditorMainWindow *>(parent());
 	int seed = std::time(nullptr);
 	CMap * oldMap = mainWindow->controller.map();
 

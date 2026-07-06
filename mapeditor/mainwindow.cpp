@@ -854,7 +854,8 @@ void EditorMainWindow::on_actionNew_triggered()
 
 void EditorMainWindow::on_actionGenerateMap_triggered()
 {
-	new GenerateMapDialog(this);
+	if(getAnswerAboutUnsavedChanges())
+		new GenerateMapDialog(this);
 }
 
 void EditorMainWindow::on_actionSave_triggered()
