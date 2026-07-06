@@ -11,6 +11,7 @@
 #include "AI/Nullkiller2/Analyzers/DangerHitMapAnalyzer.h"
 #include "AI/Nullkiller2/Behaviors/DefenceBehavior.h"
 #include "AI/Nullkiller2/Behaviors/DefenceBehaviorUtils.h"
+#include "AI/Nullkiller2/Pathfinding/AINodeStorage.h"
 #include "mock/TownFake.h"
 
 #include "lib/mapObjects/CGHeroInstance.h"
@@ -23,6 +24,33 @@ NK2AI::HitMapInfo nextTurnThreat(uint64_t danger)
 	threat.turn = 1;
 	threat.danger = danger;
 	return threat;
+}
+
+NK2AI::AIPath sameTurnPath(const CGHeroInstance & hero, float movementCost)
+{
+	NK2AI::AIPath path;
+	path.targetHero = &hero;
+	path.heroArmy = &hero;
+	path.exchangeCount = 1;
+	path.targetObjectDanger = 0;
+	path.armyLoss = 0;
+	path.targetObjectArmyLoss = 0;
+	path.chainMask = 1;
+
+	NK2AI::AIPathNodeInfo node;
+	node.cost = movementCost;
+	node.turns = 0;
+	node.coord = int3(1, 1, 0);
+	node.layer = EPathfindingLayer::LAND;
+	node.danger = 0;
+	node.targetHero = &hero;
+	node.parentIndex = -1;
+	node.chainMask = 1;
+	node.actionIsBlocked = false;
+
+	path.nodes.push_back(node);
+
+	return path;
 }
 }
 
@@ -155,4 +183,26 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, reserveDefenderThatImprovesUrgentTow
 
 	EXPECT_TRUE(NK2AI::Goals::shouldReserveTownDefender(*town.get(), defender, threats, 1.0f))
 		<< "do not treat a useful garrison defender as free while urgent town danger remains";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathAllowsSimpleRoundTrip)
+{
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 1));
+
+	const auto path = sameTurnPath(defender, 0.45f);
+
+	EXPECT_TRUE(NK2AI::Goals::isSafeSameTurnReturnPath(defender, path, 1.0f, 1.0f))
+		<< "a garrison defender may raid only when the same turn has enough movement to return";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathRejectsPathWithoutReturnMovement)
+{
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 1));
+
+	const auto path = sameTurnPath(defender, 0.6f);
+
+	EXPECT_FALSE(NK2AI::Goals::isSafeSameTurnReturnPath(defender, path, 1.0f, 1.0f))
+		<< "a one-way reachable attack is not enough when the defender must be back after turn end";
 }
