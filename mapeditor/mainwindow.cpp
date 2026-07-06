@@ -299,7 +299,6 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 
 	if(!LIBRARY)
 	{
-
 		//configure logging
 		const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
 #ifndef VCMI_MOBILE
@@ -855,8 +854,7 @@ void EditorMainWindow::on_actionNew_triggered()
 
 void EditorMainWindow::on_actionGenerateMap_triggered()
 {
-	if(getAnswerAboutUnsavedChanges())
-		new GenerateMapDialog(this);
+	new GenerateMapDialog(this);
 }
 
 void EditorMainWindow::on_actionSave_triggered()

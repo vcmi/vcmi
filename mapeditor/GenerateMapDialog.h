@@ -37,7 +37,7 @@ class GenerateMapDialog : public QDialog
 	const QString settingsDensity = "GenerateMapDialog/ObjectDensity";
 
 public:
-	explicit GenerateMapDialog(QWidget *parent = nullptr);
+	explicit GenerateMapDialog(QWidget * parent = nullptr);
 	~GenerateMapDialog();
 
 	const CMapGenOptions & getMapGenOptions() const { return mapGenOptions; }
@@ -52,7 +52,7 @@ private:
 	void loadUserSettings();
 	void saveUserSettings();
 
-	Ui::GenerateMapDialog *ui;
+	Ui::GenerateMapDialog * ui;
 	CMapGenOptions mapGenOptions;
 	std::unique_ptr<CMap> generatedMap;
 	bool replaceCurrentMap = true;

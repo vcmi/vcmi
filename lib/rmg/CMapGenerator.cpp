@@ -594,11 +594,14 @@ Zone * CMapGenerator::getZoneWater() const
 
 void CMapGenerator::validateConnectivity() const
 {
-	// Collect all player (non-neutral) town visitable positions.
+	// Collect surface-level (z=0) player town positions only.
+	// foreach_neighbour only traverses same-z tiles, so underground towns would
+	// always appear unreachable from a surface start — a false positive.
 	std::vector<int3> playerTowns;
 	for(const auto & obj : map->mapInstance->objects)
 	{
-		if(obj && obj->ID == Obj::TOWN && obj->getOwner() != PlayerColor::NEUTRAL)
+		if(obj && obj->ID == Obj::TOWN && obj->getOwner() != PlayerColor::NEUTRAL
+			&& obj->visitablePos().z == 0)
 			playerTowns.push_back(obj->visitablePos());
 	}
 

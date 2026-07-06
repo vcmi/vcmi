@@ -16,10 +16,11 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/rmg/CMapGenerator.h"
+#include "../lib/callback/EditorCallback.h"
 #include "../vcmiqt/launcherdirs.h"
 #include <QMessageBox>
 
-GenerateMapDialog::GenerateMapDialog(QWidget *parent) :
+GenerateMapDialog::GenerateMapDialog(QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::GenerateMapDialog)
 {
@@ -77,11 +78,14 @@ void GenerateMapDialog::loadUserSettings()
 	ui->replaceMapCheckBox->setChecked(s.value(settingsReplaceMap, true).toBool());
 	ui->densitySpinBox->setValue(std::clamp(s.value(settingsDensity, 3).toInt(), 1, 5));
 
-	int waterIdx = ui->waterComboBox->findData(s.value(settingsWater, (int)EWaterContent::NORMAL).toInt());
-	if(waterIdx >= 0) ui->waterComboBox->setCurrentIndex(waterIdx);
+	int waterIdx = ui->waterComboBox->findData(s.value(settingsWater, static_cast<int>(EWaterContent::NORMAL)).toInt());
+	if(waterIdx >= 0)
+		ui->waterComboBox->setCurrentIndex(waterIdx);
 
-	int monsterIdx = ui->monsterStrengthComboBox->findData(s.value(settingsMonsterStrength, (int)EMonsterStrength::GLOBAL_NORMAL).toInt());
-	if(monsterIdx >= 0) ui->monsterStrengthComboBox->setCurrentIndex(monsterIdx);
+	int monsterIdx = ui->monsterStrengthComboBox->findData(
+		s.value(settingsMonsterStrength, static_cast<int>(EMonsterStrength::GLOBAL_NORMAL)).toInt());
+	if(monsterIdx >= 0)
+		ui->monsterStrengthComboBox->setCurrentIndex(monsterIdx);
 }
 
 void GenerateMapDialog::saveUserSettings()
@@ -105,7 +109,8 @@ void GenerateMapDialog::on_generateButton_clicked()
 	mapGenOptions.setHumanOrCpuPlayerCount(ui->playerCountSpinBox->value());
 	mapGenOptions.setLevels(ui->levelsSpinBox->value());
 	mapGenOptions.setWaterContent(static_cast<EWaterContent::EWaterContent>(ui->waterComboBox->currentData().toInt()));
-	mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(ui->monsterStrengthComboBox->currentData().toInt()));
+	auto monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(ui->monsterStrengthComboBox->currentData().toInt());
+	mapGenOptions.setMonsterStrength(monsterStrength);
 	mapGenOptions.setObjectDensity(ui->densitySpinBox->value());
 	replaceCurrentMap = ui->replaceMapCheckBox->isChecked();
 
@@ -116,9 +121,14 @@ void GenerateMapDialog::on_generateButton_clicked()
 		return;
 	}
 
-	hide();
 	EditorMainWindow * mainWindow = static_cast<EditorMainWindow *>(parent());
+
+	if(replaceCurrentMap && !mainWindow->getAnswerAboutUnsavedChanges())
+		return;
+
+	hide();
 	int seed = std::time(nullptr);
+	CMap * oldMap = mainWindow->controller.map();
 
 	try
 	{
@@ -142,6 +152,10 @@ void GenerateMapDialog::on_generateButton_clicked()
 		{
 			auto * newWindow = new EditorMainWindow();
 			newWindow->controller.setMap(std::move(generatedMap));
+			// Restore mainWindow's EditorCallback to its own map: RmgMap constructor
+			// redirected it to the generated map; now that map belongs to newWindow.
+			if(auto * ecb = dynamic_cast<EditorCallback *>(mainWindow->controller.getCallback()))
+				ecb->setMap(oldMap);
 			newWindow->initializeMap(true);
 			newWindow->show();
 		}
