@@ -1204,9 +1204,5 @@
 	"vcmi.wiki.town.cost": "コスト",
 	"vcmi.wiki.town.creatureName": "クリーチャー",
 	"vcmi.wiki.town.creatures": "クリーチャー",
-	"vcmi.wiki.town.heroes": "ヒーロー",
-	"vcmi.mod.preset.hota.name": "奈落の角笛",
-	"vcmi.mod.preset.wog.name": "神々の目覚めに",
-	"vcmi.mod.preset.tow.description": "9つの標準都市それぞれに1つの代替ユニットが追加され、さらに新しい中立クリーチャー、クリーチャーバンク、スキル、呪文が追加されるなど、ゲームプレイを拡張する機能満載の拡張パック",
-	"vcmi.mod.preset.fod.description": "地下世界へと降り立ち、VCMIのために作られた、キノコ、石、ルーン魔法が闇の中で繁栄する新勢力「ケースメイト」を発見しよう"
+	"vcmi.wiki.town.heroes": "ヒーロー"
 }

@@ -1210,17 +1210,5 @@
 	"vcmi.wiki.town.cost": "Cena",
 	"vcmi.wiki.town.creatureName": "Jednotka",
 	"vcmi.wiki.town.creatures": "Jednotky",
-	"vcmi.wiki.town.heroes": "Hrdinové",
-	"vcmi.mod.preset.extras.name": "VCMI Extras",
-	"vcmi.mod.preset.extras.description": "Přidává vylepšení rozhraní a hratelnosti, například lepší rozhraní pro náhodné mapy, tlačítka Znovunavštívit a Vyhledat na mapě dobrodružství, rychlou výměnu hrdinů, ikony bonusů a imunit a akce v bitvě",
-	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
-	"vcmi.mod.preset.hota.description": "Vypilované fanouškovské rozšíření, které přidává města Zátoka, Továrna a Bulwark, nové kampaně, hrdiny, artefakty, objekty na mapě, dovednosti Síla vůle a Runy, úpravy vyvážení a nové terény, při zachování ducha Heroes III",
-	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
-	"vcmi.mod.preset.wog.description": "Prohlubuje Heroes III o Velitele, zkušenosti jednotek, artefakty pro oddíly, mnoho nových artefaktů pro hrdiny i Velitele, další systémy rozvoje a interaktivní objekty na mapě dobrodružství",
-	"vcmi.mod.preset.tow.name": "Tides of War",
-	"vcmi.mod.preset.tow.description": "Rozsáhlé rozšíření, které obohacuje hratelnost o alternativní jednotku pro každé z 9 základních měst, a navíc přidává nové neutrální jednotky, obydlí, dovednosti a kouzla",
-	"vcmi.mod.preset.fod.name": "Fallen of the Depth",
-	"vcmi.mod.preset.fod.description": "Sestupte do podzemní říše a objevte Casemate — novou frakci vytvořenou pro VCMI, kde ve tmě vzkvétají houby, kámen a runová magie",
-	"vcmi.mod.preset.toa.name": "Tears of Ashan",
-	"vcmi.mod.preset.toa.description": "Fanouškovské rozšíření inspirované Heroes V, které do Heroes III přidává alternativní vylepšení jednotek, Magii světla a temnoty, Bránu, vyšší limit sekundárních dovedností a přepracovaný Soutok"
+	"vcmi.wiki.town.heroes": "Hrdinové"
 }

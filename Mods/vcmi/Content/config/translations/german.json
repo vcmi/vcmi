@@ -1206,12 +1206,5 @@
 	"vcmi.wiki.town.cost": "Kosten",
 	"vcmi.wiki.town.creatureName": "Kreatur",
 	"vcmi.wiki.town.creatures": "Kreaturen",
-	"vcmi.wiki.town.heroes": "Helden",
-	"vcmi.mod.preset.extras.name": "VCMI Extras",
-	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
-	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
-	"vcmi.mod.preset.tow.name": "Tides of War",
-	"vcmi.mod.preset.tow.description": "Eine funktionsreiche Erweiterung, die das Gameplay um eine alternative Einheit für jede der 9 Standardstädte sowie um neue neutrale Kreaturen, Kreaturenbanken, Fähigkeiten und Zaubersprüche erweitert",
-	"vcmi.mod.preset.fod.name": "Fallen of the Depth",
-	"vcmi.mod.preset.fod.description": "Steigen Sie hinab in das Reich der Unterwelt und entdecken Sie Casemate – eine neue Fraktion, in der Pilze, Stein und Runenmagie in der Dunkelheit gedeihen, geschaffen für VCMI"
+	"vcmi.wiki.town.heroes": "Helden"
 }

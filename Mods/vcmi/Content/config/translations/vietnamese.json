@@ -1057,7 +1057,5 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Chụm hai ngón tay để thay đổi mức độ phóng to hoặc thu nhỏ bản đồ.",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Vuốt để mở thêm nhiều hành động khác nhau, chẳng hạn như quản lý quân/tướng và sắp xếp các thành.",
 	"vcmi.tutorialWindow.decription.RightClick": "Chạm và giữ phần tử mà bạn muốn bấm chuột phải. Chạm vào vùng trống để đóng.",
-	"vcmi.tutorialWindow.title": "Màn Hình Cảm Ứng",
-	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
-	"vcmi.mod.preset.wog.name": "In The Wake of Gods"
+	"vcmi.tutorialWindow.title": "Màn Hình Cảm Ứng"
 }

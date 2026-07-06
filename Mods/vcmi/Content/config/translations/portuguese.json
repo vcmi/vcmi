@@ -680,7 +680,5 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Faça um movimento de pinça com dois dedos para alterar o zoom do mapa.",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Deslize para abrir a roda radial para várias ações, como gerenciamento de criaturas/heróis e ordenação de cidades.",
 	"vcmi.tutorialWindow.decription.RightClick": "Toque e mantenha pressionado o elemento sobre o qual deseja clicar com o botão direito. Toque na área livre para fechar.",
-	"vcmi.tutorialWindow.title": "Introdução à Tela Sensível ao Toque",
-	"vcmi.mod.preset.hota.name": "Chifre do Abismo",
-	"vcmi.mod.preset.wog.name": "No Rastro dos Deuses"
+	"vcmi.tutorialWindow.title": "Introdução à Tela Sensível ao Toque"
 }

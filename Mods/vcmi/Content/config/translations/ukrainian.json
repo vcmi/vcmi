@@ -1205,12 +1205,5 @@
 	"vcmi.wiki.town.cost": "Ціна",
 	"vcmi.wiki.town.creatureName": "Створіння",
 	"vcmi.wiki.town.creatures": "Створіння",
-	"vcmi.wiki.town.heroes": "Герої",
-	"vcmi.mod.preset.extras.name": "VCMI Extras",
-	"vcmi.mod.preset.hota.name": "Ріг Безодні",
-	"vcmi.mod.preset.wog.name": "Слідами Богів",
-	"vcmi.mod.preset.tow.name": "Хвилі Війни",
-	"vcmi.mod.preset.tow.description": "Насичене розширенням, яке доповнює ігровий процес альтернативною істотою для кожного з 9 стандартних міст, а також новими нейтральними істотами, банками істот, навичками та закляттями",
-	"vcmi.mod.preset.fod.name": "Падші з Глибин",
-	"vcmi.mod.preset.fod.description": "Спустіться в підземне царство і відкрийте для себе Каземат — нову фракцію, де в темряві процвітають гриби, камінь і магія рун, створену для VCMI"
+	"vcmi.wiki.town.heroes": "Герої"
 }

@@ -1077,12 +1077,5 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "两指开合更改地图缩放比例。",
 	"vcmi.tutorialWindow.decription.RadialWheel": "滑动可打开径向轮以执行各种操作，例如生物/英雄管理和城镇排序。",
 	"vcmi.tutorialWindow.decription.RightClick": "长按要右键单击的元素。 触摸其他区域以关闭。",
-	"vcmi.tutorialWindow.title": "触摸屏介绍",
-	"vcmi.mod.preset.extras.name": "VCMI附加内容",
-	"vcmi.mod.preset.hota.name": "深渊的号角",
-	"vcmi.mod.preset.wog.name": "追随神迹",
-	"vcmi.mod.preset.tow.name": "战争之潮",
-	"vcmi.mod.preset.tow.description": "一款功能丰富的扩展包，为9个原版城镇各自新增一种替代单位，同时加入新的中立生物、生物宝物、技能与魔法，极大地拓展了游戏玩法",
-	"vcmi.mod.preset.fod.name": "堕落深渊",
-	"vcmi.mod.preset.fod.description": "深入地下世界，揭开炮塔族的面纱——这是一个新种族，位于蘑菇、岩石与符文魔法在黑暗中蓬勃生长之地，这个种族为VCMI而创作"
+	"vcmi.tutorialWindow.title": "触摸屏介绍"
 }

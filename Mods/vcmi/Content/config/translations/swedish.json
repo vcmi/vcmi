@@ -1205,12 +1205,5 @@
 	"vcmi.wiki.town.cost": "Kostnad",
 	"vcmi.wiki.town.creatureName": "Varelse",
 	"vcmi.wiki.town.creatures": "Varelser",
-	"vcmi.wiki.town.heroes": "Hjältar",
-	"vcmi.mod.preset.extras.name": "VCMI extramaterial",
-	"vcmi.mod.preset.hota.name": "Avgrundens Horn (HotA)",
-	"vcmi.mod.preset.wog.name": "I Gudars Kölvatten (In The Wake of Gods)",
-	"vcmi.mod.preset.tow.name": "Krigets Tidvatten (Tides of War)",
-	"vcmi.mod.preset.tow.description": "En funktionsrik expansion som utökar spelupplevelsen med en alternativ enhet för var och en av de 9 standardstäderna, plus nya neutrala varelser, varelsebanker, färdigheter och trollformler",
-	"vcmi.mod.preset.fod.name": "Djupets Fallna (Fallen of the Depth)",
-	"vcmi.mod.preset.fod.description": "Stig ner i underjordens rike och upptäck Casemate – en ny faktion där svampar, sten och runmagi frodas i mörkret, skapad för VCMI"
+	"vcmi.wiki.town.heroes": "Hjältar"
 }

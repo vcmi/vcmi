@@ -1087,12 +1087,5 @@
 	"vcmi.tutorialWindow.decription.MapZooming": "Hace zoom con dos dedos para cambiar el zoom del mapa.",
 	"vcmi.tutorialWindow.decription.RadialWheel": "Deslizar abre la rueda radial para diversas acciones, como la gestión de criaturas/héroes y el pedido de ciudad.",
 	"vcmi.tutorialWindow.decription.RightClick": "Toca y mantén presionado el elemento en el que quieres hacer clic derecho. Toca el área libre para cerrar.",
-	"vcmi.tutorialWindow.title": "Introducción a la pantalla táctil",
-	"vcmi.mod.preset.extras.name": "VCMI Adicionales",
-	"vcmi.mod.preset.hota.name": "Horn of the Abyss",
-	"vcmi.mod.preset.wog.name": "In The Wake of Gods",
-	"vcmi.mod.preset.tow.name": "Mareas de Guerra",
-	"vcmi.mod.preset.tow.description": "Una expansión repleta de funciones que amplía la jugabilidad con una unidad alternativa para cada una de las 9 ciudades estándar, además de nuevas criaturas neutrales, bancos de criaturas, habilidades y hechizos",
-	"vcmi.mod.preset.fod.name": "Caído de las Profundidades",
-	"vcmi.mod.preset.fod.description": "Adéntrate en el reino subterráneo y descubre Casemate, una nueva facción donde los hongos, la piedra y la magia rúnica prosperan en la oscuridad, creada para VCMI"
+	"vcmi.tutorialWindow.title": "Introducción a la pantalla táctil"
 }
