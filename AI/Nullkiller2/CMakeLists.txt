@@ -138,6 +138,7 @@ set(Nullkiller2_HEADERS
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
 		Behaviors/DefenceBehavior.h
+		Behaviors/DefenceBehaviorUtils.h
 		Behaviors/EscapeBehavior.h
 		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h

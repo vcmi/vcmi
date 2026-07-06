@@ -20,6 +20,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
+#include "../Behaviors/DefenceBehaviorUtils.h"
 #include "../Behaviors/EscapeBehavior.h"
 #include "../Behaviors/ExplorationBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"

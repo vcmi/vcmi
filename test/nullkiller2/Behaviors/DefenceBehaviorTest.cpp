@@ -10,6 +10,7 @@
 
 #include "AI/Nullkiller2/Analyzers/DangerHitMapAnalyzer.h"
 #include "AI/Nullkiller2/Behaviors/DefenceBehavior.h"
+#include "AI/Nullkiller2/Behaviors/DefenceBehaviorUtils.h"
 #include "mock/TownFake.h"
 
 #include "lib/mapObjects/CGHeroInstance.h"

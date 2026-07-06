@@ -9,6 +9,7 @@
 */
 #include "StdInc.h"
 #include "DefenceBehavior.h"
+#include "DefenceBehaviorUtils.h"
 
 #include "../../../lib/IGameSettings.h"
 #include "../AIGateway.h"
