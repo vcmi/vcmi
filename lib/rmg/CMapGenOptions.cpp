@@ -26,7 +26,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), levels(2),
 	humanOrCpuPlayerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
-	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr),
+	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), objectDensity(3), mapTemplate(nullptr),
 	customizedPlayers(false)
 {
 	initPlayersMap();
@@ -213,6 +213,16 @@ EMonsterStrength::EMonsterStrength CMapGenOptions::getMonsterStrength() const
 void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value)
 {
  	monsterStrength = value;
+}
+
+int CMapGenOptions::getObjectDensity() const
+{
+	return objectDensity;
+}
+
+void CMapGenOptions::setObjectDensity(int value)
+{
+	objectDensity = static_cast<si8>(std::clamp(value, 1, 5));
 }
 
 void CMapGenOptions::initPlayersMap()
@@ -840,6 +850,7 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("compOnlyTeamCount", compOnlyTeamCount);
 	handler.serializeInt("waterContent", waterContent);
 	handler.serializeInt("monsterStrength", monsterStrength);
+	handler.serializeInt("objectDensity", objectDensity, 3);
 
 	std::string templateName;
 	if(mapTemplate && handler.saving)

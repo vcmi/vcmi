@@ -17,6 +17,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../GameLibrary.h"
+#include "../callback/EditorCallback.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/RoadPlacer.h"
 #include "modificators/TreasurePlacer.h"
@@ -46,6 +47,10 @@ RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb) :
 	mapInstance = std::make_unique<CMap>(cb);
 	mapProxy = std::make_shared<MapProxy>(*this);
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
+	// EditorCallback stores a pointer to the "current" map. During RMG generation
+	// it must point to the map being built, not the editor's previous map (which may be null).
+	if(auto * ecb = dynamic_cast<EditorCallback *>(cb))
+		ecb->setMap(mapInstance.get());
 }
 
 int RmgMap::getDecorationsPercentage() const

@@ -91,7 +91,8 @@ private:
 
 	/// Generation methods
 	void loadConfig();
-	
+	void validateConnectivity() const;
+
 	MetaString getMapDescription() const;
 
 	void initPrisonsRemaining();

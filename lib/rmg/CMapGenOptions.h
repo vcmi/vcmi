@@ -120,6 +120,11 @@ public:
 
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
+
+	/// Object density (1 = sparse, 3 = normal, 5 = dense): controls how many objects a hero
+	/// can reach per turn on average. Scales treasure count and minimum spacing in each zone.
+	int getObjectDensity() const;
+	void setObjectDensity(int value);
 	
 	bool isRoadEnabled(const RoadId & roadType) const;
 	bool isRoadEnabled() const;
@@ -177,6 +182,7 @@ private:
 	si8 compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
+	si8 objectDensity;
 	std::map<PlayerColor, CPlayerSettings> players;
 	std::map<PlayerColor, CPlayerSettings> savedPlayerSettings;
 	std::set<RoadId> enabledRoads;
@@ -225,6 +231,10 @@ public:
 		}
 
 		h & enabledRoads;
+		if(h.hasFeature(Handler::Version::RMG_OBJECT_DENSITY))
+			h & objectDensity;
+		else
+			objectDensity = 3;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);

@@ -134,6 +134,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		map->addModificators();
 		Load::Progress::step(3);
 		fillZones();
+		validateConnectivity();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
 		map->getZones().clear();
 
@@ -589,6 +590,53 @@ Zone * CMapGenerator::getZoneWater() const
 		if(z.second->getType() == ETemplateZoneType::WATER)
 			return z.second.get();
 	return nullptr;
+}
+
+void CMapGenerator::validateConnectivity() const
+{
+	// Collect all player (non-neutral) town visitable positions.
+	std::vector<int3> playerTowns;
+	for(const auto & obj : map->mapInstance->objects)
+	{
+		if(obj && obj->ID == Obj::TOWN && obj->getOwner() != PlayerColor::NEUTRAL)
+			playerTowns.push_back(obj->visitablePos());
+	}
+
+	if(playerTowns.size() < 2)
+		return;
+
+	// BFS from the first player town using RmgMap tile states.
+	// FREE and USED tiles are walkable; BLOCKED and POSSIBLE are not.
+	std::set<int3> visited;
+	std::queue<int3> queue;
+	queue.push(playerTowns[0]);
+	visited.insert(playerTowns[0]);
+
+	while(!queue.empty())
+	{
+		int3 pos = queue.front();
+		queue.pop();
+		map->foreach_neighbour(pos, [&](int3 & n)
+		{
+			if(!visited.count(n) && (map->isFree(n) || map->isUsed(n)))
+			{
+				visited.insert(n);
+				queue.push(n);
+			}
+		});
+	}
+
+	int unreachable = 0;
+	for(size_t i = 1; i < playerTowns.size(); ++i)
+	{
+		if(!visited.count(playerTowns[i]))
+		{
+			logGlobal->warn("RMG: player town at %s is unreachable from the starting town.", playerTowns[i].toString());
+			++unreachable;
+		}
+	}
+	if(unreachable > 0)
+		logGlobal->warn("RMG: %d player town(s) unreachable — consider regenerating with a different seed.", unreachable);
 }
 
 VCMI_LIB_NAMESPACE_END

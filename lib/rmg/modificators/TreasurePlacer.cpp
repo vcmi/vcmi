@@ -970,7 +970,14 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 	const size_t size = zone.area()->getTilesVector().size();
 
-	int totalDensity = 0;
+	// Scale treasure density and spacing based on the user's object density setting (1=sparse … 5=dense).
+	// Multiplier is chosen so that the approximate number of objects a hero can reach in one turn
+	// matches the slider value. minDistance shrinks as sqrt(multiplier) because it derives from totalDensity.
+	const int densitySetting = generator.getMapGenOptions().getObjectDensity();
+	static constexpr float densityMultipliers[] = {0.25f, 0.5f, 1.0f, 1.5f, 2.5f};
+	const float densityMultiplier = densityMultipliers[densitySetting - 1];
+
+	float totalDensity = 0.0f;
 
 	// FIXME: No need to use iterator here
 	for (auto t  = treasureInfo.begin(); t != treasureInfo.end(); t++)
@@ -980,10 +987,11 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 		//discard objects with too high value to be ever placed
 		objects.discardObjectsAboveValue(t->max);
 
-		totalDensity += t->density;
+		const float scaledDensity = t->density * densityMultiplier;
+		totalDensity += scaledDensity;
 
 		const int DENSITY_CONSTANT = 400;
-		size_t count = (size * t->density) / DENSITY_CONSTANT;
+		size_t count = static_cast<size_t>((size * scaledDensity) / DENSITY_CONSTANT);
 
 		const float minDistance = std::max<float>(std::sqrt(std::min<ui32>(t->min, 30000) / 10.0f / totalDensity), 1.0f);
 

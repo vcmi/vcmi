@@ -66,11 +66,12 @@ enum class ESerializationVersion : int32_t
 	LUA_SCRIPTS,
 	REWARDABLE_RESET_CALENDAR, // rewardable reset period split into days/weeks/months
 	CONTROL_LOSS_TRACKING, // track when players ever controlled special defeat-condition objects
+	RMG_OBJECT_DENSITY, // object density parameter for random map generator
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
-	CURRENT = CONTROL_LOSS_TRACKING,
+	CURRENT = RMG_OBJECT_DENSITY,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
