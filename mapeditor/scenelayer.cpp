@@ -106,9 +106,11 @@ void AbstractViewportLayer::setViewport(const QRectF & viewPort)
 	int right = toInt(viewPort.right());
 	int top = toInt(viewPort.top());
 	int bottom = toInt(viewPort.bottom());
-	int startX = left - (left % sectorSize);
+	// Clamp to map bounds: when the scene is smaller than the view, the viewport
+	// extends into negative scene coordinates and tiles outside the map would be drawn
+	int startX = std::max(0, left - (left % sectorSize));
 	int limitX = std::min(right + (sectorSize - right % sectorSize), mapWidthPx());
-	int startY = top - (top % sectorSize);
+	int startY = std::max(0, top - (top % sectorSize));
 	int limitY = std::min(bottom + (sectorSize - bottom % sectorSize), mapHeightPx());
 
 	for (int x = startX; x < limitX; x += sectorSize)
