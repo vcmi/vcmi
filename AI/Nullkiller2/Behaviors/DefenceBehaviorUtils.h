@@ -30,6 +30,8 @@ namespace Goals
 	bool isHeroRequiredForTownDefence(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
 	bool shouldReserveTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
 	bool shouldLockTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const HitMapInfo & threat, float safeAttackRatio);
+	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio, float availableMovement);
+	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio);
 }
 
 }

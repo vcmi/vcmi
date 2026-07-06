@@ -124,6 +124,16 @@ namespace Goals
 
 		return false;
 	}
+
+	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio, float availableMovement)
+	{
+		return false;
+	}
+
+	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio)
+	{
+		return false;
+	}
 }
 
 namespace
