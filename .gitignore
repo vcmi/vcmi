@@ -69,3 +69,6 @@ compile_commands.json
 
 # CLion
 .idea/
+node_modules/
+package.json
+package-lock.json
