@@ -1376,10 +1376,16 @@ void CCreaInfo::hover(bool on)
 	if(showAvailable)
 	{
 		const auto available = town->creatures[level].first;
-		message.appendTextID("core.genrltxt.217");
-		message.appendNumber(available);
-		message.appendRawString(" ");
-		message.appendName(creature, available);
+		message.appendTextID("vcmi.townWindow.availableCreatures");
+		message.replaceNumber(available);
+		message.replaceName(creature, available);
+		message.replaceNumber(town->creatureGrowth(level));
+	}
+	else if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		message.appendTextID("core.genrltxt.589");
+		message.replaceNameSingular(creature);
+		message.replaceNumber(town->creatureGrowth(level));
 	}
 	else
 	{
