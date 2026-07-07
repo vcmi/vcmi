@@ -100,7 +100,7 @@ jobs:
             preset: windows-msvc-ninja-release-arm64
             conan_profile: msvc-arm64
             conan_prebuilts: dependencies-windows-arm64
-            conan_options: -s "&:build_type=RelWithDebInfo" -o "&:lua_lib=lua"
+            conan_options: -s "&:build_type=RelWithDebInfo"
             artifact_platform: arm64
 
           - platform: android-32
