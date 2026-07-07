@@ -628,12 +628,25 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 					return "";
 				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
-				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
+				BattleAttackInfo attackInfo(attacker, targetStack, distance, false);
 				attackInfo.attackerPos = attackFromHex;
 				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
 				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
 				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
 				bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
+
+				// breath and other multi-hex attacks also strike extra units - add their kills to the prediction
+				// (getAttackedBattleUnits excludes the directly-attacked hex, so the main target is handled above)
+				for(const auto * splashTarget : owner.getBattle()->getAttackedBattleUnits(attacker, targetStack, targetHex, false, attackFromHex))
+				{
+					if(splashTarget == targetStack || splashTarget == attacker)
+						continue;
+					BattleAttackInfo splashInfo(attacker, splashTarget, distance, false);
+					splashInfo.attackerPos = attackFromHex;
+					DamageEstimation splash = owner.getBattle()->battleEstimateDamage(splashInfo, nullptr);
+					estimation.kills.min += std::min<int64_t>(splash.kills.min, splashTarget->getCount());
+					estimation.kills.max += std::min<int64_t>(splash.kills.max, splashTarget->getCount());
+				}
 
 				return formatMeleeAttack(estimation, targetStack->getName()) + "\n" + formatRetaliation(retaliation, enemyMayBeKilled);
 			}
@@ -1131,6 +1144,12 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 		newConsoleMsg = actionGetStatusMessageBlocked(action, hoveredHex);
 	}
 
+	if (owner.siegeController && owner.siegeController->isTowerHex(hoveredHex))
+	{
+		ENGINE->cursor().set(Cursor::Combat::QUERY); // question cursor over a siege tower
+		newConsoleMsg = LIBRARY->generaltexth->translate("core.genrltxt.156"); // "View arrow tower info."
+	}
+
 	if (!currentConsoleMsg.empty())
 		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
 
@@ -1256,6 +1275,8 @@ void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex)
 
 	if (selectedStack != nullptr)
 		ENGINE->windows().createAndPushWindow<CStackWindow>(selectedStack, true);
+	else if (owner.siegeController && owner.siegeController->isTowerHex(clickedHex))
+		CRClickPopup::createAndPush(owner.siegeController->getTowersInfoText());
 
 	if (clickedHex == BattleHex::HERO_ATTACKER && owner.attackingHero)
 		owner.attackingHero->heroRightClicked();

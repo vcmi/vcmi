@@ -39,6 +39,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	std::optional<si32> aiValue;
 	std::vector<BattleField> battlefields;
+	TerrainId battleTerrain = TerrainId::NONE;
 
 	std::string modScope;
 	std::string typeName;
@@ -94,6 +95,9 @@ public:
 	virtual std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const;
 
 	std::vector<BattleField> getBattlefields() const;
+
+	/// terrain the battle at this object takes place on, or NONE to use the map tile's terrain
+	TerrainId getBattleTerrain() const;
 
 	const RandomMapInfo & getRMGInfo();
 

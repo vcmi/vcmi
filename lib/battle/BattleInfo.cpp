@@ -658,12 +658,16 @@ void BattleInfo::nextRound()
 		sides.at(i).castSpellsCount = 0;
 		vstd::amax(--sides.at(i).enchanterCounter, 0);
 	}
+	// first round starts right after pre-battle effects (built-in enchants, OPENING_BATTLE_SPELL)
+	// are applied, so skip the decrement here to grant them their full configured duration
+	bool isFirstRound = round == 0;
 	round += 1;
 
 	for(auto & s : stacks)
 	{
 		// new turn effects
-		s->reduceBonusDurations(Bonus::NTurns);
+		if(!isFirstRound)
+			s->reduceBonusDurations(Bonus::NTurns);
 
 		s->afterNewRound();
 	}

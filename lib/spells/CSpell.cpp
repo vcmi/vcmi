@@ -393,6 +393,15 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 			ret = 0;
 	}
 	ret = caster->getSpellBonus(this, ret, affectedCreature);
+
+	//cap damage received per single creature (e.g. HotA war machines), same rule as melee/ranged damage
+	if(affectedCreature != nullptr)
+	{
+		int capPercentage = affectedCreature->valOfBonuses(BonusType::DAMAGE_RECEIVED_CAP);
+		if(capPercentage > 0)
+			ret = std::min<int64_t>(ret, affectedCreature->getMaxHealth() * capPercentage / 100);
+	}
+
 	return ret;
 }
 

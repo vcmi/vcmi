@@ -415,7 +415,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
-			if (stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
+			// mass spells (RANGE:X) have no target hex, so there is no direction to turn towards
+			if (targetedTile.isValid() && stacksController->shouldRotate(casterStack, casterStack->getPosition(), targetedTile))
 			{
 				addToAnimationStage(EAnimationEvents::MOVEMENT, [this, casterStack]()
 				{

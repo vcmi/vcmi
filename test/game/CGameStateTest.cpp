@@ -13,6 +13,12 @@
 #include "mock/mock_MapService.h"
 #include "mock/mock_IGameEventCallback.h"
 #include "mock/mock_spells_Problem.h"
+#include "mock/TinyH3MBuilder.h"
+#include "mock/mock_MapServiceTinyH3M.h"
+
+#include "../../lib/spells/CSpellHandler.h"
+
+#include <cmath>
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/json/JsonBonus.h"
@@ -237,10 +243,46 @@ public:
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
 
 	MapServiceMock mapService;
+	std::unique_ptr<MapServiceTinyH3M> tinyMapService;
 	ServicesMock services;
 
 	CMap * map;
 	CRandomGenerator randomGenerator;
+
+	void startTinyGame(TinyH3M::TinyH3MBuilder & builder)
+	{
+		auto bytes = builder.build();
+		tinyMapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
+
+		StartInfo si;
+		si.mapname = "tiny";
+		si.difficulty = 0;
+		si.mode = EStartMode::NEW_GAME;
+
+		std::unique_ptr<CMapHeader> header = tinyMapService->loadMapHeader(ResourcePath(si.mapname));
+		ASSERT_NE(header.get(), nullptr);
+
+		for(int i = 0; i < static_cast<int>(header->players.size()); i++)
+		{
+			const PlayerInfo & pinfo = header->players[i];
+			if(!(pinfo.canHumanPlay || pinfo.canComputerPlay))
+				continue;
+
+			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
+			pset.color = PlayerColor(i);
+			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
+			pset.name = "Player";
+			pset.bonus = PlayerStartingBonus::GOLD;
+			pset.castle = pinfo.defaultCastle();
+			pset.hero = pinfo.defaultHero();
+		}
+
+		GameRandomizer randomizer(*gameState);
+		Load::ProgressAccumulator progressTracker;
+		gameState->init(tinyMapService.get(), &si, randomizer, progressTracker, false);
+
+		ASSERT_NE(map, nullptr);
+	}
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
@@ -493,4 +535,88 @@ TEST_F(CGameStateTest, battleInterference)
 
 	EXPECT_EQ(attacker->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 100);
 	EXPECT_EQ(defender->getPrimSkillLevel(PrimarySkill::SPELL_POWER), 80);
+}
+
+// Chain Lightning must chain to distinct nearest units (not hit the same unit repeatedly)
+// and halve its damage on each hop (chainFactor). Regression after spell effects moved to Lua:
+// the chain re-selected the aimed unit because target de-duplication keyed on Lua userdata
+// identity, which differs per push for the same underlying unit.
+TEST_F(CGameStateTest, chainLightningChainsToDistinctUnits)
+{
+	using namespace ::testing;
+
+	const CreatureID pikeman(0); // single-hex, no magic resistance
+	const uint16_t stackCount = 1000; // large enough that no stack is wiped, so HP delta == damage
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("ChainLightningTest")
+		.playerActive(PlayerColor(0))
+		.playerActive(PlayerColor(1))
+		.hero({5, 5, 0}, HeroTypeID(0), PlayerColor(0))
+			.heroPrimary(0, 0, 20, 20)
+			.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID::SPELLBOOK}})
+			.heroSpells({SpellID(SpellID::CHAIN_LIGHTNING)})
+			.heroGarrison({{pikeman, 1}}) // token army so the battle is valid
+		.hero({7, 7, 0}, HeroTypeID(1), PlayerColor(1))
+			.heroGarrison({{pikeman, stackCount}, {pikeman, stackCount}, {pikeman, stackCount},
+			               {pikeman, stackCount}, {pikeman, stackCount}});
+
+	startTinyGame(builder);
+
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	attacker->mana = 999;
+
+	startTestBattle(attacker, defender);
+
+	auto * battle = gameState->currentBattles.front().get();
+
+	std::vector<const CStack *> defenderStacks;
+	for(const auto & s : battle->stacks)
+		if(s->unitSide() == BattleSide::DEFENDER && s->unitType()->getId() == pikeman)
+			defenderStacks.push_back(s.get());
+	ASSERT_EQ(defenderStacks.size(), 5u);
+
+	std::map<uint32_t, int64_t> healthBefore;
+	for(const auto * s : defenderStacks)
+		healthBefore[s->unitId()] = s->getAvailableHealth();
+
+	const CSpell * spell = SpellID(SpellID::CHAIN_LIGHTNING).toSpell();
+	ASSERT_NE(spell, nullptr);
+
+	spells::BattleCast cast(battle, attacker, spells::Mode::HERO, spell);
+	spells::Target target;
+	target.emplace_back(defenderStacks.front());
+
+	spells::ProblemMock problemMock;
+	EXPECT_CALL(problemMock, add(_)).Times(AnyNumber());
+
+	auto m = spell->battleMechanics(&cast);
+	ASSERT_TRUE(m->canBeCast(problemMock));
+	ASSERT_TRUE(m->canBeCastAt(target, problemMock));
+
+	cast.cast(this, target);
+
+	std::vector<int64_t> damages;
+	for(const auto * s : defenderStacks)
+	{
+		int64_t delta = healthBefore.at(s->unitId()) - s->getAvailableHealth();
+		if(delta > 0)
+			damages.push_back(delta);
+	}
+
+	// Base Chain Lightning hits 4 distinct units. The regression would damage only 1.
+	ASSERT_EQ(damages.size(), 4u) << "Chain Lightning must hit 4 distinct units";
+
+	// Identical units, so each hop deals chainFactor (0.5) of the previous, floored.
+	std::sort(damages.begin(), damages.end(), std::greater<int64_t>());
+	const int64_t base = damages[0];
+	EXPECT_EQ(damages[1], static_cast<int64_t>(std::floor(0.5 * base)));
+	EXPECT_EQ(damages[2], static_cast<int64_t>(std::floor(0.25 * base)));
+	EXPECT_EQ(damages[3], static_cast<int64_t>(std::floor(0.125 * base)));
 }

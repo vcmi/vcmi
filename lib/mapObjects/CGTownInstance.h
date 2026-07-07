@@ -201,7 +201,7 @@ public:
 	/// INativeTerrainProvider
 	FactionID getFactionID() const override;
 	bool isNativeTerrain(TerrainId terrain) const override;
-	TerrainId getTownSiegeTerrain(TerrainId defaultTerrain) const;
+	TerrainId getBattleTerrain() const override;
 
 	/// Returns ID of war machine that is produced by specified building or NONE if this is not built or if building does not produce war machines
 	ArtifactID getWarMachineInBuilding(BuildingID) const;

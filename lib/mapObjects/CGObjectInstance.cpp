@@ -429,6 +429,11 @@ BattleField CGObjectInstance::getBattlefield() const
 	return BattleFieldHandler::selectRandomBattlefield(objectBattlefields, currentLayer, CRandomGenerator::getDefault());
 }
 
+TerrainId CGObjectInstance::getBattleTerrain() const
+{
+	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattleTerrain();
+}
+
 const IOwnableObject * CGObjectInstance::asOwnable() const
 {
 	return nullptr;

@@ -101,6 +101,10 @@ public:
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(const BattleHex & hex) const;
+	/// True if the given battle hex belongs to a siege tower (keep / upper / lower)
+	bool isTowerHex(const BattleHex & hex) const;
+	/// Right-click popup text describing the status (or attack/damage) of every siege tower present
+	std::string getTowersInfoText() const;
 	ImagePath getBattleBackgroundName() const;
 	const CCreature *getTurretCreature(const BattleHex & turretPosition) const;
 	Point getTurretCreaturePosition( BattleHex position ) const;

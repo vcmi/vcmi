@@ -1200,11 +1200,12 @@ bool CGTownInstance::isNativeTerrain(TerrainId terrain) const
 	return getTown()->faction->isNativeTerrain(terrain);
 }
 
-TerrainId CGTownInstance::getTownSiegeTerrain(TerrainId defaultTerrain) const
+TerrainId CGTownInstance::getBattleTerrain() const
 {
+	// a siege takes place on the town's native terrain; NONE falls back to the map tile terrain
 	const auto & nativeTerrains = getTown()->faction->nativeTerrains;
 	if(nativeTerrains.empty())
-		return defaultTerrain;
+		return TerrainId::NONE;
 
 	return nativeTerrains.front();
 }

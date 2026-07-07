@@ -354,6 +354,11 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	removeBonuses(battle, stack, attackerBonusesToRemove);
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 
+	// attacking without moving still triggers the obstacle the unit stands on (e.g. moat damage);
+	// units that moved into the obstacle were already charged during the movement above
+	if(movementResult.distance == 0)
+		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
+
 	return true;
 }
 
@@ -1415,11 +1420,16 @@ void BattleActionProcessor::handleDeathStare(const CBattleInfoCallback & battle,
 
 void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender)
 {
-	if(!attacker->alive() || !defender->alive()) // can be already dead
+	if(!attacker->alive()) // can be already dead, e.g. from retaliation
+		return;
+
+	// attacker's own combat event (e.g. HotA runes) must fire even if the attack wiped out the defender
+	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
+
+	if(!defender->alive())
 		return;
 
 	attackCasting(battle, ranged, BonusType::SPELL_AFTER_ATTACK, attacker, defender);
-	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACK, attacker, defender);
 	processBattleEventTriggers(battle, CombatEventType::AFTER_ATTACKED, defender, attacker);
 
 	if(!defender->alive())

@@ -136,7 +136,9 @@ std::shared_ptr<Bonus> TimesStackSizeUpdater::createUpdatedBonus(const std::shar
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		return apply(b, stack.getCount());
 	}
-	return b;
+	// no stack context (e.g. creature-type reference): contribute the floor value
+	// instead of leaking the bonus template val, which would inflate the base stat
+	return apply(b, 0);
 }
 
 std::string TimesStackSizeUpdater::toString() const
