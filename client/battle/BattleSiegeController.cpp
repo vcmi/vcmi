@@ -199,7 +199,8 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		if ( !getWallPieceExistence(EWallVisual::EWallVisual(g)) )
 			continue;
 
-		wallPieceImages[g] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), EWallState::REINFORCED), EImageBlitMode::COLORKEY);
+		auto fullState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
+		wallPieceImages[g] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), fullState), EImageBlitMode::COLORKEY);
 	}
 }
 
