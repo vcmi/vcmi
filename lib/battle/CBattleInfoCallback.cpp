@@ -1288,8 +1288,12 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 			};
 			const auto side = unit.unitSide();
 			auto shouldReveal = !spellObstacle->hidden || !battleIsObstacleVisibleForSide(*obstacle, side);
-			const auto * hero = battleGetFightingHero(spellObstacle->casterSide);
-			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
+			// A neutral obstacle (casterSide == NONE) belongs to no side and must impede units of both sides;
+			// treat it as hostile to whichever unit triggered it so its effect still applies (and to avoid an invalid side lookup)
+			const bool neutralObstacle = spellObstacle->casterSide != BattleSide::ATTACKER && spellObstacle->casterSide != BattleSide::DEFENDER;
+			const auto casterSide = neutralObstacle ? otherSide(side) : spellObstacle->casterSide;
+			const auto * hero = neutralObstacle ? nullptr : battleGetFightingHero(casterSide);
+			auto caster = spells::ObstacleCasterProxy(getBattle()->getSidePlayer(casterSide), hero, *spellObstacle);
 
 			if(obstacle->triggersEffects() && obstacle->getTrigger().hasValue())
 			{
