@@ -1373,18 +1373,12 @@ void CCreaInfo::update()
 void CCreaInfo::hover(bool on)
 {
 	MetaString message;
-	if(showAvailable)
+	if(settings["general"]["enableUiEnhancements"].Bool())
 	{
 		const auto available = town->creatures[level].first;
 		message.appendTextID("vcmi.townWindow.availableCreatures");
 		message.replaceNumber(available);
 		message.replaceName(creature, available);
-		message.replaceNumber(town->creatureGrowth(level));
-	}
-	else if(settings["general"]["enableUiEnhancements"].Bool())
-	{
-		message.appendTextID("core.genrltxt.589");
-		message.replaceNameSingular(creature);
 		message.replaceNumber(town->creatureGrowth(level));
 	}
 	else
