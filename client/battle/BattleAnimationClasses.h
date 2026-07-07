@@ -359,10 +359,12 @@ class HeroCastAnimation : public BattleAnimation
 	const CSpell * spell;
 	BattleHex tile;
 	bool projectileEmitted;
+	bool hitEmitted = false;
 
 	void initializeProjectile();
 	void emitProjectile();
 	void emitAnimationEvent();
+	bool hasOngoingSpellEffectAnimation();
 
 public:
 	HeroCastAnimation(BattleInterface & owner, std::shared_ptr<BattleHero> hero, BattleHex dest, const CStack * defender, const CSpell * spell);

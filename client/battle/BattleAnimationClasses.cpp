@@ -1159,6 +1159,14 @@ void HeroCastAnimation::emitAnimationEvent()
 	owner.executeAnimationStage(EAnimationEvents::HIT);
 }
 
+bool HeroCastAnimation::hasOngoingSpellEffectAnimation()
+{
+	for(const auto * anim : pendingAnimations())
+		if(anim != nullptr && anim != this)
+			return true;
+	return false;
+}
+
 void HeroCastAnimation::tick(uint32_t msPassed)
 {
 	float frame = hero->getFrame();
@@ -1173,10 +1181,19 @@ void HeroCastAnimation::tick(uint32_t msPassed)
 		return;
 	}
 
-	if (!owner.projectilesController->hasActiveProjectile(nullptr, false))
+	if (owner.projectilesController->hasActiveProjectile(nullptr, false))
+		return;
+
+	if (!hitEmitted)
 	{
 		emitAnimationEvent();
-		//TODO: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile
-		hero->play();
+		hitEmitted = true;
+		return;
 	}
+
+	// keep the caster frozen at the casting climax until the spell hit/effect animation is over (as in H3)
+	if (hasOngoingSpellEffectAnimation())
+		return;
+
+	hero->play();
 }
