@@ -556,7 +556,6 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	DamageRange damageBase = getBaseDamageStack();
 
 	auto attackFactors = getAttackFactors();
-	auto defenseFactors = getDefenseFactors();
 
 	double attackFactorTotal = 1.0;
 	double defenseFactorTotal = 1.0;
@@ -564,8 +563,9 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	for (auto & factor : attackFactors)
 		attackFactorTotal += factor;
 
-	for (auto & factor : defenseFactors)
-		defenseFactorTotal *= (1 - std::min(1.0, factor));
+	if(!info.ignoreDefenseFactors)
+		for (auto & factor : getDefenseFactors())
+			defenseFactorTotal *= (1 - std::min(1.0, factor));
 
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
