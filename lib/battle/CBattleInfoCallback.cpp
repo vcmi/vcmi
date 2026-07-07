@@ -143,14 +143,23 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 		if(!hero->hasSpellbook())
 			return ESpellCastProblem::NO_SPELLBOOK;
-		if(hero->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
-			return ESpellCastProblem::MAGIC_IS_BLOCKED;
 		if(battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 	}
 		break;
 	default:
 		break;
+	}
+
+	//Orb of Inhibition blocks active spellcasting (hero and creature active abilities),
+	//but not passive/triggered casts such as SPELL_BEFORE_ATTACK / SPELL_AFTER_ATTACK
+	if(mode == spells::Mode::HERO || mode == spells::Mode::CREATURE_ACTIVE)
+	{
+		const IBonusBearer * casterBonuses = caster->getHeroCaster();
+		if(!casterBonuses)
+			casterBonuses = battleGetUnitByID(caster->getCasterUnitId());
+		if(casterBonuses && casterBonuses->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
+			return ESpellCastProblem::MAGIC_IS_BLOCKED;
 	}
 
 	return ESpellCastProblem::OK;
