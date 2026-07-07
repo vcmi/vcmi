@@ -52,6 +52,13 @@ NK2AI::AIPath sameTurnPath(const CGHeroInstance & hero, float movementCost)
 
 	return path;
 }
+
+test::TownFake townTarget()
+{
+	test::TownFake town;
+	town.get()->ID = Obj::TOWN;
+	return town;
+}
 }
 
 TEST(Nullkiller2_Behaviors_DefenceBehavior, castleDefenceCountsCommittedDefenderAndTowers)
@@ -194,6 +201,76 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathAllowsSimpleRoundT
 
 	EXPECT_TRUE(NK2AI::Goals::isSafeSameTurnReturnPath(defender, path, 1.0f, 1.0f))
 		<< "a garrison defender may raid only when the same turn has enough movement to return";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptureAfterArmyIsMostlyBought)
+{
+	auto targetTown = townTarget();
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	const auto remainingReinforcement = defender.getTotalStrength() / 20;
+	EXPECT_TRUE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
+		defender,
+		*targetTown.get(),
+		true,
+		remainingReinforcement,
+		3,
+		7))
+		<< "a defender can leave for an enemy town once the home town has no meaningful current-week army left to buy";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsNonEnemyTownCapture)
+{
+	auto targetTown = townTarget();
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
+		defender,
+		*targetTown.get(),
+		false,
+		0,
+		3,
+		7))
+		<< "releasing a defender is reserved for enemy town captures, not neutral or allied visits";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsMeaningfulUnboughtArmy)
+{
+	auto targetTown = townTarget();
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20) + 1;
+	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
+		defender,
+		*targetTown.get(),
+		true,
+		remainingReinforcement,
+		3,
+		7))
+		<< "buying the current-week army should happen before a defender takes a risky town-capture trip";
+}
+
+TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsEndOfWeekGrowthRisk)
+{
+	auto targetTown = townTarget();
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
+		defender,
+		*targetTown.get(),
+		true,
+		1,
+		7,
+		7))
+		<< "do not risk losing fresh week growth unless the town is fully bought out";
 }
 
 TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathRejectsPathWithoutReturnMovement)
