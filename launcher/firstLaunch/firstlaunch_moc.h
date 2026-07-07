@@ -59,16 +59,26 @@ class FirstLaunchView : public QWidget, public IDemoInstallerCallback
 	void copyHeroesData(const QString & path = {}, bool removeSource = false);
 
 	// Tab Mod Preset
+	struct ModPreset
+	{
+		QString modID;
+		const char * name;
+		const char * description;
+		bool checkedByDefault = false;
+		QToolButton * button = nullptr;
+		QLabel * descriptionLabel = nullptr;
+	};
+
+	QVector<ModPreset> modPresets;
+
 	void modPresetUpdate();
+	void loadModPresets();
+	void createModPresetWidgets();
+	void updateModPresetTexts();
 
 	QString findTranslationModName();
 
 	bool checkCanInstallTranslation();
-	bool checkCanInstallExtras();
-	bool checkCanInstallHota();
-	bool checkCanInstallWog();
-	bool checkCanInstallTow();
-	bool checkCanInstallFod();
 	bool checkCanInstallMod(const QString & modID);
 
 public:

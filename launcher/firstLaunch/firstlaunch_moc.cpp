@@ -53,6 +53,9 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 {
 	ui->setupUi(this);
 
+	loadModPresets();
+	createModPresetWidgets();
+
 	enterSetup();
 	activateTabLanguage();
 
@@ -60,6 +63,7 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
 
 	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
+	Helper::enableScrollBySwiping(ui->scrollAreaPresetMods);
 
 #ifdef VCMI_MOBILE
 	// This directory is not accessible to players without rooting of their device
@@ -101,6 +105,7 @@ void FirstLaunchView::changeEvent(QEvent * event)
 	{
 		ui->retranslateUi(this);
 		Languages::fillLanguages(ui->listWidgetLanguage, false);
+		updateModPresetTexts();
 	}
 	QWidget::changeEvent(event);
 }
@@ -763,6 +768,88 @@ void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 }
 
 // Tab Mod Preset
+void FirstLaunchView::loadModPresets()
+{
+	modPresets = {
+		{
+			"vcmi-extras",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "VCMI Extras"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle"),
+			true
+		},
+		{
+			"hota",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Horn of the Abyss"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III")
+		},
+		{
+			"wake-of-gods",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "In The Wake of Gods"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects")
+		},
+		{
+			"tides-of-war",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Tides of War"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells")
+		},
+		{
+			"fallen-of-the-depth",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Fallen of the Depth"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI")
+		},
+		{
+			"tears-of-ashan",
+			QT_TRANSLATE_NOOP("FirstLaunchView", "Tears of Ashan"),
+			QT_TRANSLATE_NOOP("FirstLaunchView", "A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III")
+		}
+	};
+}
+
+void FirstLaunchView::createModPresetWidgets()
+{
+	int row = 2;
+	for(auto & preset : modPresets)
+	{
+		auto button = std::make_unique<QToolButton>(ui->scrollAreaPresetModsContents);
+		button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		button->setMinimumHeight(32);
+		QFont buttonFont = button->font();
+		buttonFont.setBold(true);
+		button->setFont(buttonFont);
+		QIcon icon;
+		icon.addFile(":/icons/mod-disabled.png", QSize(), QIcon::Normal, QIcon::Off);
+		icon.addFile(":/icons/mod-enabled.png", QSize(), QIcon::Normal, QIcon::On);
+		button->setIcon(icon);
+		button->setCheckable(true);
+		button->setChecked(preset.checkedByDefault);
+		button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		button->setAutoRaise(false);
+
+		auto description = std::make_unique<QLabel>(ui->scrollAreaPresetModsContents);
+		description->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		description->setWordWrap(true);
+
+		ui->gridLayoutModsPreset->addWidget(button.get(), row, 0);
+		ui->gridLayoutModsPreset->addWidget(description.get(), row, 1);
+
+		preset.button = button.release();
+		preset.descriptionLabel = description.release();
+
+		++row;
+	}
+
+	updateModPresetTexts();
+}
+
+void FirstLaunchView::updateModPresetTexts()
+{
+	for(const auto & preset : modPresets)
+	{
+		preset.button->setText(tr(preset.name));
+		preset.descriptionLabel->setText(tr(preset.description));
+	}
+}
+
 void FirstLaunchView::modPresetUpdate()
 {
 	bool translationExists = !findTranslationModName().isEmpty();
@@ -771,28 +858,21 @@ void FirstLaunchView::modPresetUpdate()
 	ui->buttonPresetLanguage->setVisible(translationExists);
 
 	bool canTrans  = checkCanInstallTranslation();
-	bool canExtras = checkCanInstallExtras();
-	bool canHota   = checkCanInstallHota();
-	bool canWog	= checkCanInstallWog();
-	bool canTow	= checkCanInstallTow();
-	bool canFod	= checkCanInstallFod();
+	bool canInstallPreset = false;
 
 	ui->buttonPresetLanguage->setVisible(canTrans);
-	ui->buttonPresetExtras->setVisible(canExtras);
-	ui->buttonPresetHota->setVisible(canHota);
-	ui->buttonPresetWog->setVisible(canWog);
-	ui->buttonPresetTow->setVisible(canTow);
-	ui->buttonPresetFod->setVisible(canFod);
-
 	ui->labelPresetLanguageDescr->setVisible(canTrans);
-	ui->labelPresetExtrasDescr->setVisible(canExtras);
-	ui->labelPresetHotaDescr->setVisible(canHota);
-	ui->labelPresetWogDescr->setVisible(canWog);
-	ui->labelPresetTowDescr->setVisible(canTow);
-	ui->labelPresetFodDescr->setVisible(canFod);
+
+	for(const auto & preset : modPresets)
+	{
+		const bool canInstall = checkCanInstallMod(preset.modID);
+		preset.button->setVisible(canInstall);
+		preset.descriptionLabel->setVisible(canInstall);
+		canInstallPreset |= canInstall;
+	}
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
-	if(demoDataActive || (!canTrans && !canExtras && !canHota && !canWog && !canTow && !canFod))
+	if(demoDataActive || (!canTrans && !canInstallPreset))
 		exitSetup(false);
 }
 
@@ -816,31 +896,6 @@ bool FirstLaunchView::checkCanInstallTranslation()
 		return false;
 
 	return checkCanInstallMod(modName);
-}
-
-bool FirstLaunchView::checkCanInstallExtras()
-{
-	return checkCanInstallMod("vcmi-extras");
-}
-
-bool FirstLaunchView::checkCanInstallHota()
-{
-	return checkCanInstallMod("hota");
-}
-
-bool FirstLaunchView::checkCanInstallWog()
-{
-	return checkCanInstallMod("wake-of-gods");
-}
-
-bool FirstLaunchView::checkCanInstallTow()
-{
-	return checkCanInstallMod("tides-of-war");
-}
-
-bool FirstLaunchView::checkCanInstallFod()
-{
-	return checkCanInstallMod("fallen-of-the-depth");
 }
 
 CModListView * FirstLaunchView::getModView()
@@ -871,20 +926,9 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 	if(ui->buttonPresetLanguage->isChecked() && checkCanInstallTranslation())
 		modsToInstall.push_back(findTranslationModName());
 
-	if(ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
-		modsToInstall.push_back("vcmi-extras");
-
-	if(ui->buttonPresetWog->isChecked() && checkCanInstallWog())
-		modsToInstall.push_back("wake-of-gods");
-
-	if(ui->buttonPresetHota->isChecked() && checkCanInstallHota())
-		modsToInstall.push_back("hota");
-
-	if(ui->buttonPresetTow->isChecked() && checkCanInstallTow())
-		modsToInstall.push_back("tides-of-war");
-
-	if(ui->buttonPresetFod->isChecked() && checkCanInstallFod())
-		modsToInstall.push_back("fallen-of-the-depth");
+	for(const auto & preset : modPresets)
+		if(preset.button->isChecked() && checkCanInstallMod(preset.modID))
+			modsToInstall.push_back(preset.modID);
 
 	bool goToMods = !modsToInstall.empty();
 	exitSetup(goToMods);
