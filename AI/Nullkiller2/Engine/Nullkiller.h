@@ -133,7 +133,8 @@ public:
 	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
 	void unlockHero(const CGHeroInstance * hero);
-	bool arePathHeroesLocked(const AIPath & path) const;
+	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
+	bool arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender = nullptr) const;
 	TResources getFreeResources() const;
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);

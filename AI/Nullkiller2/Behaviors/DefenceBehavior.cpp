@@ -125,6 +125,24 @@ namespace Goals
 		return false;
 	}
 
+	bool isDefenderReleaseAllowedForTownCapture(
+		const CGHeroInstance & defender,
+		const CGObjectInstance & target,
+		bool targetIsEnemy,
+		uint64_t remainingTownReinforcement,
+		int dayOfWeek,
+		int daysInWeek)
+	{
+		if(target.ID != Obj::TOWN || !targetIsEnemy)
+			return false;
+
+		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20);
+		if(remainingTownReinforcement > ignoredReinforcement)
+			return false;
+
+		return dayOfWeek != daysInWeek || remainingTownReinforcement == 0;
+	}
+
 	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio, float availableMovement)
 	{
 		if(path.targetHero != &hero || path.heroArmy == nullptr)

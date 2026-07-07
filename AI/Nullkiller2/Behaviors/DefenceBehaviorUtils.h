@@ -13,6 +13,7 @@
 #include <vector>
 
 class CGHeroInstance;
+class CGObjectInstance;
 class CGTownInstance;
 
 namespace NK2AI
@@ -30,6 +31,13 @@ namespace Goals
 	bool isHeroRequiredForTownDefence(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
 	bool shouldReserveTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
 	bool shouldLockTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const HitMapInfo & threat, float safeAttackRatio);
+	bool isDefenderReleaseAllowedForTownCapture(
+		const CGHeroInstance & defender,
+		const CGObjectInstance & target,
+		bool targetIsEnemy,
+		uint64_t remainingTownReinforcement,
+		int dayOfWeek,
+		int daysInWeek);
 	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio, float availableMovement);
 	bool isSafeSameTurnReturnPath(const CGHeroInstance & hero, const AIPath & path, float safeAttackRatio);
 }
