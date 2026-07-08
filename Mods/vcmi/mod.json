@@ -122,6 +122,13 @@
 		]
 	},
 
+	"lithuanian" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/lithuanian.json"
+		]
+	},
+
 	"norwegian" : {
 		"skipValidation" : true,
 		"translations" : [
