@@ -405,6 +405,8 @@ const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance
 
 void Nullkiller::reserveRequiredTownDefenders()
 {
+	// Only urgent town threats reserve heroes here. Safe garrison heroes must
+	// stay available for extraction, otherwise large town armies become idle.
 	for(const auto * town : cc->getTownsInfo())
 	{
 		const auto * defender = findRequiredTownDefender(town);
@@ -414,17 +416,6 @@ void Nullkiller::reserveRequiredTownDefenders()
 
 		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
 		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
-	}
-
-	for(const auto * town : cc->getTownsInfo())
-	{
-		const auto * garrisonHero = town->getGarrisonHero();
-
-		if(!garrisonHero || getHeroLockedReason(garrisonHero) != HeroLockedReason::NOT_LOCKED)
-			continue;
-
-		logAi->debug("Keeping %s in garrison of %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
-		lockedHeroes[garrisonHero] = HeroLockedReason::DEFENCE;
 	}
 }
 
