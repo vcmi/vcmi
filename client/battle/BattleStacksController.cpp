@@ -821,8 +821,12 @@ void BattleStacksController::updateHoveredStacks()
 {
 	auto newStacks = selectHoveredStacks();
 
-	if(newStacks.size() == 0)
-		owner.windowObject->updateStackInfoWindow(nullptr);
+	// info panel follows the stack directly under the cursor; the highlight set may hold extra
+	// stacks from a multi-hex attack preview, which must not suppress it
+	const CStack * newInfoStack = newStacks.empty() ? nullptr : newStacks.front();
+	const CStack * oldInfoStack = mouseHoveredStacks.empty() ? nullptr : mouseHoveredStacks.front();
+	if(newInfoStack != oldInfoStack)
+		owner.windowObject->updateStackInfoWindow(newInfoStack);
 
 	for(const auto * stack : mouseHoveredStacks)
 	{
@@ -840,7 +844,6 @@ void BattleStacksController::updateHoveredStacks()
 		if (vstd::contains(mouseHoveredStacks, stack))
 			continue;
 
-		owner.windowObject->updateStackInfoWindow(newStacks.size() == 1 && vstd::find_pos(newStacks, stack) == 0 ? stack : nullptr);
 		stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getBlueBorder());
 		if (stackAnimation[stack->unitId()]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive() && !stack->isFrozen())
 			stackAnimation[stack->unitId()]->playOnce(ECreatureAnimType::MOUSEON);
