@@ -421,7 +421,7 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 BattleField CGObjectInstance::getBattlefield() const
 {
 	auto currentLayer = cb->gameState().getMap().mapLayers.at(pos.z);
-	const auto & objectBattlefields = LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattlefields();
+	const auto & objectBattlefields = getObjectHandler()->getBattlefields();
 
 	if (objectBattlefields.empty())
 		return BattleField::NONE;
@@ -431,7 +431,7 @@ BattleField CGObjectInstance::getBattlefield() const
 
 TerrainId CGObjectInstance::getBattleTerrain() const
 {
-	return LIBRARY->objtypeh->getHandlerFor(ID, subID)->getBattleTerrain();
+	return getObjectHandler()->getBattleTerrain();
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const
