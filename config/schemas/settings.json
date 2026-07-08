@@ -501,7 +501,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel", "showHealthBar" ],
+			"required" : [ "speedFactor", "mouseShadow", "cellBorders", "stackRange", "movementHighlightOnHover", "rangeLimitHighlightOnHover", "showQueue", "swipeAttackDistance", "queueSize", "stickyHeroInfoWindows", "stackInfoBasicPanel", "enableAutocombatSpells", "endWithAutocombat", "queueSmallSlots", "queueSmallOutside", "enableQuickSpellPanel", "showHealthBar" ],
 			"properties" : {
 				"speedFactor" : {
 					"type" : "number",
@@ -541,6 +541,10 @@
 					"enum" : [ "auto", "small", "big" ]
 				},
 				"stickyHeroInfoWindows" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"stackInfoBasicPanel" : {
 					"type" : "boolean",
 					"default" : true
 				},
