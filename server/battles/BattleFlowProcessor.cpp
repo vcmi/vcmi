@@ -970,7 +970,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			}
 		}
 
-		if (st->hasBonusOfType(BonusType::POISON))
+		if (st->hasBonusOfType(BonusType::POISON) && !st->waiting)
 		{
 			std::shared_ptr<const Bonus> b = st->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
