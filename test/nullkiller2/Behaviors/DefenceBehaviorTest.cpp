@@ -192,6 +192,22 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, reserveDefenderThatImprovesUrgentTow
 		<< "do not treat a useful garrison defender as free while urgent town danger remains";
 }
 
+TEST(Nullkiller2_Behaviors_DefenceBehavior, reserveDefenderIsSkippedForDistantTownThreat)
+{
+	test::TownFake town;
+	town.withBuilding(BuildingID::CASTLE);
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 1));
+
+	const auto committedDefence = NK2AI::Goals::estimateTownDefence(*town.get(), &defender);
+	auto distantThreat = nextTurnThreat(committedDefence + 1);
+	distantThreat.turn = 2;
+
+	EXPECT_FALSE(NK2AI::Goals::shouldReserveTownDefender(*town.get(), defender, { distantThreat }, 1.0f))
+		<< "safe garrison heroes must stay available for extraction when there is no urgent town threat";
+}
+
 TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathAllowsSimpleRoundTrip)
 {
 	CGHeroInstance defender(nullptr);
