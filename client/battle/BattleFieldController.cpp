@@ -249,6 +249,13 @@ void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point
 
 void BattleFieldController::clickPressed(const Point & cursorPosition)
 {
+	// a click on the battlefield cancels ongoing auto-combat (H3 behavior)
+	if(owner.curInt->isAutoFightOn)
+	{
+		owner.curInt->isAutoFightOn = false;
+		return;
+	}
+
 	BattleHex selectedHex = getHoveredHex();
 
 	if (selectedHex != BattleHex::INVALID)
