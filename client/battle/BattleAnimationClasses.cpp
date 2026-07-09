@@ -1136,7 +1136,7 @@ void HeroCastAnimation::initializeProjectile()
 	Point srccoord = hero->pos.center() - hero->parent->pos.topLeft();
 	Point destcoord = owner.stacksController->getStackPositionAtHex(tile, target); //position attacked by projectile
 
-	destcoord += Point(222, 265); // FIXME: what are these constants?
+	destcoord += Point(225, 225); // offset from hex top-left to the target creature's center, as in ranged attacks
 	owner.projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
 }
 
