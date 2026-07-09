@@ -189,7 +189,15 @@ void CButton::setState(EButtonState newState)
 		return;
 
 	if (newState == EButtonState::BLOCKED)
+	{
 		removeUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
+		// a blocked button no longer receives hover-out, so drop any status-bar text it set
+		const std::string & name = hoverTexts[vstd::to_underlying(getState())].empty()
+			? hoverTexts[0]
+			: hoverTexts[vstd::to_underlying(getState())];
+		if(!name.empty())
+			ENGINE->statusbar()->clearIfMatching(name);
+	}
 	else
 		addUsedEvents(LCLICK | SHOW_POPUP | HOVER | KEYBOARD);
 
