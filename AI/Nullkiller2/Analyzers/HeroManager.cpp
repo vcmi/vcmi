@@ -21,6 +21,15 @@
 namespace NK2AI
 {
 
+float evaluateMainHeroRoleScore(float heroProfileScore, uint64_t heroTotalStrength, uint64_t strongestHeroTotalStrength)
+{
+	if(strongestHeroTotalStrength == 0)
+		return heroProfileScore;
+
+	const float armyShare = heroTotalStrength / static_cast<float>(strongestHeroTotalStrength);
+	return heroProfileScore + 50.0f * armyShare;
+}
+
 const SecondarySkillEvaluator HeroManager::mainSkillsEvaluator = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
@@ -112,10 +121,14 @@ void HeroManager::update()
 
 	HeroMap<float> scores;
 	auto myHeroes = cc->getHeroesInfo();
+	uint64_t strongestHeroTotalStrength = 0;
+
+	for(auto & hero : myHeroes)
+		vstd::amax(strongestHeroTotalStrength, hero->getTotalStrength());
 
 	for(auto & hero : myHeroes)
 	{
-		scores[hero] = evaluateFightingStrength(hero);
+		scores[hero] = evaluateMainHeroRoleScore(evaluateFightingStrength(hero), hero->getTotalStrength(), strongestHeroTotalStrength);
 		knownFightingStrength[hero->id] = normalizeHeroStrength(hero->getHeroStrength());
 	}
 

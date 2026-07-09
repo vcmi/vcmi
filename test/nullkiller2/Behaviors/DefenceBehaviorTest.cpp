@@ -231,6 +231,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptur
 		defender,
 		*targetTown.get(),
 		true,
+		true,
 		remainingReinforcement,
 		3,
 		7))
@@ -247,6 +248,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsNonEnemyTownCa
 	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
 		defender,
 		*targetTown.get(),
+		false,
 		false,
 		0,
 		3,
@@ -266,6 +268,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsMeaningfulUnbo
 		defender,
 		*targetTown.get(),
 		true,
+		true,
 		remainingReinforcement,
 		3,
 		7))
@@ -282,6 +285,7 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsEndOfWeekGrowt
 	EXPECT_FALSE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
 		defender,
 		*targetTown.get(),
+		true,
 		true,
 		1,
 		7,

@@ -440,6 +440,24 @@ void Nullkiller::unlockHero(const CGHeroInstance * hero)
 	lockedHeroes.erase(hero);
 }
 
+bool defenderMakesTownStableAfterTurnEnd(const CGTownInstance * town, const CGHeroInstance * defender, const Nullkiller * aiNk)
+{
+	const auto threats = getTownThreatsForDefenderReservation(town, aiNk);
+	const auto defence = Goals::estimateTownDefence(*town, defender);
+	const auto safeAttackRatio = aiNk->settings->getSafeAttackRatio();
+
+	for(const auto & threat : threats)
+	{
+		if(threat.danger == 0 || threat.turn > 1)
+			continue;
+
+		if(!Goals::isTownDefenceSufficient(defence, threat, safeAttackRatio))
+			return false;
+	}
+
+	return true;
+}
+
 bool Nullkiller::canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const
 {
 	if(!hero || !target || path.targetHero != hero)
@@ -459,6 +477,7 @@ bool Nullkiller::canReleaseDefenderForTownCapture(const CGHeroInstance * hero, c
 		return false;
 
 	const auto relation = cc->getPlayerRelations(target->tempOwner, playerID);
+	const auto defenderMakesHomeStable = defenderMakesTownStableAfterTurnEnd(defendedTown, hero, this);
 	const auto remainingTownReinforcement = armyManager->howManyReinforcementsCanBuy(defendedTown->getUpperArmy(), defendedTown);
 	const auto calendar = cc->getCalendar();
 
@@ -466,6 +485,7 @@ bool Nullkiller::canReleaseDefenderForTownCapture(const CGHeroInstance * hero, c
 		*hero,
 		*target,
 		relation == PlayerRelations::ENEMIES,
+		defenderMakesHomeStable,
 		remainingTownReinforcement,
 		calendar.getDayOfWeek(),
 		calendar.getDaysInWeek());

@@ -35,6 +35,7 @@ namespace Goals
 		const CGHeroInstance & defender,
 		const CGObjectInstance & target,
 		bool targetIsEnemy,
+		bool defenderMakesHomeStable,
 		uint64_t remainingTownReinforcement,
 		int dayOfWeek,
 		int daysInWeek);

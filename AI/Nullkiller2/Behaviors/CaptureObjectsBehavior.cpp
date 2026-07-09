@@ -30,6 +30,30 @@ bool vectorEquals(const std::vector<T> & v1, const std::vector<T> & v2)
 	});
 }
 
+bool isBetterTownCapturePath(const AIPath & candidate, const AIPath & current)
+{
+	if(candidate.turn() != current.turn())
+		return candidate.turn() < current.turn();
+
+	if(!vstd::isAlmostEqual(candidate.movementCost(), current.movementCost()))
+		return candidate.movementCost() < current.movementCost();
+
+	if(candidate.getTotalArmyLoss() != current.getTotalArmyLoss())
+		return candidate.getTotalArmyLoss() < current.getTotalArmyLoss();
+
+	return candidate.getHeroStrength() > current.getHeroStrength();
+}
+
+bool isEnemyTownCaptureTarget(const CGObjectInstance * object, const Nullkiller * nullkiller)
+{
+	if(!object || object->ID != Obj::TOWN)
+		return false;
+
+	const auto owner = object->getOwner();
+	return owner.isValidPlayer()
+		&& nullkiller->cc->getPlayerRelations(nullkiller->playerID, owner) == PlayerRelations::ENEMIES;
+}
+
 std::string CaptureObjectsBehavior::toString() const
 {
 	return "Capture objects";
@@ -56,7 +80,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 	Goals::TGoalVec tasks;
 	tasks.reserve(paths.size());
 	std::unordered_map<HeroRole, const AIPath *> closestWaysByRole;
-	std::vector<ExecuteHeroChain *> waysToVisitObj;
+	std::unordered_map<const CGHeroInstance *, const AIPath *> bestEnemyTownPathsByHero;
+	std::vector<TSubgoal> waysToVisitObj;
+	const bool isEnemyTown = isEnemyTownCaptureTarget(objToVisit, nullkiller);
 
 	for(const auto & path : paths)
 	{
@@ -133,9 +159,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 		if(isSafe)
 		{
-			auto newWay = new ExecuteHeroChain(path, objToVisit);
-			TSubgoal sharedPtr;
-			sharedPtr.reset(newWay);
 			auto heroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
 
 			auto & closestWay = closestWaysByRole[heroRole];
@@ -144,13 +167,34 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 				closestWay = &path;
 			}
 
-			waysToVisitObj.push_back(newWay);
+			if(isEnemyTown)
+			{
+				auto & bestPath = bestEnemyTownPathsByHero[path.targetHero];
+				if(!bestPath || isBetterTownCapturePath(path, *bestPath))
+					bestPath = &path;
+
+				continue;
+			}
+
+			auto sharedPtr = sptr(ExecuteHeroChain(path, objToVisit));
+
+			waysToVisitObj.push_back(sharedPtr);
 			tasks[tasks.size() - 1] = sharedPtr;
 		}
 	}
 
-	for(auto * way : waysToVisitObj)
+	for(const auto & heroPath : bestEnemyTownPathsByHero)
 	{
+		const auto * path = heroPath.second;
+		auto sharedPtr = sptr(ExecuteHeroChain(*path, objToVisit));
+
+		waysToVisitObj.push_back(sharedPtr);
+		tasks.push_back(sharedPtr);
+	}
+
+	for(const auto & wayGoal : waysToVisitObj)
+	{
+		auto * way = static_cast<ExecuteHeroChain *>(wayGoal.get());
 		auto heroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(way->getPath().targetHero);
 		const auto * closestWay = closestWaysByRole[heroRole];
 
@@ -224,13 +268,38 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * aiNk) const
 	}
 	else
 	{
-		decomposeObjects(tasks, aiNk->objectClusterizer->getNearbyObjects(), aiNk);
+		auto nearbyObjects = aiNk->objectClusterizer->getNearbyObjects();
+		addVisibleEnemyTowns(nearbyObjects, aiNk);
+		decomposeObjects(tasks, nearbyObjects, aiNk);
 
 		if(tasks.empty() || aiNk->getScanDepth() != ScanDepth::SMALL)
-			decomposeObjects(tasks, aiNk->objectClusterizer->getFarObjects(), aiNk);
+		{
+			auto farObjects = aiNk->objectClusterizer->getFarObjects();
+			vstd::erase_if(farObjects, [&nearbyObjects](const CGObjectInstance * object)
+			{
+				return vstd::contains(nearbyObjects, object);
+			});
+			decomposeObjects(tasks, farObjects, aiNk);
+		}
 	}
 
 	return tasks;
+}
+
+void CaptureObjectsBehavior::addVisibleEnemyTowns(std::vector<const CGObjectInstance *> & objects, const Nullkiller * aiNk) const
+{
+	for(const auto * visibleTown : aiNk->cc->getTownsInfo(false))
+	{
+		const auto owner = visibleTown->getOwner();
+		if(!owner.isValidPlayer())
+			continue;
+
+		if(aiNk->cc->getPlayerRelations(aiNk->playerID, owner) != PlayerRelations::ENEMIES)
+			continue;
+
+		if(objectMatchesFilter(visibleTown) && !vstd::contains(objects, visibleTown))
+			objects.push_back(visibleTown);
+	}
 }
 
 bool CaptureObjectsBehavior::objectMatchesFilter(const CGObjectInstance * obj) const

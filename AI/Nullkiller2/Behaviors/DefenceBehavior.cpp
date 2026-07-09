@@ -129,12 +129,16 @@ namespace Goals
 		const CGHeroInstance & defender,
 		const CGObjectInstance & target,
 		bool targetIsEnemy,
+		bool defenderMakesHomeStable,
 		uint64_t remainingTownReinforcement,
 		int dayOfWeek,
 		int daysInWeek)
 	{
 		if(target.ID != Obj::TOWN || !targetIsEnemy)
 			return false;
+
+		if(!defenderMakesHomeStable)
+			return dayOfWeek != daysInWeek || remainingTownReinforcement == 0;
 
 		const uint64_t ignoredReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20);
 		if(remainingTownReinforcement > ignoredReinforcement)

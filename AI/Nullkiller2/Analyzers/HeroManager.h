@@ -18,6 +18,8 @@
 namespace NK2AI
 {
 
+float evaluateMainHeroRoleScore(float heroProfileScore, uint64_t heroTotalStrength, uint64_t strongestHeroTotalStrength);
+
 class DLL_EXPORT ISecondarySkillRule
 {
 public:
