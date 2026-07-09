@@ -238,6 +238,25 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptur
 		<< "a defender can leave for an enemy town once the home town has no meaningful current-week army left to buy";
 }
 
+TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseAllowsEnemyTownCaptureWhenHomeStillNeedsFollowup)
+{
+	auto targetTown = townTarget();
+
+	CGHeroInstance defender(nullptr);
+	ASSERT_TRUE(defender.setCreature(SlotID(0), CreatureID::ARCHER, 100));
+
+	const auto remainingReinforcement = std::max<uint64_t>(1000, defender.getTotalStrength() / 20) + 1;
+	EXPECT_TRUE(NK2AI::Goals::isDefenderReleaseAllowedForTownCapture(
+		defender,
+		*targetTown.get(),
+		true,
+		false,
+		remainingReinforcement,
+		3,
+		7))
+		<< "do not keep a defender idle when it cannot make the home town stable and can capture an enemy town instead";
+}
+
 TEST(Nullkiller2_Behaviors_DefenceBehavior, defenderReleaseRejectsNonEnemyTownCapture)
 {
 	auto targetTown = townTarget();
