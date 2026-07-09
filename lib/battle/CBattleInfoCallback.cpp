@@ -152,7 +152,8 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	}
 
 	//Orb of Inhibition blocks active spellcasting (hero and creature active abilities),
-	//but not passive/triggered casts such as SPELL_BEFORE_ATTACK / SPELL_AFTER_ATTACK
+	//but not passive/triggered casts such as SPELL_BEFORE_ATTACK / SPELL_AFTER_ATTACK.
+	//Level-0 creature abilities are excluded from this block in BattleSpellMechanics::canBeCast (spell level known there)
 	if(mode == spells::Mode::HERO || mode == spells::Mode::CREATURE_ACTIVE)
 	{
 		const IBonusBearer * casterBonuses = caster->getHeroCaster();
