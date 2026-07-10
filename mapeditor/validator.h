@@ -49,10 +49,17 @@ private:
 
 	QRect screenGeometry;
 
+	enum PresetState
+	{
+        VALID,
+        OVERWRITES_MAP_SETTINGS,
+        INVALID
+	};
+
 	template<typename IdentifierType>
-	static bool presetIsValid(
+	static PresetState validatePreset(
         const CMap * map,
-		std::shared_ptr<CGObjectInstance> object,
+		const std::shared_ptr<CGObjectInstance> & object,
 		const std::string & category,
 		const std::string & name,
 		const std::set<IdentifierType> & allowedEntities

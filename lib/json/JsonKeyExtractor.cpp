@@ -26,6 +26,11 @@ si32 JsonKeyExtractor::loadVariable(const std::string & variableGroup, const std
 	return variables.at(variableID);
 }
 
+bool JsonKeyExtractor::canOverwriteMapSettings(const JsonNode & value)
+{
+	return value.isString();
+}
+
 std::set<ArtifactID> JsonKeyExtractor::filterKeysTyped(const JsonNode & value, const std::set<ArtifactID> & valuesSet)
 {
 	assert(value.isStruct());
