@@ -43,7 +43,7 @@ void ShrineWidget::loadData()
 	si64 spellLevel = getSpellLevel();
 	for(const auto & spell : LIBRARY->spellh->objects)
 	{
-		if(spell->getLevel() == spellLevel)
+		if(spell->isCommonHeroSpell() && spell->getLevel() == spellLevel)
 		{
 			ui->spells->insertItem(i, QString::fromStdString(spell->getNameTranslated()));
 			ui->spells->setItemData(i, QString::fromStdString(spell->getJsonKey()));

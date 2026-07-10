@@ -235,6 +235,12 @@ bool CSpell::isSpecial() const
 	return special;
 }
 
+bool CSpell::isCommonHeroSpell() const
+{
+	return !isSpecial() && !isCreatureAbility();
+}
+
+
 bool CSpell::hasEffects() const
 {
 	return !levels[0].effects.Struct().empty() || !levels[0].cumulativeEffects.Struct().empty();
