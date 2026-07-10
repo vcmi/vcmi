@@ -37,6 +37,7 @@
 #include "questwidget.h"
 #include "rewardswidget.h"
 #include "scholarwidget.h"
+#include "shrinewidget.h"
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
 #include "townspellswidget.h"
@@ -468,6 +469,13 @@ void Inspector::updateProperties(CRewardableObject * o)
 		case MapObjectID::SCHOLAR:
 		{
 			delegate = new ScholarDelegate(controller, *o);
+			break;
+		}
+		case MapObjectID::SHRINE_OF_MAGIC_INCANTATION:
+		case MapObjectID::SHRINE_OF_MAGIC_GESTURE:
+		case MapObjectID::SHRINE_OF_MAGIC_THOUGHT:
+		{
+			delegate = new ShrineDelegate(controller, *o);
 			break;
 		}
 		default:
