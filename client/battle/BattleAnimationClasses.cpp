@@ -1064,6 +1064,8 @@ bool EffectAnimation::screenFill() const
 void EffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
+	if (onFinished)
+		onFinished();
 }
 
 void EffectAnimation::playEffect(uint32_t msPassed)

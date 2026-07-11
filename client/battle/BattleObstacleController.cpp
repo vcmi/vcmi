@@ -97,29 +97,52 @@ void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges
 
 void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
 {
+	auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
+	bool hasNativeStack = owner.getBattle()->battleHasNativeStack(side);
+
+	// spells that place several obstacles (e.g. Land Mine) send them as separate packs, so queue
+	// them here and play their placement animations one after another across all such calls
 	for(const auto & oi : obstacles)
+		if(oi->visibleForSide(side, hasNativeStack))
+			obstaclePlacementQueue.push_back(oi);
+
+	placeNextObstacle();
+}
+
+void BattleObstacleController::placeNextObstacle()
+{
+	if(placingObstacle || obstaclePlacementQueue.empty())
+		return;
+
+	auto oi = obstaclePlacementQueue.front();
+	obstaclePlacementQueue.erase(obstaclePlacementQueue.begin());
+
+	auto animation = ENGINE->renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
+	auto first = animation->getImage(0, 0);
+	if(!first)
 	{
-		auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
-
-		if(!oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
-			continue;
-
-		auto animation = ENGINE->renderHandler().loadAnimation(oi->getAppearAnimation(), EImageBlitMode::SIMPLE);
-		auto first = animation->getImage(0, 0);
-		if(!first)
-			continue;
-
-		//we assume here that effect graphics have the same size as the usual obstacle image
-		// -> if we know how to blit obstacle, let's blit the effect in the same place
-		Point whereTo = getObstaclePosition(first, *oi);
-		ENGINE->sound().playSound( oi->getAppearSound() );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos));
-
-		//so when multiple obstacles are added, they show up one after another
-		owner.waitForAnimations();
-
-		loadObstacleImage(*oi);
+		placeNextObstacle();
+		return;
 	}
+
+	//we assume here that effect graphics have the same size as the usual obstacle image
+	// -> if we know how to blit obstacle, let's blit the effect in the same place
+	Point whereTo = getObstaclePosition(first, *oi);
+	ENGINE->sound().playSound( oi->getAppearSound() );
+
+	placingObstacle = true;
+	auto effect = new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos);
+	effect->onFinished = [this, oi]()
+	{
+		// permanent obstacle graphic appears exactly when its placement animation ends,
+		// independently of the caster's spell animation
+		loadObstacleImage(*oi);
+		// starting the next obstacle here (before this effect is removed) leaves no gap in
+		// pending animations, so the caster stays frozen until every obstacle is placed
+		placingObstacle = false;
+		placeNextObstacle();
+	};
+	owner.stacksController->addNewAnim(effect);
 }
 
 void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas)

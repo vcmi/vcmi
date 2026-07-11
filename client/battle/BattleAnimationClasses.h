@@ -348,6 +348,9 @@ public:
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,     int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
+	/// invoked once when the animation reaches its last frame, before the effect is removed
+	std::function<void()> onFinished;
+
 	bool init() override;
 	void tick(uint32_t msPassed) override;
 };

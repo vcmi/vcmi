@@ -42,6 +42,13 @@ class BattleObstacleController
 
 	void loadObstacleImage(const CObstacleInstance & oi);
 
+	/// obstacles awaiting their placement animation; shown one after another
+	std::vector<std::shared_ptr<const CObstacleInstance>> obstaclePlacementQueue;
+	bool placingObstacle = false;
+
+	/// starts the placement animation of the next queued obstacle, unless one is already playing
+	void placeNextObstacle();
+
 	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const JsonNode & obstacle);
