@@ -722,7 +722,7 @@ void BattleInterface::tacticNextStack(const CStack * current)
 
 }
 
-void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi)
+void BattleInterface::obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi)
 {
 	// if a spell cast is mid-flight, show the obstacle after the caster's animation reaches its climax (HIT stage)
 	if(!awaitingEvents.empty())
@@ -731,9 +731,9 @@ void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const COb
 		obstacleController->obstaclePlaced(oi);
 }
 
-void BattleInterface::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+void BattleInterface::obstacleRemoved(const ObstacleChanges & obstacle)
 {
-	obstacleController->obstacleRemoved(obstacles);
+	obstacleController->obstacleRemoved(obstacle);
 }
 
 const CGHeroInstance *BattleInterface::currentHero() const

@@ -906,8 +906,8 @@ void ApplyClientNetPackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pac
 
 void ApplyClientNetPackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
 {
-	//inform interfaces about removed obstacles
-	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleObstaclesChanged, pack.battleID, pack.changes);
+	//inform interfaces about the changed obstacle
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleObstaclesChanged, pack.battleID, pack.change);
 }
 
 void ApplyClientNetPackVisitor::visitCatapultAttack(CatapultAttack & pack)

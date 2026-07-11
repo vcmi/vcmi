@@ -224,8 +224,8 @@ public:
 
 	void endAction(const BattleAction & action);
 
-	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
-	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
+	void obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi);
+	void obstacleRemoved(const ObstacleChanges & obstacle);
 
 	void gateStateChanged(const EGateState state);
 

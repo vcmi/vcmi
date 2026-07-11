@@ -54,7 +54,7 @@ public:
 	{
 	}
 
-	BattleObstaclesChanged capturedPack;
+	std::vector<ObstacleChanges> capturedChanges;
 
 	void captureObstaclePack()
 	{
@@ -62,8 +62,7 @@ public:
 			.Times(AnyNumber())
 			.WillRepeatedly(Invoke([this](const BattleObstaclesChanged & pack)
 			{
-				for(const auto & change : pack.changes)
-					capturedPack.changes.push_back(change);
+				capturedChanges.push_back(pack.change);
 			}));
 	}
 
@@ -105,8 +104,8 @@ TEST_F(MoatApplyTest, PlacesMoatObstaclesWhenTownHasMoat)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::ADD);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::ADD);
 }
 
 TEST_F(MoatApplyTest, PlacesDispellableMoatAsSpellCreatedObstacle)
@@ -129,8 +128,8 @@ TEST_F(MoatApplyTest, PlacesDispellableMoatAsSpellCreatedObstacle)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::ADD);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::ADD);
 }
 
 TEST_F(MoatApplyTest, MultipleMoatPatchesCreateMultipleObstacles)
@@ -155,8 +154,8 @@ TEST_F(MoatApplyTest, MultipleMoatPatchesCreateMultipleObstacles)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 3u);
-	for(const auto & change : capturedPack.changes)
+	ASSERT_EQ(capturedChanges.size(), 3u);
+	for(const auto & change : capturedChanges)
 		EXPECT_EQ(change.operation, BattleChanges::EOperation::ADD);
 }
 

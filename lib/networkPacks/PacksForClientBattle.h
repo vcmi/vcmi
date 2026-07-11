@@ -432,14 +432,14 @@ struct DLL_LINKAGE BattleEnded : public CPackForClient
 struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
-	std::vector<ObstacleChanges> changes;
+	ObstacleChanges change;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & changes;
+		h & change;
 		assert(battleID != BattleID::NONE);
 	}
 };

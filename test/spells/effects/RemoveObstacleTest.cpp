@@ -182,15 +182,14 @@ public:
 	{
 	}
 
-	BattleObstaclesChanged capturedPack;
+	std::vector<ObstacleChanges> capturedChanges;
 
 	void captureObstaclePack()
 	{
 		EXPECT_CALL(serverMock, apply(Matcher<BattleObstaclesChanged &>(_)))
 			.WillRepeatedly(Invoke([this](const BattleObstaclesChanged & pack)
 			{
-				for(const auto & change : pack.changes)
-					capturedPack.changes.push_back(change);
+				capturedChanges.push_back(pack.change);
 			}));
 	}
 
@@ -217,9 +216,9 @@ TEST_F(RemoveObstacleApplyTest, RemovesUsualObstacleMassive)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].id, static_cast<uint32_t>(usual->uniqueID));
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::REMOVE);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].id, static_cast<uint32_t>(usual->uniqueID));
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::REMOVE);
 }
 
 TEST_F(RemoveObstacleApplyTest, RemovesAbsoluteWhenFlagSet)
@@ -238,9 +237,9 @@ TEST_F(RemoveObstacleApplyTest, RemovesAbsoluteWhenFlagSet)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].id, static_cast<uint32_t>(absolute->uniqueID));
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::REMOVE);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].id, static_cast<uint32_t>(absolute->uniqueID));
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::REMOVE);
 }
 
 TEST_F(RemoveObstacleApplyTest, RemovesAllSpellObstaclesWithFlag)
@@ -260,9 +259,9 @@ TEST_F(RemoveObstacleApplyTest, RemovesAllSpellObstaclesWithFlag)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 2u);
+	ASSERT_EQ(capturedChanges.size(), 2u);
 	std::set<uint32_t> removedIds;
-	for(const auto & change : capturedPack.changes)
+	for(const auto & change : capturedChanges)
 	{
 		removedIds.insert(change.id);
 		EXPECT_EQ(change.operation, BattleChanges::EOperation::REMOVE);
@@ -288,9 +287,9 @@ TEST_F(RemoveObstacleApplyTest, RemovesNamedSpellsOnly)
 
 	subject->apply(&serverMock, &mechanicsMock, Target());
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].id, static_cast<uint32_t>(fireWall->uniqueID));
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::REMOVE);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].id, static_cast<uint32_t>(fireWall->uniqueID));
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::REMOVE);
 }
 
 TEST_F(RemoveObstacleApplyTest, NonMassiveRemovesOnlyAtTargetHex)
@@ -313,8 +312,8 @@ TEST_F(RemoveObstacleApplyTest, NonMassiveRemovesOnlyAtTargetHex)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].id, static_cast<uint32_t>(onTarget->uniqueID));
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].id, static_cast<uint32_t>(onTarget->uniqueID));
 }
 
 TEST_F(RemoveObstacleApplyTest, RemovesUsualObstacleNonMassive)
@@ -337,8 +336,8 @@ TEST_F(RemoveObstacleApplyTest, RemovesUsualObstacleNonMassive)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].id, static_cast<uint32_t>(onTarget->uniqueID));
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].id, static_cast<uint32_t>(onTarget->uniqueID));
 }
 
 TEST_F(RemoveObstacleApplyTest, NoServerCallWhenNothingToRemove)

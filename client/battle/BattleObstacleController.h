@@ -59,11 +59,11 @@ public:
 	/// called every frame
 	void tick(uint32_t msPassed);
 
-	/// call-in from network pack, add newly placed obstacles with any required animations
-	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
+	/// call-in from network pack, add a newly placed obstacle with any required animations
+	void obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi);
 
-	/// call-in from network pack, remove required obstacles with any required animations
-	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
+	/// call-in from network pack, remove an obstacle with any required animations
+	void obstacleRemoved(const ObstacleChanges & obstacle);
 
 	/// renders all "absolute" obstacles
 	void showAbsoluteObstacles(Canvas & canvas);

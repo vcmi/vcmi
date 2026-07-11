@@ -50,7 +50,7 @@ public:
 	virtual void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) {}; //called just before battle start
 	virtual void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units){};
-	virtual void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles){};
+	virtual void battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle){};
 	virtual void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca){}; //called when catapult makes an attack
 	virtual void battleGateStateChanged(const BattleID & battleID, const EGateState state){};
 };

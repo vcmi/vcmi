@@ -58,53 +58,48 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	}
 }
 
-void BattleObstacleController::obstacleRemoved(const std::vector<ObstacleChanges> & obstacles)
+void BattleObstacleController::obstacleRemoved(const ObstacleChanges & oi)
 {
-	for(const auto & oi : obstacles)
+	auto & obstacle = oi.data["obstacle"];
+
+	if (!obstacle.isStruct())
 	{
-		auto & obstacle = oi.data["obstacle"];
-
-		if (!obstacle.isStruct())
-		{
-			logGlobal->error("I don't know how to animate removal of this obstacle");
-			continue;
-		}
-
-		AnimationPath animationPath;
-		JsonDeserializer ser(nullptr, obstacle);
-		ser.serializeStruct("appearAnimation", animationPath);
-
-		if(animationPath.empty())
-			continue;
-
-		auto animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
-		auto first = animation->getImage(0, 0);
-		if(!first)
-			continue;
-
-		//we assume here that effect graphics have the same size as the usual obstacle image
-		// -> if we know how to blit obstacle, let's blit the effect in the same place
-		Point whereTo = getObstaclePosition(first, obstacle);
-		//AFAIK, in H3 there is no sound of obstacle removal
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
-
-		obstacleAnimations.erase(oi.id);
-		obstacleImages.erase(oi.id);
-		//so when multiple obstacles are removed, they show up one after another
-		owner.waitForAnimations();
+		logGlobal->error("I don't know how to animate removal of this obstacle");
+		return;
 	}
+
+	AnimationPath animationPath;
+	JsonDeserializer ser(nullptr, obstacle);
+	ser.serializeStruct("appearAnimation", animationPath);
+
+	if(animationPath.empty())
+		return;
+
+	auto animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
+	auto first = animation->getImage(0, 0);
+	if(!first)
+		return;
+
+	//we assume here that effect graphics have the same size as the usual obstacle image
+	// -> if we know how to blit obstacle, let's blit the effect in the same place
+	Point whereTo = getObstaclePosition(first, obstacle);
+	//AFAIK, in H3 there is no sound of obstacle removal
+	owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
+
+	obstacleAnimations.erase(oi.id);
+	obstacleImages.erase(oi.id);
+	//obstacles are removed one at a time, so multiple removals still show up one after another
+	owner.waitForAnimations();
 }
 
-void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+void BattleObstacleController::obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi)
 {
 	auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
-	bool hasNativeStack = owner.getBattle()->battleHasNativeStack(side);
 
 	// spells that place several obstacles (e.g. Land Mine) send them as separate packs, so queue
 	// them here and play their placement animations one after another across all such calls
-	for(const auto & oi : obstacles)
-		if(oi->visibleForSide(side, hasNativeStack))
-			obstaclePlacementQueue.push_back(oi);
+	if(oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
+		obstaclePlacementQueue.push_back(oi);
 
 	placeNextObstacle();
 }
