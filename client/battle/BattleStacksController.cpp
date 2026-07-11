@@ -499,7 +499,11 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			});
 		}
 	}
-	owner.executeStagedAnimations();
+	// If an attacker or spell-caster animation is still playing, let it drive the hit stage at its own
+	// climax (e.g. only once a spell projectile has reached the target). Firing the stage here would
+	// play the hit effects immediately, before the projectile lands.
+	if(currentAnimations.empty())
+		owner.executeStagedAnimations();
 	owner.waitForAnimations();
 }
 
