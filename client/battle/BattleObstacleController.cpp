@@ -80,15 +80,12 @@ void BattleObstacleController::obstacleRemoved(const ObstacleChanges & oi)
 	if(!first)
 		return;
 
-	//we assume here that effect graphics have the same size as the usual obstacle image
-	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = getObstaclePosition(first, obstacle);
 	//AFAIK, in H3 there is no sound of obstacle removal
 	owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
 
 	obstacleAnimations.erase(oi.id);
 	obstacleImages.erase(oi.id);
-	//obstacles are removed one at a time, so multiple removals still show up one after another
 	owner.waitForAnimations();
 }
 
@@ -96,8 +93,7 @@ void BattleObstacleController::obstaclePlaced(const std::shared_ptr<const CObsta
 {
 	auto side = owner.getBattle()->playerToSide(owner.curInt->playerID);
 
-	// spells that place several obstacles (e.g. Land Mine) send them as separate packs, so queue
-	// them here and play their placement animations one after another across all such calls
+	// second animation from the same spell - enqueue it
 	if(oi->visibleForSide(side, owner.getBattle()->battleHasNativeStack(side)))
 		obstaclePlacementQueue.push_back(oi);
 
@@ -120,8 +116,6 @@ void BattleObstacleController::placeNextObstacle()
 		return;
 	}
 
-	//we assume here that effect graphics have the same size as the usual obstacle image
-	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = getObstaclePosition(first, *oi);
 	ENGINE->sound().playSound( oi->getAppearSound() );
 
@@ -129,11 +123,7 @@ void BattleObstacleController::placeNextObstacle()
 	auto effect = new EffectAnimation(owner, oi->getAppearAnimation(), whereTo, oi->pos);
 	effect->onFinished = [this, oi]()
 	{
-		// permanent obstacle graphic appears exactly when its placement animation ends,
-		// independently of the caster's spell animation
 		loadObstacleImage(*oi);
-		// starting the next obstacle here (before this effect is removed) leaves no gap in
-		// pending animations, so the caster stays frozen until every obstacle is placed
 		placingObstacle = false;
 		placeNextObstacle();
 	};
