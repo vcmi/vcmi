@@ -28,6 +28,7 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/entities/building/TownFortifications.h"
+#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -202,6 +203,11 @@ BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTo
 		auto fullState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
 		wallPieceImages[g] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(g), fullState), EImageBlitMode::COLORKEY);
 	}
+
+	// optional: not every town ships the drawbridge front overlay
+	auto gateFrontPath = ImagePath::builtinTODO(getSiegePrefix() + "DRWC.BMP");
+	if (town->fortificationsLevel().wallsHealth > 0 && CResourceHandler::get()->existsResource(gateFrontPath))
+		gateFrontImage = ENGINE->renderHandler().loadImage(gateFrontPath, EImageBlitMode::COLORKEY);
 }
 
 const CCreature *BattleSiegeController::getTurretCreature(const BattleHex & position) const
@@ -339,6 +345,16 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 		}
 		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 			showWallPiece(canvas, wallPiece);
+		});
+	}
+
+	if (gateFrontImage && owner.getBattle()->battleGetGateState() == EGateState::OPENED &&
+		owner.getBattle()->battleGetWallState(EWallPart::GATE) != EWallState::DESTROYED)
+	{
+		renderer.insert( EBattleFieldLayer::OBSTACLES, BattleHex(BattleHex::GATE_BRIDGE), [this](BattleRenderer::RendererRef canvas){
+			const auto & pos = town->getTown()->clientInfo.siegePositions[EWallVisual::GATE];
+			if (pos.isValid())
+				canvas.draw(gateFrontImage, Point(pos.x, pos.y));
 		});
 	}
 }

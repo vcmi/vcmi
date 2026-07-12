@@ -72,6 +72,9 @@ class BattleSiegeController
 	/// sections of castle walls, in their currently visible state
 	std::array<std::shared_ptr<IImage>, EWallVisual::WALL_LAST + 1> wallPieceImages;
 
+	/// drawbridge front overlay (chains), drawn over units standing on the lowered bridge
+	std::shared_ptr<IImage> gateFrontImage;
+
 	/// return URI for image for a wall piece
 	ImagePath getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
 
