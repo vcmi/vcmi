@@ -55,6 +55,7 @@ set(editor_SRCS
 		campaigneditor/campaignview.cpp
 		androidfilepicker.cpp
 		editorfiledialog.cpp
+		maplayerselectiondialog.cpp
 )
 if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_SRCS
@@ -122,6 +123,7 @@ set(editor_HEADERS
 		inspector/scholarwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
+		maplayerselectiondialog.h
 		helper.h
 		campaigneditor/campaigneditor.h
 		campaigneditor/campaignproperties.h

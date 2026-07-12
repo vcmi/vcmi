@@ -143,6 +143,11 @@ public:
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 
+	/// Per-level map layer IDs.
+	/// Defaults are set based on level count: SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
+	void setLevelMapLayers(const std::vector<MapLayerId> & value);
+	const std::vector<MapLayerId> & getLevelMapLayers() const;
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.
@@ -181,6 +186,8 @@ private:
 	bool customizedPlayers;
 	
 	const CRmgTemplate * mapTemplate;
+	
+	std::vector<MapLayerId> levelMapLayers;
 
 public:
 	template <typename Handler>
@@ -223,6 +230,11 @@ public:
 		}
 
 		h & enabledRoads;
+
+		if (h.version >= Handler::Version::MAP_GEN_LEVEL_MAP_LAYERS)
+			h & levelMapLayers;
+		else if (!h.saving)
+			levelMapLayers.clear();
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);

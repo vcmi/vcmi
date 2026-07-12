@@ -112,9 +112,12 @@ private slots:
 	
 	void on_sizeCustomRadio_toggled(bool checked);
 
+	void on_btnMapLayers_clicked();
+
 private:
 
 	void updateTemplateList();
+	void initDefaultMapLayers();
 
 	bool loadUserSettings();
 	void saveUserSettings();

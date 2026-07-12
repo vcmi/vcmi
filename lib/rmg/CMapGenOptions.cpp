@@ -28,6 +28,16 @@ CMapGenOptions::CMapGenOptions()
 	customizedPlayers(false)
 {
 	initPlayersMap();
+	// Default layers: SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest
+	for(int i = 0; i < levels; i++)
+	{
+		if(i == 0)
+			levelMapLayers.push_back(MapLayerId::SURFACE);
+		else if(i == 1)
+			levelMapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			levelMapLayers.push_back(MapLayerId::UNKNOWN);
+	}
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -851,9 +861,27 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeIdArray("roads", enabledRoads);
+	if(!handler.saving && handler.getCurrent()["levelMapLayers"].isNull())
+	{
+		// Old settings without levelMapLayers — keep constructor defaults
+	}
+	else
+	{
+		handler.enterArray("levelMapLayers").serializeArray(levelMapLayers);
+	}
 	if (!handler.saving)
 	{
 		// Player settings won't be saved
 		resetPlayersMap();
 	}
+}
+
+void CMapGenOptions::setLevelMapLayers(const std::vector<MapLayerId> & value)
+{
+	levelMapLayers = value;
+}
+
+const std::vector<MapLayerId> & CMapGenOptions::getLevelMapLayers() const
+{
+	return levelMapLayers;
 }

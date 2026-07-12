@@ -320,6 +320,19 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="btnMapLayers">
+       <property name="text">
+        <string>Layer</string>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
   </widget>
