@@ -124,4 +124,5 @@ private:
 
 	CMapGenOptions mapGenOptions;
 	bool randomMap = false;
+	bool layerWarningShown = false;
 };

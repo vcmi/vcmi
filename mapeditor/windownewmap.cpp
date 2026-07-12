@@ -345,8 +345,11 @@ void WindowNewMap::on_sizeCombo_activated(int index)
 
 void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	if(value > 2)
+	if(value > 2 && !layerWarningShown)
+	{
 		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+		layerWarningShown = true;
+	}
 
 	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
