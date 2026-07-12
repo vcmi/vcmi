@@ -68,6 +68,7 @@ RandomMapTab::RandomMapTab():
 			mapGenOptions->setLevels(2); // standard setup supports at most 2 levels
 		else
 			mapGenOptions->setLevels(on ? 2 : 1);
+		mapGenOptions->resetLevelMapLayers();
 		if(mapGenOptions->getMapTemplate())
 			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
@@ -239,6 +240,14 @@ void RandomMapTab::onToggleMapSize(int btnId)
 			mapGenOptions->setWidth(ret.x);
 			mapGenOptions->setHeight(ret.y);
 			mapGenOptions->setLevels(ret.z);
+			{
+				auto layers = mapGenOptions->getLevelMapLayers();
+				if (layers.size() > ret.z)
+					layers.resize(ret.z);
+				while (layers.size() < ret.z)
+					layers.push_back(layers.size() == 0 ? MapLayerId::SURFACE : layers.size() == 1 ? MapLayerId::UNDERGROUND : MapLayerId::UNKNOWN);
+				mapGenOptions->setLevelMapLayers(layers);
+			}
 			customMapSizeMode = true;
 			if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
 				twoLevelsButton->setSelectedSilent(ret.z == 2);
@@ -256,6 +265,7 @@ void RandomMapTab::onToggleMapSize(int btnId)
 	customMapSizeMode = false;
 	const int targetLevelCount = mapGenOptions->getLevels() > 1 ? 2 : 1;
 	mapGenOptions->setLevels(targetLevelCount);
+	mapGenOptions->resetLevelMapLayers();
 	if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
 		twoLevelsButton->setSelectedSilent(targetLevelCount == 2);
 	setTemplateForSize();
@@ -911,7 +921,6 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	buttonCancel = std::make_shared<CButton>(Point(centerX + 10, pos.h - 40), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	buttonOk = std::make_shared<CButton>(Point(centerX - 80, pos.h - 40), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, &randomMapTab](){
 		randomMapTab.obtainMapGenOptions().setLevelMapLayers(selectedLayers);
-		randomMapTab.updateMapInfoByHost();
 		close();
 	}, EShortcut::GLOBAL_ACCEPT);
 

@@ -148,6 +148,10 @@ public:
 	void setLevelMapLayers(const std::vector<MapLayerId> & value);
 	const std::vector<MapLayerId> & getLevelMapLayers() const;
 
+	/// Reset per-level map layers to defaults based on current level count.
+	/// SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
+	void resetLevelMapLayers();
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.

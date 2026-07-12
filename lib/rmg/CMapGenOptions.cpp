@@ -72,6 +72,20 @@ void CMapGenOptions::setLevels(int value)
 	levels = value;
 }
 
+void CMapGenOptions::resetLevelMapLayers()
+{
+	levelMapLayers.clear();
+	for (int i = 0; i < levels; i++)
+	{
+		if (i == 0)
+			levelMapLayers.push_back(MapLayerId::SURFACE);
+		else if (i == 1)
+			levelMapLayers.push_back(MapLayerId::UNDERGROUND);
+		else
+			levelMapLayers.push_back(MapLayerId::UNKNOWN);
+	}
+}
+
 si8 CMapGenOptions::getHumanOrCpuPlayerCount() const
 {
 	return humanOrCpuPlayerCount;
@@ -439,6 +453,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 			setWidth(sizes.first.x);
 			setHeight(sizes.first.y);
 			setLevels(sizes.first.z);
+			resetLevelMapLayers();
 		}
 
 		si8 maxPlayerCount = getMaxPlayersCount(false);
@@ -496,7 +511,16 @@ void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & tea
 
 void CMapGenOptions::finalize(vstd::RNG & rand)
 {
-	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getLevels() >= 2 ? "WITH" : "NO");
+	{
+		std::string layersStr;
+		for(size_t i = 0; i < levelMapLayers.size(); i++)
+		{
+			if(i > 0)
+				layersStr += "/";
+			layersStr += MapLayerId::encode(levelMapLayers[i].getNum());
+		}
+		logGlobal->info("RMG map: %dx%d, %s", getWidth(), getHeight(), layersStr.c_str());
+	}
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getHumanOrCpuPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
