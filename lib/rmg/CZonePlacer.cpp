@@ -256,6 +256,14 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	for (int i = 0; i < mapLevels; i++)
 		zonesOnLevel[i] = 0;
 
+	const auto & mapLayers = map.getMapGenOptions().getLevelMapLayers();
+
+	auto findLevelByLayer = [&](MapLayerId layer) -> int {
+		for (int i = 0; i < mapLevels; i++)
+			if (mapLayers[i] == layer) return i;
+		return -1;
+	};
+
 	//even distribution for surface / underground zones. Surface zones always have priority.
 
 	TZoneVector zonesToPlace;
@@ -266,12 +274,12 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 		int minCount = std::numeric_limits<int>::max();
 
 		for (const auto& [level, count] : zonesOnLevel) {
-			if (ignoreUnderground && level == 1)
+			if (ignoreUnderground && mapLayers[level] != MapLayerId::SURFACE)
 				continue;
 
 			if (count < minCount ||
-				(count == minCount && level == 0) ||
-				(count == minCount && chosenLevel != 0 && level < chosenLevel))
+				(count == minCount && mapLayers[level] == MapLayerId::SURFACE && mapLayers[chosenLevel] != MapLayerId::SURFACE) ||
+				(count == minCount && mapLayers[chosenLevel] != MapLayerId::SURFACE && level < chosenLevel))
 			{
 				chosenLevel = level;
 				minCount = count;
@@ -295,17 +303,20 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 		auto forcedLevel = zone.second->getForcedLevel();
 		if (forcedLevel == EZoneLevel::SURFACE)
 		{
-			// Force to surface (level 0)
-			levels[zone.first] = 0;
-			zonesOnLevel[0]++;
+			// Force to surface
+			int targetLevel = findLevelByLayer(MapLayerId::SURFACE);
+			if (targetLevel < 0) targetLevel = 0;
+			levels[zone.first] = targetLevel;
+			zonesOnLevel[targetLevel]++;
 			continue;
 		}
 		else if (forcedLevel == EZoneLevel::UNDERGROUND)
 		{
-			// Force to underground (level 1)
-			// mapLevels > 1 is guaranteed here since mapLevels == 1 was handled above
-			levels[zone.first] = 1;
-			zonesOnLevel[1]++;
+			// Force to underground
+			int targetLevel = findLevelByLayer(MapLayerId::UNDERGROUND);
+			if (targetLevel < 0) targetLevel = 0;
+			levels[zone.first] = targetLevel;
+			zonesOnLevel[targetLevel]++;
 			continue;
 		}
 		// forcedLevel == AUTOMATIC - continue with normal logic
@@ -352,10 +363,11 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					if(hasUndergroundTerrain && !hasSurfaceTerrain)
 					{
 						// underground only
-						if (mapLevels > 1)
+						int targetLevel = findLevelByLayer(MapLayerId::UNDERGROUND);
+						if (targetLevel >= 0)
 						{
-							zonesOnLevel[1]++;
-							levels[zone.first] = 1;
+							zonesOnLevel[targetLevel]++;
+							levels[zone.first] = targetLevel;
 						}
 						else
 						{

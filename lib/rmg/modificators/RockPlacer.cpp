@@ -82,9 +82,9 @@ void RockPlacer::postProcess()
 void RockPlacer::init()
 {
 	DEPENDENCY(RoadPlacer);
-	for (const auto& zone : map.getZonesOnLevel(1))
+	for (const auto& z : map.getZonesOnLevel(zone.getPos().z))
 	{
-		auto * tp = zone.second->getModificator<TreasurePlacer>();
+		auto * tp = z.second->getModificator<TreasurePlacer>();
 		if (tp)
 		{
 			dependency(tp);
