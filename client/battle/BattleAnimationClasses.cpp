@@ -1208,3 +1208,24 @@ void HeroCastAnimation::tick(uint32_t msPassed)
 
 	hero->play();
 }
+
+ChainLightningAnimation::ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell):
+	BattleAnimation(owner),
+	caster(caster),
+	targetPoints(targetPoints),
+	spell(spell)
+{
+}
+
+bool ChainLightningAnimation::init()
+{
+	owner.projectilesController->createSpellRayProjectile(caster, targetPoints, spell->animationInfo.ray, spell->animationInfo.rayJaggedness, spell->animationInfo.rayHopDelay, spell->animationInfo.rayWidth);
+	return true;
+}
+
+void ChainLightningAnimation::tick(uint32_t msPassed)
+{
+	// the animation only exists to keep the caster frozen and block waitForAnimations until the ray lands
+	if(!owner.projectilesController->hasActiveProjectile(caster, false))
+		delete this;
+}

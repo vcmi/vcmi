@@ -89,11 +89,6 @@ public:
 
 	struct CreatureAnimation
 	{
-		struct RayColor {
-			ColorRGBA start;
-			ColorRGBA end;
-		};
-
 		double timeBetweenFidgets, idleAnimationTime,
 			   walkAnimationTime, attackAnimationTime;
 		int upperRightMissileOffsetX, rightMissileOffsetX, lowerRightMissileOffsetX,

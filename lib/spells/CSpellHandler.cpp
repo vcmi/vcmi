@@ -431,6 +431,15 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		spell->animationInfo.projectile.push_back(info);
 	}
 
+	const JsonNode & rayNode = animationNode["ray"];
+	spell->animationInfo.rayJaggedness = rayNode["jaggedness"].Float();
+	if(rayNode["hopDelay"].Float() > 0)
+		spell->animationInfo.rayHopDelay = rayNode["hopDelay"].Float() / 1000.f;
+	if(rayNode["width"].Integer() > 0)
+		spell->animationInfo.rayWidth = static_cast<int>(rayNode["width"].Integer());
+	for(const JsonNode & value : rayNode["colors"].Vector())
+		spell->animationInfo.ray.push_back(RayColor::fromJson(value));
+
 	const JsonNode & soundsNode = json["sounds"];
 	spell->castSound = AudioPath::fromJson(soundsNode["cast"]);
 

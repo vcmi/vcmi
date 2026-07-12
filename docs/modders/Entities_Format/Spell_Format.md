@@ -182,6 +182,34 @@ TODO
 }
 ```
 
+### Chaining ray
+
+Some spells (such as Chain Lightning) hit several targets in a row. You can draw a
+lightning-like ray that jumps from one target to the next by adding a `ray` block to
+the animation. The ray is a bundle of colored lines with a slightly random, zig-zag
+shape. The first target still shows the full `affect` animation; the ray only connects
+the targets to each other.
+
+```json
+"animation": {
+	"affect": [ {"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1" ],
+	"ray": {
+		"jaggedness": 0.2,
+		"hopDelay": 100,
+		"width": 16,
+		"colors": [
+			{ "start": [ 100, 140, 255,  96 ], "end": [ 100, 140, 255,  48 ] },
+			{ "start": [ 255, 255, 255, 255 ], "end": [ 255, 255, 255, 224 ] }
+		]
+	}
+}
+```
+
+- `jaggedness` — how strongly the ray zig-zags between targets. `0` is a straight line, higher values (around `0.2`) give a lightning look.
+- `hopDelay` — delay in milliseconds before the ray jumps to the next target. The ray appears instantly on each target, one after another, with this pause between jumps.
+- `width` — thickness of the ray in pixels.
+- `colors` — the ray's color, from its outer edge to its center. Each entry has a `start` and `end` color (the color at the beginning and at the end of the ray), given as `[red, green, blue, transparency]` with values from 0 to 255. List the outer-edge color first and the center color last; the colors in between are blended automatically and the ray is drawn symmetrically. Use a low transparency for the edges and a high one for the center to get a glowing core.
+
 ## Spell level base format
 
 Json object with data common for all levels can be put here. These configuration parameters will be default for all levels. All mandatory level fields become optional if they equal "base" configuration.

@@ -382,3 +382,17 @@ public:
 	void tick(uint32_t msPassed) override;
 	bool init() override;
 };
+
+/// Drives the jagged ray chaining between chain-lightning targets; waits until the ray finishes flying
+class ChainLightningAnimation : public BattleAnimation
+{
+	const CStack * caster;
+	std::vector<Point> targetPoints;
+	const CSpell * spell;
+
+public:
+	ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell);
+
+	bool init() override;
+	void tick(uint32_t msPassed) override;
+};

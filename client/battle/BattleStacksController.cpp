@@ -499,12 +499,13 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			});
 		}
 	}
-	// If an attacker or spell-caster animation is still playing, let it drive the hit stage at its own
-	// climax (e.g. only once a spell projectile has reached the target). Firing the stage here would
-	// play the hit effects immediately, before the projectile lands.
-	if(currentAnimations.empty())
+	// while a spell cast is queued/playing, let it drive and batch the hit stage (endAction does the final sync)
+	// so per-unit damage packs (e.g. chain lightning) play together instead of one-by-one
+	if(currentAnimations.empty() && !owner.hasQueuedStage(EAnimationEvents::BEFORE_HIT))
+	{
 		owner.executeStagedAnimations();
-	owner.waitForAnimations();
+		owner.waitForAnimations();
+	}
 }
 
 void BattleStacksController::stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance)

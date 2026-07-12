@@ -196,6 +196,8 @@ public:
 	void waitForAnimations();
 	bool hasAnimations();
 	void checkForAnimations();
+	/// true if an action for the given animation stage is still queued (not yet executed)
+	bool hasQueuedStage(EAnimationEvents event) const;
 	void addToAnimationStage( EAnimationEvents event, const AwaitingAnimationAction & action);
 
 	//call-ins

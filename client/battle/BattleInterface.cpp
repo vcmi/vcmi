@@ -462,16 +462,51 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		displaySpellHit(spell, targetedTile);
 	});
 
+	// a chain ray (e.g. chain lightning) shows the full affect only on the primary target and connects the rest with a jagged bolt
+	const bool usesChainRay = !spell->animationInfo.ray.empty() && !sc->affectedCres.empty();
+
 	//queuing affect animation
-	for(auto & elem : sc->affectedCres)
+	if(usesChainRay)
 	{
-		auto stack = getBattle()->battleGetStackByID(elem, false);
-		assert(stack);
-		if(stack)
+		// primary target keeps the full affect; the remaining (spark) animations play on every chained target,
+		// and each target's screen position feeds the connecting ray (in chain-hop order)
+		const auto & affect = spell->animationInfo.affect;
+		SpellAnimationQueue sparks(affect.begin() + (affect.empty() ? 0 : 1), affect.end());
+
+		std::vector<Point> targetPoints;
+		for(size_t i = 0; i < sc->affectedCres.size(); ++i)
 		{
-			addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell](){
-				displaySpellEffect(spell, stack->getPosition());
-			});
+			auto stack = getBattle()->battleGetStackByID(sc->affectedCres[i], false);
+			if(!stack)
+				continue;
+
+			BattleHex hex = stack->getPosition();
+			if(i == 0)
+				addToAnimationStage(EAnimationEvents::HIT, [this, spell, hex](){ displaySpellEffect(spell, hex); });
+			else
+				addToAnimationStage(EAnimationEvents::HIT, [this, spell, sparks, hex](){ displaySpellAnimationQueue(spell, sparks, hex, false); });
+
+			Point directionOffset(30, 0);
+			targetPoints.push_back(stacksController->getStackPositionAtHex(hex, stack) + Point(225, 225) + (stacksController->facingRight(stack) ? -directionOffset : directionOffset));
+		}
+
+		const CStack * casterStack = getBattle()->battleGetStackByID(sc->casterStack);
+		addToAnimationStage(EAnimationEvents::HIT, [this, casterStack, targetPoints, spell](){
+			stacksController->addNewAnim(new ChainLightningAnimation(*this, casterStack, targetPoints, spell));
+		});
+	}
+	else
+	{
+		for(auto & elem : sc->affectedCres)
+		{
+			auto stack = getBattle()->battleGetStackByID(elem, false);
+			assert(stack);
+			if(stack)
+			{
+				addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell](){
+					displaySpellEffect(spell, stack->getPosition());
+				});
+			}
 		}
 	}
 
@@ -646,6 +681,10 @@ std::shared_ptr<CPlayerBattleCallback> BattleInterface::getBattle() const
 
 void BattleInterface::endAction(const BattleAction &action)
 {
+	// deferred spell hit reactions (e.g. chain lightning) are left undriven; start them so the wait below completes them
+	if(!awaitingEvents.empty() && !hasAnimations())
+		executeStagedAnimations();
+
 	// it is possible that tactics mode ended while opening music is still playing
 	waitForAnimations();
 
@@ -888,6 +927,14 @@ void BattleInterface::checkForAnimations()
 void BattleInterface::addToAnimationStage(EAnimationEvents event, const AwaitingAnimationAction & action)
 {
 	awaitingEvents.push_back({action, event});
+}
+
+bool BattleInterface::hasQueuedStage(EAnimationEvents event) const
+{
+	for(const auto & e : awaitingEvents)
+		if(e.event == event)
+			return true;
+	return false;
 }
 
 void BattleInterface::setBattleQueueVisibility(bool visible)
