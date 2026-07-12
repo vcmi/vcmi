@@ -395,7 +395,8 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.SIEGE_WEAPON" : "absolute",
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
@@ -447,7 +448,8 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.SIEGE_WEAPON" : "absolute",
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
