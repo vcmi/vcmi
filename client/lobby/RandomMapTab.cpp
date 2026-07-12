@@ -245,7 +245,7 @@ void RandomMapTab::onToggleMapSize(int btnId)
 				if (layers.size() > ret.z)
 					layers.resize(ret.z);
 				while (layers.size() < ret.z)
-					layers.push_back(layers.size() == 0 ? MapLayerId::SURFACE : layers.size() == 1 ? MapLayerId::UNDERGROUND : MapLayerId::UNKNOWN);
+					layers.push_back(CMapGenOptions::getDefaultLayerForLevel(static_cast<int>(layers.size())));
 				mapGenOptions->setLevelMapLayers(layers);
 			}
 			customMapSizeMode = true;
@@ -883,15 +883,7 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	selectedLayers = options.getLevelMapLayers();
 	// Pad with defaults if the level count increased
 	while(selectedLayers.size() < levels)
-	{
-		int idx = static_cast<int>(selectedLayers.size());
-		if(idx == 0)
-			selectedLayers.push_back(MapLayerId::SURFACE);
-		else if(idx == 1)
-			selectedLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			selectedLayers.push_back(MapLayerId::UNKNOWN);
-	}
+		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(static_cast<int>(selectedLayers.size())));
 	if(selectedLayers.size() > levels)
 		selectedLayers.resize(levels);
 	const auto & layerTypes = LIBRARY->mapLayerHandler->objects;

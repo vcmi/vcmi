@@ -245,14 +245,7 @@ void WindowNewMap::initDefaultMapLayers()
 {
 	std::vector<MapLayerId> layers;
 	for(int i = 0; i < ui->spinBoxLevels->value(); i++)
-	{
-		if(i == 0)
-			layers.push_back(MapLayerId::SURFACE);
-		else if(i == 1)
-			layers.push_back(MapLayerId::UNDERGROUND);
-		else
-			layers.push_back(MapLayerId::UNKNOWN);
-	}
+		layers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
 	mapGenOptions.setLevelMapLayers(layers);
 }
 

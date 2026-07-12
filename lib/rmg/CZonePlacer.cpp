@@ -270,7 +270,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	std::map<TRmgTemplateZoneId, int> levels;
 
 	auto addZoneEqually = [&](auto & zone, bool ignoreUnderground = false) {
-		int chosenLevel = -1;
+		int chosenLevel = 0;
 		int minCount = std::numeric_limits<int>::max();
 
 		for (const auto& [level, count] : zonesOnLevel) {

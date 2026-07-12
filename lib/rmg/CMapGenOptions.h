@@ -152,6 +152,10 @@ public:
 	/// SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
 	void resetLevelMapLayers();
 
+	/// Get the default MapLayerId for a given level index.
+	/// Level 0\t→ SURFACE, level 1 → UNDERGROUND, 2+ → UNKNOWN.
+	static MapLayerId getDefaultLayerForLevel(int levelIndex);
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.

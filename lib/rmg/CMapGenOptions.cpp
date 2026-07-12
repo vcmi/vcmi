@@ -28,16 +28,7 @@ CMapGenOptions::CMapGenOptions()
 	customizedPlayers(false)
 {
 	initPlayersMap();
-	// Default layers: SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest
-	for(int i = 0; i < levels; i++)
-	{
-		if(i == 0)
-			levelMapLayers.push_back(MapLayerId::SURFACE);
-		else if(i == 1)
-			levelMapLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			levelMapLayers.push_back(MapLayerId::UNKNOWN);
-	}
+	resetLevelMapLayers();
 }
 
 si32 CMapGenOptions::getWidth() const
@@ -76,14 +67,7 @@ void CMapGenOptions::resetLevelMapLayers()
 {
 	levelMapLayers.clear();
 	for (int i = 0; i < levels; i++)
-	{
-		if (i == 0)
-			levelMapLayers.push_back(MapLayerId::SURFACE);
-		else if (i == 1)
-			levelMapLayers.push_back(MapLayerId::UNDERGROUND);
-		else
-			levelMapLayers.push_back(MapLayerId::UNKNOWN);
-	}
+		levelMapLayers.push_back(getDefaultLayerForLevel(i));
 }
 
 si8 CMapGenOptions::getHumanOrCpuPlayerCount() const
@@ -898,6 +882,15 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 		// Player settings won't be saved
 		resetPlayersMap();
 	}
+}
+
+MapLayerId CMapGenOptions::getDefaultLayerForLevel(int levelIndex)
+{
+	if (levelIndex == 0)
+		return MapLayerId::SURFACE;
+	if (levelIndex == 1)
+		return MapLayerId::UNDERGROUND;
+	return MapLayerId::UNKNOWN;
 }
 
 void CMapGenOptions::setLevelMapLayers(const std::vector<MapLayerId> & value)
