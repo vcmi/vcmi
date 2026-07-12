@@ -856,7 +856,7 @@ void ApplyClientNetPackVisitor::visitSetStackEffect(SetStackEffect & pack)
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksEffectsSet, pack.battleID, pack);
 }
 
-void ApplyClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
+void ApplyFirstClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleStacksAttacked, pack.battleID, pack.stacks, false);
 }
