@@ -70,6 +70,6 @@ public:
 	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 
 private:
-	CRewardableObject & shrine;
 	MapController & controller;
+	CRewardableObject & shrine;
 };

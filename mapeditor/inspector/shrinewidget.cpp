@@ -18,6 +18,7 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjectConstructors/IObjectInfo.h"
 #include "../../lib/rewardable/Info.h"
+#include "../helper.h"
 #include "lib/CSkillHandler.h"
 #include "lib/GameLibrary.h"
 #include "lib/constants/StringConstants.h"
@@ -30,6 +31,7 @@ ShrineWidget::ShrineWidget(CRewardableObject & shrine, MapController & controlle
 	: QDialog(parent), ui(new Ui::ShrineWidget), shrine(shrine), extractor(controller.getCallback()), controller(controller)
 {
 	ui->setupUi(this);
+	Helper::decorateDialog(this);
 }
 
 ShrineWidget::~ShrineWidget()
@@ -77,7 +79,7 @@ si64 ShrineWidget::getSpellLevel()
 	JsonNode spellLevelNode;
 	try
 	{
-		spellLevelNode = static_cast<Rewardable::Info *>(objectInfo.get())->getParameters()["variables"][PRESET_CATEGORY][PRESET_NAME]["level"];
+		spellLevelNode = dynamic_cast<Rewardable::Info &>(*objectInfo.get()).getParameters()["variables"][PRESET_CATEGORY][PRESET_NAME]["level"];
 	}
 	catch(std::runtime_error &)
 	{

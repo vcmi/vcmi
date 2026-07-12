@@ -159,10 +159,16 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			}
 			if(o->ID == MapObjectID::WITCH_HUT)
 			{
-				if(validatePreset(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities) == INVALID)
+				PresetState presetState = validatePreset(map, o, "secondarySkill", "gainedSkill", map->allowedAbilities);
+				if(presetState == INVALID)
 				{
-					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward")
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.")
 						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), true);
+				}
+				if(presetState == ILLEGAL)
+				{
+					issues.emplace(tr("A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.")
+						.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false);
 				}
 			}
 			if(o->ID == MapObjectID::SCHOLAR)
@@ -183,9 +189,16 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 						tr("A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?")
 							.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false);
 				}
+				if(presetStates.first == ILLEGAL || presetStates.second == ILLEGAL)
+				{
+					issues.emplace(
+						tr("A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.")
+							.arg(o->pos.x).arg(o->pos.y).arg(o->pos.z), false
+					);
+				}
 			}
-			std::set<MapObjectID> shrines{MapObjectID::SHRINE_OF_MAGIC_GESTURE, MapObjectID::SHRINE_OF_MAGIC_INCANTATION, MapObjectID::SHRINE_OF_MAGIC_THOUGHT};
-			if(shrines.contains(o->ID))
+			static constexpr std::array shrines{MapObjectID::SHRINE_OF_MAGIC_GESTURE, MapObjectID::SHRINE_OF_MAGIC_INCANTATION, MapObjectID::SHRINE_OF_MAGIC_THOUGHT};
+			if(vstd::contains(shrines, o->ID))
 			{
 				PresetState ps = validatePreset(map, o, "spell", "gainedSpell", map->allowedSpells);
 				if(ps == INVALID)
@@ -276,7 +289,9 @@ Validator::PresetState Validator::validatePreset(
 )
 {
 	JsonKeyExtractor keyExtractor(map->cb);
-	auto * rewardable = static_cast<CRewardableObject *>(object.get());
+	const auto * rewardable = dynamic_cast<CRewardableObject *>(object.get());
+	if(!rewardable)
+		return ILLEGAL;
 	JsonNode presetNode = rewardable->configuration.getPresetVariable(category, name);
 	if(presetNode.isNull()) //object is default configured
 		return VALID;

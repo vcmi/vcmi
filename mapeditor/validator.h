@@ -53,6 +53,7 @@ private:
 	{
         VALID,
         OVERWRITES_MAP_SETTINGS,
+        ILLEGAL,
         INVALID
 	};
 

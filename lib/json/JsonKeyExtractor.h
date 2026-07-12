@@ -21,7 +21,7 @@ public:
 
 	si32 loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
 
-	bool canOverwriteMapSettings(const JsonNode & value);
+	bool canOverwriteMapSettings(const JsonNode & value) const;
 
 private:
 	template<typename IdentifierType>
