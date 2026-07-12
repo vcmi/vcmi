@@ -226,11 +226,6 @@ void CButton::setSoundDisabled(bool on)
 	soundDisabled = on;
 }
 
-void CButton::setActOnDown(bool on)
-{
-	actOnDown = on;
-}
-
 void CButton::setHelp(const std::pair<std::string, std::string> & help)
 {
 	hoverTexts[0] = help.first;
@@ -271,9 +266,6 @@ void CButton::clickPressed(const Point & cursorPosition)
 			ENGINE->input().hapticFeedback();
 		}
 		setState(EButtonState::PRESSED);
-
-		if (actOnDown)
-			onButtonClicked();
 	}
 	else if(!soundDisabled && ENGINE->input().getCurrentInputMode() == InputMode::TOUCH)
 	{
@@ -291,8 +283,7 @@ void CButton::clickReleased(const Point & cursorPosition)
 		else
 			setState(EButtonState::NORMAL);
 
-		if (!actOnDown)
-			onButtonClicked();
+		onButtonClicked();
 	}
 }
 
@@ -379,7 +370,6 @@ CButton::CButton(Point position, const AnimationPath &defName, const std::pair<s
 	ButtonBase(position, defName, key, playerColoredButton),
 	callback(Callback),
 	helpBox(help.second),
-	actOnDown(false),
 	hoverable(false),
 	soundDisabled(false)
 {

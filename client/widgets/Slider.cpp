@@ -345,7 +345,6 @@ void CSlider::updateSlider()
 	ENGINE->renderHandler().updateGeneratedAssets();
 
 	slider = std::make_shared<CButton>(Point(), AnimationPath::builtin(sliderName), CButton::tooltip());
-	slider->setActOnDown(true);
 	slider->setSoundDisabled(true);
 }
 
