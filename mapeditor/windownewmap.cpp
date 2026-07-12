@@ -38,6 +38,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 
 	Helper::decorateDialog(this);
 
+	setFixedSize(this->width(), this->height());
+
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	setWindowModality(Qt::ApplicationModal);
