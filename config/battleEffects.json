@@ -84,12 +84,17 @@
 				"alpha" : 1.0
 			},
 			{
-				"time"  : 0.5,
+				"time"  : 0.6,
 				"color"  : [ 1.0, 0.0, 0.0, 1.0 ], //red
 				"alpha" : 1.0
 			},
 			{
-				"time" : 1.0,
+				"time"  : 1.4, //hold red so the flash is visible
+				"color"  : [ 1.0, 0.0, 0.0, 1.0 ],
+				"alpha" : 1.0
+			},
+			{
+				"time" : 2.0,
 				"alpha" : 1.0
 			},
 		],
