@@ -344,7 +344,14 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 
 void BattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
-	if (siegeController)
+	if (!siegeController)
+		return;
+
+	// a spell-caused catapult (earthquake, attacker == -1) applied while a hero cast is mid-flight must play
+	// at the caster's climax (HIT stage); otherwise the wall explosions appear before the hero's cast animation
+	if (ca.attacker == -1 && !awaitingEvents.empty())
+		addToAnimationStage(EAnimationEvents::HIT, [this, ca](){ siegeController->stackIsCatapulting(ca); });
+	else
 		siegeController->stackIsCatapulting(ca);
 }
 

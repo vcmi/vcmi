@@ -401,10 +401,22 @@ std::string BattleSiegeController::getTowersInfoText() const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
+	// swaps a wall piece to its current (damaged) sprite; gate state is handled separately
+	auto updateWallPiece = [this](EWallPart attackedPart)
+	{
+		int wallId = static_cast<int>(attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
+		if (wallId == EWallVisual::GATE)
+			return;
+		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackedPart));
+		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
+	};
+
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.getBattle()->battleGetStackByID(ca.attacker);
 		owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt));
+		owner.waitForAnimations();
+		updateWallPiece(ca.attackedPart);
 	}
 	else
 	{
@@ -413,17 +425,14 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		positions.push_back(owner.stacksController->getStackPositionAtHex(ca.destinationTile, nullptr) + Point(99, 120));
 
 		ENGINE->sound().playSound( AudioPath::builtin("WALLHIT") );
-		owner.stacksController->addNewAnim(new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions));
-		owner.fieldController->startShakeAnimation();
-	}
-	owner.waitForAnimations();
 
-	int wallId = static_cast<int>(ca.attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
-	//gate state changing handled separately
-	if (wallId != EWallVisual::GATE)
-	{
-		auto wallState = EWallState(owner.getBattle()->battleGetWallState(ca.attackedPart));
-		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
+		// swap the wall sprite when the explosion ends instead of blocking, so a mid-cast earthquake
+		// deferred into the caster's HIT stage does not wait for animations on the main thread
+		auto attackedPart = ca.attackedPart;
+		auto effect = new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions);
+		effect->onFinished = [updateWallPiece, attackedPart](){ updateWallPiece(attackedPart); };
+		owner.stacksController->addNewAnim(effect);
+		owner.fieldController->startShakeAnimation();
 	}
 }
 
