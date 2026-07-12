@@ -134,6 +134,7 @@ function Script:adjustAffectedHexes(mechanics, hexes, spellTarget)
 			end
 		end
 	end
+	return hexes
 end
 
 local function buildDescriptor(self, mechanics, side, hex, customSize)

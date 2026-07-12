@@ -42,6 +42,7 @@ end
 
 --- TODO
 function Script:adjustAffectedHexes(mechanics, hexes, spellTarget)
+	return hexes
 end
 
 --- TODO
