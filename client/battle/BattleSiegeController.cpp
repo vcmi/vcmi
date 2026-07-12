@@ -35,6 +35,9 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/callback/CCallback.h"
 
+// how long the partially-open drawbridge frame is shown while the bridge lowers or raises, in ms
+static constexpr uint32_t gateTransitionDuration = 200;
+
 const std::string & BattleSiegeController::getSiegePrefix() const
 {
 	const auto & siegePrefixes = town->getTown()->clientInfo.siegePrefix;
@@ -257,35 +260,55 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 void BattleSiegeController::gateStateChanged(const EGateState state)
 {
 	auto oldState = owner.getBattle()->battleGetGateState();
-	bool playSound = false;
-	auto stateId = EWallState::NONE;
-	switch(state)
+
+	bool wasClosed = oldState == EGateState::CLOSED || oldState == EGateState::BLOCKED;
+	bool isClosed  = state == EGateState::CLOSED || state == EGateState::BLOCKED;
+
+	// lowering (closed -> open) or raising (open -> closed) the bridge plays a short transition through the
+	// partially-open frame (DRW1); destruction, the initial state and closed<->blocked swaps apply immediately
+	bool animate = (state == EGateState::OPENED && wasClosed) || (isClosed && oldState == EGateState::OPENED);
+
+	if (animate)
 	{
-	case EGateState::CLOSED:
-		if (oldState != EGateState::BLOCKED)
-			playSound = true;
-		break;
-	case EGateState::BLOCKED:
-		if (oldState != EGateState::CLOSED)
-			playSound = true;
-		break;
-	case EGateState::OPENED:
-		playSound = true;
-		stateId = EWallState::DAMAGED;
-		break;
-	case EGateState::DESTROYED:
-		stateId = EWallState::DESTROYED;
-		break;
+		ENGINE->sound().playSound(soundBase::DRAWBRG);
+		// show the partially-open bridge now; tick() settles it to the final sprite after the transition delay
+		auto partialState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
+		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, partialState), EImageBlitMode::COLORKEY);
+		gateTransitionRemaining = gateTransitionDuration;
+		return;
 	}
 
-	if (oldState != EGateState::NONE && oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
-		wallPieceImages[EWallVisual::GATE] = nullptr;
+	gateTransitionRemaining = 0; // cancel any pending transition superseded by this immediate state
+	applyGateState(state);
+}
 
-	if (stateId != EWallState::NONE)
-		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE,  stateId), EImageBlitMode::COLORKEY);
+void BattleSiegeController::tick(uint32_t msPassed)
+{
+	if (gateTransitionRemaining == 0)
+		return;
 
-	if (playSound)
-		ENGINE->sound().playSound(soundBase::DRAWBRG);
+	if (msPassed >= gateTransitionRemaining)
+	{
+		gateTransitionRemaining = 0;
+		// apply the current gate state (not a stored target) so a mid-transition destruction is not overwritten
+		applyGateState(owner.getBattle()->battleGetGateState());
+	}
+	else
+		gateTransitionRemaining -= msPassed;
+}
+
+void BattleSiegeController::applyGateState(const EGateState state)
+{
+	auto stateId = EWallState::NONE;
+	if (state == EGateState::OPENED)
+		stateId = EWallState::DAMAGED;
+	else if (state == EGateState::DESTROYED)
+		stateId = EWallState::DESTROYED;
+
+	if (stateId == EWallState::NONE)
+		wallPieceImages[EWallVisual::GATE] = nullptr; // closed / blocked -> gate hidden, part of the static wall
+	else
+		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, stateId), EImageBlitMode::COLORKEY);
 }
 
 void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas)

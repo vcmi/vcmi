@@ -75,6 +75,9 @@ class BattleSiegeController
 	/// drawbridge front overlay (chains), drawn over units standing on the lowered bridge
 	std::shared_ptr<IImage> gateFrontImage;
 
+	/// ms left showing the partially-open bridge frame during a lower/raise transition; 0 = no transition active
+	uint32_t gateTransitionRemaining = 0;
+
 	/// return URI for image for a wall piece
 	ImagePath getWallPieceImageName(EWallVisual::EWallVisual what, EWallState state) const;
 
@@ -96,9 +99,13 @@ public:
 
 	/// call-ins from server
 	void gateStateChanged(const EGateState state);
+
+	/// swaps the gate to its final sprite for the given state; called by the bridge transition animation
+	void applyGateState(const EGateState state);
 	void stackIsCatapulting(const CatapultAttack & ca);
 
 	/// call-ins from other battle controllers
+	void tick(uint32_t msPassed);
 	void showAbsoluteObstacles(Canvas & canvas);
 	void collectRenderableObjects(BattleRenderer & renderer);
 
