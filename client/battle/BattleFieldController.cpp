@@ -231,17 +231,31 @@ void BattleFieldController::gesturePanning(const Point & initialPosition, const 
 
 void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
-	hoveredHex = getHexAtPosition(cursorPosition);
 	currentAttackOriginPoint = cursorPosition;
 
+	// hex rects of the bottom rows extend under the command panel, so only treat the cursor as hovering a hex
+	// when it is actually over the battlefield - otherwise hovering the panel leaks a unit range highlight
 	if (pos.isInside(cursorPosition))
+	{
+		hoveredHex = getHexAtPosition(cursorPosition);
 		owner.actionsController->onHexHovered(getHoveredHex());
+	}
 	else
+	{
+		hoveredHex = BattleHex::INVALID;
 		owner.actionsController->onHoverEnded();
+	}
 }
 
 void BattleFieldController::clickPressed(const Point & cursorPosition)
 {
+	// a click on the battlefield cancels ongoing auto-combat (H3 behavior)
+	if(owner.curInt->isAutoFightOn)
+	{
+		owner.curInt->isAutoFightOn = false;
+		return;
+	}
+
 	BattleHex selectedHex = getHoveredHex();
 
 	if (selectedHex != BattleHex::INVALID)

@@ -104,6 +104,11 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 	addShortcut(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, std::bind(&BattleWindow::bOpenActiveUnit, this));
 	addShortcut(EShortcut::BATTLE_OPEN_HOVERED_UNIT, std::bind(&BattleWindow::bOpenHoveredUnit, this));
 
+	addShortcut(EShortcut::BATTLE_TOGGLE_GRID, [this](){ this->toggleBattleSetting("cellBorders"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_MOUSE_SHADOW, [this](){ this->toggleBattleSetting("mouseShadow"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_MOVEMENT_SHADOW, [this](){ this->toggleBattleSetting("stackRange"); });
+	addShortcut(EShortcut::BATTLE_TOGGLE_STACK_INFO, [this](){ this->toggleStackInfoWindowsVisibility(); });
+
 	addShortcut(EShortcut::BATTLE_TOGGLE_QUEUE, [this](){ this->toggleQueueVisibility();});
 	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
 	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
@@ -313,6 +318,27 @@ void BattleWindow::toggleQueueVisibility()
 		showQueue();
 }
 
+void BattleWindow::toggleBattleSetting(const std::string & name)
+{
+	Settings setting = settings.write["battle"][name];
+	setting->Bool() = !setting->Bool();
+	owner.redrawBattlefield();
+}
+
+void BattleWindow::toggleStackInfoWindowsVisibility()
+{
+	Settings setting = settings.write["battle"]["stackInfoBasicPanel"];
+	setting->Bool() = !setting->Bool();
+	bool show = setting->Bool();
+
+	if(attackerStackWindow)
+		attackerStackWindow->setEnabled(show);
+	if(defenderStackWindow)
+		defenderStackWindow->setEnabled(show);
+
+	ENGINE->windows().totalRedraw();
+}
+
 void BattleWindow::hideQueue()
 {
 	if(settings["battle"]["showQueue"].Bool() == false)
@@ -440,7 +466,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showInfoWindows = settings["battle"]["stickyHeroInfoWindows"].Bool();
+	bool showInfoWindows = settings["battle"]["stackInfoBasicPanel"].Bool();
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
@@ -567,6 +593,12 @@ void BattleWindow::bSurrenderf()
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
 
+	if(ownHeroLossEndsScenario())
+	{
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.battle.escapeImpossibleCritical"));
+		return;
+	}
+
 	int cost = owner.getBattle()->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
@@ -582,10 +614,30 @@ void BattleWindow::bSurrenderf()
 	}
 }
 
+bool BattleWindow::ownHeroLossEndsScenario() const
+{
+	const CGHeroInstance * ownHero = nullptr;
+	if(owner.attackingHeroInstance && owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
+		ownHero = owner.attackingHeroInstance;
+	if(owner.defendingHeroInstance && owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getPlayerID())
+		ownHero = owner.defendingHeroInstance;
+
+	if(ownHero && ownHero->isMissionCritical())
+		return true;
+
+	return owner.curInt->cb->howManyTowns() == 0 && owner.curInt->cb->howManyHeroes() == 1;
+}
+
 void BattleWindow::bFleef()
 {
 	if (owner.actionsController->heroSpellcastingModeActive())
 		return;
+
+	if(ownHeroLossEndsScenario())
+	{
+		owner.curInt->showInfoDialog(LIBRARY->generaltexth->translate("vcmi.battle.escapeImpossibleCritical"));
+		return;
+	}
 
 	if ( owner.getBattle()->battleCanFlee() )
 	{

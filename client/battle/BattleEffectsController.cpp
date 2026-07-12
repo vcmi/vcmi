@@ -108,6 +108,7 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	case EActionType::BAD_MORALE:
 		owner.appendBattleLog(stack->formatGeneralMessage(-34));
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
+		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
 		break;
 	}
 

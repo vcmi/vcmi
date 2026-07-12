@@ -175,7 +175,16 @@ void BattleInterface::openingEnd()
 
 	onAnimationsFinished();
 	if(tacticsMode)
+	{
+		// h3 tactics phase tutorial
+		if(!persistentStorage["gui"]["tacticsPhaseHintShown"].Bool())
+		{
+			curInt->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.372"));
+			Settings s = persistentStorage.write["gui"]["tacticsPhaseHintShown"];
+			s->Bool() = true;
+		}
 		tacticNextStack(nullptr);
+	}
 	activateStack();
 	battleOpeningDelayActive = false;
 
