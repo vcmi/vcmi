@@ -401,13 +401,15 @@ std::string BattleSiegeController::getTowersInfoText() const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	// swaps a wall piece to its current (damaged) sprite; gate state is handled separately
+	// swaps a wall piece to its current (damaged) sprite
 	auto updateWallPiece = [this](EWallPart attackedPart)
 	{
 		int wallId = static_cast<int>(attackedPart) + EWallVisual::DESTRUCTIBLE_FIRST;
-		if (wallId == EWallVisual::GATE)
-			return;
 		auto wallState = EWallState(owner.getBattle()->battleGetWallState(attackedPart));
+		// the gate's open/close transitions are driven by BattleUpdateGateState; sync only its destroyed sprite
+		// here so a broken gate updates on the breaking shot instead of after the whole catapult sequence
+		if (wallId == EWallVisual::GATE && wallState != EWallState::DESTROYED)
+			return;
 		wallPieceImages[wallId] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState), EImageBlitMode::COLORKEY);
 	};
 
