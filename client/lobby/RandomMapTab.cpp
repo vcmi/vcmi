@@ -227,6 +227,9 @@ void RandomMapTab::onToggleMapSize(int btnId)
 
 	if(isCustomSizeButtonId(btnId))
 	{
+		// Don't create window when called from within OBJECT_CONSTRUCTION (e.g. updateAfterStateChange on network thread)
+		if(ENGINE->captureChildren)
+			return;
 		ENGINE->windows().createAndPushWindow<SetSizeWindow>(*this, int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), mapGenOptions->getMapTemplate(), [this, setTemplateForSize](int3 ret){
 			if(ret.z > 2)
 			{
