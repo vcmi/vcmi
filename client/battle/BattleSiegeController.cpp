@@ -414,9 +414,15 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.getBattle()->battleGetStackByID(ca.attacker);
-		owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt));
+		auto catapult = new CatapultAnimation(owner, stack, ca.destinationTile, nullptr, ca.damageDealt);
+		catapult->onExplosion = [this, updateWallPiece, ca]()
+		{
+			updateWallPiece(ca.attackedPart);
+			if (ca.killedTowerShooter != -1)
+				owner.stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
+		};
+		owner.stacksController->addNewAnim(catapult);
 		owner.waitForAnimations();
-		updateWallPiece(ca.attackedPart);
 	}
 	else
 	{
@@ -426,11 +432,11 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		ENGINE->sound().playSound( AudioPath::builtin("WALLHIT") );
 
-		// swap the wall sprite when the explosion ends instead of blocking, so a mid-cast earthquake
+		// swap the wall sprite at the explosion midpoint instead of blocking, so a mid-cast earthquake
 		// deferred into the caster's HIT stage does not wait for animations on the main thread
 		auto attackedPart = ca.attackedPart;
 		auto effect = new EffectAnimation(owner, AnimationPath::builtin("SGEXPL.DEF"), positions);
-		effect->onFinished = [updateWallPiece, attackedPart](){ updateWallPiece(attackedPart); };
+		effect->onMidpoint = [updateWallPiece, attackedPart](){ updateWallPiece(attackedPart); };
 		owner.stacksController->addNewAnim(effect);
 		owner.fieldController->startShakeAnimation();
 	}

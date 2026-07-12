@@ -804,8 +804,6 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
-	if(ca.killedTowerShooter != -1)
-		battleInt->stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
 }
 
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn

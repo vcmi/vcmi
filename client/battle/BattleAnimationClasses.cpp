@@ -856,7 +856,9 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
 	ENGINE->sound().playSound( soundFilename );
-	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
+	auto explosion = new EffectAnimation(owner, effectFilename, shotTarget);
+	explosion->onMidpoint = onExplosion;
+	owner.stacksController->addNewAnim(explosion);
 }
 
 void CatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -1078,6 +1080,13 @@ void EffectAnimation::playEffect(uint32_t msPassed)
 		if(elem.effectID == ID)
 		{
 			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
+
+			if(!midpointReached && elem.currentFrame >= elem.animation->size() / 2.0)
+			{
+				midpointReached = true;
+				if(onMidpoint)
+					onMidpoint();
+			}
 
 			if(elem.currentFrame >= elem.animation->size())
 			{

@@ -273,6 +273,9 @@ private:
 public:
 	CatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
 
+	/// invoked at the midpoint of the wall-hit explosion (used to swap the damaged wall sprite)
+	std::function<void()> onExplosion;
+
 	void createProjectile(const Point & from, const Point & dest) const override;
 	void tick(uint32_t msPassed) override;
 };
@@ -311,6 +314,7 @@ class EffectAnimation : public BattleAnimation
 	int effectFlags;
 	float transparencyFactor;
 	bool effectFinished;
+	bool midpointReached = false;
 	bool reversed;
 
 	std::shared_ptr<CAnimation>	animation;
@@ -350,6 +354,9 @@ public:
 
 	/// invoked once when the animation reaches its last frame, before the effect is removed
 	std::function<void()> onFinished;
+
+	/// invoked once when the animation reaches its halfway frame
+	std::function<void()> onMidpoint;
 
 	bool init() override;
 	void tick(uint32_t msPassed) override;
