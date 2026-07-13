@@ -575,7 +575,8 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"affect":[{ "defName" : "C01SPE0", "transparency" : 0.5}]
+			"affect":["C12SPF1"],
+			"affectSecondary":["C12SPF0"]
 		},
 		"sounds": {
 			"cast": "SACRIF1"

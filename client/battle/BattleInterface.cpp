@@ -497,16 +497,23 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	}
 	else
 	{
+		size_t affectedIndex = 0;
 		for(auto & elem : sc->affectedCres)
 		{
 			auto stack = getBattle()->battleGetStackByID(elem, false);
 			assert(stack);
 			if(stack)
 			{
-				addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell](){
-					displaySpellEffect(spell, stack->getPosition());
+				// secondary affected targets (e.g. the sacrificed unit) use a distinct effect if the spell defines one
+				bool useSecondary = affectedIndex > 0 && !spell->animationInfo.affectSecondary.empty();
+				addToAnimationStage(EAnimationEvents::HIT, [this, stack, spell, useSecondary](){
+					if(useSecondary)
+						displaySpellAnimationQueue(spell, spell->animationInfo.affectSecondary, stack->getPosition(), false);
+					else
+						displaySpellEffect(spell, stack->getPosition());
 				});
 			}
+			++affectedIndex;
 		}
 	}
 

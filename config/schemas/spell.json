@@ -35,6 +35,7 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"affect" : {"$ref" : "#/definitions/animationQueue"},
+				"affectSecondary" : {"$ref" : "#/definitions/animationQueue"},
 				"hit" : {"$ref" : "#/definitions/animationQueue"},
 				"cast" : {"$ref" : "#/definitions/animationQueue"},
 				"projectile" : {

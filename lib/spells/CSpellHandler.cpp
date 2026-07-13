@@ -417,6 +417,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	};
 
 	loadAnimationQueue("affect", spell->animationInfo.affect);
+	loadAnimationQueue("affectSecondary", spell->animationInfo.affectSecondary);
 	loadAnimationQueue("cast", spell->animationInfo.cast);
 	loadAnimationQueue("hit", spell->animationInfo.hit);
 

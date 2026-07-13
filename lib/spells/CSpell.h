@@ -53,6 +53,9 @@ public:
 		///displayed on all affected targets.
 		SpellAnimationQueue affect;
 
+		///displayed on secondary affected targets instead of "affect" (e.g. the sacrificed unit for Sacrifice). Empty = use "affect".
+		SpellAnimationQueue affectSecondary;
+
 		///displayed on caster.
 		SpellAnimationQueue cast;
 
