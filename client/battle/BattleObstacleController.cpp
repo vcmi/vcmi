@@ -29,6 +29,9 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
+// how long a removed "usual" obstacle takes to fade out, in ms
+static constexpr uint32_t obstacleFadeDuration = 500;
+
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 	owner(owner),
 	timePassed(0.f)
@@ -56,37 +59,73 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 		obstacleAnimations[oi.uniqueID] = ENGINE->renderHandler().loadAnimation(animationName, EImageBlitMode::SIMPLE);
 		obstacleImages[oi.uniqueID] = obstacleAnimations[oi.uniqueID]->getImage(0);
 	}
+
+	// cache the render position so a fade-out after removal matches where the obstacle was actually drawn
+	if(obstacleImages[oi.uniqueID])
+		obstaclePositions[oi.uniqueID] = getObstaclePosition(obstacleImages[oi.uniqueID], oi);
 }
 
 void BattleObstacleController::obstacleRemoved(const ObstacleChanges & oi)
 {
 	auto & obstacle = oi.data["obstacle"];
 
-	if (!obstacle.isStruct())
+	if (obstacle.isStruct())
+	{
+		AnimationPath animationPath;
+		JsonDeserializer ser(nullptr, obstacle);
+		ser.serializeStruct("removalAnimation", animationPath);
+		if(animationPath.empty()) // magical obstacles without a dedicated removal effect reuse their appear animation
+			ser.serializeStruct("appearAnimation", animationPath);
+
+		if(!animationPath.empty())
+		{
+			auto animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
+			auto first = animation->getImage(0, 0);
+			if(first)
+			{
+				Point whereTo = getObstaclePosition(first, obstacle);
+				//AFAIK, in H3 there is no sound of obstacle removal
+				owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
+				obstacleAnimations.erase(oi.id);
+				obstacleImages.erase(oi.id);
+				obstaclePositions.erase(oi.id);
+				owner.waitForAnimations();
+				return;
+			}
+		}
+		else if(obstacleImages.count(oi.id) && obstacleImages[oi.id])
+		{
+			// "usual" battlefield obstacle (rock/tree) has no removal animation of its own: fade out its sprite.
+			// keep drawing it right away (it is erased below), but hold it at full opacity until the removing
+			// spell's hit stage, so the fade runs together with the spell effect rather than before or after it
+			FadingObstacle fade;
+			fade.image = obstacleImages[oi.id];
+			fade.pos = obstaclePositions.count(oi.id) ? obstaclePositions[oi.id] : getObstaclePosition(obstacleImages[oi.id], obstacle);
+			fade.hex = BattleHex(static_cast<si16>(obstacle["position"].Integer()));
+			fade.id = oi.id;
+			fade.started = !owner.hasQueuedStage(EAnimationEvents::HIT);
+			fadingObstacles.push_back(fade);
+
+			if(!fade.started)
+			{
+				auto obstacleId = oi.id;
+				owner.addToAnimationStage(EAnimationEvents::HIT, [this, obstacleId](){
+					for(auto & f : fadingObstacles)
+						if(f.id == obstacleId)
+							f.started = true;
+				});
+			}
+		}
+	}
+	else
 	{
 		logGlobal->error("I don't know how to animate removal of this obstacle");
-		return;
 	}
 
-	AnimationPath animationPath;
-	JsonDeserializer ser(nullptr, obstacle);
-	ser.serializeStruct("appearAnimation", animationPath);
-
-	if(animationPath.empty())
-		return;
-
-	auto animation = ENGINE->renderHandler().loadAnimation(animationPath, EImageBlitMode::SIMPLE);
-	auto first = animation->getImage(0, 0);
-	if(!first)
-		return;
-
-	Point whereTo = getObstaclePosition(first, obstacle);
-	//AFAIK, in H3 there is no sound of obstacle removal
-	owner.stacksController->addNewAnim(new EffectAnimation(owner, animationPath, whereTo, obstacle["position"].Integer(), 0, true));
-
+	// fade-out path (and error/no-op paths) run without a blocking animation, so no waitForAnimations here
 	obstacleAnimations.erase(oi.id);
 	obstacleImages.erase(oi.id);
-	owner.waitForAnimations();
+	obstaclePositions.erase(oi.id);
 }
 
 void BattleObstacleController::obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi)
@@ -183,6 +222,17 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 			}
 		});
 	}
+
+	for(const auto & fade : fadingObstacles)
+	{
+		auto image = fade.image;
+		Point pos = fade.pos;
+		auto alpha = fade.started ? static_cast<uint8_t>(std::clamp(1.f - static_cast<float>(fade.elapsed) / obstacleFadeDuration, 0.f, 1.f) * 255) : 255;
+		renderer.insert(EBattleFieldLayer::OBSTACLES, fade.hex, [image, pos, alpha](BattleRenderer::RendererRef canvas){
+			image->setAlpha(alpha);
+			canvas.draw(image, pos);
+		});
+	}
 }
 
 void BattleObstacleController::tick(uint32_t msPassed)
@@ -195,6 +245,11 @@ void BattleObstacleController::tick(uint32_t msPassed)
 		int frameIndex = framesCount % animation.second->size(0);
 		obstacleImages[animation.first] = animation.second->getImage(frameIndex, 0);
 	}
+
+	for(auto & fade : fadingObstacles)
+		if(fade.started)
+			fade.elapsed += msPassed;
+	vstd::erase_if(fadingObstacles, [](const FadingObstacle & f){ return f.started && f.elapsed >= obstacleFadeDuration; });
 }
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)

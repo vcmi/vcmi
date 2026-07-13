@@ -54,6 +54,7 @@ struct SpellObstacleDescriptor final : ApiSerializable<SpellObstacleDescriptor>
 	std::string appearSound;
 	std::string appearAnimation;
 	std::string animation;
+	std::string removalAnimation;
 
 	std::vector<BattleHex> customSize;
 
@@ -80,6 +81,7 @@ struct SpellObstacleDescriptor final : ApiSerializable<SpellObstacleDescriptor>
 		s("appearSound",      appearSound,      "Sound effect played when the obstacle appears.");
 		s("appearAnimation",  appearAnimation,  "Animation played when the obstacle appears.");
 		s("animation",        animation,        "Looping animation shown while the obstacle is on the battlefield.");
+		s("removalAnimation", removalAnimation, "Animation played when the obstacle is removed (expires or is dispelled). Falls back to appearAnimation if empty.");
 		s("customSize",       customSize,       "Optional list of BattleHex values defining a multi-hex footprint.");
 	}
 };

@@ -198,6 +198,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeStruct("appearSound", appearSound);
 	handler.serializeStruct("appearAnimation", appearAnimation);
 	handler.serializeStruct("animation", animation);
+	handler.serializeStruct("removalAnimation", removalAnimation);
 
 	{
 		JsonArraySerializer customSizeJson = handler.enterArray("customSize");

@@ -37,9 +37,10 @@ SpellCreatedObstacle SpellObstacleDescriptor::toObstacle() const
 
 	obstacle.trigger = trigger.empty() ? SpellID(SpellID::NONE) : SpellID(SpellID::decode(trigger));
 
-	obstacle.appearSound     = AudioPath::builtin(appearSound);
-	obstacle.appearAnimation = AnimationPath::builtin(appearAnimation);
-	obstacle.animation       = AnimationPath::builtin(animation);
+	obstacle.appearSound      = AudioPath::builtin(appearSound);
+	obstacle.appearAnimation  = AnimationPath::builtin(appearAnimation);
+	obstacle.animation        = AnimationPath::builtin(animation);
+	obstacle.removalAnimation = AnimationPath::builtin(removalAnimation);
 
 	for(const BattleHex & hex : customSize)
 		obstacle.customSize.insert(hex);
