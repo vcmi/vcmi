@@ -200,6 +200,7 @@ class CStackWindow : public CWindowObject
 	void submitSelection();
 
 	void init();
+	void initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, const std::function<void(ui32)> & callback);
 	void showStackExperienceDetailsWindow();
 
 	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);

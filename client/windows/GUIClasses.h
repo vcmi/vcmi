@@ -159,6 +159,8 @@ class CLevelWindow : public CWindowObject
 	const CGHeroInstance * hero;
 
 	void selectionChanged(unsigned to);
+	void initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback);
+	void createLevelUpControls(PrimarySkill pskill);
 	void createSkillBox();
 	void submitSelection();
 

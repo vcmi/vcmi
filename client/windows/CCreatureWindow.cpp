@@ -862,27 +862,14 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	: CWindowObject(BORDERED),
 	info(std::make_unique<UnitView>())
 {
-	GAME->interface()->showingDialog->setBusy();
-	selectionSubmitted = false;
-
-	info->stackNode = commander;
-	info->creature = commander->getCreature();
-	info->commander = commander;
-	info->creatureCount = 1;
-	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
-	info->levelupInfo->skills = skills;
-	info->levelupInfo->callback = callback;
-	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
-
+	initCommanderLevelUpData(commander, skills, callback);
 	init();
 }
 
 CStackWindow::~CStackWindow() = default;
 
-void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
+void CStackWindow::initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
 {
-	OBJECT_CONSTRUCTION;
-
 	GAME->interface()->showingDialog->setBusy();
 	selectionSubmitted = false;
 
@@ -894,6 +881,13 @@ void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * command
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
 	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
+}
+
+void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, const std::function<void(ui32)> & callback)
+{
+	OBJECT_CONSTRUCTION;
+
+	initCommanderLevelUpData(commander, skills, callback);
 
 	if(!background)
 	{
@@ -903,17 +897,6 @@ void CStackWindow::updateCommanderLevelUpData(const CCommanderInstance * command
 
 	fakeNode.reset();
 	activeBonuses.clear();
-
-	if(mainSection)
-		removeChild(mainSection.get());
-	if(activeSpellsSection)
-		removeChild(activeSpellsSection.get());
-	if(bonusesSection)
-		removeChild(bonusesSection.get());
-	if(buttonsSection)
-		removeChild(buttonsSection.get());
-	if(commanderTab)
-		removeChild(commanderTab.get());
 
 	switchButtons.clear();
 	mainSection.reset();
