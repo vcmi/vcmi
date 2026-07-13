@@ -143,6 +143,19 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 			});
 		}
 	}
+
+	// removed units are ghosts (excluded from battleGetAllStacks); keep drawing those still fading out
+	for(uint32_t id : fadingStacks)
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(id, false);
+		if(!stack || !stack->isGhost() || stackAnimation.find(id) == stackAnimation.end())
+			continue;
+
+		auto layer = stackAnimation[id]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
+		renderer.insert(layer, getStackCurrentPosition(stack), [this, stack]( BattleRenderer::RendererRef renderer ){
+			showStack(renderer, stack);
+		});
+	}
 }
 
 void BattleStacksController::stackReset(const CStack * stack)
@@ -412,6 +425,23 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
 		setActiveStack(nullptr);
+
+	// guard so a repeated removal call-in won't restart the fade-out
+	if (!fadingStacks.insert(stackID).second)
+		return;
+
+	auto startFade = [this, stackID]()
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(stackID, false);
+		if (stack && stackAnimation.count(stackID))
+			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeOut", nullptr));
+	};
+
+	// while a spell/attack sequence is mid-flight, fade the unit together with its hit effects instead of before them
+	if (owner.hasQueuedStage(EAnimationEvents::HIT))
+		owner.addToAnimationStage(EAnimationEvents::HIT, startFade);
+	else
+		startFade();
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -494,7 +524,6 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
-				addNewAnim(new ColorTransformAnimation(owner, attackedInfo.defender, "summonFadeOut", nullptr));
 				stackRemoved(attackedInfo.defender->unitId());
 			});
 		}

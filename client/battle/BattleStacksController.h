@@ -68,6 +68,9 @@ class BattleStacksController
 	/// Stacks have amount box hidden due to ongoing animations
 	std::set<int> stackAmountBoxHidden;
 
+	/// units already given a removal fade-out, so a second removal call-in doesn't restart it
+	std::set<uint32_t> fadingStacks;
+
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
