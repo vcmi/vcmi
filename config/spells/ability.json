@@ -418,7 +418,7 @@
 		"targetType": "NO_TARGET",
 
 		"animation":{
-			"affect":["C17SPW0"]
+			"affect":["C0ACID"]
 		},
 		"sounds": {
 			"cast": "ACID"
@@ -455,7 +455,7 @@
 		"targetType": "NO_TARGET",
 
 		"animation":{
-			"affect":["C17SPW0"]
+			"affect":["C0ACID"]
 		},
 		"sounds": {
 			"cast": "ACID"
