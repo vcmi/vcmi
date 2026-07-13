@@ -70,7 +70,7 @@
 		"targetType": "CREATURE",
 
 		"animation":{
-			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C03SPA1"]
 		},
 		"sounds": {
 			"cast": "LIGHTBLT"
@@ -125,7 +125,7 @@
 		"targetType": "CREATURE",
 
 		"animation":{
-			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"],
+			"affect":[{"defName":"C11SPA0", "verticalPosition":"bottom"}, "C11SPA1"],
 			"ray":{
 				"jaggedness" : 0.2,
 				"hopDelay" : 50,
@@ -373,7 +373,7 @@
 		"targetType" : "CREATURE",
 
 		"animation":{
-			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
+			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C03SPA1"]
 		},
 		"sounds": {
 			"cast": "LIGHTBLT"
