@@ -133,7 +133,6 @@ void ProjectileRay::show(Canvas & canvas)
 {
 	if (path.empty())
 	{
-		// straight ray growing from origin to destination
 		Point curr {
 			vstd::lerp(from.x, dest.x, progress),
 			vstd::lerp(from.y, dest.y, progress),
@@ -142,7 +141,7 @@ void ProjectileRay::show(Canvas & canvas)
 		return;
 	}
 
-	// jagged polyline: reveal it one whole hop at a time as `progress` advances (no traveling animation)
+	// jagged polyline, revealed one hop at a time as `progress` advances
 	int totalSegments = static_cast<int>(path.size()) - 1;
 	int segmentsPerHop = totalSegments / hopCount;
 	int revealedHops = std::min(hopCount, static_cast<int>(progress * hopCount) + 1);

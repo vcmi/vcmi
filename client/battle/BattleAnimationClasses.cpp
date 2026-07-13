@@ -1229,3 +1229,28 @@ void ChainLightningAnimation::tick(uint32_t msPassed)
 	if(!owner.projectilesController->hasActiveProjectile(caster, false))
 		delete this;
 }
+
+// how long the partially-open drawbridge frame is shown while the bridge lowers or raises, in ms
+static constexpr uint32_t gateTransitionDuration = 200;
+
+GateAnimation::GateAnimation(BattleInterface & owner, EGateState targetState):
+	BattleAnimation(owner),
+	targetState(targetState)
+{
+}
+
+bool GateAnimation::init()
+{
+	owner.siegeController->showPartialGate();
+	return true;
+}
+
+void GateAnimation::tick(uint32_t msPassed)
+{
+	elapsed += msPassed;
+	if(elapsed >= gateTransitionDuration)
+	{
+		owner.siegeController->applyGateState(targetState);
+		delete this;
+	}
+}

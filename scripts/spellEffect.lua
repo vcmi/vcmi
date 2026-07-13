@@ -35,9 +35,10 @@ function Script:filterTarget(mechanics, target)
 	return target
 end
 
---- TODO
-function Script:getHealthChange(mechanics, problem, target)
-    return true
+--- Predicted health/unit-count change for AI and hover text; effects that do not
+--- heal or damage keep the neutral value.
+function Script:getHealthChange(mechanics, spellTarget)
+    return { hpDelta = 0, unitsDelta = 0 }
 end
 
 --- TODO

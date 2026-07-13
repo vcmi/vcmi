@@ -35,9 +35,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/callback/CCallback.h"
 
-// how long the partially-open drawbridge frame is shown while the bridge lowers or raises, in ms
-static constexpr uint32_t gateTransitionDuration = 200;
-
 const std::string & BattleSiegeController::getSiegePrefix() const
 {
 	const auto & siegePrefixes = town->getTown()->clientInfo.siegePrefix;
@@ -264,37 +261,24 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 	bool wasClosed = oldState == EGateState::CLOSED || oldState == EGateState::BLOCKED;
 	bool isClosed  = state == EGateState::CLOSED || state == EGateState::BLOCKED;
 
-	// lowering (closed -> open) or raising (open -> closed) the bridge plays a short transition through the
-	// partially-open frame (DRW1); destruction, the initial state and closed<->blocked swaps apply immediately
+	// only lowering and raising animate through the partial frame; destruction and blocked<->closed apply at once
 	bool animate = (state == EGateState::OPENED && wasClosed) || (isClosed && oldState == EGateState::OPENED);
 
 	if (animate)
 	{
-		ENGINE->sound().playSound(soundBase::DRAWBRG);
-		// show the partially-open bridge now; tick() settles it to the final sprite after the transition delay
-		auto partialState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
-		wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, partialState), EImageBlitMode::COLORKEY);
-		gateTransitionRemaining = gateTransitionDuration;
-		return;
-	}
-
-	gateTransitionRemaining = 0; // cancel any pending transition superseded by this immediate state
-	applyGateState(state);
-}
-
-void BattleSiegeController::tick(uint32_t msPassed)
-{
-	if (gateTransitionRemaining == 0)
-		return;
-
-	if (msPassed >= gateTransitionRemaining)
-	{
-		gateTransitionRemaining = 0;
-		// apply the current gate state (not a stored target) so a mid-transition destruction is not overwritten
-		applyGateState(owner.getBattle()->battleGetGateState());
+		// block until the bridge finishes lowering/raising, so a unit crossing does not move through it mid-transition
+		owner.stacksController->addNewAnim(new GateAnimation(owner, state));
+		owner.waitForAnimations();
 	}
 	else
-		gateTransitionRemaining -= msPassed;
+		applyGateState(state);
+}
+
+void BattleSiegeController::showPartialGate()
+{
+	ENGINE->sound().playSound(soundBase::DRAWBRG);
+	auto partialState = static_cast<EWallState>(town->fortificationsLevel().wallsHealth);
+	wallPieceImages[EWallVisual::GATE] = ENGINE->renderHandler().loadImage(getWallPieceImageName(EWallVisual::GATE, partialState), EImageBlitMode::COLORKEY);
 }
 
 void BattleSiegeController::applyGateState(const EGateState state)

@@ -850,8 +850,6 @@ void BattleFieldController::tick(uint32_t msPassed)
 	owner.stacksController->tick(msPassed);
 	owner.obstacleController->tick(msPassed);
 	owner.projectilesController->tick(msPassed);
-	if (owner.siegeController)
-		owner.siegeController->tick(msPassed);
 }
 
 void BattleFieldController::show(Canvas & to)

@@ -25,6 +25,7 @@ class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 struct StackAttackedInfo;
+enum class EGateState : int8_t;
 
 /// Base class of battle animations
 class BattleAnimation
@@ -392,6 +393,19 @@ class ChainLightningAnimation : public BattleAnimation
 
 public:
 	ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell);
+
+	bool init() override;
+	void tick(uint32_t msPassed) override;
+};
+
+/// Shows the drawbridge's partially-open frame while it lowers or raises, then settles it to the final sprite
+class GateAnimation : public BattleAnimation
+{
+	EGateState targetState;
+	uint32_t elapsed = 0;
+
+public:
+	GateAnimation(BattleInterface & owner, EGateState targetState);
 
 	bool init() override;
 	void tick(uint32_t msPassed) override;

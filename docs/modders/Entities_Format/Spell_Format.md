@@ -178,9 +178,13 @@ TODO
 	],
 	"cast" : []
 	"hit":["C20SPX"],
-	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"]
+	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"],
+	"affectSecondary":["C12SPF0"]
 }
 ```
+
+- `affect` — animation shown on every affected target.
+- `affectSecondary` — optional. Animation shown on secondary targets instead of `affect`. Used by spells that act on more than one unit with different roles, such as Sacrifice, where the primary (resurrected) target keeps `affect` while the sacrificed unit uses `affectSecondary`. If empty, secondary targets fall back to `affect`.
 
 ### Chaining ray
 
@@ -520,6 +524,7 @@ TODO
 		"appearSound" : {},
 		"appearAnimation" : {},
 		"animation" : {},
+		"removalAnimation" : {},
 		"offsetY" : 0
 	},
 	
@@ -529,10 +534,21 @@ TODO
 		"appearSound" : {},
 		"appearAnimation" : {},
 		"animation" : {},
+		"removalAnimation" : {},
 		"offsetY" : 0
 	}
 }
 ```
+
+Per-side fields:
+
+- `shape` — hexes occupied by the obstacle, as direction paths from the anchor hex.
+- `range` — hexes the obstacle may be placed on, as direction paths from the target hex.
+- `appearSound` — sound played when the obstacle appears.
+- `appearAnimation` — animation played when the obstacle appears.
+- `animation` — looping animation shown while the obstacle is on the battlefield.
+- `removalAnimation` — animation played when the obstacle is removed (expires or is dispelled). If empty, the obstacle reuses `appearAnimation` (played in reverse for magical obstacles) or, for plain obstacles, simply fades out.
+- `offsetY` — vertical offset of the obstacle sprite, in pixels.
 
 ### Moat
 

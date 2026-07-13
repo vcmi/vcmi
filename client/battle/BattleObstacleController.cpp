@@ -95,9 +95,8 @@ void BattleObstacleController::obstacleRemoved(const ObstacleChanges & oi)
 		}
 		else if(obstacleImages.count(oi.id) && obstacleImages[oi.id])
 		{
-			// "usual" battlefield obstacle (rock/tree) has no removal animation of its own: fade out its sprite.
-			// keep drawing it right away (it is erased below), but hold it at full opacity until the removing
-			// spell's hit stage, so the fade runs together with the spell effect rather than before or after it
+			// "usual" obstacles (rock/tree) have no removal animation - fade their sprite out instead.
+			// hold at full opacity until the removing spell's hit stage so fade and spell effect coincide
 			FadingObstacle fade;
 			fade.image = obstacleImages[oi.id];
 			fade.pos = obstaclePositions.count(oi.id) ? obstaclePositions[oi.id] : getObstaclePosition(obstacleImages[oi.id], obstacle);

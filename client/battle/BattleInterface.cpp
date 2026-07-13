@@ -462,14 +462,12 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		displaySpellHit(spell, targetedTile);
 	});
 
-	// a chain ray (e.g. chain lightning) shows the full affect only on the primary target and connects the rest with a jagged bolt
 	const bool usesChainRay = !spell->animationInfo.ray.empty() && !sc->affectedCres.empty();
 
 	//queuing affect animation
 	if(usesChainRay)
 	{
-		// primary target keeps the full affect; the remaining (spark) animations play on every chained target,
-		// and each target's screen position feeds the connecting ray (in chain-hop order)
+		// only the primary (first) target gets the full affect; the rest get the trailing spark frames
 		const auto & affect = spell->animationInfo.affect;
 		SpellAnimationQueue sparks(affect.begin() + (affect.empty() ? 0 : 1), affect.end());
 

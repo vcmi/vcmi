@@ -168,6 +168,8 @@ void BattleStacksController::stackReset(const CStack * stack)
 		return;
 	}
 
+	fadingStacks.erase(stack->unitId()); // a reset/resurrect makes it eligible to fade out again if killed later
+
 	auto animation = iter->second;
 
 	if(stack->alive() && animation->isDeadOrDying())
