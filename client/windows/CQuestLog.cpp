@@ -108,7 +108,7 @@ void CQuestMinimap::update()
 
 void CQuestMinimap::iconClicked()
 {
-	if(currentQuest->obj.hasValue())
+	if(currentQuest->hasObjectInstance())
 		adventureInt->centerOnTile(currentQuest->getObject(GAME->interface()->cb.get())->visitablePos());
 	//moveAdvMapSelection();
 }
@@ -156,7 +156,7 @@ void CQuestLog::recreateLabelList()
 
 		MetaString text;
 		questPtr->getQuestlogText(GAME->interface()->cb.get(), text, false);
-		if (quests[i].obj.hasValue())
+		if (quests[i].hasObjectInstance())
 		{
 			const auto * source = questObject ? questObject->asQuestSource() : nullptr;
 			std::string giver = source ? source->getQuestGiverName() : "";

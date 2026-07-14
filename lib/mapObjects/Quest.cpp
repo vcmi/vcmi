@@ -447,39 +447,36 @@ void QuestSource::getVisitText(MetaString &text, std::vector<Component> &compone
 	getQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
-std::vector<MapObjectSubID> QuestSource::questLogSharedColor() const
+QuestInfo QuestSource::getQuestIdentity() const
 {
-	// Border guards/gates carry the keymaster colour in requiredKeys; real quest
-	// sources have none and so keep a per-instance log entry.
-	if(isEmpty())
-		return {};
-	return getQuest().mission.requiredKeys;
+	// Border guards/gates gate on a keymaster key; all instances of one type+colour are a
+	// single type-quest owned by their constructor. Every other source is per instance.
+	if(!isEmpty() && !getQuest().mission.requiredKeys.empty())
+		return QuestInfo(CompoundMapObjectID(ID.getNum(), subID.getNum()));
+	return QuestInfo(id);
+}
+
+bool QuestSource::hasQuestInLog(PlayerColor player) const
+{
+	const QuestInfo identity = getQuestIdentity();
+	if(const auto * ps = cb->getPlayerState(player, false))
+		for(const auto & qi : ps->quests)
+			if(qi == identity)
+				return true;
+	return false;
 }
 
 bool QuestSource::isVisibleFor(PlayerColor player) const
 {
 	if(const auto * ps = cb->getPlayerState(player, false))
+	{
+		const QuestInfo identity = getQuestIdentity();
 		for(const auto & qi : ps->quests)
-			if(qi.obj == id)
+			if(qi == identity)
 				return true;
+	}
 
 	return CGObjectInstance::isVisibleFor(player);
-}
-
-bool QuestSource::questLogEntryShared(PlayerColor player) const
-{
-	const auto color = questLogSharedColor();
-	if(color.empty())
-		return false;
-
-	for(const auto & qi : cb->getPlayerState(player)->quests)
-	{
-		const auto * other = cb->getObjInstance(qi.obj);
-		const auto * otherSource = other ? other->asQuestSource() : nullptr;
-		if(otherSource && otherSource->questLogSharedColor() == color)
-			return true;
-	}
-	return false;
 }
 
 // Map a position into the seer-hut compass text slot (1-9), matching the
@@ -561,8 +558,11 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 		}
 		else if(q.missionKind == EQuestMission::KEYMASTER)
 		{
+			// border guard: "you need the key" shown on first and on every blocked revisit
 			if(q.firstVisitText.empty())
 				q.firstVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
+			if(q.nextVisitText.empty())
+				q.nextVisitText.appendTextID(TextIdentifier("core", "advevent", 18).get());
 		}
 		else
 		{
@@ -676,7 +676,8 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 		if(firstVisit)
 		{
 			gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
-			gameEvents.addQuest(h->tempOwner, QuestInfo(id));
+			if(!hasQuestInLog(h->getOwner()))
+				gameEvents.addQuest(h->tempOwner, getQuestIdentity());
 		}
 
 		if(firstVisit || failRequirements)
@@ -784,59 +785,6 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 void QuestGuard::init(vstd::RNG & rand)
 {
 	blockVisit = true;
-
-	// border guard: synthetic "owns the matching key" quest, handled manually in onHeroVisit
-	if(!getQuest().mission.requiredKeys.empty())
-		return;
-
-	getQuest().textOption = rand.nextInt(3, 5);
-	getQuest().completedOption = rand.nextInt(4, 5);
-	getQuest().mission.hasExtraCreatures = !allowsFullArmyRemoval();
-
-	Rewardable::VisitInfo vinfo;
-	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-	vinfo.reward.removeObject = subID.getNum() == 0;
-	getQuest().reward = vinfo;
-	configuration.canRefuse = true;
-}
-
-void QuestGuard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
-{
-	// border guard: offer demolition once the key is held, otherwise log the requirement
-	if(!getQuest().mission.requiredKeys.empty())
-	{
-		if(checkQuest(h))
-		{
-			BlockingDialog bd(true, false);
-			bd.player = h->getOwner();
-			bd.text.appendTextID(TextIdentifier("core", "advevent", 17).get());
-			gameEvents.showBlockingDialog(this, &bd);
-		}
-		else
-		{
-			h->showInfoDialog(gameEvents, 18);
-
-			if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
-				gameEvents.addQuest(h->tempOwner, QuestInfo(id));
-		}
-		return;
-	}
-
-	// real quest guard: behaves like a seer hut without the seer flavour
-	SeerHut::onHeroVisit(gameEvents, h);
-}
-
-void QuestGuard::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
-{
-	// border guard demolition prompt: positive answer tears it down
-	if(!getQuest().mission.requiredKeys.empty())
-	{
-		if(answer)
-			gameEvents.removeObject(this, hero->getOwner());
-		return;
-	}
-
-	SeerHut::blockingDialogAnswered(gameEvents, hero, answer);
 }
 
 bool QuestGuard::passableFor(PlayerColor color) const
@@ -910,8 +858,9 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 	h->showInfoDialog(gameEvents, 18);
 
-	if(!questLogEntryShared(h->getOwner())) // same-colour siblings share one log entry
-		gameEvents.addQuest(h->tempOwner, QuestInfo(id));
+	// same-colour borders are one type-quest, logged once for the player
+	if(!hasQuestInLog(h->getOwner()))
+		gameEvents.addQuest(h->tempOwner, getQuestIdentity());
 }
 
 bool QuestGate::passableFor(PlayerColor color) const

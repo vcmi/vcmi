@@ -15,6 +15,7 @@
 #include "../texts/MetaString.h"
 
 class CGCreature;
+struct QuestInfo;
 
 enum class EQuestMission {
 	NONE = 0,
@@ -163,9 +164,9 @@ public:
 	/// quest is satisfied). False for seer huts, which are optional visits.
 	virtual bool requiresQuestToPass() const = 0;
 
-	/// Keymaster colours sharing one quest-log entry (border guards/gates of a colour).
-	/// Empty means a per-instance entry.
-	virtual std::vector<MapObjectSubID> questLogSharedColor() const = 0;
+	/// Quest-log identity: a shared type-quest (keymaster colour) for border guards/gates,
+	/// otherwise this object's own instance id.
+	virtual QuestInfo getQuestIdentity() const = 0;
 
 	/// Quest giver's display name, empty if the object has none (only seer huts do).
 	virtual std::string getQuestGiverName() const { return {}; }
@@ -201,7 +202,7 @@ public:
 	const IQuestSource * asQuestSource() const override { return this; }
 	const Quest * getActiveQuest() const override { return isEmpty() ? nullptr : &getQuest(); }
 	bool requiresQuestToPass() const override { return false; }
-	std::vector<MapObjectSubID> questLogSharedColor() const override;
+	QuestInfo getQuestIdentity() const override;
 	/// Stays visible to any player holding this source in their active quest log,
 	/// so a quest-log entry under fog of war can still resolve its source object.
 	bool isVisibleFor(PlayerColor player) const override;
@@ -241,9 +242,9 @@ protected:
 	void selectInitialQuest();
 	/// Mirror the active quest's reward into configuration.info.
 	void syncActiveReward();
-	/// True once `player` already has a quest-log entry for a sibling sharing this
-	/// object's keymaster colour (border guards/gates share one entry per colour).
-	bool questLogEntryShared(PlayerColor player) const;
+	/// True once `player` already holds this source's quest-log entry (border guards/gates
+	/// of a colour share one entry, so the first visited instance is enough).
+	bool hasQuestInLog(PlayerColor player) const;
 };
 
 class DLL_LINKAGE SeerHut : public QuestSource
@@ -269,6 +270,8 @@ public:
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
+	/// A quest guard reward may empty the visiting hero's army when the H3 bug setting is on.
+	bool allowsFullArmyRemoval() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -279,7 +282,6 @@ protected:
 	/// Object name / seer header followed by the active quest's rollover; onHover
 	/// picks the short hover variant, otherwise the longer description variant.
 	std::string buildText(PlayerColor player, bool onHover) const;
-	bool allowsFullArmyRemoval() const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -293,8 +295,6 @@ public:
 	void init(vstd::RNG & rand) override;
 
 	bool requiresQuestToPass() const override { return true; }
-	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const override;
 	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h)

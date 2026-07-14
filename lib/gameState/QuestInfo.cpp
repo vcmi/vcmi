@@ -10,14 +10,20 @@
 #include "StdInc.h"
 #include "QuestInfo.h"
 
+#include "../GameLibrary.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/CGameInfoCallback.h"
+#include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/Quest.h"
 
 const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
+	if(const auto * type = std::get_if<CompoundMapObjectID>(&identity))
+		return LIBRARY->objtypeh->getHandlerFor(*type)->getTypeQuest();
+
 	const auto * source = getObject(cb)->asQuestSource();
 	const Quest * quest = source ? source->getActiveQuest() : nullptr;
 	assert(quest);
@@ -27,22 +33,24 @@ const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 
 const CGObjectInstance * QuestInfo::getObject(IGameInfoCallback *cb) const
 {
-	return cb->getObjInstance(obj);
-}
+	if(const auto * obj = std::get_if<ObjectInstanceID>(&identity))
+		return cb->getObjInstance(*obj);
 
-int3 QuestInfo::getPosition(IGameInfoCallback *cb) const
-{
-	return getObject(cb)->visitablePos();
+	return nullptr; // a shared type quest has no single source object
 }
 
 std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 {
 	std::vector<int3> result;
 
-	const Rewardable::Limiter & limiter = getQuest(cb)->mission;
+	const Quest * quest = getQuest(cb);
+	if(!quest)
+		return result;
+	const Rewardable::Limiter & limiter = quest->mission;
 
 	// the quest source itself (kept visible to the holder via the fog-of-war override)
-	result.push_back(getPosition(cb));
+	if(const auto * source = getObject(cb))
+		result.push_back(source->visitablePos());
 
 	// objects the player must destroy (kill creature / kill hero)
 	for(const auto & targetID : limiter.destroyedObjects)
@@ -61,8 +69,10 @@ std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 		|| !limiter.heroClasses.empty()
 		|| !limiter.creatures.empty();
 	const bool markKeys = !limiter.requiredKeys.empty();
+	// a shared type quest has no single source object, so mark every border of its colour
+	const bool markBorders = std::holds_alternative<CompoundMapObjectID>(identity);
 
-	if(markHeroes || markKeys)
+	if(markHeroes || markKeys || markBorders)
 	{
 		for(const auto * visitable : cb->getAllVisitableObjs())
 		{
@@ -81,6 +91,12 @@ std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 			{
 				if(vstd::contains(limiter.requiredKeys, visitable->subID))
 					result.push_back(visitable->visitablePos());
+			}
+			else if(markBorders)
+			{
+				if(const auto * source = visitable->asQuestSource(); source && source->getActiveQuest())
+					if(source->getActiveQuest()->mission.requiredKeys == limiter.requiredKeys)
+						result.push_back(visitable->visitablePos());
 			}
 		}
 	}

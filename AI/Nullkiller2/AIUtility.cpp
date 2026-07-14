@@ -642,9 +642,10 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 
 	case Obj::BORDER_GATE:
 	{
+		const auto * source = obj->asQuestSource();
 		for(auto q : aiNk->cc->getMyQuests())
 		{
-			if(q.obj == obj->id)
+			if(source && q == source->getQuestIdentity())
 			{
 				return false; // do not visit guards or gates when wandering
 			}
@@ -655,9 +656,10 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		return obj->cb->getPlayerState(aiNk->playerID)->wasKeymasterVisited(obj->subID);
 	case Obj::SEER_HUT:
 	{
+		const auto * source = obj->asQuestSource();
 		for(auto q : aiNk->cc->getMyQuests())
 		{
-			if(q.obj == obj->id)
+			if(source && q == source->getQuestIdentity())
 			{
 				if(q.getQuest(aiNk->cc.get())->checkQuest(hero))
 					return true; //we completed the quest

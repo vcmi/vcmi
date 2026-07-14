@@ -432,40 +432,14 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
-	if (const auto * source = obj->asQuestSource(); source && source->getActiveQuest())
+	if (obj->asQuestSource())
 	{
-		// Border guards/gates of one colour share a single log entry. If a same-colour
-		// sibling survives, re-target the entry to it instead of removing it.
-		const auto color = source->questLogSharedColor();
-		const CGObjectInstance * sibling = nullptr;
-		if (!color.empty())
-		{
-			for (const auto * other : gs.getMap().getObjects())
-			{
-				const auto * otherSource = other->asQuestSource();
-				if (other->id != obj->id && otherSource && otherSource->questLogSharedColor() == color)
-				{
-					sibling = other;
-					break;
-				}
-			}
-		}
-
+		// Drop this object's own quest-log entry. Border guards/gates are tracked by
+		// keymaster colour, not by instance, so their shared entry is not matched here
+		// and correctly survives while other borders (or none) of the colour remain.
+		const QuestInfo removed(obj->id);
 		for (auto &player : gs.players)
-		{
-			if (sibling)
-			{
-				for (auto & q : player.second.quests)
-					if (q.obj == obj->id)
-						q.obj = sibling->id;
-			}
-			else
-			{
-				vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
-					return q.obj == obj->id;
-				});
-			}
-		}
+			vstd::erase_if(player.second.quests, [&removed](const QuestInfo & q){ return q == removed; });
 	}
 
 	int3 objPosition = obj->anchorPos();

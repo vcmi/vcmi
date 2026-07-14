@@ -27,6 +27,7 @@
 #include "HillFortInstanceConstructor.h"
 #include "KeyGuardInstanceConstructor.h"
 #include "MarketInstanceConstructor.h"
+#include "QuestGuardInstanceConstructor.h"
 #include "ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/CGCreature.h"
@@ -91,7 +92,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("obelisk", CGObelisk);
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("prison", CGHeroInstance);
-	SET_HANDLER("questGuard", QuestGuard);
+	SET_HANDLER_CLASS("questGuard", QuestGuardInstanceConstructor);
 	SET_HANDLER("seerHut", SeerHut);
 	SET_HANDLER("sign", CGSignBottle);
 	SET_HANDLER("siren", CGSirens);

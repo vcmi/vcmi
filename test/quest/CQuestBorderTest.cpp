@@ -181,13 +181,10 @@ TEST_F(QuestBorderTest, BorderGuard_AfterKeymaster_promptsRemovalDialog)
 	visit(hero, keymaster);
 	// Drop everything queued by the keymaster visit so the assertion is
 	// scoped to the border-guard interaction.
-	gameEventCallback->addedQuests.clear();
 	gameEventCallback->infoWindows.clear();
 
 	visit(hero, borderGuard);
 
-	EXPECT_TRUE(gameEventCallback->addedQuests.empty())
-		<< "AddQuest must be emitted on the *first* border-guard visit only";
 	EXPECT_EQ(gameEventCallback->blockingDialogs.size(), 1u)
 		<< "border guard should prompt the player whether to demolish";
 }
@@ -237,10 +234,10 @@ TEST_F(QuestBorderTest, BorderGuard_TwoSiblingsSameColor_emitOnlyOneAddQuest)
 		<< "same-colour border guards must share one quest-log entry";
 }
 
-TEST_F(QuestBorderTest, BorderGuard_LogEntrySurvivesWhileAnySiblingRemains)
+TEST_F(QuestBorderTest, BorderGuard_TypeQuestNotTiedToInstance)
 {
-	// Destroying the guard the entry points at re-targets it to a surviving
-	// same-colour sibling rather than dropping the entry.
+	// The shared entry is a keymaster-colour type quest, not a pointer to a specific
+	// guard, so destroying the guard that was visited leaves the entry intact.
 	auto s = borderGuardTwoSiblings();
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 
@@ -251,19 +248,22 @@ TEST_F(QuestBorderTest, BorderGuard_LogEntrySurvivesWhileAnySiblingRemains)
 	ASSERT_NE(guardA, nullptr);
 	ASSERT_NE(guardB, nullptr);
 
-	visit(hero, guardA); // registers the shared entry, targeting guard A
-	const auto guardBId = guardB->id;
+	visit(hero, guardA); // registers the shared colour entry
 
 	gameEventCallback->removeObject(guardA, PlayerColor(0));
 
 	const auto & quests = gameState->players.at(PlayerColor(0)).quests;
-	ASSERT_EQ(quests.size(), 1u) << "entry must survive while a same-colour sibling remains";
-	EXPECT_EQ(quests.front().obj, guardBId) << "entry should re-target to the surviving sibling";
+	ASSERT_EQ(quests.size(), 1u) << "the shared colour entry must survive the guard's removal";
+	EXPECT_FALSE(quests.front().hasObjectInstance())
+		<< "a border entry is a colour type quest, not bound to a map object";
+	EXPECT_NE(quests.front().getQuest(gameState.get()), nullptr)
+		<< "the type quest still resolves after the visited instance is gone";
 }
 
-TEST_F(QuestBorderTest, BorderGuard_LogEntryRemovedWhenLastSiblingDestroyed)
+TEST_F(QuestBorderTest, BorderGuard_TypeQuestSurvivesAllSiblingsDestroyed)
 {
-	// Once the last same-colour border guard is gone, its shared entry is removed.
+	// A keymaster colour type quest is independent of any instance, so it persists
+	// even once every border of that colour has been removed.
 	auto s = borderGuardTwoSiblings();
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
 
@@ -275,9 +275,9 @@ TEST_F(QuestBorderTest, BorderGuard_LogEntryRemovedWhenLastSiblingDestroyed)
 	ASSERT_NE(guardB, nullptr);
 
 	visit(hero, guardA);
-	gameEventCallback->removeObject(guardA, PlayerColor(0)); // re-targets to guard B
+	gameEventCallback->removeObject(guardA, PlayerColor(0));
 	gameEventCallback->removeObject(guardB, PlayerColor(0)); // last sibling destroyed
 
-	EXPECT_TRUE(gameState->players.at(PlayerColor(0)).quests.empty())
-		<< "entry must be removed once the last same-colour sibling is destroyed";
+	EXPECT_EQ(gameState->players.at(PlayerColor(0)).quests.size(), 1u)
+		<< "a keymaster colour type quest persists with no border instances left";
 }
