@@ -234,11 +234,19 @@ void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point
 	currentAttackOriginPoint = cursorPosition;
 
 	// hex rects of the bottom rows extend under the command panel, so only treat the cursor as hovering a hex
-	// when it is actually over the battlefield - otherwise hovering the panel leaks a unit range highlight
+	// when it is actually over the battlefield - otherwise hovering the panel leaks a unit range highlight.
+	// This handler is also invoked when the cursor is over the battle queue: in that case keep the cursor and
+	// status bar in sync with the queue-hovered stack, so that pointing at the queue is equivalent to pointing
+	// at the stack on the battlefield.
 	if (pos.isInside(cursorPosition))
 	{
 		hoveredHex = getHexAtPosition(cursorPosition);
 		owner.actionsController->onHexHovered(getHoveredHex());
+	}
+	else if (const CStack * queueStack = getQueueHoveredStack())
+	{
+		hoveredHex = BattleHex::INVALID;
+		owner.actionsController->onHexHovered(queueStack->getPosition());
 	}
 	else
 	{
@@ -701,21 +709,36 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 
 BattleHex BattleFieldController::getHoveredHex()
 {
+	// if mouse is not over the battlefield itself but over a stack in the battle queue,
+	// treat the position of that stack as the hovered hex so that pointing at the queue
+	// is equivalent to pointing at the stack on the battlefield
+	if(hoveredHex == BattleHex::INVALID)
+	{
+		if(const CStack * queueStack = getQueueHoveredStack())
+			return queueStack->getPosition();
+	}
+
 	return hoveredHex;
+}
+
+const CStack* BattleFieldController::getQueueHoveredStack() const
+{
+	if(!owner.windowObject->getQueueHoveredUnitId().has_value())
+		return nullptr;
+
+	for(const CStack * stack : owner.getBattle()->battleGetAllStacks())
+		if(stack->unitId() == *owner.windowObject->getQueueHoveredUnitId())
+			return stack;
+
+	return nullptr;
 }
 
 const CStack* BattleFieldController::getHoveredStack()
 {
-	auto hoveredHex = getHoveredHex();
 	const CStack* hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
-	if(owner.windowObject->getQueueHoveredUnitId().has_value())
-	{
-		auto stacks = owner.getBattle()->battleGetAllStacks();
-		for(const CStack * stack : stacks)
-			if(stack->unitId() == *owner.windowObject->getQueueHoveredUnitId())
-				hoveredStack = stack;
-	}
+	if(const CStack * queueStack = getQueueHoveredStack())
+		hoveredStack = queueStack;
 
 	return hoveredStack;
 }
@@ -748,8 +771,53 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
+BattleHex::EDir BattleFieldController::selectAttackDirectionForQueue(const BattleHex & myNumber) const
+{
+	// When the target is pointed at through the battle queue there is no meaningful mouse
+	// position on the battlefield to derive an approach direction from. Instead of letting the
+	// (irrelevant) cursor position decide - which always yields the same corner - pick the
+	// direction whose attack-from hex requires the least movement for the attacker, i.e. the
+	// closest reachable hex. This matches what a player usually wants when simply saying
+	// "attack that stack".
+	const auto * attacker = owner.stacksController->getActiveStack();
+	assert(attacker);
+
+	const auto distances = owner.getBattle()->battleGetDistances(attacker, attacker->getPosition());
+
+	BattleHex::EDir bestDirection = BattleHex::NONE;
+	int bestDistance = std::numeric_limits<int>::max();
+
+	for(int direction = 0; direction < 8; ++direction)
+	{
+		if(!owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(direction)))
+			continue;
+
+		BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, myNumber, BattleHex::EDir(direction));
+		if(!attackFromHex.isValid())
+			continue;
+
+		// attacker can attack from its own hex(es) without moving
+		int distance = attacker->coversPos(attackFromHex) ? 0 : distances[attackFromHex.toInt()];
+		if(distance < bestDistance)
+		{
+			bestDistance = distance;
+			bestDirection = BattleHex::EDir(direction);
+		}
+	}
+
+	if(bestDirection == BattleHex::NONE)
+		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
+
+	return bestDirection;
+}
+
 BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
 {
+	// pointing at the target via the battle queue has no meaningful on-field cursor position,
+	// so fall back to choosing the closest reachable attack-from hex instead
+	if(!pos.isInside(currentAttackOriginPoint) && getQueueHoveredStack() != nullptr)
+		return selectAttackDirectionForQueue(myNumber);
+
 	auto attacker = owner.stacksController->getActiveStack();
 	assert(attacker);
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();

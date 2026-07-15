@@ -124,6 +124,9 @@ public:
 	/// Returns the currently hovered stack
 	const CStack* getHoveredStack();
 
+	/// Returns the stack hovered in the battle queue, or nullptr if none is hovered there
+	const CStack* getQueueHoveredStack() const;
+
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
@@ -139,4 +142,9 @@ private:
 	Point shakeOffset;
 	int shakeFrameCounter = 0;
 	int shakeFrameTotal = 0;
+
+	/// selects an attack approach direction when the target is pointed at through the battle
+	/// queue (i.e. without a meaningful cursor position on the battlefield); picks the closest
+	/// reachable attack-from hex
+	BattleHex::EDir selectAttackDirectionForQueue(const BattleHex & myNumber) const;
 };
