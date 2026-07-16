@@ -349,10 +349,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	{
 		if(!allowedDifficulties.allowsAll())
 		{
-			std::vector<std::string> names;
-			for(size_t i = 0; i < std::size(GameConstants::DIFFICULTY_NAMES); ++i)
-				if(allowedDifficulties.contains(static_cast<EMapDifficulty>(i)))
-					names.push_back(GameConstants::DIFFICULTY_NAMES[i]);
+			auto names = allowedDifficulties.toNames();
 			handler.enterArray("allowedDifficulties").serializeArray(names);
 		}
 	}
@@ -361,14 +358,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 		std::vector<std::string> names;
 		handler.enterArray("allowedDifficulties").serializeArray(names);
 		if(!names.empty())
-		{
-			uint8_t mask = 0;
-			for(const auto & name : names)
-				for(size_t i = 0; i < std::size(GameConstants::DIFFICULTY_NAMES); ++i)
-					if(GameConstants::DIFFICULTY_NAMES[i] == name)
-						mask |= (1u << i);
-			allowedDifficulties = MapDifficultySet(mask);
-		}
+			allowedDifficulties = MapDifficultySet::fromNames(names);
 	}
 	//sublimiters
 	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)
