@@ -52,7 +52,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		if(!h.hasFeature(Handler::Version::TYPE_QUESTS))
+		if(!h.hasFeature(Handler::Version::QUEST_REWORK))
 		{
 			// legacy layout stored only the source object id
 			ObjectInstanceID obj;
