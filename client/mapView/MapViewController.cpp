@@ -88,7 +88,7 @@ void MapViewController::setTileSize(const Point & tileSize, bool setTarget)
 
 	// force update of view center since changing tile size may invalidated it
 	setViewCenter(newViewCenter, model->getLevel());
-	
+
 	if(setTarget)
 		targetTileSize = tileSize;
 }
@@ -234,6 +234,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
 		adventureContext->settingShowInvisible = settings["session"]["showInvisible"].Bool();
+		adventureContext->settingShowAiHeroOverlay = settings["session"]["showAiHeroOverlay"].Bool();
 		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
