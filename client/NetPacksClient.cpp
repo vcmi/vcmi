@@ -168,7 +168,7 @@ void ApplyClientNetPackVisitor::visitSetSecSkill(SetSecSkill & pack)
 void ApplyClientNetPackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
 {
 	const CGHeroInstance *h = cl.gameInfo().getHero(pack.hid);
-	
+
 	if(pack.start())
 	{
 		callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroVisitsTown, h, gs.getTown(pack.tid));

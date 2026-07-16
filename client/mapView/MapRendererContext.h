@@ -46,8 +46,7 @@ public:
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
 	size_t overlayImageIndex(const int3 & coordinates) const override;
-	std::string overlayText(const int3 & coordinates) const override;
-	ColorRGBA overlayTextColor(const int3 & coordinates) const override;
+	MapTextOverlay overlayText(const int3 & coordinates) const override;
 
 	double viewTransitionProgress() const override;
 	bool filterGrayscale() const override;
@@ -72,6 +71,7 @@ public:
 	bool settingShowBlocked = false;
 	bool settingShowInvisible = false;
 	bool settingTextOverlay = false;
+	bool settingShowAiHeroOverlay = false;
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;
 
@@ -80,8 +80,7 @@ public:
 	const CGPath * currentPath() const override;
 	size_t objectImageIndex(ObjectInstanceID objectID, size_t groupSize) const override;
 	size_t terrainImageIndex(size_t groupSize) const override;
-	std::string overlayText(const int3 & coordinates) const override;
-	ColorRGBA overlayTextColor(const int3 & coordinates) const override;
+	MapTextOverlay overlayText(const int3 & coordinates) const override;
 
 	bool showBorder() const override;
 	bool showGrid() const override;

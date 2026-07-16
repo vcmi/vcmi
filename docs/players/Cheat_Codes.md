@@ -190,3 +190,4 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 - `redraw` - force full graphical redraw
 - `screen` - show value of screenBuf variable, which prints "screen" when adventure map has current focus, "screen2" otherwise, and dumps values of both screen surfaces to .bmp files
 - `tell hs <hero ID> <artifact slot ID>` - write what artifact is present on artifact slot with specified ID for hero with specified ID. (must be called during gameplay)
+- `whoIsTheBoss <on/off>` - toggles AI hero role overlay

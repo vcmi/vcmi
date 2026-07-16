@@ -140,9 +140,11 @@ void MapViewCache::update(const std::shared_ptr<IMapRendererContext> & context)
 void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, Canvas & target, bool fullRedraw)
 {
 	bool mapMoved = (cachedPosition != model->getMapViewCenter());
-	bool overlayVisible = context->showImageOverlay() || context->showTextOverlay();
+	bool textOverlayVisible = context->showTextOverlay();
+	bool overlayVisible = context->showImageOverlay() || textOverlayVisible;
 	bool overlayVisibilityChanged = overlayVisible != overlayWasVisible;
-	bool lazyUpdate = !overlayVisibilityChanged && !mapMoved && !fullRedraw && vstd::isAlmostZero(context->viewTransitionProgress());
+	// redraw text overlay backgrounds; track dirty overlay tiles if this becomes expensive.
+	bool lazyUpdate = !textOverlayVisible && !overlayVisibilityChanged && !mapMoved && !fullRedraw && vstd::isAlmostZero(context->viewTransitionProgress());
 
 	Rect dimensions = model->getTilesTotalRect();
 
@@ -185,7 +187,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 		}
 	}
 
-	if(context->showTextOverlay())
+	if(textOverlayVisible)
 	{
 		const auto & font = ENGINE->renderHandler().loadFont(FONT_TINY);
 
@@ -196,7 +198,7 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 				int3 tile(x, y, model->getLevel());
 				auto overlay = context->overlayText(tile);
 
-				if(!overlay.empty())
+				if(!overlay.text.empty())
 				{
 					Rect targetRect = model->getTargetTileArea(tile);
 					Point position = targetRect.center();
@@ -205,12 +207,12 @@ void MapViewCache::render(const std::shared_ptr<IMapRendererContext> & context, 
 					else
 						position.y -= targetRect.h / 4;
 
-					Point dimensions(font->getStringWidth(overlay), font->getLineHeight());
+					Point dimensions(font->getStringWidth(overlay.text), font->getLineHeight());
 					Rect textRect = Rect(position - dimensions / 2, dimensions).resize(2);
 
-					target.drawColor(textRect, context->overlayTextColor(tile));
+					target.drawColor(textRect, overlay.color);
 					target.drawBorder(textRect, Colors::BRIGHT_YELLOW);
-					target.drawText(position, EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay);
+					target.drawText(position, EFonts::FONT_TINY, Colors::BLACK, ETextAlignment::CENTER, overlay.text);
 				}
 			}
 		}

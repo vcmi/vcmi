@@ -85,6 +85,9 @@ class ClientCommandManager //take mantis #2292 issue about account if thinking a
 	// shows object graph
 	void handleVsLog(std::istringstream & singleWordBuffer);
 
+	// Toggle AI hero role overlay.
+	void handleWhoIsTheBossCommand(std::istringstream & singleWordBuffer);
+
 	// generate all assets
 	void handleGenerateAssets();
 

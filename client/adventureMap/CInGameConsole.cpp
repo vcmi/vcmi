@@ -268,7 +268,7 @@ void CInGameConsole::startEnteringText()
 		ENGINE->statusbar()->setEnteredText(enteredText);
 		return;
 	}
-		
+
 	assert(currentStatusBar.expired());//effectively, nullptr check
 
 	currentStatusBar = ENGINE->statusbar();
