@@ -771,55 +771,21 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
-BattleHex::EDir BattleFieldController::selectAttackDirectionForQueue(const BattleHex & myNumber) const
-{
-	// When the target is pointed at through the battle queue there is no meaningful mouse
-	// position on the battlefield to derive an approach direction from. Instead of letting the
-	// (irrelevant) cursor position decide - which always yields the same corner - pick the
-	// direction whose attack-from hex requires the least movement for the attacker, i.e. the
-	// closest reachable hex. This matches what a player usually wants when simply saying
-	// "attack that stack".
-	const auto * attacker = owner.stacksController->getActiveStack();
-	assert(attacker);
-
-	const auto distances = owner.getBattle()->battleGetDistances(attacker, attacker->getPosition());
-
-	BattleHex::EDir bestDirection = BattleHex::NONE;
-	int bestDistance = std::numeric_limits<int>::max();
-
-	for(int direction = 0; direction < 8; ++direction)
-	{
-		if(!owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(direction)))
-			continue;
-
-		BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, myNumber, BattleHex::EDir(direction));
-		if(!attackFromHex.isValid())
-			continue;
-
-		// attacker can attack from its own hex(es) without moving
-		int distance = attacker->coversPos(attackFromHex) ? 0 : distances[attackFromHex.toInt()];
-		if(distance < bestDistance)
-		{
-			bestDistance = distance;
-			bestDirection = BattleHex::EDir(direction);
-		}
-	}
-
-	if(bestDirection == BattleHex::NONE)
-		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
-
-	return bestDirection;
-}
-
 BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
 {
-	// pointing at the target via the battle queue has no meaningful on-field cursor position,
-	// so fall back to choosing the closest reachable attack-from hex instead
-	if(!pos.isInside(currentAttackOriginPoint) && getQueueHoveredStack() != nullptr)
-		return selectAttackDirectionForQueue(myNumber);
-
 	auto attacker = owner.stacksController->getActiveStack();
 	assert(attacker);
+
+	// When the target is pointed at through the battle queue there is no meaningful mouse
+	// position on the battlefield to derive an approach direction from, so the raw cursor
+	// position would always yield the same corner. Instead, pretend the cursor sits on the
+	// attacker: the nearest-test-point logic below then selects the attack-from hex closest
+	// to the attacker, which is what a player usually wants when simply saying "attack that
+	// stack".
+	Point originPoint = currentAttackOriginPoint;
+	if(!pos.isInside(originPoint) && getQueueHoveredStack() != nullptr)
+		originPoint = hexPositionAbsolute(attacker->getPosition()).center();
+
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
 	// For each valid direction, select position to test against
 	std::array<Point, 8> testPoint;
@@ -844,7 +810,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 	{
 		if (testPoint[i].isValid())
 		{
-			int distance = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
+			int distance = (testPoint[i].y - originPoint.y)*(testPoint[i].y - originPoint.y) + (testPoint[i].x - originPoint.x)*(testPoint[i].x - originPoint.x);
 			if (nearest == -1 || distance < nearestDistance)
 			{
 				nearestDistance = distance;

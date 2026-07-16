@@ -142,9 +142,4 @@ private:
 	Point shakeOffset;
 	int shakeFrameCounter = 0;
 	int shakeFrameTotal = 0;
-
-	/// selects an attack approach direction when the target is pointed at through the battle
-	/// queue (i.e. without a meaningful cursor position on the battlefield); picks the closest
-	/// reachable attack-from hex
-	BattleHex::EDir selectAttackDirectionForQueue(const BattleHex & myNumber) const;
 };
