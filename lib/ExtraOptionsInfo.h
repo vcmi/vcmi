@@ -14,6 +14,7 @@ struct DLL_LINKAGE ExtraOptionsInfo
 {
 	bool cheatsAllowed = true;
 	bool unlimitedReplay = false;
+	bool noCumulativeGrowth = false;
 
 	bool operator == (const ExtraOptionsInfo & other) const;
 
@@ -22,5 +23,9 @@ struct DLL_LINKAGE ExtraOptionsInfo
 	{
 		h & cheatsAllowed;
 		h & unlimitedReplay;
+		if(h.hasFeature(Handler::Version::NO_CUMULATIVE_GROWTH))
+			h & noCumulativeGrowth;
+		else
+			noCumulativeGrowth = false;
 	}
 };

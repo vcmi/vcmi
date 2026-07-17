@@ -13,5 +13,6 @@
 bool ExtraOptionsInfo::operator == (const ExtraOptionsInfo & other) const
 {
 	return cheatsAllowed == other.cheatsAllowed &&
-			unlimitedReplay == other.unlimitedReplay;
+			unlimitedReplay == other.unlimitedReplay &&
+			noCumulativeGrowth == other.noCumulativeGrowth;
 }

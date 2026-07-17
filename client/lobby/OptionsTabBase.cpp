@@ -130,6 +130,12 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 		GAME->server().setExtraOptionsInfo(info);
 	});
 
+	addCallback("setNoCumulativeGrowth", [&](int index){
+		ExtraOptionsInfo info = SEL->getStartInfo()->extraOptionsInfo;
+		info.noCumulativeGrowth = index;
+		GAME->server().setExtraOptionsInfo(info);
+	});
+
 	addCallback("setTurnTimerAccumulate", [&](int index){
 		TurnTimerInfo info = SEL->getStartInfo()->turnTimerInfo;
 		info.accumulatingTurnTimer = index;
@@ -443,6 +449,12 @@ void OptionsTabBase::recreate(bool campaign)
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonNoCumulativeGrowth = widget<CToggleButton>("buttonNoCumulativeGrowth"))
+	{
+		buttonNoCumulativeGrowth->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.noCumulativeGrowth);
+		buttonNoCumulativeGrowth->block(GAME->server().isGuest());
 	}
 
 	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))

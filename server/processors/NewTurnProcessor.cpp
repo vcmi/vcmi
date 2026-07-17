@@ -292,6 +292,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 {
 	SetAvailableCreatures sac;
 	PlayerColor player = t->tempOwner;
+	const bool noCumulativeGrowth = gameHandler->gameInfo().getStartInfo()->extraOptionsInfo.noCumulativeGrowth;
 
 	sac.tid = t->id;
 	sac.creatures = t->creatures;
@@ -328,12 +329,24 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 
 		uint32_t resultingCreatures = 0;
 
-		if (weekType == EWeekType::PLAGUE)
-			resultingCreatures = creaturesBefore / 2;
-		else if (weekType == EWeekType::DOUBLE_GROWTH && vstd::contains(t->creatures.at(k).second, creatureWeek))
-			resultingCreatures = (creaturesBefore + creatureGrowth) * 2;
+		if (noCumulativeGrowth)
+		{
+			if (weekType == EWeekType::PLAGUE)
+				resultingCreatures = creatureGrowth / 2;
+			else if (weekType == EWeekType::DOUBLE_GROWTH && vstd::contains(t->creatures.at(k).second, creatureWeek))
+				resultingCreatures = creatureGrowth * 2;
+			else
+				resultingCreatures = creatureGrowth;
+		}
 		else
-			resultingCreatures = creaturesBefore + creatureGrowth;
+		{
+			if (weekType == EWeekType::PLAGUE)
+				resultingCreatures = creaturesBefore / 2;
+			else if (weekType == EWeekType::DOUBLE_GROWTH && vstd::contains(t->creatures.at(k).second, creatureWeek))
+				resultingCreatures = (creaturesBefore + creatureGrowth) * 2;
+			else
+				resultingCreatures = creaturesBefore + creatureGrowth;
+		}
 
 		sac.creatures.at(k).first = resultingCreatures;
 	}

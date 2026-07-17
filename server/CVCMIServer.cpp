@@ -1134,6 +1134,8 @@ void CVCMIServer::multiplayerWelcomeMessage()
 		optionIds.emplace_back("vcmi.optionsTab.cheatAllowed.hover");
 	if(si->extraOptionsInfo.unlimitedReplay)
 		optionIds.emplace_back("vcmi.optionsTab.unlimitedReplay.hover");
+	if(si->extraOptionsInfo.noCumulativeGrowth)
+		optionIds.emplace_back("vcmi.optionsTab.noCumulativeGrowth.hover");
 
 	if(!optionIds.size()) // No settings to publish
 		return;
