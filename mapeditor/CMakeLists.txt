@@ -77,6 +77,7 @@ endif()
 set(editor_HEADERS
 		StdInc.h
 		mainwindow.h
+		editorbridge.h
 		BitmapHandler.h
 		maphandler.h
 		Animation.h
@@ -341,6 +342,9 @@ target_compile_definitions(vcmieditor PRIVATE QT_NO_EMIT)
 
 if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 	target_compile_definitions(vcmieditor PRIVATE VCMIQT_STATIC)
+endif()
+if(ENABLE_TRANSLATIONS)
+	target_compile_definitions(vcmieditor PRIVATE ENABLE_TRANSLATIONS)
 endif()
 
 target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)

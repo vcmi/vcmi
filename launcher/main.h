@@ -9,8 +9,10 @@
  */
 #pragma once
 
+class QWidget;
+
 void startGame(const QStringList & args);
-void startEditor(const QStringList & args);
+void startEditor(const QStringList & args, QWidget * parent);
 
 #ifdef VCMI_IOS
 extern "C" void launchGame(int argc, char * argv[]);

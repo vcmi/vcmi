@@ -32,10 +32,11 @@
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../../lib/texts/MetaString.h"
 
-TemplateEditor::TemplateEditor():
+TemplateEditor::TemplateEditor(QWidget * parent): QWidget{parent},
 	ui(new Ui::TemplateEditor)
 {
 	ui->setupUi(this);
+	setWindowFlag(Qt::Window);
 
 #ifdef VCMI_MOBILE
 	ui->menubar->setNativeMenuBar(false);
@@ -70,7 +71,7 @@ TemplateEditor::TemplateEditor():
 	loadContent();
 
 	setTitle();
-	
+
 	setWindowModality(Qt::ApplicationModal);
 
 	show();
@@ -165,7 +166,7 @@ void TemplateEditor::autoPositionZones()
 			continue;
 		edges.push_back({from, to});
 	}
-		
+
 	GeometryAlgorithm::forceDirectedLayout(nodes, edges, 1000, 500, 500);
 
 	for(auto & item : nodes)
@@ -220,7 +221,7 @@ void TemplateEditor::loadContent(bool autoPosition)
 
 		updateZoneCards();
 	}
-	
+
 	updateConnectionLines(true);
 	updateZonePositions();
 
@@ -348,13 +349,13 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 {
 	if(selectedZone < 0 || selectedTemplate.empty())
 		return;
-	
+
 	auto setValue = [](auto& target, const auto& newValue){ target->setValue(newValue); };
 	auto & zone = templates[selectedTemplate]->getZones().at(selectedZone);
 	setValue(ui->spinBoxZoneVisPosX, zone->getVisiblePosition().x);
 	setValue(ui->spinBoxZoneVisPosY, zone->getVisiblePosition().y);
 	setValue(ui->doubleSpinBoxZoneVisSize, zone->getVisibleSize());
-	
+
 	if(onlyPosition)
 		return;
 
@@ -384,7 +385,7 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->spinBoxZoneLinkTerrain->setEnabled(zone->terrainTypeLikeZone != rmg::ZoneOptions::NO_ZONE);
 	ui->spinBoxZoneLinkTreasure->setEnabled(zone->treasureLikeZone != rmg::ZoneOptions::NO_ZONE);
 	ui->spinBoxZoneLinkCustomObjects->setEnabled(zone->customObjectsLikeZone != rmg::ZoneOptions::NO_ZONE);
-	
+
 	setValue(ui->spinBoxZoneId, zone->id);
 	ui->spinBoxZoneId->setEnabled(false);
 
@@ -749,7 +750,7 @@ bool TemplateEditor::validate()
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -763,12 +764,11 @@ void TemplateEditor::saveTemplate()
 
 void TemplateEditor::showTemplateEditor(QWidget *parent)
 {
-	auto * dialog = new TemplateEditor();
-	
+	auto * dialog = new TemplateEditor(parent);
+
 	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(dialog, &QObject::destroyed, parent, &QWidget::show);
 }
 
 void TemplateEditor::on_actionOpen_triggered()
@@ -778,7 +778,7 @@ void TemplateEditor::on_actionOpen_triggered()
 
 	if(!getAnswerAboutUnsavedChanges())
 		return;
-	
+
 	auto title = tr("Open template");
 	auto dir = QString::fromStdString(VCMIDirs::get().userDataPath().make_preferred().string());
 	auto filter = tr("VCMI templates(*.json)");
@@ -829,7 +829,7 @@ void TemplateEditor::on_actionNew_triggered()
 	templates = std::map<std::string, std::shared_ptr<CRmgTemplate>>();
 	templates["TemplateEditor"] = std::make_shared<CRmgTemplate>();
 	setDefaultContent(templates["TemplateEditor"]);
-	
+
 	changed();
 	initContent();
 	loadContent();
@@ -840,7 +840,7 @@ void TemplateEditor::on_actionSave_triggered()
 {
 	if(filename.isNull())
 		on_actionSave_as_triggered();
-	else 
+	else
 		saveTemplate();
 	setTitle();
 }
@@ -921,6 +921,8 @@ void TemplateEditor::closeEvent(QCloseEvent *event)
 		QAndroidJniObject activity = QtAndroid::androidActivity();
 		if(activity.isValid())
 			activity.callMethod<void>("finishAffinity");
+#else
+		parentWidget()->show();
 #endif
 	}
 	else
@@ -990,19 +992,19 @@ void TemplateEditor::on_pushButtonRenameSubTemplate_clicked()
 	selectedTemplate = text.toStdString();
 }
 
-void TemplateEditor::on_spinBoxZoneVisPosX_valueChanged()
+void TemplateEditor::on_spinBoxZoneVisPosX_valueChanged(int)
 {
 	if(ui->spinBoxZoneVisPosX->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneVisPosY_valueChanged()
+void TemplateEditor::on_spinBoxZoneVisPosY_valueChanged(int)
 {
 	if(ui->spinBoxZoneVisPosY->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_doubleSpinBoxZoneVisSize_valueChanged()
+void TemplateEditor::on_doubleSpinBoxZoneVisSize_valueChanged(double)
 {
 	if(ui->doubleSpinBoxZoneVisSize->hasFocus())
 		saveZoneMenuContent();
@@ -1012,7 +1014,7 @@ void TemplateEditor::on_comboBoxZoneType_currentTextChanged(const QString &text)
 {
 	if(!ui->comboBoxZoneType->hasFocus())
 		return;
-	ui->comboBoxZoneType->clearFocus(); 
+	ui->comboBoxZoneType->clearFocus();
 
 	saveZoneMenuContent();
 	loadZoneMenuContent();
@@ -1030,55 +1032,55 @@ void TemplateEditor::on_comboBoxForcedLevel_currentTextChanged(const QString &te
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneSize_valueChanged()
+void TemplateEditor::on_spinBoxZoneSize_valueChanged(int)
 {
 	if(ui->spinBoxZoneSize->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownCountPlayer_valueChanged()
+void TemplateEditor::on_spinBoxTownCountPlayer_valueChanged(int)
 {
 	if(ui->spinBoxTownCountPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleCountPlayer_valueChanged()
+void TemplateEditor::on_spinBoxCastleCountPlayer_valueChanged(int)
 {
 	if(ui->spinBoxCastleCountPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownDensityPlayer_valueChanged()
+void TemplateEditor::on_spinBoxTownDensityPlayer_valueChanged(int)
 {
 	if(ui->spinBoxTownDensityPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleDensityPlayer_valueChanged()
+void TemplateEditor::on_spinBoxCastleDensityPlayer_valueChanged(int)
 {
 	if(ui->spinBoxCastleDensityPlayer->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownCountNeutral_valueChanged()
+void TemplateEditor::on_spinBoxTownCountNeutral_valueChanged(int)
 {
 	if(ui->spinBoxTownCountNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleCountNeutral_valueChanged()
+void TemplateEditor::on_spinBoxCastleCountNeutral_valueChanged(int)
 {
 	if(ui->spinBoxCastleCountNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxTownDensityNeutral_valueChanged()
+void TemplateEditor::on_spinBoxTownDensityNeutral_valueChanged(int)
 {
 	if(ui->spinBoxTownDensityNeutral->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxCastleDensityNeutral_valueChanged()
+void TemplateEditor::on_spinBoxCastleDensityNeutral_valueChanged(int)
 {
 	if(ui->spinBoxCastleDensityNeutral->hasFocus())
 		saveZoneMenuContent();
@@ -1102,37 +1104,37 @@ void TemplateEditor::on_comboBoxMonsterStrength_currentTextChanged(const QString
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneId_valueChanged()
+void TemplateEditor::on_spinBoxZoneId_valueChanged(int)
 {
 	if(ui->spinBoxZoneId->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTowns_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTowns_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTowns->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkMines_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkMines_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkMines->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTerrain_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTerrain_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTerrain->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkTreasure_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkTreasure_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkTreasure->hasFocus())
 		saveZoneMenuContent();
 }
 
-void TemplateEditor::on_spinBoxZoneLinkCustomObjects_valueChanged()
+void TemplateEditor::on_spinBoxZoneLinkCustomObjects_valueChanged(int)
 {
 	if(ui->spinBoxZoneLinkCustomObjects->hasFocus())
 		saveZoneMenuContent();

@@ -72,7 +72,7 @@ set(Nullkiller2_SRCS
 
 set(Nullkiller2_HEADERS
 		StdInc.h
-		
+
 		Pathfinding/AIPathfinderConfig.h
 		Pathfinding/AIPathfinder.h
 		Pathfinding/AINodeStorage.h
@@ -119,9 +119,9 @@ set(Nullkiller2_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Goals/StayAtTown.h
-			Goals/ExploreNeighbourTile.h
-			Helpers/DimensionDoorUtils.h
-			Helpers/HeroMap.h
+		Goals/ExploreNeighbourTile.h
+		Helpers/DimensionDoorUtils.h
+		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
