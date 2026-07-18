@@ -766,33 +766,22 @@ void CPlayerInterface::battleUnitsChanged(const BattleID & battleID, const std::
 	}
 }
 
-void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
+void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
-	std::vector<ObstacleChanges> removedObstacles;
-
-	for(auto & change : obstacles)
+	if(obstacle.operation == BattleChanges::EOperation::ADD || obstacle.operation == BattleChanges::EOperation::UPDATE)
 	{
-		if(change.operation == BattleChanges::EOperation::ADD)
-		{
-			auto instance = cb->getBattle(battleID)->battleGetObstacleByID(change.id);
-			if(instance)
-				newObstacles.push_back(instance);
-			else
-				logNetwork->error("Invalid obstacle instance %d", change.id);
-		}
-		if(change.operation == BattleChanges::EOperation::REMOVE)
-			removedObstacles.push_back(change); //Obstacles are already removed, so, show animation based on json struct
+		auto instance = cb->getBattle(battleID)->battleGetObstacleByID(obstacle.id);
+		if(instance)
+			battleInt->obstaclePlaced(instance);
+		else
+			logNetwork->error("Invalid obstacle instance %d", obstacle.id);
 	}
 
-	if (!newObstacles.empty())
-		battleInt->obstaclePlaced(newObstacles);
-
-	if (!removedObstacles.empty())
-		battleInt->obstacleRemoved(removedObstacles);
+	if(obstacle.operation == BattleChanges::EOperation::REMOVE)
+		battleInt->obstacleRemoved(obstacle); //Obstacle is already removed, so, show animation based on json struct
 
 	battleInt->fieldController->redrawBackgroundWithHexes();
 }
@@ -803,8 +792,6 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
-	if(ca.killedTowerShooter != -1)
-		battleInt->stackRemoved(static_cast<uint32_t>(ca.killedTowerShooter));
 }
 
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn

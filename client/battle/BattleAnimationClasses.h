@@ -25,6 +25,7 @@ class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 struct StackAttackedInfo;
+enum class EGateState : int8_t;
 
 /// Base class of battle animations
 class BattleAnimation
@@ -273,6 +274,9 @@ private:
 public:
 	CatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
 
+	/// invoked at the midpoint of the wall-hit explosion (used to swap the damaged wall sprite)
+	std::function<void()> onExplosion;
+
 	void createProjectile(const Point & from, const Point & dest) const override;
 	void tick(uint32_t msPassed) override;
 };
@@ -311,6 +315,7 @@ class EffectAnimation : public BattleAnimation
 	int effectFlags;
 	float transparencyFactor;
 	bool effectFinished;
+	bool midpointReached = false;
 	bool reversed;
 
 	std::shared_ptr<CAnimation>	animation;
@@ -348,6 +353,12 @@ public:
 	EffectAnimation(BattleInterface & owner, const AnimationPath & animationName, Point pos, BattleHex hex,     int effects = 0, bool reversed = false);
 	 ~EffectAnimation();
 
+	/// invoked once when the animation reaches its last frame, before the effect is removed
+	std::function<void()> onFinished;
+
+	/// invoked once when the animation reaches its halfway frame
+	std::function<void()> onMidpoint;
+
 	bool init() override;
 	void tick(uint32_t msPassed) override;
 };
@@ -371,4 +382,31 @@ public:
 
 	void tick(uint32_t msPassed) override;
 	bool init() override;
+};
+
+/// Drives the jagged ray chaining between chain-lightning targets; waits until the ray finishes flying
+class ChainLightningAnimation : public BattleAnimation
+{
+	const CStack * caster;
+	std::vector<Point> targetPoints;
+	const CSpell * spell;
+
+public:
+	ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell);
+
+	bool init() override;
+	void tick(uint32_t msPassed) override;
+};
+
+/// Shows the drawbridge's partially-open frame while it lowers or raises, then settles it to the final sprite
+class GateAnimation : public BattleAnimation
+{
+	EGateState targetState;
+	uint32_t elapsed = 0;
+
+public:
+	GateAnimation(BattleInterface & owner, EGateState targetState);
+
+	bool init() override;
+	void tick(uint32_t msPassed) override;
 };

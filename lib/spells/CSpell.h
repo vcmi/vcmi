@@ -16,6 +16,7 @@
 
 #include "../bonuses/Bonus.h"
 #include "../json/JsonNode.h"
+#include "../Color.h"
 
 class CSpell;
 class IAdventureSpellMechanics;
@@ -52,6 +53,9 @@ public:
 		///displayed on all affected targets.
 		SpellAnimationQueue affect;
 
+		///displayed on secondary affected targets instead of "affect" (e.g. the sacrificed unit for Sacrifice). Empty = use "affect".
+		SpellAnimationQueue affectSecondary;
+
 		///displayed on caster.
 		SpellAnimationQueue cast;
 
@@ -61,6 +65,18 @@ public:
 		///displayed "between" caster and (first) target. Ignored if spell was cast with no target selection.
 		///use selectProjectile to access
 		std::vector<ProjectileInfo> projectile;
+
+		///jagged ray drawn between consecutive affected targets (e.g. chain lightning). Empty = no ray.
+		std::vector<RayColor> ray;
+
+		///midpoint-displacement amplitude of the ray, as a fraction of each segment's length
+		float rayJaggedness = 0.f;
+
+		///delay in seconds before the ray jumps to each next target
+		float rayHopDelay = 0.1f;
+
+		///thickness in pixels of each of the ray's color sub-lines
+		int rayWidth = 1;
 
 		AnimationPath selectProjectile(const double angle) const;
 	} animationInfo;

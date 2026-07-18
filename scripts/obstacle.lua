@@ -134,6 +134,7 @@ function Script:adjustAffectedHexes(mechanics, hexes, spellTarget)
 			end
 		end
 	end
+	return hexes
 end
 
 local function buildDescriptor(self, mechanics, side, hex, customSize)
@@ -156,6 +157,7 @@ local function buildDescriptor(self, mechanics, side, hex, customSize)
 		appearSound      = opts.appearSound or "",
 		appearAnimation  = opts.appearAnimation or "",
 		animation        = opts.animation or "",
+		removalAnimation = opts.removalAnimation or "",
 		customSize       = customSize,
 	}
 end

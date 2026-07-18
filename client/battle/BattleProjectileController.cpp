@@ -103,52 +103,63 @@ void ProjectileCatapult::show(Canvas & canvas)
 	}
 }
 
-void ProjectileRay::show(Canvas & canvas)
+/// draws a single ray segment as a bundle of parallel gradient sub-lines from `from` to `curr`
+static void drawRaySegment(Canvas & canvas, const Point & from, const Point & curr, const std::vector<RayColor> & rayConfig)
 {
-	Point curr {
-		vstd::lerp(from.x, dest.x, progress),
-		vstd::lerp(from.y, dest.y, progress),
-	};
-
 	Point length = curr - from;
+	int lines = static_cast<int>(rayConfig.size());
 
 	//select axis to draw ray on, we want angle to be less than 45 degrees so individual sub-rays won't overlap each other
 
 	if (std::abs(length.x) > std::abs(length.y)) // draw in horizontal axis
 	{
-		int y1 =  from.y - rayConfig.size() / 2;
-		int y2 =  curr.y - rayConfig.size() / 2;
+		int y1 =  from.y - lines / 2;
+		int y2 =  curr.y - lines / 2;
 
-		int x1 = from.x;
-		int x2 = curr.x;
-
-		for (size_t i = 0; i < rayConfig.size(); ++i)
-		{
-			auto ray = rayConfig[i];
-			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), ray.start, ray.end);
-		}
+		for (int i = 0; i < lines; ++i)
+			canvas.drawLine(Point(from.x, y1 + i), Point(curr.x, y2 + i), rayConfig[i].start, rayConfig[i].end);
 	}
 	else // draw in vertical axis
 	{
-		int x1 = from.x - rayConfig.size() / 2;
-		int x2 = curr.x - rayConfig.size() / 2;
+		int x1 = from.x - lines / 2;
+		int x2 = curr.x - lines / 2;
 
-		int y1 = from.y;
-		int y2 = curr.y;
-
-		for (size_t i = 0; i < rayConfig.size(); ++i)
-		{
-			auto ray = rayConfig[i];
-
-			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), ray.start, ray.end);
-		}
+		for (int i = 0; i < lines; ++i)
+			canvas.drawLine(Point(x1 + i, from.y), Point(x2 + i, curr.y), rayConfig[i].start, rayConfig[i].end);
 	}
+}
+
+void ProjectileRay::show(Canvas & canvas)
+{
+	if (path.empty())
+	{
+		Point curr {
+			vstd::lerp(from.x, dest.x, progress),
+			vstd::lerp(from.y, dest.y, progress),
+		};
+		drawRaySegment(canvas, from, curr, rayConfig);
+		return;
+	}
+
+	// jagged polyline, revealed one hop at a time as `progress` advances
+	int totalSegments = static_cast<int>(path.size()) - 1;
+	int segmentsPerHop = totalSegments / hopCount;
+	int revealedHops = std::min(hopCount, static_cast<int>(progress * hopCount) + 1);
+
+	for (int i = 0; i < revealedHops * segmentsPerHop; ++i)
+		drawRaySegment(canvas, path[i], path[i + 1], rayConfig);
 }
 
 void ProjectileRay::tick(uint32_t msPassed)
 {
 	float timePassed = msPassed / 1000.f;
-	progress += timePassed * speed;
+
+	if (progress < 1.f)
+		progress = std::min(1.f, progress + timePassed * speed); // hold fully drawn once complete
+	else if (linger > 0.f)
+		linger -= timePassed;
+	else
+		progress = 2.f; // linger expired -> let controller erase it
 }
 
 BattleProjectileController::BattleProjectileController(BattleInterface & owner):
@@ -383,4 +394,78 @@ void BattleProjectileController::createSpellProjectile(const CStack * shooter, P
 
 		projectiles.push_back(std::shared_ptr<ProjectileBase>(projectile));
 	}
+}
+
+/// appends a midpoint-displaced polyline from a (exclusive) to b (inclusive) to `out`
+static void addJaggedSegment(std::vector<Point> & out, const Point & a, const Point & b, float amplitude, int depth)
+{
+	if (depth <= 0)
+	{
+		out.push_back(b);
+		return;
+	}
+
+	Point dir = b - a;
+	float len = std::sqrt(static_cast<float>(dir.x * dir.x + dir.y * dir.y));
+
+	Point mid = (a + b) / 2;
+	if (len > 1.f)
+	{
+		static std::mt19937 rng(std::random_device{}());
+		std::uniform_real_distribution<float> dist(-amplitude, amplitude);
+		float off = dist(rng) * len;
+		// displace the midpoint perpendicular to the segment
+		mid.x += static_cast<int>(-dir.y / len * off);
+		mid.y += static_cast<int>( dir.x / len * off);
+	}
+
+	addJaggedSegment(out, a, mid, amplitude, depth - 1);
+	addJaggedSegment(out, mid, b, amplitude, depth - 1);
+}
+
+/// expands `keys` (edge -> center gradient) into a symmetric `width`-line gradient with interpolated intermediates
+static std::vector<RayColor> expandRayColors(const std::vector<RayColor> & keys, int width)
+{
+	if (keys.empty() || width <= static_cast<int>(keys.size()))
+		return keys;
+
+	std::vector<RayColor> out(width);
+	float center = (width - 1) / 2.f;
+	for (int k = 0; k < width; ++k)
+	{
+		// distance from edge, 0 at outer lines -> 1 at center
+		float edgeToCenter = center > 0 ? 1.f - std::abs(k - center) / center : 1.f;
+		float keyPos = edgeToCenter * (keys.size() - 1);
+		int i0 = static_cast<int>(keyPos);
+		int i1 = std::min<int>(i0 + 1, keys.size() - 1);
+		float f = keyPos - i0;
+		out[k].start = vstd::lerp(keys[i0].start, keys[i1].start, f);
+		out[k].end   = vstd::lerp(keys[i0].end,   keys[i1].end,   f);
+	}
+	return out;
+}
+
+void BattleProjectileController::createSpellRayProjectile(const CStack * caster, const std::vector<Point> & targetPoints, const std::vector<RayColor> & rayConfig, float jaggedness, float hopDelay, int width)
+{
+	if (targetPoints.size() < 2)
+		return;
+
+	auto ray = new ProjectileRay();
+
+	// each hop between consecutive targets is midpoint-displaced twice -> 4 jagged sub-segments per hop
+	ray->path.push_back(targetPoints.front());
+	for (size_t i = 1; i < targetPoints.size(); ++i)
+		addJaggedSegment(ray->path, targetPoints[i - 1], targetPoints[i], jaggedness, 2);
+
+	ray->hopCount  = static_cast<int>(targetPoints.size()) - 1;
+	// progress runs 0->1 across all hops; one hop is revealed every hopDelay seconds
+	float totalTime = ray->hopCount * hopDelay;
+	ray->rayConfig = expandRayColors(rayConfig, width);
+	ray->linger    = 0.1f; // keep the fully-formed ray visible briefly before it vanishes
+	ray->shooterID = caster ? caster->unitId() : -1;
+	ray->progress  = 0;
+	ray->speed     = totalTime > 0 ? 1.f / totalTime : 1000.f;
+	ray->playing   = true;
+
+	projectiles.push_back(std::shared_ptr<ProjectileBase>(ray));
 }

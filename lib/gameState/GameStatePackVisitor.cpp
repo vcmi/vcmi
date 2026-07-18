@@ -1622,23 +1622,19 @@ void BattleStatePackVisitor::visitCatapultAttack(CatapultAttack & pack)
 
 void BattleStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
 {
-	for(const auto & change : pack.changes)
+	switch(pack.change.operation)
 	{
-		switch(change.operation)
-		{
-			case BattleChanges::EOperation::REMOVE:
-				battleState.removeObstacle(change.id);
-				break;
-			case BattleChanges::EOperation::ADD:
-				battleState.addObstacle(change);
-				break;
-			case BattleChanges::EOperation::UPDATE:
-				battleState.updateObstacle(change);
-				break;
-			default:
-				throw std::runtime_error("Unknown obstacle operation");
-				break;
-		}
+		case BattleChanges::EOperation::REMOVE:
+			battleState.removeObstacle(pack.change.id);
+			break;
+		case BattleChanges::EOperation::ADD:
+			battleState.addObstacle(pack.change);
+			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState.updateObstacle(pack.change);
+			break;
+		default:
+			throw std::runtime_error("Unknown obstacle operation");
 	}
 }
 

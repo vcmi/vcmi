@@ -1283,8 +1283,8 @@ bool CBattleInfoCallback::handleObstacleTriggersForUnit(SpellCastEnvironment & s
 
 				BattleObstaclesChanged bocp;
 				bocp.battleID = getBattle()->getBattleID();
-				bocp.changes.emplace_back(spellObstacle.uniqueID, operation);
-				changedObstacle.toInfo(bocp.changes.back(), operation);
+				bocp.change = ObstacleChanges(spellObstacle.uniqueID, operation);
+				changedObstacle.toInfo(bocp.change, operation);
 				spellEnv.apply(bocp);
 			};
 			const auto side = unit.unitSide();

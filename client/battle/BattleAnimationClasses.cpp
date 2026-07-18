@@ -856,7 +856,9 @@ void CatapultAnimation::tick(uint32_t msPassed)
 	AnimationPath effectFilename = AnimationPath::builtin((catapultDamage > 0) ? "SGEXPL" : "CSGRCK");
 
 	ENGINE->sound().playSound( soundFilename );
-	owner.stacksController->addNewAnim( new EffectAnimation(owner, effectFilename, shotTarget));
+	auto explosion = new EffectAnimation(owner, effectFilename, shotTarget);
+	explosion->onMidpoint = onExplosion;
+	owner.stacksController->addNewAnim(explosion);
 }
 
 void CatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -1064,6 +1066,8 @@ bool EffectAnimation::screenFill() const
 void EffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
+	if (onFinished)
+		onFinished();
 }
 
 void EffectAnimation::playEffect(uint32_t msPassed)
@@ -1076,6 +1080,13 @@ void EffectAnimation::playEffect(uint32_t msPassed)
 		if(elem.effectID == ID)
 		{
 			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * msPassed / 1000;
+
+			if(!midpointReached && elem.currentFrame >= elem.animation->size() / 2.0)
+			{
+				midpointReached = true;
+				if(onMidpoint)
+					onMidpoint();
+			}
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
@@ -1196,4 +1207,50 @@ void HeroCastAnimation::tick(uint32_t msPassed)
 		return;
 
 	hero->play();
+}
+
+ChainLightningAnimation::ChainLightningAnimation(BattleInterface & owner, const CStack * caster, const std::vector<Point> & targetPoints, const CSpell * spell):
+	BattleAnimation(owner),
+	caster(caster),
+	targetPoints(targetPoints),
+	spell(spell)
+{
+}
+
+bool ChainLightningAnimation::init()
+{
+	owner.projectilesController->createSpellRayProjectile(caster, targetPoints, spell->animationInfo.ray, spell->animationInfo.rayJaggedness, spell->animationInfo.rayHopDelay, spell->animationInfo.rayWidth);
+	return true;
+}
+
+void ChainLightningAnimation::tick(uint32_t msPassed)
+{
+	// the animation only exists to keep the caster frozen and block waitForAnimations until the ray lands
+	if(!owner.projectilesController->hasActiveProjectile(caster, false))
+		delete this;
+}
+
+// how long the partially-open drawbridge frame is shown while the bridge lowers or raises, in ms
+static constexpr uint32_t gateTransitionDuration = 200;
+
+GateAnimation::GateAnimation(BattleInterface & owner, EGateState targetState):
+	BattleAnimation(owner),
+	targetState(targetState)
+{
+}
+
+bool GateAnimation::init()
+{
+	owner.siegeController->showPartialGate();
+	return true;
+}
+
+void GateAnimation::tick(uint32_t msPassed)
+{
+	elapsed += msPassed;
+	if(elapsed >= gateTransitionDuration)
+	{
+		owner.siegeController->applyGateState(targetState);
+		delete this;
+	}
 }

@@ -199,8 +199,7 @@ void ServerCallbackProxy::addObstacle(ServerCallback & object, const IBattleInfo
 
 	BattleObstaclesChanged pack;
 	pack.battleID = battle.getBattle()->getBattleID();
-	pack.changes.emplace_back();
-	obstacle.toInfo(pack.changes.back());
+	obstacle.toInfo(pack.change);
 	object.apply(pack);
 }
 
@@ -239,9 +238,9 @@ void ServerCallbackProxy::removeObstacle(ServerCallback & object, const IBattleI
 
 	BattleObstaclesChanged pack;
 	pack.battleID = battle.getBattle()->getBattleID();
-	pack.changes.emplace_back(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
+	pack.change = ObstacleChanges(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
 	auto * serializable = const_cast<CObstacleInstance*>(obstacle.get());
-	serializable->toInfo(pack.changes.back(), BattleChanges::EOperation::REMOVE);
+	serializable->toInfo(pack.change, BattleChanges::EOperation::REMOVE);
 	object.apply(pack);
 }
 

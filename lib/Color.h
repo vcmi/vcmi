@@ -9,6 +9,8 @@
  */
 #pragma once
 
+class JsonNode;
+
 /// An object that represents RGBA color
 class ColorRGBA
 {
@@ -68,6 +70,15 @@ public:
 		return mean_lhs < mean_rhs;
 	}
 
+};
+
+/// One parallel sub-line of a ray, with a start->end color gradient along the ray length
+struct RayColor
+{
+	ColorRGBA start;
+	ColorRGBA end;
+
+	static RayColor fromJson(const JsonNode & node);
 };
 
 namespace vstd
