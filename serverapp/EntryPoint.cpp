@@ -45,6 +45,57 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 	logGlobal->info("Generated files can be found in " + outPath.string() + " directory");
 }
 
+/// Loads and drops every map and campaign scenario in the VFS. Used by --dummy-run
+/// so map-loader changes can be exercised against the whole map corpus without a client.
+static void loadAllMaps()
+{
+	CMapService mapService;
+
+	std::unordered_set<ResourcePath> mapList = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::MAP;
+	});
+
+	logGlobal->info("Loading %d maps", mapList.size());
+	for(const auto & mapName : mapList)
+	{
+		try
+		{
+			EditorCallback cb(nullptr);
+			mapService.loadMap(mapName, &cb); // load and drop - we only need the loader to run
+		}
+		catch(const std::exception & e)
+		{
+			logGlobal->warn("Map %s is invalid. Message: %s", mapName.getName(), e.what());
+		}
+	}
+
+	std::unordered_set<ResourcePath> campaignList = CResourceHandler::get()->getFilteredFiles([](const ResourcePath & ident)
+	{
+		return ident.getType() == EResType::CAMPAIGN;
+	});
+
+	logGlobal->info("Loading %d campaigns", campaignList.size());
+	for(const auto & campaignName : campaignList)
+	{
+		try
+		{
+			auto campaign = CampaignHandler::getCampaign(campaignName.getName());
+			for(const auto & part : campaign->allScenarios())
+			{
+				EditorCallback cb(nullptr);
+				campaign->getMap(part, &cb);
+			}
+		}
+		catch(const std::exception & e)
+		{
+			logGlobal->warn("Campaign %s is invalid. Message: %s", campaignName.getName(), e.what());
+		}
+	}
+
+	logGlobal->info("Finished loading all maps");
+}
+
 static void generateTranslations(const std::string & modID)
 {
 	LIBRARY = new GameLibrary;
@@ -317,6 +368,10 @@ int main(int argc, const char * argv[])
 		server.run();
 
 		// CVCMIServer destructor must be called here - before LIBRARY cleanup
+	}
+	else
+	{
+		loadAllMaps();
 	}
 
 	logConfigurator.deconfigure();

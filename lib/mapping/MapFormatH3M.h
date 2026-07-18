@@ -129,11 +129,9 @@ private:
 	 * Reads HotA events system.
 	 */
 	void readHotaScripts();
-	void readHotaScriptActions();
-	void readHotaScriptCondition();
-	void readHotaScriptConditionInternal();
-	void readHotaScriptExpression();
-	void readHotaScriptExpressionInternal();
+
+	/// Writes generated Lua to <cache>/extracted/mapScripts/<mapName>.lua for debugging.
+	void dumpMapScript(const std::string & luaSource);
 
 	/**
 	 * Reads the list of allowed heroes.
