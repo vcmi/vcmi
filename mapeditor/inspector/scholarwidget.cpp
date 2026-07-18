@@ -54,9 +54,12 @@ void ScholarWidget::loadData()
 	int spi = 0;
 	for(const auto & spell : LIBRARY->spellh->objects)
 	{
-		ui->spells->insertItem(spi, QString::fromStdString(spell->getNameTranslated()));
-		ui->spells->setItemData(spi, QString::fromStdString(spell->getJsonKey()));
-		spi++;
+		if(spell->isCommonHeroSpell())
+		{
+			ui->spells->insertItem(spi, QString::fromStdString(spell->getNameTranslated()));
+			ui->spells->setItemData(spi, QString::fromStdString(spell->getJsonKey()));
+			spi++;
+		}
 	}
 
 	auto allowCompletion = [](QComboBox * comboBox)

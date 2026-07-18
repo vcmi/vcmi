@@ -21,6 +21,8 @@ public:
 
 	si32 loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue);
 
+	bool canOverwriteMapSettings(const JsonNode & value) const;
+
 private:
 	template<typename IdentifierType>
 	IdentifierType decodeKey(const JsonNode & value, const Variables & variables);
@@ -41,7 +43,7 @@ std::set<IdentifierType> JsonKeyExtractor::filterKeys(const JsonNode & value, co
     // if value is string do not filter value through valueSet. It allows objects like scholar to override map settings
     // (i.e grant a skill that is blocked by map settings). It is intentional.
     // TODO: refactor class so this behaviour is clearly reflected by api.
-	if(value.isString())
+	if(canOverwriteMapSettings(value))
         return {decodeKey<IdentifierType>(value, variables)};
 
 	assert(value.isStruct());

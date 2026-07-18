@@ -46,6 +46,7 @@ public:
 	MOCK_CONST_METHOD0(isOffensive, bool());
 	MOCK_CONST_METHOD0(isSpecial, bool());
 	MOCK_CONST_METHOD0(isMagical, bool());
+	MOCK_CONST_METHOD0(isCommonHeroSpell, bool());
 	MOCK_CONST_METHOD0(canCastOnSelf, bool());
 	MOCK_CONST_METHOD0(canCastOnlyOnSelf, bool());
 	MOCK_CONST_METHOD0(canCastWithoutSkip, bool());

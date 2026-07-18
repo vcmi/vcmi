@@ -173,6 +173,7 @@ public:
 	bool isOffensive() const override;
 
 	bool isSpecial() const override;
+	bool isCommonHeroSpell() const override;
 
 	bool isAdventure() const override;
 	bool isCombat() const override;
