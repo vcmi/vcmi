@@ -783,7 +783,7 @@ void CPlayerInterface::battleObstaclesChanged(const BattleID & battleID, const O
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	if(obstacle.operation == BattleChanges::EOperation::ADD)
+	if(obstacle.operation == BattleChanges::EOperation::ADD || obstacle.operation == BattleChanges::EOperation::UPDATE)
 	{
 		auto instance = cb->getBattle(battleID)->battleGetObstacleByID(obstacle.id);
 		if(instance)
