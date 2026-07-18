@@ -16,8 +16,6 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../texts/TextIdentifier.h"
 
-namespace
-{
 enum class HotaScriptActions : int32_t
 {
 	CONDITIONAL_CHAIN = 1,
@@ -98,18 +96,26 @@ enum class HotaScriptExpression : int32_t
 	HERO_OWNED_ARTIFACTS = 17
 };
 
-std::string num(int64_t value)
+static std::string num(int64_t value)
 {
 	return std::to_string(value);
 }
 
-std::string boolStr(bool value)
+static std::string boolStr(bool value)
 {
 	return value ? "true" : "false";
 }
 
+/// Renders a content identifier (artifact, spell, creature, skill, faction, hero, resource)
+/// as a quoted Lua string holding its JSON key
+template<typename IdentifierType>
+std::string entityKey(IdentifierType identifier)
+{
+	return '"' + IdentifierType::encode(identifier.getNum()) + '"';
+}
+
 /// EXECUTE_EVENT stores the target bucket as an integer in map order.
-std::string bucketName(int eventType)
+static std::string bucketName(int eventType)
 {
 	switch(eventType)
 	{
@@ -119,7 +125,6 @@ std::string bucketName(int eventType)
 		case 3: return "questEvents";
 		default: return "heroEvents";
 	}
-}
 }
 
 HotaScriptConverter::HotaScriptConverter(MapReaderH3M & reader, std::string mapName, LocalizeCallback localizeString)
@@ -385,7 +390,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				ArtifactID artifact = reader.readArtifact32();
 				SpellID scrollSpell = reader.readSpell32();
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantArtifact(" + boolStr(take) + ", " + num(artifact.getNum()) + ", " + num(scrollSpell.getNum()) + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantArtifact(" + boolStr(take) + ", " + entityKey(artifact) + ", " + entityKey(scrollSpell) + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::WAR_MACHINE:
@@ -394,14 +399,14 @@ std::string HotaScriptConverter::loadActions(int indent)
 				ArtifactID machine = reader.readArtifact32();
 				reader.skipUnused(4); // garbage padding
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantWarMachine(" + boolStr(take) + ", " + num(machine.getNum()) + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantWarMachine(" + boolStr(take) + ", " + entityKey(machine) + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SPELL:
 			{
 				SpellID spell = reader.readSpell32();
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantSpell(" + num(spell.getNum()) + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantSpell(" + entityKey(spell) + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SPELLBOOK:
@@ -418,7 +423,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				CreatureID creature = reader.readCreature32();
 				std::string count = loadExpression();
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantCreatures(" + boolStr(take) + ", " + num(creature.getNum()) + ", " + count + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantCreatures(" + boolStr(take) + ", " + entityKey(creature) + ", " + count + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::START_COMBAT:
@@ -430,7 +435,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 					CreatureID creature = reader.readCreature32();
 					if(i != 0)
 						slots += ", ";
-					slots += "{" + count + ", " + num(creature.getNum()) + "}";
+					slots += "{" + count + ", " + entityKey(creature) + "}";
 				}
 				result += pad + "ctx:startCombat({" + slots + "})\n";
 				break;
@@ -440,7 +445,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int mastery = reader.readInt32();
 				SecondarySkill skill = reader.readSkill32();
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantSecondarySkill(" + num(skill.getNum()) + ", " + num(mastery) + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantSecondarySkill(" + entityKey(skill) + ", " + num(mastery) + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::MORALE:
@@ -524,7 +529,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				PrimarySkill skill(reader.readInt32());
 				bool showMessage = reader.readBool();
-				result += pad + "ctx:grantPrimarySkill(" + num(skill.getNum()) + ", " + amount + ", " + boolStr(showMessage) + ")\n";
+				result += pad + "ctx:grantPrimarySkill(" + entityKey(skill) + ", " + amount + ", " + boolStr(showMessage) + ")\n";
 				break;
 			}
 			case HotaScriptActions::MODIFY_VARIABLE:
@@ -618,7 +623,7 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			SpellID scrollSpell = reader.readSpell32();
-			return "ctx:hasArtifact(" + num(artifact.getNum()) + ", " + num(scrollSpell.getNum()) + ")";
+			return "ctx:hasArtifact(" + entityKey(artifact) + ", " + entityKey(scrollSpell) + ")";
 		}
 		case HotaScriptCondition::CURRENT_PLAYER:
 		{
@@ -629,13 +634,13 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			HeroTypeID hero = reader.readHero32();
 			PlayerColor player = reader.readPlayer32(); // -2 = current hero, -1 = current player
-			return "ctx:heroOwner(" + num(hero.getNum()) + ", " + num(player.getNum()) + ")";
+			return "ctx:heroOwner(" + entityKey(hero) + ", " + num(player.getNum()) + ")";
 		}
 		case HotaScriptCondition::HERO_SECONDARY_SKILL:
 		{
 			SecondarySkill skill = reader.readSkill32();
 			int mastery = reader.readInt32();
-			return "ctx:heroSecondarySkill(" + num(skill.getNum()) + ", " + num(mastery) + ")";
+			return "ctx:heroSecondarySkill(" + entityKey(skill) + ", " + num(mastery) + ")";
 		}
 		case HotaScriptCondition::TOWN_IS_NEUTRAL:
 			return "ctx:townIsNeutral()";
@@ -653,7 +658,7 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			PlayerColor player = reader.readPlayer32();
 			FactionID faction = reader.readFaction32();
-			return "ctx:playerStartingFaction(" + num(player.getNum()) + ", " + num(faction.getNum()) + ")";
+			return "ctx:playerStartingFaction(" + num(player.getNum()) + ", " + entityKey(faction) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
 		{
@@ -722,12 +727,12 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		{
 			PlayerColor player = reader.readPlayer(); // special value for current player
 			GameResID resource = reader.readGameResID32();
-			return "ctx:resource(" + num(player.getNum()) + ", " + num(resource.getNum()) + ")";
+			return "ctx:resource(" + num(player.getNum()) + ", " + entityKey(resource) + ")";
 		}
 		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
 		{
 			CreatureID creature = reader.readCreature32();
-			return "ctx:creatureCountInArmy(" + num(creature.getNum()) + ")";
+			return "ctx:creatureCountInArmy(" + entityKey(creature) + ")";
 		}
 		case HotaScriptExpression::CURRENT_DIFFICULTY:
 			return "ctx:currentDifficulty()";
@@ -742,7 +747,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		case HotaScriptExpression::HERO_PRIMARY_SKILL:
 		{
 			PrimarySkill skill(reader.readInt32());
-			return "ctx:heroPrimarySkill(" + num(skill.getNum()) + ")";
+			return "ctx:heroPrimarySkill(" + entityKey(skill) + ")";
 		}
 		case HotaScriptExpression::RANDOM_NUMBER:
 		{
@@ -754,7 +759,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			SpellID scrollSpell = reader.readSpell32();
-			return "ctx:heroOwnedArtifacts(" + num(artifact.getNum()) + ", " + num(scrollSpell.getNum()) + ")";
+			return "ctx:heroOwnedArtifacts(" + entityKey(artifact) + ", " + entityKey(scrollSpell) + ")";
 		}
 		default:
 			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
