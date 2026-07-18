@@ -44,8 +44,9 @@ then
 	echo
 	echo " --cd2 DIRECTORY  " "Path to second CD with Heroes 3 data files."
 	echo
-	echo " --gog EXECUTABLE " "Path to gog.com executable"
-	echo "                  " "Requires innoextract ( http://constexpr.org/innoextract/ )"
+	echo " --gog EXECUTABLE " "Path to gog.com offline installer .exe file"
+	echo "                  " "The matching .bin file(s) must sit in the same directory"
+	echo "                  " "Requires innoextract ( http://constexpr.org/innoextract/ ) in PATH"
 	echo
 	echo " --data DIRECTORY " "Path to installed Heroes 3 data"
 	echo
@@ -105,7 +106,7 @@ fi
 
 if [[ -n "$gog_file" ]]
 then
-	test_utility "innoextract"
+	test_utility "innoextract" "--version"
 	if [[ -n "$cd1_dir" ]] || [[ -n "$cd2_dir" ]]
 	then
 		warning "Warning: Both gog and cd options were specified. cd options will be ignored"
@@ -181,6 +182,10 @@ then
 
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
+
+	# GOG offline installer ships game data in a separate .bin file next to the .exe
+	ls "$(dirname "$gog_file")"/*.bin >/dev/null 2>&1 || \
+		fail "Error: no .bin file found next to '$gog_file'. Download BOTH the .exe and .bin parts of the GOG offline installer into the same folder."
 	gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
 	cd "$data_dir" && innoextract "$gog_file"
 	
