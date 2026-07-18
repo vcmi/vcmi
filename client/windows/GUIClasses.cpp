@@ -479,34 +479,56 @@ void CSplitWindow::sliderMoved(int to)
 
 CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
-	cb(callback),
-	skills(skills),
-	hero(hero),
 	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
-	GAME->interface()->showingDialog->setBusy();
+	initLevelUpData(hero, skills, callback);
+	createLevelUpControls(pskill);
+	setRedrawParent(true);
+	redraw();
+}
 
-	sortedSkills = skills;
-	std::sort(sortedSkills.begin(), sortedSkills.end(), [hero](auto a, auto b) {
-		if(hero->getSecSkillLevel(a) == hero->getSecSkillLevel(b))
+void CLevelWindow::initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
+{
+	GAME->interface()->showingDialog->setBusy();
+	selectionSubmitted = false;
+	hero = heroInstance;
+	cb = callback;
+	skills = availableSkills;
+	skillViewOffset = 0;
+	sortedSkills = availableSkills;
+	std::sort(sortedSkills.begin(), sortedSkills.end(), [heroInstance](auto a, auto b) {
+		if(heroInstance->getSecSkillLevel(a) == heroInstance->getSecSkillLevel(b))
 			return LIBRARY->skillh->getById(a)->getNameTranslated() < LIBRARY->skillh->getById(b)->getNameTranslated();
-		return hero->getSecSkillLevel(a) > hero->getSecSkillLevel(b);
+		return heroInstance->getSecSkillLevel(a) > heroInstance->getSecSkillLevel(b);
 	});
+}
+
+void CLevelWindow::createLevelUpControls(PrimarySkill pskill)
+{
+	buttonLeft.reset();
+	buttonRight.reset();
+	portrait.reset();
+	ok.reset();
+	mainTitle.reset();
+	levelTitle.reset();
+	skillIcon.reset();
+	skillValue.reset();
 
 	createSkillBox();
+
 	if(skills.size() > 3)
 	{
-		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this, skills](){
+		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this](){
 			if(skillViewOffset > 0)
 				skillViewOffset--;
 			else
-				skillViewOffset = skills.size() - 1;
+				skillViewOffset = this->skills.size() - 1;
 			createSkillBox();
 		}, EShortcut::MOVE_LEFT);
-		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this, skills](){
-			if(skillViewOffset < skills.size() - 1)
+		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this](){
+			if(skillViewOffset < this->skills.size() - 1)
 				skillViewOffset++;
 			else
 				skillViewOffset = 0;
@@ -516,7 +538,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 
 	portrait = std::make_shared<CHeroArea>(170, 66, hero);
 	portrait->addClickCallback(nullptr);
-	portrait->addRClickCallback([hero](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
+	portrait->addRClickCallback([hero = hero](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 	ok = std::make_shared<CButton>(Point(296, 413), AnimationPath::builtin("IOKAY"), CButton::tooltip(), std::bind(&CLevelWindow::submitSelection, this), EShortcut::GLOBAL_ACCEPT);
 
 	//%s has gained a level.
@@ -529,10 +551,18 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	boost::replace_first(levelTitleText, "%s", hero->getClassNameTranslated());
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
-
 	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
-
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
+}
+
+void CLevelWindow::updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback)
+{
+	OBJECT_CONSTRUCTION;
+
+	initLevelUpData(heroInstance, availableSkills, callback);
+	createLevelUpControls(pskill);
+	setRedrawParent(true);
+	redraw();
 }
 
 std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& skills, int offset, int count)
@@ -555,6 +585,8 @@ std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& s
 void CLevelWindow::createSkillBox()
 {
 	OBJECT_CONSTRUCTION;
+
+	box.reset();
 
 	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(sortedSkills, skillViewOffset, 3) : sortedSkills;
 	if(!skillsToShow.empty())
@@ -612,15 +644,10 @@ void CLevelWindow::submitSelection()
 
 		selectionSubmitted = true;
 		GAME->interface()->showingDialog->setFree();
-
-		if(!closeOnSelection)
-		{
-			deactivate();
-			return;
-		}
 	}
 
-	close();
+	if(closeOnSelection)
+		close();
 }
 
 void CLevelWindow::close()
@@ -855,7 +882,7 @@ void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)
 void CTavernWindow::HeroPortrait::clickDouble(const Point & cursorPosition)
 {
 	clickPressed(cursorPosition);
-	
+
 	if(onChoose)
 		onChoose();
 }
@@ -1044,7 +1071,7 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 		army = hero;
 	else
 		army = dynamic_cast<const CArmedInstance *>(market); //for town only
-	
+
 	if(army)
 	{
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
@@ -1890,7 +1917,7 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 		std::string name = parts.back();
 		boost::erase_all(name, "{");
     	boost::erase_all(name, "}");
-		
+
 		if(auto score = TextOperations::textSearchSimilarityScore(text, name)) // Keep only relevant items
 			rankedItems.emplace_back(score.value(), item);
 	}

@@ -125,19 +125,13 @@
 
 #define BATTLE_EVENT_POSSIBLE_RETURN	if (GAME->interface() != this) return; if (isAutoFightOn && !battleInt) return
 
-namespace
-{
-	constexpr int LEVEL_UP_REQUEST_NONE = -1;
-	constexpr int LEVEL_UP_REQUEST_WAITING_FOR_REPLY = -2;
-}
-
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this)),
 	movementController(std::make_unique<HeroMovementController>()),
 	artifactController(std::make_unique<ArtifactsUIController>())
-	
+
 {
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.toString());
 	GAME->setInterfaceInstance(this);
@@ -222,6 +216,8 @@ void CPlayerInterface::playerEndsTurn(PlayerColor player)
 	if (player == playerID)
 	{
 		makingTurn = false;
+		delayQueuedDialogsUntilInputSettles = false;
+		levelUpChainPendingContinuation = false;
 		closeAllDialogs();
 
 		// remove all pending dialogs that do not expect query answer
@@ -530,71 +526,63 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 
 	auto showLevelUpDialog = [this, hero, pskill, availableSkills = std::move(availableSkills), queryID]() mutable
 	{
-		closePendingLevelUpDialog();
-
-		const bool closeImmediately = queryID < 0;
-		pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
-
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
-		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, [this, queryID](ui32 selection)
+		auto callback = [this, queryID](ui32 selection)
 		{
 			if(queryID < 0)
 				return;
 
-			pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
-		});
+			cb->selectionMade(selection, queryID);
+		};
 
-		levelWindow->setCloseOnSelection(closeImmediately);
-		if(!closeImmediately)
-			pendingLevelUpDialog = levelWindow;
+		if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
+		{
+			levelWindow->updateLevelUpData(hero, pskill, availableSkills, callback);
+			return;
+		}
 
+		closeActiveLevelUpDialog();
+
+		auto levelWindow = std::make_shared<CLevelWindow>(hero, pskill, availableSkills, callback);
+
+		// Free the visible-dialog gate as soon as the player makes a choice.
+		// The query-backed dialog queue still keeps manual input blocked until the
+		// server resolves this level-up step and advances the chain.
+		levelWindow->setCloseOnSelection(queryID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
 
-	if(showingDialog->isBusy() || !dialogs.empty())
-	{
-		dialogs.push_back({false, std::move(showLevelUpDialog)});
-		return;
-	}
-
-	waitWhileDialog();
-	showLevelUpDialog();
+	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showLevelUpDialog), queryID);
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto showLevelUpDialog = [this, commander, skills = std::move(skills), queryID]() mutable
+	auto showCallback = [this, commander, skills = std::move(skills), queryID]() mutable
 	{
-		closePendingLevelUpDialog();
-
-		const bool closeImmediately = queryID < 0;
-		pendingLevelUpRequestID = closeImmediately ? LEVEL_UP_REQUEST_NONE : LEVEL_UP_REQUEST_WAITING_FOR_REPLY;
-
 		ENGINE->sound().playSound(soundBase::heroNewLevel);
-		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
+		auto callback = [this, queryID](ui32 selection)
 		{
 			if(queryID < 0)
 				return;
 
-			pendingLevelUpRequestID = cb->selectionMade(selection, queryID);
-		});
+			cb->selectionMade(selection, queryID);
+		};
 
-		levelWindow->setCloseOnSelection(closeImmediately);
-		if(!closeImmediately)
-			pendingLevelUpDialog = levelWindow;
+		closeActiveLevelUpDialog();
 
+		auto levelWindow = std::make_shared<CStackWindow>(commander, skills, callback);
+
+		// Free the visible-dialog gate as soon as the player makes a choice.
+		// The query-backed dialog queue still keeps manual input blocked until the
+		// server resolves this level-up step and advances the chain.
+		levelWindow->setCloseOnSelection(queryID < 0);
 		ENGINE->windows().pushWindow(levelWindow);
 	};
 
-	if(showingDialog->isBusy() || !dialogs.empty())
-	{
-		dialogs.push_back({false, std::move(showLevelUpDialog)});
-		return;
-	}
-
-	waitWhileDialog();
-	showLevelUpDialog();
+	createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showCallback), queryID);
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
@@ -901,7 +889,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 					cb->selectionMade(selection, queryID);
 				};
 			}
-			
+
 			isAutoFightEndBattle = false;
 
 			ENGINE->windows().pushWindow(wnd);
@@ -1051,14 +1039,32 @@ void CPlayerInterface::showInfoDialog(EInfoWindowMode type, const std::string &t
 
 	if(autoTryHover || type == EInfoWindowMode::INFO)
 	{
+		auto showInfoBox = [this, components, text, timer, soundID](bool abortMovement)
+		{
+			adventureInt->showInfoBoxMessage(components, text, timer);
+
+			// Abort movement only when the message is shown synchronously with the event that produced it.
+			// Deferred info-box messages may be displayed later, after movement has already resumed.
+			if(abortMovement)
+				movementController->requestMovementAbort();
+
+			if (makingTurn && ENGINE->windows().count() > 0 && GAME->interface() == this)
+				ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
+		};
+
+		if(showingDialog->isBusy() || !dialogs.empty())
+		{
+			createAndQueueDialog(PendingDialog::Type::NonBlocking, [showInfoBox = std::move(showInfoBox)]() mutable
+			{
+				showInfoBox(false);
+			});
+			tryShowNextPendingDialog();
+			return;
+		}
+
 		waitWhileDialog(); //Fix for mantis #98
-		adventureInt->showInfoBoxMessage(components, text, timer);
-
-		// abort movement, if any. Strictly speaking unnecessary, but prevents some edge cases, like movement sound on visiting Magi Hut with "show messages in status window" on
-		movementController->requestMovementAbort();
-
-		if (makingTurn && ENGINE->windows().count() > 0 && GAME->interface() == this)
-			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
+		closeActiveLevelUpDialog();
+		showInfoBox(true);
 		return;
 	}
 
@@ -1090,30 +1096,37 @@ void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is GAME->interface()=%d", playerID % text % (this==GAME->interface()));
-	waitWhileDialog();
-
 	if (settings["session"]["autoSkip"].Bool() && !ENGINE->isKeyboardShiftDown())
 	{
 		return;
 	}
 	std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(text, playerID, components);
-
-	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
+	auto showDialog = [this, temp, soundID]()
 	{
 		ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->setBusy();
 		movementController->requestMovementAbort(); // interrupt movement to show dialog
 		ENGINE->windows().pushWindow(temp);
+	};
+
+	if(showingDialog->isBusy() || !dialogs.empty())
+	{
+		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
+		tryShowNextPendingDialog();
+		return;
+	}
+
+	waitWhileDialog();
+
+	if ((makingTurn || (battleInt && battleInt->curInt && battleInt->curInt.get() == this)) && ENGINE->windows().count() > 0 && GAME->interface() == this)
+	{
+		closeActiveLevelUpDialog();
+		showDialog();
 	}
 	else
 	{
-		dialogs.push_back({true, [this, temp, soundID]()
-		{
-			ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
-			showingDialog->setBusy();
-			movementController->requestMovementAbort(); // interrupt movement to show dialog
-			ENGINE->windows().pushWindow(temp);
-		}});
+		createAndQueueDialog(PendingDialog::Type::Blocking, std::move(showDialog));
+		tryShowNextPendingDialog();
 	}
 }
 
@@ -1139,6 +1152,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
+	closeActiveLevelUpDialog();
 
 	movementController->requestMovementAbort();
 	ENGINE->sound().playSound(static_cast<soundBase::soundID>(soundID));
@@ -1324,13 +1338,12 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 		return;
 
 	assert(h);
-	assert(!showingDialog->isBusy());
-	assert(dialogs.empty());
 
 	if (!h)
 		return; //can't find hero
 
-	//It shouldn't be possible to move hero with open dialog (or dialog waiting in bg)
+	// Query-backed level-up chains can keep input blocked briefly after the visible
+	// window closes, until QueryResolved advances or completes the chain.
 	if (showingDialog->isBusy() || !dialogs.empty())
 		return;
 
@@ -1365,23 +1378,44 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
 	{
-		if(pendingLevelUpRequestID == static_cast<int>(pa->requestID))
-			closePendingLevelUpDialog();
 		movementController->onQueryReplyApplied();
 	}
 }
 
-void CPlayerInterface::closePendingLevelUpDialog()
+void CPlayerInterface::closeActiveLevelUpDialog()
 {
-	if(!pendingLevelUpDialog)
-	{
-		pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
-		return;
-	}
+	if(auto levelWindow = ENGINE->windows().topWindow<CLevelWindow>())
+		levelWindow->close();
+	else if(auto commanderWindow = ENGINE->windows().topWindow<CStackWindow>(); commanderWindow && commanderWindow->isCommanderLevelUpDialog())
+		commanderWindow->close();
+}
 
-	pendingLevelUpDialog->close();
-	pendingLevelUpDialog.reset();
-	pendingLevelUpRequestID = LEVEL_UP_REQUEST_NONE;
+void CPlayerInterface::queryResolved(QueryID queryID)
+{
+	auto dialog = findPendingDialog(queryID);
+	if(dialog == dialogs.end())
+		return;
+
+	const bool wasFront = dialog == dialogs.begin();
+	const bool wasLevelUpDialog = dialog->isLevelUpDialog();
+	dialogs.erase(dialog);
+
+	if(wasFront)
+	{
+		showingDialog->setFree();
+		if(wasLevelUpDialog)
+		{
+			levelUpChainPendingContinuation = true;
+			// Drain any queued accept/click events from the just-confirmed query-backed
+			// dialog before showing whatever comes next. Otherwise the same Enter can
+			// instantly accept the next level-up step or close a queued info dialog.
+			delayQueuedDialogsUntilInputSettles = true;
+			return;
+		}
+
+		closeActiveLevelUpDialog();
+		tryShowNextPendingDialog();
+	}
 }
 
 void CPlayerInterface::showHeroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
@@ -1605,12 +1639,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 
 void CPlayerInterface::update()
 {
-	//if there are any waiting dialogs, show them
-	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
-	{
-		dialogs.front().show();
-		dialogs.pop_front();
-	}
+	tryShowNextPendingDialog();
 }
 
 void CPlayerInterface::endNetwork()
@@ -1891,6 +1920,85 @@ void CPlayerInterface::waitForAllDialogs()
 	waitWhileDialog();
 }
 
+void CPlayerInterface::createAndQueueDialog(PendingDialog::Type blockingPolicy, std::function<void()> showCallback, QueryID queryID)
+{
+	PendingDialog dialog;
+	dialog.queryID = queryID >= 0 ? queryID : QueryID::NONE;
+	dialog.blockingPolicy = blockingPolicy;
+	// Level-up dialogs currently mean hero/commander level-up prompts.
+	// Keep them alive across turn-end and keep the whole query-backed chain
+	// ahead of ordinary queued info/reward dialogs.
+	dialog.dropOnTurnEnd = !dialog.isLevelUpDialog();
+	dialog.showCallback = std::move(showCallback);
+
+	if(dialog.isLevelUpDialog() && (levelUpChainPendingContinuation || (!dialogs.empty() && dialogs.front().isLevelUpDialog())))
+		dialogs.insert(findQueryBackedDialogInsertionPoint(), std::move(dialog));
+	else
+		dialogs.push_back(std::move(dialog));
+}
+
+std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::findQueryBackedDialogInsertionPoint()
+{
+	return std::find_if(dialogs.begin(), dialogs.end(), [](const PendingDialog & dialog)
+	{
+		return !dialog.isLevelUpDialog();
+	});
+}
+
+void CPlayerInterface::tryShowNextPendingDialog()
+{
+	if(delayQueuedDialogsUntilInputSettles)
+		return;
+
+	if(dialogs.empty())
+	{
+		if(levelUpChainPendingContinuation)
+		{
+			levelUpChainPendingContinuation = false;
+			closeActiveLevelUpDialog();
+		}
+		return;
+	}
+
+	while(!dialogs.empty() && !showingDialog->isBusy())
+	{
+		auto & dialog = dialogs.front();
+		// Level-up dialogs currently mean hero/commander level-up prompts.
+		// Keep showing those even after makingTurn becomes false, but stop normal queued dialogs.
+		if(!makingTurn && !dialog.isLevelUpDialog())
+			return;
+
+		if(dialog.state != PendingDialog::State::Queued)
+			return;
+
+		if(!dialog.isLevelUpDialog())
+		{
+			levelUpChainPendingContinuation = false;
+			closeActiveLevelUpDialog();
+		}
+
+		dialog.showCallback();
+		if(dialog.isLevelUpDialog())
+		{
+			dialog.state = PendingDialog::State::AwaitingQueryResolution;
+			return;
+		}
+
+		dialogs.pop_front();
+
+		if(dialog.blockingPolicy == PendingDialog::Type::Blocking || showingDialog->isBusy())
+			return;
+	}
+}
+
+std::list<CPlayerInterface::PendingDialog>::iterator CPlayerInterface::findPendingDialog(QueryID queryID)
+{
+	return std::find_if(dialogs.begin(), dialogs.end(), [queryID](const PendingDialog & dialog)
+	{
+		return dialog.queryID == queryID;
+	});
+}
+
 void CPlayerInterface::proposeLoadingGame()
 {
 	showYesNoDialog(
@@ -1968,10 +2076,27 @@ bool CPlayerInterface::capturedAllEvents()
 
 	bool needToLockAdventureMap = adventureInt && adventureInt->isActive() && GAME->map().hasOngoingAnimations();
 	bool quickCombatOngoing = isAutoFightOn && !battleInt;
+	bool waitingForQueuedDialogInputToSettle = false;
+	bool waitingForQueuedDialogResolution =
+		!showingDialog->isBusy() &&
+		!dialogs.empty() &&
+		dialogs.front().state == PendingDialog::State::AwaitingQueryResolution;
 
-	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing )
+	if(delayQueuedDialogsUntilInputSettles)
 	{
-		ENGINE->input().ignoreEventsUntilInput();
+		waitingForQueuedDialogInputToSettle = ENGINE->input().ignoreEventsUntilInput();
+
+		if(!waitingForQueuedDialogInputToSettle)
+		{
+			delayQueuedDialogsUntilInputSettles = false;
+			tryShowNextPendingDialog();
+		}
+	}
+
+	if (ignoreEvents || needToLockAdventureMap || quickCombatOngoing || waitingForQueuedDialogResolution || waitingForQueuedDialogInputToSettle)
+	{
+		if(!delayQueuedDialogsUntilInputSettles)
+			ENGINE->input().ignoreEventsUntilInput();
 		return true;
 	}
 

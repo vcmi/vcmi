@@ -239,6 +239,7 @@ public:
 	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
+	void sendQueryResolved(QueryID queryID);
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
