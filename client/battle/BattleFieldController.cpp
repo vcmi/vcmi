@@ -234,11 +234,19 @@ void BattleFieldController::mouseMoved(const Point & cursorPosition, const Point
 	currentAttackOriginPoint = cursorPosition;
 
 	// hex rects of the bottom rows extend under the command panel, so only treat the cursor as hovering a hex
-	// when it is actually over the battlefield - otherwise hovering the panel leaks a unit range highlight
+	// when it is actually over the battlefield - otherwise hovering the panel leaks a unit range highlight.
+	// This handler is also invoked when the cursor is over the battle queue: in that case keep the cursor and
+	// status bar in sync with the queue-hovered stack, so that pointing at the queue is equivalent to pointing
+	// at the stack on the battlefield.
 	if (pos.isInside(cursorPosition))
 	{
 		hoveredHex = getHexAtPosition(cursorPosition);
 		owner.actionsController->onHexHovered(getHoveredHex());
+	}
+	else if (const CStack * queueStack = getQueueHoveredStack())
+	{
+		hoveredHex = BattleHex::INVALID;
+		owner.actionsController->onHexHovered(queueStack->getPosition());
 	}
 	else
 	{
@@ -701,21 +709,36 @@ bool BattleFieldController::isPixelInHex(Point const & position)
 
 BattleHex BattleFieldController::getHoveredHex()
 {
+	// if mouse is not over the battlefield itself but over a stack in the battle queue,
+	// treat the position of that stack as the hovered hex so that pointing at the queue
+	// is equivalent to pointing at the stack on the battlefield
+	if(hoveredHex == BattleHex::INVALID)
+	{
+		if(const CStack * queueStack = getQueueHoveredStack())
+			return queueStack->getPosition();
+	}
+
 	return hoveredHex;
+}
+
+const CStack* BattleFieldController::getQueueHoveredStack() const
+{
+	if(!owner.windowObject->getQueueHoveredUnitId().has_value())
+		return nullptr;
+
+	for(const CStack * stack : owner.getBattle()->battleGetAllStacks())
+		if(stack->unitId() == *owner.windowObject->getQueueHoveredUnitId())
+			return stack;
+
+	return nullptr;
 }
 
 const CStack* BattleFieldController::getHoveredStack()
 {
-	auto hoveredHex = getHoveredHex();
 	const CStack* hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
-	if(owner.windowObject->getQueueHoveredUnitId().has_value())
-	{
-		auto stacks = owner.getBattle()->battleGetAllStacks();
-		for(const CStack * stack : stacks)
-			if(stack->unitId() == *owner.windowObject->getQueueHoveredUnitId())
-				hoveredStack = stack;
-	}
+	if(const CStack * queueStack = getQueueHoveredStack())
+		hoveredStack = queueStack;
 
 	return hoveredStack;
 }
@@ -752,6 +775,17 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 {
 	auto attacker = owner.stacksController->getActiveStack();
 	assert(attacker);
+
+	// When the target is pointed at through the battle queue there is no meaningful mouse
+	// position on the battlefield to derive an approach direction from, so the raw cursor
+	// position would always yield the same corner. Instead, pretend the cursor sits on the
+	// attacker: the nearest-test-point logic below then selects the attack-from hex closest
+	// to the attacker, which is what a player usually wants when simply saying "attack that
+	// stack".
+	Point originPoint = currentAttackOriginPoint;
+	if(!pos.isInside(originPoint) && getQueueHoveredStack() != nullptr)
+		originPoint = hexPositionAbsolute(attacker->getPosition()).center();
+
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
 	// For each valid direction, select position to test against
 	std::array<Point, 8> testPoint;
@@ -776,7 +810,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 	{
 		if (testPoint[i].isValid())
 		{
-			int distance = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
+			int distance = (testPoint[i].y - originPoint.y)*(testPoint[i].y - originPoint.y) + (testPoint[i].x - originPoint.x)*(testPoint[i].x - originPoint.x);
 			if (nearest == -1 || distance < nearestDistance)
 			{
 				nearestDistance = distance;

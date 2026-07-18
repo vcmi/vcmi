@@ -124,6 +124,9 @@ public:
 	/// Returns the currently hovered stack
 	const CStack* getHoveredStack();
 
+	/// Returns the stack hovered in the battle queue, or nullptr if none is hovered there
+	const CStack* getQueueHoveredStack() const;
+
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
