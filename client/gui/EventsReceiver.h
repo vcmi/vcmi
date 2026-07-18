@@ -66,6 +66,9 @@ public:
 	/// Called when UI element hover status changes
 	virtual void hover(bool on) {}
 
+	/// Called on touch finger-down (on=true) and finger-up (on=false) for elements at touch position
+	virtual void onTouchPress(bool on) {}
+
 	/// Called when UI element gesture status changes
 	virtual void gesture(bool on, const Point & initialPosition, const Point & finalPosition) {}
 
