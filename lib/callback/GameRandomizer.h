@@ -128,15 +128,12 @@ public:
 	{
 		h & globalRandomNumberGenerator;
 
-		if (h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			h & allocatedArtifacts;
-			h & heroSkillSeed;
-			h & goodMoraleSeed;
-			h & badMoraleSeed;
-			h & goodLuckSeed;
-			h & badLuckSeed;
-			h & combatAbilitySeed;
-		}
+		h & allocatedArtifacts;
+		h & heroSkillSeed;
+		h & goodMoraleSeed;
+		h & badMoraleSeed;
+		h & goodLuckSeed;
+		h & badLuckSeed;
+		h & combatAbilitySeed;
 	}
 };

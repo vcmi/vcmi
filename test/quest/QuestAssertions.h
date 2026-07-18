@@ -11,10 +11,10 @@
 
 #include "StdInc.h"
 
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/rewardable/Limiter.h"
 
-/// What a test expects a loaded CQuest to look like.
+/// What a test expects a loaded Quest to look like.
 struct ExpectedMission
 {
 	Rewardable::Limiter limiter;
@@ -29,7 +29,7 @@ struct ExpectedMission
 namespace quest_test
 {
 
-void expectQuestMission(const CQuest & actual, const ExpectedMission & expected,
+void expectQuestMission(const Quest & actual, const ExpectedMission & expected,
                         const char * file, int line);
 
 } // namespace quest_test

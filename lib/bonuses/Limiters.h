@@ -245,11 +245,6 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		if (!h.hasFeature(Handler::Version::OPPOSITE_SIDE_LIMITER_OWNER))
-		{
-			PlayerColor owner;
-			h & owner;
-		}
 	}
 };
 

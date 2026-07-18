@@ -222,9 +222,3 @@ void CArtifactInstance::attachToBonusSystem(CGameState & gs)
 	}
 }
 
-void CArtifactInstance::saveCompatibilityFixArtifactID(std::shared_ptr<CArtifactInstance> self)
-{
-	self->cb->gameState().saveCompatibilityLastAllocatedArtifactID = ArtifactInstanceID(self->cb->gameState().saveCompatibilityLastAllocatedArtifactID.getNum()+1);
-	self->id = self->cb->gameState().saveCompatibilityLastAllocatedArtifactID;
-	self->cb->gameState().saveCompatibilityUnregisteredArtifacts.push_back(self);
-}

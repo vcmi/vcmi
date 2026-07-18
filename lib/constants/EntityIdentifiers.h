@@ -84,16 +84,6 @@ public:
 	static std::string encode(const si32 index);
 };
 
-class DLL_LINKAGE QuestInstanceID : public StaticIdentifier<QuestInstanceID>
-{
-public:
-	using StaticIdentifier<QuestInstanceID>::StaticIdentifier;
-	static const QuestInstanceID NONE;
-
-	static si32 decode(const std::string & identifier);
-	static std::string encode(const si32 index);
-};
-
 class HeroClassID : public EntityIdentifier<HeroClassID>
 {
 public:

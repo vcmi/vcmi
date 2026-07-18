@@ -23,10 +23,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & hasPrologEpilog;
-		if(h.version >= Handler::Version::CAMPAIGN_VIDEO)
-			h & prologVideo;
-		else
-			h & prologVideo.first;
+		h & prologVideo;
 		h & prologMusic;
 		h & prologVoice;
 		h & prologText;

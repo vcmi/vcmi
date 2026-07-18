@@ -51,8 +51,12 @@ set(test_SRCS
 		quest/QuestScenarios.cpp
 		quest/CQuestLoaderTest.cpp
 		quest/CQuestSeerTest.cpp
+		quest/CQuestSeerMultiTest.cpp
+		quest/CQuestVisibilityTest.cpp
+		quest/CQuestMarkerTest.cpp
 		quest/CQuestGuardTest.cpp
 		quest/CQuestBorderTest.cpp
+		quest/CQuestGateTest.cpp
 
 		netpacks/NetPackFixture.cpp
 

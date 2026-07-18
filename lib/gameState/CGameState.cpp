@@ -50,7 +50,7 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
@@ -982,11 +982,9 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 		obj->initObj(gameRandomizer);
 
 	logGlobal->debug("\tObject initialization done");
-	for(auto & q : map->getObjects<CGSeerHut>())
-	{
-		if (q->ID ==Obj::QUEST_GUARD || q->ID ==Obj::SEER_HUT)
-			q->setObjToKill();
-	}
+	// getObjects<SeerHut>() already yields exactly seer huts + quest guards
+	for(auto & q : map->getObjects<SeerHut>())
+		q->setObjToKill();
 	CGSubterraneanGate::postInit(this); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
@@ -1219,25 +1217,13 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
-	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
-	// TODO: Mircea: Looks like a bug. See ExplorationBehavior::decompose
-	// if (!aiNk->cc->isVisibleFor(aiNk->cc->getObjInstance(exit), aiNk->playerID))
-	// First thought: we shouldn't have the following if: if(player == obj->tempOwner)
-	// because we need to triggger the actual isInTheMap and isVisibleFor code
 	if(player == obj->tempOwner)
 		return true;
 
 	if(player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
 
-	return iteratePositionsUntilTrue(
-		obj,
-		[this, obj, player](const int3 & pos) -> bool
-		{
-			// object is visible when at least one tile is visible
-			return map->isInTheMap(pos) && obj->coveringAt(pos) && isVisibleFor(pos, player);
-		}
-	);
+	return obj->isVisibleFor(player);
 }
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
@@ -1644,15 +1630,6 @@ void CGameState::restoreBonusSystemTree()
 		campaign->setGamestate(this);
 
 	rebuildObjectControlHistory();
-
-	// WORKAROUND FOR 1.6 SAVES
-	static_assert(ESerializationVersion::RELEASE_160 == ESerializationVersion::MINIMAL, "Please remove this code after dropping 1.6 save compat");
-	if (globalEffects.valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN) == 0)
-	{
-		const auto newBonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN, BonusSource::GLOBAL, 1, BonusSourceID());
-		newBonus->valType = BonusValueType::INDEPENDENT_MAX;
-		globalEffects.addNewBonus(newBonus);
-	}
 }
 
 void CGameState::buildGlobalTeamPlayerTree()
@@ -1750,36 +1727,13 @@ void CGameState::loadGame(CLoadFile & file)
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
-	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
-	{
-		StartInfo dummyStartInfo;
-		file.load(dummyStartInfo);
-		file.load(dummyActiveMods);
-		file.load(*this);
-	}
-	else
-	{
-		auto dummyStartInfo = std::make_shared<StartInfo>();
-		bool dummyA = false;
-		uint32_t dummyB = 0;
-		uint16_t dummyC = 0;
-		file.load(dummyStartInfo);
-		file.load(dummyActiveMods);
-		file.load(dummyA);
-		file.load(dummyB);
-		file.load(dummyC);
-		file.load(*this);
-	}
+	StartInfo dummyStartInfo;
+	file.load(dummyStartInfo);
+	file.load(dummyActiveMods);
+	file.load(*this);
 }
 
 const scripting::Pool & CGameState::getScriptContextPool() const
 {
 	return *scriptingPool;
-}
-
-void CGameState::saveCompatibilityRegisterMissingArtifacts()
-{
-	for( const auto & newArtifact : saveCompatibilityUnregisteredArtifacts)
-		map->saveCompatibilityAddMissingArtifact(newArtifact);
-	saveCompatibilityUnregisteredArtifacts.clear();
 }

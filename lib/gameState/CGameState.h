@@ -67,11 +67,7 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 	std::unique_ptr<GameStateEnvironment> scriptingEnvironment;
 	std::unique_ptr<scripting::Pool> scriptingPool;
 
-	void saveCompatibilityRegisterMissingArtifacts();
 public:
-	ArtifactInstanceID saveCompatibilityLastAllocatedArtifactID;
-	std::vector<std::shared_ptr<CArtifactInstance>> saveCompatibilityUnregisteredArtifacts;
-
 	/// List of currently ongoing battles
 	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
 	/// ID that can be allocated to next battle
@@ -198,27 +194,12 @@ public:
 		h & actingPlayers;
 		h & day;
 		h & map;
-		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			saveCompatibilityRegisterMissingArtifacts();
 		h & players;
 		h & teams;
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-			h & *heroesPool;
-		else
-			h & heroesPool;
+		h & *heroesPool;
 		h & globalEffects;
 		h & currentRumor;
 		h & campaign;
-		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			std::map<ArtifactID, int> allocatedArtifactsUnused;
-			h & allocatedArtifactsUnused;
-		}
-		if (!h.hasFeature(Handler::Version::SERVER_STATISTICS))
-		{
-			StatisticDataSet statistic;
-			h & statistic;
-		}
 
 		if(!h.saving && h.loadingGamestate)
 			restoreBonusSystemTree();

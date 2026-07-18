@@ -159,10 +159,6 @@ private:
 	{
 		int32_t read;
 		load(read);
-
-		if (!hasFeature(Version::RANDOMIZATION_REWORK))
-			read += 1;
-
 		data = static_cast<BonusType>(read);
 	}
 

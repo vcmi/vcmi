@@ -14,7 +14,7 @@
 namespace quest_test
 {
 
-void expectQuestMission(const CQuest & actual, const ExpectedMission & expected,
+void expectQuestMission(const Quest & actual, const ExpectedMission & expected,
                         const char * file, int line)
 {
 	::testing::ScopedTrace trace(file, line, "EXPECT_QUEST_MISSION");

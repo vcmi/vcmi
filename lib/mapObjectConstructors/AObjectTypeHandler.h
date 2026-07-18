@@ -23,6 +23,7 @@ class CGObjectInstance;
 class IObjectInfo;
 class IGameInfoCallback;
 class IGameRandomizer;
+class Quest;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -129,4 +130,8 @@ public:
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo() const;
+
+	/// Shared quest defined by this object type (keymaster border guards/gates), used to
+	/// resolve a type-quest log entry through the handler. Null for every other type.
+	virtual const Quest * getTypeQuest() const { return nullptr; }
 };

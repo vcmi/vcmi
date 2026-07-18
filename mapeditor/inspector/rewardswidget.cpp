@@ -25,7 +25,7 @@
 #include "../../lib/rewardable/Limiter.h"
 #include "../../lib/rewardable/Reward.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 
 #include <vcmi/ArtifactService.h>
 #include <vcmi/HeroTypeService.h>
@@ -210,7 +210,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 			ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "unlimited"));
 	}
 	
-	if(dynamic_cast<CGSeerHut*>(&object))
+	if(dynamic_cast<SeerHut*>(&object))
 	{
 		ui->visitMode->setCurrentIndex(vstd::find_pos(Rewardable::VisitModeString, "once"));
 		ui->visitMode->setEnabled(false);

@@ -62,10 +62,13 @@ public:
 class CQuestMinimap : public CMinimap
 {
 	std::vector<std::shared_ptr<CQuestIcon>> icons;
+	std::vector<int3> markerTiles; // computed once per selected quest, placed each redraw
 
 	void clickPressed(const Point & cursorPosition) override{}; //minimap ignores clicking on its surface
 	void iconClicked();
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override{};
+
+	void placeMarks(); // (re)create icons from markerTiles
 
 public:
 	const QuestInfo * currentQuest;
@@ -73,7 +76,8 @@ public:
 	CQuestMinimap(const Rect & position);
 	//should be called to invalidate whole map - different player or level
 	void update();
-	void addQuestMarks (const QuestInfo * q);
+	/// Select the quest whose markers are shown, recomputing the marker tiles.
+	void setQuest(const QuestInfo * q);
 
 	void showAll(Canvas & to) override;
 };
@@ -83,9 +87,6 @@ class CQuestLog : public CWindowObject
 	int questIndex;
 	const QuestInfo * currentQuest;
 	std::shared_ptr<CComponentBox> componentsBox;
-	bool hideComplete;
-	std::shared_ptr<CToggleButton> hideCompleteButton;
-	std::shared_ptr<CLabel> hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
 	std::vector<std::shared_ptr<CQuestLabel>> labels;
@@ -105,6 +106,5 @@ public:
 	void sliderMoved (int newpos);
 	void recreateLabelList();
 	void recreateQuestList (int pos);
-	void toggleComplete(bool on);
 	void showAll (Canvas & to) override;
 };

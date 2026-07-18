@@ -100,6 +100,21 @@ bool CGObjectInstance::coveringAt(const int3 & testPos) const
 	return anchorPos().z == testPos.z && appearance->isVisibleAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
+bool CGObjectInstance::isVisibleFor(PlayerColor player) const
+{
+	// otherwise visible when at least one covered tile is revealed
+	for(int fy = 0; fy < getHeight(); ++fy)
+	{
+		for(int fx = 0; fx < getWidth(); ++fx)
+		{
+			int3 tile = anchorPos() + int3(-fx, -fy, 0);
+			if(coveringAt(tile) && cb->isVisibleFor(tile, player))
+				return true;
+		}
+	}
+	return false;
+}
+
 std::set<int3> CGObjectInstance::getBlockedPos() const
 {
 	std::set<int3> ret;
@@ -375,6 +390,11 @@ bool CGObjectInstance::isCoastVisitable() const
 bool CGObjectInstance::passableFor(PlayerColor color) const
 {
 	return false;
+}
+
+bool CGObjectInstance::passableFor(const CGHeroInstance * hero) const
+{
+	return passableFor(hero->getOwner());
 }
 
 void CGObjectInstance::updateFrom(const JsonNode & data)

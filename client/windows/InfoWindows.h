@@ -19,7 +19,6 @@ class CGHeroInstance;
 class CGGarrison;
 class CGCreature;
 class CGTeleport;
-class CGKeys;
 class CGObelisk;
 
 class CComponent;
@@ -160,7 +159,7 @@ class KeymasterPopup : public AdventureMapPopup
 	std::shared_ptr<CLabel> labelDescription;
 
 public:
-	KeymasterPopup(const Point & position, const CGKeys * keymasterOrGuard);
+	KeymasterPopup(const Point & position, const CGObjectInstance * keyObject);
 };
 
 class ObeliskPopup : public AdventureMapPopup

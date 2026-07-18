@@ -47,9 +47,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 
-		if (h.version >= Handler::Version::FLAGGABLE_BONUS_SYSTEM_NODE)
-			h & static_cast<CBonusSystemNode&>(*this);
-		else
-			initBonuses();
+		h & static_cast<CBonusSystemNode&>(*this);
 	}
 };

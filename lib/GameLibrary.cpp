@@ -142,10 +142,10 @@ void GameLibrary::loadFilesystem(bool extractArchives)
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 }
 
-void GameLibrary::loadModFilesystem()
+void GameLibrary::loadModFilesystem(bool useTestPreset)
 {
 	CStopWatch loadTime;
-	modh = std::make_unique<CModHandler>();
+	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>();
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
@@ -159,13 +159,13 @@ void createHandler(std::unique_ptr<Handler> & handler)
 	handler = std::make_unique<Handler>();
 }
 
-void GameLibrary::initializeFilesystem(bool extractArchives)
+void GameLibrary::initializeFilesystem(bool extractArchives, bool useTestPreset)
 {
 	loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
 	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
-	loadModFilesystem();
+	loadModFilesystem(useTestPreset);
 
 	// Detect game data mode after filesystem is loaded
 	gameDataMode = GameDataMode::SOD;

@@ -59,6 +59,14 @@ bool GameEventCallbackMock::removeObject(const CGObjectInstance * obj, const Pla
 	return true;
 }
 
+void GameEventCallbackMock::addQuest(const PlayerColor & player, const QuestInfo & quest)
+{
+	AddQuest aq;
+	aq.player = player;
+	aq.quest = quest;
+	sendAndApply(aq);
+}
+
 void GameEventCallbackMock::giveExperience(const CGHeroInstance * hero, TExpType val)
 {
 	// Simplified version of CGameHandler::giveExperience: tests don't care

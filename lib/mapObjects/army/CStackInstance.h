@@ -64,26 +64,10 @@ public:
 		h & static_cast<CStackBasicDescriptor &>(*this);
 		h & static_cast<CArtifactSet &>(*this);
 
-		if(h.hasFeature(Handler::Version::STACK_INSTANCE_ARMY_FIX))
-		{
-			// no-op
-		}
-		if(h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			ObjectInstanceID dummyID;
-			h & dummyID;
-		}
-		else
-		{
-			std::shared_ptr<CGObjectInstance> army;
-			h & army;
-		}
+		ObjectInstanceID dummyID;
+		h & dummyID;
 
 		h & totalExperience;
-		if(!h.hasFeature(Handler::Version::STACK_INSTANCE_EXPERIENCE_FIX))
-		{
-			totalExperience *= getCount();
-		}
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);

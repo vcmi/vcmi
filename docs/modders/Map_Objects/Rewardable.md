@@ -288,6 +288,15 @@ Keep in mind, that all randomization is performed on map load and on object rese
 "daysPassed" : 8
 ```
 
+### Allowed Difficulties
+
+- Can only be used as limiter. To pass, the game difficulty must be one of those listed.
+- Difficulties use the chess names: `pawn`, `knight`, `rook`, `queen`, `king`.
+
+```json
+"allowedDifficulties" : [ "rook", "queen", "king" ]
+```
+
 ### Resource
 
 - Can be used as limiter. To pass, player needs to have specified resources. Note that limiter will NOT take resources.

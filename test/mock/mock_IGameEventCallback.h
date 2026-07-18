@@ -48,6 +48,7 @@ public:
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void showInfoDialog(InfoWindow * iw) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
+	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;

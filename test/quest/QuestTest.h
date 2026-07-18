@@ -29,8 +29,8 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
-class CGSeerHut;
-class CGQuestGuard;
+class SeerHut;
+class QuestGuard;
 
 /// Test fixture for scenarios involving quest objects. Loads a TinyH3MBuilder
 /// scenario into a live CGameState and exposes helpers for the everyday
@@ -95,8 +95,11 @@ public:
 	// ---- public test API ------------------------------------------------
 
 	/// Load a scenario into a fresh game. After this returns, `map` and
-	/// `gameState` are populated and ready for assertions.
+	/// `gameState` are populated and ready for assertions. The difficulty overload
+	/// drives difficulty-gated quests (HotA game-difficulty missions); the default
+	/// is EASY, matching the historical behaviour.
 	void startWithMap(TinyH3M::TinyH3MBuilder builder);
+	void startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficulty difficulty);
 
 	/// Find the object placed on a given tile.
 	CGObjectInstance * findObjectAt(const int3 & pos) const;

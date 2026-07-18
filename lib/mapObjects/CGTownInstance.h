@@ -75,27 +75,13 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
-		if (h.version >= Handler::Version::CUSTOM_NAMES)
-			h & customName;
+		h & customName;
 		h & built;
 		h & destroyed;
 		h & identifier;
 
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & garrisonHero;
-			h & visitingHero;
-		}
-		else
-		{
-			std::shared_ptr<CGObjectInstance> ptrGarr;
-			std::shared_ptr<CGObjectInstance> ptrVisit;
-			h & ptrGarr;
-			h & ptrVisit;
-
-			garrisonHero = ptrGarr ? ptrGarr->id : ObjectInstanceID();
-			visitingHero = ptrVisit ? ptrVisit->id : ObjectInstanceID();
-		}
+		h & garrisonHero;
+		h & visitingHero;
 
 		h & alignmentToPlayer;
 		h & forbiddenBuildings;
