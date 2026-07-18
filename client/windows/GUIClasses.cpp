@@ -24,6 +24,7 @@
 #include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
+#include "../media/ISoundPlayer.h"
 
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
@@ -1002,7 +1003,12 @@ void CTransformerWindow::makeDeal()
 	for(auto & elem : items)
 	{
 		if(!elem->left)
+		{
 			GAME->interface()->cb->trade(market->getObjInstanceID(), EMarketMode::CREATURE_UNDEAD, SlotID(elem->id), {}, {}, hero);
+			const auto & sound = army->getCreature(SlotID(elem->id))->sounds.killed;
+			if(!sound.empty())
+				ENGINE->sound().playSound(sound);
+		}
 	}
 }
 
