@@ -13,8 +13,18 @@
 #include <functional>
 #include <string>
 
+#include "../scripting/ScriptVariablesStorage.h"
+
 class MapReaderH3M;
 class TextIdentifier;
+
+/// Result of converting a map's event system: the generated Lua source plus the variable
+/// declarations the engine uses to seed and persist the map's script variables.
+struct HotaScriptConversionResult
+{
+	std::string luaSource;
+	std::vector<ScriptVariableDeclaration> variables;
+};
 
 /// Converts the HotA (Horn of the Abyss) event-scripting bytecode embedded in a
 /// H3M map into equivalent Lua source. Pure recursive-descent emission: each
@@ -27,9 +37,9 @@ public:
 
 	HotaScriptConverter(MapReaderH3M & reader, std::string mapName, LocalizeCallback localizeString);
 
-	/// Consumes the whole HotA event-system block and returns the generated Lua
-	/// source, or an empty string when the map has no active event system.
-	std::string convert();
+	/// Consumes the whole HotA event-system block. The result is empty when the map has
+	/// no active event system.
+	HotaScriptConversionResult convert();
 
 private:
 	MapReaderH3M & reader;
@@ -41,8 +51,11 @@ private:
 	int currentEventID = 0;
 	int stringCounter = 0;
 
+	// declarations collected while parsing, used to seed and persist the engine-side variables
+	std::vector<ScriptVariableDeclaration> variables;
+
 	std::string loadEventList(const std::string & bucket);
-	std::string loadVariables();
+	std::string loadVariables(); // reads declarations, returns the `Vars` id->name Lua table
 	void loadEventMap();
 
 	std::string loadActions(int indent); ///< multi-line statement block, each line indented by `indent` tabs

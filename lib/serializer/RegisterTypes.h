@@ -304,4 +304,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<BonusParameters>(264);
 	s.template registerType<LobbyQueryState>(265);
 	s.template registerType<LobbyModsCheck>(266);
+	s.template registerType<SetScriptVariable>(267);
 }

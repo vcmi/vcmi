@@ -18,7 +18,10 @@
 #include "../adventure/HeroInstance.h"
 
 #include "../../../lib/callback/IGameInfoCallback.h"
+#include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/modding/ModScope.h"
 
 namespace scripting::api
 {
@@ -34,6 +37,30 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"verbose",  "Pass true to log a warning when the object isn't found."}
 		}, {},
 		"Returns the map object by its identifier, or nil if not found.");
+	R.function<&IGameInfoCallbackProxy::getMapVariable>("getMapVariable",
+		{
+			{"name",  "Variable name within the target mod namespace."},
+			{"modID", "Mod namespace to read from; defaults to the current map's scope. Pass another mod's id for cross-mod access."}
+		},
+		{"Stored value, or nil when the variable is unset."},
+		"Reads a persistent map script variable.");
+	R.function<&IGameInfoCallbackProxy::hasMapVariable>("hasMapVariable",
+		{
+			{"name",  "Variable name within the target mod namespace."},
+			{"modID", "Mod namespace to read from; defaults to the current map's scope."}
+		},
+		{"True when the variable has been set."},
+		"Returns whether a persistent map script variable has been set.");
+}
+
+JsonNode IGameInfoCallbackProxy::getMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID)
+{
+	return object.gameState().getMap().getScriptVariables().get(modID.value_or(ModScope::scopeMap()), name);
+}
+
+bool IGameInfoCallbackProxy::hasMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID)
+{
+	return object.gameState().getMap().getScriptVariables().has(modID.value_or(ModScope::scopeMap()), name);
 }
 
 }

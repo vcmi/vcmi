@@ -65,6 +65,7 @@ public:
 	void visitHeroRecruited(HeroRecruited & pack) override;
 	void visitGiveHero(GiveHero & pack) override;
 	void visitSetObjectProperty(SetObjectProperty & pack) override;
+	void visitSetScriptVariable(SetScriptVariable & pack) override;
 	void visitHeroLevelUp(HeroLevelUp & pack) override;
 	void visitCommanderLevelUp(CommanderLevelUp & pack) override;
 	void visitBattleStart(BattleStart & pack) override;

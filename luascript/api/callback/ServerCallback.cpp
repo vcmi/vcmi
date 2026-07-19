@@ -20,6 +20,9 @@
 #include "../battle/SpellObstacleDescriptor.h"
 #include "../library/BonusDescriptor.h"
 
+#include "../../../lib/modding/ModScope.h"
+#include "../../../lib/networkPacks/PacksForClient.h"
+
 #include "../battle/BattleHex.h"
 #include "../battle/Obstacle.h"
 #include "../battle/Unit.h"
@@ -79,6 +82,13 @@ void ServerCallbackProxy::registerMethods(MethodRegistrar & R)
 		},
 		{"integer, integer", "Damage actually dealt, and the count of killed creatures."},
 		"Damages the unit, returning the actual damage dealt and the number of killed creatures.");
+	R.function<&ServerCallbackProxy::setMapVariable>("setMapVariable",
+		{
+			{"name",  "Variable name within the target mod namespace."},
+			{"value", "Value to store; any Lua value representable as JSON (number, string, boolean, table)."},
+			{"modID", "Mod namespace to write to; defaults to the current map's scope. Pass another mod's id for cross-mod access."}
+		}, {},
+		"Sets a persistent map script variable. Server-authoritative: emits a state-change pack so clients stay in sync.");
 	R.function<&ServerCallbackProxy::removeUnit>("removeUnit",
 		{
 			{"battle", "Battle the unit belongs to."},
@@ -286,6 +296,15 @@ int ServerCallbackProxy::rngInt(lua_State * L)
 	S.clear();
 	S.push(result);
 	return 1;
+}
+
+void ServerCallbackProxy::setMapVariable(ServerCallback & object, const std::string & name, const JsonNode & value, const std::optional<std::string> & modID)
+{
+	SetScriptVariable pack;
+	pack.scope = modID.value_or(ModScope::scopeMap());
+	pack.name = name;
+	pack.value = value;
+	object.apply(pack);
 }
 
 void ServerCallbackProxy::moveUnit(ServerCallback & object, const IBattleInfoCallback & battle, const battle::Unit & unit, BattleHex destination, bool isTeleport)

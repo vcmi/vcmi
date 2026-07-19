@@ -18,6 +18,9 @@
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
+#include "../scripting/IScriptVariablesHost.h"
+#include "../scripting/ScriptVariablesStorage.h"
+#include "../serializer/ESerializationVersion.h"
 
 class CArtifactInstance;
 class CArtifactSet;
@@ -58,7 +61,7 @@ struct DLL_LINKAGE Rumor
 };
 
 /// The map contains the map header, the tiles of the terrain, objects, heroes, towns, rumors...
-class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
+class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder, public IScriptVariablesHost
 {
 	friend class CSerializer;
 
@@ -81,6 +84,16 @@ public:
 	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	/// TODO: make private
 	std::vector<std::shared_ptr<CGObjectInstance>> objects;
+
+	/// Live values of script variables owned by this map, namespaced by mod scope.
+	ScriptVariablesStorage scriptVariables;
+	/// Declarations (name, initial value, campaign flags) used to seed scriptVariables at game start.
+	std::vector<ScriptVariableDeclaration> scriptVariableDefinitions;
+	/// Generated Lua source for the map's event scripts (empty if the map has no event system).
+	std::string scriptSource;
+
+	ScriptVariablesStorage & getScriptVariables() override { return scriptVariables; }
+	const ScriptVariablesStorage & getScriptVariables() const override { return scriptVariables; }
 
 	explicit CMap(IGameInfoCallback *cb);
 	~CMap();
@@ -335,6 +348,13 @@ public:
 		h & instanceNames;
 		h & *gameSettings;
 		h & uidCounter;
+
+		if(h.hasFeature(ESerializationVersion::SCRIPT_VARIABLES))
+		{
+			h & scriptVariables;
+			h & scriptVariableDefinitions;
+			h & scriptSource;
+		}
 	}
 };
 

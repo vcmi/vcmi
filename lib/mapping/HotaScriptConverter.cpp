@@ -106,6 +106,27 @@ static std::string boolStr(bool value)
 	return value ? "true" : "false";
 }
 
+/// Renders a string as a quoted Lua literal, escaping backslashes and double quotes.
+std::string luaString(const std::string & value)
+{
+	std::string result = "\"";
+	for(char c : value)
+	{
+		if(c == '\\' || c == '"')
+			result += '\\';
+		result += c;
+	}
+	result += '"';
+	return result;
+}
+
+/// Reference to a script variable by its HotA unique id, resolved to a name through the
+/// generated `Vars` table so scripts read as named access.
+std::string varRef(int uniqueID)
+{
+	return "Vars[" + std::to_string(uniqueID) + "]";
+}
+
 /// Renders a content identifier (artifact, spell, creature, skill, faction, hero, resource)
 /// as a quoted Lua string holding its JSON key
 template<typename IdentifierType>
@@ -134,25 +155,19 @@ HotaScriptConverter::HotaScriptConverter(MapReaderH3M & reader, std::string mapN
 {
 }
 
-std::string HotaScriptConverter::convert()
+HotaScriptConversionResult HotaScriptConverter::convert()
 {
 	bool eventsSystemActive = reader.readBool();
 	if(!eventsSystemActive)
 		return {};
 
-	std::string result;
-	result += "-- generated from " + mapName + ".h3m HotA event system\n";
-	result += "local Map = {\n";
-	result += "\theroEvents = {},\n";
-	result += "\tplayerEvents = {},\n";
-	result += "\ttownEvents = {},\n";
-	result += "\tquestEvents = {},\n";
-	result += "}\n\n";
-
-	result += loadEventList("heroEvents");
-	result += loadEventList("playerEvents");
-	result += loadEventList("townEvents");
-	result += loadEventList("questEvents");
+	// Event bodies reference variables by id and are read before the declarations, so
+	// buffer them and prepend the `Vars` id->name table once the declarations are known.
+	std::string events;
+	events += loadEventList("heroEvents");
+	events += loadEventList("playerEvents");
+	events += loadEventList("townEvents");
+	events += loadEventList("questEvents");
 
 	reader.readInt32(); // next variable ID
 	reader.readInt32(); // next hero event ID
@@ -160,7 +175,7 @@ std::string HotaScriptConverter::convert()
 	reader.readInt32(); // next town event ID
 	reader.readInt32(); // next quest event ID
 
-	result += loadVariables();
+	std::string variablesTable = loadVariables();
 
 	loadEventMap(); // hero events
 	loadEventMap(); // player events
@@ -168,7 +183,21 @@ std::string HotaScriptConverter::convert()
 	loadEventMap(); // quest events
 	loadEventMap(); // variables
 
-	result += "\nreturn Map\n";
+	std::string source;
+	source += "-- generated from " + mapName + ".h3m HotA event system\n";
+	source += "local Map = {\n";
+	source += "\theroEvents = {},\n";
+	source += "\tplayerEvents = {},\n";
+	source += "\ttownEvents = {},\n";
+	source += "\tquestEvents = {},\n";
+	source += "}\n\n";
+	source += variablesTable;
+	source += events;
+	source += "\nreturn Map\n";
+
+	HotaScriptConversionResult result;
+	result.luaSource = std::move(source);
+	result.variables = std::move(variables);
 	return result;
 }
 
@@ -197,20 +226,25 @@ std::string HotaScriptConverter::loadEventList(const std::string & bucket)
 std::string HotaScriptConverter::loadVariables()
 {
 	int variablesCount = reader.readInt32();
-	std::string result;
-	if(variablesCount > 0)
-		result += "\n-- variables (managed by engine, listed for reference)\n";
+	if(variablesCount == 0)
+		return {};
+
+	std::string result = "local Vars = {\n";
 	for(int i = 0; i < variablesCount; ++i)
 	{
 		int uniqueID = reader.readInt32();
 		std::string variableID = reader.readBaseString();
-		bool persistInCampaign = reader.readBool();
-		bool importFromPrevMap = reader.readBool();
-		int initialValue = reader.readInt32();
-		result += "--   [" + std::to_string(uniqueID) + "] " + variableID + " = " + std::to_string(initialValue)
-			+ (persistInCampaign ? " (persist)" : "")
-			+ (importFromPrevMap ? " (import)" : "") + "\n";
+
+		ScriptVariableDeclaration & declaration = variables.emplace_back();
+		// storage is keyed by name; synthesize a stable name when the editor left it blank
+		declaration.name = variableID.empty() ? "var" + std::to_string(uniqueID) : variableID;
+		declaration.persistInCampaign = reader.readBool();
+		declaration.importFromPreviousScenario = reader.readBool();
+		declaration.initialValue.Integer() = reader.readInt32();
+
+		result += "\t[" + std::to_string(uniqueID) + "] = " + luaString(declaration.name) + ",\n";
 	}
+	result += "}\n\n";
 	return result;
 }
 
@@ -336,7 +370,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string to = loadExpression();
 				int variableID = reader.readInt32();
 				result += pad + "for __i = " + from + ", " + to + " do\n";
-				result += inner + "ctx:setVariable(" + num(variableID) + ", __i)\n";
+				result += inner + "ctx:setVariable(" + varRef(variableID) + ", __i)\n";
 				result += body;
 				result += pad + "end\n";
 				break;
@@ -537,7 +571,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int variableID = reader.readInt32();
 				int mode = reader.readInt8(); // 0 = add, 1 = subtract, 2 = set
 				std::string value = loadExpressionInternal();
-				std::string id = num(variableID);
+				std::string id = varRef(variableID);
 				if(mode == 0)
 					result += pad + "ctx:setVariable(" + id + ", (ctx:getVariable(" + id + ") + " + value + "))\n";
 				else if(mode == 1)
@@ -552,7 +586,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string condition = loadCondition();
 				std::string valueTrue = loadExpression();
 				std::string valueFalse = loadExpression();
-				std::string id = num(variableID);
+				std::string id = varRef(variableID);
 				result += pad + "if " + condition + " then\n";
 				result += inner + "ctx:setVariable(" + id + ", " + valueTrue + ")\n";
 				result += pad + "else\n";
@@ -700,7 +734,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		case HotaScriptExpression::INTEGER_VALUE:
 			return num(reader.readInt32());
 		case HotaScriptExpression::VARIABLE_VALUE:
-			return "ctx:getVariable(" + num(reader.readInt32()) + ")";
+			return "ctx:getVariable(" + varRef(reader.readInt32()) + ")";
 		case HotaScriptExpression::NEGATE:
 		{
 			reader.readInt32(); // always 1

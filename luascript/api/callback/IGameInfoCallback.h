@@ -18,6 +18,7 @@
 #include <vcmi/scripting/Service.h>
 
 class CGObjectInstance;
+class JsonNode;
 
 namespace scripting::api
 {
@@ -32,6 +33,9 @@ public:
 		"calling script's owner.";
 
 	static void registerMethods(MethodRegistrar & R);
+
+	static JsonNode getMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID);
+	static bool hasMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID);
 };
 
 }

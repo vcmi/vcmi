@@ -202,6 +202,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 
 	logGlobal->debug("Initialization:");
 
+	initScriptVariables();
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)
@@ -377,6 +378,17 @@ void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
 	map = campaign->getCurrentMap();
+}
+
+void CGameState::initScriptVariables()
+{
+	// seed each declared variable with its initial value under the map's mod scope;
+	// campaign import (below) may override those flagged to carry over between scenarios
+	for(const auto & declaration : map->scriptVariableDefinitions)
+		map->getScriptVariables().set(ModScope::scopeMap(), declaration.name, declaration.initialValue);
+
+	if(scenarioOps->campState)
+		scenarioOps->campState->seedPersistentVariables(*map);
 }
 
 void CGameState::initGlobalBonuses()

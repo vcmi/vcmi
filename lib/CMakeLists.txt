@@ -268,6 +268,8 @@ set(lib_MAIN_SRCS
 	serializer/JsonUpdater.cpp
 	serializer/SerializerReflection.cpp
 
+	scripting/ScriptVariablesStorage.cpp
+
 	spells/AbilityCaster.cpp
 	spells/BattleSpellMechanics.cpp
 	spells/BonusCaster.cpp
@@ -726,6 +728,8 @@ set(lib_MAIN_HEADERS
 	serializer/CSerializer.h
 	serializer/CTypeList.h
 	serializer/GameConnectionID.h
+	scripting/IScriptVariablesHost.h
+	scripting/ScriptVariablesStorage.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h

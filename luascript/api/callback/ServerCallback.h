@@ -21,6 +21,7 @@
 #include "../../../lib/constants/Enumerations.h"
 
 struct CObstacleInstance;
+class JsonNode;
 
 namespace battle { class Unit; class UnitInfo; }
 
@@ -58,6 +59,7 @@ public:
 	static int healUnit(lua_State * L);
 	static int changeUnit(lua_State * L); // args: battle, unitState, [healthDelta=0]
 	static int damageUnit(lua_State * L); // args: battle, unit, damageAmount; returns: actualDamage, killedAmount
+	static void setMapVariable(ServerCallback & object, const std::string & name, const JsonNode & value, const std::optional<std::string> & modID);
 };
 
 }

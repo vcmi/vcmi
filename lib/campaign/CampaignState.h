@@ -15,6 +15,8 @@
 
 #include "../filesystem/ResourcePath.h"
 #include "../gameState/HighScore.h"
+#include "../scripting/ScriptVariablesStorage.h"
+#include "../serializer/ESerializationVersion.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -254,8 +256,19 @@ class DLL_LINKAGE CampaignState : public Campaign
 	/// Pool of heroes currently reserved for usage in campaign
 	GlobalPoolType globalHeroPool;
 
+	/// Script variables carried over between scenarios (only those declared as persistent)
+	ScriptVariablesStorage persistentScriptVariables;
+
 public:
 	CampaignState() = default;
+
+	ScriptVariablesStorage & getPersistentScriptVariables() { return persistentScriptVariables; }
+	const ScriptVariablesStorage & getPersistentScriptVariables() const { return persistentScriptVariables; }
+
+	/// Copies persist-flagged script variables of the given map into the campaign state.
+	void savePersistentVariables(const CMap & map);
+	/// Seeds import-flagged script variables of the given map from the campaign state.
+	void seedPersistentVariables(CMap & map) const;
 
 	/// Returns last completed scenario, if any
 	std::optional<CampaignScenarioID> lastScenario() const;
@@ -318,5 +331,8 @@ public:
 		h & campaignSet;
 		h & mapTranslations;
 		h & highscoreParameters;
+
+		if(h.hasFeature(ESerializationVersion::SCRIPT_VARIABLES))
+			h & persistentScriptVariables;
 	}
 };

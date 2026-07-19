@@ -49,12 +49,13 @@ enum class ESerializationVersion : int32_t
 	HERO_SPECIALTY_ROUNDING, // DivideStackLevelUpdater carries hero level for H3-correct specialty rounding
 	MAP_GEN_LEVEL_MAP_LAYERS, // CMapGenOptions per-level map layer IDs
 	RETREAT_PERMISSION_BONUSES, // BATTLE_NO_FLEEING replaced by BATTLE_CAN_FLEE, escape tunnel provides bonus instead of hardcoded effect
+	SCRIPT_VARIABLES, // per-map script variable storage (mod-namespaced key/value store)
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = RETREAT_PERMISSION_BONUSES,
+	CURRENT = SCRIPT_VARIABLES,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

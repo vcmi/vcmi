@@ -777,11 +777,14 @@ void CMapLoaderH3M::readHotaScripts()
 	HotaScriptConverter converter(*reader, mapName,
 		[this](const TextIdentifier & identifier){ return readLocalizedString(identifier); });
 
-	std::string luaSource = converter.convert();
-	if(luaSource.empty())
+	HotaScriptConversionResult result = converter.convert();
+	if(result.luaSource.empty())
 		return;
 
-	dumpMapScript(luaSource);
+	map->scriptSource = result.luaSource;
+	map->scriptVariableDefinitions = std::move(result.variables);
+
+	dumpMapScript(map->scriptSource);
 }
 
 void CMapLoaderH3M::dumpMapScript(const std::string & luaSource)

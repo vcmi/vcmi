@@ -376,6 +376,11 @@ void SetObjectProperty::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetObjectProperty(*this);
 }
 
+void SetScriptVariable::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetScriptVariable(*this);
+}
+
 void ChangeObjectVisitors::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeObjectVisitors(*this);

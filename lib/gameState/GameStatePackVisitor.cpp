@@ -329,6 +329,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 				if (hero->tempOwner == pack.player)
 					crossoverHeroes.push_back(hero);
 
+			gs.getStartInfo()->campState->savePersistentVariables(gs.getMap());
 			gs.getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}
@@ -1115,6 +1116,11 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 
 	if(pack.newRumor)
 		gs.currentRumor = *pack.newRumor;
+}
+
+void GameStatePackVisitor::visitSetScriptVariable(SetScriptVariable & pack)
+{
+	gs.getMap().getScriptVariables().set(pack.scope, pack.name, pack.value);
 }
 
 void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
