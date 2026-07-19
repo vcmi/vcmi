@@ -593,7 +593,16 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CCom
 	{
 		CTerrainSelection terrainSel(map);
 		terrainSel.selectRange(MapRect(int3(0, 0, i), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, i == 1 ? ETerrainId::ROCK : ETerrainId::WATER, 0, gen));
+
+		ETerrainId defaultTerrain = ETerrainId::WATER;
+		MapLayerId layerId = MapLayerId::UNKNOWN;
+		if (static_cast<size_t>(i) < map->mapLayers.size())
+		{
+			layerId = map->mapLayers[i];
+			if (layerId == MapLayerId::UNDERGROUND)
+				defaultTerrain = ETerrainId::ROCK;
+		}
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, defaultTerrain, 0, gen));
 	}
 }
 
