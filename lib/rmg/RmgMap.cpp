@@ -175,7 +175,7 @@ void RmgMap::addModificators()
 		{
 			zone->addModificator<RockPlacer>();
 			int level = zone->getPos().z;
-			if (!rockFillerLevels.count(level))
+			if (!rockFillerLevels.contains(level))
 			{
 				zone->addModificator<RockFiller>();
 				rockFillerLevels.insert(level);

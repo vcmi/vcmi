@@ -882,10 +882,11 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	int levels = initialLevels;
 	selectedLayers = options.getLevelMapLayers();
 	// Pad with defaults if the level count increased
-	while(selectedLayers.size() < levels)
-		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(static_cast<int>(selectedLayers.size())));
 	if(selectedLayers.size() > levels)
 		selectedLayers.resize(levels);
+	selectedLayers.reserve(levels);
+	for(int i = static_cast<int>(selectedLayers.size()); i < levels; i++)
+		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
 	const auto & layerTypes = LIBRARY->mapLayerHandler->objects;
 	int layerTypeCount = static_cast<int>(layerTypes.size());
 
