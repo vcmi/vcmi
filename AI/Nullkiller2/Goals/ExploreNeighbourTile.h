@@ -24,6 +24,7 @@ struct NeighbourExplorationCandidate
 	bool accessible = false;
 	bool safe = false;
 	int tilesDiscovered = 0;
+	float strategicProgress = 0.0f;
 	float movementCost = 0.0f;
 };
 
@@ -38,6 +39,7 @@ struct NeighbourExplorationTarget
 	int3 tile = int3(-1);
 	int tilesDiscovered = 0;
 	float movementCost = 0.0f;
+	float strategicProgress = 0.0f;
 	float value = 0.0f;
 };
 
@@ -50,10 +52,12 @@ namespace Goals
 	{
 	private:
 		int tilesToExplore;
+		bool lockAfterMove;
 
 	public:
-		ExploreNeighbourTile(const CGHeroInstance * hero,  int amount)
+		ExploreNeighbourTile(const CGHeroInstance * hero, int amount, bool lockAfterMove = false)
 			: ElementarGoal(Goals::EXPLORE_NEIGHBOUR_TILE)
+			, lockAfterMove(lockAfterMove)
 		{
 			tilesToExplore = amount;
 			sethero(hero);
