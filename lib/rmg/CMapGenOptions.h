@@ -203,22 +203,7 @@ public:
 	{
 		h & width;
 		h & height;
-		if (h.version >= Handler::Version::MORE_MAP_LAYERS)
-			h & levels;
-		else
-		{
-			if (h.saving)
-			{
-				bool hasTwoLevels = levels == 2;
-				h & hasTwoLevels;
-			}
-			else
-			{
-				bool hasTwoLevels;
-				h & hasTwoLevels;
-				levels = hasTwoLevels ? 2 : 1;
-			}
-		}
+		h & levels;
 		h & humanOrCpuPlayerCount;
 		h & teamCount;
 		h & compOnlyPlayerCount;

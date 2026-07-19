@@ -143,6 +143,19 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 			});
 		}
 	}
+
+	// removed units are ghosts (excluded from battleGetAllStacks); keep drawing those still fading out
+	for(uint32_t id : fadingStacks)
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(id, false);
+		if(!stack || !stack->isGhost() || stackAnimation.find(id) == stackAnimation.end())
+			continue;
+
+		auto layer = stackAnimation[id]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
+		renderer.insert(layer, getStackCurrentPosition(stack), [this, stack]( BattleRenderer::RendererRef renderer ){
+			showStack(renderer, stack);
+		});
+	}
 }
 
 void BattleStacksController::stackReset(const CStack * stack)
@@ -154,6 +167,8 @@ void BattleStacksController::stackReset(const CStack * stack)
 		logGlobal->error("Unit %d have no animation", stack->unitId());
 		return;
 	}
+
+	fadingStacks.erase(stack->unitId()); // a reset/resurrect makes it eligible to fade out again if killed later
 
 	auto animation = iter->second;
 
@@ -412,6 +427,23 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() && getActiveStack()->unitId() == stackID)
 		setActiveStack(nullptr);
+
+	// guard so a repeated removal call-in won't restart the fade-out
+	if (!fadingStacks.insert(stackID).second)
+		return;
+
+	auto startFade = [this, stackID]()
+	{
+		const CStack * stack = owner.getBattle()->battleGetStackByID(stackID, false);
+		if (stack && stackAnimation.count(stackID))
+			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeOut", nullptr));
+	};
+
+	// while a spell/attack sequence is mid-flight, fade the unit together with its hit effects instead of before them
+	if (owner.hasQueuedStage(EAnimationEvents::HIT))
+		owner.addToAnimationStage(EAnimationEvents::HIT, startFade);
+	else
+		startFade();
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
@@ -494,13 +526,17 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
 			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
-				addNewAnim(new ColorTransformAnimation(owner, attackedInfo.defender, "summonFadeOut", nullptr));
 				stackRemoved(attackedInfo.defender->unitId());
 			});
 		}
 	}
-	owner.executeStagedAnimations();
-	owner.waitForAnimations();
+	// while a spell cast is queued/playing, let it drive and batch the hit stage (endAction does the final sync)
+	// so per-unit damage packs (e.g. chain lightning) play together instead of one-by-one
+	if(currentAnimations.empty() && !owner.hasQueuedStage(EAnimationEvents::BEFORE_HIT))
+	{
+		owner.executeStagedAnimations();
+		owner.waitForAnimations();
+	}
 }
 
 void BattleStacksController::stackTeleported(const CStack *stack, const BattleHexArray & destHex, int distance)
@@ -821,8 +857,12 @@ void BattleStacksController::updateHoveredStacks()
 {
 	auto newStacks = selectHoveredStacks();
 
-	if(newStacks.size() == 0)
-		owner.windowObject->updateStackInfoWindow(nullptr);
+	// info panel follows the stack directly under the cursor; the highlight set may hold extra
+	// stacks from a multi-hex attack preview, which must not suppress it
+	const CStack * newInfoStack = newStacks.empty() ? nullptr : newStacks.front();
+	const CStack * oldInfoStack = mouseHoveredStacks.empty() ? nullptr : mouseHoveredStacks.front();
+	if(newInfoStack != oldInfoStack)
+		owner.windowObject->updateStackInfoWindow(newInfoStack);
 
 	for(const auto * stack : mouseHoveredStacks)
 	{
@@ -840,7 +880,6 @@ void BattleStacksController::updateHoveredStacks()
 		if (vstd::contains(mouseHoveredStacks, stack))
 			continue;
 
-		owner.windowObject->updateStackInfoWindow(newStacks.size() == 1 && vstd::find_pos(newStacks, stack) == 0 ? stack : nullptr);
 		stackAnimation[stack->unitId()]->setBorderColor(AnimationControls::getBlueBorder());
 		if (stackAnimation[stack->unitId()]->framesInGroup(ECreatureAnimType::MOUSEON) > 0 && stack->alive() && !stack->isFrozen())
 			stackAnimation[stack->unitId()]->playOnce(ECreatureAnimType::MOUSEON);

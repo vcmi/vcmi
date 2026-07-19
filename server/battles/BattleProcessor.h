@@ -64,6 +64,8 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
+	/// Kills the opposing army and resolves the current battle in player's favor
+	void cheatBattleVictory(PlayerColor player);
 
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleID & battleID);

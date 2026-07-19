@@ -14,6 +14,7 @@
 
 class int3;
 struct GiveBonus;
+struct QuestInfo;
 struct CPackForClient;
 struct SetMovePoints;
 struct BattleLayout;
@@ -64,6 +65,7 @@ public:
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted)=0;
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
+	virtual void addQuest(const PlayerColor & player, const QuestInfo & quest) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;

@@ -35,6 +35,7 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"affect" : {"$ref" : "#/definitions/animationQueue"},
+				"affectSecondary" : {"$ref" : "#/definitions/animationQueue"},
 				"hit" : {"$ref" : "#/definitions/animationQueue"},
 				"cast" : {"$ref" : "#/definitions/animationQueue"},
 				"projectile" : {
@@ -46,6 +47,28 @@
 							"minimumAngle" : {"type" : "number", "minimum" : 0}
 						},
 						"additionalProperties" : false
+					}
+				},
+				"ray" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Jagged ray drawn between consecutive affected targets (e.g. chain lightning)",
+					"properties" : {
+						"jaggedness" : {"type" : "number", "minimum" : 0, "description" : "Midpoint-displacement amplitude, as a fraction of each segment's length"},
+						"hopDelay" : {"type" : "number", "minimum" : 0, "description" : "Delay in milliseconds before the ray jumps to each next target"},
+						"width" : {"type" : "number", "minimum" : 0, "description" : "Thickness in pixels of each of the ray's color sub-lines"},
+						"colors" : {
+							"type" : "array",
+							"description" : "Parallel sub-lines of the ray; each has a start->end color gradient along the ray length",
+							"items" : {
+								"type" : "object",
+								"additionalProperties" : false,
+								"properties" : {
+									"start" : {"type" : "array", "minItems" : 4, "maxItems" : 4, "items" : {"type" : "number"}},
+									"end" : {"type" : "array", "minItems" : 4, "maxItems" : 4, "items" : {"type" : "number"}}
+								}
+							}
+						}
 					}
 				}
 			}

@@ -329,7 +329,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Two parts of gate: gate itself and arch above it
 	"gate" :
 	{
-		"gate" : { "x": 0, "y": 0}, // "DRW1" ... "DRW3" and "DRWC" (rope)
+		// "DRW1" ... "DRW3" (gate in its intact / damaged / destroyed states).
+		// Optional "DRWC" is the drawbridge front overlay (chains), drawn on top of units standing on the lowered bridge.
+		"gate" : { "x": 0, "y": 0},
 		"arch" : { "x": 0, "y": 0}  // "ARCH"
 	},
 	// Destructible walls. In this example they are ordered from top to bottom

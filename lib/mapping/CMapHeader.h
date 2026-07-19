@@ -291,7 +291,7 @@ public:
 		h & height;
 		if (h.version >= Handler::Version::NAME_MAP_LAYERS)
 			h & mapLayers;
-		else if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+		else
 		{
 			if (!h.saving)
 			{
@@ -309,22 +309,12 @@ public:
 				}
 			}
 		}
-		else
-		{
-			if (!h.saving)
-			{
-				bool hasTwoLevels;
-				h & hasTwoLevels;
-				mapLayers = hasTwoLevels ? std::vector<MapLayerId>({MapLayerId::SURFACE, MapLayerId::UNDERGROUND}) : std::vector<MapLayerId>({MapLayerId::SURFACE});
-			}
-		}
 
 		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;
-		if (h.version >= Handler::Version::BATTLE_ONLY)
-			h & battleOnly;
+		h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
@@ -334,8 +324,7 @@ public:
 		h & victoryIconIndex;
 		h & defeatMessage;
 		h & defeatIconIndex;
-		if (h.version >= Handler::Version::MAP_HEADER_DISPOSED_HEROES)
-			h & disposedHeroes;
+		h & disposedHeroes;
 		h & translations;
 		if(!h.saving)
 			registerMapStrings();

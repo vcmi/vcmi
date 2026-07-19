@@ -177,6 +177,9 @@ void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & 
 bool BattleSpellMechanics::canBeCast(Problem & problem) const
 {
 	auto genProblem = battle()->battleCanCastSpell(caster, mode);
+	// Orb of Inhibition (BLOCK_ALL_MAGIC) must not block level-0 creature abilities (stone gaze, death stare, ...)
+	if(genProblem == ESpellCastProblem::MAGIC_IS_BLOCKED && getSpellLevel() <= 0)
+		genProblem = ESpellCastProblem::OK;
 	if(genProblem != ESpellCastProblem::OK)
 		return adaptProblem(genProblem, problem);
 
@@ -413,7 +416,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	doRemoveEffects(server, affectedUnits, std::bind(&BattleSpellMechanics::counteringSelector, this, _1));
 
 	for(auto & unit : affectedUnits)
-		sc.affectedCres.insert(unit->unitId());
+		sc.affectedCres.push_back(unit->unitId());
 
 	if(!castDescription.lines.empty())
 		server->apply(castDescription);
@@ -486,7 +489,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	//prepare targets
 	effectsToApply = effects->prepare(this, target, spellTarget);
 
-	std::set<const battle::Unit *> unitTargets = collectTargets();
+	auto unitTargets = collectTargets();
 
 	//process them
 	for(const auto * unit : unitTargets)
@@ -558,7 +561,7 @@ void BattleSpellMechanics::castEval(ServerCallback * server, const Target & targ
 
 	effectsToApply = effects->prepare(this, target, spellTarget);
 
-	std::set<const battle::Unit *> unitTargets = collectTargets();
+	auto unitTargets = collectTargets();
 
 	auto selector = std::bind(&BattleSpellMechanics::counteringSelector, this, _1);
 
@@ -569,15 +572,17 @@ void BattleSpellMechanics::castEval(ServerCallback * server, const Target & targ
 		p.first->apply(server, this, p.second);
 }
 
-std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
+battle::Units BattleSpellMechanics::collectTargets() const
 {
-	std::set<const battle::Unit *> result;
+	// preserve effect (e.g. chain-lightning hop) order while removing duplicates, so the client can
+	// reconstruct the target sequence from BattleSpellCast::affectedCres
+	battle::Units result;
 
 	for(const auto & p : effectsToApply)
 	{
 		for(const Destination & d : p.second)
-			if(d.unitValue)
-				result.insert(d.unitValue);
+			if(d.unitValue && !vstd::contains(result, d.unitValue))
+				result.push_back(d.unitValue);
 	}
 
 	return result;

@@ -10,12 +10,12 @@
 #pragma once
 
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/Point.h"
 
-class BattleHex;
 struct CObstacleInstance;
 class JsonNode;
 class ObstacleChanges;
-class Point;
 
 class IImage;
 class Canvas;
@@ -40,7 +40,29 @@ class BattleObstacleController
 	/// Current images for all present obstacles
 	std::map<si32, std::shared_ptr<IImage>> obstacleImages;
 
+	/// cached render position per obstacle, so a removal fade-out draws where the obstacle actually was
+	std::map<si32, Point> obstaclePositions;
+
+	/// removed "usual" obstacles currently fading out (they have no removal animation of their own)
+	struct FadingObstacle
+	{
+		std::shared_ptr<IImage> image;
+		Point pos;
+		BattleHex hex;
+		si32 id = 0;
+		uint32_t elapsed = 0;
+		bool started = false; // stays fully visible until the removing spell's hit stage starts the fade
+	};
+	std::vector<FadingObstacle> fadingObstacles;
+
 	void loadObstacleImage(const CObstacleInstance & oi);
+
+	/// obstacles awaiting their placement animation; shown one after another
+	std::vector<std::shared_ptr<const CObstacleInstance>> obstaclePlacementQueue;
+	bool placingObstacle = false;
+
+	/// starts the placement animation of the next queued obstacle, unless one is already playing
+	void placeNextObstacle();
 
 	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
@@ -52,11 +74,11 @@ public:
 	/// called every frame
 	void tick(uint32_t msPassed);
 
-	/// call-in from network pack, add newly placed obstacles with any required animations
-	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
+	/// call-in from network pack, add a newly placed obstacle with any required animations
+	void obstaclePlaced(const std::shared_ptr<const CObstacleInstance> & oi);
 
-	/// call-in from network pack, remove required obstacles with any required animations
-	void obstacleRemoved(const std::vector<ObstacleChanges> & obstacles);
+	/// call-in from network pack, remove an obstacle with any required animations
+	void obstacleRemoved(const ObstacleChanges & obstacle);
 
 	/// renders all "absolute" obstacles
 	void showAbsoluteObstacles(Canvas & canvas);

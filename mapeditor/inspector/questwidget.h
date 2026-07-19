@@ -11,7 +11,7 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 
 
 namespace Ui {
@@ -25,7 +25,7 @@ class QuestWidget : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuestWidget(MapController &, CQuest &, QWidget *parent = nullptr);
+	explicit QuestWidget(MapController &, Quest &, QWidget *parent = nullptr);
 	~QuestWidget();
 	
 	void obtainData();
@@ -43,7 +43,7 @@ private slots:
 private:
 	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
 	
-	CQuest & quest;
+	Quest & quest;
 	MapController & controller;
 	Ui::QuestWidget *ui;
 };
@@ -54,7 +54,7 @@ class QuestDelegate : public BaseInspectorItemDelegate
 public:
 	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
-	QuestDelegate(MapController &, CQuest &);
+	QuestDelegate(MapController &, Quest &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
@@ -65,6 +65,6 @@ protected:
 	bool eventFilter(QObject * object, QEvent * event) override;
 
 private:
-	CQuest & quest;
+	Quest & quest;
 	MapController & controller;
 };

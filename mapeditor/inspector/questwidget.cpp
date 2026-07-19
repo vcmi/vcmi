@@ -30,7 +30,7 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
 
-QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *parent) :
+QuestWidget::QuestWidget(MapController & _controller, Quest & _sh, QWidget *parent) :
 	QDialog(parent),
 	controller(_controller),
 	quest(_sh),
@@ -216,10 +216,11 @@ void QuestWidget::obtainData()
 		}
 	}
 	
-	if(quest.killTarget != ObjectInstanceID::NONE && quest.killTarget < controller.map()->objects.size())
-		ui->lKillTarget->setText(QString::fromStdString(controller.map()->objects[quest.killTarget]->instanceName));
+	ObjectInstanceID killTarget = quest.mission.destroyedObjects.empty() ? ObjectInstanceID::NONE : quest.mission.destroyedObjects.front();
+	if(killTarget != ObjectInstanceID::NONE && killTarget < controller.map()->objects.size())
+		ui->lKillTarget->setText(QString::fromStdString(controller.map()->objects[killTarget]->instanceName));
 	else
-		quest.killTarget = ObjectInstanceID::NONE;
+		quest.mission.destroyedObjects.clear();
 }
 
 bool QuestWidget::commitChanges()
@@ -293,7 +294,7 @@ bool QuestWidget::commitChanges()
 			quest.mission.players.emplace_back(ui->lPlayers->item(i)->data(Qt::UserRole).toInt());
 	}
 	
-	//quest.killTarget is set directly in object picking
+	//quest.mission.destroyedObjects is set directly in object picking
 	
 	return true;
 }
@@ -370,13 +371,13 @@ void QuestWidget::onTargetPicked(const CGObjectInstance * obj)
 	
 	if(!obj) //discarded
 	{
-		quest.killTarget = ObjectInstanceID::NONE;
+		quest.mission.destroyedObjects.clear();
 		ui->lKillTarget->setText("");
 		return;
 	}
-	
+
 	ui->lKillTarget->setText(QString::fromStdString(obj->instanceName));
-	quest.killTarget = obj->id;
+	quest.mission.destroyedObjects = { obj->id };
 }
 
 void QuestWidget::on_lCreatureAdd_clicked()
@@ -395,7 +396,7 @@ void QuestWidget::on_lCreatureRemove_clicked()
 		ui->lCreatures->removeRow(i);
 }
 
-QuestDelegate::QuestDelegate(MapController & c, CQuest & t): controller(c), quest(t), BaseInspectorItemDelegate()
+QuestDelegate::QuestDelegate(MapController & c, Quest & t): BaseInspectorItemDelegate(), controller(c), quest(t)
 {
 }
 

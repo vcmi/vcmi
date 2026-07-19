@@ -1591,6 +1591,47 @@ void AIGateway::invalidatePaths()
 	nullkiller->invalidatePaths();
 }
 
+std::string AIGateway::heroRoleDebugText(const CGHeroInstance * hero) const
+{
+	// Reuse GatherArmyBehavior's baseline: 500 minimum strength and 10% of the receiving army.
+	static constexpr uint64_t MIN_REINFORCEMENT_ARMY_STRENGTH = 500;
+	static constexpr uint64_t REINFORCEMENT_ARMY_STRENGTH_DIVISOR = 10;
+	std::unique_lock lockGuard(nullkiller->aiStateMutex, std::try_to_lock);
+	if(!lockGuard.owns_lock())
+		return {};
+
+	const auto role = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero);
+	const auto armyStrength = hero->getArmyStrength();
+	uint64_t mainArmyStrength = armyStrength;
+	bool isMainArmy = true;
+	for(const auto * otherHero : cc->getHeroesInfo())
+	{
+		if(otherHero == hero)
+			continue;
+
+		const auto otherArmyStrength = otherHero->getArmyStrength();
+		mainArmyStrength = std::max(mainArmyStrength, otherArmyStrength);
+		if(otherArmyStrength > armyStrength
+			|| (otherArmyStrength == armyStrength && otherHero->id.getNum() < hero->id.getNum()))
+			isMainArmy = false;
+	}
+	const auto reinforcementArmyStrength = std::max(
+		MIN_REINFORCEMENT_ARMY_STRENGTH,
+		mainArmyStrength / REINFORCEMENT_ARMY_STRENGTH_DIVISOR);
+
+	if(role == HeroRole::MAIN && isMainArmy)
+		return "MAIN/ARMY";
+	if(role == HeroRole::SCOUT && isMainArmy)
+		return "SCOUT/ARMY";
+	if(role == HeroRole::SCOUT && armyStrength > reinforcementArmyStrength)
+		return "SCOUT/REINF";
+	if(role == HeroRole::MAIN)
+		return "MAIN";
+	if(isMainArmy)
+		return "ARMY";
+	return "SCOUT";
+}
+
 /*
  * ////////////////////////////////////
  * ////////// STATIC Methods //////////

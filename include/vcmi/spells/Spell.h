@@ -40,6 +40,7 @@ public:
 	virtual bool isDamage() const = 0;
 	virtual bool isOffensive() const = 0;
 	virtual bool isSpecial() const = 0;
+	virtual bool isCommonHeroSpell() const = 0;
 	virtual bool isMagical() const = 0; //Should this spell considered as magical effect or as ability (like dendroid's bind)
 
 	virtual bool hasSchool(SpellSchool school) const = 0;

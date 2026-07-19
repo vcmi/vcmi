@@ -67,9 +67,9 @@ void CAdventureAI::battleTriggerEffect(const BattleID & battleID, const BattleTr
     battleAI->battleTriggerEffect(battleID, bte);
 }
 
-void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
+void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle)
 {
-	battleAI->battleObstaclesChanged(battleID, obstacles);
+	battleAI->battleObstaclesChanged(battleID, obstacle);
 }
 
 void CAdventureAI::battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport)

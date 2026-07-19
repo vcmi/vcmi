@@ -68,9 +68,6 @@ public:
 	//objects
 	LegacyTextContainer advobtxt;
 	LegacyTextContainer restypes; //names of resources
-	LegacyTextContainer seerEmpty;
-	LegacyTextContainer seerNames;
-	LegacyTextContainer tentColors;
 
 	//sec skills
 	LegacyTextContainer levels;

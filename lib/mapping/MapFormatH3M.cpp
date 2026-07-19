@@ -36,7 +36,7 @@
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGResource.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/MapObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/ModScope.h"
@@ -2313,9 +2313,16 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPos
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & mapPosition)
 {
-	auto guard = std::make_shared<CGQuestGuard>(map->cb);
-	readQuest(guard.get(), mapPosition);
+	auto guard = std::make_shared<QuestGuard>(map->cb);
+	readQuest(guard->addQuest(), mapPosition);
 	return guard;
+}
+
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition)
+{
+	auto gate = std::make_shared<QuestGate>(map->cb);
+	readQuest(gate->addQuest(), mapPosition);
+	return gate;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
@@ -2853,7 +2860,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
-				return readQuestGuard(mapPosition);
+				return readQuestGate(mapPosition);
 			if (subid == 1001) // HotA hacks - Grave
 				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
@@ -3181,30 +3188,26 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
-	auto hut = std::make_shared<CGSeerHut>(map->cb);
+	auto hut = std::make_shared<SeerHut>(map->cb);
 
 	uint32_t questsCount = 1;
 
 	if(features.levelHOTA3)
 		questsCount = reader->readUInt32();
 
-	//TODO: HotA
-	if(questsCount > 1)
-		logGlobal->warn("Map '%s': Seer Hut at %s - %d quests are not implemented!", mapName, position.toString(), questsCount);
-
 	for(size_t i = 0; i < questsCount; ++i)
-		readSeerHutQuest(hut.get(), position, idToBeGiven);
+		readSeerHutQuest(hut.get(), hut->addQuest(), position, idToBeGiven);
 
 	if(features.levelHOTA3)
 	{
 		uint32_t repeateableQuestsCount = reader->readUInt32();
-		hut->getQuest().repeatedQuest = repeateableQuestsCount != 0;
-
-		if(repeateableQuestsCount != 0)
-			logGlobal->warn("Map '%s': Seer Hut at %s - %d repeatable quests are not implemented!", mapName, position.toString(), repeateableQuestsCount);
 
 		for(size_t i = 0; i < repeateableQuestsCount; ++i)
-			readSeerHutQuest(hut.get(), position, idToBeGiven);
+		{
+			Quest & quest = hut->addQuest();
+			readSeerHutQuest(hut.get(), quest, position, idToBeGiven);
+			quest.repeatedQuest = true;
+		}
 	}
 
 	reader->skipZero(2);
@@ -3227,12 +3230,12 @@ enum class ESeerHutRewardType : uint8_t
 	CREATURE = 10,
 };
 
-void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, const ObjectInstanceID & idToBeGiven)
+void CMapLoaderH3M::readSeerHutQuest(SeerHut * hut, Quest & quest, const int3 & position, const ObjectInstanceID & idToBeGiven)
 {
 	EQuestMission missionType = EQuestMission::NONE;
 	if(features.levelAB)
 	{
-		missionType = readQuest(hut, position);
+		missionType = readQuest(quest, position);
 	}
 	else
 	{
@@ -3241,13 +3244,10 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		if(artID != ArtifactID::NONE)
 		{
 			//not none quest
-			hut->getQuest().mission.artifacts.push_back(artID);
+			quest.mission.artifacts.push_back(artID);
 			missionType = EQuestMission::ARTIFACT;
 		}
-		hut->getQuest().lastDay = -1; //no timeout
-		hut->getQuest().isCustomFirst = false;
-		hut->getQuest().isCustomNext = false;
-		hut->getQuest().isCustomComplete = false;
+		quest.lastDay = -1; //no timeout
 	}
 
 	if(missionType != EQuestMission::NONE)
@@ -3341,7 +3341,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 		}
 
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		hut->configuration.info.push_back(vinfo);
+		quest.reward = vinfo;
 	}
 	else
 	{
@@ -3350,7 +3350,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 	}
 }
 
-EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & position)
+EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position)
 {
 	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
 
@@ -3362,21 +3362,19 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		{
 			for(int x = 0; x < 4; ++x)
 			{
-				guard->getQuest().mission.primary[x] = reader->readUInt8();
+				quest.mission.primary[x] = reader->readUInt8();
 			}
 			break;
 		}
 		case EQuestMission::LEVEL:
 		{
-			guard->getQuest().mission.heroLevel = reader->readUInt32();
+			quest.mission.heroLevel = reader->readUInt32();
 			break;
 		}
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
 		{
-			// NOTE: assert might fail on multi-quest seers
-			//assert(questsToResolve.count(guard) == 0);
-			questsToResolve[guard] = reader->readUInt32();
+			questsToResolve[&quest] = reader->readUInt32();
 			break;
 		}
 		case EQuestMission::ARTIFACT:
@@ -3390,12 +3388,12 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				{
 					SpellID scrollSpell = reader->readSpell16();
 					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
-						guard->getQuest().mission.scrolls.push_back(scrollSpell);
+						quest.mission.scrolls.push_back(scrollSpell);
 					else
-						guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+						quest.mission.artifacts.push_back(requiredArtifact);
 				}
 				else
-					guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+					quest.mission.artifacts.push_back(requiredArtifact);
 
 				map->allowedArtifact.erase(requiredArtifact); //these are unavailable for random generation
 			}
@@ -3404,32 +3402,32 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::ARMY:
 		{
 			size_t typeNumber = reader->readUInt8();
-			guard->getQuest().mission.creatures.resize(typeNumber);
+			quest.mission.creatures.resize(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->getQuest().mission.creatures[hh].setType(reader->readCreature("quest at " + position.toString()).toCreature());
-				guard->getQuest().mission.creatures[hh].setCount(reader->readUInt16());
+				quest.mission.creatures[hh].setType(reader->readCreature("quest at " + position.toString()).toCreature());
+				quest.mission.creatures[hh].setCount(reader->readUInt16());
 			}
 			break;
 		}
 		case EQuestMission::RESOURCES:
 		{
 			for(int x = 0; x < 7; ++x)
-				guard->getQuest().mission.resources[x] = reader->readUInt32();
+				quest.mission.resources[x] = reader->readUInt32();
 
 			break;
 		}
 		case EQuestMission::HERO:
 		{
-			guard->getQuest().mission.heroes.push_back(reader->readHero());
+			quest.mission.heroes.push_back(reader->readHero());
 			break;
 		}
 		case EQuestMission::PLAYER:
 		{
-			guard->getQuest().mission.players.push_back(reader->readPlayer());
+			quest.mission.players.push_back(reader->readPlayer());
 			break;
 		}
-		case EQuestMission::HOTA_MULTI:
+		case EQuestMission::HOTA_MULTI_PLACEHOLDER:
 		{
 			uint32_t missionSubID = reader->readUInt32();
 			assert(missionSubID < 4);
@@ -3440,13 +3438,13 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				std::set<HeroClassID> heroClasses;
 				reader->readBitmaskHeroClassesSized(heroClasses, false);
 				for(auto & hc : heroClasses)
-					guard->getQuest().mission.heroClasses.push_back(hc);
+					quest.mission.heroClasses.push_back(hc);
 				break;
 			}
 			if(missionSubID == 1)
 			{
 				missionId = EQuestMission::HOTA_REACH_DATE;
-				guard->getQuest().mission.daysPassed = reader->readUInt32() + 1;
+				quest.mission.daysPassed = reader->readUInt32() + 1;
 				break;
 			}
 			if(missionSubID == 2)
@@ -3454,7 +3452,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
 				int32_t difficultyMask = reader->readUInt32();
 				assert(difficultyMask > 0 && difficultyMask < 32);
-				logGlobal->warn("Map '%s': Seer Hut at %s: Difficulty-specific quest (%d) is not implemented!", mapName, position.toString(), difficultyMask);
+				quest.mission.allowedDifficulties = MapDifficultySet(static_cast<uint8_t>(difficultyMask));
 				break;
 			}
 			if(missionSubID == 3)
@@ -3473,13 +3471,10 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		}
 	}
 
-	guard->getQuest().lastDay = reader->readInt32();
-	guard->getQuest().firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
-	guard->getQuest().nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
-	guard->getQuest().completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
-	guard->getQuest().isCustomFirst = !guard->getQuest().firstVisitText.empty();
-	guard->getQuest().isCustomNext = !guard->getQuest().nextVisitText.empty();
-	guard->getQuest().isCustomComplete = !guard->getQuest().completedText.empty();
+	quest.lastDay = reader->readInt32();
+	quest.firstVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "firstVisit")));
+	quest.nextVisitText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "nextVisit")));
+	quest.completedText.appendTextID(readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, "completed")));
 	return missionId;
 }
 
@@ -3763,5 +3758,5 @@ void CMapLoaderH3M::afterRead()
 	}
 
 	for (auto & quest : questsToResolve)
-		quest.first->getQuest().killTarget = questIdentifierToId.at(quest.second);
+		quest.first->mission.destroyedObjects.push_back(questIdentifierToId.at(quest.second));
 }

@@ -121,6 +121,9 @@
 					"text": "vcmi.battleOptions.showStickyHeroInfoWindows.hover",
 				},
 				{
+					"text": "vcmi.battleOptions.stackInfoBasicPanel.hover",
+				},
+				{
 					"text": "vcmi.battleOptions.showQuickSpell.hover",
 				},
 				{
@@ -166,6 +169,11 @@
 					"name": "showStickyHeroInfoWindowsCheckbox",
 					"help": "vcmi.battleOptions.showStickyHeroInfoWindows",
 					"callback": "showStickyHeroWindowsChanged"
+				},
+				{
+					"name": "stackInfoBasicPanelCheckbox",
+					"help": "vcmi.battleOptions.stackInfoBasicPanel",
+					"callback": "stackInfoBasicPanelChanged"
 				},
 				{
 					"name": "showQuickSpellCheckbox",

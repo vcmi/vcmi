@@ -82,6 +82,24 @@ struct DLL_LINKAGE PackageApplied : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE QueryResolved : public CPackForClient
+{
+	QueryResolved() = default;
+	explicit QueryResolved(QueryID queryID)
+		: queryID(queryID)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	QueryID queryID = QueryID::NONE;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & queryID;
+	}
+};
+
 struct DLL_LINKAGE PackageReceived : public CPackForClient
 {
 	PackageReceived() = default;

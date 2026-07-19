@@ -347,7 +347,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 	SpellID spellID; //id of spell
 	ui8 manaGained = 0; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
+	std::vector<ui32> affectedCres; //ids of creatures affected by this spell, in effect order (e.g. chain-lightning hop order); generally used if spell does not set any effect (like dispel or cure)
 	std::set<ui32> resistedCres; // creatures that resisted the spell (e.g. Dwarves)
 	std::set<ui32> reflectedCres; // creatures that reflected the spell (e.g. Magic Mirror spell)
 	si32 casterStack = -1; // -1 if not cated by creature, >=0 caster stack ID
@@ -432,14 +432,14 @@ struct DLL_LINKAGE BattleEnded : public CPackForClient
 struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
-	std::vector<ObstacleChanges> changes;
+	ObstacleChanges change;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & changes;
+		h & change;
 		assert(battleID != BattleID::NONE);
 	}
 };

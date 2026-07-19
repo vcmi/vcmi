@@ -15,7 +15,7 @@
 #include "IGameSettings.h"
 #include "Languages.h"
 #include "../filesystem/Filesystem.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 
 bool CGeneralTextHandler::isRoEData()
 {
@@ -144,13 +144,10 @@ CGeneralTextHandler::CGeneralTextHandler():
 	tavernInfo       (*this, "core.tvrninfo" ),
 	turnDurations    (*this, "core.turndur"  ),
 	heroscrn         (*this, "core.heroscrn" ),
-	tentColors       (*this, "core.tentcolr" ),
 	levels           (*this, "core.skilllev" ),
 	zelp             (*this, "core.help"     ),
 	allTexts         (*this, "core.genrltxt" ),
 	// pseudo-array, that don't have H3 file with same name
-	seerEmpty        (*this, "core.seerhut.empty"  ),
-	seerNames        (*this, "core.seerhut.names"  ),
 	capColors        (*this, "vcmi.capitalColors"  ),
 
 	roeMapping()
@@ -244,11 +241,11 @@ CGeneralTextHandler::CGeneralTextHandler():
 		{
 			EQuestMission missionID = static_cast<EQuestMission>(i+1);
 
-			std::string questName = CQuest::missionName(missionID);
+			std::string questName = Quest::missionName(missionID);
 
 			for (size_t j = 0; j < 5; ++j)
 			{
-				std::string questState = CQuest::missionState(j);
+				std::string questState = Quest::missionState(j);
 
 				parser.readString(); //front description
 				for (size_t k = 0; k < 6; ++k)

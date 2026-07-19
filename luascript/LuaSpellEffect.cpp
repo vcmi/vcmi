@@ -79,7 +79,7 @@ void LuaSpellEffect::adjustTargetTypes(std::vector<TargetType> & types, const Me
 void LuaSpellEffect::adjustAffectedHexes(BattleHexArray & hexes, const Mechanics * m, const Target & spellTarget) const
 {
 	std::shared_ptr<LuaContext> context = resolveScript(m);
-	context->callMethod<void>(ADJUST_AFFECTED_HEXES, parameters, m, hexes, spellTarget);
+	hexes = context->callMethod<BattleHexArray>(ADJUST_AFFECTED_HEXES, parameters, m, hexes, spellTarget);
 }
 
 SpellEffectValue LuaSpellEffect::getHealthChange(const Mechanics * m, const Target & spellTarget) const

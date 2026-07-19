@@ -251,10 +251,10 @@ void Router::battleNewRoundFirst(const BattleID & bid)
 	bai->battleNewRoundFirst(bid);
 }
 
-void Router::battleObstaclesChanged(const BattleID & bid, const std::vector<ObstacleChanges> & obstacles)
+void Router::battleObstaclesChanged(const BattleID & bid, const ObstacleChanges & obstacle)
 {
 	MMAI_LOG_TAG;
-	bai->battleObstaclesChanged(bid, obstacles);
+	bai->battleObstaclesChanged(bid, obstacle);
 };
 
 void Router::battleSpellCast(const BattleID & bid, const BattleSpellCast * sc)

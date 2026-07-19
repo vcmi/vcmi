@@ -146,7 +146,7 @@ public:
 	{
 	}
 
-	BattleObstaclesChanged capturedPack;
+	std::vector<ObstacleChanges> capturedChanges;
 
 	void captureObstaclePack()
 	{
@@ -154,8 +154,7 @@ public:
 			.Times(AnyNumber())
 			.WillRepeatedly(Invoke([this](const BattleObstaclesChanged & pack)
 			{
-				for(const auto & change : pack.changes)
-					capturedPack.changes.push_back(change);
+				capturedChanges.push_back(pack.change);
 			}));
 	}
 
@@ -192,11 +191,11 @@ TEST_F(ObstacleApplyTest, PlacesSingleObstacleAtTarget)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::ADD);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::ADD);
 
 	SpellCreatedObstacle deserialized;
-	deserialized.fromInfo(capturedPack.changes[0]);
+	deserialized.fromInfo(capturedChanges[0]);
 	EXPECT_EQ(deserialized.pos, hex);
 	EXPECT_EQ(deserialized.casterSide, BattleSide::ATTACKER);
 	EXPECT_EQ(deserialized.turnsRemaining, 5);
@@ -231,10 +230,10 @@ TEST_F(ObstacleApplyTest, PlacesObstacleWithMultiHexShape)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
+	ASSERT_EQ(capturedChanges.size(), 1u);
 
 	SpellCreatedObstacle deserialized;
-	deserialized.fromInfo(capturedPack.changes[0]);
+	deserialized.fromInfo(capturedChanges[0]);
 
 	BattleHex trNeighbour = hex;
 	trNeighbour.moveInDirection(BattleHex::EDir::TOP_RIGHT, false);
@@ -261,8 +260,8 @@ TEST_F(ObstacleApplyTest, PlacesOneObstaclePerTargetHex)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 3u);
-	for(const auto & change : capturedPack.changes)
+	ASSERT_EQ(capturedChanges.size(), 3u);
+	for(const auto & change : capturedChanges)
 		EXPECT_EQ(change.operation, BattleChanges::EOperation::ADD);
 }
 
@@ -294,7 +293,7 @@ TEST_F(ObstacleApplyTest, PatchCountLimitedByAvailableTiles)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 2u);
+	ASSERT_EQ(capturedChanges.size(), 2u);
 }
 
 TEST_F(ObstacleApplyTest, NoServerCallWhenNoAvailableTiles)
@@ -350,11 +349,11 @@ TEST_F(ObstacleApplyTest, UsesDefenderSideOptions)
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 
-	ASSERT_EQ(capturedPack.changes.size(), 1u);
-	EXPECT_EQ(capturedPack.changes[0].operation, BattleChanges::EOperation::ADD);
+	ASSERT_EQ(capturedChanges.size(), 1u);
+	EXPECT_EQ(capturedChanges[0].operation, BattleChanges::EOperation::ADD);
 
 	SpellCreatedObstacle deserialized;
-	deserialized.fromInfo(capturedPack.changes[0]);
+	deserialized.fromInfo(capturedChanges[0]);
 
 	BattleHex defenderShapeNeighbour = hex;
 	defenderShapeNeighbour.moveInDirection(BattleHex::EDir::TOP_RIGHT, false);

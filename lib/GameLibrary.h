@@ -110,7 +110,7 @@ public:
 	~GameLibrary();
 
 	/// initializes settings and filesystem
-	void initializeFilesystem(bool extractArchives);
+	void initializeFilesystem(bool extractArchives, bool useTestPreset = false);
 
 	/// Loads all game entities
 	void initializeLibrary();
@@ -129,7 +129,7 @@ public:
 	void loadFilesystem(bool extractArchives);
 
 	// loads filesystems of all mods
-	void loadModFilesystem();
+	void loadModFilesystem(bool useTestPreset = false);
 };
 
 extern DLL_LINKAGE GameLibrary * LIBRARY;

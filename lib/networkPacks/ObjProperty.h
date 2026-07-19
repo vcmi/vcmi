@@ -37,6 +37,7 @@ enum class ObjProperty : int8_t
 
 	SEERHUT_VISITED,
 	SEERHUT_COMPLETE,
+	SEERHUT_ADVANCE, //move a multi-quest seer hut to its next offerable quest
 	OBELISK_VISITED,
 
 	//creature-bank specific

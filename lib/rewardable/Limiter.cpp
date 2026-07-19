@@ -13,6 +13,7 @@
 
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
+#include "../StartInfo.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -63,6 +64,9 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 	&& l.heroes == r.heroes
 	&& l.heroClasses == r.heroClasses
 	&& l.players == r.players
+	&& l.requiredKeys == r.requiredKeys
+	&& l.allowedDifficulties == r.allowedDifficulties
+	&& l.destroyedObjects == r.destroyedObjects
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -180,8 +184,20 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			// check required amount of artifacts
 			size_t artCnt = 0;
 			for(const auto & [slot, slotInfo] : hero->artifactsWorn)
+			{
+				// ignore locked slots, locate pieces when iterating over parts
+				if(slotInfo.locked)
+					continue;
+
 				if(slotInfo.getArt()->getTypeId() == elem.first)
 					artCnt++;
+				else if(slotInfo.getArt()->isCombined())
+				{
+					for(const auto & partInfo : slotInfo.getArt()->getPartsInfo())
+						if(partInfo.getArtifact()->getTypeId() == elem.first)
+							artCnt++;
+				}
+			}
 
 			for(auto & slotInfo : hero->artifactsInBackpack)
 				if(slotInfo.getArt()->getTypeId() == elem.first)
@@ -213,8 +229,22 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	
 	if(!heroClasses.empty() && !vstd::contains(heroClasses, hero->getHeroClassID()))
 		return false;
-		
-	
+
+	for(const auto & keySubID : requiredKeys)
+	{
+		if(!hero->cb->getPlayerState(hero->getOwner())->wasKeymasterVisited(keySubID))
+			return false;
+	}
+
+	if(!allowedDifficulties.contains(hero->cb->getStartInfo()->getDifficulty()))
+		return false;
+
+	for(const auto & destroyed : destroyedObjects)
+	{
+		if(!hero->cb->getPlayerState(hero->getOwner())->destroyedObjects.count(destroyed))
+			return false;
+	}
+
 	for(const auto & sublimiter : noneOf)
 	{
 		if (sublimiter->heroAllowed(hero))
@@ -312,6 +342,23 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 		});
 		a.syncSize(fieldValue);
 		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+	// allowedDifficulties: chess names of difficulties on which this limiter is active;
+	// absent (or empty) means no restriction — every difficulty is allowed.
+	if(handler.saving)
+	{
+		if(!allowedDifficulties.allowsAll())
+		{
+			auto names = allowedDifficulties.toNames();
+			handler.enterArray("allowedDifficulties").serializeArray(names);
+		}
+	}
+	else
+	{
+		std::vector<std::string> names;
+		handler.enterArray("allowedDifficulties").serializeArray(names);
+		if(!names.empty())
+			allowedDifficulties = MapDifficultySet::fromNames(names);
 	}
 	//sublimiters
 	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)

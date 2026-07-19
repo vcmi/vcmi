@@ -27,7 +27,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 struct QuestInfo;
@@ -67,35 +67,48 @@ CQuestMinimap::CQuestMinimap(const Rect & position)
 {
 }
 
-void CQuestMinimap::addQuestMarks (const QuestInfo * q)
+void CQuestMinimap::setQuest(const QuestInfo * q)
+{
+	currentQuest = q;
+	markerTiles = q ? q->getMarkerTiles(GAME->interface()->cb.get()) : std::vector<int3>{};
+	update();
+}
+
+void CQuestMinimap::placeMarks()
 {
 	OBJECT_CONSTRUCTION;
 	icons.clear();
 
-	int3 tile = q->getPosition(GAME->interface()->cb.get());
+	if(markerTiles.empty())
+		return;
 
-	Point offset = tileToPixels(tile);
+	// The minimap shows a single level; follow the source object's level and draw
+	// only the markers on it.
+	const int level = markerTiles.front().z;
+	onMapViewMoved(Rect(), level);
 
-	onMapViewMoved(Rect(), tile.z);
+	for(const int3 & tile : markerTiles)
+	{
+		if(tile.z != level)
+			continue;
 
-	auto pic = std::make_shared<CQuestIcon>(AnimationPath::builtin("VwSymbol.def"), 3, offset.x, offset.y);
-
-	pic->moveBy (Point ( -pic->pos.w/2, -pic->pos.h/2));
-	pic->callback = std::bind (&CQuestMinimap::iconClicked, this);
-
-	icons.push_back(pic);
+		Point offset = tileToPixels(tile);
+		auto pic = std::make_shared<CQuestIcon>(AnimationPath::builtin("VwSymbol.def"), 3, offset.x, offset.y);
+		pic->moveBy(Point(-pic->pos.w/2, -pic->pos.h/2));
+		pic->callback = std::bind(&CQuestMinimap::iconClicked, this);
+		icons.push_back(pic);
+	}
 }
 
 void CQuestMinimap::update()
 {
 	CMinimap::update();
-	if(currentQuest)
-		addQuestMarks(currentQuest);
+	placeMarks();
 }
 
 void CQuestMinimap::iconClicked()
 {
-	if(currentQuest->obj.hasValue())
+	if(currentQuest->hasObjectInstance())
 		adventureInt->centerOnTile(currentQuest->getObject(GAME->interface()->cb.get())->visitablePos());
 	//moveAdvMapSelection();
 }
@@ -111,7 +124,6 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin("questDialog")),
 	questIndex(0),
 	currentQuest(nullptr),
-	hideComplete(false),
 	quests(Quests)
 {
 	OBJECT_CONSTRUCTION;
@@ -120,9 +132,6 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
 	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), EShortcut::GLOBAL_RETURN);
-	// Both button and label are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
-	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), AnimationPath::builtin("sysopchk.def"), CButton::tooltipLocalized("vcmi.questLog.hideComplete"), std::bind(&CQuestLog::toggleComplete, this, _1));
-	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.questLog.hideComplete.hover"));
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, 0, Orientation::VERTICAL, CSlider::BROWN);
 	slider->setPanningStep(32);
 
@@ -135,7 +144,6 @@ void CQuestLog::recreateLabelList()
 	OBJECT_CONSTRUCTION;
 	labels.clear();
 
-	bool completeMissing = true;
 	int currentLabel = 0;
 	for (int i = 0; i < quests.size(); ++i)
 	{
@@ -146,22 +154,17 @@ void CQuestLog::recreateLabelList()
 		if (quests[i].getQuest(GAME->interface()->cb.get())->mission == Rewardable::Limiter{})
 			continue;
 
-		if (questPtr->isCompleted)
-		{
-			completeMissing = false;
-			if (hideComplete)
-				continue;
-		}
-
 		MetaString text;
-		questPtr->getRolloverText(GAME->interface()->cb.get(), text, false);
-		if (quests[i].obj.hasValue())
+		questPtr->getQuestlogText(GAME->interface()->cb.get(), text, false);
+		if (quests[i].hasObjectInstance())
 		{
-			if (auto seersHut = dynamic_cast<const CGSeerHut *>(questObject))
+			const auto * source = questObject ? questObject->asQuestSource() : nullptr;
+			std::string giver = source ? source->getQuestGiverName() : "";
+			if (!giver.empty())
 			{
 				MetaString toSeer;
 				toSeer.appendRawString(LIBRARY->generaltexth->allTexts[347]);
-				toSeer.replaceRawString(seersHut->seerName);
+				toSeer.replaceRawString(giver);
 				text.replaceRawString(toSeer.toString());
 			}
 			else if(questObject)
@@ -173,15 +176,11 @@ void CQuestLog::recreateLabelList()
 		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);
 		labels.push_back(label);
 
-		// Select latest active quest
-		if(!questPtr->isCompleted)
-			selectQuest(i, currentLabel);
+		// Select latest quest
+		selectQuest(i, currentLabel);
 
 		currentLabel = static_cast<int>(labels.size());
 	}
-
-	if (completeMissing) // We can't use block(completeMissing) because if false button state reset to NORMAL
-		hideCompleteButton->block(true);
 
 	slider->setAmount(currentLabel);
 	if (currentLabel > QUEST_COUNT)
@@ -226,7 +225,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 {
 	questIndex = labelId;
 	currentQuest = &quests[which];
-	minimap->currentQuest = currentQuest;
+	minimap->setQuest(currentQuest);
 
 	MetaString text;
 	std::vector<Component> components;
@@ -251,7 +250,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 			descriptionHeight -= 130;
 		/*switch (currentQuest->quest->missionType)
 		{
-			case CQuest::MISSION_ARMY:
+			case Quest::MISSION_ARMY:
 			{
 				if (componentsSize > 4)
 					descriptionHeight -= 195;
@@ -260,7 +259,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 				break;
 			}
-			case CQuest::MISSION_ART:
+			case Quest::MISSION_ART:
 			{
 				if (componentsSize > 4)
 					descriptionHeight -= 190;
@@ -269,8 +268,8 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 				break;
 			}
-			case CQuest::MISSION_PRIMARY_STAT:
-			case CQuest::MISSION_RESOURCES:
+			case Quest::MISSION_PRIMARY_STAT:
+			case Quest::MISSION_RESOURCES:
 			{
 				if (componentsSize > 4)
 				{
@@ -307,13 +306,5 @@ void CQuestLog::selectQuest(int which, int labelId)
 void CQuestLog::sliderMoved(int newpos)
 {
 	recreateQuestList(newpos); //move components
-	redraw();
-}
-
-void CQuestLog::toggleComplete(bool on)
-{
-	hideComplete = on;
-	recreateLabelList();
-	recreateQuestList(0);
 	redraw();
 }

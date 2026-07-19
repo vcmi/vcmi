@@ -62,11 +62,5 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & playerSeed;
-		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeedUnused;
-			h & heroSeedUnused;
-		}
-
 	}
 };

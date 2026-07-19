@@ -163,8 +163,34 @@
 				"patchCount" : { "type" : "number" },
 				"turnsRemaining" : { "type" : "number" },
 				"triggerAbility" : { "type" : "string" },
-				"attacker" : {  },
-				"defender" : {  }
+				"attacker" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Per-side appearance and placement of the obstacle",
+					"properties" : {
+						"animation" : { "type" : "string", "description" : "Looping animation shown while the obstacle is on the battlefield" },
+						"appearAnimation" : { "type" : "string", "description" : "Animation played when the obstacle appears" },
+						"appearSound" : { "type" : "string", "description" : "Sound played when the obstacle appears" },
+						"removalAnimation" : { "type" : "string", "description" : "Animation played when the obstacle is removed. Falls back to appearAnimation if empty" },
+						"offsetY" : { "type" : "number", "description" : "Vertical offset of the obstacle sprite, in pixels" },
+						"shape" : { "type" : "array", "description" : "Hexes occupied by the obstacle, as direction paths from the anchor hex", "items" : { "type" : "array", "items" : { "type" : "string" } } },
+						"range" : { "type" : "array", "description" : "Hexes the obstacle may be placed on, as direction paths from the target hex", "items" : { "type" : "array", "items" : { "type" : "string" } } }
+					}
+				},
+				"defender" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"description" : "Per-side appearance and placement of the obstacle",
+					"properties" : {
+						"animation" : { "type" : "string", "description" : "Looping animation shown while the obstacle is on the battlefield" },
+						"appearAnimation" : { "type" : "string", "description" : "Animation played when the obstacle appears" },
+						"appearSound" : { "type" : "string", "description" : "Sound played when the obstacle appears" },
+						"removalAnimation" : { "type" : "string", "description" : "Animation played when the obstacle is removed. Falls back to appearAnimation if empty" },
+						"offsetY" : { "type" : "number", "description" : "Vertical offset of the obstacle sprite, in pixels" },
+						"shape" : { "type" : "array", "description" : "Hexes occupied by the obstacle, as direction paths from the anchor hex", "items" : { "type" : "array", "items" : { "type" : "string" } } },
+						"range" : { "type" : "array", "description" : "Hexes the obstacle may be placed on, as direction paths from the target hex", "items" : { "type" : "array", "items" : { "type" : "string" } } }
+					}
+				}
 			},
 			"additionalProperties" : false
 		}

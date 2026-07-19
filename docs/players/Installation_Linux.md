@@ -59,6 +59,28 @@ Stable VCMI version is available in RPM Fusion repository. Learn how to enable i
     sudo dnf install vcmi
 ```
 
+### Gentoo
+
+VCMI can be installed via [gamerlay](https://github.com/gentoo-mirror/gamerlay/tree/master/games-strategy/vcmi) overlay:
+
+```sh
+eselect repository enable gamerlay
+emaint sync -r gamerlay
+```
+
+Add to `/etc/portage/package.accept_keywords`
+
+```text
+=games-strategy/vcmi-9999 **
+	dev-libs/fuzzylite ~amd64
+```
+
+and finally
+
+```sh
+emerge -av vcmi
+```
+
 ### Flatpak (distribution-agnostic)
 
 Latest public release build can be installed via Flatpak.

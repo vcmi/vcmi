@@ -24,7 +24,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/CQuest.h"
+#include "../mapObjects/Quest.h"
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
@@ -432,15 +432,14 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
-	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
-	if (quest)
+	if (obj->asQuestSource())
 	{
+		// Drop this object's own quest-log entry. Border guards/gates are tracked by
+		// keymaster colour, not by instance, so their shared entry is not matched here
+		// and correctly survives while other borders (or none) of the colour remain.
+		const QuestInfo removed(obj->id);
 		for (auto &player : gs.players)
-		{
-			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
-				return q.obj == obj->id;
-			});
-		}
+			vstd::erase_if(player.second.quests, [&removed](const QuestInfo & q){ return q == removed; });
 	}
 
 	int3 objPosition = obj->anchorPos();
@@ -1622,23 +1621,19 @@ void BattleStatePackVisitor::visitCatapultAttack(CatapultAttack & pack)
 
 void BattleStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)
 {
-	for(const auto & change : pack.changes)
+	switch(pack.change.operation)
 	{
-		switch(change.operation)
-		{
-			case BattleChanges::EOperation::REMOVE:
-				battleState.removeObstacle(change.id);
-				break;
-			case BattleChanges::EOperation::ADD:
-				battleState.addObstacle(change);
-				break;
-			case BattleChanges::EOperation::UPDATE:
-				battleState.updateObstacle(change);
-				break;
-			default:
-				throw std::runtime_error("Unknown obstacle operation");
-				break;
-		}
+		case BattleChanges::EOperation::REMOVE:
+			battleState.removeObstacle(pack.change.id);
+			break;
+		case BattleChanges::EOperation::ADD:
+			battleState.addObstacle(pack.change);
+			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState.updateObstacle(pack.change);
+			break;
+		default:
+			throw std::runtime_error("Unknown obstacle operation");
 	}
 }
 

@@ -357,30 +357,9 @@ public:
 		h & moveDir;
 		if (h.hasFeature(Handler::Version::DISABLE_TACTICS))
 			h & tacticFormationEnabled;
-		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
-		{
-			ui8 magicSchoolCounter = 0;
-			ui8 wisdomCounter = 0;
 
-			h & magicSchoolCounter;
-			h & wisdomCounter;
-		}
-
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & visitedTown;
-			h & boardedBoat;
-		}
-		else
-		{
-			std::shared_ptr<CGObjectInstance> ptrTown;
-			std::shared_ptr<CGObjectInstance> ptrBoat;
-			h & ptrTown;
-			h & ptrBoat;
-
-			visitedTown = ptrTown ? ptrTown->id : ObjectInstanceID();
-			boardedBoat = ptrBoat ? ptrBoat->id : ObjectInstanceID();
-		}
+		h & visitedTown;
+		h & boardedBoat;
 
 		h & commander;
 		h & visitedObjects;

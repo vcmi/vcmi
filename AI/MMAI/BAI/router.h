@@ -51,7 +51,7 @@ public:
 	void battleLogMessage(const BattleID & bid, const std::vector<MetaString> & lines) override;
 	void battleNewRound(const BattleID & bid) override;
 	void battleNewRoundFirst(const BattleID & bid) override;
-	void battleObstaclesChanged(const BattleID & bid, const std::vector<ObstacleChanges> & obstacles) override;
+	void battleObstaclesChanged(const BattleID & bid, const ObstacleChanges & obstacle) override;
 	void battleSpellCast(const BattleID & bid, const BattleSpellCast * sc) override;
 	void battleStackMoved(const BattleID & bid, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleStacksAttacked(const BattleID & bid, const std::vector<BattleStackAttacked> & bsa, bool ranged) override;

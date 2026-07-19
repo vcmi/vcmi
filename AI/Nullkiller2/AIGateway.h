@@ -151,6 +151,7 @@ public:
 	void battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID) override;
 
 	void invalidatePaths() override;
+	std::string heroRoleDebugText(const CGHeroInstance * hero) const override;
 
 	void makeTurn();
 

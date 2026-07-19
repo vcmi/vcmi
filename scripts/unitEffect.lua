@@ -72,6 +72,7 @@ function Script:adjustAffectedHexes(mechanics, hexes, spellTarget)
 			hexes:insert(dest.hex)
 		end
 	end
+	return hexes
 end
 
 --- Filters the transformed target, keeping only valid and receptive units.

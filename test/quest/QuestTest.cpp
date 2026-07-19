@@ -17,12 +17,20 @@
 
 void QuestTest::startWithMap(TinyH3M::TinyH3MBuilder builder)
 {
-	auto bytes = builder.build();
+	startWithMap(std::move(builder), EMapDifficulty::EASY);
+}
+
+void QuestTest::startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficulty difficulty)
+{
+	const auto * info = ::testing::UnitTest::GetInstance()->current_test_info();
+	std::string fixtureName = std::string(info->test_suite_name()) + "_" + info->name();
+	std::replace(fixtureName.begin(), fixtureName.end(), '/', '_'); // parameterized cases embed '/'
+	auto bytes = builder.buildAndDump(fixtureName);
 	mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
 
 	StartInfo si;
 	si.mapname    = "tiny";
-	si.difficulty = 0;
+	si.difficulty = static_cast<ui8>(difficulty);
 	si.mode       = EStartMode::NEW_GAME;
 
 	auto header = mapService->loadMapHeader(ResourcePath(si.mapname));
@@ -127,8 +135,14 @@ void QuestTest::overrideSettingBeforeInit(EGameSettings option, bool value)
 
 void QuestTest::advanceDays(int days)
 {
-	// Bumps the day counter directly — does not run per-turn side effects
-	// (creature growth, hero replenishment). Good enough for lastDay tests.
+	// Bump the calendar, then run newTurn on every object so per-turn expiry
+	// (quest timeout / HotA reach-date) fires through the real code path rather
+	// than needing a manual setObjProperty in each test.
 	ASSERT_GE(days, 0);
 	gameState->day += static_cast<ui32>(days);
+
+	GameRandomizer randomizer(*gameState);
+	for(const auto & obj : map->objects)
+		if(obj)
+			obj->newTurn(*gameEventCallback, randomizer);
 }

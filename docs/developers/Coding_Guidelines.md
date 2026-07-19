@@ -34,7 +34,7 @@ Inside a code block put the opening brace on the next line after the current sta
 Good:
 
 ```cpp
-if(a) 
+if(a)
 {
 	code();
 	code();
@@ -287,14 +287,14 @@ When allocating objects, don't use parentheses for creating stack-based objects 
 Good:
 
 ```cpp
-std::vector<int> v; 
+std::vector<int> v;
 CGBoat btn = new CGBoat();
 ```
 
 Bad:
 
 ```cpp
-std::vector<int> v(); // shouldn't compile anyway 
+std::vector<int> v(); // shouldn't compile anyway
 CGBoat btn = new CGBoat;
 ```
 
@@ -449,7 +449,7 @@ case EAlignment::EVIL:
 }
 break;
 default:
-{	
+{
 	do_that();
 }
 break;

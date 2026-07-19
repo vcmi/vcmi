@@ -161,3 +161,9 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	}
 	resultProcessed = true;
 }
+
+void CBattleDialogQuery::onExposure(QueryPtr topQuery)
+{
+	if(answer)
+		owner->popIfTop(*this);
+}

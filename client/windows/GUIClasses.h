@@ -159,11 +159,14 @@ class CLevelWindow : public CWindowObject
 	const CGHeroInstance * hero;
 
 	void selectionChanged(unsigned to);
+	void initLevelUpData(const CGHeroInstance * heroInstance, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback);
+	void createLevelUpControls(PrimarySkill pskill);
 	void createSkillBox();
 	void submitSelection();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	void updateLevelUpData(const CGHeroInstance * heroInstance, PrimarySkill pskill, const std::vector<SecondarySkill> & availableSkills, const std::function<void(ui32)> & callback);
 	void setCloseOnSelection(bool value);
 
 	void close() override;
@@ -279,7 +282,7 @@ public:
 	std::shared_ptr<VideoWidget> videoPlayer;
 
 	std::shared_ptr<CTextBox> rumor;
-	
+
 	std::shared_ptr<CLabel> inviteHero;
 	std::shared_ptr<CAnimImage> inviteHeroImage;
 	std::shared_ptr<LRClickableArea> inviteHeroImageArea;

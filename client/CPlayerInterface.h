@@ -64,13 +64,26 @@ class CPlayerInterface : public CGameInterface
 
 	struct PendingDialog
 	{
+		enum class Type : std::uint8_t { NonBlocking, Blocking };
+
+		enum class State : std::uint8_t { Queued, AwaitingQueryResolution };
+
 		bool dropOnTurnEnd = false;
-		std::function<void()> show;
+		Type blockingPolicy = Type::Blocking;
+		QueryID queryID = QueryID::NONE;
+		State state = State::Queued;
+		std::function<void()> showCallback;
+
+		bool isLevelUpDialog() const
+		{
+			// queryID means we are dealing with hero or commander level up dialog
+			return queryID != QueryID::NONE;
+		}
 	};
 
 	std::list<PendingDialog> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-	std::shared_ptr<WindowBase> pendingLevelUpDialog;
-	int pendingLevelUpRequestID = -1;
+	bool delayQueuedDialogsUntilInputSettles = false;
+	bool levelUpChainPendingContinuation = false;
 
 	std::unique_ptr<HeroMovementController> movementController;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
@@ -145,6 +158,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	void requestRealized(PackageApplied *pa) override;
+	void queryResolved(QueryID queryID) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void centerView (int3 pos, int focusTime) override;
 	void beforeObjectPropertyChanged(const SetObjectProperty * sop) override;
@@ -176,7 +190,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleStartBefore(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide side, bool replayAllowed) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
-	void battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles) override;
+	void battleObstaclesChanged(const BattleID & battleID, const ObstacleChanges & obstacle) override;
 	void battleCatapultAttacked(const BattleID & battleID, const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const BattleID & battleID, const EGateState state) override;
 	void yourTacticPhase(const BattleID & battleID, int distance) override;
@@ -245,7 +259,11 @@ private:
 	};
 
 	void heroKilled(const CGHeroInstance* hero);
-	void closePendingLevelUpDialog();
+	void closeActiveLevelUpDialog();
+	void createAndQueueDialog(PendingDialog::Type blocking, std::function<void()> showCallback, QueryID queryID = QueryID::NONE);
+	std::list<PendingDialog>::iterator findQueryBackedDialogInsertionPoint();
+	void tryShowNextPendingDialog();
+	std::list<PendingDialog>::iterator findPendingDialog(QueryID queryID);
 	void townRemoved(const CGTownInstance* town);
 	void garrisonsChanged(std::vector<const CArmedInstance *> objs);
 	void requestReturningToMainMenu(bool won);

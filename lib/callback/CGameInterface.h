@@ -53,4 +53,5 @@ public:
 	virtual void invalidatePaths(){};
 
 	virtual void setColorScheme(ColorScheme scheme){};
+	virtual std::string heroRoleDebugText(const CGHeroInstance *) const { return {}; };
 };

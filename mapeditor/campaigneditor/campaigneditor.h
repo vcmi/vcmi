@@ -29,7 +29,7 @@ class CampaignEditor : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CampaignEditor(EditorCallback * cb);
+	explicit CampaignEditor(EditorCallback * cb, QWidget * parent = nullptr);
 	~CampaignEditor();
 
 	void redraw();

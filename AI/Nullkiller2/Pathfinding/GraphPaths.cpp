@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "GraphPaths.h"
 #include "AIPathfinderConfig.h"
-#include "../../../lib/mapObjects/CQuest.h"
+#include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
@@ -76,20 +76,18 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		if(node.obj)
 		{
-			if(node.obj->ID == Obj::QUEST_GUARD
-				|| node.obj->ID == Obj::BORDERGUARD
-				|| node.obj->ID == Obj::BORDER_GATE)
+			if(const auto * source = node.obj->asQuestSource(); source && source->requiresQuestToPass())
 			{
-				auto questObj = dynamic_cast<const IQuestObject *>(node.obj);
-				auto questInfo = QuestInfo(node.obj->id);
-
-				if(node.obj->ID == Obj::QUEST_GUARD
-					&& questObj->getQuest().mission == Rewardable::Limiter{}
-					&& questObj->getQuest().killTarget == ObjectInstanceID::NONE)
-				{
+				// skip a blocker with no actual requirements (empty quest guard)
+				if(!source->getActiveQuest() || source->getActiveQuest()->mission == Rewardable::Limiter{})
 					continue;
-				}
 
+				// TODO: the AI cannot weigh a toll gate's per-pass resource cost yet; treat toll
+				//       gates as impassable for now rather than paying the toll on every transit.
+				if(!node.obj->isBlockedVisitable() && source->getActiveQuest()->isToll())
+					continue;
+
+				auto questInfo = QuestInfo(node.obj->id);
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
 
 				if(!questAction->canAct(aiNk, targetHero))

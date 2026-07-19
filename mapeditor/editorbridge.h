@@ -10,4 +10,4 @@
 #pragma once
 
 /// Opens the map editor window (used by the launcher in single-app builds).
-void openMapEditor();
+void openMapEditor(QWidget * parent = nullptr);

@@ -94,6 +94,7 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	AudioPath appearSound;
 	AnimationPath appearAnimation;
 	AnimationPath animation;
+	AnimationPath removalAnimation;
 
 	BattleHexArray customSize;
 

@@ -37,6 +37,7 @@
 #include "questwidget.h"
 #include "rewardswidget.h"
 #include "scholarwidget.h"
+#include "shrinewidget.h"
 #include "townbuildingswidget.h"
 #include "towneventswidget.h"
 #include "townspellswidget.h"
@@ -65,7 +66,7 @@ Initializer::Initializer(MapController & controller, CGObjectInstance * o, const
 	//INIT_OBJ_TYPE(CRewardableObject);
 	//INIT_OBJ_TYPE(CGPandoraBox);
 	//INIT_OBJ_TYPE(CGEvent);
-	//INIT_OBJ_TYPE(CGSeerHut);
+	//INIT_OBJ_TYPE(SeerHut);
 }
 
 void Initializer::initialize(CArmedInstance * o)
@@ -470,6 +471,13 @@ void Inspector::updateProperties(CRewardableObject * o)
 			delegate = new ScholarDelegate(controller, *o);
 			break;
 		}
+		case MapObjectID::SHRINE_OF_MAGIC_INCANTATION:
+		case MapObjectID::SHRINE_OF_MAGIC_GESTURE:
+		case MapObjectID::SHRINE_OF_MAGIC_THOUGHT:
+		{
+			delegate = new ShrineDelegate(controller, *o);
+			break;
+		}
 		default:
 			delegate = new RewardsDelegate(*controller.map(), *o);
 	}
@@ -494,7 +502,7 @@ void Inspector::updateProperties(CGEvent * o)
 	addProperty(QObject::tr("Available for"), o->availableFor, new PlayerSelectionDelegate(o->availableFor), false);
 }
 
-void Inspector::updateProperties(CGSeerHut * o)
+void Inspector::updateProperties(SeerHut * o)
 {
 	if(!o) return;
 
@@ -510,7 +518,7 @@ void Inspector::updateProperties(CGSeerHut * o)
 	}
 }
 
-void Inspector::updateProperties(CGQuestGuard * o)
+void Inspector::updateProperties(QuestGuard * o)
 {
 	if(!o) return;
 
@@ -553,8 +561,8 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CRewardableObject);
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
-	UPDATE_OBJ_PROPERTIES(CGSeerHut);
-	UPDATE_OBJ_PROPERTIES(CGQuestGuard);
+	UPDATE_OBJ_PROPERTIES(SeerHut);
+	UPDATE_OBJ_PROPERTIES(QuestGuard);
 
 	table->show();
 }
@@ -601,8 +609,8 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CRewardableObject);
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
-	SET_PROPERTIES(CGSeerHut);
-	SET_PROPERTIES(CGQuestGuard);
+	SET_PROPERTIES(SeerHut);
+	SET_PROPERTIES(QuestGuard);
 }
 
 void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVariant & value)
@@ -825,7 +833,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 		o->stacks[SlotID(0)]->setCount(value.toString().toInt());
 }
 
-void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant & value)
+void Inspector::setProperty(SeerHut * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 
@@ -844,7 +852,7 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 		o->getQuest().lastDay = value.toString().toInt();
 }
 
-void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)
+void Inspector::setProperty(QuestGuard * o, const QString & key, const QVariant & value)
 {
 	if(!o) return;
 }

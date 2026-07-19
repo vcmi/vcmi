@@ -72,6 +72,11 @@ void PackageApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPackageApplied(*this);
 }
 
+void QueryResolved::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitQueryResolved(*this);
+}
+
 void PackageReceived::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPackageReceived(*this);

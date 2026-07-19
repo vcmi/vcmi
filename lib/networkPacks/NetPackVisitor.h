@@ -26,6 +26,7 @@ public:
 	virtual void visitForServer(CPackForServer & pack) {}
 	virtual void visitForClient(CPackForClient & pack) {}
 	virtual void visitPackageApplied(PackageApplied & pack) {}
+	virtual void visitQueryResolved(QueryResolved & pack) {}
 	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}

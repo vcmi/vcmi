@@ -178,9 +178,41 @@ TODO
 	],
 	"cast" : []
 	"hit":["C20SPX"],
-	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"]
+	"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom", "transparency" : 0.5}, "C11SPA1"],
+	"affectSecondary":["C12SPF0"]
 }
 ```
+
+- `affect` — animation shown on every affected target.
+- `affectSecondary` — optional. Animation shown on secondary targets instead of `affect`. Used by spells that act on more than one unit with different roles, such as Sacrifice, where the primary (resurrected) target keeps `affect` while the sacrificed unit uses `affectSecondary`. If empty, secondary targets fall back to `affect`.
+
+### Chaining ray
+
+Some spells (such as Chain Lightning) hit several targets in a row. You can draw a
+lightning-like ray that jumps from one target to the next by adding a `ray` block to
+the animation. The ray is a bundle of colored lines with a slightly random, zig-zag
+shape. The first target still shows the full `affect` animation; the ray only connects
+the targets to each other.
+
+```json
+"animation": {
+	"affect": [ {"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1" ],
+	"ray": {
+		"jaggedness": 0.2,
+		"hopDelay": 100,
+		"width": 16,
+		"colors": [
+			{ "start": [ 100, 140, 255,  96 ], "end": [ 100, 140, 255,  48 ] },
+			{ "start": [ 255, 255, 255, 255 ], "end": [ 255, 255, 255, 224 ] }
+		]
+	}
+}
+```
+
+- `jaggedness` — how strongly the ray zig-zags between targets. `0` is a straight line, higher values (around `0.2`) give a lightning look.
+- `hopDelay` — delay in milliseconds before the ray jumps to the next target. The ray appears instantly on each target, one after another, with this pause between jumps.
+- `width` — thickness of the ray in pixels.
+- `colors` — the ray's color, from its outer edge to its center. Each entry has a `start` and `end` color (the color at the beginning and at the end of the ray), given as `[red, green, blue, transparency]` with values from 0 to 255. List the outer-edge color first and the center color last; the colors in between are blended automatically and the ray is drawn symmetrically. Use a low transparency for the edges and a high one for the center to get a glowing core.
 
 ## Spell level base format
 
@@ -492,6 +524,7 @@ TODO
 		"appearSound" : {},
 		"appearAnimation" : {},
 		"animation" : {},
+		"removalAnimation" : {},
 		"offsetY" : 0
 	},
 	
@@ -501,10 +534,21 @@ TODO
 		"appearSound" : {},
 		"appearAnimation" : {},
 		"animation" : {},
+		"removalAnimation" : {},
 		"offsetY" : 0
 	}
 }
 ```
+
+Per-side fields:
+
+- `shape` — hexes occupied by the obstacle, as direction paths from the anchor hex.
+- `range` — hexes the obstacle may be placed on, as direction paths from the target hex.
+- `appearSound` — sound played when the obstacle appears.
+- `appearAnimation` — animation played when the obstacle appears.
+- `animation` — looping animation shown while the obstacle is on the battlefield.
+- `removalAnimation` — animation played when the obstacle is removed (expires or is dispelled). If empty, the obstacle reuses `appearAnimation` (played in reverse for magical obstacles) or, for plain obstacles, simply fades out.
+- `offsetY` — vertical offset of the obstacle sprite, in pixels.
 
 ### Moat
 

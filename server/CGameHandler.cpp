@@ -50,6 +50,7 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
@@ -829,6 +830,14 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj, const PlayerColor 
 	return true;
 }
 
+void CGameHandler::addQuest(const PlayerColor & player, const QuestInfo & quest)
+{
+	AddQuest aq;
+	aq.player = player;
+	aq.quest = quest;
+	sendAndApply(aq);
+}
+
 bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker, const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *h = gameInfo().getHero(hid);
@@ -1021,7 +1030,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			if(h->inBoat() && !object->isBlockedVisitable() && !h->getBoat()->onboardVisitAllowed)
 				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
 
-			if (object != h && object->isBlockedVisitable() && !object->passableFor(h->tempOwner))
+			if (object != h && object->isBlockedVisitable() && !object->passableFor(h))
 			{
 				EVisitDest visitDest = VISIT_DEST;
 				if(h->inBoat() && !h->getBoat()->onboardVisitAllowed)
@@ -1545,6 +1554,12 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendAndApply(CPackForClient & pack)
 {
 	gameServer().applyPack(pack);
+}
+
+void CGameHandler::sendQueryResolved(QueryID queryID)
+{
+	QueryResolved pack(queryID);
+	sendAndApply(pack);
 }
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
