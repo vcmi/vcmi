@@ -540,6 +540,7 @@ void TreasurePlacer::addSeerHuts()
 		auto setRandomArtifact = [qap](SeerHut * obj, ui32 rewardValue)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
+			obj->addQuest();
 			obj->getQuest().mission.artifacts.push_back(artid);
 			qap->addQuestArtifact(artid, rewardValue);
 		};
