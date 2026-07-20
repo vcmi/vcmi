@@ -33,6 +33,26 @@
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
+static uint64_t getConfiguredRewardableGuardStrength(const Rewardable::Interface & rewardable, const CGHeroInstance * hero)
+{
+	uint64_t result = 0;
+
+	for(auto index : rewardable.getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+	{
+		uint64_t rewardStrength = 0;
+
+		for(const auto & guard : rewardable.configuration.info[index].reward.guards)
+		{
+			if(guard.getType())
+				rewardStrength += guard.getType()->getAIValue() * guard.getCount();
+		}
+
+		vstd::amax(result, rewardStrength);
+	}
+
+	return result;
+}
+
 const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
 {
 	const CGObjectInstance * obj = getObj(objid, false);

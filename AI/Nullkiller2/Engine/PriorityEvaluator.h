@@ -75,6 +75,7 @@ struct DLL_EXPORT EvaluationContext
 	TResources buildingCost;
 	bool involvesSailing;
 	bool requiresBattle;
+	bool targetRequiresBattle;
 	bool isTradeBuilding;
 	bool isExchange;
 	bool isArmyUpgrade;

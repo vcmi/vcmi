@@ -1748,6 +1748,26 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 				const bool isTreasureChest = targetObject && targetObject->ID == Obj::TREASURE_CHEST;
 				const bool isRewardable = targetObject && dynamic_cast<const Rewardable::Interface *>(targetObject);
+				const std::string tempLogHero = task->hero ? firstHeroWord(task->hero) : "<no-hero> ("+ task->toString() +")";
+				const std::string tempLogRole = evaluationContext.heroRole == MAIN ? "MAIN" : "SCOUT";
+				const std::string tempLogTarget = targetObject ? targetObject->getObjectName() : "<no-target> ("+ task->toString() +")";
+				const std::string tempLogTargetPos = targetObject ? targetObject->visitablePos().toString() : task->tile.toString();
+				const std::string tempLogBattleReason = targetRequiresBattle ? "target requires battle" : "path/army loss is not target guard";
+				const std::string tempLogBase = "TEMP_LOG hero=" + tempLogHero + " role= " + tempLogRole + "targetObj= " + tempLogTarget + " at " + tempLogTargetPos + " ";
+
+				const auto tempLogScore = [&](const std::string & stage, float before, float after)
+				{
+#if NK2AI_TRACE_LEVEL >= 2
+					if(before != after && after > 500)
+						logAi->trace(tempLogBase + "stage=" + stage
+							+ " scoreBefore=" + std::to_string(before)
+							+ " scoreAfter=" + std::to_string(after));
+#else
+					(void)stage;
+					(void)before;
+					(void)after;
+#endif
+				};
 
 				const auto mainReachableWithinOneTurn = [&]() -> bool
 				{
@@ -1773,7 +1793,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return false;
 				};
 
+				float tempLogBefore = score;
 				score += evaluationContext.strategicalValue * 1000;
+				tempLogScore("strategical", tempLogBefore, score);
 				if(evaluationContext.explorePriority > 0)
 				{
 					if(!targetObject
@@ -1783,14 +1805,19 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						&& meaningfulArmyCarrier
 						&& mainReachableWithinOneTurn())
 					{
+#if NK2AI_TRACE_LEVEL >= 2
+						logAi->trace(tempLogBase + " rejects exploration because hero can deliver army within one turn");
+#endif
 						return 0;
 					}
 
+					tempLogBefore = score;
 					score += 100.0f / evaluationContext.explorePriority;
 
 					// Encourage exploration for MAIN that requires battles, so SCOUTs can continue exploring
 					if(evaluationContext.heroRole == MAIN && hasAnyBattle)
 						score *= 2;
+					tempLogScore("explorePriority", tempLogBefore, score);
 				}
 
 				if(evaluationContext.goldReward > 0)
@@ -1814,6 +1841,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					};
 					if(targetObject && (evaluationContext.heroRole == MAIN || meaningfulArmyCarrier || isTreasureChest))
 					{
+						const std::string tempLogResourceStock = targetResourceType.has_value()
+							? ", stock of target resource=" + std::to_string(freeResources[*targetResourceType])
+							: ", free resources=" + freeResources.toString();
+
 							bool scoutCanReachThisTurn = false;
 							bool mainCanReachSoon = false;
 							const auto targetTile = targetObject->visitablePos();
@@ -1879,8 +1910,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						}
 
 						// try to balance other resources vs gold, especially 2500 gold treasures
+						tempLogBefore = score;
 						float multiplier = targetGivesCriticalResource ? 3.0f : 1.0f;
 						score += evaluationContext.goldReward > 500 ? evaluationContext.goldReward / 2.0f * multiplier : evaluationContext.goldReward * 2.0f * multiplier;
+						tempLogScore("goldReward", tempLogBefore, score);
 
 						if(evaluationContext.heroRole != MAIN)
 						{
@@ -1893,14 +1926,25 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 								const bool enemyTownIsCloser = closestTownOwner.isValidPlayer()
 									&& aiNk->cc->getPlayerRelations(aiNk->playerID, closestTownOwner) == PlayerRelations::ENEMIES;
 
+								tempLogBefore = score;
 								if(!mainCanReachSoon || (enemyCanReachSoon || enemyTownIsCloser))
+								{
 									score *= 4;
+									tempLogScore("MAIN can't reach soon or enemy is closer", tempLogBefore, score);
+								}
 								if(isTreasureChest && mainCanReachSoon && !weakSailingScoutCollector)
+								{
+#if NK2AI_TRACE_LEVEL >= 2
+									logAi->trace(tempLogBase + " rejects non-critical chest because MAIN can reach soon");
+#endif
 									return 0;
+								}
 							}
 							else
 							{
+								tempLogBefore = score;
 								score *= 5;
+								tempLogScore("reward is critical or not weekly-blocked - multiplier = 5", tempLogBefore, score);
 							}
 						}
 						else
@@ -1909,18 +1953,37 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 							if(targetRequiresBattle || (evaluationContext.involvesSailing && isRewardable) || (targetGivesCriticalResource && !scoutCanReachThisTurn))
 							{
 								// Encourage MAIN to fight for crypts and similar + sailing rewardables + critical no-battle resources (still worth MAIN movement)
+								tempLogBefore = score;
 								score *= 2;
+								tempLogScore("because "+ tempLogBattleReason + " multiplier = 2", tempLogBefore, score);
 							}
 							else if(scoutCanReachThisTurn && !isTreasureChest)
+							{
+#if NK2AI_TRACE_LEVEL >= 2
+								logAi->trace(tempLogBase + " rejects resource because a SCOUT can reach it this turn");
+#endif
 								return 0;
+							}
 							else if(meaningfulArmyCarrier && isWeeklyRevisitable(aiNk->playerID, targetObject))
+							{
+								tempLogBefore = score;
 								score *= 0.1;
+								tempLogScore("skip non-critical weekly reward - multiplier = 0.1", tempLogBefore, score);
+							}
 							else
 							{
 								if(isTreasureChest)
+								{
+									tempLogBefore = score;
 									score *= 3;
+									tempLogScore("treasure chest - MAIN wants exp! multiplier = 3", tempLogBefore, score);
+								}
 								else
+								{
+									tempLogBefore = score;
 									score *= 0.33;
+									tempLogScore("reward is not critical "+ tempLogResourceStock + " multiplier = 0.33", tempLogBefore, score);
+								}
 							}
 						}
 					}
@@ -1928,30 +1991,68 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 				if(evaluationContext.skillReward > 0)
 				{
+					tempLogBefore = score;
 					if(targetObject && !hasAnyBattle)
+					{
+						tempLogBefore = score;
 						score += evaluationContext.skillReward * (evaluationContext.heroRole == MAIN ? 1000.0f : 200.0f);
+						tempLogScore("skill reward (has no battle): + "+ std::to_string(evaluationContext.skillReward) + " * "+ std::to_string(evaluationContext.heroRole == MAIN ? 1000.0f : 200.0f), tempLogBefore, score);
+					}
 					else
+					{
+						tempLogBefore = score;
 						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
+						tempLogScore("skill reward (has battle !!!) - multiplier = "+ std::to_string(evaluationContext.skillReward) + " * 1000", tempLogBefore, score);
+					}
 					score *= evaluationContext.heroRole == SCOUT ? 0.2f : 2.0f;
 				}
 
+				tempLogBefore = score;
 				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 2.0f;
+				tempLogScore("armyReward", tempLogBefore, score);
 				// workshop (free lvl 1 units for Tower) and similar dwellings receive both armyReward and armyGrowth in evaluationContext
 				// For that reason only getDwellingArmyGrowth gets amplified towards day 7 if units are lost after
 				// Hero exchange and army upgrade are using this too
+				tempLogBefore = score;
 				score += evaluationContext.armyGrowth;
+				tempLogScore("armyGrowth", tempLogBefore, score);
 
 				if(evaluationContext.goldCost > 0)
+				{
+					tempLogBefore = score;
 					score -= evaluationContext.goldCost / 4.0f; // don't include the full cost of School of Magic or others because those locations are beneficial
+					tempLogScore("goldCost - multiplier = 0.25", tempLogBefore, score);
+				}
 				if(evaluationContext.routeAnchorBonus > 0)
+				{
+					tempLogBefore = score;
 					score += evaluationContext.routeAnchorBonus;
+					tempLogScore("routeAnchorBonus= " + std::to_string(evaluationContext.routeAnchorBonus), tempLogBefore, score);
+				}
 				if(weakSailingScoutCollector)
+				{
+					tempLogBefore = score;
 					score += 4000;
+					tempLogScore("weak sailing scout cleanup", tempLogBefore, score);
+				}
+				tempLogBefore = score;
 				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
+				tempLogScore("armyLossRatio", tempLogBefore, score);
 
+				tempLogBefore = score;
 				score *= evaluationContext.closestWayRatio;
+				tempLogScore("closestWayRatio - multiplier " + std::to_string(evaluationContext.closestWayRatio), tempLogBefore, score);
 				if(!(evaluationContext.explorePriority > 0 && !targetObject && evaluationContext.movementCost < 1.0f))
+				{
+					tempLogBefore = score;
 					score = evaluateMovement(score, evaluationContext.movementCost);
+					tempLogScore("movement", tempLogBefore, score);
+				}
+
+#if NK2AI_TRACE_LEVEL >= 1
+				if(score > 500)
+					logAi->trace("\t\t" + tempLogBase + " - Final score = %f", score);
+#endif
 				break;
 			}
 			case DEFEND: //Defend whatever if nothing else is to do
