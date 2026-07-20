@@ -293,6 +293,11 @@ void Nullkiller::updateState()
 	buildAnalyzer->update();
 	methodToElapsedMs.emplace("buildAnalyzer->update", timeElapsed(startMethod));
 
+	startMethod = std::chrono::high_resolution_clock::now();
+	makingTurnInterruption.interruptionPoint();
+	heroManager->update();
+	methodToElapsedMs.emplace("heroManager->update()", timeElapsed(startMethod));
+
 	if(!pathfinderInvalidated && dangerHitMap->isHitMapUpToDate() && dangerHitMap->isTileOwnersUpToDate())
 		logAi->trace("Skipping full state regeneration - up to date");
 	else
@@ -306,11 +311,6 @@ void Nullkiller::updateState()
 		startMethod = std::chrono::high_resolution_clock::now();
 		dangerHitMap->calculateTileOwners();
 		methodToElapsedMs.emplace("dangerHitMap->calculateTileOwners()", timeElapsed(startMethod));
-
-		startMethod = std::chrono::high_resolution_clock::now();
-		makingTurnInterruption.interruptionPoint();
-		heroManager->update();
-		methodToElapsedMs.emplace("heroManager->update()", timeElapsed(startMethod));
 
 		logAi->trace("Updating paths");
 		PathfinderSettings cfg;
