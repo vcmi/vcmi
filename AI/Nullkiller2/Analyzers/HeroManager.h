@@ -57,6 +57,7 @@ public:
 	void update();
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const;
 	float evaluateHero(const CGHeroInstance * hero) const;
+	bool isMeaningfulArmyCarrier(const CGHeroInstance * hero) const;
 	bool canRecruitHero(const CGTownInstance * t = nullptr) const;
 	bool heroCapReached(bool includeGarrisoned = true) const;
 	const CGHeroInstance * findHeroWithGrail() const;

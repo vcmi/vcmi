@@ -173,6 +173,34 @@ HeroRole HeroManager::getHeroRoleOrDefaultInefficient(const  CGHeroInstance * he
 	return getHeroRoleOrDefault(HeroPtr(hero, aiNk->cc.get()));
 }
 
+bool HeroManager::isMeaningfulArmyCarrier(const CGHeroInstance * hero) const
+{
+	static constexpr uint64_t MIN_REINFORCEMENT_ARMY_STRENGTH = 500;
+	static constexpr uint64_t REINFORCEMENT_ARMY_STRENGTH_DIVISOR = 10;
+
+	if(!hero)
+		return false;
+
+	const auto armyStrength = hero->getArmyStrength();
+	uint64_t strongestArmy = armyStrength;
+	bool isStrongestArmy = true;
+
+	for(const auto * otherHero : cc->getHeroesInfo())
+	{
+		if(otherHero == hero)
+			continue;
+
+		const auto otherArmyStrength = otherHero->getArmyStrength();
+		strongestArmy = std::max(strongestArmy, otherArmyStrength);
+		if(otherArmyStrength > armyStrength
+			|| (otherArmyStrength == armyStrength && otherHero->id.getNum() < hero->id.getNum()))
+			isStrongestArmy = false;
+	}
+
+	return isStrongestArmy
+		|| armyStrength > std::max(MIN_REINFORCEMENT_ARMY_STRENGTH, strongestArmy / REINFORCEMENT_ARMY_STRENGTH_DIVISOR);
+}
+
 // TODO: Mircea: Do we need this map on HeroPtr or is enough just on hero?
 HeroRole HeroManager::getHeroRoleOrDefault(const HeroPtr & heroPtr) const
 {
