@@ -1069,7 +1069,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTranslated(), dst.toString());
-			return true;
+			throw cannotFulfillGoalException("Hero cannot reach target tile.");
 		}
 		int i = (int)path.nodes.size() - 1;
 

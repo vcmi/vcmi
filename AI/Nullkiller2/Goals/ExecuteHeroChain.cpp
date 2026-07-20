@@ -261,7 +261,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTranslated(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable.");
 					}
 
 					if(targetNode->turns != 0)
@@ -273,7 +273,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable this turn.");
 					}
 				}
 
@@ -303,6 +303,15 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						if(moveHeroToTile(aiGw, hero, node->coord))
 						{
+							if(hero->visitablePos() != node->coord)
+							{
+								logAi->debug(
+									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
+									hero->getNameTranslated(),
+									node->coord.toString());
+								return;
+							}
+
 							continue;
 						}
 					}
@@ -345,7 +354,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
 			
 			// no exception means we were not able to reach the tile
