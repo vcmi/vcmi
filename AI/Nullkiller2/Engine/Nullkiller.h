@@ -81,10 +81,21 @@ TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingT
 class Nullkiller
 {
 private:
+	struct FailedHeroPath
+	{
+		ObjectInstanceID hero;
+		int3 destination;
+	};
+
 	const CGHeroInstance * activeHero;
+	ObjectInstanceID activeHeroID;
 	int3 targetTile;
+	const CGHeroInstance * activePathHero;
+	ObjectInstanceID activePathHeroID;
+	int3 activePathDestination;
 	ObjectInstanceID targetObject;
 	HeroMap<HeroLockedReason> lockedHeroes;
+	std::vector<FailedHeroPath> failedHeroPaths;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
 	ScanDepth scanDepth;
 	TResources lockedResources;
@@ -92,6 +103,7 @@ private:
 	bool openMap;
 	bool useObjectGraph;
 	bool pathfinderInvalidated;
+	bool lastTaskFailureHadPath;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -130,7 +142,19 @@ public:
 	int3 getTargetTile() const { return targetTile; }
 	ObjectInstanceID getTargetObject() const { return targetObject; }
 	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
-	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
+	void setActive(const CGHeroInstance * hero, int3 tile)
+	{
+		if(hero && !activePathHeroID.hasValue())
+		{
+			activePathHero = hero;
+			activePathHeroID = hero->id;
+			activePathDestination = tile;
+		}
+
+		activeHero = hero;
+		activeHeroID = hero ? hero->id : ObjectInstanceID::NONE;
+		targetTile = tile;
+	}
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
 	void unlockHero(const CGHeroInstance * hero);
 	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
@@ -160,6 +184,9 @@ private:
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
 	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
+	void resetTaskExecutionContext();
+	bool rememberActivePathFailure();
+	bool isPathKnownToFail(const AIPathNodeInfo & node) const;
 	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };

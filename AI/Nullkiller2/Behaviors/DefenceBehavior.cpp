@@ -485,6 +485,19 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			);
 #endif
 
+			const auto * releasedDefender =
+				path.targetHero == town->getVisitingHero() || path.targetHero == town->getGarrisonHero()
+				? path.targetHero
+				: nullptr;
+
+			if(aiNk->arePathHeroesLocked(path, releasedDefender))
+			{
+#if NK2AI_TRACE_LEVEL >= 1
+				logAi->trace("Can not move %s to defend town %s. Path is locked.", path.targetHero->getObjectName(), town->getObjectName());
+#endif
+				continue;
+			}
+
 			const auto townDefenseStrength = estimateTownMobileDefence(town);
 			const bool lockDefenderNow = shouldLockPathDefender(town, threat, path, aiNk);
 
@@ -565,15 +578,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			const bool heroStrengthCoversThreat = path.turn() <= threat.turn && path.getHeroStrength() >= threat.danger * aiNk->settings->getSafeAttackRatio();
 			if(threat.turn == 0 || lockDefenderNow || heroStrengthCoversThreat)
 			{
-				if(aiNk->arePathHeroesLocked(path))
-				{
-#if NK2AI_TRACE_LEVEL >= 1
-					logAi->trace("Can not move %s to defend town %s. Path is locked.", path.targetHero->getObjectName(), town->getObjectName());
-
-#endif
-					continue;
-				}
-
 				pathsToDefend.push_back(i);
 			}
 		}
