@@ -43,6 +43,29 @@ namespace NK2AI
 
 constexpr float MAX_CRITICAL_VALUE = 2.0f;
 
+float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount)
+{
+	if(visibleEnemyTownCount <= 0)
+		return baseValue;
+
+	if(visibleEnemyTownCount == 1)
+		return std::max(baseValue * 4.0f, 6.0f);
+
+	if(visibleEnemyTownCount == 2)
+		return std::max(baseValue * 3.5f, 5.0f);
+
+	return std::max(baseValue * 3.0f, 4.0f);
+}
+
+float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest)
+{
+	if(!isEnemyTownConquest || conquestValue <= MAX_CRITICAL_VALUE)
+		return baseMaxArmyLoss;
+
+	const float conquestPressure = (conquestValue - MAX_CRITICAL_VALUE) * 0.05f;
+	return std::min(baseMaxArmyLoss + conquestPressure, 0.75f);
+}
+
 EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	: movementCost(0.0),
 	manaCost(0),
@@ -88,6 +111,22 @@ bool isAnotherAi(const CGObjectInstance * obj, const CPlayerSpecificInfoCallback
 {
 	return obj->getOwner().isValidPlayer()
 		&& cb.getStartInfo()->getIthPlayersSettings(obj->getOwner()).isControlledByAI();
+}
+
+int getVisibleEnemyTownCount(const CGTownInstance * town, const Nullkiller * aiNk)
+{
+	const auto owner = town->getOwner();
+	if(!owner.isValidPlayer() || aiNk->cc->getPlayerRelations(aiNk->playerID, owner) != PlayerRelations::ENEMIES)
+		return 0;
+
+	int result = 0;
+	for(const auto * visibleTown : aiNk->cc->getTownsInfo(false))
+	{
+		if(visibleTown->getOwner() == owner)
+			result++;
+	}
+
+	return result;
 }
 
 int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, const CGHeroInstance * hero)
@@ -535,14 +574,19 @@ float RewardEvaluator::getConquestValue(const CGObjectInstance* target) const
 
 		auto fortLevel = town->fortLevel();
 		auto booster = 1.0f;
+		float baseValue = 0.0f;
 
 		if (town->hasCapitol())
-			return booster * 1.5;
-
-		if (fortLevel < CGTownInstance::CITADEL)
-			return booster * (town->hasFort() ? 1.0 : 0.8);
+			baseValue = booster * 1.5;
+		else if (fortLevel < CGTownInstance::CITADEL)
+			baseValue = booster * (town->hasFort() ? 1.0 : 0.8);
 		else
-			return booster * (fortLevel == CGTownInstance::CASTLE ? 1.4 : 1.2);
+			baseValue = booster * (fortLevel == CGTownInstance::CASTLE ? 1.4 : 1.2);
+
+		const auto visibleEnemyTownCount = getVisibleEnemyTownCount(town, aiNk);
+		return visibleEnemyTownCount > 0
+			? evaluateEnemyTownConquestValue(baseValue, visibleEnemyTownCount)
+			: baseValue;
 	}
 
 	case Obj::HERO:
@@ -1408,6 +1452,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
+		const bool isEnemyTownConquest = evaluationContext.isEnemy
+			&& !evaluationContext.isHero
+			&& evaluationContext.conquestValue > MAX_CRITICAL_VALUE;
+		const float maxWillingToLoseForTask = evaluateMaxArmyLossForConquest(maxWillingToLose, evaluationContext.conquestValue, isEnemyTownConquest);
 
 #if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace(
@@ -1456,7 +1504,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 
 				// TODO: Mircea: Ensure defenseValue is taken into account. See AINodeStorage::evaluateArmyLoss and CCreatureSet::getArmyStrength
 				// TODO: Mircea: make it dynamic, allow higher risk for killing a higher risk hero if it leads to killing an entire player. See conquestValue
-				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
 
 				score = evaluateConquestValue(score, evaluationContext.conquestValue, evaluationContext.armyInvolvement);
@@ -1473,7 +1521,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				if(!evaluationContext.isDefend)
 					return 0;
 				// TODO: Mircea: Often is better to die as long as you're almost destroying the opponent. To revisit
-				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
 				if(evaluationContext.isEnemy && evaluationContext.turn > 0)
 					return 0;
@@ -1515,7 +1563,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				   || (evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio && (evaluationContext.turn > 0 || evaluationContext.isExchange)
 					   && !amIWithoutCastle))
 					return 0;
-				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if (maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
 
 				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
@@ -1538,7 +1586,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.buildingCost.marketValue() > 0)
 					return 0;
-				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
 
 				if(priorityTier == EXPLORE_AND_GATHER && evaluationContext.enemyHeroDangerRatio > maxEnemyDangerRatio)
@@ -1649,7 +1697,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case BUILDINGS: //For buildings and buying army
 			{
 				// TODO: Mircea: What's the point of this check for ::BUILDINGS? Isn't the priority itself just for buildings? To test
-				if(maxWillingToLose - evaluationContext.armyLossRatio < 0)
+				if(maxWillingToLoseForTask - evaluationContext.armyLossRatio < 0)
 					return 0;
 				//If we already have locked resources, we don't look at other buildings
 				if(aiNk->getLockedResources().marketValue() > 0)

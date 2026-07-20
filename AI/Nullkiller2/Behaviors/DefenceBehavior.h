@@ -9,8 +9,6 @@
 */
 #pragma once
 
-#include <vector>
-
 #include "../AIUtility.h"
 #include "../Goals/CGoal.h"
 #include "lib/GameLibrary.h"
@@ -22,14 +20,6 @@ struct HitMapInfo;
 
 namespace Goals
 {
-	uint64_t estimateTownFortificationDefence(const CGTownInstance & town, bool hasDefenders);
-	uint64_t estimateTownDefence(const CGTownInstance & town, const CGHeroInstance * committedDefender);
-	bool isTownDefenceSufficient(uint64_t defenceStrength, const HitMapInfo & threat, float safeAttackRatio);
-	int countTownThreatsCoveredByDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
-	bool isHeroRequiredForTownDefence(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
-	bool shouldReserveTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio);
-	bool shouldLockTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const HitMapInfo & threat, float safeAttackRatio);
-
 	class DefenceBehavior : public CGoal<DefenceBehavior>
 	{
 	public:

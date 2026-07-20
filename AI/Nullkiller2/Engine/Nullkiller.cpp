@@ -20,6 +20,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
+#include "../Behaviors/DefenceBehaviorUtils.h"
 #include "../Behaviors/EscapeBehavior.h"
 #include "../Behaviors/ExplorationBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
@@ -404,6 +405,8 @@ const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance
 
 void Nullkiller::reserveRequiredTownDefenders()
 {
+	// Only urgent town threats reserve heroes here. Safe garrison heroes must
+	// stay available for extraction, otherwise large town armies become idle.
 	for(const auto * town : cc->getTownsInfo())
 	{
 		const auto * defender = findRequiredTownDefender(town);
@@ -413,17 +416,6 @@ void Nullkiller::reserveRequiredTownDefenders()
 
 		logAi->debug("Reserving %s as defender of %s", defender->getNameTranslated(), town->getNameTranslated());
 		lockedHeroes[defender] = HeroLockedReason::DEFENCE;
-	}
-
-	for(const auto * town : cc->getTownsInfo())
-	{
-		const auto * garrisonHero = town->getGarrisonHero();
-
-		if(!garrisonHero || getHeroLockedReason(garrisonHero) != HeroLockedReason::NOT_LOCKED)
-			continue;
-
-		logAi->debug("Keeping %s in garrison of %s", garrisonHero->getNameTranslated(), town->getNameTranslated());
-		lockedHeroes[garrisonHero] = HeroLockedReason::DEFENCE;
 	}
 }
 
@@ -448,7 +440,58 @@ void Nullkiller::unlockHero(const CGHeroInstance * hero)
 	lockedHeroes.erase(hero);
 }
 
-bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
+bool defenderMakesTownStableAfterTurnEnd(const CGTownInstance * town, const CGHeroInstance * defender, const Nullkiller * aiNk)
+{
+	const auto threats = getTownThreatsForDefenderReservation(town, aiNk);
+	const auto defence = Goals::estimateTownDefence(*town, defender);
+	const auto safeAttackRatio = aiNk->settings->getSafeAttackRatio();
+
+	for(const auto & threat : threats)
+	{
+		if(threat.danger == 0 || threat.turn > 1)
+			continue;
+
+		if(!Goals::isTownDefenceSufficient(defence, threat, safeAttackRatio))
+			return false;
+	}
+
+	return true;
+}
+
+bool Nullkiller::canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const
+{
+	if(!hero || !target || path.targetHero != hero)
+		return false;
+
+	if(getHeroLockedReason(hero) != HeroLockedReason::DEFENCE)
+		return false;
+
+	if(path.exchangeCount != 1 || path.turn() > 1 || path.getFirstBlockedAction())
+		return false;
+
+	const auto * defendedTown = hero->getVisitedTown();
+	if(!defendedTown || defendedTown->getOwner() != playerID)
+		return false;
+
+	if(defendedTown->getGarrisonHero() != hero && defendedTown->getVisitingHero() != hero)
+		return false;
+
+	const auto relation = cc->getPlayerRelations(target->tempOwner, playerID);
+	const auto defenderMakesHomeStable = defenderMakesTownStableAfterTurnEnd(defendedTown, hero, this);
+	const auto remainingTownReinforcement = armyManager->howManyReinforcementsCanBuy(defendedTown->getUpperArmy(), defendedTown);
+	const auto calendar = cc->getCalendar();
+
+	return Goals::isDefenderReleaseAllowedForTownCapture(
+		*hero,
+		*target,
+		relation == PlayerRelations::ENEMIES,
+		defenderMakesHomeStable,
+		remainingTownReinforcement,
+		calendar.getDayOfWeek(),
+		calendar.getDaysInWeek());
+}
+
+bool Nullkiller::arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender) const
 {
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
@@ -464,6 +507,9 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
 		{
+			if(releasedDefender && node.targetHero == releasedDefender && lockReason == HeroLockedReason::DEFENCE)
+				continue;
+
 #if NK2AI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s is locked by %d. Discarding %s", path.targetHero->getObjectName(), (int)lockReason,  path.toString());
 #endif
@@ -840,9 +886,6 @@ HeroMap<HeroRole> Nullkiller::getHeroesForPathfinding() const
 	HeroMap<HeroRole> activeHeroes;
 	for(auto hero : cc->getHeroesInfo())
 	{
-		if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
-			continue;
-
 		activeHeroes[hero] = heroManager->getHeroRoleOrDefaultInefficient(hero);
 	}
 	return activeHeroes;
