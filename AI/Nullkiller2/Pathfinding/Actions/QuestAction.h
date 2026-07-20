@@ -31,6 +31,7 @@ namespace AIPathfinding
 		bool canAct(const Nullkiller * aiNk, const AIPathNode * node) const override;
 		bool canAct(const Nullkiller * aiNk, const AIPathNodeInfo & node) const override;
 		bool canAct(const Nullkiller * aiNk, const CGHeroInstance * hero) const;
+		bool needsInitialVisit(const Nullkiller * aiNk, const CGHeroInstance * hero) const;
 
 		Goals::TSubgoal decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const override;
 
