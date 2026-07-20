@@ -122,8 +122,10 @@ private:
 		const int TEXT_POS_X = 29;
 		const int TEXT_POS_Y = 56;
 
-		const int MAX_LINES = 5;
-		const int MAX_ELEM_PER_LINES = 5;
+		const int MIN_LINES = 5;
+		const int MIN_ELEM_PER_LINE = 5;
+		const int MAX_LINES = 7;
+		const int MAX_ELEM_PER_LINE = 7;
 
 		int elementsPerLine;
 
@@ -162,6 +164,7 @@ private:
 		void setSelection();
 		int getElement(const Point & cursorPosition);
 		void setElement(int element, bool doApply);
+		int getMaxElementsPerLine(int itemCount) const;
 
 		void sliderMove(int slidPos);
 

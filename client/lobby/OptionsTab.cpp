@@ -451,15 +451,31 @@ OptionsTab::SelectionWindow::SelectionWindow(const PlayerColor & color, SelType 
 	recreate(sliderPos);
 }
 
+int OptionsTab::SelectionWindow::getMaxElementsPerLine(int itemCount) const
+{
+	if(type == SelType::TOWN)
+	{
+		if(itemCount > MIN_ELEM_PER_LINE * MIN_LINES)
+			return std::min(MAX_ELEM_PER_LINE, std::min(MAX_LINES, static_cast<int>(std::ceil(std::sqrt(itemCount)))));
+	}
+
+	return MIN_ELEM_PER_LINE;
+}
+
 std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 {
 	int additionalItems = 1; // random
 
 	if(!faction.isValid())
+	{
+		int itemCount = static_cast<int>(allowedFactions.size()) + additionalItems;
+		int maxElementsPerLine = getMaxElementsPerLine(itemCount);
+
 		return std::make_tuple(
-			std::ceil(((double)allowedFactions.size() + additionalItems) / MAX_ELEM_PER_LINES),
-			(allowedFactions.size() + additionalItems) % MAX_ELEM_PER_LINES
+			std::ceil(static_cast<double>(itemCount) / maxElementsPerLine),
+			itemCount % maxElementsPerLine
 		);
+	}
 
 	int count = 0;
 	for(auto & elemh : allowedHeroes)
@@ -471,9 +487,12 @@ std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 		count++;
 	}
 
+	int itemCount = count + additionalItems;
+	int maxElementsPerLine = getMaxElementsPerLine(itemCount);
+
 	return std::make_tuple(
-		std::ceil(((double)count + additionalItems) / MAX_ELEM_PER_LINES),
-		(count + additionalItems) % MAX_ELEM_PER_LINES
+		std::ceil(static_cast<double>(itemCount) / maxElementsPerLine),
+		itemCount % maxElementsPerLine
 	);
 }
 
@@ -524,14 +543,21 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 	else
 	{
 		std::tie(amountLines, elementsPerLine) = calcLines((type > SelType::TOWN) ? selectedFaction : FactionID::RANDOM);
-		if(amountLines > 1 || elementsPerLine == 0)
-			elementsPerLine = MAX_ELEM_PER_LINES;
+		if(type == SelType::TOWN)
+			elementsPerLine = getMaxElementsPerLine(static_cast<int>(allowedFactions.size()) + 1);
+		else if(amountLines > 1 || elementsPerLine == 0)
+			elementsPerLine = getMaxElementsPerLine(amountLines * MIN_ELEM_PER_LINE);
 	}
 
+	int visibleLines = amountLines;
+	if(type == SelType::TOWN)
+		visibleLines = std::min(amountLines, MAX_LINES);
+	else if(type == SelType::HERO)
+		visibleLines = std::min(amountLines, MIN_LINES);
 	int x = (elementsPerLine) * (ICON_BIG_WIDTH-1);
-	int y = (std::min(amountLines, MAX_LINES)) * (ICON_BIG_HEIGHT-1);
+	int y = visibleLines * (ICON_BIG_HEIGHT-1);
 
-	int sliderWidth = ((amountLines > MAX_LINES) ? 16 : 0);
+	int sliderWidth = ((amountLines > visibleLines) ? 16 : 0);
 
 	pos = Rect(pos.x, pos.y, x + sliderWidth, y);
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w - sliderWidth, pos.h));
@@ -544,11 +570,11 @@ void OptionsTab::SelectionWindow::recreate(int sliderPos)
 		genContentHeroes();
 	if(type == SelType::BONUS)
 		genContentBonus();
-	genContentGrid(std::min(amountLines, MAX_LINES));
+	genContentGrid(visibleLines);
 
-	if(!slider && amountLines > MAX_LINES)
+	if(!slider && amountLines > visibleLines)
 	{
-		slider = std::make_shared<CSlider>(Point(x, 0), y, std::bind(&OptionsTab::SelectionWindow::sliderMove, this, _1), MAX_LINES, amountLines, 0, Orientation::VERTICAL, CSlider::BLUE);
+		slider = std::make_shared<CSlider>(Point(x, 0), y, std::bind(&OptionsTab::SelectionWindow::sliderMove, this, _1), visibleLines, amountLines, 0, Orientation::VERTICAL, CSlider::BLUE);
 		slider->setPanningStep(ICON_BIG_HEIGHT);
 		slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, x + slider->pos.w, y));
 		slider->scrollTo(sliderPos);
@@ -604,7 +630,7 @@ void OptionsTab::SelectionWindow::genContentFactions()
 		factions.push_back(elem);
 		i++;
 
-		if(y < 0 || y > MAX_LINES - 1)
+		if(y < 0 || y > (pos.h / (ICON_BIG_HEIGHT-1)) - 1)
 			continue;
 			
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
@@ -645,7 +671,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 		heroes.push_back(elem);
 		i++;
 
-		if(y < 0 || y > MAX_LINES - 1)
+		if(y < 0 || y > (pos.h / (ICON_BIG_HEIGHT-1)) - 1)
 			continue;
 
 		components.push_back(std::make_shared<CAnimImage>(helper.getImageName(true), helper.getImageIndex(true), 0, x * (ICON_BIG_WIDTH-1), y * (ICON_BIG_HEIGHT-1)));
