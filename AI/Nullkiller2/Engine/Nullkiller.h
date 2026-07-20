@@ -42,6 +42,8 @@ enum class HeroLockedReason
 	HERO_CHAIN = 3
 };
 
+const char * heroLockReasonName(HeroLockedReason reason);
+
 enum class ScanDepth
 {
 	MAIN_FULL = 0,
