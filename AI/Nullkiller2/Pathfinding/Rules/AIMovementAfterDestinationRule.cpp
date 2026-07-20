@@ -181,36 +181,37 @@ namespace AIPathfinding
 			return false;
 		}
 
-		if(!questAction.canAct(aiNk, destinationNode))
+		const bool canAct = questAction.canAct(aiNk, destinationNode);
+		if(!canAct && !destinationNode->actor->allowUseResources)
 		{
-			if(!destinationNode->actor->allowUseResources)
+			const std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+				destination.coord,
+				destination.node->layer,
+				destinationNode->actor->resourceActor);
+			if (!questNode)
 			{
-				const std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
-					destination.coord,
-					destination.node->layer,
-					destinationNode->actor->resourceActor);
-				if (!questNode)
-				{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
-					logAi->warn(
-						"P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
-						destination.coord.toString(),
-						static_cast<int32_t>(destination.node->layer)
-					);
+				logAi->warn(
+					"P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
+					destination.coord.toString(),
+					static_cast<int32_t>(destination.node->layer)
+				);
 #endif
-					return false;
-				}
-
-				if(questNode.value()->getCost() < destination.cost)
-				{
-					return false;
-				}
-
-				destination.node = questNode.value();
-				nodeStorage->commit(destination, source);
-				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
+				return false;
 			}
 
+			if(questNode.value()->getCost() < destination.cost)
+			{
+				return false;
+			}
+
+			destination.node = questNode.value();
+			nodeStorage->commit(destination, source);
+			AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
+		}
+
+		if(questAction.needsInitialVisit(aiNk, destinationNode->actor->hero) || !canAct)
+		{
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
 				node->addSpecialAction(std::make_shared<QuestAction>(questAction));

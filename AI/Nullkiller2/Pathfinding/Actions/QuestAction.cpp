@@ -46,6 +46,11 @@ namespace AIPathfinding
 			|| quest->checkQuest(hero);
 	}
 
+	bool QuestAction::needsInitialVisit(const Nullkiller * aiNk, const CGHeroInstance * hero) const
+	{
+		return !questInfo.getQuest(aiNk->cc.get())->isKnownTo(hero->getOwner());
+	}
+
 	Goals::TSubgoal QuestAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::CompleteQuest(questInfo, *aiNk->cc));
@@ -53,7 +58,11 @@ namespace AIPathfinding
 
 	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		const auto * object = questInfo.getObject(aiGw->cc.get());
+		if(!object)
+			throw cannotFulfillGoalException("Quest object is no longer available.");
+
+		aiGw->moveHeroToTile(object->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
 	}
 
 	std::string QuestAction::toString() const
