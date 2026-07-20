@@ -682,6 +682,8 @@ void Nullkiller::makeTurn()
 					return;
 				}
 				hasAnySuccess = true;
+				if(selectedTask->getHeroExchangeCount() > 1)
+					break;
 			}
 		}
 
