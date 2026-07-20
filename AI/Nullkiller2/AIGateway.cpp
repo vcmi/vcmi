@@ -420,6 +420,10 @@ void AIGateway::battleResultsApplied()
 {
 	LOG_TRACE(logAi);
 	assert(status.getBattle() == ENDING_BATTLE);
+
+	std::unique_lock lockGuard(nullkiller->aiStateMutex);
+	nullkiller->heroManager->update();
+	nullkiller->invalidatePathfinderData();
 }
 
 void AIGateway::battleEnded()
