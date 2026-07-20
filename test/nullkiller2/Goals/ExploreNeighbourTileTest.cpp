@@ -155,6 +155,11 @@ public:
 		}
 	}
 
+	void setTerrain(const int3 & pos, ETerrainId terrain)
+	{
+		map->getTile(pos).terrainType = TerrainId(terrain);
+	}
+
 	std::shared_ptr<CCallback> makeCallback(PlayerColor player)
 	{
 		return std::make_shared<CCallback>(gameState, std::optional<PlayerColor>{player}, nullptr);
@@ -294,4 +299,24 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, ignoresKnownObjectsBefor
 
 	ASSERT_TRUE(target.has_value());
 	EXPECT_EQ(target->tilesDiscovered, 0);
+}
+
+TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, reportsUnreachableLivePathAsFailure)
+{
+	startWithMap(makeStrategicNeighbourMap());
+
+	auto * hero = findHeroByOwner(PLAYER);
+	ASSERT_NE(hero, nullptr);
+	hero->setMovementPoints(2000);
+
+	const int3 unreachableTile(6, 5, 0);
+	setTerrain(unreachableTile, ETerrainId::ROCK);
+	setAllTilesVisible(PLAYER, true);
+
+	const auto callback = makeCallback(PLAYER);
+	const auto gateway = makeGateway(callback);
+
+	EXPECT_THROW(
+		gateway->moveHeroToTile(unreachableTile, NK2AI::HeroPtr(hero, callback.get())),
+		NK2AI::cannotFulfillGoalException);
 }
