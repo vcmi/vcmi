@@ -63,6 +63,7 @@ public:
 
 	// ---- no-op stubs ----------------------------------------------------
 
+	void setScriptVariable(const std::string &, const std::string &, const JsonNode &) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID, const Rewardable::Configuration &) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID, BuildingID, const Rewardable::Configuration &) override {}
 	void changeSpells(const CGHeroInstance *, bool, const std::set<SpellID> &) override {}

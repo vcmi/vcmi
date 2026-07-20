@@ -19,6 +19,7 @@
 
 class CGObjectInstance;
 class JsonNode;
+enum class EMapDifficulty : uint8_t;
 
 namespace scripting::api
 {
@@ -34,8 +35,10 @@ public:
 
 	static void registerMethods(MethodRegistrar & R);
 
-	static JsonNode getMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID);
-	static bool hasMapVariable(const GameCb & object, const std::string & name, const std::optional<std::string> & modID);
+	static JsonNode getMapVariable(const GameCb & object, const std::string & name);
+	static bool hasMapVariable(const GameCb & object, const std::string & name);
+	static Calendar getCalendar(const GameCb & object);
+	static EMapDifficulty getDifficulty(const GameCb & object);
 };
 
 }

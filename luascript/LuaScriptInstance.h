@@ -48,10 +48,10 @@ public:
 
 	std::shared_ptr<LuaContext> createContext(const Environment * ENV) const;
 
-	std::string getIdentifier() const override { return baselModScope + baselSourcePath; }
+	std::string getIdentifier() const override { return baseModScope + baselSourcePath; }
 
 private:
-	std::string baselModScope;
+	std::string baseModScope;
 	std::string baselSourcePath;
 	void loadLayer(const std::string & modScope, const std::string & sourcePath);
 };

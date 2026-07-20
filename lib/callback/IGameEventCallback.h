@@ -12,7 +12,10 @@
 #include "../GameConstants.h"
 #include "../networkPacks/ObjProperty.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 class int3;
+class JsonNode;
 struct GiveBonus;
 struct QuestInfo;
 struct CPackForClient;
@@ -52,9 +55,12 @@ namespace vstd
 class RNG;
 }
 
-class DLL_LINKAGE IGameEventCallback
+class DLL_LINKAGE IGameEventCallback : public scripting::ApiRawPointer<IGameEventCallback>
 {
 public:
+	/// Sets value of a map script variable.
+	virtual void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) = 0;
+
 	virtual void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) = 0;
 	virtual void setRewardableObjectConfiguration(ObjectInstanceID mapObjectID, const Rewardable::Configuration & configuration) = 0;
 	virtual void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) = 0;

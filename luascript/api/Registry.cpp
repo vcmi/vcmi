@@ -20,6 +20,7 @@
 #include <boost/core/demangle.hpp>
 
 #include "Enums.h"
+#include "LuaComponent.h"
 #include "LuaMetaString.h"
 #include "battle/SpellObstacleDescriptor.h"
 #include "battle/Unit.h"
@@ -37,8 +38,11 @@
 #include "library/Faction.h"
 #include "callback/IGameInfoCallback.h"
 #include "library/HeroClass.h"
+#include "adventure/Calendar.h"
 #include "adventure/HeroInstance.h"
+#include "adventure/MapObject.h"
 #include "library/HeroType.h"
+#include "callback/AdventureServer.h"
 #include "callback/ServerCallback.h"
 #include "library/Services.h"
 #include "library/Skill.h"
@@ -64,6 +68,7 @@ Registry::Registry()
 	registerPrivate<SpellSchoolProxy>();
 
 	registerPrivate<HeroInstanceProxy>();
+	registerPrivate<CalendarProxy>();
 	registerPrivate<StackInstanceProxy>();
 
 	registerPrivate<BattleHexProxy>();
@@ -77,15 +82,17 @@ Registry::Registry()
 	registerPrivate<IBattleInfoCallbackProxy>();
 	registerPrivate<IGameInfoCallbackProxy>();
 	registerPrivate<ServerCallbackProxy>();
+	registerPrivate<AdventureServerProxy>();
 
 	registerSerializable<Enums>();
 	registerSerializable<LuaMetaString>();
+	registerSerializable<LuaComponent>();
 	registerSerializable<BonusDescriptor>();
 	registerSerializable<SpellObstacleDescriptor>();
 
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
 	registerLuaName<CBattleInfoCallback>("Battle");
-	registerLuaName<CGObjectInstance>("MapObject");
+	registerPrivate<MapObjectProxy>();
 	registerLuaName<battle::UnitInfo>("UnitInfo");
 	// JsonNode fields accept any Lua value (string / number / table / …) and are funneled
 	// through JsonUtils::parseBonus — surface that openness rather than `userdata`.
@@ -102,6 +109,7 @@ Registry::Registry()
 	registerLuaName<CObstacleInstance::EObstacleType>("ObstacleType");
 	registerLuaName<EWallPart>("WallPart");
 	registerLuaName<BattleSide>("BattleSide");
+	registerLuaName<EMapDifficulty>("Difficulty");
 
 	// EWallState has no enum group of its own and is exposed as integer to Lua
 	registerLuaName<EWallState>("integer");

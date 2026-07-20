@@ -10,7 +10,9 @@ set(lualib_SRCS
 		LuaSpellEffect.cpp
 		LuaStack.cpp
 
+		api/adventure/Calendar.cpp
 		api/adventure/HeroInstance.cpp
+		api/adventure/MapObject.cpp
 		api/adventure/StackInstance.cpp
 
 		api/battle/Unit.cpp
@@ -37,8 +39,10 @@ set(lualib_SRCS
 
 		api/callback/IBattleInfoCallback.cpp
 		api/Enums.cpp
+		api/LuaComponent.cpp
 		api/LuaMetaString.cpp
 		api/DocExport.cpp
+		api/callback/AdventureServer.cpp
 		api/callback/IGameInfoCallback.cpp
 		api/Registry.cpp
 		api/callback/ServerCallback.cpp
@@ -56,7 +60,9 @@ set(lualib_HDRS
 		LuaStack.h
 		LuaWrapper.h
 
+		api/adventure/Calendar.h
 		api/adventure/HeroInstance.h
+		api/adventure/MapObject.h
 		api/adventure/StackInstance.h
 
 		api/battle/Unit.h
@@ -88,7 +94,9 @@ set(lualib_HDRS
 		api/DocRegistrar.h
 		api/Enums.h
 		api/FieldDocRegistrar.h
+		api/LuaComponent.h
 		api/LuaMetaString.h
+		api/callback/AdventureServer.h
 		api/callback/IGameInfoCallback.h
 		api/LuaRegistrar.h
 		api/MethodRegistrar.h

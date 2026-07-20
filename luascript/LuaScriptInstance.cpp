@@ -21,6 +21,7 @@ LuaScriptInstance::LuaScriptInstance(LuaModule & host,
 	const std::string & baseScope, const std::string & basePath,
 	const std::vector<std::pair<std::string, std::string>> & patches)
 	: host(host)
+	, baseModScope(baseScope)
 {
 	loadLayer(baseScope, basePath);
 	for (const auto & [scope, path] : patches)

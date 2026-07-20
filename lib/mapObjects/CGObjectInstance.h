@@ -16,6 +16,8 @@
 #include "../filesystem/ResourcePath.h"
 #include "../int3.h"
 
+#include <vcmi/scripting/ApiTags.h>
+
 struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
@@ -26,7 +28,7 @@ class IQuestSource;
 class AObjectTypeHandler;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
-class DLL_LINKAGE CGObjectInstance : public IObjectInterface
+class DLL_LINKAGE CGObjectInstance : public IObjectInterface, public scripting::ApiRawPointer<CGObjectInstance>
 {
 public:
 	/// Type of object, e.g. town, hero, creature.

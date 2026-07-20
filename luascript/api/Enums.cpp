@@ -117,6 +117,17 @@ EnumGroup<BattleSide> Enums::exportBattleSide() const
 	}};
 }
 
+EnumGroup<EMapDifficulty> Enums::exportDifficulty() const
+{
+	return {{
+		{ "pawn",   EMapDifficulty::EASY,       "East difficulty. (80%)" },
+		{ "knight", EMapDifficulty::NORMAL,     "Normal difficulty. (100%)" },
+		{ "rook",   EMapDifficulty::HARD,       "Hard difficulty. (130%)" },
+		{ "queen",  EMapDifficulty::EXPERT,     "Expert difficulty. (160%)" },
+		{ "king",   EMapDifficulty::IMPOSSIBLE, "Impossible difficulty. (200%)" },
+	}};
+}
+
 EnumGroup<BonusSource> Enums::exportBonusSource() const
 {
 	return {{

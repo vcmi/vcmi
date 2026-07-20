@@ -1193,6 +1193,15 @@ void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 	sendAndApply(*iw);
 }
 
+void CGameHandler::setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value)
+{
+	SetScriptVariable pack;
+	pack.scope = scope;
+	pack.name = name;
+	pack.value = value;
+	sendAndApply(pack);
+}
+
 void CGameHandler::giveResource(PlayerColor player, GameResID which, int val)
 {
 	if (!val)
