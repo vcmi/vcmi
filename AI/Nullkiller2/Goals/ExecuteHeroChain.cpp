@@ -12,6 +12,7 @@
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Pathfinding/Actions/DimensionDoorAction.h"
+#include "../Pathfinding/Actions/QuestAction.h"
 
 namespace NK2AI
 {
@@ -219,6 +220,16 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						throw cannotFulfillGoalException("Hero was lost!");
 					}
 
+					// quest visit changes passability of its object, so live paths beyond it are stale
+					if(dynamic_cast<const AIPathfinding::QuestAction *>(node->specialAction.get()))
+					{
+						logAi->debug(
+							"Hero %s visited quest object at %s. Replanning the remaining route.",
+							hero->getNameTextID(),
+							node->coord.toString());
+						return;
+					}
+
 					// hero can be already on the target tile after move in specialAction->execute()
 					if(node->coord == heroPtr->visitablePos())
 						continue;
@@ -261,7 +272,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTextID(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable.");
 					}
 
 					if(targetNode->turns != 0)
@@ -273,7 +284,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable this turn.");
 					}
 				}
 
@@ -303,6 +314,15 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						if(moveHeroToTile(aiGw, hero, node->coord))
 						{
+							if(hero->visitablePos() != node->coord)
+							{
+								logAi->debug(
+									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
+									hero->getNameTextID(),
+									node->coord.toString());
+								return;
+							}
+
 							continue;
 						}
 					}
@@ -345,7 +365,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
 			
 			// no exception means we were not able to reach the tile
