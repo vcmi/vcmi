@@ -845,13 +845,6 @@ TEST_P(SpellMagnitudeSpecialty, matchesBaseline)
 {
 	const auto & c = GetParam();
 
-	if(c.kind == MagnitudeKind::Heal)
-		GTEST_SKIP() << "heal.lua computes the heal/raise amount from getEffectValue (raw), so "
-		                "the SPECIAL_SPELL_LEV specialty never scales resurrection/animate-dead. "
-		                "The fix is applySpellBonus(getEffectValue(), unit) - NOT adjustEffectValue, "
-		                "which would also drag in damage-only effects (spell damage reduction, "
-		                "invincibility -> 0, damage cap). Un-skip once heal.lua applies the specialty.";
-
 	// Reproduce the specialty factor from config using the H3-correct floor formula.
 	const SpellID spell(c.spellIndex);
 	std::shared_ptr<Bonus> spec;
@@ -892,9 +885,10 @@ INSTANTIATE_TEST_SUITE_P(Heroes, SpellMagnitudeSpecialty, ::testing::Values(
 	// currently FAIL and document the rounding bug (see report).
 	MagnitudeCase{"solmyr_chainLightning_cavalier", 45, 19, 10, MagnitudeKind::Damage, 10}, // level 6
 	MagnitudeCase{"alagar_iceBolt_archer",          30, 16,  2, MagnitudeKind::Damage,  7}, // level 2
-	// SPELL_LEV applied to healing / raising. Currently skipped - see the skip message.
-	MagnitudeCase{"alamar_resurrection", 88, 38,  0, MagnitudeKind::Heal, 10},
-	MagnitudeCase{"thant_animateDead",   76, 39, 56, MagnitudeKind::Heal, 10}
+	// SPELL_LEV applied to healing / raising: heal.lua scales the raise via applySpellBonus.
+	// Hero levels chosen divisible by target level so the deferred rounding bug does not bite.
+	MagnitudeCase{"alamar_resurrection", 88, 38,  0, MagnitudeKind::Heal,  9}, // orc, level 3
+	MagnitudeCase{"thant_animateDead",   76, 39, 56, MagnitudeKind::Heal,  8}  // medusa, level 4
 ),
 	[](const ::testing::TestParamInfo<MagnitudeCase> & info) { return info.param.name; });
 

@@ -33,7 +33,7 @@ function Script:isValidTarget(mechanics, unit)
 
 	local mfu = self:getMinFullUnits()
 	if mfu > 0 then
-		local hpGained = math.min(mechanics:getEffectValue(), injuries)
+		local hpGained = math.min(mechanics:applySpellBonus(mechanics:getEffectValue(), unit), injuries)
 		if hpGained < mfu * unit:getMaxHealth() then return false end
 	end
 
@@ -58,7 +58,7 @@ function Script:getHealthChange(mechanics, spellTarget)
 		local unit = dest.unit
 		if unit then
 			local copy = unit:copy()
-			local healedHP, resurrected = copy:heal(mechanics:getEffectValue(), self:getHealLevel(), self:getHealPower())
+			local healedHP, resurrected = copy:heal(mechanics:applySpellBonus(mechanics:getEffectValue(), unit), self:getHealLevel(), self:getHealPower())
 			result.hpDelta   = result.hpDelta   + healedHP
 			result.unitsDelta = result.unitsDelta + resurrected
 			result.unitType  = unit:getCreature()
@@ -76,7 +76,7 @@ function Script:apply(mechanics, server, target)
 		local unit = dest.unit
 		if unit then
 			local healedHP, resurrected = server:healUnit(
-				battle, unit, mechanics:getEffectValue(), self:getHealLevel(), self:getHealPower())
+				battle, unit, mechanics:applySpellBonus(mechanics:getEffectValue(), unit), self:getHealLevel(), self:getHealPower())
 
 			if resurrected > 0 then
 				local textID = resurrected == 1 and "core.genrltxt.117" or "core.genrltxt.116"

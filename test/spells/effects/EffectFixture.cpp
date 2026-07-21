@@ -84,6 +84,9 @@ void EffectFixture::setUp()
 	EXPECT_CALL(mechanicsMock, getBattleID()).WillRepeatedly(Return(BattleID()));
 	EXPECT_CALL(mechanicsMock, getHeroCaster()).WillRepeatedly(Return(nullptr));
 
+	// no hero specialty by default: the spell bonus leaves the value unchanged
+	EXPECT_CALL(mechanicsMock, applySpellBonus(_, _)).Times(AnyNumber()).WillRepeatedly(ReturnArg<0>());
+
 	EXPECT_CALL(*battleFake, getBattleID()).Times(AtLeast(0));
 
 	EXPECT_CALL(*battleFake, getScriptContextPool()).WillRepeatedly(ReturnRef(*pool));
