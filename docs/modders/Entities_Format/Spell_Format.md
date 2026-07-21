@@ -319,14 +319,13 @@ Where:
 
 If unit has [SPECIFIC_SPELL_POWER](../bonus/Bonus_Types.md#specific_spell_power) bonus for corresponding spell, game will use value of the bonus instead
 
-Power of `damage`, `heal`, `summon`, and `demonSummon` effects cast by hero can also be affected by following bonuses:
+Power of `damage`, `heal` and `demonSummon` effects cast by hero can also be affected by following bonuses:
 
 - [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell, scaled down by target level (Solmyr / Deemer)
-
-Following bonuses will only affect `damage`, `heal` and `demonSummon` effects
-
-- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for specific spell school (Sorcery)
+- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for spell school of the spell, or for any spell school (Sorcery)
 - [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
+
+Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell only.
 
 ## Smart target modifier
 
