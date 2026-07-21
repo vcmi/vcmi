@@ -15,6 +15,7 @@
 #include "Unit.h"
 
 #include "../bonuses/Bonus.h"
+#include "../bonuses/BonusParameters.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../IGameSettings.h"
@@ -164,21 +165,10 @@ int DamageCalculator::getActorAttackSlayer() const
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
-		const auto spLevel = slayerEffect->val;
-		bool isAffected = spLevel >= slayerAffected;
-
-		if(isAffected)
-		{
-			SpellID spell(SpellID::SLAYER);
-			int attackBonus = spell.toEntity(LIBRARY)->getLevelPower(spLevel);
-			if(info.attacker->hasBonusOfType(BonusType::SPECIAL_PECULIAR_ENCHANT, BonusSubtypeID(spell)))
-			{
-				ui8 attackerTier = info.attacker->unitType()->getLevel();
-				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
-				attackBonus += specialtyBonus;
-			}
-			return attackBonus;
-		}
+		// spell mastery level lives in addInfo; attack bonus (incl. any hero specialty shift) is the bonus value
+		int spLevel = slayerEffect->parameters ? slayerEffect->parameters->toNumber() : 0;
+		if(spLevel >= slayerAffected)
+			return slayerEffect->val;
 	}
 	return 0;
 }

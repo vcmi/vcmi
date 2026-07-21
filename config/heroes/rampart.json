@@ -129,7 +129,7 @@
 		"specialty" : {
 			"bonuses" : {
 				"slayer" : {
-					"addInfo" : 1,
+					"addInfo" : [ 4, 3, 2, 1, 0, 0, 0 ],
 					"subtype" : "spell.slayer",
 					"type" : "SPECIAL_PECULIAR_ENCHANT"
 				}

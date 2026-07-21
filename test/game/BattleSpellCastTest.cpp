@@ -955,7 +955,8 @@ TEST_P(EnchantSpecialty, matchesBaseline)
 			specialtyBonus = b;
 	ASSERT_NE(specialtyBonus, nullptr) << c.name << ": hero has no specialty for this spell";
 
-	const int param = specialtyBonus->parameters ? specialtyBonus->parameters->toNumber() : 0;
+	const bool vectorParam = specialtyBonus->parameters && specialtyBonus->parameters->isVector();
+	const int param = (specialtyBonus->parameters && !vectorParam) ? specialtyBonus->parameters->toNumber() : 0;
 	const int tier = CreatureID(c.targetCreature).toCreature()->getLevel();
 	const bool negative = spell.toSpell()->isNegative();
 
@@ -969,7 +970,15 @@ TEST_P(EnchantSpecialty, matchesBaseline)
 	{
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		{
-			int power = param == 0 ? (tier <= 2 ? 3 : tier <= 4 ? 2 : tier <= 6 ? 1 : 0) : 0;
+			int power = 0;
+			if(vectorParam)
+			{
+				const auto & vec = specialtyBonus->parameters->toVector();
+				int idx = std::clamp<int>(tier - 1, 0, static_cast<int>(vec.size()) - 1);
+				power = vec.empty() ? 0 : vec[idx];
+			}
+			else if(param == 0)
+				power = tier <= 2 ? 3 : tier <= 4 ? 2 : tier <= 6 ? 1 : 0;
 			if(negative)
 				power = -power;
 			expected = baseVal + power;
@@ -1009,7 +1018,7 @@ INSTANTIATE_TEST_SUITE_P(Heroes, EnchantSpecialty, ::testing::Values(
 	EnchantCase{"ash_bloodlust",       61, 43,  0, BonusType::PRIMARY_SKILL, subtypeAttack},
 	EnchantCase{"mirlanda_weakness",  120, 45,  8, BonusType::PRIMARY_SKILL, subtypeAttack},   // tier 5, negative -> -1
 	EnchantCase{"merist_stoneSkin",   124, 46,  0, BonusType::PRIMARY_SKILL, subtypeDefence},
-	EnchantCase{"coronius_slayer",     24, 55, 12, BonusType::SLAYER,        BonusSubtypeID()}, // mode 1 -> no shift
+	EnchantCase{"coronius_slayer",     24, 55,  0, BonusType::SLAYER,        BonusSubtypeID()}, // tier 1 -> +4 attack (addInfo array)
 	// SPECIAL_ADD_VALUE_ENCHANT
 	EnchantCase{"aenain_disruptingRay", 141, 47, 0, BonusType::PRIMARY_SKILL, subtypeDefence}, // negative, +param
 	// SPECIAL_FIXED_VALUE_ENCHANT

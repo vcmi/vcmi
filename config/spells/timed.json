@@ -1074,6 +1074,7 @@
 				"effects" : {
 					"slayer" : {
 						"type" : "SLAYER",
+						"val" : 8,
 						"duration" : "N_TURNS"
 					}
 				}
@@ -1081,28 +1082,28 @@
 			"none":{
 				"effects" : {
 					"slayer" : {
-						"val" : 0
+						"addInfo" : 0
 					}
 				}
 			},
 			"basic":{
 				"effects" : {
 					"slayer" : {
-						"val" : 1
+						"addInfo" : 1
 					}
 				}
 			},
 			"advanced":{
 				"effects" : {
 					"slayer" : {
-						"val" : 2
+						"addInfo" : 2
 					}
 				}
 			},
 			"expert":{
 				"effects" : {
 					"slayer" : {
-						"val" : 3
+						"addInfo" : 3
 					}
 				}
 			}

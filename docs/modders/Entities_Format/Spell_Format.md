@@ -678,7 +678,7 @@ Duration of effect is:
 
 Value of all bonuses can be affected by following bonuses:
 
-- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified by 1-3 according to level of target unit
+- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified according to level of target unit, using per-tier values from addInfo
 - [SPECIAL_ADD_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_add_value_enchant): value from addInfo is added to val of bonus
 - [SPECIAL_FIXED_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_fixed_value_enchant): value from addInfo replaces val of bonus
 

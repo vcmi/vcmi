@@ -38,9 +38,14 @@ function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
 	end)
 	if peculiar:size() == 0 then return end
 
-	local mode = peculiar:getBonus(1):getParametersAsNumber()
+	local bonus = peculiar:getBonus(1)
+	local levels = bonus:getParametersAsVector()
 	local power = 0
-	if mode == 0 then
+	if #levels > 0 then
+		-- per-tier bonus from addInfo array, clamping (tier - 1) into bounds
+		local idx = math.max(1, math.min(#levels, tier))
+		power = levels[idx]
+	elseif bonus:getParametersAsNumber() == 0 then
 		if tier <= 2 then power = 3
 		elseif tier <= 4 then power = 2
 		elseif tier <= 6 then power = 1
