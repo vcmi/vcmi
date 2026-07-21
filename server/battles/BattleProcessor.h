@@ -28,6 +28,7 @@ class CBattleQuery;
 class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
+class BattleInfo;
 
 /// Main class for battle handling. Contains all public interface for battles that is accessible from outside, e.g. for CGameHandler
 class BattleProcessor : boost::noncopyable
@@ -56,11 +57,12 @@ public:
 	~BattleProcessor();
 
 	/// Starts battle with specified parameters
-	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town);
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town, bool restarted = false);
 	/// Starts battle between two armies (which can also be heroes) at position of 2nd object
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2);
 	/// Restart ongoing battle and end previous battle
 	void restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town);
+	void tryLearnEnemySpellsPreBattle(const BattleInfo * battle, BattleSide side);
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
