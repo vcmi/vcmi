@@ -821,17 +821,13 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
 	{
 		const int targetLevel = affectedStack->creatureLevel();
-		int spellLevPercent;
-		auto spellLev = getBonus(Selector::typeSubtype(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())));
-		if(spellLev && spellLev->parameters && spellLev->parameters->isVector() && !spellLev->parameters->toVector().empty())
-		{
-			// per-target-tier base percentage from addInfo, still scaled by hero level
-			const auto & vec = spellLev->parameters->toVector();
-			int index = std::clamp<int>(targetLevel - 1, 0, static_cast<int>(vec.size()) - 1);
-			spellLevPercent = vec[index] * level / targetLevel;
-		}
-		else
-			spellLevPercent = valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / targetLevel;
+		int spellLevPercent = 0;
+
+		// legacy: value is pre-multiplied by hero level (TIMES_HERO_LEVEL), so rounding is multiply-first; kept unchanged for compatibility
+		spellLevPercent += valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / targetLevel;
+
+		// scaling specialty: raw percent per step with H3-correct divide-first rounding
+		spellLevPercent += valOfBonuses(BonusType::SPECIAL_SPELL_SCALING, BonusSubtypeID(spell->getId())) * (level / targetLevel);
 
 		base = static_cast<int64_t>(base * static_cast<double>(100 + spellLevPercent) / 100.0);
 	}

@@ -353,7 +353,7 @@
 		{
 			"if" : {
 				"properties" : {
-					"type" : { "enum" : [ "SPECIAL_PECULIAR_ENCHANT", "SPECIAL_SPELL_LEV" ] }
+					"type" : { "enum" : [ "SPECIAL_PECULIAR_ENCHANT" ] }
 				}
 			},
 			"then" : {

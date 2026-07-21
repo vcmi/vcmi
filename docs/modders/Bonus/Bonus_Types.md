@@ -346,11 +346,17 @@ Internal bonus, do not use
 
 ### SPECIAL_SPELL_LEV
 
-Gives additional bonus to effect of specific spell based on level of creature it is cast on. Applies to `damage`, `heal` and `demonSummon` effects.
+Gives additional bonus to effect of specific spell based on level of creature it is cast on. Applies to `damage`, `heal` and `demonSummon` effects. Uses multiply-first rounding (`floor(val * heroLevel / targetLevel)`) and is kept only for backward compatibility - prefer [SPECIAL_SPELL_SCALING](#special_spell_scaling), or the `spellScalingPercentage` hero specialty shortcut, for new content.
 
 - subtype: identifier of affected spell
-- val: bonus to spell effect, percentage, scaled by hero level and divided by target creature level
-- addInfo (optional): per-tier base percentage, as an array indexed by (target creature tier - 1); the last element is reused for tiers beyond its length. When set, it replaces `val` (still scaled by hero level / target creature level)
+- val: bonus to spell effect, percentage; expected to be combined with the `TIMES_HERO_LEVEL` updater
+
+### SPECIAL_SPELL_SCALING
+
+Same purpose as [SPECIAL_SPELL_LEV](#special_spell_lev), but with H3-correct rounding (`val * floor(heroLevel / targetLevel)`) and no hero-level updater - the hero level scaling is applied internally. Usually configured through the `spellScalingPercentage` hero specialty shortcut.
+
+- subtype: identifier of affected spell
+- val: bonus to spell effect per step, percentage
 
 ### SPELL_DAMAGE
 
