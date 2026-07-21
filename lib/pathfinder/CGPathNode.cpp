@@ -74,6 +74,14 @@ CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 
 CPathsInfo::~CPathsInfo() = default;
 
+void CPathsInfo::prepareForReuse(const CGHeroInstance * hero_)
+{
+	// PathfinderCache options and map terrain are stable, so NodeStorage::initialize
+	// resets the same active node layers before every path calculation.
+	hero = hero_;
+	heroBonusTreeVersion = hero->getTreeVersion();
+}
+
 const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile, const ELayer layer) const
 {
 	assert(vstd::iswithin(tile.x, 0, sizes.x));

@@ -140,6 +140,8 @@ struct DLL_LINKAGE CGPathNode
 		}
 		else
 		{
+			assert(coord == Coord);
+			assert(layer == Layer);
 			reset();
 		}
 
@@ -204,6 +206,7 @@ struct DLL_LINKAGE CPathsInfo
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
+	void prepareForReuse(const CGHeroInstance * hero_);
 	const CGPathNode * getPathInfo(const int3 & tile, const ELayer layer = ELayer::AUTO) const;
 	bool getPath(CGPath & out, const int3 & dst, const ELayer layer = ELayer::AUTO) const;
 	const CGPathNode * getNode(const int3 & coord) const;

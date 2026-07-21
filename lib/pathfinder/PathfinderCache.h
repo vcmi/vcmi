@@ -21,9 +21,11 @@ class DLL_LINKAGE PathfinderCache
 	const IGameInfoCallback * cb;
 	std::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
+	std::vector<std::shared_ptr<CPathsInfo>> reusablePaths;
 	PathfinderOptions options;
 
 	std::shared_ptr<PathfinderConfig> createConfig(const CGHeroInstance *h, CPathsInfo &out);
+	std::shared_ptr<CPathsInfo> acquirePaths(const CGHeroInstance * h);
 	std::shared_ptr<CPathsInfo> buildPaths(const CGHeroInstance *h);
 public:
 	PathfinderCache(const IGameInfoCallback * cb, const PathfinderOptions & options);
