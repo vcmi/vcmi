@@ -975,12 +975,15 @@ TEST_P(EnchantSpecialty, matchesBaseline)
 			{
 				const auto & vec = specialtyBonus->parameters->toVector();
 				int idx = std::clamp<int>(tier - 1, 0, static_cast<int>(vec.size()) - 1);
-				power = vec.empty() ? 0 : vec[idx];
+				power = vec.empty() ? 0 : vec[idx]; // explicit sign, no polarity flip
 			}
-			else if(param == 0)
-				power = tier <= 2 ? 3 : tier <= 4 ? 2 : tier <= 6 ? 1 : 0;
-			if(negative)
-				power = -power;
+			else
+			{
+				if(param == 0)
+					power = tier <= 2 ? 3 : tier <= 4 ? 2 : tier <= 6 ? 1 : 0;
+				if(negative)
+					power = -power; // legacy addInfo flips with spell polarity
+			}
 			expected = baseVal + power;
 			break;
 		}
@@ -1019,8 +1022,7 @@ INSTANTIATE_TEST_SUITE_P(Heroes, EnchantSpecialty, ::testing::Values(
 	EnchantCase{"mirlanda_weakness",  120, 45,  8, BonusType::PRIMARY_SKILL, subtypeAttack},   // tier 5, negative -> -1
 	EnchantCase{"merist_stoneSkin",   124, 46,  0, BonusType::PRIMARY_SKILL, subtypeDefence},
 	EnchantCase{"coronius_slayer",     24, 55,  0, BonusType::SLAYER,        BonusSubtypeID()}, // tier 1 -> +4 attack (addInfo array)
-	// SPECIAL_ADD_VALUE_ENCHANT
-	EnchantCase{"aenain_disruptingRay", 141, 47, 0, BonusType::PRIMARY_SKILL, subtypeDefence}, // negative, +param
+	EnchantCase{"aenain_disruptingRay", 141, 47, 0, BonusType::PRIMARY_SKILL, subtypeDefence}, // addInfo [-2], no polarity flip
 	// SPECIAL_FIXED_VALUE_ENCHANT
 	EnchantCase{"daremyth_fortune",     43, 51, 0, BonusType::LUCK, BonusSubtypeID()},
 	EnchantCase{"melodia_fortune",      29, 51, 4, BonusType::LUCK, BonusSubtypeID()}
