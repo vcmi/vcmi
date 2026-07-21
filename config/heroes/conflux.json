@@ -303,13 +303,7 @@
 			{ "skill" : "airMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"haste" : {
-					"addInfo" : 0,
-					"subtype" : "spell.haste",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "haste"
 		}
 	},
 	"ciele":
@@ -351,13 +345,7 @@
 			{ "skill" : "earthMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"stoneSkin" : {
-					"addInfo" : 0,
-					"subtype" : "spell.stoneSkin",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "stoneSkin"
 		}
 	},
 	"inteus":
@@ -372,13 +360,7 @@
 			{ "skill" : "fireMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"bloodlust" : {
-					"addInfo" : 0,
-					"subtype" : "spell.bloodlust",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "bloodlust"
 		}
 	},
 	"aenain":
@@ -393,13 +375,8 @@
 			{ "skill" : "airMagic", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"disruptingRay" : {
-					"addInfo" : [ -2 ],
-					"subtype" : "spell.disruptingRay",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
-				}
-			}
+			"spellFixedAdditive" : "disruptingRay",
+			"spellFixedValues" : [ -2 ]
 		}
 	},
 	"gelare":
