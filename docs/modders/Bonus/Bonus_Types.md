@@ -1157,7 +1157,7 @@ Affected unit will deal increased damage to creatures with KING bonus
 
 Affected unit has its ranged attack power reduced (Forgetfulness)
 
-- val: if 0 or 1, damage is reduced by 50%. If greater than 1 then creature can not use ranged attacks
+- val: percentage by which ranged damage is reduced. A value of 100 disables ranged attacks entirely
 
 ### NOT_ACTIVE
 

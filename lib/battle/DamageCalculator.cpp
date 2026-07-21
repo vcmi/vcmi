@@ -410,19 +410,17 @@ double DamageCalculator::getDefenseForgetfulnessFactor() const
 {
 	if(info.shooting)
 	{
-		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
-		//get list first, total value of 0 also counts
+		//value is a shooting-damage reduction percentage; 100 fully disables shooting (handled in canShoot)
 		TConstBonusListPtr forgetfulList = info.attacker->getBonusesOfType(BonusType::FORGETFULL);
 
 		if(!forgetfulList->empty())
 		{
 			int forgetful = forgetfulList->valOfBonuses(Selector::all);
 
-			//none of basic level
-			if(forgetful == 0 || forgetful == 1)
-				return 0.5;
-			else
-				logGlobal->warn("Attempt to calculate shooting damage with adv+ FORGETFULL effect");
+			if(forgetful >= 100)
+				logGlobal->warn("Attempt to calculate shooting damage with fully disabling FORGETFULL effect");
+
+			return std::min(forgetful, 100) / 100.0;
 		}
 	}
 	return 0.0;

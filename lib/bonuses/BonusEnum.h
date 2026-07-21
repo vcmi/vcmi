@@ -104,7 +104,7 @@ class JsonNode;
 	BONUS_NAME(ATTACKS_NEAREST_CREATURE) /*while in berserk*/ \
 	BONUS_NAME(IN_FRENZY) /*value - level*/				\
 	BONUS_NAME(SLAYER) /*value - level*/				\
-	BONUS_NAME(FORGETFULL) /*forgetfulness spell effect, value - level*/ \
+	BONUS_NAME(FORGETFULL) /*forgetfulness spell effect, value - shooting damage reduction percentage (100 disables shooting)*/ \
 	BONUS_NAME(NOT_ACTIVE) /* subtype - spell ID (paralyze, blind, stone gaze) for graphical effect*/ 								\
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \

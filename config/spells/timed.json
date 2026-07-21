@@ -1354,14 +1354,14 @@
 			"basic":{
 				"effects" : {
 					"forgetful" : {
-						"val" : 1
+						"val" : 50
 					}
 				}
 			},
 			"advanced":{
 				"effects" : {
 					"forgetful" : {
-						"val" : 2
+						"val" : 100
 					}
 				}
 			},
@@ -1369,7 +1369,7 @@
 				"range" : "X",
 				"effects" : {
 					"forgetful" : {
-						"val" : 3
+						"val" : 100
 					}
 				}
 			}
