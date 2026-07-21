@@ -42,16 +42,19 @@ function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
 	local levels = bonus:getParametersAsVector()
 	local power = 0
 	if #levels > 0 then
-		-- per-tier bonus from addInfo array, clamping (tier - 1) into bounds
+		-- explicit per-tier values from addInfo array (sign included), clamping (tier - 1) into bounds
 		local idx = math.max(1, math.min(#levels, tier))
 		power = levels[idx]
-	elseif bonus:getParametersAsNumber() == 0 then
-		if tier <= 2 then power = 3
-		elseif tier <= 4 then power = 2
-		elseif tier <= 6 then power = 1
+	else
+		-- legacy addInfo: fixed per-tier bracket, strengthened in the spell's own direction
+		if bonus:getParametersAsNumber() == 0 then
+			if tier <= 2 then power = 3
+			elseif tier <= 4 then power = 2
+			elseif tier <= 6 then power = 1
+			end
 		end
+		if mechanics:isNegative() then power = -power end
 	end
-	if mechanics:isNegative() then power = -power end
 	if power ~= 0 then
 		for _, nb in pairs(buffer) do
 			nb.val = (nb.val or 0) + power
