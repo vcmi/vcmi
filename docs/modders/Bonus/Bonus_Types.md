@@ -346,10 +346,11 @@ Internal bonus, do not use
 
 ### SPECIAL_SPELL_LEV
 
-Gives additional bonus to effect of specific spell based on level of creature it is cast on
+Gives additional bonus to effect of specific spell based on level of creature it is cast on. Applies to `damage`, `heal` and `demonSummon` effects.
 
 - subtype: identifier of affected spell
-- val: bonus to spell effect, percentage, divided by target creature level
+- val: bonus to spell effect, percentage, scaled by hero level and divided by target creature level
+- addInfo (optional): per-tier base percentage, as an array indexed by (target creature tier - 1); the last element is reused for tiers beyond its length. When set, it replaces `val` (still scaled by hero level / target creature level)
 
 ### SPELL_DAMAGE
 

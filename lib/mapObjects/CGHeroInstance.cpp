@@ -819,7 +819,22 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	base = static_cast<int64_t>(base * (100 + maxSchoolBonus) / 100.0);
 
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
-		base = static_cast<int64_t>(base * static_cast<double>(100 + valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / affectedStack->creatureLevel()) / 100.0);
+	{
+		const int targetLevel = affectedStack->creatureLevel();
+		int spellLevPercent;
+		auto spellLev = getBonus(Selector::typeSubtype(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())));
+		if(spellLev && spellLev->parameters && spellLev->parameters->isVector() && !spellLev->parameters->toVector().empty())
+		{
+			// per-target-tier base percentage from addInfo, still scaled by hero level
+			const auto & vec = spellLev->parameters->toVector();
+			int index = std::clamp<int>(targetLevel - 1, 0, static_cast<int>(vec.size()) - 1);
+			spellLevPercent = vec[index] * level / targetLevel;
+		}
+		else
+			spellLevPercent = valOfBonuses(BonusType::SPECIAL_SPELL_LEV, BonusSubtypeID(spell->getId())) / targetLevel;
+
+		base = static_cast<int64_t>(base * static_cast<double>(100 + spellLevPercent) / 100.0);
+	}
 
 	return base;
 }

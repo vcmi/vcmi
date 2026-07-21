@@ -253,6 +253,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SPECIAL_SPELL_LEV:
 			// single number (legacy mode) or per-tier array of bonus values
 			if (value.isVector())
 			{
