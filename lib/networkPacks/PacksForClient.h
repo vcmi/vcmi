@@ -353,12 +353,14 @@ struct DLL_LINKAGE ChangeSpells : public CPackForClient
 	ui8 learn = 1; //1 - gives spell, 0 - takes
 	ObjectInstanceID hid;
 	std::set<SpellID> spells;
+	bool eagleEyeBonus = false;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & learn;
 		h & hid;
 		h & spells;
+		h & eagleEyeBonus;
 	}
 };
 

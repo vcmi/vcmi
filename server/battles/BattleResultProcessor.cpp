@@ -490,6 +490,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		// Eagle Eye handling
 		if(auto eagleEyeLevel = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
 		{
+			resultsApplied.learnedSpells.eagleEyeBonus = true;
 			resultsApplied.learnedSpells.learn = 1;
 			resultsApplied.learnedSpells.hid = finishingBattle->winnerId;
 			for(const auto & spellId : (*battle)->getUsedSpells(CBattleInfoEssentials::otherSide(result.winner)))

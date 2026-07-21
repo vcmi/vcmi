@@ -176,6 +176,7 @@ void BattleProcessor::tryLearnEnemySpellsPreBattle(const BattleInfo * battle, Ba
 		return;
 
 	ChangeSpells learnedSpells;
+	learnedSpells.eagleEyeBonus = true;
 	learnedSpells.learn = true;
 	learnedSpells.hid = learner->id;
 
