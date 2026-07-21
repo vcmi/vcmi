@@ -330,19 +330,21 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	Point textPosition = Point(amountBG->dimensions().x/2 + boxPosition.x, boxPosition.y + amountBG->dimensions().y/2);
 
+	int32_t displayedCount = getDisplayedStackAmount(stack);
+
 	if(settings["battle"]["showHealthBar"].Bool())
 	{
 		double healthMaxType = stack->unitType()->getMaxHealth();
 		double healthMaxStack = stack->getMaxHealth();
 		double healthMaxRatio = std::min(healthMaxStack / healthMaxType, 1.0);
-		double healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * healthMaxStack, .0) * healthMaxRatio;
+		double healthRemaining = std::max(getDisplayedStackHealth(stack) - (displayedCount - 1) * healthMaxStack, .0) * healthMaxRatio;
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);
 		canvas.drawColor(Rect(r.x, r.y, (r.w / healthMaxStack) * healthRemaining, r.h), Colors::GREEN);
 		canvas.drawBorder(r, Colors::YELLOW);
 	}
 	canvas.draw(amountBG, boxPosition);
-	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(stack->getCount(), 4));
+	canvas.drawText(textPosition, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, TextOperations::formatMetric(displayedCount, 4));
 }
 
 void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
@@ -446,8 +448,40 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 		startFade();
 }
 
+void BattleStacksController::lockStackAmountBox(const CStack * stack)
+{
+	displayedStackSnapshot.try_emplace(stack->unitId(), DisplayedStackSnapshot{stack->getCount(), stack->getAvailableHealth()});
+}
+
+void BattleStacksController::unlockStackAmountBox(uint32_t stackID)
+{
+	displayedStackSnapshot.erase(stackID);
+}
+
+int32_t BattleStacksController::getDisplayedStackAmount(const CStack * stack) const
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.count;
+	return stack->getCount();
+}
+
+int64_t BattleStacksController::getDisplayedStackHealth(const CStack * stack) const
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.availableHealth;
+	return stack->getAvailableHealth();
+}
+
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
+	const bool hitPlayedSynchronously = currentAnimations.empty() && !owner.hasQueuedStage(EAnimationEvents::BEFORE_HIT);
+	if(!hitPlayedSynchronously)
+		for(const auto & attackedInfo : attackedInfos)
+			if(!attackedInfo.killed)
+				lockStackAmountBox(attackedInfo.defender);
+
 	owner.addToAnimationStage(EAnimationEvents::HIT, [this](){
 		// remove any potentially erased petrification effect
 		removeExpiredColorFilters();
@@ -491,6 +525,8 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		owner.addToAnimationStage(usedEvent, [this, attackedInfo, useDeathAnim, useDefenceAnim]()
 		{
+			unlockStackAmountBox(attackedInfo.defender->unitId());
+
 			if (useDeathAnim)
 				addNewAnim(new DeathAnimation(owner, attackedInfo.defender, attackedInfo.indirectAttack));
 			else if(useDefenceAnim)
@@ -530,9 +566,11 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			});
 		}
 	}
-	// while a spell cast is queued/playing, let it drive and batch the hit stage (endAction does the final sync)
-	// so per-unit damage packs (e.g. chain lightning) play together instead of one-by-one
-	if(currentAnimations.empty() && !owner.hasQueuedStage(EAnimationEvents::BEFORE_HIT))
+	// While a spell cast is queued/playing, let it drive and batch the hit stage (endAction does the final
+	// sync) so per-unit damage packs (e.g. chain lightning) play together instead of one-by-one. In that case
+	// the displayed count is held by the snapshot above until each hit plays, so deferring is purely about
+	// animation ordering and no longer affects when the number visually drops.
+	if(hitPlayedSynchronously)
 	{
 		owner.executeStagedAnimations();
 		owner.waitForAnimations();
@@ -728,6 +766,7 @@ void BattleStacksController::endAction(const BattleAction & action)
 	owner.waitForAnimations();
 
 	stackAmountBoxHidden.clear();
+	displayedStackSnapshot.clear();
 
 	owner.windowObject->blockUI(activeStack == nullptr);
 	removeExpiredColorFilters();
