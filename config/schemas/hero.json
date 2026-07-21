@@ -132,6 +132,23 @@
 					"type" : "string",
 					"description" : "Shortcut for defining secondary skill specialty, using standard H3 rules."
 				},
+				"spellScalingPercentage" : {
+					"type" : "string",
+					"description" : "Shortcut for a damage/heal spell specialty that scales with hero level per target creature level (Solmyr-style)."
+				},
+				"spellScalingVal" : {
+					"type" : "integer",
+					"description" : "Percentage per step for spellScalingPercentage. Default from gameSettings.heroes.specialtySpellScaling"
+				},
+				"spellFixedAdditive" : {
+					"type" : "string",
+					"description" : "Shortcut for an enchant spell specialty that strengthens the placed bonus by a fixed per-tier amount (weakness/slayer-style)."
+				},
+				"spellFixedValues" : {
+					"type" : "array",
+					"items" : { "type" : "integer" },
+					"description" : "Per-tier bonus values for spellFixedAdditive, indexed by (target tier - 1). Omit for the standard 3/3/2/2/1/1/0 bracket."
+				},
 				"creatureLevel" : {
 					"type" : "integer",
 					"description" : "Assumed creature level for creature specialty"

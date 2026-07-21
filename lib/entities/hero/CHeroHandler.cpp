@@ -16,6 +16,7 @@
 #include "../../constants/StringConstants.h"
 #include "../../CCreatureHandler.h"
 #include "../../IGameSettings.h"
+#include "../../bonuses/BonusParameters.h"
 #include "../../bonuses/Limiters.h"
 #include "../../bonuses/Updaters.h"
 #include "../../json/JsonBonus.h"
@@ -199,6 +200,28 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(
 	return result;
 }
 
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSpellScalingSpecialty(SpellID spellID, int growthPerStep) const
+{
+	if (growthPerStep == 0)
+		growthPerStep = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SPELL_SCALING);
+
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::SPECIAL_SPELL_SCALING;
+	bonus->subtype = BonusSubtypeID(spellID);
+	bonus->val = growthPerStep;
+	return { bonus };
+}
+
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSpellFixedSpecialty(SpellID spellID, const std::vector<int32_t> & values) const
+{
+	auto bonus = std::make_shared<Bonus>();
+	bonus->type = BonusType::SPECIAL_PECULIAR_ENCHANT;
+	bonus->subtype = BonusSubtypeID(spellID);
+	// empty -> legacy per-tier bracket (addInfo == 0); otherwise explicit per-tier values
+	bonus->parameters = values.empty() ? std::make_shared<BonusParameters>(0) : std::make_shared<BonusParameters>(values);
+	return { bonus };
+}
+
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
@@ -264,6 +287,34 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		LIBRARY->identifiers()->requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
 		{
 			skillSpecialtiesToGenerate.push_back({hero->ID, SecondarySkill(skill), stepSize});
+		});
+	}
+
+	//damage/heal spell specialty - alias for simplicity
+	if(!specialtyNode["spellScalingPercentage"].isNull())
+	{
+		const JsonNode & spellNode = specialtyNode["spellScalingPercentage"];
+		int val = specialtyNode["spellScalingVal"].Integer();
+
+		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
+		{
+			for (const auto & bonus : createSpellScalingSpecialty(SpellID(spell), val))
+				hero->specialty.push_back(prepSpec(bonus));
+		});
+	}
+
+	//fixed buff/debuff spell specialty - alias for simplicity
+	if(!specialtyNode["spellFixedAdditive"].isNull())
+	{
+		const JsonNode & spellNode = specialtyNode["spellFixedAdditive"];
+		std::vector<int32_t> values;
+		for(const auto & entry : specialtyNode["spellFixedValues"].Vector())
+			values.push_back(static_cast<int32_t>(entry.Integer()));
+
+		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
+		{
+			for (const auto & bonus : createSpellFixedSpecialty(SpellID(spell), values))
+				hero->specialty.push_back(prepSpec(bonus));
 		});
 	}
 

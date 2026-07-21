@@ -92,6 +92,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::HEROES_SKILL_PER_HERO,                            "heroes",    "skillPerHero"                         },
 		{EGameSettings::HEROES_SPECIALTY_CREATURE_GROWTH,                 "heroes",    "specialtyCreatureGrowth"              },
 		{EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH,          "heroes",    "specialtySecondarySkillGrowth"        },
+		{EGameSettings::HEROES_SPECIALTY_SPELL_SCALING,                   "heroes",    "specialtySpellScaling"                },
 		{EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT,                     "heroes",    "levelupTotalSkillsAmount"             },
 		{EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT,                  "heroes",    "levelupUpgradedSkillsAmount"          },
 		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,                     "mapFormat", "armageddonsBlade"                     },
