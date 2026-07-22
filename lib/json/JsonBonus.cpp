@@ -253,18 +253,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			// 1 spell ID
 			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = SpellID(identifier); });
 			break;
-		case BonusType::SPECIAL_PECULIAR_ENCHANT:
-			// single number (legacy mode) or per-tier array of bonus values
-			if (value.isVector())
-			{
-				std::vector<int32_t> loadedData;
-				for (const auto & element : value.Vector())
-					loadedData.push_back(static_cast<int32_t>(element.Integer()));
-				var = loadedData;
-			}
-			else
-				var = static_cast<int32_t>(value.Integer());
-			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
 			// 3 numbers
@@ -309,6 +297,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = loadedData;
 			break;
 		}
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
 		{
 			std::vector<int32_t> loadedData;

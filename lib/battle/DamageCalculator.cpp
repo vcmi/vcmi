@@ -165,7 +165,8 @@ int DamageCalculator::getActorAttackSlayer() const
 
 	if(std::shared_ptr<const Bonus> slayerEffect = slayerEffects->getFirst(Selector::all))
 	{
-		// spell mastery level lives in addInfo; attack bonus (incl. any hero specialty shift) is the bonus value
+		// addInfo - spell mastery level
+		// val - attack bonus
 		int spLevel = slayerEffect->parameters ? slayerEffect->parameters->toNumber() : 0;
 		if(spLevel >= slayerAffected)
 			return slayerEffect->val;

@@ -377,7 +377,7 @@ For `damage`, `heal` and `demonSummon` spell effects, increases spell power by s
 Gives creature under effect of this spell an additional bonus that depends on the creature tier.
 
 - subtype: affected spell identifier, ie. `spell.haste`
-- addInfo: per-tier bonus values, as an array indexed by (creature tier - 1); the last element is reused for tiers beyond its length. If set to a single number instead, `0` selects the default `3/3/2/2/1/1/0` tier bracket (legacy format).
+- addInfo: per-level bonus values, as an array indexed by creature level; the last element is reused for levels beyond its length. If not set, defaults to `3/3/2/2/1/1/0` tier bracket (H3-style specialty).
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 

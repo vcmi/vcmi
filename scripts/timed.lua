@@ -31,7 +31,7 @@ function Script:convertBonuses(mechanics)
 	return converted
 end
 
---- Shifts every buffered bonus value by a per-target-tier amount (Solmyr/weakness-style).
+--- Shifts every buffered bonus value by a per-target-tier amount (weakness/slayer-style).
 function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
 	local peculiar = hero:getBonuses(function(b)
 		return b:getType() == "SPECIAL_PECULIAR_ENCHANT" and b:getSubtype() == spellKey
@@ -46,12 +46,9 @@ function Script:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
 		local idx = math.max(1, math.min(#levels, tier))
 		power = levels[idx]
 	else
-		-- legacy addInfo: fixed per-tier bracket, strengthened in the spell's own direction
-		if bonus:getParametersAsNumber() == 0 then
-			if tier <= 2 then power = 3
-			elseif tier <= 4 then power = 2
-			elseif tier <= 6 then power = 1
-			end
+		if tier <= 2 then power = 3
+		elseif tier <= 4 then power = 2
+		elseif tier <= 6 then power = 1
 		end
 		if mechanics:isNegative() then power = -power end
 	end

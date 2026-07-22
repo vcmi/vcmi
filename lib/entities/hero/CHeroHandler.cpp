@@ -217,8 +217,9 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSpellFixedSpecialty(Spel
 	auto bonus = std::make_shared<Bonus>();
 	bonus->type = BonusType::SPECIAL_PECULIAR_ENCHANT;
 	bonus->subtype = BonusSubtypeID(spellID);
-	// empty -> legacy per-tier bracket (addInfo == 0); otherwise explicit per-tier values
-	bonus->parameters = values.empty() ? std::make_shared<BonusParameters>(0) : std::make_shared<BonusParameters>(values);
+	// empty -> legacy per-tier bracket; otherwise explicit per-tier values
+	if (!values.empty())
+		bonus->parameters = std::make_shared<BonusParameters>(values);
 	return { bonus };
 }
 

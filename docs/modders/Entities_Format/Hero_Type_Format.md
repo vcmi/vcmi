@@ -146,7 +146,7 @@ In order to make functional hero you also need:
 		// Shortcut for an enchant spell specialty that strengthens the placed bonus by a fixed per-tier amount (weakness/slayer-style)
 		"spellFixedAdditive" : "weakness",
 		// Optional, only applicable to spellFixedAdditive
-		// Per-tier bonus values, indexed by (target creature tier - 1); last element is reused for higher tiers
+		// Per-tier bonus values, one per creature tier starting at tier 1; last element is reused for higher tiers
 		// Omit for the standard 3/3/2/2/1/1/0 bracket (strengthened in the spell's own direction)
 		"spellFixedValues" : [ -3, -3, -2, -2, -1, -1, 0 ],
 

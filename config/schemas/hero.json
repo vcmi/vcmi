@@ -147,7 +147,7 @@
 				"spellFixedValues" : {
 					"type" : "array",
 					"items" : { "type" : "integer" },
-					"description" : "Per-tier bonus values for spellFixedAdditive, indexed by (target tier - 1). Omit for the standard 3/3/2/2/1/1/0 bracket."
+					"description" : "Per-tier bonus values for spellFixedAdditive, one per creature tier starting at tier 1 (e.g. [4,3,2,1,0,0,0] gives 4 to tier 1, 3 to tier 2, ...); last element is reused for higher tiers. Omit for the standard 3/3/2/2/1/1/0 bracket."
 				},
 				"creatureLevel" : {
 					"type" : "integer",
