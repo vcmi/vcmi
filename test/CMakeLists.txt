@@ -209,6 +209,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Goals/BuyArmyTest.cpp
 		nullkiller2/Goals/CompleteQuestTest.cpp
 		nullkiller2/Goals/CompositionTest.cpp
+		nullkiller2/Goals/ExecuteHeroChainTest.cpp
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
 		nullkiller2/Helpers/ExplorationHelperTest.cpp
 		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
