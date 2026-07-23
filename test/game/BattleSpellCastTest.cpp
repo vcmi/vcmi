@@ -318,12 +318,12 @@ public:
 	/// opponent owns P1) and start a battle. The specialist keeps its real, config
 	/// loaded kit (spell, spellbook, skills); the opponent only exists to form a
 	/// valid battle.
-	void startDuel(int specialistHeroIdx, int heroLevel)
+	void startDuel(int specialistHeroIdx, int heroLevel, EMapFormat format = EMapFormat::SOD)
 	{
 		const CreatureID token(0); // pikeman token army so the battle is valid
 		const int opponentIdx = specialistHeroIdx == 0 ? 1 : 0;
 
-		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+		TinyH3M::TinyH3MBuilder builder(format);
 		builder
 			.size(36, false)
 			.name("SpecialtyTest")
@@ -871,8 +871,7 @@ TEST_P(SpellMagnitudeSpecialty, matchesBaseline)
 }
 
 INSTANTIATE_TEST_SUITE_P(Heroes, SpellMagnitudeSpecialty, ::testing::Values(
-	// Level-1 targets: floor(heroLevel / 1) == heroLevel, so the correct and engine
-	// formulas coincide regardless of hero level - these must pass.
+	// Level-1 targets: floor(heroLevel / 1) == heroLevel.
 	MagnitudeCase{"solmyr_chainLightning", 45, 19, 0, MagnitudeKind::Damage,  8},
 	MagnitudeCase{"alagar_iceBolt",        30, 16, 0, MagnitudeKind::Damage, 13},
 	MagnitudeCase{"ciele_magicArrow",     138, 15, 0, MagnitudeKind::Damage,  6}, // SPECIFIC_SPELL_DAMAGE, flat
@@ -880,8 +879,8 @@ INSTANTIATE_TEST_SUITE_P(Heroes, SpellMagnitudeSpecialty, ::testing::Values(
 	MagnitudeCase{"xyron_inferno",         57, 22, 0, MagnitudeKind::Damage, 11},
 	MagnitudeCase{"deemer_meteorShower",   93, 23, 0, MagnitudeKind::Damage,  7},
 	MagnitudeCase{"aislinn_meteorShower",  73, 23, 0, MagnitudeKind::Damage,  5},
-	// Higher-tier targets with heroLevel not divisible by target level: SPECIAL_SPELL_SCALING
-	// rounds H3-correctly (base%*floor(L/level)), unlike the legacy SPECIAL_SPELL_LEV.
+	// Higher-tier targets with heroLevel not divisible by target level, exercising the
+	// H3-correct rounding base% * floor(heroLevel / targetLevel).
 	MagnitudeCase{"solmyr_chainLightning_cavalier", 45, 19, 10, MagnitudeKind::Damage, 10}, // level 6
 	MagnitudeCase{"alagar_iceBolt_archer",          30, 16,  2, MagnitudeKind::Damage,  7}, // level 2
 	// Per-level scaling applied to healing / raising: heal.lua scales the raise via applySpellBonus.
@@ -1042,45 +1041,57 @@ struct SpellLevScaleCase
 	int          heroLevel;
 };
 
-// Astral's Hypnotize specialty raises the max-health threshold a stack can be
-// hypnotised at. Base cap for Expert Air Magic is 50 + spellpower*25.
+// Astral's Hypnotize specialty raises the maximum-health threshold a stack can be
+// hypnotised at by 3% for every <target creature level> hero levels. Base cap for
+// Expert Air Magic is 50 + spellpower*25. The test gates on castability: a stack whose
+// total health sits exactly at the scaled cap is castable, one health point above is not.
 class AstralHypnotizeSpecialty : public BattleSpellCastTest, public ::testing::WithParamInterface<SpellLevScaleCase>
 {
+public:
+	/// Can Astral hypnotise a stack of the case's creature whose total health is set to
+	/// exactly `health`? Rebuilds the battle each call so the two boundary probes are independent.
+	bool canHypnotiseAtHealth(const SpellLevScaleCase & c, int64_t health)
+	{
+		const int astralIdx = 40;
+		const SpellID hypnotize(60);
+
+		resetGame();
+		startDuel(astralIdx, c.heroLevel);
+		configureCaster(specialist, hypnotize, /*spellpower*/ 10);
+
+		const CreatureID cid(c.targetCreature);
+		const int hp = cid.toCreature()->getMaxHealth();
+		const int count = static_cast<int>(health / hp) + 3; // headroom so the stack survives the wound
+		CStack * tgt = addStack(BattleSide::DEFENDER, cid, count);
+		int64_t wound = static_cast<int64_t>(count) * hp - health; // leave exactly `health` available
+		tgt->damage(wound);
+
+		return canCastAt(specialist, hypnotize, tgt);
+	}
 };
 
-TEST_P(AstralHypnotizeSpecialty, thresholdScalesWithLevel)
+TEST_P(AstralHypnotizeSpecialty, healthThresholdGatesCasting)
 {
 	const auto & c = GetParam();
-	const int astralIdx = 40;
-	const SpellID hypnotize(60);
-	const int spellpower = 10;
 
-	resetGame();
-	startDuel(astralIdx, c.heroLevel);
-	configureCaster(specialist, hypnotize, spellpower);
+	const int targetLevel = CreatureID(c.targetCreature).toCreature()->getLevel();
+	const int64_t baseCap = 50 + 10 * 25; // Expert Air Magic at spellpower 10
+	const int percent = 3 * (c.heroLevel / targetLevel); // 3% * floor(heroLevel / targetLevel)
+	const int64_t cap = baseCap * (100 + percent) / 100;
 
-	CStack * tgt = addStack(BattleSide::DEFENDER, CreatureID(c.targetCreature), 5000);
-	const int targetLevel = tgt->creatureLevel();
-
-	const CSpell * sp = hypnotize.toSpell();
-	spells::BattleCast cast(gameState->currentBattles.front().get(), specialist, spells::Mode::HERO, sp);
-	auto m = sp->battleMechanics(&cast);
-
-	const int64_t baseCap = 50 + spellpower * 25;
-	const int percent = 3 * (c.heroLevel / targetLevel); // 3 * floor(heroLevel / targetLevel)
-	const int64_t expected = baseCap * (100 + percent) / 100;
-
-	EXPECT_EQ(m->applySpellBonus(m->getEffectValue(), tgt), expected)
-		<< c.name << " (target level " << targetLevel << ", +" << percent << "%)";
+	EXPECT_TRUE(canHypnotiseAtHealth(c, cap))
+		<< c.name << ": health " << cap << " at cap (+" << percent << "%) should be castable";
+	EXPECT_FALSE(canHypnotiseAtHealth(c, cap + 1))
+		<< c.name << ": health " << (cap + 1) << " above cap (+" << percent << "%) should be blocked";
 }
 
 INSTANTIATE_TEST_SUITE_P(Astral, AstralHypnotizeSpecialty, ::testing::Values(
-	SpellLevScaleCase{"pikeman_L5",    0,  5}, // level 1: no rounding gap
-	SpellLevScaleCase{"pikeman_L12",   0, 12},
-	SpellLevScaleCase{"griffin_L12",   4, 12}, // level 3, divisible: no gap
-	SpellLevScaleCase{"griffin_L10",   4, 10}, // level 3, not divisible: engine mismatch (bug)
-	SpellLevScaleCase{"swordsman_L10", 6, 10}, // level 4, not divisible: bug
-	SpellLevScaleCase{"cavalier_L15", 10, 15}  // level 6, not divisible: bug
+	SpellLevScaleCase{"pikeman_L5",    0,  5}, // level 1: +15%
+	SpellLevScaleCase{"pikeman_L12",   0, 12}, // level 1: +36%
+	SpellLevScaleCase{"griffin_L12",   4, 12}, // level 3, divisible: +12%
+	SpellLevScaleCase{"griffin_L10",   4, 10}, // level 3, not divisible: floor(10/3)=3 -> +9%
+	SpellLevScaleCase{"swordsman_L10", 6, 10}, // level 4, not divisible: floor(10/4)=2 -> +6%
+	SpellLevScaleCase{"cavalier_L15", 10, 15}  // level 6, not divisible: floor(15/6)=2 -> +6%
 ),
 	[](const ::testing::TestParamInfo<SpellLevScaleCase> & info) { return info.param.name; });
 
@@ -1113,14 +1124,97 @@ TEST_P(AdelaBlessSpecialty, damagePremyScalesWithLevel)
 }
 
 INSTANTIATE_TEST_SUITE_P(Adela, AdelaBlessSpecialty, ::testing::Values(
-	SpellLevScaleCase{"pikeman_L12",   0, 12}, // level 1: 36
-	SpellLevScaleCase{"pikeman_L7",    0,  7}, // level 1: 21
-	SpellLevScaleCase{"cavalier_L12", 10, 12}, // level 6, divisible: 6
-	SpellLevScaleCase{"cavalier_L15", 10, 15}, // level 6, not divisible: engine 7 vs correct 6 (bug)
-	SpellLevScaleCase{"griffin_L10",   4, 10}, // level 3, not divisible: bug
-	SpellLevScaleCase{"swordsman_L10", 6, 10}  // level 4, not divisible: bug
+	SpellLevScaleCase{"pikeman_L12",   0, 12}, // level 1: +36
+	SpellLevScaleCase{"pikeman_L7",    0,  7}, // level 1: +21
+	SpellLevScaleCase{"cavalier_L12", 10, 12}, // level 6, divisible: +6
+	SpellLevScaleCase{"cavalier_L15", 10, 15}, // level 6, not divisible: floor(15/6)=2 -> +6
+	SpellLevScaleCase{"griffin_L10",   4, 10}, // level 3, not divisible: floor(10/3)=3 -> +9
+	SpellLevScaleCase{"swordsman_L10", 6, 10}  // level 4, not divisible: floor(10/4)=2 -> +6
 ),
 	[](const ::testing::TestParamInfo<SpellLevScaleCase> & info) { return info.param.name; });
+
+// ===========================================================================
+// spellScalingPercentage on buff / debuff spells (vcmi-test mod heroes).
+//
+// Each hero's only distinction is a spellScalingPercentage specialty: the cast
+// spell's buff/debuff magnitude grows by val% for every <target creature level>
+// hero levels, i.e. val * floor(heroLevel / targetLevel). This is the timed-effect
+// path (scripts/timed.lua:applySpellScaling) of SPECIAL_SPELL_SCALING; the damage
+// and heal paths of the same bonus are covered by SpellMagnitudeSpecialty above.
+// ===========================================================================
+
+struct ScaleCase
+{
+	const char *   name;
+	const char *   heroIdent;
+	const char *   spellIdent;
+	int            targetCreature; // creature whose level drives the per-step divisor
+	int            heroLevel;
+	BonusType      bonusType;      // the bonus the spell places on the unit
+	BonusSubtypeID subtype;
+};
+
+class SpellScalingSpecialty : public BattleSpellCastTest, public ::testing::WithParamInterface<ScaleCase>
+{
+public:
+	/// Cast the spell and read back the value of the bonus it placed on the target.
+	/// With withSpecialty == false the specialty is stripped for the specialty-free baseline.
+	int64_t measure(const ScaleCase & c, bool withSpecialty)
+	{
+		const int heroIdx = HeroTypeID::decode(c.heroIdent);
+		const SpellID spell(SpellID::decode(c.spellIdent));
+
+		resetGame();
+		startDuel(heroIdx, c.heroLevel, EMapFormat::HOTA); // mod heroes exceed the SOD hero index range
+		configureCaster(specialist, spell, /*spellpower*/ 10);
+
+		const bool negative = spell.toSpell()->isNegative();
+		CStack * tgt = addStack(negative ? BattleSide::DEFENDER : BattleSide::ATTACKER, CreatureID(c.targetCreature), 100);
+
+		if(!withSpecialty)
+			removeSpecialty(specialist);
+
+		castOn(specialist, spell, tgt);
+		auto sel = Selector::typeSubtype(c.bonusType, c.subtype)
+			.And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spell)));
+		return tgt->getBonuses(sel)->totalValue();
+	}
+};
+
+TEST_P(SpellScalingSpecialty, matchesBaseline)
+{
+	const auto & c = GetParam();
+	const SpellID spell(SpellID::decode(c.spellIdent));
+
+	std::shared_ptr<Bonus> spec;
+	for(const auto & b : LIBRARY->heroh->objects.at(HeroTypeID::decode(c.heroIdent))->specialty)
+		if(b->type == BonusType::SPECIAL_SPELL_SCALING && b->subtype == BonusSubtypeID(spell))
+			spec = b;
+	ASSERT_NE(spec, nullptr) << c.name << ": hero has no spell-scaling specialty for this spell";
+
+	const int targetLevel = CreatureID(c.targetCreature).toCreature()->getLevel();
+	const int percent = spec->val * (c.heroLevel / targetLevel); // val% * floor(heroLevel / targetLevel)
+
+	const int64_t baseValue = measure(c, /*withSpecialty*/ false);
+	const int64_t specValue = measure(c, /*withSpecialty*/ true);
+
+	ASSERT_GT(baseValue, 0) << c.name << ": baseline had no measurable effect";
+
+	const int64_t expected = baseValue * (100 + percent) / 100;
+	EXPECT_EQ(specValue, expected)
+		<< c.name << " (target level " << targetLevel << ", +" << percent << "%)"
+		<< " specialist=" << specValue << " baseline=" << baseValue;
+}
+
+INSTANTIATE_TEST_SUITE_P(Heroes, SpellScalingSpecialty, ::testing::Values(
+	// griffin = level 3, hero level 10 -> floor(10/3)=3 -> +30%
+	ScaleCase{"shield",        "vcmi-test:shieldSpecialist",        "shield",        4, 10, BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID(BonusCustomSubtype::damageTypeMelee)},
+	ScaleCase{"airShield",     "vcmi-test:airShieldSpecialist",     "airShield",     4, 10, BonusType::GENERAL_DAMAGE_REDUCTION, BonusSubtypeID(BonusCustomSubtype::damageTypeRanged)},
+	// archer = level 2, hero level 7 -> floor(7/2)=3 -> +30%; forgetfulness needs a shooter target
+	ScaleCase{"frenzy",        "vcmi-test:frenzySpecialist",        "frenzy",        2,  7, BonusType::IN_FRENZY,  BonusSubtypeID()},
+	ScaleCase{"forgetfulness", "vcmi-test:forgetfulnessSpecialist", "forgetfulness", 2,  7, BonusType::FORGETFULL, BonusSubtypeID()}
+),
+	[](const ::testing::TestParamInfo<ScaleCase> & info) { return info.param.name; });
 
 // ===========================================================================
 // Non-battle specialties (read directly off the hero / its army stacks).

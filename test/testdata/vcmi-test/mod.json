@@ -6,6 +6,7 @@
 	"contact" : "",
 	"modType" : "Test",
 	"keepDisabled" : true,
+	"heroes" : [ "config/heroes.json" ],
 	"settings" :
 	{
 		// HOTA fixtures (TinyH3MBuilder) need the HOTA map format supported; with only
