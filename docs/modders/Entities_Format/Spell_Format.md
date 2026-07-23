@@ -321,9 +321,12 @@ If unit has [SPECIFIC_SPELL_POWER](../bonus/Bonus_Types.md#specific_spell_power)
 
 Power of `damage`, `heal` and `demonSummon` effects cast by hero can also be affected by following bonuses:
 
-- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell, scaled down by target level (Solmyr / Deemer)
+- [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) bonus for the spell, scaled by target level (Solmyr / Deemer). Usually configured via the `spellScalingPercentage` hero specialty shortcut
+- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell - legacy variant of the above with incorrect rounding, kept only for backward compatibility
 - [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for spell school of the spell, or for any spell school (Sorcery)
 - [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
+
+Magnitude of a buff or debuff placed by a `timed` effect cast by hero is affected by [SPECIAL_SPELL_SCALING](../bonus/Bonus_Types.md#special_spell_scaling) for the spell (e.g. Shield, Frenzy, Forgetfulness). This is the only spell-power bonus that reaches `timed` effects - [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) and [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) do not.
 
 Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell only.
 

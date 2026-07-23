@@ -353,7 +353,7 @@ Gives additional bonus to effect of specific spell based on level of creature it
 
 ### SPECIAL_SPELL_SCALING
 
-Same purpose as [SPECIAL_SPELL_LEV](#special_spell_lev), but with H3-correct rounding (`val * floor(heroLevel / targetLevel)`) and no hero-level updater - the hero level scaling is applied internally. Usually configured through the `spellScalingPercentage` hero specialty shortcut.
+Same purpose as [SPECIAL_SPELL_LEV](#special_spell_lev), but with H3-correct rounding (`val * floor(heroLevel / targetLevel)`) and no hero-level updater - the hero level scaling is applied internally. Applies to `damage` and `heal` effects, and to buff/debuff magnitudes placed by `timed` effects (Shield, Frenzy, Forgetfulness, ...). Usually configured through the `spellScalingPercentage` hero specialty shortcut.
 
 - subtype: identifier of affected spell
 - val: bonus to spell effect per step, percentage

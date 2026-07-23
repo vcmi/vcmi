@@ -85,6 +85,21 @@ function Script:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)
 	end
 end
 
+--- Scales every buffered bonus value by a per-target-tier percentage (Solmyr-style
+--- SPECIAL_SPELL_SCALING, matching CGHeroInstance::getSpellBonus but for buff/debuff vals).
+function Script:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
+	local scaling = hero:getBonuses(function(b)
+		return b:getType() == "SPECIAL_SPELL_SCALING" and b:getSubtype() == spellKey
+	end)
+	if scaling:size() == 0 then return end
+
+	local percent = scaling:getBonus(1):getVal() * math.floor(hero:getLevel() / tier)
+	if percent == 0 then return end
+	for _, nb in pairs(buffer) do
+		nb.val = math.floor((nb.val or 0) * (100 + percent) / 100)
+	end
+end
+
 function Script:applyHeroSpecialty(mechanics, buffer, unit)
 	local hero = mechanics:getHeroCaster()
 	if not hero then return end
@@ -92,6 +107,7 @@ function Script:applyHeroSpecialty(mechanics, buffer, unit)
 	local spellKey = mechanics:getSpell():getJsonKey()
 	local tier = math.max(unit:creatureLevel(), 1)
 
+	self:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
 	self:applyPeculiarEnchant(mechanics, hero, buffer, tier, spellKey)
 	self:applyAddValueEnchant(mechanics, hero, buffer, tier, spellKey)
 	self:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)

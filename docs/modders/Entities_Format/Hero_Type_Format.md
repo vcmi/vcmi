@@ -137,7 +137,7 @@ In order to make functional hero you also need:
 		// Can be combined with bonuses-based specialty if desired
 		"secondary" : "offence",
 
-		// Shortcut for a damage/heal spell specialty that scales with hero level per target creature level (Solmyr-style)
+		// Shortcut for a spell specialty that scales the spell's effect (damage, heal or buff/debuff magnitude) with hero level per target creature level (Solmyr-style)
 		"spellScalingPercentage" : "chainLightning",
 		// Optional, only applicable to spellScalingPercentage
 		// Overrides the percentage gained per step; default from specialtySpellScaling game setting
