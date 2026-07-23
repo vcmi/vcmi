@@ -114,7 +114,7 @@ Notes:
 
 ## Self-hosted services
 
-Currenly we have following services deployed:
+Currently we have following services deployed:
 
 - [Discourse](Discourse.md)
 - [Multiplayer lobby](Multiplayer_Lobby.md)

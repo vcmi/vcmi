@@ -86,7 +86,7 @@ Persistent state lives in two Docker named volumes:
 
 ### Troubleshooting
 
-- **`The /app/data volume is not writeable` on startup.** Volume contents must be numerically owned by UID 1000. `export.sh`/`import.sh` use `tar cz`/`tar xz`, which preserve it; `rsync` without `-a` or `cp -r` do not. Fix:
+- **`The /app/data volume is not writable` on startup.** Volume contents must be numerically owned by UID 1000. `export.sh`/`import.sh` use `tar cz`/`tar xz`, which preserve it; `rsync` without `-a` or `cp -r` do not. Fix:
   ```sh
   chown -R 1000:1000 /var/lib/docker/volumes/weblate-docker_weblate-data/_data
   ```
