@@ -272,13 +272,13 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 		return obligatory;
 	};
 
-	std::set<SecondarySkill> wisdomList = getObligatorySkills(true);
-	std::set<SecondarySkill> schoolList = getObligatorySkills(false);
+	std::set<SecondarySkill> wisdomList = getObligatorySkills(false);
+	std::set<SecondarySkill> schoolList = getObligatorySkills(true);
 
 	bool wantsWisdom = heroRng.wisdomCounter >= hero->maxlevelsToWisdom();
 	bool wantsSchool = heroRng.magicSchoolCounter >= hero->maxlevelsToMagicSchool();
 	bool selectWisdom = wantsWisdom && !wisdomList.empty();
-	bool selectSchool = wantsSchool && !schoolList.empty();
+	bool selectSchool = !selectWisdom && wantsSchool && !schoolList.empty();
 
 	std::set<SecondarySkill> actualCandidates;
 
