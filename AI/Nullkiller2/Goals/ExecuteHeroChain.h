@@ -16,6 +16,15 @@ namespace NK2AI
 {
 namespace Goals
 {
+	bool shouldSkipCompletedChainNode(
+		size_t nodeIndex,
+		size_t nodeCount,
+		const int3 & heroPosition,
+		const int3 & nodePosition,
+		const int3 & followingNodePosition,
+		ObjectInstanceID heroWhirlpool,
+		ObjectInstanceID nodeWhirlpool);
+
 	class DLL_EXPORT ExecuteHeroChain : public ElementarGoal<ExecuteHeroChain>
 	{
 	private:
