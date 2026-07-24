@@ -23,7 +23,7 @@ RUN rm $DEPS
 ENV JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 ENV ANDROID_HOME="/usr/lib/android-sdk"
 ENV GRADLE_USER_HOME="/vcmi/.cache/gradle"
-ENV SDK_VERSION="35"
+ENV SDK_VERSION="36"
 ENV NDK_VERSION="29.0.14206865"
 
 RUN sdkmanager --install "platform-tools" "platforms;android-$SDK_VERSION" "ndk;$NDK_VERSION"
