@@ -397,6 +397,7 @@
 			"noneOf" : {
 				"core:creature.firstAidTent" : "absolute",
 				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
@@ -450,6 +451,7 @@
 			"noneOf" : {
 				"core:creature.firstAidTent" : "absolute",
 				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
@@ -909,6 +911,13 @@
 		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"misfortune" : {
@@ -954,6 +963,13 @@
 		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"haste" : {
@@ -1109,6 +1125,13 @@
 		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
+			}
 		}
 	},
 	"frenzy" : {
