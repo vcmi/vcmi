@@ -208,6 +208,22 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, reserveDefenderIsSkippedForDistantTo
 		<< "safe garrison heroes must stay available for extraction when there is no urgent town threat";
 }
 
+TEST(Nullkiller2_Behaviors_DefenceBehavior, foreignHeroCannotBeReservedForTownDefence)
+{
+	test::TownFake town;
+	town.withBuilding(BuildingID::CASTLE);
+	town.get()->tempOwner = PlayerColor(0);
+
+	CGHeroInstance foreignHero(nullptr);
+	foreignHero.tempOwner = PlayerColor(1);
+	ASSERT_TRUE(foreignHero.setCreature(SlotID(0), CreatureID::ARCHER, 1));
+
+	const auto committedDefence = NK2AI::Goals::estimateTownDefence(*town.get(), &foreignHero);
+	const auto threat = nextTurnThreat(committedDefence - 1);
+
+	EXPECT_FALSE(NK2AI::Goals::shouldReserveTownDefender(*town.get(), foreignHero, { threat }, 1.0f));
+}
+
 TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathAllowsSimpleRoundTrip)
 {
 	CGHeroInstance defender(nullptr);
