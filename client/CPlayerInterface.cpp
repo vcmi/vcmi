@@ -432,6 +432,13 @@ void CPlayerInterface::townRemoved(const CGTownInstance* town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
+	// close town screen if it shows the town being removed, otherwise objectRemovedAfter dereferences a dangling pointer
+	if(castleInt && castleInt->town == town)
+	{
+		castleInt->close();
+		castleInt = nullptr;
+	}
+
 	if(town->tempOwner == playerID)
 	{
 		localState->removeOwnedTown(town);
