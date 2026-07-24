@@ -44,29 +44,17 @@ namespace MessageBoxCustom
 	}
 
 #elif defined(VCMI_ANDROID)
-	// QAndroidPlatformMessageDialogHelper holds a JNI ref to a Java helper that
-	// becomes null while the Activity is paused; calling QMessageBox in that
-	// window triggers Qt's JniAbort. Defer until app is in foreground.
+	// Showing a native QMessageBox synchronously from a nested event loop (e.g. GOG extraction)
+	// reaches QAndroidPlatformMessageDialogHelper while its JNI helper is null and triggers Qt's
+	// JniAbort. Defer to a clean event-loop tick instead - this also naturally waits until the app
+	// is in foreground, since a paused Android app does not process the posted event.
 	namespace detail
 	{
 		inline void deferUntilActive(QPointer<QWidget> safe, std::function<void()> f)
 		{
-			auto fire = [safe, f = std::move(f)]() {
+			QTimer::singleShot(0, qApp, [safe, f = std::move(f)]() {
 				if(safe) f();
-			};
-			if(QGuiApplication::applicationState() == Qt::ApplicationActive)
-			{
-				fire();
-				return;
-			}
-			auto *holder = new QMetaObject::Connection;
-			*holder = QObject::connect(qApp, &QGuiApplication::applicationStateChanged, qApp,
-				[fire, holder](Qt::ApplicationState s) {
-					if(s != Qt::ApplicationActive) return;
-					QObject::disconnect(*holder);
-					delete holder;
-					fire();
-				});
+			});
 		}
 	}
 
