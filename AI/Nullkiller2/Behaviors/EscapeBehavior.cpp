@@ -76,11 +76,37 @@ bool isBetterEscapePath(const AIPath & path, float score, const EscapePathChoice
 	return false;
 }
 
+const CGTownInstance * findNearestOwnedTown(const CGHeroInstance * hero, const Nullkiller * aiNk)
+{
+	const CGTownInstance * bestTown = nullptr;
+	const CGTownInstance * bestTownAnyLevel = nullptr;
+	ui32 bestDistance = std::numeric_limits<ui32>::max();
+	ui32 bestDistanceAnyLevel = std::numeric_limits<ui32>::max();
+
+	for(const auto * town : aiNk->cc->getTownsInfo())
+	{
+		const auto distance = hero->visitablePos().dist2dSQ(town->visitablePos());
+		if(town->visitablePos().z == hero->visitablePos().z && distance < bestDistance)
+		{
+			bestTown = town;
+			bestDistance = distance;
+		}
+		if(distance < bestDistanceAnyLevel)
+		{
+			bestTownAnyLevel = town;
+			bestDistanceAnyLevel = distance;
+		}
+	}
+
+	return bestTown ? bestTown : bestTownAnyLevel;
+}
+
 EscapePathCandidate makeEscapePathCandidate(
 	const AIPath & path,
 	const HitMapInfo & currentThreat,
 	const HitMapInfo & destinationThreat,
 	uint64_t destinationDanger,
+	const CGTownInstance * nearestOwnedTown,
 	float safeAttackRatio)
 {
 	const auto destination = path.targetTile();
@@ -96,12 +122,20 @@ EscapePathCandidate makeEscapePathCandidate(
 	candidate.usesDimensionDoor = pathUsesDimensionDoor(path);
 	candidate.threatReduction = currentThreat.threat - destinationThreat.threat;
 	candidate.movementCost = path.movementCost();
+	if(nearestOwnedTown)
+	{
+		candidate.hasOwnedTown = true;
+		candidate.currentTownDistance = path.targetHero->visitablePos().dist2dSQ(nearestOwnedTown->visitablePos());
+		candidate.destinationTownDistance = destination.dist2dSQ(nearestOwnedTown->visitablePos());
+		candidate.destinationGetsCloserToOwnedTown = candidate.destinationTownDistance < candidate.currentTownDistance;
+	}
 	return candidate;
 }
 
 void considerEscapePath(
 	const AIPath & path,
 	const HeroMap<HitMapInfo> & threatenedHeroes,
+	const HeroMap<const CGTownInstance *> & nearestOwnedTowns,
 	const Nullkiller * aiNk,
 	float safeAttackRatio,
 	std::mutex & sync,
@@ -116,11 +150,13 @@ void considerEscapePath(
 	const auto & destinationThreat = aiNk->dangerHitMap->getTileThreat(destination).fastestDanger;
 	const uint64_t immediateDestinationDanger = destinationThreat.turn < 1 ? destinationThreat.danger : 0;
 	const uint64_t destinationDanger = std::max(path.getTotalDanger(), immediateDestinationDanger);
+	const auto nearestOwnedTown = nearestOwnedTowns.find(path.targetHero);
 	const auto candidate = makeEscapePathCandidate(
 		path,
 		currentThreat,
 		destinationThreat,
 		destinationDanger,
+		nearestOwnedTown == nearestOwnedTowns.end() ? nullptr : nearestOwnedTown->second,
 		safeAttackRatio);
 
 	const auto evaluation = evaluateEscapePathCandidate(candidate);
@@ -149,6 +185,9 @@ EscapePathEvaluation evaluateEscapePathCandidate(const EscapePathCandidate & can
 		return result;
 	}
 
+	if(candidate.hasOwnedTown && !candidate.destinationGetsCloserToOwnedTown)
+		return result;
+
 	result.accepted = true;
 	result.score = candidate.threatReduction / std::max(0.1f, candidate.movementCost);
 	return result;
@@ -163,6 +202,7 @@ Goals::TGoalVec EscapeBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 	HeroMap<HitMapInfo> threatenedHeroes;
+	HeroMap<const CGTownInstance *> nearestOwnedTowns;
 	const float safeAttackRatio = aiNk->settings->getSafeAttackRatio();
 
 	for(const CGHeroInstance * candidateHero : aiNk->cc->getHeroesInfo())
@@ -172,7 +212,10 @@ Goals::TGoalVec EscapeBehavior::decompose(const Nullkiller * aiNk) const
 
 		const auto & threat = aiNk->dangerHitMap->getTileThreat(candidateHero->visitablePos()).fastestDanger;
 		if(isHeroImmediatelyThreatened(candidateHero, threat, safeAttackRatio))
+		{
 			threatenedHeroes[candidateHero] = threat;
+			nearestOwnedTowns[candidateHero] = findNearestOwnedTown(candidateHero, aiNk);
+		}
 	}
 
 	if(threatenedHeroes.empty())
@@ -185,10 +228,10 @@ Goals::TGoalVec EscapeBehavior::decompose(const Nullkiller * aiNk) const
 	pforeachTilePaths(
 		mapSize,
 		aiNk,
-		[&threatenedHeroes, aiNk, safeAttackRatio, &sync, &bestPaths](const int3 &, const std::vector<AIPath> & paths)
+		[&threatenedHeroes, &nearestOwnedTowns, aiNk, safeAttackRatio, &sync, &bestPaths](const int3 &, const std::vector<AIPath> & paths)
 	{
 		for(const AIPath & path : paths)
-			considerEscapePath(path, threatenedHeroes, aiNk, safeAttackRatio, sync, bestPaths);
+			considerEscapePath(path, threatenedHeroes, nearestOwnedTowns, aiNk, safeAttackRatio, sync, bestPaths);
 	});
 
 	for(const auto & bestPath : bestPaths)
