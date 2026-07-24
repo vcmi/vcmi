@@ -296,7 +296,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * stack)
 {
-	auto amountBG = getStackAmountBox(stack);
+	auto amountBG = getDisplayedStackAmountBox(stack);
 
 	bool doubleWide = stack->doubleWide();
 	bool turnedRight = facingRight(stack);
@@ -450,7 +450,7 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 
 void BattleStacksController::lockStackAmountBox(const CStack * stack)
 {
-	displayedStackSnapshot.try_emplace(stack->unitId(), DisplayedStackSnapshot{stack->getCount(), stack->getAvailableHealth()});
+	displayedStackSnapshot.try_emplace(stack->unitId(), DisplayedStackSnapshot{stack->getCount(), stack->getAvailableHealth(), getStackAmountBox(stack)});
 }
 
 void BattleStacksController::unlockStackAmountBox(uint32_t stackID)
@@ -472,6 +472,14 @@ int64_t BattleStacksController::getDisplayedStackHealth(const CStack * stack) co
 	if(it != displayedStackSnapshot.end())
 		return it->second.availableHealth;
 	return stack->getAvailableHealth();
+}
+
+std::shared_ptr<IImage> BattleStacksController::getDisplayedStackAmountBox(const CStack * stack)
+{
+	auto it = displayedStackSnapshot.find(stack->unitId());
+	if(it != displayedStackSnapshot.end())
+		return it->second.amountBox;
+	return getStackAmountBox(stack);
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)

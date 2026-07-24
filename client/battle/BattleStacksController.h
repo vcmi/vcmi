@@ -76,6 +76,7 @@ class BattleStacksController
 	{
 		int32_t count;
 		int64_t availableHealth;
+		std::shared_ptr<IImage> amountBox;
 	};
 	std::map<uint32_t, DisplayedStackSnapshot> displayedStackSnapshot;
 
@@ -99,6 +100,7 @@ class BattleStacksController
 	void unlockStackAmountBox(uint32_t stackID);
 	int32_t getDisplayedStackAmount(const CStack * stack) const;
 	int64_t getDisplayedStackHealth(const CStack * stack) const;
+	std::shared_ptr<IImage> getDisplayedStackAmountBox(const CStack * stack);
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
