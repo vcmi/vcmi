@@ -408,7 +408,7 @@ const CGHeroInstance * Nullkiller::findRequiredTownDefender(const CGTownInstance
 
 	const auto evaluateHero = [&](const CGHeroInstance * hero)
 	{
-		if(!hero)
+		if(!hero || hero->getOwner() != playerID)
 			return;
 
 		const int coveredThreats = Goals::countTownThreatsCoveredByDefender(*town, *hero, threats, safeAttackRatio);
