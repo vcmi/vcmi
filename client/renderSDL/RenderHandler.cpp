@@ -618,7 +618,15 @@ std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 		if (!ttfConf[bitmapPath].isNull())
 			loadedFont->addTrueTypeFont(ttfConf[bitmapPath], !config["lowPriority"].Bool());
 	}
-	loadedFont->addBitmapFont(bitmapPath);
+	// bitmap font may be corrupt or unreadable; fall back to already-added TrueType fonts rather than aborting
+	try
+	{
+		loadedFont->addBitmapFont(bitmapPath);
+	}
+	catch (const std::exception & e)
+	{
+		logGlobal->error("Failed to load bitmap font '%s': %s", bitmapPath, e.what());
+	}
 
 	fonts[font] = loadedFont;
 	return loadedFont;
