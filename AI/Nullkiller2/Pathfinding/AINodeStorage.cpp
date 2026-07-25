@@ -133,42 +133,46 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 
 	//Each thread gets different x, but an array of y located next to each other in memory
 
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, sizes.x), [&](const tbb::blocked_range<size_t>& r)
-	{
-		int3 pos;
-
-		for(pos.z = 0; pos.z < sizes.z; ++pos.z)
+	Parallelism::parallelFor(
+		sizes.x,
+		64,
+		aiNk->settings->getMaxParallelWorkers(),
+		[&](const tbb::blocked_range<size_t> & r)
 		{
-			const bool useFlying = options.useFlying;
-			const bool useWaterWalking = options.useWaterWalking;
-			const PlayerColor player = playerID;
+			int3 pos;
 
-			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+			for(pos.z = 0; pos.z < sizes.z; ++pos.z)
 			{
-				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
-				{
-					const TerrainTile * tile = gameInfo.getTile(pos);
-					if (!tile->getTerrain()->isPassable())
-						continue;
+				const bool useFlying = options.useFlying;
+				const bool useWaterWalking = options.useWaterWalking;
+				const PlayerColor player = playerID;
 
-					if (tile->isWater())
+				for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+				{
+					for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 					{
-						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
-						if (useFlying)
-							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
-						if (useWaterWalking)
-							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
-					}
-					else
-					{
-						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
-						if (useFlying)
-							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
+						const TerrainTile * tile = gameInfo.getTile(pos);
+						if(!tile->getTerrain()->isPassable())
+							continue;
+
+						if(tile->isWater())
+						{
+							resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
+							if(useFlying)
+								resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
+							if(useWaterWalking)
+								resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
+						}
+						else
+						{
+							resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
+							if(useFlying)
+								resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 }
 
 void AINodeStorage::clear()
@@ -563,22 +567,26 @@ bool AINodeStorage::calculateHeroChain()
 	heroChain.clear();
 
 	const std::vector<int3> tiles(committedTiles.begin(), committedTiles.end());
-	const int maxConcurrency = tbb::this_task_arena::max_concurrency();
-	std::vector<std::vector<CGPathNode *>> results(maxConcurrency);
-	logAi->trace("AINodeStorage::calculateHeroChain for %d items with %d maxConcurrency", tiles.size(), maxConcurrency);
+	constexpr size_t chunkSize = 1024;
+	const size_t chunkCount = (tiles.size() + chunkSize - 1) / chunkSize;
+	std::vector<std::vector<CGPathNode *>> results(chunkCount);
+	logAi->trace("AINodeStorage::calculateHeroChain for %zu items in %zu chunks", tiles.size(), chunkCount);
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, tiles.size(), 10),
-		[&](const tbb::blocked_range<size_t> & r)
+		tbb::blocked_range<size_t>(0, chunkCount),
+		[&](const tbb::blocked_range<size_t> & chunkRange)
 		{
-			HeroChainCalculationTask task(*this, tiles, chainMask, heroChainTurn);
-			const int ourThread = tbb::this_task_arena::current_thread_index();
-			task.execute(r);
-			task.flushResult(results.at(ourThread));
+			for(size_t chunk = chunkRange.begin(); chunk != chunkRange.end(); ++chunk)
+			{
+				const size_t begin = chunk * chunkSize;
+				const size_t end = std::min(tiles.size(), begin + chunkSize);
+				HeroChainCalculationTask task(*this, tiles, chainMask, heroChainTurn);
+				task.execute(tbb::blocked_range<size_t>(begin, end));
+				task.flushResult(results[chunk]);
+			}
 		}
 	);
 
-	// FIXME: potentially non-deterministic behavior due to parallel_for
 	for(const auto & result : results)
 		vstd::concatenate(heroChain, result);
 

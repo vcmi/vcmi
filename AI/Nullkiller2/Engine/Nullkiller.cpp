@@ -213,13 +213,14 @@ Nullkiller::EvaluationContextMap Nullkiller::buildEvaluationContexts(const TGoal
 	std::vector<std::optional<EvaluationContext>> contexts(tasks.size());
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, tasks.size()),
+		tbb::blocked_range<size_t>(0, tasks.size(), 128),
 		[this, &tasks, &contexts](const tbb::blocked_range<size_t> & r)
 		{
 			const auto evaluator = priorityEvaluators->acquire();
 			for(size_t i = r.begin(); i != r.end(); ++i)
 				contexts[i].emplace(evaluator->buildEvaluationContext(tasks[i]));
-		});
+		}
+	);
 
 	EvaluationContextMap result;
 	for(size_t i = 0; i != tasks.size(); ++i)
@@ -236,7 +237,7 @@ Goals::TTaskVec Nullkiller::buildPlanAndFilter(
 	TaskPlan taskPlan;
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, tasks.size()),
+		tbb::blocked_range<size_t>(0, tasks.size(), 128),
 		[this, &tasks, &evaluationContexts, priorityTier](const tbb::blocked_range<size_t> & r)
 		{
 			const auto evaluator = this->priorityEvaluators->acquire();

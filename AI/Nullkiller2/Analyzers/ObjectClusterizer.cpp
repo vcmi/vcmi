@@ -378,7 +378,7 @@ void ObjectClusterizer::clusterize()
 	}
 
 	tbb::parallel_for(
-		tbb::blocked_range<size_t>(0, objs.size()),
+		tbb::blocked_range<size_t>(0, objs.size(), 256),
 		[&](const tbb::blocked_range<size_t> & r)
 		{
 			auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
