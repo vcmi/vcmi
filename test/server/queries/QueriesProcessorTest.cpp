@@ -4,10 +4,10 @@
 
 #include "../../../server/queries/CQuery.h"
 #include "../../../server/battles/BattleProcessor.h"
-#include "../../../server/IGameServer.h"
 #include "../../../server/queries/QueriesProcessor.h"
 #include "CGameHandler.h"
 
+#include "mock/GameHandlerTestServer.h"
 #include "mock/TinyH3MBuilder.h"
 #include "mock/TinyMapGameTest.h"
 
@@ -19,54 +19,6 @@
 
 namespace
 {
-
-class DummyGameServer : public IGameServer
-{
-public:
-	explicit DummyGameServer(std::shared_ptr<CGameState> gameState = nullptr)
-		: gameState(std::move(gameState))
-	{
-	}
-
-	void setState(EServerState value) override
-	{
-		state = value;
-	}
-
-	EServerState getState() const override
-	{
-		return state;
-	}
-
-	bool isPlayerHost(const PlayerColor & color) const override
-	{
-		return false;
-	}
-
-	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionID) const override
-	{
-		return false;
-	}
-
-	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override
-	{
-		return false;
-	}
-
-	void applyPack(CPackForClient & pack) override
-	{
-		if(gameState)
-			gameState->apply(pack);
-	}
-
-	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override
-	{
-	}
-
-private:
-	EServerState state{};
-	std::shared_ptr<CGameState> gameState;
-};
 
 enum class QueryEvent
 {
@@ -154,7 +106,7 @@ public:
 class QueriesProcessorTest : public ::testing::Test
 {
 protected:
-	DummyGameServer server;
+	GameHandlerTestServer server;
 	CGameHandler gh{server};
 	QueriesProcessor & queries = *gh.queries;
 };
@@ -194,7 +146,7 @@ TEST_F(NeutralDwellingBattleQueryTest, ownedDwellingUsesNeutralBattleSideWithout
 	ASSERT_NE(dwelling, nullptr);
 	ASSERT_TRUE(dwelling->setCreature(SlotID(0), CreatureID(1), 10));
 
-	DummyGameServer server(gameState());
+	GameHandlerTestServer server(gameState());
 	CGameHandler gh(server, gameState());
 
 	gh.battles->startBattle(hero, dwelling);

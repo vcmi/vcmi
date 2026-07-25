@@ -336,7 +336,15 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 
 		if(isSafe)
 		{
-			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(visitGoal)));
+			Composition composition;
+			composition.addNext(ArmyUpgrade(path, upgrader, upgrade));
+
+			if(upgrader->getGarrisonHero() == path.targetHero)
+				composition.addNext(ExchangeSwapTownHeroes(upgrader));
+			else
+				composition.addNext(visitGoal);
+
+			tasks.push_back(sptr(composition));
 		}
 	}
 
