@@ -256,6 +256,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	for (int i = 0; i < mapLevels; i++)
 		zonesOnLevel[i] = 0;
 
+	// map.getMapGenOptions().getLevelMapLayers() is always sized to match getLevels() == mapLevels
 	const auto & mapLayers = map.getMapGenOptions().getLevelMapLayers();
 
 	auto findLevelByLayer = [&](MapLayerId layer) -> int {
@@ -265,16 +266,22 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	};
 
 	//even distribution for surface / underground zones. Surface zones always have priority.
+	//NOTE: only SURFACE and UNDERGROUND layers get special treatment here, any other (custom) layer
+	//is treated the same as underground for the purposes of this distribution
 
 	TZoneVector zonesToPlace;
 	std::map<TRmgTemplateZoneId, int> levels;
 
 	auto addZoneEqually = [&](auto & zone, bool ignoreUnderground = false) {
+		// Only restrict to surface levels if a surface layer actually exists on this map,
+		// otherwise fall back to distributing across all levels
+		bool restrictToSurface = ignoreUnderground && findLevelByLayer(MapLayerId::SURFACE) >= 0;
+
 		int chosenLevel = 0;
 		int minCount = std::numeric_limits<int>::max();
 
 		for (const auto& [level, count] : zonesOnLevel) {
-			if (ignoreUnderground && mapLayers[level] != MapLayerId::SURFACE)
+			if (restrictToSurface && mapLayers[level] != MapLayerId::SURFACE)
 				continue;
 
 			if (count < minCount ||
@@ -364,15 +371,10 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					{
 						// underground only
 						int targetLevel = findLevelByLayer(MapLayerId::UNDERGROUND);
-						if (targetLevel >= 0)
-						{
-							zonesOnLevel[targetLevel]++;
-							levels[zone.first] = targetLevel;
-						}
-						else
-						{
-							levels[zone.first] = 0;
-						}
+						if (targetLevel < 0)
+							targetLevel = 0;
+						zonesOnLevel[targetLevel]++;
+						levels[zone.first] = targetLevel;
 					}
 					else
 					{

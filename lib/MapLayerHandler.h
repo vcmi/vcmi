@@ -22,6 +22,7 @@ class DLL_LINKAGE MapLayerType : public EntityT<MapLayerId>
 	std::string identifier;
 	std::string modScope;
 	MapLayerId id;
+	TerrainId defaultTerrain;
 
 public:
 	int32_t getIndex() const override { return id.getNum(); }
@@ -33,6 +34,7 @@ public:
 
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
+	TerrainId getDefaultTerrain() const { return defaultTerrain; }
 
 	MapLayerType();
 };

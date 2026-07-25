@@ -10,39 +10,33 @@
 
 #include "StdInc.h"
 #include "maplayerselectiondialog.h"
+#include "ui_maplayerselectiondialog.h"
 #include "helper.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/MapLayerHandler.h"
 
-#include <QVBoxLayout>
 #include <QHeaderView>
-#include <QLabel>
 #include <QComboBox>
 #include <QTableWidget>
 #include <QDialogButtonBox>
 
 MapLayerSelectionDialog::MapLayerSelectionDialog(int levelCount, const std::vector<MapLayerId> & currentLayers, QWidget *parent)
 	: QDialog(parent)
+	, ui(new Ui::MapLayerSelectionDialog)
 	, levelCount(levelCount)
 {
+	ui->setupUi(this);
 	setWindowTitle(tr("Map Layer Configuration"));
-	setMinimumWidth(420);
-	resize(420, 400);
 
 	Helper::decorateDialog(this);
 
-	auto *mainLayout = new QVBoxLayout(this);
-	mainLayout->setSpacing(6);
+	ui->table->setColumnCount(2);
+	ui->table->setRowCount(levelCount);
+	ui->table->setHorizontalHeaderLabels({tr("Level"), tr("Map Layer")});
+	ui->table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-	// Table with level rows
-	table = new QTableWidget(levelCount, 2, this);
-	table->setHorizontalHeaderLabels({tr("Level"), tr("Map Layer")});
-	table->horizontalHeader()->setStretchLastSection(true);
-	table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-	table->verticalHeader()->hide();
-	table->setSelectionBehavior(QAbstractItemView::SelectRows);
-	table->setSelectionMode(QAbstractItemView::NoSelection);
-	table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	// Build combo boxes for each level
 	auto & layers = LIBRARY->mapLayerHandler->objects;
@@ -52,7 +46,7 @@ MapLayerSelectionDialog::MapLayerSelectionDialog(int levelCount, const std::vect
 		// Level label (read-only)
 		auto *levelItem = new QTableWidgetItem(tr("Level %1").arg(i + 1));
 		levelItem->setFlags(levelItem->flags() & ~Qt::ItemIsEditable);
-		table->setItem(i, 0, levelItem);
+		ui->table->setItem(i, 0, levelItem);
 
 		// Combo for layer selection
 		auto *combo = new QComboBox();
@@ -78,19 +72,15 @@ MapLayerSelectionDialog::MapLayerSelectionDialog(int levelCount, const std::vect
 			}
 		}
 
-		table->setCellWidget(i, 1, combo);
-		table->setRowHeight(i, 28);
+		ui->table->setCellWidget(i, 1, combo);
+		ui->table->setRowHeight(i, 28);
 	}
-
-	mainLayout->addWidget(table, 1);
-
-	buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-	mainLayout->addWidget(buttonBox);
 }
 
-MapLayerSelectionDialog::~MapLayerSelectionDialog() = default;
+MapLayerSelectionDialog::~MapLayerSelectionDialog()
+{
+	delete ui;
+}
 
 std::vector<MapLayerId> MapLayerSelectionDialog::getSelectedLayers() const
 {

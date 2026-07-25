@@ -158,6 +158,7 @@ set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
+		maplayerselectiondialog.ui
 		mapsettings/mapsettings.ui
 		mapsettings/generalsettings.ui
 		mapsettings/heroessettings.ui

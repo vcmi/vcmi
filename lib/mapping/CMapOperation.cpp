@@ -13,6 +13,7 @@
 
 #include "../GameLibrary.h"
 #include "../TerrainHandler.h"
+#include "../MapLayerHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "CMap.h"
 #include "MapEditUtils.h"
@@ -594,14 +595,8 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CCom
 		CTerrainSelection terrainSel(map);
 		terrainSel.selectRange(MapRect(int3(0, 0, i), map->width, map->height));
 
-		ETerrainId defaultTerrain = ETerrainId::WATER;
-		MapLayerId layerId = MapLayerId::UNKNOWN;
-		if (static_cast<size_t>(i) < map->mapLayers.size())
-		{
-			layerId = map->mapLayers[i];
-			if (layerId == MapLayerId::UNDERGROUND)
-				defaultTerrain = ETerrainId::ROCK;
-		}
+		// map->mapLayers is always sized to match map->levels(), see CMapHeader::levels()
+		ETerrainId defaultTerrain = map->mapLayers[i].toEntity(LIBRARY)->getDefaultTerrain();
 		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, defaultTerrain, 0, gen));
 	}
 }

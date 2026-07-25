@@ -143,7 +143,7 @@ public:
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 
-	/// Per-level map layer IDs.
+	/// Per-level map layer IDs. Always sized to match getLevels() - setLevels() pads/truncates it as needed.
 	/// Defaults are set based on level count: SURFACE for level 0, UNDERGROUND for level 1, UNKNOWN for the rest.
 	void setLevelMapLayers(const std::vector<MapLayerId> & value);
 	const std::vector<MapLayerId> & getLevelMapLayers() const;
@@ -178,6 +178,8 @@ private:
 	void updateCompOnlyPlayers();
 	void updatePlayers();
 	const CRmgTemplate * getPossibleTemplate(vstd::RNG & rand) const;
+	/// Pads/truncates levelMapLayers to match the current level count, preserving already configured layers.
+	void syncLevelMapLayersSize();
 
 	si32 width;
 	si32 height;
@@ -227,7 +229,7 @@ public:
 		if (h.version >= Handler::Version::MAP_GEN_LEVEL_MAP_LAYERS)
 			h & levelMapLayers;
 		else if (!h.saving)
-			levelMapLayers.clear();
+			resetLevelMapLayers(); // Old settings without levelMapLayers - derive defaults from level count
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);

@@ -61,6 +61,16 @@ int CMapGenOptions::getLevels() const
 void CMapGenOptions::setLevels(int value)
 {
 	levels = value;
+	syncLevelMapLayersSize();
+}
+
+void CMapGenOptions::syncLevelMapLayersSize()
+{
+	if(levelMapLayers.size() > static_cast<size_t>(levels))
+		levelMapLayers.resize(levels);
+	else
+		while(levelMapLayers.size() < static_cast<size_t>(levels))
+			levelMapLayers.push_back(getDefaultLayerForLevel(static_cast<int>(levelMapLayers.size())));
 }
 
 void CMapGenOptions::resetLevelMapLayers()
@@ -896,6 +906,7 @@ MapLayerId CMapGenOptions::getDefaultLayerForLevel(int levelIndex)
 void CMapGenOptions::setLevelMapLayers(const std::vector<MapLayerId> & value)
 {
 	levelMapLayers = value;
+	syncLevelMapLayersSize();
 }
 
 const std::vector<MapLayerId> & CMapGenOptions::getLevelMapLayers() const

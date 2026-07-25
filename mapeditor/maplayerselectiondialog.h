@@ -15,8 +15,11 @@
 #include "../lib/constants/EntityIdentifiers.h"
 
 class QComboBox;
-class QDialogButtonBox;
-class QTableWidget;
+
+namespace Ui
+{
+class MapLayerSelectionDialog;
+}
 
 class MapLayerSelectionDialog : public QDialog
 {
@@ -29,8 +32,7 @@ public:
 	std::vector<MapLayerId> getSelectedLayers() const;
 
 private:
-	QTableWidget *table;
-	QDialogButtonBox *buttonBox;
+	Ui::MapLayerSelectionDialog *ui;
 	int levelCount;
 	std::vector<QComboBox *> layerCombos;
 };

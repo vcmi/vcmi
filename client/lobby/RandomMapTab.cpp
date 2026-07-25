@@ -240,14 +240,6 @@ void RandomMapTab::onToggleMapSize(int btnId)
 			mapGenOptions->setWidth(ret.x);
 			mapGenOptions->setHeight(ret.y);
 			mapGenOptions->setLevels(ret.z);
-			{
-				auto layers = mapGenOptions->getLevelMapLayers();
-				if (layers.size() > ret.z)
-					layers.resize(ret.z);
-				while (layers.size() < ret.z)
-					layers.push_back(CMapGenOptions::getDefaultLayerForLevel(static_cast<int>(layers.size())));
-				mapGenOptions->setLevelMapLayers(layers);
-			}
 			customMapSizeMode = true;
 			if(auto twoLevelsButton = widget<CToggleButton>("buttonTwoLevels"))
 				twoLevelsButton->setSelectedSilent(ret.z == 2);
