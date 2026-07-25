@@ -131,6 +131,32 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	height = map.getMapGenOptions().getHeight();
 
 	auto zones = map.getZones();
+
+	// Water zones do not go through the land-zone tessellation below - their area gets carved
+	// out of land zones later, via WaterAdopter/WaterProxy. They still need a valid level though,
+	// otherwise they keep the Zone default of level 0, which is wrong whenever level 0 isn't the
+	// surface layer. Put them on the surface layer (falling back to level 0 if there is none).
+	{
+		const auto & mapLayers = map.getMapGenOptions().getLevelMapLayers();
+		int waterLevel = 0;
+		for(size_t i = 0; i < mapLayers.size(); i++)
+		{
+			if(mapLayers[i] == MapLayerId::SURFACE)
+			{
+				waterLevel = static_cast<int>(i);
+				break;
+			}
+		}
+		for(const auto & zonePair : zones)
+		{
+			if(zonePair.second->getType() == ETemplateZoneType::WATER)
+			{
+				zonePair.second->setPos(int3(0, 0, waterLevel));
+				zonePair.second->setCenter(float3(0.f, 0.f, static_cast<float>(waterLevel)));
+			}
+		}
+	}
+
 	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
 	{
 		return pr.second->getType() == ETemplateZoneType::WATER;
