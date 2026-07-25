@@ -1233,8 +1233,8 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			bool syncronizeObjects = reader->readBool();
-			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for event/pandora at %s is not implemented!", mapName, eventID, syncronizeObjects, mapPosition.toString());
+			reader->readBool(); // synchronize objects - not used yet
+			object->heroVisitScriptHandler = HotaScriptConverter::eventHandlerName("heroEvents", eventID);
 		}
 	}
 }
@@ -2921,7 +2921,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		CCastleEvent event;
 		event.creatures.resize(7);
 
-		readEventCommon(event, TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"));
+		readEventCommon(event, TextIdentifier("town", position.x, position.y, position.z, "event", eventID, "description"), "townEvents");
 
 		if(features.levelHOTA5)
 		{
@@ -2993,7 +2993,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 	return object;
 }
 
-void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & messageID)
+void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & messageID, const std::string & scriptBucket)
 {
 	event.name = readBasicString();
 	event.message.appendTextID(readLocalizedString(messageID));
@@ -3025,8 +3025,8 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 		if(usesEventSystem)
 		{
 			int32_t eventID = reader->readInt32();
-			bool syncronizeObjects = reader->readBool();
-			logGlobal->warn("Map %s: Extended script system (event ID %d, synchronize %d) for timed/town event is not implemented!", mapName, eventID, syncronizeObjects);
+			reader->readBool(); // synchronize objects - not used yet
+			event.scriptHandler = HotaScriptConverter::eventHandlerName(scriptBucket, eventID);
 		}
 	}
 }
@@ -3037,7 +3037,7 @@ void CMapLoaderH3M::readEvents()
 	for(int eventID = 0; eventID < eventsCount; ++eventID)
 	{
 		CMapEvent event;
-		readEventCommon(event, TextIdentifier("event", eventID, "description"));
+		readEventCommon(event, TextIdentifier("event", eventID, "description"), "playerEvents");
 
 		// garbage bytes that were present in HOTA5 & HOTA6
 		if (features.levelHOTA5 && !features.levelHOTA7)

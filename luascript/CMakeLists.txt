@@ -3,6 +3,7 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CM
 set(lualib_SRCS
 		StdInc.cpp
 		LuaReference.cpp
+		LuaMapEventDispatcher.cpp
 		LuaModule.cpp
 		LuaScriptInstance.cpp
 		LuaContext.cpp
@@ -13,6 +14,7 @@ set(lualib_SRCS
 		api/adventure/Calendar.cpp
 		api/adventure/HeroInstance.cpp
 		api/adventure/MapObject.cpp
+		api/adventure/TownInstance.cpp
 		api/adventure/StackInstance.cpp
 
 		api/battle/Unit.cpp
@@ -52,6 +54,7 @@ set(lualib_HDRS
 		StdInc.h
 		LuaCallWrapper.h
 		LuaReference.h
+		LuaMapEventDispatcher.h
 		LuaModule.h
 		LuaScriptInstance.h
 		LuaContext.h
@@ -63,6 +66,7 @@ set(lualib_HDRS
 		api/adventure/Calendar.h
 		api/adventure/HeroInstance.h
 		api/adventure/MapObject.h
+		api/adventure/TownInstance.h
 		api/adventure/StackInstance.h
 
 		api/battle/Unit.h

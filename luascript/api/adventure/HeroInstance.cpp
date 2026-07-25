@@ -17,6 +17,7 @@
 #include "StackInstance.h"
 
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/entities/artifact/CArtifactInstance.h"
 
 namespace scripting::api
 {
@@ -54,6 +55,10 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		{{"artifact", "Artifact JSON key."}},
 		{"True if the hero owns the artifact."},
 		"Returns whether the hero owns the given artifact, either as equipped or in the backpack.");
+	R.function<&HeroInstanceProxy::ownedArtifacts>("ownedArtifacts",
+		{{"artifact", "Artifact JSON key."}},
+		{"Number of copies of that artifact the hero carries."},
+		"Returns how many copies of the given artifact the hero owns, counting both equipped slots and the backpack.");
 	R.function<&HeroInstanceProxy::creatureCountInArmy>("creatureCountInArmy",
 		{{"creature", "Creature JSON key."}},
 		{"Total number of that creature across the hero's army."},
@@ -83,6 +88,18 @@ int64_t HeroInstanceProxy::getExperience(const CGHeroInstance & hero)
 bool HeroInstanceProxy::hasArtifact(const CGHeroInstance & hero, ArtifactID artifact)
 {
 	return hero.hasArt(artifact);
+}
+
+int HeroInstanceProxy::ownedArtifacts(const CGHeroInstance & hero, ArtifactID artifact)
+{
+	int total = 0;
+	for(const auto & [pos, slot] : hero.artifactsWorn)
+		if(slot.getArt() && slot.getArt()->getTypeId() == artifact)
+			++total;
+	for(const auto & slot : hero.artifactsInBackpack)
+		if(slot.getArt() && slot.getArt()->getTypeId() == artifact)
+			++total;
+	return total;
 }
 
 int HeroInstanceProxy::creatureCountInArmy(const CGHeroInstance & hero, CreatureID creature)

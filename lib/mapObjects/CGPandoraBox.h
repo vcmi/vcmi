@@ -24,6 +24,9 @@ public:
 
 	MetaString message;
 
+	/// Name of the map-script handler to run when a hero visits, replacing the default reward. Empty if none.
+	std::string heroVisitScriptHandler;
+
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -35,6 +38,8 @@ public:
 		h & message;
 		if(h.version >= Handler::Version::HOTA_MAP_FORMAT_EXTENSIONS)
 			h & presentOnDifficulties;
+		if(h.version >= Handler::Version::HOTA_SCRIPT_EVENTS)
+			h & heroVisitScriptHandler;
 	}
 protected:
 	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;

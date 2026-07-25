@@ -49,6 +49,15 @@ public:
 	static void grantSecondarySkill(IGameEventCallback & object, const CGHeroInstance & hero, SecondarySkill skill, int level);
 	static void grantArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact);
 	static void grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell);
+	static void takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact);
+	static void grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count);
+	static void takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count);
+	static void grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine);
+	static void takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine);
+	static void grantSpellbook(IGameEventCallback & object, const CGHeroInstance & hero);
+	static void takeSpellbook(IGameEventCallback & object, const CGHeroInstance & hero);
+	static void grantMorale(IGameEventCallback & object, const CGHeroInstance & hero, int amount);
+	static void grantLuck(IGameEventCallback & object, const CGHeroInstance & hero, int amount);
 
 	static void showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
 		const std::optional<std::vector<LuaComponent>> & components, const std::optional<int> & soundID, const std::optional<int> & windowType);

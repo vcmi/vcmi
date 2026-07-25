@@ -70,6 +70,7 @@
 #include "UpgradeInfo.h"
 #include "mapObjects/CGPandoraBox.h"
 
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 #include <vstd/RNG.h>
 
@@ -203,6 +204,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	logGlobal->debug("Initialization:");
 
 	initScriptVariables();
+	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this);
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)

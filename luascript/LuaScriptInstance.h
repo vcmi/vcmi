@@ -12,6 +12,8 @@
 
 #include <vcmi/scripting/Service.h>
 
+#include "../lib/filesystem/ResourcePath.h"
+
 class JsonNode;
 class JsonSerializeFormat;
 class Services;
@@ -34,17 +36,22 @@ public:
 		std::string identifier; ///< modScope + ':' + sourcePath, used for error reporting and chunk naming
 	};
 
-	/// Builds the chain: layer[0] is the base, layer[1..] are patches in declared order.
+	/// Builds the chain from resource files: layer[0] is the base, layer[1..] are patches in declared order.
 	/// patches entries are (modScope, sourcePath) pairs.
 	/// Failed-to-load patch layers are skipped with a logged error; failed base load leaves layers empty.
-	LuaScriptInstance(LuaModule & host,
-		const std::string & baseScope, const std::string & basePath,
+	LuaScriptInstance(const LuaModule & host,
+		const std::string & baseScope, const ScriptPath & basePath,
 		const std::vector<std::pair<std::string, std::string>> & patches);
+
+	/// Builds a single-layer script directly from source text, for scripts generated at runtime
+	/// (e.g. a map's converted event system) that have no backing resource file.
+	LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText);
+
 	virtual ~LuaScriptInstance();
 
 	std::vector<Layer> layers;
 
-	LuaModule & host;
+	const LuaModule & host;
 
 	std::shared_ptr<LuaContext> createContext(const Environment * ENV) const;
 
@@ -53,6 +60,7 @@ public:
 private:
 	std::string baseModScope;
 	std::string baselSourcePath;
+	void loadLayer(const std::string & modScope, const ScriptPath & sourcePath);
 	void loadLayer(const std::string & modScope, const std::string & sourcePath);
 };
 }

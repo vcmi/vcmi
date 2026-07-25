@@ -33,6 +33,8 @@ public:
 
 	std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const override;
 
+	std::unique_ptr<MapEventDispatcher> createMapScriptDispatcher(const CGameState & gs) const override;
+
 	void exportDocs(const boost::filesystem::path & outDir) const override;
 
 private:

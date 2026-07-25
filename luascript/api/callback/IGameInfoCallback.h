@@ -39,6 +39,9 @@ public:
 	static bool hasMapVariable(const GameCb & object, const std::string & name);
 	static Calendar getCalendar(const GameCb & object);
 	static EMapDifficulty getDifficulty(const GameCb & object);
+	static bool playerIsHuman(const GameCb & object, PlayerColor player);
+	static bool playerDefeated(const GameCb & object, PlayerColor player);
+	static bool playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction);
 };
 
 }

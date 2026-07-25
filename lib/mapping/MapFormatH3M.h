@@ -246,7 +246,7 @@ private:
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
-	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID);
+	void readEventCommon(CMapEvent & object, const TextIdentifier & messageID, const std::string & scriptBucket);
 
 	/**
 	 * Reads a quest for the given quest guard.

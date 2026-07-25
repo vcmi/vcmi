@@ -41,6 +41,10 @@ public:
 	/// no active event system.
 	HotaScriptConversionResult convert();
 
+	/// Stable key of the Lua handler for an event bucket + id. Shared by the converter (which emits
+	/// the handler table key) and the H3M loader (which tags objects/events with the handler to fire).
+	static std::string eventHandlerName(const std::string & bucket, int eventID);
+
 private:
 	MapReaderH3M & reader;
 	std::string mapName;

@@ -148,6 +148,13 @@ static std::string bucketName(int eventType)
 	}
 }
 
+std::string HotaScriptConverter::eventHandlerName(const std::string & bucket, int eventID)
+{
+	// Used verbatim as a Lua method name (Map:<name>) and as the engine-side handler key,
+	// so it must be a valid Lua identifier - hence '_' rather than '.' as the separator.
+	return bucket + "_" + std::to_string(eventID);
+}
+
 /// Parameter list of a generated event handler; the engine dispatcher supplies these.
 static std::string handlerParams(const std::string & bucket)
 {
@@ -256,12 +263,7 @@ HotaScriptConversionResult HotaScriptConverter::convert()
 
 	std::string source;
 	source += "-- generated from " + mapName + ".h3m HotA event system\n";
-	source += "local Map = {\n";
-	source += "\theroEvents = {},\n";
-	source += "\tplayerEvents = {},\n";
-	source += "\ttownEvents = {},\n";
-	source += "\tquestEvents = {},\n";
-	source += "}\n\n";
+	source += "local Map = {}\n\n";
 	source += helpersPrelude();
 	source += variablesTable;
 	source += events;
@@ -288,7 +290,7 @@ std::string HotaScriptConverter::loadEventList(const std::string & bucket)
 		std::string eventName = reader.readBaseString(); // internal name, not shown to players
 
 		result += "-- \"" + eventName + "\" (" + bucket + " id " + std::to_string(eventID) + ")\n";
-		result += "Map." + bucket + "[" + std::to_string(eventID) + "] = function" + handlerParams(bucket) + "\n";
+		result += "function Map:" + eventHandlerName(bucket, eventID) + handlerParams(bucket) + "\n";
 		result += playerLocal(bucket);
 		result += body;
 		result += "end\n\n";
@@ -619,7 +621,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				int eventType = reader.readInt32();
 				int eventID = reader.readInt32();
-				result += pad + "Map." + bucketName(eventType) + "[" + num(eventID) + "](" + handlerArgs(currentBucket) + ")\n";
+				result += pad + "Map:" + eventHandlerName(bucketName(eventType), eventID) + "(" + handlerArgs(currentBucket) + ")\n";
 				break;
 			}
 			case HotaScriptActions::RESOURCES:

@@ -14,6 +14,8 @@
 
 #include <boost/filesystem/path.hpp>
 
+class CGameState;
+
 namespace spells::effects
 {
     class SpellEffectService;
@@ -21,6 +23,8 @@ namespace spells::effects
 
 namespace scripting
 {
+
+class MapEventDispatcher;
 
 using BattleCb = Environment::BattleCb;
 using GameCb = Environment::GameCb;
@@ -55,6 +59,10 @@ public:
 	virtual void installScripting(spells::effects::SpellEffectService * spellEffects) = 0;
 
 	virtual std::unique_ptr<Pool> createPoolInstance(const Environment * ENV) const = 0;
+
+	/// Builds the dispatcher for the game's map event script, or nullptr if the map has none.
+	/// The module locates the script source and environment on the game state itself.
+	virtual std::unique_ptr<MapEventDispatcher> createMapScriptDispatcher(const CGameState & gs) const = 0;
 
 	/// Writes Markdown and Lua Language Server reference files describing every exposed API type
 	/// into the given output directory. Used by `vcmiserver --export-lua-docs <path>` to keep

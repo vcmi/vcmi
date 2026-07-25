@@ -50,6 +50,8 @@
 #include "../lib/filesystem/Filesystem.h"
 
 #include "../lib/gameState/CGameState.h"
+
+#include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
@@ -58,6 +60,7 @@
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
+#include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -3599,7 +3602,12 @@ void CGameHandler::objectVisited(const CGObjectInstance * visitedObject, const C
 	hv.starting = true;
 	sendAndApply(hv);
 
-	visitedObject->onHeroVisit(*this, h);
+	const auto * scriptedObject = dynamic_cast<const CGPandoraBox *>(visitedObject);
+	auto * dispatcher = gameState().getMapEventDispatcher();
+	if(scriptedObject && !scriptedObject->heroVisitScriptHandler.empty() && dispatcher)
+		dispatcher->onObjectVisit(*this, scriptedObject->heroVisitScriptHandler, visitedObject, h);
+	else
+		visitedObject->onHeroVisit(*this, h);
 
 	if(visitQuery)
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created

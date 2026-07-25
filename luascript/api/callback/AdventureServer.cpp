@@ -16,11 +16,15 @@
 #include "../LuaComponent.h"
 #include "../LuaMetaString.h"
 
+#include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/constants/Enumerations.h"
 #include "../../../lib/json/JsonNode.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
+#include "../../../lib/mapObjects/army/CCreatureSet.h"
+#include "../../../lib/mapObjects/army/CStackBasicDescriptor.h"
 #include "../../../lib/modding/ModScope.h"
+#include "../../../lib/networkPacks/ArtifactLocation.h"
 #include "../../../lib/networkPacks/PacksForClient.h"
 
 #include <vstd/RNG.h>
@@ -111,6 +115,67 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Gives a spell scroll to a hero. While the scroll is carried the hero may cast that spell even without a spellbook. "
 		"The scroll occupies an artifact slot like any other artifact.");
+	R.function<&AdventureServerProxy::takeArtifact>("takeArtifact",
+		{
+			{"hero",     "Hero that loses the artifact."},
+			{"artifact", "Artifact to remove, given as its JSON key."}
+		}, {},
+		"Removes an artifact from a hero, whether it is equipped or sitting in the backpack. If the artifact is a part of an "
+		"assembled combination artifact, the combination is taken apart first and the remaining parts stay with the hero. "
+		"Does nothing if the hero does not own the artifact.");
+	R.function<&AdventureServerProxy::grantCreatures>("grantCreatures",
+		{
+			{"hero",     "Hero whose army grows."},
+			{"creature", "Creature to add, given as its JSON key."},
+			{"count",    "How many creatures to add. They join an existing stack of the same creature, or take a new army slot; if the army is full of other creatures the new ones are lost."}
+		}, {},
+		"Adds creatures to a hero's army.");
+	R.function<&AdventureServerProxy::takeCreatures>("takeCreatures",
+		{
+			{"hero",     "Hero whose army shrinks."},
+			{"creature", "Creature to remove, given as its JSON key."},
+			{"count",    "How many to remove. If the hero has fewer, all of them are removed. Emptied stacks disappear."}
+		}, {},
+		"Removes creatures of one type from a hero's army.");
+	R.function<&AdventureServerProxy::grantWarMachine>("grantWarMachine",
+		{
+			{"hero",    "Hero that receives the war machine."},
+			{"machine", "War machine to give, given as its artifact JSON key (\"ballista\", \"ammoCart\", \"firstAidTent\")."}
+		}, {},
+		"Gives a war machine to a hero, placing it in its dedicated equipment slot. Has no effect if the hero already "
+		"carries a war machine in that slot.");
+	R.function<&AdventureServerProxy::takeWarMachine>("takeWarMachine",
+		{
+			{"hero",    "Hero that loses the war machine."},
+			{"machine", "War machine to remove, given as its artifact JSON key."}
+		}, {},
+		"Removes a war machine from a hero. Does nothing if the hero did not carry it.");
+	R.function<&AdventureServerProxy::grantSpellbook>("grantSpellbook",
+		{
+			{"hero", "Hero that receives the spellbook."}
+		}, {},
+		"Gives a spellbook to a hero, without which learned spells cannot be cast in combat. Does nothing if the hero "
+		"already has a spellbook.");
+	R.function<&AdventureServerProxy::takeSpellbook>("takeSpellbook",
+		{
+			{"hero", "Hero that loses the spellbook."}
+		}, {},
+		"Removes the hero's spellbook. The hero keeps the list of learned spells but can no longer cast them until given a "
+		"spellbook again. Does nothing if the hero had no spellbook.");
+	R.function<&AdventureServerProxy::grantMorale>("grantMorale",
+		{
+			{"hero",   "Hero that receives the morale change."},
+			{"amount", "Morale points to add; use a negative number to lower morale."}
+		}, {},
+		"Gives a hero a temporary morale bonus that lasts until the end of the hero's next battle. "
+		"Repeated calls each add another separate bonus rather than replacing the previous one.");
+	R.function<&AdventureServerProxy::grantLuck>("grantLuck",
+		{
+			{"hero",   "Hero that receives the luck change."},
+			{"amount", "Luck points to add; use a negative number to lower luck."}
+		}, {},
+		"Gives a hero a temporary luck bonus that lasts until the end of the hero's next battle. "
+		"Repeated calls each add another separate bonus rather than replacing the previous one.");
 	R.function<&AdventureServerProxy::showMessage>("showMessage",
 		{
 			{"player",     "Player who should see the message. Other players see nothing."},
@@ -176,6 +241,77 @@ void AdventureServerProxy::grantArtifact(IGameEventCallback & object, const CGHe
 void AdventureServerProxy::grantScroll(IGameEventCallback & object, const CGHeroInstance & hero, SpellID spell)
 {
 	object.giveHeroNewScroll(&hero, spell, ArtifactPosition::FIRST_AVAILABLE);
+}
+
+namespace
+{
+// Removes one artifact from a hero, disassembling any combination it is part of first.
+void removeHeroArtifact(IGameEventCallback & object, const CGHeroInstance & hero, const ArtifactID & artifact)
+{
+	if(!hero.hasArt(artifact))
+	{
+		const auto * assembly = hero.getCombinedArtWithPart(artifact);
+		if(assembly)
+		{
+			DisassembledArtifact da;
+			da.al = ArtifactLocation(hero.id, hero.getArtPos(assembly));
+			object.sendAndApply(da);
+		}
+	}
+	if(hero.hasArt(artifact))
+		object.removeArtifact(ArtifactLocation(hero.id, hero.getArtPos(artifact, false)));
+}
+}
+
+void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID artifact)
+{
+	removeHeroArtifact(object, hero, artifact);
+}
+
+void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count)
+{
+	CCreatureSet army;
+	army.addToSlot(army.getFreeSlot(), creature, count);
+	object.giveCreatures(&hero, army);
+}
+
+void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, CreatureID creature, int count)
+{
+	object.takeCreatures(hero.id, {CStackBasicDescriptor(creature, count)});
+}
+
+void AdventureServerProxy::grantWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine)
+{
+	object.giveHeroNewArtifact(&hero, machine, ArtifactPosition::FIRST_AVAILABLE);
+}
+
+void AdventureServerProxy::takeWarMachine(IGameEventCallback & object, const CGHeroInstance & hero, ArtifactID machine)
+{
+	removeHeroArtifact(object, hero, machine);
+}
+
+void AdventureServerProxy::grantSpellbook(IGameEventCallback & object, const CGHeroInstance & hero)
+{
+	object.giveHeroNewArtifact(&hero, ArtifactID::SPELLBOOK, ArtifactPosition::FIRST_AVAILABLE);
+}
+
+void AdventureServerProxy::takeSpellbook(IGameEventCallback & object, const CGHeroInstance & hero)
+{
+	removeHeroArtifact(object, hero, ArtifactID::SPELLBOOK);
+}
+
+void AdventureServerProxy::grantMorale(IGameEventCallback & object, const CGHeroInstance & hero, int amount)
+{
+	Bonus bonus(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OTHER, amount, BonusSourceID());
+	GiveBonus gb(GiveBonus::ETarget::OBJECT, hero.id, bonus);
+	object.giveHeroBonus(&gb);
+}
+
+void AdventureServerProxy::grantLuck(IGameEventCallback & object, const CGHeroInstance & hero, int amount)
+{
+	Bonus bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OTHER, amount, BonusSourceID());
+	GiveBonus gb(GiveBonus::ETarget::OBJECT, hero.id, bonus);
+	object.giveHeroBonus(&gb);
 }
 
 void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,

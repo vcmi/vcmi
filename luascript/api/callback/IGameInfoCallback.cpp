@@ -17,8 +17,10 @@
 
 #include "../adventure/HeroInstance.h"
 
+#include "../../../lib/CPlayerState.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
+#include "../../../lib/constants/Enumerations.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapping/CMap.h"
@@ -64,6 +66,21 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		},
 		{"True when a value has been stored under that name."},
 		"Checks whether a named map variable has ever been set, which lets a script tell \"unset\" apart from a stored value of 0 or false.");
+	R.function<&IGameInfoCallbackProxy::playerIsHuman>("playerIsHuman",
+		{{"player", "Player color index to check."}},
+		{"True when that player is controlled by a human, false for an AI or an unused color."},
+		"Tells whether the given player is controlled by a human.");
+	R.function<&IGameInfoCallbackProxy::playerDefeated>("playerDefeated",
+		{{"player", "Player color index to check."}},
+		{"True when that player has been defeated and is out of the game."},
+		"Tells whether the given player has already lost the game.");
+	R.function<&IGameInfoCallbackProxy::playerStartingFaction>("playerStartingFaction",
+		{
+			{"player",  "Player color index to check."},
+			{"faction", "Town faction JSON key to compare against."}
+		},
+		{"True when the player began the map with the given town faction."},
+		"Tells whether the player's starting town faction matches the given one.");
 }
 
 JsonNode IGameInfoCallbackProxy::getMapVariable(const GameCb & object, const std::string & name)
@@ -84,6 +101,24 @@ Calendar IGameInfoCallbackProxy::getCalendar(const GameCb & object)
 EMapDifficulty IGameInfoCallbackProxy::getDifficulty(const GameCb & object)
 {
 	return static_cast<EMapDifficulty>(object.getStartInfo()->difficulty);
+}
+
+bool IGameInfoCallbackProxy::playerIsHuman(const GameCb & object, PlayerColor player)
+{
+	const auto * state = object.getPlayerState(player, false);
+	return state && state->isHuman();
+}
+
+bool IGameInfoCallbackProxy::playerDefeated(const GameCb & object, PlayerColor player)
+{
+	return object.getPlayerStatus(player, false) == EPlayerStatus::LOSER;
+}
+
+bool IGameInfoCallbackProxy::playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction)
+{
+	const auto & players = object.getStartInfo()->playerInfos;
+	auto it = players.find(player);
+	return it != players.end() && it->second.castle == faction;
 }
 
 }
