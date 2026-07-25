@@ -76,10 +76,19 @@ CPathsInfo::~CPathsInfo() = default;
 
 void CPathsInfo::prepareForReuse(const CGHeroInstance * hero_)
 {
-	// PathfinderCache options and map terrain are stable, so NodeStorage::initialize
-	// resets the same active node layers before every path calculation.
 	hero = hero_;
 	heroBonusTreeVersion = hero->getTreeVersion();
+}
+
+void CPathsInfo::beginSearch()
+{
+	++currentGeneration;
+	if(currentGeneration != 0)
+		return;
+
+	for(auto * node = nodes.data(); node != nodes.data() + nodes.num_elements(); ++node)
+		node->generation = 0;
+	currentGeneration = 1;
 }
 
 const CGPathNode * CPathsInfo::getPathInfo(const int3 & tile, const ELayer layer) const
@@ -111,11 +120,10 @@ bool CPathsInfo::getPath(CGPath & out, const int3 & dst, const ELayer layer) con
 
 const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 {
-	const auto * landNode = &nodes[ELayer::LAND][coord.z][coord.x][coord.y];
+	const auto * landNode = getNode(coord, ELayer::LAND);
 	if(landNode->reachable())
 		return landNode;
-	else
-		return &nodes[ELayer::SAIL][coord.z][coord.x][coord.y];
+	return getNode(coord, ELayer::SAIL);
 }
 
 PathNodeInfo::PathNodeInfo()
