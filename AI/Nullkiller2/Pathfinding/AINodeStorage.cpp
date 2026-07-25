@@ -175,6 +175,7 @@ void AINodeStorage::clear()
 {
 	actors.clear();
 	committedTiles.clear();
+	dimensionDoorCapabilities.clear();
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
@@ -1105,15 +1106,41 @@ void AINodeStorage::calculateDimensionDoorTeleportations(
 {
 	const auto * hero = srcNode->actor->hero;
 
-	forEachDimensionDoorSpell(hero, [&](const CSpell * spell, const auto &, const DimensionDoorEffect *)
+	for(const auto & capability : getDimensionDoorCapabilities(hero))
 	{
-		auto plan = getDimensionDoorSpellPlan(source, pathfinderHelper, srcNode, hero, spell);
+		auto plan = getDimensionDoorSpellPlan(source, pathfinderHelper, srcNode, hero, capability);
 
 		if(!plan)
-			return;
+			continue;
 
 		calculateDimensionDoorTeleportationsForSpell(neighbours, source, srcNode, *plan);
+	}
+}
+
+const std::vector<AINodeStorage::DimensionDoorCapability> & AINodeStorage::getDimensionDoorCapabilities(
+	const CGHeroInstance * hero)
+{
+	auto existing = dimensionDoorCapabilities.find(hero);
+	if(existing != dimensionDoorCapabilities.end())
+		return existing->second;
+
+	std::vector<DimensionDoorCapability> capabilities;
+	const int3 mapSize = aiNk->cc->getMapSize();
+	forEachDimensionDoorSpell(hero, [&](const CSpell * spell, const auto & mechanics, const DimensionDoorEffect * effect)
+	{
+		if(!hero->canCastThisSpell(spell))
+			return;
+
+		DimensionDoorCapability capability;
+		capability.spell = spell;
+		capability.effect = effect;
+		capability.manaCost = hero->getSpellCost(spell);
+		capability.castsLimit = mechanics.getCastsLimit(hero, mapSize);
+		capability.castsAlreadyPerformed = mechanics.getCastsAlreadyPerformed(hero);
+		capabilities.push_back(capability);
 	});
+
+	return dimensionDoorCapabilities.emplace(hero, std::move(capabilities)).first->second;
 }
 
 std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimensionDoorSpellPlan(
@@ -1121,33 +1148,24 @@ std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimension
 	const CPathfinderHelper * pathfinderHelper,
 	const AIPathNode * srcNode,
 	const CGHeroInstance * hero,
-	const CSpell * spell) const
+	const DimensionDoorCapability & capability) const
 {
-	const auto & mechanics = spell->getAdventureMechanics();
-	const auto * effect = mechanics.getEffectAs<DimensionDoorEffect>(hero);
-
-	if(!effect)
-		return std::nullopt;
-
-	const int3 mapSize = aiNk->cc->getMapSize();
-	const int manaCost = hero->getSpellCost(spell);
-	const int castsLimit = mechanics.getCastsLimit(hero, mapSize);
 	const int plannedSourceTurn = pathfinderHelper->turn;
 	const int plannedSourceMoveLimit = pathfinderHelper->getMaxMovePoints(source.node->layer);
 	const int plannedSourceMoveRemains = plannedSourceTurn == source.node->turns
 		? source.node->moveRemains
 		: plannedSourceMoveLimit;
 	const int plannedDimensionDoorCasts = plannedSourceTurn == source.node->turns ? srcNode->dimensionDoorCasts : 0;
-	const int castsAlreadyPerformed = plannedSourceTurn == 0 ? mechanics.getCastsAlreadyPerformed(hero) : 0;
+	const int castsAlreadyPerformed = plannedSourceTurn == 0 ? capability.castsAlreadyPerformed : 0;
 
-	if(!AIPathfinding::canUseDimensionDoorAction({
+	if(!AIPathfinding::hasDimensionDoorActionResources({
 		hero,
-		spell,
-		manaCost,
+		capability.spell,
+		capability.manaCost,
 		srcNode->manaCost,
 		plannedSourceMoveRemains,
-		effect->getMovementPointsRequired(),
-		castsLimit,
+		capability.effect->getMovementPointsRequired(),
+		capability.castsLimit,
 		castsAlreadyPerformed,
 		plannedDimensionDoorCasts
 	}))
@@ -1155,13 +1173,13 @@ std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimension
 		return std::nullopt;
 	}
 
-	const int movementPointsTaken = std::min(plannedSourceMoveRemains, effect->getMovementPointsTaken());
+	const int movementPointsTaken = std::min(plannedSourceMoveRemains, capability.effect->getMovementPointsTaken());
 	const float movementCost = static_cast<float>(movementPointsTaken) / plannedSourceMoveLimit;
 
 	DimensionDoorSpellPlan plan;
-	plan.spell = spell;
-	plan.effect = effect;
-	plan.manaCost = manaCost;
+	plan.spell = capability.spell;
+	plan.effect = capability.effect;
+	plan.manaCost = capability.manaCost;
 	plan.plannedSourceTurn = plannedSourceTurn;
 	plan.plannedSourceMoveLimit = plannedSourceMoveLimit;
 	plan.plannedSourceMoveRemains = plannedSourceMoveRemains;

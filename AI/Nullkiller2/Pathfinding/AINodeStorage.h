@@ -345,6 +345,15 @@ public:
 
 
 private:
+	struct DimensionDoorCapability
+	{
+		const CSpell * spell = nullptr;
+		const DimensionDoorEffect * effect = nullptr;
+		int manaCost = 0;
+		int castsLimit = 0;
+		int castsAlreadyPerformed = 0;
+	};
+
 	struct DimensionDoorSpellPlan
 	{
 		const CSpell * spell = nullptr;
@@ -364,6 +373,10 @@ private:
 		uint64_t guardedLandingArmyLoss = 0;
 		bool canLand = true;
 	};
+
+	HeroMap<std::vector<DimensionDoorCapability>> dimensionDoorCapabilities;
+
+	const std::vector<DimensionDoorCapability> & getDimensionDoorCapabilities(const CGHeroInstance * hero);
 
 	void calculateObjectTeleportations(
 		std::vector<CGPathNode *> & neighbours,
@@ -387,7 +400,7 @@ private:
 		const CPathfinderHelper * pathfinderHelper,
 		const AIPathNode * srcNode,
 		const CGHeroInstance * hero,
-		const CSpell * spell) const;
+		const DimensionDoorCapability & capability) const;
 
 	void calculateDimensionDoorTeleportationsForSpell(
 		std::vector<CGPathNode *> & neighbours,
