@@ -22,6 +22,7 @@ constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualiza
 
 class CSpell;
 class DimensionDoorEffect;
+struct TeamState;
 
 namespace NK2AI
 {
@@ -158,6 +159,7 @@ public:
 
 	explicit AISharedStorage(int3 sizes, int numChains, const CCallback & cc);
 	~AISharedStorage();
+	bool beginGeneration();
 
 	inline
 	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile) const
@@ -169,8 +171,18 @@ public:
 class AINodeStorage : public INodeStorage
 {
 private:
+	struct AccessibilityInfo
+	{
+		EPathAccessibility value = EPathAccessibility::NOT_SET;
+		uint32_t generation = 0;
+	};
+
 	int3 sizes;
-	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
+	mutable std::unique_ptr<boost::multi_array<AccessibilityInfo, 4>> accessibility;
+	const IGameInfoCallback * gameInfo = nullptr;
+	const TeamState * playerTeam = nullptr;
+	bool useFlying = false;
+	bool useWaterWalking = false;
 	Nullkiller * aiNk; // TODO: Mircea: Replace with &
 	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
@@ -285,15 +297,7 @@ public:
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
 
-	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
-	{
-		return (*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()];
-	}
-
-	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
-	{
-		(*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()] = tileAccessibility;
-	}
+	EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const;
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 

@@ -79,6 +79,18 @@ AISharedStorage::~AISharedStorage()
 	}
 }
 
+bool AISharedStorage::beginGeneration()
+{
+	++version;
+	if(version != 0)
+		return false;
+
+	for(auto * node = nodes->data(); node != nodes->data() + nodes->num_elements(); ++node)
+		node->version = 0;
+	version = 1;
+	return true;
+}
+
 void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
 {
 	if(!specialAction)
@@ -113,7 +125,7 @@ int AINodeStorage::getBucketSize() const
 AINodeStorage::AINodeStorage(Nullkiller * aiNk, const int3 & sizes)
 	: sizes(sizes), aiNk(aiNk), nodes(sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount(), *aiNk->cc)
 {
-	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
+	accessibility = std::make_unique<boost::multi_array<AccessibilityInfo, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
 }
 
@@ -124,55 +136,64 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 	if(heroChainPass != EHeroChainPass::INITIAL)
 		return;
 
-	AISharedStorage::version++;
+	if(nodes.beginGeneration())
+	{
+		for(auto * info = accessibility->data(); info != accessibility->data() + accessibility->num_elements(); ++info)
+			info->generation = 0;
+	}
 
-	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
-	const PlayerColor fowPlayer = aiNk->playerID;
-	const auto & fow = gameInfo.getPlayerTeam(fowPlayer)->fogOfWarMap;
-	const int3 sizes = gameInfo.getMapSize();
+	this->gameInfo = &gameInfo;
+	playerTeam = gameInfo.getPlayerTeam(aiNk->playerID);
+	useFlying = options.useFlying;
+	useWaterWalking = options.useWaterWalking;
+}
 
-	//Each thread gets different x, but an array of y located next to each other in memory
+EPathAccessibility AINodeStorage::getAccessibility(
+	const int3 & pos,
+	const EPathfindingLayer layer) const
+{
+	auto & info = (*accessibility)[pos.z][pos.x][pos.y][layer.getNum()];
+	if(info.generation == AISharedStorage::version)
+		return info.value;
 
-	Parallelism::parallelFor(
-		sizes.x,
-		64,
-		aiNk->settings->getMaxParallelWorkers(),
-		[&](const tbb::blocked_range<size_t> & r)
+	const TerrainTile * tile = gameInfo->getTile(pos);
+	const TerrainType * terrain = tile->getTerrain();
+	info.value = EPathAccessibility::NOT_SET;
+
+	if(terrain->isPassable())
+	{
+		const bool isWater = terrain->isWater();
+		if(!((layer == ELayer::LAND && isWater)
+			|| (layer == ELayer::SAIL && !isWater)
+			|| (layer == ELayer::AIR && !useFlying)
+			|| (layer == ELayer::WATER && (!isWater || !useWaterWalking))))
 		{
-			int3 pos;
-
-			for(pos.z = 0; pos.z < sizes.z; ++pos.z)
+			switch(layer.toEnum())
 			{
-				const bool useFlying = options.useFlying;
-				const bool useWaterWalking = options.useWaterWalking;
-				const PlayerColor player = playerID;
-
-				for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
-				{
-					for(pos.y = 0; pos.y < sizes.y; ++pos.y)
-					{
-						const TerrainTile * tile = gameInfo.getTile(pos);
-						if(!tile->getTerrain()->isPassable())
-							continue;
-
-						if(tile->isWater())
-						{
-							resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
-							if(useFlying)
-								resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
-							if(useWaterWalking)
-								resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
-						}
-						else
-						{
-							resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
-							if(useFlying)
-								resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
-						}
-					}
-				}
+			case ELayer::LAND:
+				info.value = PathfinderUtil::evaluateAccessibility<ELayer::LAND>(
+					pos, *tile, playerTeam->fogOfWarMap, playerID, *gameInfo);
+				break;
+			case ELayer::SAIL:
+				info.value = PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(
+					pos, *tile, playerTeam->fogOfWarMap, playerID, *gameInfo);
+				break;
+			case ELayer::WATER:
+				info.value = PathfinderUtil::evaluateAccessibility<ELayer::WATER>(
+					pos, *tile, playerTeam->fogOfWarMap, playerID, *gameInfo);
+				break;
+			case ELayer::AIR:
+				info.value = PathfinderUtil::evaluateAccessibility<ELayer::AIR>(
+					pos, *tile, playerTeam->fogOfWarMap, playerID, *gameInfo);
+				break;
+			default:
+				break;
 			}
-		});
+		}
+	}
+
+	info.generation = AISharedStorage::version;
+	return info.value;
 }
 
 void AINodeStorage::clear()
