@@ -135,6 +135,16 @@ struct AIPath
 	bool containsHero(const CGHeroInstance * hero) const;
 };
 
+struct AIPathSummary
+{
+	const AIPathNode * node = nullptr;
+	const CGHeroInstance * targetHero = nullptr;
+	float cost = 0.f;
+	uint8_t exchangeCount = 0;
+	uint32_t generation = 0;
+	uint64_t stableOrder = 0;
+};
+
 struct ExchangeCandidate : public AIPathNode
 {
 	AIPathNode * carrierParent = nullptr;
@@ -302,6 +312,8 @@ public:
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	bool hasCurrentNodes(const int3 & pos) const;
 	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
+	void calculatePathSummaries(std::vector<AIPathSummary> & summaries, const int3 & pos, bool isOnLand) const;
+	bool calculatePathInfo(AIPath & path, const AIPathSummary & summary) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(HeroMap<HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
@@ -330,6 +342,7 @@ public:
 	// Reconstructs an AIPath by walking theNodeBefore / chainOther, appending branch nodes first and linking them via parentIndex
 	// Returns false when reconstruction would assign conflicting real-move chainMasks to the same hero
 	bool tryReconstructChainInfo(const AIPathNode * node, AIPath & path, int & parentIndex, RealMoveMasksByHero & realMoveMasks) const;
+	bool calculatePathInfo(AIPath & path, const AIPathNode * node) const;
 
 	template<typename Fn>
 	void iterateValidNodes(const int3 & pos, EPathfindingLayer layer, Fn fn)

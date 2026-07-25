@@ -1721,7 +1721,25 @@ bool AINodeStorage::hasCurrentNodes(const int3 & pos) const
 
 void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, const bool isOnLand) const
 {
-	auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
+	const auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
+	for(const AIPathNode * node : nodes.get(pos))
+	{
+		if(node->version != nodes.getGeneration() || node->layer != layer)
+			continue;
+
+		AIPath & path = paths.emplace_back();
+		if(!calculatePathInfo(path, node))
+			paths.pop_back();
+	}
+}
+
+void AINodeStorage::calculatePathSummaries(
+	std::vector<AIPathSummary> & summaries,
+	const int3 & pos,
+	const bool isOnLand) const
+{
+	summaries.clear();
+	const auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
 	const auto & chains = nodes.get(pos);
 
 	for(const AIPathNode * node : chains)
@@ -1743,67 +1761,105 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			continue;
 		}
 
-		AIPath & path = paths.emplace_back();
-		path.targetHero = node->actor->hero;
-		path.heroArmy = node->actor->creatureSet;
-		path.armyLoss = node->armyLoss;
-		path.chainMask = node->actor->chainMask;
-
-		RealMoveMasksByHero realMoveMasks;
-		int parentIndex = -1;
-		if(!tryReconstructChainInfo(node, path, parentIndex, realMoveMasks))
-		{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
-			logAi->trace("AINodeStorage::calculateChainInfo Skip conflicting reconstructed chain path %s", path.toString());
+		logAi->trace(
+			"AINodeStorage::calculatePathSummaries found %s for %s",
+			node->coord.toString(),
+			node->actor->hero->getNameTranslated());
 #endif
-			paths.pop_back();
-			continue;
-		}
-		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node->actor->allowBattle);
-		for(const auto & pathNode : path.nodes)
-		{
-			auto pathNodeDanger = aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node->actor->allowBattle);
-			path.targetObjectDanger = std::max(pathNodeDanger, path.targetObjectDanger);
-		}
 
-		if(path.targetObjectDanger > 0)
-		{
-			if(node->theNodeBefore)
-			{
-				const auto * prevNode = getAINode(node->theNodeBefore);
-				if(node->coord == prevNode->coord && node->actor->hero == prevNode->actor->hero)
-				{
-					paths.pop_back();
-					continue;
-				}
-				else
-				{
-					path.armyLoss = prevNode->armyLoss;
-				}
-			}
-			else
-			{
-				path.armyLoss = 0;
-			}
-		}
-
-		int fortLevel = 0;
-		auto visitableObjects = aiNk->cc->getVisitableObjs(pos);
-		for (const auto * obj : visitableObjects)
-		{
-			if (objWithID<Obj::TOWN>(obj))
-			{
-				const auto * town = dynamic_cast<const CGTownInstance*>(obj);
-				fortLevel = town->fortLevel();
-			}
-		}
-
-		path.targetObjectArmyLoss = evaluateArmyLoss(
-			path.targetHero,
-			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy, fortLevel),
-			path.targetObjectDanger);
-		path.exchangeCount = node->actor->actorExchangeCount;
+		auto & summary = summaries.emplace_back();
+		summary.node = node;
+		summary.targetHero = node->actor->hero;
+		summary.cost = node->getCost();
+		summary.exchangeCount = node->actor->actorExchangeCount;
+		summary.generation = nodes.getGeneration();
+		summary.stableOrder = node->storageOrder;
 	}
+}
+
+bool AINodeStorage::calculatePathInfo(AIPath & path, const AIPathSummary & summary) const
+{
+	if(!summary.node
+		|| summary.generation != nodes.getGeneration()
+		|| summary.node->version != nodes.getGeneration()
+		|| summary.node->storageOrder != summary.stableOrder)
+	{
+		return false;
+	}
+
+	return calculatePathInfo(path, summary.node);
+}
+
+bool AINodeStorage::calculatePathInfo(AIPath & path, const AIPathNode * node) const
+{
+	if(node->action == EPathNodeAction::UNKNOWN || !node->actor || !node->actor->hero)
+		return false;
+
+	HeroPtr heroPtr(node->actor->hero, aiNk->cc.get());
+	if(!heroPtr.isVerified(false))
+		return false;
+
+	path = AIPath();
+	path.targetHero = node->actor->hero;
+	path.heroArmy = node->actor->creatureSet;
+	path.armyLoss = node->armyLoss;
+	path.chainMask = node->actor->chainMask;
+
+	RealMoveMasksByHero realMoveMasks;
+	int parentIndex = -1;
+	if(!tryReconstructChainInfo(node, path, parentIndex, realMoveMasks))
+	{
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace("AINodeStorage::calculatePathInfo skipped conflicting path %s", path.toString());
+#endif
+		return false;
+	}
+
+	path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(
+		node->coord,
+		path.targetHero,
+		!node->actor->allowBattle);
+	for(const auto & pathNode : path.nodes)
+	{
+		const auto pathNodeDanger = aiNk->dangerEvaluator->evaluateDanger(
+			pathNode.coord,
+			path.targetHero,
+			!node->actor->allowBattle);
+		path.targetObjectDanger = std::max(pathNodeDanger, path.targetObjectDanger);
+	}
+
+	if(path.targetObjectDanger > 0)
+	{
+		if(node->theNodeBefore)
+		{
+			const auto * previousNode = getAINode(node->theNodeBefore);
+			if(node->coord == previousNode->coord
+				&& node->actor->hero == previousNode->actor->hero)
+			{
+				return false;
+			}
+			path.armyLoss = previousNode->armyLoss;
+		}
+		else
+		{
+			path.armyLoss = 0;
+		}
+	}
+
+	int fortLevel = 0;
+	for(const auto * object : aiNk->cc->getVisitableObjs(node->coord))
+	{
+		if(objWithID<Obj::TOWN>(object))
+			fortLevel = dynamic_cast<const CGTownInstance *>(object)->fortLevel();
+	}
+
+	path.targetObjectArmyLoss = evaluateArmyLoss(
+		path.targetHero,
+		getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy, fortLevel),
+		path.targetObjectDanger);
+	path.exchangeCount = node->actor->actorExchangeCount;
+	return true;
 }
 
 bool AINodeStorage::tryReconstructChainInfo(const AIPathNode * node, AIPath & path,	int & parentIndex, RealMoveMasksByHero & realMoveMasks) const

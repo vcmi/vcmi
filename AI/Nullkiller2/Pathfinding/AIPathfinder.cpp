@@ -63,6 +63,24 @@ void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & t
 	}
 }
 
+void AIPathfinder::calculatePathSummaries(
+	std::vector<AIPathSummary> & summaries,
+	const int3 & tile) const
+{
+	summaries.clear();
+	if(!storage->hasCurrentNodes(tile))
+		return;
+
+	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
+	if(tileInfo)
+		storage->calculatePathSummaries(summaries, tile, !tileInfo->isWater());
+}
+
+bool AIPathfinder::calculatePathInfo(AIPath & path, const AIPathSummary & summary) const
+{
+	return storage->calculatePathInfo(path, summary);
+}
+
 void AIPathfinder::updatePaths(const HeroMap<HeroRole> & heroes, PathfinderSettings pathfinderSettings)
 {
 	if(!storage)
