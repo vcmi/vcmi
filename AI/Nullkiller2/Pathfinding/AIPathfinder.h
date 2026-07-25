@@ -44,7 +44,7 @@ class AIPathfinder
 private:
 	std::shared_ptr<AINodeStorage> storage;
 	Nullkiller * aiNk;
-	static std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
+	std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>> heroGraphs;
 
 public:
 	explicit AIPathfinder(Nullkiller * aiNk);

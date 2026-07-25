@@ -16,6 +16,8 @@
 #include "Actors.h"
 #include "../Helpers/HeroMap.h"
 
+#include <tbb/concurrent_vector.h>
+
 #define NK2AI_PATHFINDER_TRACE_LEVEL 0
 constexpr int NK2AI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
 #define NK2AI_TRACE_LEVEL 0
@@ -50,6 +52,7 @@ struct AIPathNode : public CGPathNode
 	uint64_t danger = 0;
 	uint64_t armyLoss = 0;
 	uint32_t version = 0;
+	uint64_t storageOrder = std::numeric_limits<uint64_t>::max();
 
 	int16_t manaCost = 0;
 	DayFlags dayFlags = DayFlags::NONE;
@@ -147,25 +150,33 @@ enum EHeroChainPass
 	FINAL // same as SINGLE but for heroes from CHAIN pass
 };
 
-class AISharedStorage
+class AIPathNodePool
 {
-	// 1-3 - position on map[z][x][y]
-	// 4 - chain + layer (normal, battle, spellcast and combinations, water, air)
-	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
-	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
-public:
-	static std::mutex locker;
-	static uint32_t version;
+	using NodeList = std::vector<AIPathNode *>;
 
-	explicit AISharedStorage(int3 sizes, int numChains, const CCallback & cc);
-	~AISharedStorage();
-	bool beginGeneration();
-
-	inline
-	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile) const
+	struct TileNodes
 	{
-		return (*nodes)[tile.z][tile.x][tile.y];
-	}
+		NodeList nodes;
+		uint32_t generation = 0;
+	};
+
+	int3 sizes;
+	size_t capacity;
+	uint32_t generation = 0;
+	std::vector<TileNodes> tiles;
+	tbb::concurrent_vector<AIPathNode> nodes;
+
+	size_t tileIndex(const int3 & tile) const;
+	TileNodes & getCurrentTile(const int3 & tile);
+
+public:
+	AIPathNodePool(int3 sizes, size_t capacity);
+
+	bool beginGeneration();
+	AIPathNode * allocate(const int3 & tile);
+	const NodeList & get(const int3 & tile) const;
+	uint64_t nextStorageOrder(const int3 & tile, size_t offset = 0) const;
+	uint32_t getGeneration() const { return generation; }
 };
 
 class AINodeStorage : public INodeStorage
@@ -184,9 +195,11 @@ private:
 	bool useFlying = false;
 	bool useWaterWalking = false;
 	Nullkiller * aiNk; // TODO: Mircea: Replace with &
-	AISharedStorage nodes;
+	AIPathNodePool nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
+	std::set<int3> committedTiles;
+	std::set<int3> committedTilesInitial;
 	EHeroChainPass heroChainPass; // true if we need to calculate hero chain
 	uint64_t chainMask;
 	int heroChainTurn;
@@ -207,6 +220,11 @@ public:
 
 	int getBucketCount() const;
 	int getBucketSize() const;
+	bool isCurrentNode(const AIPathNode * node) const { return node->version == nodes.getGeneration(); }
+	uint64_t nextStorageOrder(const int3 & tile, size_t offset = 0) const
+	{
+		return nodes.nextStorageOrder(tile, offset);
+	}
 
 	std::vector<CGPathNode *> getInitialNodes() override;
 
@@ -231,7 +249,7 @@ public:
 		int turn,
 		int movementLeft,
 		float cost,
-		bool saveToCommitted = true) const;
+		bool saveToCommitted = true);
 
 	inline const AIPathNode * getAINode(const CGPathNode * node) const
 	{
@@ -282,6 +300,7 @@ public:
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
+	bool hasCurrentNodes(const int3 & pos) const;
 	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(HeroMap<HeroRole> heroes);
@@ -318,13 +337,13 @@ public:
 		if(blocked(pos, layer))
 			return;
 
-		auto chains = nodes.get(pos);
-		for(AIPathNode & node : chains)
+		const auto & chains = nodes.get(pos);
+		for(AIPathNode * node : chains)
 		{
-			if(node.version != AISharedStorage::version || node.layer != layer)
+			if(node->version != nodes.getGeneration() || node->layer != layer)
 				continue;
 
-			fn(node);
+			fn(*node);
 		}
 	}
 
@@ -334,13 +353,13 @@ public:
 		if(blocked(pos, layer))
 			return false;
 
-		auto chains = nodes.get(pos);
-		for(AIPathNode & node : chains)
+		const auto & chains = nodes.get(pos);
+		for(AIPathNode * node : chains)
 		{
-			if(node.version != AISharedStorage::version || node.layer != layer)
+			if(node->version != nodes.getGeneration() || node->layer != layer)
 				continue;
 
-			if(predicate(node))
+			if(predicate(*node))
 				return true;
 		}
 

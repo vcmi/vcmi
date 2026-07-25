@@ -32,13 +32,6 @@
 namespace NK2AI
 {
 
-std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;
-uint32_t AISharedStorage::version = 0;
-std::mutex AISharedStorage::locker;
-std::set<int3> committedTiles;
-std::set<int3> committedTilesInitial;
-
-
 const uint64_t FirstActorMask = 1;
 const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
 const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
@@ -46,49 +39,68 @@ const uint64_t CHAIN_MAX_DEPTH = 4;
 
 const bool DO_NOT_SAVE_TO_COMMITTED_TILES = false;
 
-AISharedStorage::AISharedStorage(int3 sizes, int numChains, const CCallback & cc)
+AIPathNodePool::AIPathNodePool(const int3 sizes, const size_t capacity)
+	: sizes(sizes)
+	, capacity(capacity)
+	, tiles(static_cast<size_t>(sizes.x) * sizes.y * sizes.z)
 {
-	if(!shared)
-	{
-		shared.reset(new boost::multi_array<AIPathNode, 4>(boost::extents[sizes.z][sizes.x][sizes.y][numChains]));
-		nodes = shared;
-
-		foreach_tile_pos(
-			cc,
-			[&](const int3 & pos)
-			{
-				for(auto i = 0; i < numChains; i++)
-				{
-					auto & node = get(pos)[i];
-					node.version = -1;
-					node.coord = pos;
-				}
-			}
-		);
-	}
-	else
-		nodes = shared;
 }
 
-AISharedStorage::~AISharedStorage()
+size_t AIPathNodePool::tileIndex(const int3 & tile) const
 {
-	nodes.reset();
-	if(shared && shared.use_count() == 1)
-	{
-		shared.reset();
-	}
+	return (static_cast<size_t>(tile.z) * sizes.x + tile.x) * sizes.y + tile.y;
 }
 
-bool AISharedStorage::beginGeneration()
+AIPathNodePool::TileNodes & AIPathNodePool::getCurrentTile(const int3 & tile)
 {
-	++version;
-	if(version != 0)
+	auto & result = tiles[tileIndex(tile)];
+	if(result.generation != generation)
+	{
+		result.nodes.clear();
+		result.generation = generation;
+	}
+	return result;
+}
+
+bool AIPathNodePool::beginGeneration()
+{
+	nodes.clear();
+
+	++generation;
+	if(generation != 0)
 		return false;
 
-	for(auto * node = nodes->data(); node != nodes->data() + nodes->num_elements(); ++node)
-		node->version = 0;
-	version = 1;
+	for(auto & tile : tiles)
+		tile.generation = 0;
+	generation = 1;
 	return true;
+}
+
+AIPathNode * AIPathNodePool::allocate(const int3 & tile)
+{
+	auto & tileNodes = getCurrentTile(tile).nodes;
+	if(tileNodes.size() >= capacity)
+		return nullptr;
+
+	auto allocated = nodes.grow_by(1);
+	auto * node = std::addressof(*allocated);
+	node->coord = tile;
+	node->storageOrder = tileIndex(tile) * capacity + tileNodes.size();
+	tileNodes.push_back(node);
+
+	return node;
+}
+
+const AIPathNodePool::NodeList & AIPathNodePool::get(const int3 & tile) const
+{
+	static const NodeList empty;
+	const auto & result = tiles[tileIndex(tile)];
+	return result.generation == generation ? result.nodes : empty;
+}
+
+uint64_t AIPathNodePool::nextStorageOrder(const int3 & tile, const size_t offset) const
+{
+	return tileIndex(tile) * capacity + get(tile).size() + offset;
 }
 
 void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
@@ -123,7 +135,9 @@ int AINodeStorage::getBucketSize() const
 }
 
 AINodeStorage::AINodeStorage(Nullkiller * aiNk, const int3 & sizes)
-	: sizes(sizes), aiNk(aiNk), nodes(sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount(), *aiNk->cc)
+	: sizes(sizes)
+	, aiNk(aiNk)
+	, nodes(sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<AccessibilityInfo, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -136,6 +150,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 	if(heroChainPass != EHeroChainPass::INITIAL)
 		return;
 
+	heroChain.clear();
 	if(nodes.beginGeneration())
 	{
 		for(auto * info = accessibility->data(); info != accessibility->data() + accessibility->num_elements(); ++info)
@@ -153,7 +168,7 @@ EPathAccessibility AINodeStorage::getAccessibility(
 	const EPathfindingLayer layer) const
 {
 	auto & info = (*accessibility)[pos.z][pos.x][pos.y][layer.getNum()];
-	if(info.generation == AISharedStorage::version)
+	if(info.generation == nodes.getGeneration())
 		return info.value;
 
 	const TerrainTile * tile = gameInfo->getTile(pos);
@@ -192,7 +207,7 @@ EPathAccessibility AINodeStorage::getAccessibility(
 		}
 	}
 
-	info.generation = AISharedStorage::version;
+	info.generation = nodes.getGeneration();
 	return info.value;
 }
 
@@ -215,30 +230,37 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 {
 	// Modified to 1 bucket because properly load balancing multiple buckets is not worth. Backwards compatible
 	const int total = aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount();
-	auto chains = nodes.get(pos);
 
 	if(blocked(pos, layer))
 	{
 		return std::nullopt;
 	}
 
-	for(auto i = 0; i < total; i++)
+	const auto & chains = nodes.get(pos);
+	for(AIPathNode * node : chains)
 	{
-		AIPathNode & node = chains[i];
-		if(node.version != AISharedStorage::version)
-		{
-			node.reset(layer, getAccessibility(pos, layer));
-			node.version = AISharedStorage::version;
-			node.actor = actor;
-			return &node;
-		}
-
-		if(node.actor == actor && node.layer == layer)
-			return &node;
+		if(node->actor == actor && node->layer == layer)
+			return node;
 	}
 
-	aiNk->pathfinderTurnStorageMisses.fetch_add(1);
-	return std::nullopt;
+	if(chains.size() >= total)
+	{
+		aiNk->pathfinderTurnStorageMisses.fetch_add(1);
+		return std::nullopt;
+	}
+
+	AIPathNode * node = nodes.allocate(pos);
+	if(!node)
+	{
+		aiNk->pathfinderTurnStorageMisses.fetch_add(1);
+		return std::nullopt;
+	}
+
+	node->reset(layer, getAccessibility(pos, layer));
+	node->version = nodes.getGeneration();
+	node->actor = actor;
+	return node;
+
 }
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
@@ -356,7 +378,7 @@ void AINodeStorage::commit(
 	int turn,
 	int movementLeft,
 	float cost,
-	bool saveToCommitted) const
+	bool saveToCommitted)
 {
 	destination->action = action;
 	destination->setCost(cost);
@@ -723,7 +745,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 {
 	for(AIPathNode * node : variants)
 	{
-		if(node == srcNode || !node->actor || node->version != AISharedStorage::version)
+		if(node == srcNode || !node->actor || !storage.isCurrentNode(node))
 			continue;
 
 		if((node->actor->chainMask & chainMask) == 0 && (srcNode->actor->chainMask & chainMask) == 0)
@@ -826,7 +848,9 @@ void HeroChainCalculationTask::calculateHeroChain(
 #endif
 					return;
 				}
-				result.push_back(calculateExchange(exchangeResult.actor, carrier, other));
+				auto candidate = calculateExchange(exchangeResult.actor, carrier, other);
+				candidate.storageOrder = storage.nextStorageOrder(candidate.coord, result.size());
+				result.push_back(std::move(candidate));
 			}
 			return;
 		}
@@ -1647,7 +1671,7 @@ bool AINodeStorage::isOtherChainBetter(
 		{
 			if(vstd::isAlmostEqual(nodeActor->heroFightingStrength, candidateNode.actor->heroFightingStrength)
 				&& vstd::isAlmostEqual(other.getCost(), candidateNode.getCost())
-				&& &other < &candidateNode)
+				&& other.storageOrder <= candidateNode.storageOrder)
 			{
 				return false;
 			}
@@ -1671,14 +1695,14 @@ bool AINodeStorage::isOtherChainBetter(
 
 bool AINodeStorage::isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const
 {
-	auto chains = nodes.get(pos);
-	for(const AIPathNode & node : chains)
+	const auto & chains = nodes.get(pos);
+	for(const AIPathNode * node : chains)
 	{
-		if(node.version == AISharedStorage::version
-			&& node.layer == layer
-			&& node.action != EPathNodeAction::UNKNOWN
-			&& node.actor
-			&& node.actor->hero == heroPtr.get())
+		if(node->version == nodes.getGeneration()
+			&& node->layer == layer
+			&& node->action != EPathNodeAction::UNKNOWN
+			&& node->actor
+			&& node->actor->hero == heroPtr.get())
 		{
 			return true;
 		}
@@ -1687,23 +1711,31 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, 
 	return false;
 }
 
+bool AINodeStorage::hasCurrentNodes(const int3 & pos) const
+{
+	if(pos.x < 0 || pos.x >= sizes.x || pos.y < 0 || pos.y >= sizes.y || pos.z < 0 || pos.z >= sizes.z)
+		return false;
+
+	return !nodes.get(pos).empty();
+}
+
 void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, const bool isOnLand) const
 {
 	auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
-	auto chains = nodes.get(pos);
+	const auto & chains = nodes.get(pos);
 
-	for(const AIPathNode & node : chains)
+	for(const AIPathNode * node : chains)
 	{
-		if(node.version != AISharedStorage::version
-			|| node.layer != layer
-			|| node.action == EPathNodeAction::UNKNOWN
-			|| !node.actor
-			|| !node.actor->hero)
+		if(node->version != nodes.getGeneration()
+			|| node->layer != layer
+			|| node->action == EPathNodeAction::UNKNOWN
+			|| !node->actor
+			|| !node->actor->hero)
 		{
 			continue;
 		}
 
-		if(HeroPtr heroPtr(node.actor->hero, aiNk->cc.get()); !heroPtr.isVerified(false))
+		if(HeroPtr heroPtr(node->actor->hero, aiNk->cc.get()); !heroPtr.isVerified(false))
 		{
 #if NK2AI_TRACE_LEVEL >= 1
 			logAi->warn("AINodeStorage::calculateChainInfo Skipping path due to unverified hero: %s", heroPtr.nameOrDefault());
@@ -1712,14 +1744,14 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		}
 
 		AIPath & path = paths.emplace_back();
-		path.targetHero = node.actor->hero;
-		path.heroArmy = node.actor->creatureSet;
-		path.armyLoss = node.armyLoss;
-		path.chainMask = node.actor->chainMask;
+		path.targetHero = node->actor->hero;
+		path.heroArmy = node->actor->creatureSet;
+		path.armyLoss = node->armyLoss;
+		path.chainMask = node->actor->chainMask;
 
 		RealMoveMasksByHero realMoveMasks;
 		int parentIndex = -1;
-		if(!tryReconstructChainInfo(&node, path, parentIndex, realMoveMasks))
+		if(!tryReconstructChainInfo(node, path, parentIndex, realMoveMasks))
 		{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace("AINodeStorage::calculateChainInfo Skip conflicting reconstructed chain path %s", path.toString());
@@ -1727,19 +1759,19 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			paths.pop_back();
 			continue;
 		}
-		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node->actor->allowBattle);
 		for(const auto & pathNode : path.nodes)
 		{
-			auto pathNodeDanger = aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle);
+			auto pathNodeDanger = aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node->actor->allowBattle);
 			path.targetObjectDanger = std::max(pathNodeDanger, path.targetObjectDanger);
 		}
 
 		if(path.targetObjectDanger > 0)
 		{
-			if(node.theNodeBefore)
+			if(node->theNodeBefore)
 			{
-				const auto * prevNode = getAINode(node.theNodeBefore);
-				if(node.coord == prevNode->coord && node.actor->hero == prevNode->actor->hero)
+				const auto * prevNode = getAINode(node->theNodeBefore);
+				if(node->coord == prevNode->coord && node->actor->hero == prevNode->actor->hero)
 				{
 					paths.pop_back();
 					continue;
@@ -1770,7 +1802,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			path.targetHero,
 			getHeroArmyStrengthWithCommander(path.targetHero, path.heroArmy, fortLevel),
 			path.targetObjectDanger);
-		path.exchangeCount = node.actor->actorExchangeCount;
+		path.exchangeCount = node->actor->actorExchangeCount;
 	}
 }
 
