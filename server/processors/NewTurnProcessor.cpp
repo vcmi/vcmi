@@ -24,6 +24,7 @@
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/SThievesGuildInfo.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
@@ -515,9 +516,19 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMonth)
 {
+	// creatures without a map object cannot be spawned as wandering monsters, so exclude them from special weeks
+	auto canSpawnAsMapObject = [](const CreatureID & creatureID)
+	{
+		return LIBRARY->objtypeh->knownSubObjects(Obj::MONSTER).contains(creatureID.getNum());
+	};
+
 	std::vector<std::tuple<CreatureID, int>> creaturesWithDeityOfFireBonus;
 	for(const auto & bonus : *gameHandler->gameState().globalEffects.getBonusesOfType(BonusType::DEITYOFFIRE))
-		creaturesWithDeityOfFireBonus.push_back({bonus->subtype.as<CreatureID>(), bonus->val});
+	{
+		CreatureID creatureID = bonus->subtype.as<CreatureID>();
+		if(canSpawnAsMapObject(creatureID))
+			creaturesWithDeityOfFireBonus.push_back({creatureID, bonus->val});
+	}
 	if(!creaturesWithDeityOfFireBonus.empty())
 	{
 		auto item = *RandomGeneratorUtil::nextItem(creaturesWithDeityOfFireBonus, gameHandler->getRandomGenerator());
@@ -537,15 +548,23 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
 			}
-			else if (!LIBRARY->creh->doubledCreatures.empty())
-			{
-				CreatureID creatureID = *RandomGeneratorUtil::nextItem(LIBRARY->creh->doubledCreatures, gameHandler->getRandomGenerator());
-				return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
-			}
 			else
 			{
-				gameHandler->complain("Cannot find creature that can be spawned!");
-				return { EWeekType::NORMAL, CreatureID::NONE, 0};
+				std::vector<CreatureID> spawnableDoubledCreatures;
+				for(const auto & creatureID : LIBRARY->creh->doubledCreatures)
+					if(canSpawnAsMapObject(creatureID))
+						spawnableDoubledCreatures.push_back(creatureID);
+
+				if(!spawnableDoubledCreatures.empty())
+				{
+					CreatureID creatureID = *RandomGeneratorUtil::nextItem(spawnableDoubledCreatures, gameHandler->getRandomGenerator());
+					return { EWeekType::DOUBLE_GROWTH, creatureID, 0};
+				}
+				else
+				{
+					gameHandler->complain("Cannot find creature that can be spawned!");
+					return { EWeekType::NORMAL, CreatureID::NONE, 0};
+				}
 			}
 		}
 

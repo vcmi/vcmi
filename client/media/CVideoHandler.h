@@ -51,6 +51,7 @@ protected:
 	const AVCodecParameters * getCodecParameters() const;
 	const AVCodecContext * getCodecContext() const;
 	void decodeNextFrame();
+	void endStream(); // release current frame so the stream reports as ended
 	const AVFrame * getCurrentFrame() const;
 	double getCurrentFrameEndTime() const;
 	double getCurrentFrameDuration() const;

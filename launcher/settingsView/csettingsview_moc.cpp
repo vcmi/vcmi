@@ -231,7 +231,7 @@ void CSettingsView::loadSettings()
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
 	ui->sliderReservedArea->setValue(std::round(settings["video"]["reservedWidth"].Float() * 100));
 
-	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
+	ui->spinBoxNetworkPort->setValue(settings["server"]["localPort"].Integer());
 
 	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
 	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
@@ -590,8 +590,8 @@ void CSettingsView::on_comboBoxAlliedPlayerAI_currentIndexChanged(int index)
 
 void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
 {
-	Settings node = settings.write["server"]["port"];
-	node->Float() = arg1;
+	Settings node = settings.write["server"]["localPort"];
+	node->Integer() = arg1;
 }
 
 void CSettingsView::on_buttonSaveBeforeVisit_toggled(bool value)

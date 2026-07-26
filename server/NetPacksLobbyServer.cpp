@@ -22,6 +22,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
@@ -285,6 +286,13 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
 {
+	// reject option changes for a player not present in the current map (invalid color, or campaign/random-map lobby without a header)
+	if(!srv.mi || !srv.mi->mapHeader || pack.color.getNum() >= srv.mi->mapHeader->players.size())
+	{
+		srv.announceMessage("Cannot change options for player " + pack.color.toString() + " - not present in the current map");
+		return;
+	}
+
 	switch(pack.what)
 	{
 	case LobbyChangePlayerOption::TOWN_ID:
