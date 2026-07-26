@@ -871,7 +871,7 @@ Effect moves hero to a location of owned or allied town.
 Parameters:
 
 - `movementPointsRequired` - amount of movement points that hero must have to cast this spell
-- `movementPointsTaken` - amount of movement points that will be taken on sucessful cast of the spell. If hero does not have enough movement points, they will be reduced to zero after cast
+- `movementPointsTaken` - amount of movement points that will be taken on successful cast of the spell. If hero does not have enough movement points, they will be reduced to zero after cast
 - `allowTownSelection` - if set to true, player will be able to select town to teleport to among all friendly non-occupied towns.
 - `skipOccupiedTowns` - if set to true, hero will teleport to nearest non-occupied town, ignoring any closer towns that are occupied by a visiting hero. No effect if `allowTownSelection` is set.
 

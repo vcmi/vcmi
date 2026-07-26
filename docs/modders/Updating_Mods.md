@@ -38,12 +38,12 @@ Similarly, when you need to remove an object, please provide some reasonable fal
 
 ### Updating map after mod update
 
-If one of mods on which your map depends made a map-breaking change and map can no longer be loaded in game, best option is to try to contact original mod author and ask it to provide save compability support as described on this page.
+If one of mods on which your map depends made a map-breaking change and map can no longer be loaded in game, best option is to try to contact original mod author and ask it to provide save compatibility support as described on this page.
 
 If contacting author is not possible or you wish to fix your map on your own, you can instead:
 
-1. Alternatively, you can add map compability to the mod on your own using instructions from this page.
-2. If changes are too major and can't be fixed via map compability tools, rename your map from `xxx.vmap` to `xxx.zip`, extract map as zip archive.
+1. Alternatively, you can add map compatibility to the mod on your own using instructions from this page.
+2. If changes are too major and can't be fixed via map compatibility tools, rename your map from `xxx.vmap` to `xxx.zip`, extract map as zip archive.
 3. Open contained files using text editor such as Notepad++ and try to fix map manually, for example by removing broken objects or by renaming them to some other existing entity.
 4. After you've made the changes, recreate .zip archive and rename it back to `xxx.vmap` and test loading of map in game
 5. Once your map can be loaded, re-save map in map editor using fixed version of the mod

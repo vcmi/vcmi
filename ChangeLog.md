@@ -1024,7 +1024,7 @@
 * Added right-click popup to Obelisks that shows all discovered objects and their visitation status
 * Added support for randomly selected main menu backgrounds
 * Fixed display of long text in text-only right-click popups
-* Hero overview screen on map setup will now have scrollbars for hero desription when necessary
+* Hero overview screen on map setup will now have scrollbars for hero description when necessary
 * Fixed teleporter right-click popup appearing out of screen when interacting with teleporter near screen edge
 * Scenario Information window will now correctly replace random hero with actual starting hero
 
@@ -3487,7 +3487,7 @@
 
 * VCMI build on OS X is now supported
 * Completely removed autotools
-* Added RMG interace and ability to generate simplest working maps
+* Added RMG interface and ability to generate simplest working maps
 * Added loading screen
 
 ### MODS
