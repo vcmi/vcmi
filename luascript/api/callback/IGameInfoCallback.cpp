@@ -24,6 +24,7 @@
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapping/MapDifficulty.h"
@@ -91,6 +92,42 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		{"True once the player has already been offered the object's active quest."},
 		"Tells whether a player has already seen the object's current quest proposed, so a script can show "
 		"the progression text instead of the proposal text on a repeat visit.");
+	R.function<&IGameInfoCallbackProxy::heroOwner>("heroOwner",
+		{
+			{"hero",   "Hero type JSON key to look for on the map."},
+			{"player", "Player color index to compare ownership against."}
+		},
+		{"True when a hero of that type is present on the map and owned by the given player."},
+		"Tells whether the hero of the given type is currently owned by the given player.");
+	R.function<&IGameInfoCallbackProxy::playerOwnsTown>("playerOwnsTown",
+		{
+			{"player",     "Player color index to check."},
+			{"objectName", "Instance name of the town, as resolved through the questObjects table."}
+		},
+		{"True when the named town exists and belongs to the given player."},
+		"Tells whether the given player owns the named town.");
+	R.function<&IGameInfoCallbackProxy::playerDefeatedMonster>("playerDefeatedMonster",
+		{
+			{"player",     "Player color index to check."},
+			{"objectName", "Instance name of the monster, as resolved through the questObjects table."}
+		},
+		{"True when the given player has destroyed the named monster."},
+		"Tells whether the given player has defeated the named wandering monster.");
+	R.function<&IGameInfoCallbackProxy::playerDefeatedHero>("playerDefeatedHero",
+		{
+			{"player",     "Player color index to check."},
+			{"objectName", "Instance name of the hero, as resolved through the questObjects table."}
+		},
+		{"True when the given player has destroyed the named hero."},
+		"Tells whether the given player has defeated the named hero.");
+	R.function<&IGameInfoCallbackProxy::compareDifficulty>("compareDifficulty",
+		{{"reference", "Difficulty level to compare against (0 = easiest)."}},
+		{"The current difficulty minus the reference: negative if easier, zero if equal, positive if harder."},
+		"Compares the current game difficulty against a reference level, returning their signed difference.");
+	R.function<&IGameInfoCallbackProxy::getObjectByName>("getObjectByName",
+		{{"objectName", "Instance name of the object, as resolved through the questObjects table."}},
+		{"The map object with that instance name, or nil when the name is empty or unknown."},
+		"Looks up a map object by its instance name.");
 }
 
 JsonNode IGameInfoCallbackProxy::getMapVariable(const GameCb & object, const std::string & name)
@@ -136,6 +173,56 @@ bool IGameInfoCallbackProxy::wasQuestProposed(const GameCb & object, const CGObj
 	const auto * questSource = dynamic_cast<const QuestSource *>(&target);
 	const Quest * activeQuest = questSource ? questSource->getActiveQuest() : nullptr;
 	return activeQuest && activeQuest->isKnownTo(player);
+}
+
+bool IGameInfoCallbackProxy::heroOwner(const GameCb & object, HeroTypeID hero, PlayerColor player)
+{
+	for(const auto & mapObject : object.gameState().getMap().objects)
+	{
+		const auto * heroObject = dynamic_cast<const CGHeroInstance *>(mapObject.get());
+		if(heroObject && heroObject->getHeroTypeID() == hero)
+			return heroObject->getOwner() == player;
+	}
+	return false;
+}
+
+bool IGameInfoCallbackProxy::playerOwnsTown(const GameCb & object, PlayerColor player, const std::string & objectName)
+{
+	const auto * town = dynamic_cast<const CGTownInstance *>(objectByName(object, objectName));
+	return town && town->getOwner() == player;
+}
+
+bool IGameInfoCallbackProxy::playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName)
+{
+	const CGObjectInstance * target = objectByName(object, objectName);
+	const auto * state = object.getPlayerState(player, false);
+	return target && state && state->destroyedObjects.count(target->id) != 0;
+}
+
+bool IGameInfoCallbackProxy::playerDefeatedHero(const GameCb & object, PlayerColor player, const std::string & objectName)
+{
+	// destroyedObjects is object-type agnostic; a defeated hero and a defeated monster are the same lookup
+	return playerDefeatedMonster(object, player, objectName);
+}
+
+int IGameInfoCallbackProxy::compareDifficulty(const GameCb & object, int reference)
+{
+	return static_cast<int>(object.getStartInfo()->difficulty) - reference;
+}
+
+const CGObjectInstance * IGameInfoCallbackProxy::getObjectByName(const GameCb & object, const std::string & objectName)
+{
+	return objectByName(object, objectName);
+}
+
+const CGObjectInstance * IGameInfoCallbackProxy::objectByName(const GameCb & object, const std::string & objectName)
+{
+	if(objectName.empty())
+		return nullptr;
+
+	const auto & names = object.gameState().getMap().instanceNames;
+	auto it = names.find(objectName);
+	return it != names.end() ? it->second.get() : nullptr;
 }
 
 }

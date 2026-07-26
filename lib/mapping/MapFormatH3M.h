@@ -133,6 +133,11 @@ private:
 	/// Loads a sibling `<mapName>.lua` file, if present, as the map's script
 	void readSiblingScript();
 
+	/// Resolves the object identifiers referenced by the generated script (owns-town / defeated-object
+	/// predicates) to their runtime instance names and prepends the `questObjects` lookup table to the
+	/// script. Runs after objects are read; a no-op when no identifiers were referenced.
+	void finalizeScriptObjectTable();
+
 	/// Writes generated Lua to <cache>/extracted/mapScripts/<mapName>.lua for debugging.
 	void dumpMapScript(const std::string & luaSource);
 
@@ -290,6 +295,10 @@ private:
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 	std::map<Quest*, si32> questsToResolve;
+
+	/// H3M object identifiers the generated script references, resolved to instance names after
+	/// objects are read; cleared when a sibling script overrides the generated one.
+	std::set<uint32_t> scriptReferencedObjects;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

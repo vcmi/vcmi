@@ -42,6 +42,11 @@ public:
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
 
+	// ---- captured mutations inspected by MapScriptTest -------------------
+	std::vector<std::pair<ObjectInstanceID, int>>        manaPointsSet;
+	std::vector<std::pair<ObjectInstanceID, int>>        movePointsSet;
+	std::vector<std::pair<ObjectInstanceID, BuildingID>> builtStructures;
+
 	// ---- non-empty overrides (defined in mock_IGameEventCallback.cpp) ----
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
@@ -70,6 +75,7 @@ public:
 	void setRewardableObjectConfiguration(ObjectInstanceID, BuildingID, const Rewardable::Configuration &) override {}
 	void changeSpells(const CGHeroInstance *, bool, const std::set<SpellID> &) override {}
 	void setResearchedSpells(const CGTownInstance *, int, const std::vector<SpellID> &, bool) override {}
+	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override { builtStructures.emplace_back(townID, building); }
 	void createBoat(const int3 &, BoatId, PlayerColor) override {}
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}
@@ -97,8 +103,8 @@ public:
 	bool moveHero(ObjectInstanceID, int3, EMovementMode, bool, PlayerColor, const EPathfindingLayer &) override { return false; }
 	void giveHeroBonus(GiveBonus *) override {}
 	void setMovePoints(SetMovePoints *) override {}
-	void setMovePoints(ObjectInstanceID, int) override {}
-	void setManaPoints(ObjectInstanceID, int) override {}
+	void setMovePoints(ObjectInstanceID hid, int val) override { movePointsSet.emplace_back(hid, val); }
+	void setManaPoints(ObjectInstanceID hid, int val) override { manaPointsSet.emplace_back(hid, val); }
 	void giveHero(ObjectInstanceID, PlayerColor, ObjectInstanceID) override {}
 	void changeObjPos(ObjectInstanceID, int3, const PlayerColor &) override {}
 	void heroExchange(ObjectInstanceID, ObjectInstanceID) override {}

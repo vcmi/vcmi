@@ -19,6 +19,7 @@
 class JsonNode;
 class CGObjectInstance;
 class CGHeroInstance;
+class CGTownInstance;
 
 namespace scripting::api
 {
@@ -62,6 +63,10 @@ public:
 	static void takeSpellbook(IGameEventCallback & object, const CGHeroInstance & hero);
 	static void grantMorale(IGameEventCallback & object, const CGHeroInstance & hero, int amount);
 	static void grantLuck(IGameEventCallback & object, const CGHeroInstance & hero, int amount);
+	static void grantSpellPoints(IGameEventCallback & object, const CGHeroInstance & hero, int amount, int mode);
+	static void grantMovementPoints(IGameEventCallback & object, const CGHeroInstance & hero, int amount, int mode);
+	static void grantCreaturesToHire(IGameEventCallback & object, const CGTownInstance & town, int level, int count);
+	static void constructBuilding(IGameEventCallback & object, const CGTownInstance & town, BuildingID building);
 
 	static void showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
 		const std::optional<std::vector<LuaComponent>> & components, const std::optional<int> & soundID, const std::optional<int> & windowType);

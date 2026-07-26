@@ -20,8 +20,10 @@
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -146,6 +148,65 @@ end
 
 return Map
 )lua";
+
+/// Object-identity predicates. Each handler is fired with the object of interest as `object`, so the
+/// object's own instance name feeds the predicate - exercising getObjectByName resolution end to end.
+/// Grants 100 gold on the true branch, 5 on the false branch (gems for the difficulty check).
+const std::string PREDICATE_SCRIPT = R"lua(
+local Map = {}
+
+function Map:checkOwnsTown(game, server, object, hero)
+	local player = hero:getOwner()
+	server:giveResource(player, 6, game:playerOwnsTown(player, object:getInstanceName()) and 100 or 5)
+end
+
+function Map:checkDefeatedMonster(game, server, object, hero)
+	local player = hero:getOwner()
+	server:giveResource(player, 6, game:playerDefeatedMonster(player, object:getInstanceName()) and 100 or 5)
+end
+
+function Map:checkDifficulty(game, server, object, hero)
+	local player = hero:getOwner()
+	if game:compareDifficulty(0) == 0 then server:giveResource(player, 5, 1) end
+end
+
+return Map
+)lua";
+
+/// Spell/movement-point grants in each of the three modes. Fired with the hero as `object`.
+const std::string GRANT_POINTS_SCRIPT = R"lua(
+local Map = {}
+
+function Map:grantPoints(game, server, object, hero)
+	server:grantSpellPoints(hero, 5, 0)      -- add
+	server:grantSpellPoints(hero, 3, 2)      -- set
+	server:grantMovementPoints(hero, 100, 0) -- add
+end
+
+return Map
+)lua";
+
+/// townEvents handler that erects a building for free.
+const std::string CONSTRUCT_SCRIPT = R"lua(
+local Map = {}
+
+function Map:buildIt(game, server, town)
+	server:constructBuilding(town, 0)
+end
+
+return Map
+)lua";
+
+/// townEvents handler that grows the tier-0 hire pool of the town it runs on.
+const std::string HIRE_SCRIPT = R"lua(
+local Map = {}
+
+function Map:hire(game, server, town)
+	server:grantCreaturesToHire(town, 0, 7)
+end
+
+return Map
+)lua";
 }
 
 class MapScriptTest : public ::testing::Test, public ServerCallback, public MapListener
@@ -245,6 +306,22 @@ public:
 		for(const auto & obj : map->objects)
 			if(auto * hero = dynamic_cast<CGHeroInstance *>(obj.get()))
 				return hero;
+		return nullptr;
+	}
+
+	CGTownInstance * findTown() const
+	{
+		for(const auto & obj : map->objects)
+			if(auto * town = dynamic_cast<CGTownInstance *>(obj.get()))
+				return town;
+		return nullptr;
+	}
+
+	CGObjectInstance * findMonster() const
+	{
+		for(const auto & obj : map->objects)
+			if(auto * monster = dynamic_cast<CGCreature *>(obj.get()))
+				return monster;
 		return nullptr;
 	}
 
@@ -462,4 +539,165 @@ TEST_F(MapScriptTest, finishQuestOrRemoveObjectEmptiesSeerHutWithoutRemovingIt)
 
 	EXPECT_EQ(hut->getActiveQuest(), nullptr) << "finishQuestOrRemoveObject must empty a seer hut's quest, not remove the hut";
 	EXPECT_EQ(findSeerHut(), hut) << "the seer hut object itself must remain on the map";
+}
+
+TEST_F(MapScriptTest, playerOwnsTownResolvesObjectByName)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.randomTown({10, 10, 0}, PLAYER)
+		.withScript(PREDICATE_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGTownInstance * town = findTown();
+	CGHeroInstance * hero = findHero();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(town, nullptr) << "the built map has no town";
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(town->getOwner(), PLAYER);
+
+	const int baseGold = gold();
+	dispatcher->onObjectVisit(*gameEventCallback, "checkOwnsTown", town, hero);
+	EXPECT_EQ(gold(), baseGold + 100) << "playerOwnsTown must resolve the town by name and see PLAYER owns it";
+}
+
+TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.monster({10, 10, 0}, CreatureID(0), 10)
+		.withScript(PREDICATE_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGObjectInstance * monster = findMonster();
+	CGHeroInstance * hero = findHero();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(monster, nullptr) << "the built map has no monster";
+	ASSERT_NE(hero, nullptr);
+
+	const int baseGold = gold();
+
+	// Not defeated yet -> false branch grants 5 gold.
+	dispatcher->onObjectVisit(*gameEventCallback, "checkDefeatedMonster", monster, hero);
+	EXPECT_EQ(gold(), baseGold + 5) << "an undefeated monster must read as not-defeated";
+
+	// Record the defeat and fire again -> true branch grants 100 gold.
+	gameState->players.at(PLAYER).destroyedObjects.insert(monster->id);
+	dispatcher->onObjectVisit(*gameEventCallback, "checkDefeatedMonster", monster, hero);
+	EXPECT_EQ(gold(), baseGold + 5 + 100) << "a monster in the player's destroyedObjects must read as defeated";
+}
+
+TEST_F(MapScriptTest, compareDifficultyReturnsSignedDifference)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.withScript(PREDICATE_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGHeroInstance * hero = findHero();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	const int baseGems = gems();
+	// startWithMap sets difficulty 0, so compareDifficulty(0) == 0 and the branch grants a gem.
+	dispatcher->onObjectVisit(*gameEventCallback, "checkDifficulty", hero, hero);
+	EXPECT_EQ(gems(), baseGems + 1) << "compareDifficulty(reference) must return current difficulty minus reference";
+}
+
+TEST_F(MapScriptTest, grantPointsRespectMode)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.withScript(GRANT_POINTS_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGHeroInstance * hero = findHero();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	const int baseMana = hero->mana;
+	const int baseMove = hero->movementPointsRemaining();
+
+	dispatcher->onObjectVisit(*gameEventCallback, "grantPoints", hero, hero);
+
+	ASSERT_EQ(gameEventCallback->manaPointsSet.size(), 2u);
+	EXPECT_EQ(gameEventCallback->manaPointsSet[0].second, baseMana + 5) << "mode 0 adds to the current mana";
+	EXPECT_EQ(gameEventCallback->manaPointsSet[1].second, 3)            << "mode 2 sets the total directly";
+	ASSERT_EQ(gameEventCallback->movePointsSet.size(), 1u);
+	EXPECT_EQ(gameEventCallback->movePointsSet[0].second, baseMove + 100) << "mode 0 adds to the current movement";
+}
+
+TEST_F(MapScriptTest, constructBuildingErectsForFree)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.randomTown({10, 10, 0}, PLAYER)
+		.withScript(CONSTRUCT_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGTownInstance * town = findTown();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(town, nullptr);
+
+	dispatcher->onTownTurnStart(*gameEventCallback, "buildIt", town);
+
+	ASSERT_EQ(gameEventCallback->builtStructures.size(), 1u) << "constructBuilding must forward one build request";
+	EXPECT_EQ(gameEventCallback->builtStructures[0].first, town->id);
+	EXPECT_EQ(gameEventCallback->builtStructures[0].second, BuildingID(0));
+}
+
+TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.name("MapScriptTest")
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
+		.randomTown({10, 10, 0}, PLAYER)
+		.withScript(HIRE_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState->getMapEventDispatcher();
+	CGTownInstance * town = findTown();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_FALSE(town->creatures.empty());
+
+	const int base = town->creatures[0].first;
+
+	dispatcher->onTownTurnStart(*gameEventCallback, "hire", town);
+
+	EXPECT_EQ(town->creatures[0].first, base + 7) << "grantCreaturesToHire adds to the town's tier-0 pool";
 }

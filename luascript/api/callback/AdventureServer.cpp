@@ -21,6 +21,7 @@
 #include "../../../lib/json/JsonNode.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
+#include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapObjects/army/CArmedInstance.h"
 #include "../../../lib/mapObjects/army/CCreatureSet.h"
@@ -204,6 +205,33 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Gives a hero a temporary luck bonus that lasts until the end of the hero's next battle. "
 		"Repeated calls each add another separate bonus rather than replacing the previous one.");
+	R.function<&AdventureServerProxy::grantSpellPoints>("grantSpellPoints",
+		{
+			{"hero",   "Hero whose spell points change."},
+			{"amount", "Spell points involved in the change."},
+			{"mode",   "0 adds the amount, 1 subtracts it (clamped at zero), 2 sets the total to the amount."}
+		}, {},
+		"Changes a hero's remaining spell points. The mode selects whether the amount is added, subtracted or set as the new total.");
+	R.function<&AdventureServerProxy::grantMovementPoints>("grantMovementPoints",
+		{
+			{"hero",   "Hero whose movement points change."},
+			{"amount", "Movement points involved in the change."},
+			{"mode",   "0 adds the amount, 1 subtracts it (clamped at zero), 2 sets the total to the amount."}
+		}, {},
+		"Changes a hero's remaining movement points for the current turn. The mode selects whether the amount is added, subtracted or set.");
+	R.function<&AdventureServerProxy::grantCreaturesToHire>("grantCreaturesToHire",
+		{
+			{"town",  "Town whose pool of creatures available to hire changes."},
+			{"level", "Creature tier (0-7) whose available pool is modified."},
+			{"count", "How many extra creatures become available to hire at that tier. Use a negative number to reduce the pool; it is clamped at zero."}
+		}, {},
+		"Changes the number of creatures available to hire at one tier of a town on the map.");
+	R.function<&AdventureServerProxy::constructBuilding>("constructBuilding",
+		{
+			{"town",     "Town that gains the building."},
+			{"building", "Identifier of the building to erect."}
+		}, {},
+		"Erects a building in a town for free, ignoring the usual cost and prerequisites.");
 	R.function<&AdventureServerProxy::showMessage>("showMessage",
 		{
 			{"player",     "Player who should see the message. Other players see nothing."},
@@ -400,6 +428,50 @@ void AdventureServerProxy::grantLuck(IGameEventCallback & object, const CGHeroIn
 	Bonus bonus(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OTHER, amount, BonusSourceID());
 	GiveBonus gb(GiveBonus::ETarget::OBJECT, hero.id, bonus);
 	object.giveHeroBonus(&gb);
+}
+
+void AdventureServerProxy::grantSpellPoints(IGameEventCallback & object, const CGHeroInstance & hero, int amount, int mode)
+{
+	int result = amount; // mode 2: set the total directly
+	if(mode == 0)
+		result = hero.mana + amount;
+	else if(mode == 1)
+		result = std::max(0, hero.mana - amount);
+
+	object.setManaPoints(hero.id, result);
+}
+
+void AdventureServerProxy::grantMovementPoints(IGameEventCallback & object, const CGHeroInstance & hero, int amount, int mode)
+{
+	int current = hero.movementPointsRemaining();
+	int result = amount; // mode 2: set the total directly
+	if(mode == 0)
+		result = current + amount;
+	else if(mode == 1)
+		result = std::max(0, current - amount);
+
+	object.setMovePoints(hero.id, result);
+}
+
+void AdventureServerProxy::grantCreaturesToHire(IGameEventCallback & object, const CGTownInstance & town, int level, int count)
+{
+	if(level < 0 || level >= static_cast<int>(town.creatures.size()))
+	{
+		logScript->error("grantCreaturesToHire: town '%s' has no creature tier %d", town.getObjectName(), level);
+		return;
+	}
+
+	SetAvailableCreatures pack;
+	pack.tid = town.id;
+	pack.creatures = town.creatures;
+	pack.creatures[level].first = std::max(0, static_cast<int>(pack.creatures[level].first) + count);
+
+	object.sendAndApply(pack);
+}
+
+void AdventureServerProxy::constructBuilding(IGameEventCallback & object, const CGTownInstance & town, BuildingID building)
+{
+	object.buildStructureForced(town.id, building);
 }
 
 void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,

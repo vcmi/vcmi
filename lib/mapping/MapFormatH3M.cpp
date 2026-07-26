@@ -99,6 +99,7 @@ void CMapLoaderH3M::init()
 	readObjects();
 	readEvents();
 	readSiblingScript();
+	finalizeScriptObjectTable();
 
 	map->calculateGuardingGreaturePositions();
 	afterRead();
@@ -784,6 +785,7 @@ void CMapLoaderH3M::readHotaScripts()
 
 	map->scriptSource = result.luaSource;
 	map->scriptVariableDefinitions = std::move(result.variables);
+	scriptReferencedObjects = std::move(result.referencedObjects);
 
 	dumpMapScript(map->scriptSource);
 }
@@ -797,6 +799,47 @@ void CMapLoaderH3M::readSiblingScript()
 
 	auto rawData = loader->load(scriptPath)->readAll();
 	map->scriptSource = std::string(reinterpret_cast<char *>(rawData.first.get()), rawData.second);
+	scriptReferencedObjects.clear(); // the external script does not use the generated lookup table
+}
+
+void CMapLoaderH3M::finalizeScriptObjectTable()
+{
+	if(scriptReferencedObjects.empty())
+		return;
+
+	std::string table = "local questObjects = {\n";
+	for(uint32_t identifier : scriptReferencedObjects)
+	{
+		std::string name;
+
+		auto it = questIdentifierToId.find(identifier);
+		if(it != questIdentifierToId.end())
+			name = map->objects.at(it->second.getNum())->instanceName;
+		else
+		{
+			// towns keep their H3M identifier on the object itself, not in questIdentifierToId
+			for(const auto & object : map->objects)
+			{
+				const auto * town = dynamic_cast<const CGTownInstance *>(object.get());
+				if(town && town->identifier == identifier)
+				{
+					name = town->instanceName;
+					break;
+				}
+			}
+		}
+
+		char hex[9];
+		std::snprintf(hex, sizeof(hex), "%08x", identifier);
+		if(name.empty())
+			logGlobal->warn("Map '%s': script references unknown object identifier %d", mapName, identifier);
+
+		// unresolved ids map to "" so predicates read them as "no such object" rather than erroring
+		table += std::string("\t[\"") + hex + "\"] = \"" + name + "\",\n";
+	}
+	table += "}\n\n";
+
+	map->scriptSource = table + map->scriptSource;
 }
 
 void CMapLoaderH3M::dumpMapScript(const std::string & luaSource)

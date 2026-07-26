@@ -252,6 +252,15 @@ end
 )lua";
 }
 
+std::string HotaScriptConverter::questObjectRef(uint32_t identifier)
+{
+	referencedObjects.insert(identifier);
+
+	char hex[9];
+	std::snprintf(hex, sizeof(hex), "%08x", identifier);
+	return std::string("questObjects[\"") + hex + "\"]";
+}
+
 HotaScriptConverter::HotaScriptConverter(MapReaderH3M & reader, std::string mapName, LocalizeCallback localizeString)
 	: reader(reader)
 	, mapName(std::move(mapName))
@@ -298,6 +307,7 @@ HotaScriptConversionResult HotaScriptConverter::convert()
 	HotaScriptConversionResult result;
 	result.luaSource = std::move(source);
 	result.variables = std::move(variables);
+	result.referencedObjects = std::move(referencedObjects);
 	return result;
 }
 
@@ -627,11 +637,11 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::CREATURES_TO_HIRE:
 			{
-				int dwelling = reader.readInt32();
+				uint32_t level = reader.readUInt32(); // creature tier 0-7 within the town this script runs on
 				std::string amount = loadExpression();
 				int unknown = reader.readInt32(); // TBD: possibly factory 8th dwelling marker
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantCreaturesToHire(" + num(dwelling) + ", " + amount + ") -- unknown=" + num(unknown) + "\n";
+				result += pad + "server:grantCreaturesToHire(town, " + num(static_cast<int>(level)) + ", " + amount + ") -- unknown=" + num(unknown) + "\n";
 				break;
 			}
 			case HotaScriptActions::CONSTRUCT_BUILDING:
@@ -773,8 +783,10 @@ std::string HotaScriptConverter::loadConditionInternal()
 		case HotaScriptCondition::HERO_OWNER:
 		{
 			HeroTypeID hero = reader.readHero32();
+			// TODO: the -2 ("current hero") sentinel is treated as the event's own player by
+			// resolvePlayer; verify whether HotA means the hero's owner or something else here.
 			PlayerColor conditionPlayer = reader.readPlayer32(); // -2 = current hero, -1 = current player
-			return "game:heroOwner(" + entityKey(hero) + ", " + num(conditionPlayer.getNum()) + ")";
+			return "game:heroOwner(" + entityKey(hero) + ", resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
 		}
 		case HotaScriptCondition::HERO_SECONDARY_SKILL:
 		{
@@ -787,36 +799,36 @@ std::string HotaScriptConverter::loadConditionInternal()
 		case HotaScriptCondition::PLAYER_DEFEATED:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			return "game:playerDefeated(" + num(conditionPlayer.getNum()) + ")";
+			return "game:playerDefeated(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
 		}
 		case HotaScriptCondition::PLAYER_IS_HUMAN:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			return "game:playerIsHuman(" + num(conditionPlayer.getNum()) + ")";
+			return "game:playerIsHuman(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player))";
 		}
 		case HotaScriptCondition::PLAYER_STARTING_FACTION:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			FactionID faction = reader.readFaction32();
-			return "game:playerStartingFaction(" + num(conditionPlayer.getNum()) + ", " + entityKey(faction) + ")";
+			return "game:playerStartingFaction(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + entityKey(faction) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			int targetObjectID = reader.readInt32();
-			return "game:playerDefeatedMonster(" + num(conditionPlayer.getNum()) + ", " + num(targetObjectID) + ")";
+			uint32_t targetObjectID = reader.readUInt32();
+			return "game:playerDefeatedMonster(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			int targetObjectID = reader.readInt32();
-			return "game:playerDefeatedHero(" + num(conditionPlayer.getNum()) + ", " + num(targetObjectID) + ")";
+			uint32_t targetObjectID = reader.readUInt32();
+			return "game:playerDefeatedHero(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_OWNS_TOWN:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
-			int targetObjectID = reader.readInt32();
-			return "game:playerOwnsTown(" + num(conditionPlayer.getNum()) + ", " + num(targetObjectID) + ")";
+			uint32_t targetObjectID = reader.readUInt32();
+			return "game:playerOwnsTown(resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		default:
 			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));

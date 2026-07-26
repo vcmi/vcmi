@@ -2177,6 +2177,11 @@ bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 	return true;
 }
 
+void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID building)
+{
+	buildStructure(townID, building, true);
+}
+
 bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)
 {
 	const CGTownInstance * t = gameInfo().getTown(tid);

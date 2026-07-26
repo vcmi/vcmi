@@ -43,6 +43,16 @@ public:
 	static bool playerDefeated(const GameCb & object, PlayerColor player);
 	static bool playerStartingFaction(const GameCb & object, PlayerColor player, FactionID faction);
 	static bool wasQuestProposed(const GameCb & object, const CGObjectInstance & target, PlayerColor player);
+	static bool heroOwner(const GameCb & object, HeroTypeID hero, PlayerColor player);
+	static bool playerOwnsTown(const GameCb & object, PlayerColor player, const std::string & objectName);
+	static bool playerDefeatedMonster(const GameCb & object, PlayerColor player, const std::string & objectName);
+	static bool playerDefeatedHero(const GameCb & object, PlayerColor player, const std::string & objectName);
+	static int compareDifficulty(const GameCb & object, int reference);
+	static const CGObjectInstance * getObjectByName(const GameCb & object, const std::string & objectName);
+
+private:
+	/// Resolves a map object by its instance name, or nullptr when the name is empty or unknown.
+	static const CGObjectInstance * objectByName(const GameCb & object, const std::string & objectName);
 };
 
 }

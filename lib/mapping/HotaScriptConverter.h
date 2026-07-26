@@ -10,7 +10,9 @@
 
 #pragma once
 
+#include <cstdint>
 #include <functional>
+#include <set>
 #include <string>
 
 #include "../scripting/ScriptVariablesStorage.h"
@@ -24,6 +26,11 @@ struct HotaScriptConversionResult
 {
 	std::string luaSource;
 	std::vector<ScriptVariableDeclaration> variables;
+
+	/// H3M per-object identifiers the script references (owns-town / defeated-object predicates and
+	/// creatures-to-hire). The loader resolves these to object instance names after the map's objects
+	/// are read and prepends the `questObjects` lookup table to the script.
+	std::set<uint32_t> referencedObjects;
 };
 
 /// Converts the HotA (Horn of the Abyss) event-scripting bytecode embedded in a
@@ -58,6 +65,9 @@ private:
 	// declarations collected while parsing, used to seed and persist the engine-side variables
 	std::vector<ScriptVariableDeclaration> variables;
 
+	// H3M object identifiers referenced by object-identity predicates, resolved to names by the loader
+	std::set<uint32_t> referencedObjects;
+
 	std::string loadEventList(const std::string & bucket);
 	std::string loadVariables(); // reads declarations, returns the `Vars` id->name Lua table
 	void loadEventMap();
@@ -70,4 +80,8 @@ private:
 
 	std::string loadImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns its identifier as a quoted Lua literal
+
+	/// Records an H3M object identifier and returns the Lua expression that looks up its runtime
+	/// object name in the loader-populated `questObjects` table.
+	std::string questObjectRef(uint32_t identifier);
 };
