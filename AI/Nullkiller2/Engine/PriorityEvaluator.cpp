@@ -855,9 +855,11 @@ public:
 			{
 				switch(obj->ID.num)
 				{
+					case Obj::BOAT:
 					case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 					case Obj::MONOLITH_TWO_WAY:
 					case Obj::SUBTERRANEAN_GATE:
+					case Obj::WHIRLPOOL:
 						evaluationContext.explorePriority = 1;
 						break;
 					case Obj::REDWOOD_OBSERVATORY:
@@ -865,7 +867,8 @@ public:
 						evaluationContext.explorePriority = 2;
 						break;
 					default:
-						logAi->warn("ExplorePointEvaluator buildEvaluationContext unknown exploration point %d", obj->ID.num);
+						// Generic frontier tiles may contain objects that do not affect exploration priority.
+						break;
 				}
 			}
 
